@@ -68,6 +68,7 @@ game's data and rules can be carried across:
 - [Portable data](data/README.md): the core's tables as JSON with schemas, the terrain as Landscape rasters, and
   tables shaped for Unreal's importers.
 - [The asset manifest](data/assets/README.md): every model, texture and sound with its source, licence and a plan.
+- [The Unreal project seed](unreal/README.md): a source-only C++ project mirroring the data types. Not yet compiled.
 - [Porting notes](docs/unreal/README.md): how each system maps to Unreal, conventions, the engine's web target and a
   phased roadmap.
 

@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 /** Folders and files whose links are checked. */
-const CHECKED = ['README.md', 'CONTRIBUTING.md', 'docs/README.md', 'docs/unreal', 'data', 'src/core/README.md'];
+const CHECKED = ['README.md', 'CONTRIBUTING.md', 'docs/README.md', 'docs/unreal', 'data', 'unreal', 'src/core/README.md'];
 
 function markdown(path: string): string[] {
   const absolute = join(root, path);
@@ -30,7 +30,7 @@ describe('links in the current documents', () => {
 
   it('covers the documents that describe the repository', () => {
     expect(files).toContain('README.md');
-    for (const expected of ['docs/unreal/README.md', 'docs/unreal/system-mapping.md', 'docs/unreal/conventions.md', 'docs/unreal/web-target.md', 'docs/unreal/roadmap.md', 'data/README.md', 'data/assets/README.md', 'src/core/README.md']) expect(files).toContain(expected);
+    for (const expected of ['docs/unreal/README.md', 'docs/unreal/system-mapping.md', 'docs/unreal/conventions.md', 'docs/unreal/web-target.md', 'docs/unreal/roadmap.md', 'data/README.md', 'data/assets/README.md', 'unreal/README.md', 'src/core/README.md']) expect(files).toContain(expected);
   });
 
   it('all point at files that exist', () => {
