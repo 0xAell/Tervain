@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { NearFade } from './nearFade';
+import { BOW } from '../core/rules/bow';
 
 /** A pointed, feathered wooden arrow. Its local +Z is the direction of flight; the tip is the origin. */
 export function createHuntingArrow(): THREE.Group {
@@ -61,7 +62,7 @@ export interface ArrowShot {
 
 /** Return the earliest scenery/animal contact on the entire travelled segment, or null. */
 export type ArrowSweep = (from: THREE.Vector3, to: THREE.Vector3, shot: ArrowShot) => ArrowImpact | null;
-export const HUNTING_ARROW_GRAVITY = 9.81;
+export const HUNTING_ARROW_GRAVITY = BOW.gravity;
 const _quiver = new THREE.Quaternion();
 
 /** Water an arrow can fall into: its surface and current, and what happens as an arrow breaks the surface. */
@@ -70,9 +71,9 @@ export interface ArrowWater {
   enter(point: THREE.Vector3, speed: number): void;
 }
 /** In water an arrow loses speed within a few tenths of a second; slower than this it floats up and drifts. */
-const ARROW_WATER_DRAG = 9;
-const ARROW_FLOAT_SPEED = 1.2;
-const ARROW_FLOAT_SECONDS = 30;
+const ARROW_WATER_DRAG = BOW.waterDrag;
+const ARROW_FLOAT_SPEED = BOW.floatSpeed;
+const ARROW_FLOAT_SECONDS = BOW.floatSeconds;
 
 /** Presentation-owned flights. Gameplay resolves swept contacts and ammunition separately. */
 export class HuntingArrows {
@@ -89,7 +90,7 @@ export class HuntingArrows {
   private readonly forwardAxis = new THREE.Vector3(0, 0, 1);
   private readonly orientationDirection = new THREE.Vector3();
 
-  constructor(private readonly maxFlights = 12, private readonly maxLodged = 24) {
+  constructor(private readonly maxFlights: number = BOW.maxFlights, private readonly maxLodged: number = BOW.maxLodged) {
     this.group.name = 'Hunting / swept arrow flights';
   }
 
@@ -145,13 +146,13 @@ export class HuntingArrows {
         const launchWater = water.sample(shot.position.x, shot.position.z);
         if (launchWater && shot.position.y < launchWater.surface) shot.wet = true;
       }
-      let remaining = Math.min(dt, Math.max(0, 7 - shot.age));
+      let remaining = Math.min(dt, Math.max(0, BOW.flightSeconds - shot.age));
       let hit = false;
       while (remaining > 1e-8) {
         const step = Math.min(remaining, 1 / 120);
         const from = shot.position.clone();
         const to = from.clone().addScaledVector(shot.velocity, step);
-        const gravity = shot.wet ? HUNTING_ARROW_GRAVITY * 0.25 : HUNTING_ARROW_GRAVITY;
+        const gravity = shot.wet ? HUNTING_ARROW_GRAVITY * BOW.waterGravity : HUNTING_ARROW_GRAVITY;
         to.y -= .5 * gravity * step * step;
         const impact = sweep(from, to, shot);
         // Breaking the surface: a splash, and from then on the water's drag. Not when the arrow struck something first,
@@ -197,7 +198,7 @@ export class HuntingArrows {
         }
       }
       if (hit) this.flights.splice(i, 1);
-      else if (shot.age >= 7) { this.remove(shot.mesh); this.flights.splice(i, 1); }
+      else if (shot.age >= BOW.flightSeconds) { this.remove(shot.mesh); this.flights.splice(i, 1); }
       else {
         shot.mesh.position.copy(shot.position); this.orient(shot.mesh, shot.velocity);
         // Up to ~3 m behind a full-speed arrow, nothing once it slows, never longer than the path it has flown.

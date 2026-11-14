@@ -19,6 +19,7 @@ import { AnimalHunting, type HuntingAnimal } from './animals/hunting/adapter';
 import type { AnimalArrowHit } from './animals/hunting/hit';
 import { WILDLIFE_RETURN_DISTANCE, type AnimalId, type HuntingState } from '../core/game/hunting';
 import { finishCooperatively, type CooperativeOptions } from '../platform/cooperative';
+import { NIGHT } from '../core/rules/dayNight';
 
 export { ANIMALS, ANIMAL_TRIANGLE_LIMIT } from '../core/content/animals';
 export type AnimalTemplates = ReadonlyMap<string, GLTF>;
@@ -799,7 +800,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
             // Not in its sleep (A96 scout: the cat woke to call whenever its timer ran out at night).
             enter(animal, 'Call'); animal.callIn = 35 + animal.rng() * 40;
           } else if (animal.rest <= 0 && ['Idle', 'Graze', 'Sleep'].includes(animal.state)) {
-            if (animal.definition.seated) { enter(animal, frame.nightness > 0.7 && animal.rng() < 0.55 ? 'Sleep' : 'Groom'); animal.rest = 9 + animal.rng() * 14; }
+            if (animal.definition.seated) { enter(animal, frame.nightness > NIGHT.catSleeps && animal.rng() < 0.55 ? 'Sleep' : 'Groom'); animal.rest = 9 + animal.rng() * 14; }
             else if (!goal(animal, frame.focus, false)) animal.rest = 4 + animal.rng() * 5;
           }
         }

@@ -4,13 +4,14 @@ import type { Terrain } from '../core/world/terrain';
 import { BUILDINGS, LIGHTHOUSE, PLACES } from '../core/world/layout';
 import { CAMERA_CLEARANCE, cameraColliderEntry } from '../core/rules/cameraObstruction';
 import { RIDE_CAMERA } from '../core/rules/riding';
+import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../core/rules/camera';
 import { crownBoom, type CameraCrown } from '../core/rules/cameraCrowns';
 
-const MAX_RECOIL = 0.04;
+const MAX_RECOIL = CAMERA.maxRecoil;
 /** Inside a room the lens stays this far under the wall top (the tie beams and rafters), never floating up among them. */
-export const CEILING_CLEARANCE = 0.8;
+export const CEILING_CLEARANCE = ROOM_CAMERA.ceilingClearance;
 /** The hero is inside a room from this far outside its footprint, and stays so until this far; the camera's own hold is 0.6. */
-const ROOM_ENTER = 0.5, ROOM_LEAVE = 1.2, ROOM_CAMERA_HOLD = 0.6;
+const ROOM_ENTER = ROOM_CAMERA.enter, ROOM_LEAVE = ROOM_CAMERA.leave, ROOM_CAMERA_HOLD = ROOM_CAMERA.hold;
 const isRoof = (c: Collider) => c.id.endsWith(':roof') || c.id === 'archive_roof';
 
 /** A point in a box collider's own frame (x along its width, z along its depth). */
@@ -31,18 +32,17 @@ function obstacleHeight(c: Collider): number {
  * A stable third-person camera. Obstruction shortens the boom immediately but lets it
  * lengthen slowly, so it never oscillates against an edge or fights the input.
  */
-/** The aim view (B11): boom length, shift to the screen's right and lift of the pivot, in metres. */
-export const AIM_VIEW = { boom: 2.3, right: 1.0, up: 0.3 };
+export { AIM_VIEW };
 
 export class CameraRig {
-  readonly camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1400);
+  readonly camera = new THREE.PerspectiveCamera(CAMERA.fov, 1, CAMERA.near, CAMERA.far);
   yaw = 0;
-  pitch = 0.32;
+  pitch: number = CAMERA.pitch;
   /** A little more room for the road and construction around the figure, without automatic zoom or bob. */
-  wantDist = 6.2;
+  wantDist: number = CAMERA.distance;
   /** The tree crowns near a point, kept out of by the follow camera (A82); none when unset. */
   crowns: ((x: number, z: number, r: number) => readonly CameraCrown[]) | null = null;
-  private curDist = 6.2;
+  private curDist: number = CAMERA.distance;
   /** 0 in the open .. 1 in a room: eases the view down under the ceiling and back out again (B12). */
   interiorBlend = 0;
   private interiorRoof: string | null = null;
@@ -129,11 +129,11 @@ export class CameraRig {
     if (Number.isFinite(dyaw)) this.yaw = Math.atan2(Math.sin(this.yaw + dyaw), Math.cos(this.yaw + dyaw));
     // Let players look up at the lighthouse and tree crowns instead of stopping only nine degrees above level.
     // The same swept boom clearance still keeps low camera angles outside terrain and scenery.
-    if (Number.isFinite(dpitch)) this.pitch = Math.max(-0.65, Math.min(1.25, this.pitch + dpitch));
-    if (Number.isFinite(zoom) && zoom !== 0) this.wantDist = Math.max(2.6, Math.min(9, this.wantDist + zoom * 0.004));
+    if (Number.isFinite(dpitch)) this.pitch = Math.max(CAMERA.minPitch, Math.min(CAMERA.maxPitch, this.pitch + dpitch));
+    if (Number.isFinite(zoom) && zoom !== 0) this.wantDist = Math.max(CAMERA.minDistance, Math.min(CAMERA.maxDistance, this.wantDist + zoom * CAMERA.zoomRate));
   }
 
-  follow(dt: number, px: number, py: number, pz: number, terrain: Pick<Terrain, 'groundAt'>, colliders: Colliders, reducedMotion: boolean, shake: number, heightOffset = 1.55) {
+  follow(dt: number, px: number, py: number, pz: number, terrain: Pick<Terrain, 'groundAt'>, colliders: Colliders, reducedMotion: boolean, shake: number, heightOffset: number = CAMERA.pivotHeight) {
     if (this.manual) {
       this.camera.position.copy(this.manual.p);
       this.camera.lookAt(this.manual.look);
@@ -147,8 +147,8 @@ export class CameraRig {
     this.target.set(px, py + heightOffset + lift, pz);
     // Reduced motion eases the pivot's height more gently, never not at all: unfiltered, every stair edge and swim bob
     // jolted the view (A104 scout).
-    const k = reducedMotion ? 1 : 1 - Math.exp(-Math.max(0, dt) * 18);
-    const kHeight = 1 - Math.exp(-Math.max(0, dt) * (reducedMotion ? 10 : 18));
+    const k = reducedMotion ? 1 : 1 - Math.exp(-Math.max(0, dt) * CAMERA.follow);
+    const kHeight = 1 - Math.exp(-Math.max(0, dt) * (reducedMotion ? CAMERA.followHeightReduced : CAMERA.follow));
     if (!this.initialized || this.smoothTarget.distanceToSquared(this.target) > 100) {
       this.smoothTarget.copy(this.target);
       this.initialized = true;

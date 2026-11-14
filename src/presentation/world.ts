@@ -63,6 +63,7 @@ import { REALM_WIND } from '../core/world/wind';
 import { FoliageMoverSelection } from './foliage/movers';
 import { createFoliageField, expireFoliageShakes, type FoliageField } from './foliage/foliageWind';
 import { installShadowOnlyGroup } from './foliage/shadowCasters';
+import { NIGHT } from '../core/rules/dayNight';
 
 export interface WorldBuildProgress {
   phase: 'models' | 'textures' | 'terrain' | 'woodland' | 'settlement' | 'physics' | 'navigation' | 'finishing';
@@ -747,7 +748,7 @@ export class WorldScene {
       const l = this.lanternLights[k]!;
       const slot = slots[k]!;
       if (slot.source !== null) l.position.copy(ls[slot.source]!);
-      l.intensity = 14 * Math.max(0, night - 0.15) * slot.strength;
+      l.intensity = 14 * Math.max(0, night - NIGHT.lanterns) * slot.strength;
     }
 
     // Mill wheel turns when the allocation gives the mill water.

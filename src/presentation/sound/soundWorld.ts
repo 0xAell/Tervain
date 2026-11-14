@@ -12,6 +12,7 @@ import {
 import { VOICE_AUDIO, type VoiceBank, type VoiceLineId } from './voiceManifest';
 import { WORLD_AUDIO, type LoopId, type MusicId, type SongId } from './worldAudioManifest';
 import type { WaterSoundState } from '../water/waterSound';
+import { NIGHT } from '../../core/rules/dayNight';
 
 /**
  * Tervain's recorded world sound at run time: one-shots placed in the world, looping beds that follow the place,
@@ -1041,7 +1042,7 @@ export class SoundWorld {
     }
     for (const p of AMBIENT_PEOPLE_SOUND) {
       const d = Math.hypot(p.x - l.x, p.z - l.z);
-      if (d > 30 || (p.sleeps && frame.world.nightness > 0.75)) continue;
+      if (d > 30 || (p.sleeps && frame.world.nightness > NIGHT.sleepers)) continue;
       const s = this.clockFor(p.id, p.x, p.z);
       const at = { x: p.x, y: 1, z: p.z };
       this.workTick(s, p.work, dt, at);
@@ -1331,7 +1332,7 @@ export class SoundWorld {
       active: !!frame && frame.mode !== 'dead',
       x: frame?.player.x ?? 0,
       z: frame?.player.z ?? 0,
-      night: (frame?.world.nightness ?? 0) > 0.55,
+      night: (frame?.world.nightness ?? 0) > NIGHT.music,
       diegetic: this.songLevel > 0.15,
       // The actual media clock owns the end: buffering or autoplay rejection consumes no unheard piece.
       // A piece that could not start (no Audio) or whose last format failed to load never ends: count it as done (A71).

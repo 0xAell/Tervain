@@ -11,27 +11,21 @@ import type { WorldScene } from './world';
 import type { Hud } from './ui/hud';
 import { HuntingArrows, HUNTING_ARROW_GRAVITY, type ArrowImpact, type ArrowShot } from './huntingArrow';
 import type { AnimalArrowHit } from './animals/hunting/hit';
+import { arrowLaunchDirection, BOW } from '../core/rules/bow';
 
 interface HuntingHost {
   game: Game; input: Input; player: Player; world: WorldScene; cam: CameraRig;
   audio: AudioEngine; hud: Hud; settings: Settings;
 }
 interface HuntingImpact extends ArrowImpact { animal?: AnimalArrowHit; treeId?: string; expired?: boolean }
-const SPEED = 65;
-const DRAW_SECONDS = .7;
+const SPEED = BOW.arrowSpeed;
+const DRAW_SECONDS = BOW.drawSeconds;
 const center = new THREE.Vector2();
 
 /** The low ballistic arc through the reticle target. Damage is independent of draw time. */
 export function arrowDirection(origin: THREE.Vector3, target: THREE.Vector3, speed = SPEED): THREE.Vector3 {
-  const delta = target.clone().sub(origin), horizontal = Math.hypot(delta.x, delta.z);
-  if (horizontal < .01) return delta.normalize();
-  const speedSquared = speed * speed;
-  const discriminant = speedSquared * speedSquared - HUNTING_ARROW_GRAVITY *
-    (HUNTING_ARROW_GRAVITY * horizontal * horizontal + 2 * delta.y * speedSquared);
-  if (discriminant < 0) return delta.normalize();
-  const tangent = (speedSquared - Math.sqrt(discriminant)) / (HUNTING_ARROW_GRAVITY * horizontal);
-  const cosine = 1 / Math.sqrt(1 + tangent * tangent);
-  return new THREE.Vector3(delta.x / horizontal * cosine, tangent * cosine, delta.z / horizontal * cosine);
+  const d = arrowLaunchDirection(target.x - origin.x, target.y - origin.y, target.z - origin.z, speed, HUNTING_ARROW_GRAVITY);
+  return new THREE.Vector3(d.x, d.y, d.z);
 }
 
 /** Transient input, flight and skinning presentation; durable hunting facts remain in Game commands. */

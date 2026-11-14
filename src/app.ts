@@ -71,6 +71,10 @@ import { WaterRenderPass } from './presentation/waterRenderPass';
 import { installDepthOnlyShadowPass } from './presentation/softShadows';
 import { setHighLodBands, setHighLodSpecies } from './presentation/floraPopulation';
 import type { CircleCollider } from './core/world/colliders';
+import { isNightHour } from './core/rules/dayNight';
+import { AUTOSAVE_SECONDS, bellGain, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, HIT_STOP, noThreatNear, OVERHEAR_REACH, SPEECH_SOON_REACH, UNDER_WORLD, WOUNDED_BELOW } from './core/rules/journey';
+import { STAMINA_MAX } from './core/rules/hero';
+import { CAMERA } from './core/rules/camera';
 
 /** How far round the line from the camera to the wanderer leaves give way (A84), metres. */
 const FOLIAGE_FOCUS_RADIUS = 1.3;
@@ -182,7 +186,7 @@ export class App {
   private audioClock = 0;
   private readonly listenerForward = new THREE.Vector3();
   private archiveWasOccupied = false;
-  private autosaveTimer = 90;
+  private autosaveTimer: number = AUTOSAVE_SECONDS;
   private bubbleState = new Map<string, { text: string; until: number }>();
   /** Spoken lines: exchanges with people and the hero's own remarks (A53). */
   private readonly speech = new SpeechDirector({
@@ -1072,7 +1076,7 @@ export class App {
     this.bellClock = 3;
     // A fresh session waits a full interval: the last session's leftover countdown would otherwise autosave a just-loaded
     // older slot over the newer auto slot within a second (A71).
-    this.autosaveTimer = 90;
+    this.autosaveTimer = AUTOSAVE_SECONDS;
     if (fromLoad?.recovered) this.hud.toast(S(`menu.recovered.${fromLoad.recovered}`));
     if (this.settings.reducedMotion) this.hud.setVignette(0);
     this.canvas.focus?.({ preventScroll: true });
@@ -1136,9 +1140,9 @@ export class App {
    */
   private recoverFromUnderWorld(dt: number) {
     const p = this.player, terrain = this.world.terrain;
-    const below = !p.swimming && !this.world.playerInArchive && !p.mount && p.y < terrain.groundAt(p.x, p.z) - 1.2;
+    const below = !p.swimming && !this.world.playerInArchive && !p.mount && p.y < terrain.groundAt(p.x, p.z) - UNDER_WORLD.depth;
     this.underWorld = below ? this.underWorld + dt : 0;
-    if (this.underWorld < 0.35) return;
+    if (this.underWorld < UNDER_WORLD.seconds) return;
     this.underWorld = 0;
     const safe = this.safePosition(p.x, p.z);
     p.setPosition(safe.x, safe.z, p.yaw, terrain, safe.y);
@@ -1368,7 +1372,7 @@ export class App {
     if (playing) {
       this.autosaveTimer -= dt;
       if (this.autosaveTimer <= 0) {
-        this.autosaveTimer = 90;
+        this.autosaveTimer = AUTOSAVE_SECONDS;
         this.autosaveQuiet();
       }
       this.game.addPlaySeconds(dt);
@@ -1400,7 +1404,7 @@ export class App {
       this.checkDiscoveries();
     } else if (this.mode === 'dead') {
       this.player.update(dt, this.playerContext(false));
-      this.updateEnemies(dt * 0.25);
+      this.updateEnemies(dt * DEATH.foePace);
       this.deathRemaining = Math.max(0, this.deathRemaining - dt);
       if (this.deathRemaining === 0) this.respawn();
     }
@@ -1420,17 +1424,17 @@ export class App {
         this.overhear(hour);
         const state = this.game.state;
         this.speechSoon = this.npcs
-          .filter((n) => !n.hidden && Math.hypot(n.x - this.player.x, n.z - this.player.z) < 30)
+          .filter((n) => !n.hidden && Math.hypot(n.x - this.player.x, n.z - this.player.z) < SPEECH_SOON_REACH)
           .flatMap((n) => this.speech.soon(n.id, state, hour));
       }
       // Nightfall and dawn, once each, in the hero's words.
-      const night = hour >= 20 || hour < 5;
+      const night = isNightHour(hour);
       if (this.wasNight !== null && night !== this.wasNight) this.speech.hero(night ? 'night' : 'dawn', { delay: 1 });
       this.wasNight = night;
       this.updateActors(dt, hour);
       // The hero's breath gives out before he does.
       const health = this.game.state.player.health / Math.max(1, this.game.state.player.maxHealth);
-      if (health < 0.3 && this.healthFrac >= 0.3 && this.player.alive) this.speech.hero('wounded', { again: 40 });
+      if (health < WOUNDED_BELOW && this.healthFrac >= WOUNDED_BELOW && this.player.alive) this.speech.hero('wounded', { again: 40 });
       this.healthFrac = health;
     }
     if (playing && this.mode === 'play' && !hitStopped) {
@@ -1461,7 +1465,7 @@ export class App {
       this.cam.mounted = this.riding;
       // The camera keeps out of tree crowns (A82); asked of whichever world is current.
       this.cam.crowns ??= (x, z, r) => this.world?.crownsNear?.(x, z, r) ?? [];
-      this.cam.follow(dt, this.player.x, this.player.y, this.player.z, this.world.terrain, this.world.colliders, this.settings.reducedMotion, this.player.shake, 1.55 + sitting);
+      this.cam.follow(dt, this.player.x, this.player.y, this.player.z, this.world.terrain, this.world.colliders, this.settings.reducedMotion, this.player.shake, CAMERA.pivotHeight + sitting);
       this.cam.clearWater((x, z) => this.world.water.world.surfaceAt(x, z), this.player.swimming);
       // Playtest 7: pulled in against a tree, the lens must never sit inside his arm or shoulder; he dithers out first.
       const coverage = this.cam.bodyVisible ? (this.cam.manual ? 1 : heroNearCoverage(this.cam.camera.position, this.player)) : 0;
@@ -2000,10 +2004,7 @@ export class App {
   }
 
   noThreatNear(): boolean {
-    for (const e of this.enemies) {
-      if (e.alive && e.engaged && Math.hypot(e.x - this.player.x, e.z - this.player.z) < 14) return false;
-    }
-    return true;
+    return noThreatNear(this.player.x, this.player.z, this.enemies);
   }
 
   inspect(pointId: string) {
@@ -2075,10 +2076,7 @@ export class App {
     const out: NpcId[] = [];
     for (const n of this.npcs) {
       // Asleep in their beds, they see nothing (A70).
-      if (n.hidden || n.asleep || !this.game.state.npcs[n.id].available) continue;
-      if (n.id !== 'shrine_warden' && n.id !== 'spring_steward') continue;
-      const d = Math.hypot(n.x - x, n.z - z);
-      if (d > 15) continue;
+      if (!couldWitness(n.id, Math.hypot(n.x - x, n.z - z), !n.hidden, n.asleep, this.game.state.npcs[n.id].available)) continue;
       const ignore = new Set<string>();
       if (!this.world.colliders.segmentBlocked(n.x, n.z, x, z, ignore)) out.push(n.id);
     }
@@ -2338,11 +2336,10 @@ export class App {
   /** The respawn point follows the player, but never to where a living enemy would meet him again (A70). */
   private markCheckpoint() {
     const p = this.player;
-    if (this.enemies.some(e => e.alive && Math.hypot(e.x - p.x, e.z - p.z) < 18)) return;
-    // Nor beside a foe's post, whether or not its model has arrived yet (A87 scout): one not yet here is not in the list
-    // above, and it comes back to its post as the player respawns there.
+    // Not near a living foe, nor beside a foe's post, whether or not its model has arrived yet (A87 scout): one not yet
+    // here is not among the enemies, and it comes back to its post as the player respawns there.
     const defeated = this.game.state.defeated;
-    if (ENEMY_SPAWNS.some(spawn => !defeated[spawn.id] && Math.hypot(spawn.x - p.x, spawn.z - p.z) < 18)) return;
+    if (!checkpointAllowed(p.x, p.z, this.enemies.filter(e => e.alive), ENEMY_SPAWNS.filter(spawn => !defeated[spawn.id]))) return;
     this.checkpoint = { x: p.x, y: p.y, z: p.z, yaw: p.yaw };
   }
 
@@ -2370,7 +2367,7 @@ export class App {
       || s.equippedWeapon !== null
       || Object.keys(s.hunting).length > 0
       || s.mapMarker !== null
-      || s.playSeconds > 90;
+      || s.playSeconds > AUTOSAVE_SECONDS;
   }
 
   private autosaveQuiet() {
@@ -2476,7 +2473,7 @@ export class App {
       if (a.underway || b.underway) continue;
       // The quarry pair stand 24.7 m apart, yard to face, since A70 moved the face: a foreman calls across his yard (A104 scout).
       if (Math.hypot(a.x - b.x, a.z - b.z) > SCENE_REACH) continue;
-      if (Math.hypot(this.player.x - (a.x + b.x) / 2, this.player.z - (a.z + b.z) / 2) > 16) continue;
+      if (Math.hypot(this.player.x - (a.x + b.x) / 2, this.player.z - (a.z + b.z) / 2) > OVERHEAR_REACH) continue;
       const where = (id: NpcId) => {
         const p = (id === a.id ? a : b).headPosition;
         return { x: p.x, y: p.y, z: p.z };
@@ -2526,7 +2523,7 @@ export class App {
       viewYaw: this.cam.yaw,
       controllable: controllable && this.overlay === 'none',
       onHitEnemy: (e: EnemyActor, killed: boolean, heavy: boolean) => {
-        this.hitStop = heavy ? 0.07 : 0.04;
+        this.hitStop = heavy ? HIT_STOP.heavy : HIT_STOP.light;
         if (killed) this.onEnemyDefeated(e);
       },
       onHurt: (damage: number, blocked: boolean) => {
@@ -2584,16 +2581,16 @@ export class App {
     this.audio.death();
     this.mode = 'dead';
     this.hud.showFade(true, S('hud.fallen.title'), S('hud.fallen.body'));
-    this.deathRemaining = 3.6;
+    this.deathRemaining = DEATH.fadeSeconds;
     this.input.reset();
   }
 
   private respawn() {
     if (this.mode !== 'dead') return;
-    this.game.dispatch({ t: 'healPlayer', amount: 100 });
+    this.game.dispatch({ t: 'healPlayer', amount: DEATH.heal });
     const cp = this.safePosition(this.checkpoint.x, this.checkpoint.z, this.checkpoint.y);
     // Stamina first: setPosition derives the exhausted flag from it, and a hero who fell spent rises fresh (A100 scout).
-    this.player.stamina = 100;
+    this.player.stamina = STAMINA_MAX;
     this.player.setPosition(cp.x, cp.z, this.checkpoint.yaw, this.world.terrain, cp.y, cp.afloat === true);
     for (const e of this.enemies) e.reset(this.world);
     this.hud.showFade(false);
@@ -2601,7 +2598,7 @@ export class App {
     this.cam.yaw = this.checkpoint.yaw;
     this.cam.reset();
     this.hitStop = 0;
-    this.autosaveTimer = 90; // the countdown restarts with the life, as it does with a load (A71)
+    this.autosaveTimer = AUTOSAVE_SECONDS; // the countdown restarts with the life, as it does with a load (A71)
     this.input.reset();
     this.speech.hero('respawn', { delay: 1, again: 1 });
     // Escape or leaving the window during the fall could not pause a dead player; it pauses now, rather than the world
@@ -2626,7 +2623,7 @@ export class App {
     this.bellClock -= dt;
     if (this.bellClock <= 0) {
       if (v.bellMode === 'drought') this.ringBell(false);
-      this.bellClock = v.bellMode === 'drought' ? 42 : 9999;
+      this.bellClock = v.bellMode === 'drought' ? DROUGHT_BELL.every : 9999;
     }
   }
 
@@ -2634,15 +2631,15 @@ export class App {
     this.world.ringBell();
     const pos = this.world.bellPosition;
     const d = Math.hypot(this.player.x - pos.x, this.player.z - pos.z);
-    const gain = Math.max(0, 1 - d / 220);
-    const times = bright ? 3 : 2;
+    const gain = bellGain(d);
+    const times = bright ? DROUGHT_BELL.allClearStrikes : DROUGHT_BELL.strikes;
     const at = { x: pos.x, y: pos.y + 3.5, z: pos.z };
     // A pause, a quit to the title or a rebuilt world cuts the peal off: later strikes rang on over the menu (A102 scout).
     // Per session too: a quit to the title keeps the world, and a strike rang on into the next journey (A104 scout).
     const world = this.world, session = this.playSession;
     for (let i = 0; i < times; i++) setTimeout(() => {
       if (this.mode === 'play' && this.world === world && this.playSession === session && !this.menuBackgroundActive) this.audio.bell(gain, bright, at, i);
-    }, i * (bright ? 600 : 1400));
+    }, i * (bright ? DROUGHT_BELL.allClearGapMs : DROUGHT_BELL.strikeGapMs));
     if (gain > 0.15) this.audio.caption(S(bright ? 'toast.caption.bell.allclear' : 'toast.caption.bell'));
   }
 

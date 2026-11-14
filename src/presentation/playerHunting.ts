@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import type { Rig } from './characters';
 import { createHuntingArrow } from './huntingArrow';
 import type { HeroGrip } from './hero/animation';
+import { BOW } from '../core/rules/bow';
 
 /** The arrow's line while the bow is held ready after a shot: forward, a little out from the leg and a touch down. */
 const BOW_AT_REST = new THREE.Vector3(.55, -.1, .83).normalize();
@@ -11,7 +12,7 @@ const BOW_AT_REST = new THREE.Vector3(.55, -.1, .83).normalize();
  * bow is carried slung on the back and taken in hand to shoot; walking and running with it hanging by the leg left
  * the string across his body and his bow hand clenched.
  */
-export const BOW_READY_SECONDS = 2.5;
+export const BOW_READY_SECONDS = BOW.readySeconds;
 /**
  * Slung across the back (root space: +x his left, +z forward): the grip behind his shoulder blades, the limbs from his
  * right hip up over his left shoulder, the string outward, away from his back.
