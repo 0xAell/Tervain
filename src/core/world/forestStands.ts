@@ -6,13 +6,6 @@ import { biomeAt } from './biomes';
 export type ForestFamily = 'pine' | 'oak' | 'fir' | 'birch';
 export type ForestFamilyRole = 'dominant' | 'secondary' | 'other';
 
-/** Historical pine-body composition target, retained for the original component study. The
- * owner-authorized 0.0.12 mixed habitats supersede this as a whole-region acceptance quota. */
-export const FOREST_PALETTE = {
-  dominant: 'pine', secondary: 'oak', other: ['fir', 'birch'],
-  target: { dominant: 0.75, secondary: 0.20, other: 0.05 },
-} as const;
-
 /** Overlapping grove cores occupy both sides of the swale and a rounded eastern shoulder.
  * These two-dimensional bodies replace the narrow path-like ribbons. A taper is an authoring
  * field in metres, not a tree quota: actual wood, roads and clearing crowns still reject sites. */

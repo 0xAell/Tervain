@@ -3,6 +3,8 @@ dist/
 out/
 outputs/
 *.log
+__pycache__/
+*.pyc
 .DS_Store
 .claude/
 

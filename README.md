@@ -14,9 +14,11 @@ This is a source-available project. Public access does not make its art, music, 
 
 For models, see the [3D asset credits and license ledger](docs/engineering/model-licenses.md), also linked from the game's About screen. A confirmed Creative Commons asset retains its own permitted uses, including commercial uses where its license allows them; the code license does not restrict those rights. Model entries with unresolved provenance are explicitly marked pending.
 
-## Prototype status
+## Status
 
-This integration develops the **0.0.13** browser prototype. A source version alone does not establish deployment; check the normal publish workflow and the game’s displayed revision. Tervain stays in the **0.0.x** stage until its quality gate is met. A desktop package and Steam integration are not yet available.
+Tervain is a **browser prototype** in the `0.0.x` stage (`package.json` holds the version; the title screen shows it and F3 shows the source revision). It is the test bed where the world, the rules and the feel of the game are worked out, and it stays in that stage until its [quality gate](docs/production/versioning.md) is met. The destination is a desktop release built in Unreal Engine; this repository is arranged so that the game's data and rules carry over ([porting to Unreal Engine](#porting-to-unreal-engine)). A desktop package and Steam integration are not yet available.
+
+**[Launch Tervain](https://ael-dev3.github.io/Tervain/)** — Published from `main` through the normal GitHub Pages workflow. Use a desktop WebGL browser; save data is stored in that browser. The title shows the version and F3 shows the source revision.
 
 The prototype includes:
 
@@ -43,21 +45,21 @@ The prototype includes:
 - Physical movable supplies, saved progress and keyboard/mouse or controller controls.
 - A Templar vigil menu with The Sovereign's Oath, distant ships, a score-led spirit grove and a backlit heath that the sea wind, a grazing stag and your pointer move through.
 
-**[Launch Tervain](https://ael-dev3.github.io/Tervain/)** — Published from `main` through the normal GitHub Pages workflow. Use a desktop WebGL browser; save data is stored in that browser. The title shows the version and F3 shows the source revision.
+See the [prototype guide](docs/engineering/prototype.md) for controls and boundaries. What changed in each version is in the [decision register](docs/decisions.md) and the dated [engineering records](docs/README.md#engineering); release records up to `0.0.18` are under [docs/production/releases](docs/production/releases).
 
-See the [0.0.13 release record](docs/production/releases/0.0.13.md) for verified results and limitations, and the [prototype guide](docs/engineering/prototype.md) for controls and boundaries.
+## Repository layout
 
-## Gothic 3 browser reconstruction
-
-The separate `/gothic3/` reconstruction is being implemented in TypeScript from
-local asset and native behavior evidence. Startup and campaign integration are
-still incomplete.
-
-- [How we rebuild Gothic 3: concise process guide](docs/engineering/gothic3-reconstruction-method.md)
-- [Gothic 3 rebuilding process: detailed guide](docs/engineering/gothic3-rebuild-guide.md)
-- [How rebuilding works](docs/engineering/gothic3-rebuild-overview.md)
-- [Step-by-step process, repository map and current status](docs/engineering/gothic3-rebuild-workflow.md)
-- [Technical checkpoint history](docs/engineering/gothic3-rebuilding-process.md)
+| Path | What it is |
+| --- | --- |
+| [`src/core`](src/core/README.md) | The game's data and rules with no renderer, browser or package dependency: state and commands, quests and dialogue, residents, hostiles, animals, the hero's rules, the world's layout, terrain, water and planting. CI enforces the boundary. |
+| `src/presentation`, `src/app.ts` | The Three.js scene, interface and sound of the browser build. |
+| `src/platform`, `src/physics` | Browser adapters (input, storage, settings) and the Rapier physics binding. |
+| [`data/`](data/README.md) | The core's tables exported as JSON with schemas, the terrain as Landscape rasters, DataTable-shaped files in Unreal's units, and the [asset manifest](data/assets/README.md). Generated; CI fails when it is stale. |
+| [`unreal/`](unreal/README.md) | A source-only Unreal Engine C++ project seed mirroring the data types. No binaries and no content. |
+| [`docs/`](docs/README.md) | Design, decisions, engineering records, provenance ledgers and the [porting notes](docs/unreal/README.md). |
+| `public/`, `assets/` | The files the browser build serves, and source archives they were prepared from. |
+| `tools/`, `tests/` | Asset pipelines, checks and the play gate; unit and scenario tests. |
+| `src/gothic3*`, `assets/gothic3`, `public/gothic3`, `tools/gothic3`, `tests/gothic3*`, `scripts/` | The separate [Gothic 3 study and reconstruction](#gothic-3-study-and-reconstruction). Not part of Tervain or of the port. |
 
 ## Porting to Unreal Engine
 
@@ -87,68 +89,38 @@ npm test
 npm run build
 ```
 
-Browser checks do not establish packaged desktop compatibility or performance on other hardware.
+After changing the core's data or the shipped assets, regenerate the exports (CI checks that they are current):
+
+```sh
+npm run data:export
+npm run assets:manifest
+```
+
+Browser checks do not establish packaged desktop compatibility or performance on other hardware. A pull request also needs the [play gate](docs/engineering/play-gate.md).
 
 ## Project documentation
+
+The [documentation index](docs/README.md) lists everything. Starting points:
 
 - [Vision](docs/vision.md)
 - [Setting and original-world direction](docs/world/setting.md)
 - [Decision register](docs/decisions.md)
 - [Vertical slice](docs/production/vertical-slice.md)
 - [Art direction](docs/art/art-audio-ui.md)
-- [Illustrated Gothic 3 video / Tervain visual audit](docs/art/studies/gothic3-video-2026-10-05/README.md) — dated study, comparisons and selected motion evidence.
-- [Shared asset provenance](docs/engineering/shared-assets.md)
-- [Gothic 3 rebuilding process](docs/engineering/gothic3-rebuild-overview.md) — source folders, extraction and behavior research, TypeScript integration, reproduction commands, hosting and unfinished campaign work.
+- [Architecture](docs/engineering/architecture.md) and the [engine-agnostic core](src/core/README.md)
+- [Porting to Unreal Engine](docs/unreal/README.md)
+- [Shared asset provenance](docs/engineering/shared-assets.md) and the [model license ledger](docs/engineering/model-licenses.md)
 
-## Gothic 3 browser rebuild and study viewers
+## Gothic 3 study and reconstruction
 
-See the [step-by-step Gothic 3 rebuild workflow](docs/engineering/gothic3-rebuild-workflow.md) for extraction, behavior research, TypeScript integration, validation and hosting.
+A separate project lives in this repository beside Tervain: a study of Gothic 3 and an incomplete TypeScript browser reconstruction of it, used as reference material for Tervain's look and feel. It shares no code with the game and is not part of the Unreal port.
 
-The [Gothic 3 / Ardea reconstruction](https://ael-dev3.github.io/Tervain/gothic3/)
-is a separate, incomplete TypeScript browser port. The rebuild proceeds in
-connected stages. It is a new browser implementation guided by the installed
-game; the Windows executable is not compiled into the site, and decompiled
-listings are not treated as original source code.
+- The [Gothic 3 / Ardea reconstruction](https://ael-dev3.github.io/Tervain/gothic3/) is a new browser implementation guided by the installed game. The Windows executable is not compiled into the site, and decompiled listings are not treated as original source code. Startup and campaign integration are still incomplete. See its [current scope and controls](docs/engineering/gothic3-browser-port.md).
+- The [local-install study viewer](docs/engineering/gothic3-local.md) reads the visitor's own installed files in their browser and hosts no game data.
+- How the rebuilding works: [concise process guide](docs/engineering/gothic3-reconstruction-method.md), [overview](docs/engineering/gothic3-rebuild-overview.md), [detailed guide](docs/engineering/gothic3-rebuild-guide.md), [step-by-step workflow and repository map](docs/engineering/gothic3-rebuild-workflow.md), [technical checkpoint history](docs/engineering/gothic3-rebuilding-process.md).
+- The [illustrated Gothic 3 video and Tervain visual audit](docs/art/studies/gothic3-video-2026-10-05/README.md) is a dated study with comparisons and selected motion evidence.
 
-### Rebuilding process
-
-1. **Inventory the source.** Read the local installation and offline study as
-   references. Hash the inputs and identify the archive or patch layer that
-   supplies each resource, so an older duplicate is not selected by accident.
-2. **Decode selected data.** Use format-specific tools for world placements,
-   geometry, actors, textures, materials, animation and gameplay records. Keep
-   source paths, hashes, coordinate conversions and known omissions with the
-   portable browser assets.
-3. **Recover behavior.** Trace one native operation at a time through functions,
-   callbacks, layouts and state changes. Decompiled listings help navigate the
-   code, but compare important claims with original binary bytes and game data.
-   Leave unresolved engine calls explicit instead of guessing.
-4. **Implement a bounded slice.** Recreate the supported operation in
-   TypeScript, using the source-derived identities and values. An isolated
-   reader or formula is still a component, not a playable feature.
-5. **Connect the slice to gameplay.** Make its assets and behavior use the same
-   live world and saved state as ordinary play: input, actors, interactions,
-   quests, time and save/load as needed for that feature.
-6. **Review and expand.** Run the relevant checks, exercise the exact scenario
-   in the browser, and verify save/restore when it applies. Record what worked
-   and what remains missing, then connect the next part of the campaign.
-   Completion means starting a new game and reaching an available ending with
-   the surrounding NPC, quest, combat, travel and save systems working together.
-
-An extracted file, converted model, passing unit test or successful build only
-proves its own part of this chain. The [rebuilding overview](docs/engineering/gothic3-rebuild-overview.md)
-explains the method with examples, and the
-[detailed process with dated checkpoints](docs/engineering/gothic3-rebuilding-process.md)
-keeps the evidence and implementation history. See also the
-[current scope and controls](docs/engineering/gothic3-browser-port.md).
-
-This project is separate from the original Tervain game and from the
-[local-install study viewer](docs/engineering/gothic3-local.md), which reads
-the visitor's own installed files in their browser and hosts no game data.
-Neither route grants rights to Gothic 3 material or establishes
-commercial-release clearance.
-
-### Gothic 3 study viewer examples
+Neither route grants rights to Gothic 3 material or establishes commercial-release clearance.
 
 <p align="center">
   <img src="docs/engineering/gothic3-local/coast.jpg" width="49%" alt="Gothic 3: tall grass on a sea cliff above a sandy beach.">

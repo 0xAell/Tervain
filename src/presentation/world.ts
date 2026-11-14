@@ -10,13 +10,11 @@ import { DoorSwings, type DoorEvent } from './doors';
 import * as THREE from 'three';
 import { buildHunterSupplies, disposeHunterSupplies } from './hunterSupplies';
 import { buildAnimalCamp } from './animalCamp';
-import { NPCS } from '../core/content/npcs';
 import { S } from '../core/content/strings';
-import { hasFact } from '../core/game/state';
 import type { WorldState } from '../core/game/types';
 import { worldView, type WorldView } from '../core/game/worldView';
 import { buildStaticColliders, type Colliders } from '../core/world/colliders';
-import { ARCHIVE_ROOM, BELL, bySpec, MILL_WHEEL, SHORTCUT, SLUICE, STREAMS, WORLD } from '../core/world/layout';
+import { ARCHIVE_ROOM, bySpec, SHORTCUT, SLUICE, STREAMS, WORLD } from '../core/world/layout';
 import { NavGrid } from '../core/world/nav';
 import { Terrain, distToPolyline } from '../core/world/terrain';
 import { SkyRig } from './sky';
@@ -33,7 +31,6 @@ import { buildEnvironment, type EnvironmentHandle } from './environment';
 import { Exclusions, type SwayUniforms } from './vegetation';
 import { ALL_NEEDS } from './assets/needs';
 import type { AssetLibrary, LoadProgress } from './assets/library';
-import { setSharedLibrary } from './assets/library';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { WaterSystem } from './water/waterSystem';
 import { SkyCapture } from './water/skyCapture';
@@ -217,7 +214,6 @@ export class WorldScene {
     await checkpoint('models', 'World models', 0, modelTotal);
     // The baked building surfaces download alongside the models; any that fail keep their generated textures.
     const surfaces = loadBakedTextures(settings.quality);
-    setSharedLibrary(library);
     let pine: PineTemplates, rockPile: GLTF, treeTemplates: MeshyTreeTemplates, animalTemplates: AnimalTemplates | null, furniture: FurnitureTemplates | null;
     try {
       await library.preload(ALL_NEEDS, progress => modelProgress('library', progress.loaded, progress.total, progress.label));
@@ -768,10 +764,6 @@ export class WorldScene {
     this.riteResponse.update(dt, reduced, night);
     // Ledger glows faintly while the archive is accessible; the archive lamp is emissive via lantern lights.
     this.scenery.ledger.rotation.y = Math.sin(this.time * 0.8) * 0.05;
-    void hasFact;
-    void NPCS;
-    void BELL;
-    void MILL_WHEEL;
     void WORLD;
   }
 

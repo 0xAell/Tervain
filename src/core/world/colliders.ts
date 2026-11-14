@@ -2,7 +2,7 @@ import type { PhysicalRockGeometry, PhysicalProjectileGeometry } from './physics
 import { buildingGround } from './buildingEntries';
 import { FIREPLACE, fromBuildingLocal, hearthOf, roomOf, type InteriorSpec } from './interiors';
 import { footprint, FURNITURE, hearthPiece, pieceSize } from './furniture';
-import { ARCHIVE_ROOM, ARCHIVE_SHUTTER, BUILDINGS, DECKS, HANDCART_CONSTRUCTION, LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION, MILL_WHEEL, PALISADE, SHORTCUT, WAGON, WAGON_CONSTRUCTION, WELL, WELL_CONSTRUCTION, WORLD, type BuildingSpec } from './layout';
+import { ARCHIVE_ROOM, ARCHIVE_SHUTTER, BUILDINGS, DECKS, HANDCART_CONSTRUCTION, LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION, MILL_WHEEL, PALISADE, SHORTCUT, WAGON, WAGON_CONSTRUCTION, WELL, WELL_CONSTRUCTION, type BuildingSpec } from './layout';
 import { houseYard, yardToWorld } from './houseYards';
 import { LIGHTHOUSE_DOOR_OUTER_WIDTH, LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop, lighthouseWallSectors } from './lighthouse';
 import { MILL_WHEEL_CONSTRUCTION as M, millWheelPlacement } from './millWheel';
@@ -709,6 +709,5 @@ export function buildStaticColliders(terrain?: Pick<Terrain, 'heightAt'>): Colli
     shape.minY = base - 0.4;
     shape.maxY = base + height;
   }
-  void WORLD;
   return c;
 }

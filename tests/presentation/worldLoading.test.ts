@@ -43,7 +43,6 @@ function owner(name: string) {
 }
 
 vi.mock('../../src/presentation/assets/needs', () => ({ ALL_NEEDS: [] }));
-vi.mock('../../src/presentation/assets/library', () => ({ setSharedLibrary: vi.fn() }));
 vi.mock('../../src/core/world/terrain', () => ({ Terrain: class {
   static async create(options: { onProgress?: (completed: number, total: number) => void }) {
     const nz = (WORLD.maxZ - WORLD.minZ) / WORLD.cell;

@@ -499,11 +499,3 @@ export function makePaneTexture(): THREE.CanvasTexture {
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
-
-export function disposeBuildingTextures() {
-  for (const p of cache.values()) {
-    p.map.dispose();
-    p.normal.dispose();
-  }
-  cache.clear();
-}

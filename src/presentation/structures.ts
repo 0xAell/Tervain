@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Batch } from './buildKit';
-import { asRGB, hash3, mulc, rgb, type BoxOpts, type Col, type RGB } from './buildKit';
+import { hash3, mulc, rgb, type BoxOpts, type Col, type RGB } from './buildKit';
 import type { Region } from './regions';
 import { hipRoof, gableRoof, leanRoof, ROOFS, type RoofResult } from './roofs';
 import { rockShapes } from './scatter';
@@ -37,10 +37,6 @@ export const TINT = {
 /** The building textures are dark (they hold the colour), so tints are lifted a little to compensate. */
 export const TONE_GAIN = 1.65;
 export const jitterTone = (hex: number, rnd: Rnd, j = 0.12): RGB => mulc(rgb(hex), TONE_GAIN * (1 + (rnd() - 0.5) * 2 * j));
-
-export function windowMats(R: Region) {
-  return { glow: R.glow, pane: R.pane };
-}
 
 /** A post that leans a little and stands at its own height. */
 export function post(B: Batch, rnd: Rnd, x: number, z: number, h: number, w: number, tint: Col, sink = 0.3) {
@@ -561,5 +557,4 @@ export function fieldstone(R: Region, rnd: Rnd, x: number, y: number, z: number,
   ctx.pop();
 }
 
-export const asRgb = asRGB;
 export { THREE };

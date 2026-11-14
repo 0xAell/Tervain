@@ -81,25 +81,6 @@ export function paint(geo: THREE.BufferGeometry, color: number, variation = 1): 
   return g;
 }
 
-export function paintGradient(geo: THREE.BufferGeometry, bottom: number, top: number, y0: number, y1: number): THREE.BufferGeometry {
-  const g = geo.index ? geo.toNonIndexed() : geo.clone();
-  for (const name of Object.keys(g.attributes)) if (name !== 'position' && name !== 'normal') g.deleteAttribute(name);
-  g.computeVertexNormals();
-  const n = g.attributes.position!.count;
-  const colors = new Float32Array(n * 3);
-  const a = new THREE.Color(bottom);
-  const b = new THREE.Color(top);
-  for (let i = 0; i < n; i++) {
-    const t = Math.max(0, Math.min(1, (g.attributes.position!.getY(i) - y0) / (y1 - y0)));
-    tmp.copy(a).lerp(b, t);
-    colors[i * 3] = tmp.r;
-    colors[i * 3 + 1] = tmp.g;
-    colors[i * 3 + 2] = tmp.b;
-  }
-  g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  return g;
-}
-
 const M = new THREE.Matrix4();
 const Q = new THREE.Quaternion();
 const E = new THREE.Euler();
@@ -200,13 +181,4 @@ export class Kit {
     const glow = this.glowParts.length ? new THREE.Mesh(mergeGeometries(this.glowParts, false)!, glowMaterial) : null;
     return { solid, glow };
   }
-}
-
-export function makeStdMaterial(opts: { flat?: boolean; roughness?: number; sway?: THREE.IUniform<number>[] } = {}) {
-  return new THREE.MeshStandardMaterial({
-    vertexColors: true,
-    flatShading: opts.flat ?? true,
-    roughness: opts.roughness ?? 0.92,
-    metalness: 0,
-  });
 }

@@ -8,7 +8,6 @@ import {
   PLACES,
   SPRING_POOL,
   STREAMS,
-  VALLEY,
   WORLD,
 } from '../../core/world/layout';
 import { clamp, fbm, smoothstep } from '../../core/world/noise';
@@ -384,5 +383,3 @@ export class Habitat {
 export function newSample(): HabitatSample {
   return { open: 1, wet: 0, dry: 0, wood: 0, slope: 0 };
 }
-
-export const VALLEY_CENTRE = { x: VALLEY.cx, z: VALLEY.cz };

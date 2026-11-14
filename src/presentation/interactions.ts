@@ -2,7 +2,7 @@ import { S } from '../core/content/strings';
 import { NPCS } from '../core/content/npcs';
 import type { App } from '../app';
 import { hasFact, phaseIndex } from '../core/game/state';
-import { ARCHIVE_SHUTTER, BELL, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, INSPECT_LOCATIONS, LEDGER, MILL_WHEEL, PICKUP_LOCATIONS, RESULT_CHECKS, RITE_ALTAR, SHORTCUT, SLUICE, bySpec, frontOf } from '../core/world/layout';
+import { ARCHIVE_SHUTTER, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, INSPECT_LOCATIONS, LEDGER, PICKUP_LOCATIONS, RESULT_CHECKS, RITE_ALTAR, SHORTCUT, SLUICE, bySpec, frontOf } from '../core/world/layout';
 import type { NpcId } from '../core/game/types';
 import { isWorldPickupItem, WORLD_PICKUP_MODELS } from '../core/content/pickups';
 import { worldPickupTargetY } from './worldPickups';
@@ -172,7 +172,5 @@ export function buildInteractables(app: App): Interactable[] {
       act: () => app.checkResult(),
     });
   }
-  void BELL;
-  void MILL_WHEEL;
   return list;
 }

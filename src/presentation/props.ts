@@ -80,14 +80,6 @@ export function boat(R: Region, rnd: Rnd, x: number, y: number, z: number, yaw: 
   ctx.pop();
 }
 
-export function oar(R: Region, rnd: Rnd, ax: number, ay: number, az: number, bx: number, by: number, bz: number) {
-  R.planks.rod(ax, ay, az, bx, by, bz, 0.03, 5, jitterTone(TINT.woodPale, rnd, 0.1), { jit: 0.08 });
-  const dx = bx - ax;
-  const dz = bz - az;
-  const l = Math.hypot(dx, dz) || 1;
-  R.planks.box(0.16, 0.03, 0.6, bx + (dx / l) * 0.25, by + 0.05, bz + (dz / l) * 0.25, jitterTone(TINT.woodPale, rnd, 0.1), { ry: Math.atan2(dx, dz), jit: 0.08 });
-}
-
 /** The fishermen's jetty: individual planks laid across stringers, piles below, ropes and bollards. Deck matches layout DECKS. */
 export function jetty(R: Region, rnd: Rnd, deck: { x: number; z: number; hx: number; hz: number; y: number }, seabedAt: (x: number, z: number) => number) {
   const B = R.planks;
@@ -125,37 +117,6 @@ export function jetty(R: Region, rnd: Rnd, deck: { x: number; z: number; hx: num
     for (let sx = x - hx + 2.4; sx < x + hx - 3; sx += 0.65) pts.push([sx, y + 0.86 - 0.12 * Math.abs(Math.sin((sx - x) * 1.2)), z + sz * (hz - 0.05)]);
     if (pts.length > 1) R.vc.tube(pts, 0.018, 4, TINT.rope);
   }
-}
-
-/** Two posts and a crossbar with a net hung over it, sagging into the wind. */
-export function netRack(R: Region, rnd: Rnd, x: number, y: number, z: number, yaw: number, len = 3.2) {
-  const ctx = R.ctx;
-  ctx.push(x, y, z, yaw);
-  for (const s of [-1, 1]) R.bark.rod(s * len / 2, -0.25, 0, s * len / 2 + (rnd() - 0.5) * 0.1, 2.05, 0, 0.07, 5, jitterTone(0xa89a86, rnd, 0.16), { jit: 0.1 });
-  R.bark.rod(-len / 2 - 0.15, 1.95, 0, len / 2 + 0.15, 1.98, 0, 0.05, 5, jitterTone(0xa89a86, rnd, 0.16), { jit: 0.1 });
-  // The net: a draped sheet of coarse mesh, a few panels with a sag and torn corners.
-  const panels = 6;
-  for (let i = 0; i < panels; i++) {
-    const x0 = -len / 2 + (i / panels) * len;
-    const x1 = -len / 2 + ((i + 1) / panels) * len;
-    const sag0 = 0.6 + rnd() * 0.5;
-    const sag1 = 0.6 + rnd() * 0.5;
-    R.cloth.quad([x0, 1.95 - sag0, 0.05, x1, 1.95 - sag1, 0.05, x1, 1.95, 0.02, x0, 1.95, 0.02], jitterTone(0xb0a48a, rnd, 0.16), { uv: [0, 0, 1, 0, 1, 1, 0, 1], amp: 0.14 });
-  }
-  ctx.pop();
-}
-
-/** A drying rack for fish: a rail on two forked posts and rows of split fish. */
-export function fishRack(R: Region, rnd: Rnd, x: number, y: number, z: number, yaw: number) {
-  const ctx = R.ctx;
-  ctx.push(x, y, z, yaw);
-  for (const s of [-1, 1]) R.bark.rod(s * 1.4, -0.2, 0, s * 1.4, 1.5, 0, 0.06, 5, jitterTone(0xa89a86, rnd, 0.16), { jit: 0.1 });
-  R.bark.rod(-1.5, 1.42, 0, 1.5, 1.44, 0, 0.045, 5, jitterTone(0xa89a86, rnd, 0.16), { jit: 0.1 });
-  for (let i = 0; i < 9; i++) {
-    const fx = -1.25 + i * 0.31 + (rnd() - 0.5) * 0.06;
-    R.vc.blob(0.05, 0.3, 0.02, fx, 1.05, 0, jitterTone(0xa8a292, rnd, 0.2), { seg: 5, rings: 3, lump: 0.12, seed: i, jit: 0.1 });
-  }
-  ctx.pop();
 }
 
 /** A lobster pot: a wicker dome with a rope handle. */

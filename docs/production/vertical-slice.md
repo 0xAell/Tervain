@@ -1,6 +1,6 @@
 # First complete playable: Bellwether Vale
 
-Status: **proposed scope and acceptance brief**. The earlier browser prototype established renderer-free story systems. The current `0.0.5` forest-arrival pass removes conversation windows and focuses on exploration; it does not offer the full negotiation interface or meet the acceptance table below. See [prototype notes](../engineering/prototype.md) for what is implemented, retained, placeholder, and unmeasured. Foundation dated 29 September 2026.
+Status: **proposed scope and acceptance brief**. The earlier browser prototype established renderer-free story systems. At the time of writing, the `0.0.5` forest-arrival pass removed conversation windows and focused on exploration; it did not offer the full negotiation interface or meet the acceptance table below. See [prototype notes](../engineering/prototype.md) for what is implemented, retained, placeholder, and unmeasured. Foundation dated 29 September 2026.
 
 ## Purpose
 
