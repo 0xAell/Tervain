@@ -125,7 +125,7 @@ Warpkeep's software is Apache-2.0 ([LICENSING.md](https://github.com/ael-dev3/Wa
 | Geometry | Metres, Y up; bounding size, minimum Y and triangle counts per LOD in the manifest |
 | Textures | Vertex-coloured models with no external images, except the embedded crest and a few embedded atlases on some units and props |
 | Motion | Skeleton and clip names per file in the manifest |
-| World use | Placement and collision are defined in Tervain code from `src/world/layout.ts`, never from the models |
+| World use | Placement and collision are defined in Tervain code from `src/core/world/layout.ts`, never from the models |
 | Verification | Loaded and rendered in the browser prototype; no desktop package, no per-asset review of every close view |
 | State | Usable under recorded (owner-authorised) terms → adapted at load → tested in the browser build |
 

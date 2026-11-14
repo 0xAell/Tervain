@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {expect,it} from 'vitest';
 import {TileLayer} from '../../src/presentation/ground/tileStream';
-import {smoothstep} from '../../src/world/noise';
+import {smoothstep} from '../../src/core/world/noise';
 
 function run(start:number,x:number,z:number,ymin=0,ymax=0){
   const cam=new THREE.Vector3(.1,.2,.3),tile={key:0,x0:x,z0:z,ymin,ymax,count:1,drawCount:3,attrs:[{array:new Float32Array([0,0,0,0])}],mesh:{visible:false},geo:{instanceCount:0}};

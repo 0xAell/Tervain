@@ -5,10 +5,10 @@ import { groundSplat } from '../../src/presentation/groundSplat';
 import { attachGroundedRockSurface } from '../../src/presentation/rockSurface';
 import { buildTerrainMesh, buildTerrainTiles } from '../../src/presentation/terrainMesh';
 import { LAYER, type TerrainTextures } from '../../src/presentation/terrainTextures';
-import { buildingEntry } from '../../src/world/buildingEntries';
-import { BUILDINGS, WORLD } from '../../src/world/layout';
-import type { PhysicalRockGeometry } from '../../src/world/physicsGeometry';
-import type { Terrain } from '../../src/world/terrain';
+import { buildingEntry } from '../../src/core/world/buildingEntries';
+import { BUILDINGS, WORLD } from '../../src/core/world/layout';
+import type { PhysicalRockGeometry } from '../../src/core/world/physicsGeometry';
+import type { Terrain } from '../../src/core/world/terrain';
 
 const flat = { heightAt: () => 0 };
 function rock(y: number): PhysicalRockGeometry {

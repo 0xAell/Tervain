@@ -6,12 +6,12 @@ import { makeBathymetryTextures, oceanVisibilityBounds } from '../../src/present
 import { RippleField } from '../../src/presentation/water/ripples';
 import { Splashes } from '../../src/presentation/water/splashes';
 import { WaterSystem } from '../../src/presentation/water/waterSystem';
-import { SEA_LEVEL } from '../../src/world/layout';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
-import { BATHY_NX, BATHY_NZ } from '../../src/world/water/bathymetry';
-import { FILM } from '../../src/world/water/waterWorld';
-import { SEA_MAX_RISE } from '../../src/world/water/waves';
+import { SEA_LEVEL } from '../../src/core/world/layout';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
+import { BATHY_NX, BATHY_NZ } from '../../src/core/world/water/bathymetry';
+import { FILM } from '../../src/core/world/water/waterWorld';
+import { SEA_MAX_RISE } from '../../src/core/world/water/waves';
 
 let terrain: Terrain;
 let water: WaterSystem;

@@ -1,7 +1,7 @@
 import type { Colliders } from './colliders';
 import { WORLD, type V2 } from './layout';
 import type { Terrain } from './terrain';
-import { finishCooperatively, type CooperativeOptions } from '../platform/cooperative';
+import { finishCooperatively, type CooperativeOptions } from '../util/cooperative';
 
 export interface NavigationConstructionOptions extends CooperativeOptions {
   onProgress?: (completed: number, total: number) => void;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Colliders } from '../../src/world/colliders';
+import { Colliders } from '../../src/core/world/colliders';
 
 describe('swept scenery contacts', () => {
   it('stops a long dodge at a thin wall rather than resolving on its far side', () => {

@@ -1,7 +1,7 @@
-import { BARKS } from '../content/npcs';
-import { HERO_LINES, SCENES, TALKS, VOICE_LINES, inHours, shown, type HeroCue, type Scene, type Speaker } from '../content/voice';
-import { evalAll } from '../game/state';
-import type { NpcId, WorldState } from '../game/types';
+import { BARKS } from '../core/content/npcs';
+import { HERO_LINES, SCENES, TALKS, VOICE_LINES, inHours, shown, type HeroCue, type Scene, type Speaker } from '../core/content/voice';
+import { evalAll } from '../core/game/state';
+import type { NpcId, WorldState } from '../core/game/types';
 import { VOICE_AUDIO } from './sound/voiceManifest';
 
 /**

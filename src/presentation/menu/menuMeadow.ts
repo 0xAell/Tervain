@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fbm, mulberry32, smoothstep } from '../../world/noise';
+import { fbm, mulberry32, smoothstep } from '../../core/world/noise';
 import { clumpTriangles, createGrassClump, type ClumpSpec } from '../grass/bladeGeometry';
 import { createGrassMaterial, type GrassBand, type GrassMaterial, type GrassMaterialOptions } from '../grass/grassMaterial';
 import type { GrassTrample } from '../grass/trample';

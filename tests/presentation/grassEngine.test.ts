@@ -8,9 +8,9 @@ import { displayToSceneLuminance } from '../../src/presentation/grade';
 import { createGrassField, GRASS_CLUMP, GRASS_MAX_SCALE, GRASS_QUALITY } from '../../src/presentation/grass/grassField';
 import { Habitat } from '../../src/presentation/ground/habitat';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
-import { ARRIVAL_ROUTE } from '../../src/world/layout';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
+import { ARRIVAL_ROUTE } from '../../src/core/world/layout';
 
 const WIND = { direction: [0.6, 0.8] as [number, number], steady: 0.2, gust: 0.5, speed: 4 };
 const look = { rootShade: 0.3, tipLift: 0.3, translucency: 1, sheen: 0.5, transTint: new THREE.Color(1, 1, 0.5) };

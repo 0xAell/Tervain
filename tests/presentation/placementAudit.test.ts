@@ -1,7 +1,7 @@
 import { mergeStaticParts } from '../../src/presentation/staticMerge';
 import { buildFurniture, deferredFurniture } from '../../src/presentation/furniture';
-import { FURNITURE } from '../../src/world/furniture';
-import type { RoomLocator } from '../../src/world/interiors';
+import { FURNITURE } from '../../src/core/world/furniture';
+import type { RoomLocator } from '../../src/core/world/interiors';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { expect, it } from 'vitest';

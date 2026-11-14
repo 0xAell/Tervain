@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fromBuildingLocal, roomHalfSize, type InteriorSpec, type RoomLocator } from '../world/interiors';
+import { fromBuildingLocal, roomHalfSize, type InteriorSpec, type RoomLocator } from '../core/world/interiors';
 
 /**
  * What a window shows from inside a room (A70). The panes used to be a flat daylight colour; now they look out on the

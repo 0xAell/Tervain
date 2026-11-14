@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { horizontalSphereIntersects } from './extentCull';
-import { smoothstep } from '../../world/noise';
+import { smoothstep } from '../../core/world/noise';
 
 /**
  * Streams a world-fixed grid of instanced tiles around the camera.

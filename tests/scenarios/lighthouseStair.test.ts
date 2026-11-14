@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, SPAWN, ANCHORS } from '../../src/world/layout';
-import { LIGHTHOUSE_STAIR_ANGLE, LIGHTHOUSE_STAIR_RISE, lighthouseSurfacesAt, lighthouseTreadTop } from '../../src/world/lighthouse';
-import { Terrain } from '../../src/world/terrain';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { NavGrid } from '../../src/world/nav';
+import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, SPAWN, ANCHORS } from '../../src/core/world/layout';
+import { LIGHTHOUSE_STAIR_ANGLE, LIGHTHOUSE_STAIR_RISE, lighthouseSurfacesAt, lighthouseTreadTop } from '../../src/core/world/lighthouse';
+import { Terrain } from '../../src/core/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { NavGrid } from '../../src/core/world/nav';
 
 const terrain = new Terrain();
 const base = terrain.heightAt(LIGHTHOUSE.x, LIGHTHOUSE.z);

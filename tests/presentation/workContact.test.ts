@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { NPCS } from '../../src/content/npcs';
-import { createInitialState } from '../../src/game/state';
-import type { NpcId } from '../../src/game/types';
+import { NPCS } from '../../src/core/content/npcs';
+import { createInitialState } from '../../src/core/game/state';
+import type { NpcId } from '../../src/core/game/types';
 import { npcGoalPosition, resolveGoal } from '../../src/presentation/actors';
 import { poseRig, type Pose, type Rig } from '../../src/presentation/characters';
 import { buildHunterSupplies, disposeHunterSupplies } from '../../src/presentation/hunterSupplies';
@@ -12,9 +12,9 @@ import type { ResidentBones } from '../../src/presentation/npc/residentRig';
 import { MOTION_CLIPS, residentMotionLibrary } from '../../src/presentation/npc/residentMotion';
 import { QUARRY_FACE_CONTACT, workSiteFor } from '../../src/presentation/npc/workSites';
 import { buildScenery, type SceneryHandles } from '../../src/presentation/settlement';
-import { buildStaticColliders, type Colliders } from '../../src/world/colliders';
-import { ANCHORS, HUNTER_TABLE } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders, type Colliders } from '../../src/core/world/colliders';
+import { ANCHORS, HUNTER_TABLE } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
 import { loadResident, loadResidentMotion, loadResidentRigData, residentManifest, residentMesh } from './residentFixtures';
 
 /**

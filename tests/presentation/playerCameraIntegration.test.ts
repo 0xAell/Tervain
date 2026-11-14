@@ -1,19 +1,19 @@
 import * as THREE from 'three';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import { CameraRig } from '../../src/presentation/cameraRig';
 import { CAMERA_CLEARANCE } from '../../src/presentation/cameraObstruction';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
-import { buildStaticColliders, Colliders, type Collider } from '../../src/world/colliders';
-import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, bySpec } from '../../src/world/layout';
-import { LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop } from '../../src/world/lighthouse';
-import { canPlayerStandAt, PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, supportedPlayerHeight } from '../../src/world/playerPlacement';
-import { Terrain } from '../../src/world/terrain';
-import { INTERIORS, fromBuildingLocal } from '../../src/world/interiors';
-import { buildingEntry, buildingGround } from '../../src/world/buildingEntries';
+import { buildStaticColliders, Colliders, type Collider } from '../../src/core/world/colliders';
+import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, bySpec } from '../../src/core/world/layout';
+import { LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop } from '../../src/core/world/lighthouse';
+import { canPlayerStandAt, PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, supportedPlayerHeight } from '../../src/core/world/playerPlacement';
+import { Terrain } from '../../src/core/world/terrain';
+import { INTERIORS, fromBuildingLocal } from '../../src/core/world/interiors';
+import { buildingEntry, buildingGround } from '../../src/core/world/buildingEntries';
 
 let terrain: Terrain;
 let colliders: Colliders;

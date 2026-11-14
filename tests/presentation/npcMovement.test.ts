@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { NPCS, type NpcDef } from '../../src/content/npcs';
-import { createInitialState } from '../../src/game/state';
+import { NPCS, type NpcDef } from '../../src/core/content/npcs';
+import { createInitialState } from '../../src/core/game/state';
 import { NpcActor, npcGoalPosition, type ActorContext } from '../../src/presentation/actors';
 import { poseRig, type Rig } from '../../src/presentation/characters';
-import { Colliders, type Collider } from '../../src/world/colliders';
-import { ANCHORS } from '../../src/world/layout';
-import type { NavGrid } from '../../src/world/nav';
-import type { Terrain } from '../../src/world/terrain';
+import { Colliders, type Collider } from '../../src/core/world/colliders';
+import { ANCHORS } from '../../src/core/world/layout';
+import type { NavGrid } from '../../src/core/world/nav';
+import type { Terrain } from '../../src/core/world/terrain';
 
 vi.mock('../../src/presentation/characters', () => ({ poseRig: vi.fn(), applyFlash: vi.fn(), createNpcRig: vi.fn(), createBanditRig: vi.fn(), createThornback: vi.fn() }));
 const flat = { groundAt: () => 0, walkable: () => true } as unknown as Terrain;

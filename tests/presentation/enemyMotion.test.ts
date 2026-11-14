@@ -2,11 +2,11 @@ import * as THREE from 'three';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EnemyActor, type EnemyContext, type EnemyState } from '../../src/presentation/actors';
 import { poseRig, type Pose, type Rig } from '../../src/presentation/characters';
-import type { EnemySpawn } from '../../src/world/layout';
-import { Colliders } from '../../src/world/colliders';
-import { NavGrid } from '../../src/world/nav';
-import type { Terrain } from '../../src/world/terrain';
-import { WORLD } from '../../src/world/layout';
+import type { EnemySpawn } from '../../src/core/world/layout';
+import { Colliders } from '../../src/core/world/colliders';
+import { NavGrid } from '../../src/core/world/nav';
+import type { Terrain } from '../../src/core/world/terrain';
+import { WORLD } from '../../src/core/world/layout';
 
 // Exercise the real hostile controller/contact/state transitions. Geometry and source skinning
 // have separate actual-file coverage; capturing the presentation pose makes gait continuity observable.

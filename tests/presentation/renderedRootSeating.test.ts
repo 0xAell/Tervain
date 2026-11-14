@@ -3,7 +3,7 @@ import { expect, it } from 'vitest';
 import { meshyTreeTemplates, meshyTreeTemplate } from './meshyTreeFixture';
 import { createMeshyForest, MESHY_TREE_LODS } from '../../src/presentation/meshyTrees';
 import { groundedTreeY, seatTreeFlares, TREE_FLARE_MAX_SINK } from '../../src/presentation/treeGrounding';
-import { Terrain } from '../../src/world/terrain';
+import { Terrain } from '../../src/core/world/terrain';
 import type { FloraTree } from '../../src/presentation/floraPopulation';
 import type { TreeVariant } from '../../src/presentation/treeGen';
 

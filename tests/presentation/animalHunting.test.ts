@@ -1,15 +1,15 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { ANIMAL_IDS, ANIMAL_MODEL_IDS, HUNTABLE_ANIMAL_IDS, SKINNING_REACH, WILDLIFE_RETURN_DISTANCE, returnWildlife, type AnimalId, type AnimalHuntRecord } from '../../src/game/hunting';
+import { ANIMAL_IDS, ANIMAL_MODEL_IDS, HUNTABLE_ANIMAL_IDS, SKINNING_REACH, WILDLIFE_RETURN_DISTANCE, returnWildlife, type AnimalId, type AnimalHuntRecord } from '../../src/core/game/hunting';
 import { buildAnimals, type AnimalCallEvent } from '../../src/presentation/animals';
 import { ANIMALS } from '../../src/presentation/animals/catalog';
 import { AnimalArrowSurface } from '../../src/presentation/animals/hunting/hit';
 import { AnimalImpactEffects } from '../../src/presentation/animals/hunting/impact';
 import type { FrameContext } from '../../src/presentation/context';
-import { createInitialState } from '../../src/game/state';
-import { worldView } from '../../src/game/worldView';
-import { Colliders } from '../../src/world/colliders';
-import type { Terrain } from '../../src/world/terrain';
+import { createInitialState } from '../../src/core/game/state';
+import { worldView } from '../../src/core/game/worldView';
+import { Colliders } from '../../src/core/world/colliders';
+import type { Terrain } from '../../src/core/world/terrain';
 import { animalFixture } from './animalFixture';
 
 const terrain = { heightAt: () => 0, groundAt: () => 0, walkable: () => true, carveAt: () => 0, seaDepth: () => 0, deckAt: () => null,

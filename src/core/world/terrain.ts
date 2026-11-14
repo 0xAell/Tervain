@@ -6,7 +6,7 @@ import { lighthouseFloorAt, lighthouseSurfacesAt } from './lighthouse';
 import { buildingStepSurfacesAt } from './buildingEntries';
 import { roomLocator, type RoomLocator } from './interiors';
 import { springBasinGround } from './water/spring';
-import { checkCancelled, finishCooperatively, type CooperativeOptions } from '../platform/cooperative';
+import { checkCancelled, finishCooperatively, type CooperativeOptions } from '../util/cooperative';
 import { isWorldPickupItem } from '../content/pickups';
 import { FIELDS,
   ANCHORS,

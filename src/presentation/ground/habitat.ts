@@ -10,16 +10,16 @@ import {
   STREAMS,
   VALLEY,
   WORLD,
-} from '../../world/layout';
-import { clamp, fbm, smoothstep } from '../../world/noise';
-import { distToPolyline, roadWeight, type Terrain } from '../../world/terrain';
+} from '../../core/world/layout';
+import { clamp, fbm, smoothstep } from '../../core/world/noise';
+import { distToPolyline, roadWeight, type Terrain } from '../../core/world/terrain';
 import type { BuildContext } from '../context';
 import { groundSplat } from '../groundSplat';
 import { LAYER } from '../terrainTextures';
-import { shoreDistance } from '../../world/coast';
-import { isWorldPickupItem } from '../../content/pickups';
+import { shoreDistance } from '../../core/world/coast';
+import { isWorldPickupItem } from '../../core/content/pickups';
 import type { PlantedCrownField } from '../plantedCrowns';
-import { biomeAt } from '../../world/biomes';
+import { biomeAt } from '../../core/world/biomes';
 
 /**
  * A cheap, lazily evaluated map of where plants may grow and what kind of ground it is.

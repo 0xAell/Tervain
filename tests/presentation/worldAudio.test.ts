@@ -2,9 +2,9 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ITEMS, itemAction } from '../../src/content/items';
-import { S } from '../../src/content/strings';
-import type { ItemId, NpcId } from '../../src/game/types';
+import { ITEMS, itemAction } from '../../src/core/content/items';
+import { S } from '../../src/core/content/strings';
+import type { ItemId, NpcId } from '../../src/core/game/types';
 import { defaultSettings } from '../../src/platform/settings';
 import { AudioEngine, ambienceMix } from '../../src/presentation/audio';
 import { ANIMAL_AUDIO, ANIMAL_CALL_EVENT, animalCallDetail, type AnimalCall } from '../../src/presentation/sound/animalAudio';
@@ -24,10 +24,10 @@ import {
 import { SoundWorld, type SoundFrame } from '../../src/presentation/sound/soundWorld';
 import { VOICE_AUDIO } from '../../src/presentation/sound/voiceManifest';
 import { WORLD_AUDIO } from '../../src/presentation/sound/worldAudioManifest';
-import { coastX } from '../../src/world/coast';
-import { BUILDINGS, FORD, INLAND_HAMLET, LIGHTHOUSE, PLACES, RITE_ALTAR, STREAMS } from '../../src/world/layout';
-import { distToPolyline } from '../../src/world/terrain';
-import { roomLocator } from '../../src/world/interiors';
+import { coastX } from '../../src/core/world/coast';
+import { BUILDINGS, FORD, INLAND_HAMLET, LIGHTHOUSE, PLACES, RITE_ALTAR, STREAMS } from '../../src/core/world/layout';
+import { distToPolyline } from '../../src/core/world/terrain';
+import { roomLocator } from '../../src/core/world/interiors';
 
 const ROOT = path.resolve(__dirname, '../..');
 const OUT = path.join(ROOT, 'public', WORLD_AUDIO.base);

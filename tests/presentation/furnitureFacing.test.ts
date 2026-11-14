@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FURNITURE } from '../../src/world/furniture';
+import { FURNITURE } from '../../src/core/world/furniture';
 
 describe('twelfth scout fixes: seats face what they serve (A105)', () => {
   it('turns every chair and stool towards the nearest table or desk in its room', () => {

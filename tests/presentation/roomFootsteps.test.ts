@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { groundSurface, innSong } from '../../src/presentation/sound/soundscape';
-import { BUILDINGS } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
+import { BUILDINGS } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
 
 describe('footsteps on room floors (A89 scout)', () => {
   it('sound boarded in every walkable room and flagged in the shrine hall, not grass or road', () => {

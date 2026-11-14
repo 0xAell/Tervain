@@ -3,11 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { authorMillWheel, authorMillWheelSupports } from '../../src/presentation/millWheel';
 import { Ctx } from '../../src/presentation/buildKit';
 import { Region } from '../../src/presentation/regions';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { MILL_WHEEL, bySpec } from '../../src/world/layout';
-import { MILL_WHEEL_CONSTRUCTION as C, millWheelPlacement } from '../../src/world/millWheel';
-import { Terrain } from '../../src/world/terrain';
-import { WaterWorld } from '../../src/world/water/waterWorld';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { MILL_WHEEL, bySpec } from '../../src/core/world/layout';
+import { MILL_WHEEL_CONSTRUCTION as C, millWheelPlacement } from '../../src/core/world/millWheel';
+import { Terrain } from '../../src/core/world/terrain';
+import { WaterWorld } from '../../src/core/world/water/waterWorld';
 
 const material = new THREE.MeshBasicMaterial({ side: THREE.FrontSide });
 const terrain = new Terrain();

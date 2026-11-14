@@ -1,13 +1,13 @@
-import { S } from '../content/strings';
-import { NPCS } from '../content/npcs';
+import { S } from '../core/content/strings';
+import { NPCS } from '../core/content/npcs';
 import type { App } from '../app';
-import { hasFact, phaseIndex } from '../game/state';
-import { ARCHIVE_SHUTTER, BELL, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, INSPECT_LOCATIONS, LEDGER, MILL_WHEEL, PICKUP_LOCATIONS, RESULT_CHECKS, RITE_ALTAR, SHORTCUT, SLUICE, bySpec, frontOf } from '../world/layout';
-import type { NpcId } from '../game/types';
-import { isWorldPickupItem, WORLD_PICKUP_MODELS } from '../content/pickups';
+import { hasFact, phaseIndex } from '../core/game/state';
+import { ARCHIVE_SHUTTER, BELL, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, INSPECT_LOCATIONS, LEDGER, MILL_WHEEL, PICKUP_LOCATIONS, RESULT_CHECKS, RITE_ALTAR, SHORTCUT, SLUICE, bySpec, frontOf } from '../core/world/layout';
+import type { NpcId } from '../core/game/types';
+import { isWorldPickupItem, WORLD_PICKUP_MODELS } from '../core/content/pickups';
 import { worldPickupTargetY } from './worldPickups';
 import { hunterTableSurfaceY } from './hunterSupplies';
-import { hunterRank, hunterSparesArrows, hunterTradingOpen, restockParams } from '../game/hunting';
+import { hunterRank, hunterSparesArrows, hunterTradingOpen, restockParams } from '../core/game/hunting';
 import { DEER_BODY, doorwayAhead } from './riding';
 
 export interface Interactable {

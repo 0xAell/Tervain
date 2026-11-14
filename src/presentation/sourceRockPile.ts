@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from './assets/gltfLoader';
-import { coastX } from '../world/coast';
-import type { PhysicalRockGeometry } from '../world/physicsGeometry';
+import { coastX } from '../core/world/coast';
+import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
 import type { BuildContext, SceneModule } from './context';
 import { assertNaturalModelBudget } from './naturalModelBudget';
 import { groundedNaturalGeometryY } from './treeGrounding';

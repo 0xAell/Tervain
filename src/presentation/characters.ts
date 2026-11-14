@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import type { Accessory, NpcDef } from '../content/npcs';
+import type { Accessory, NpcDef } from '../core/content/npcs';
 import { PAL } from './kit';
-import { mulberry32 } from '../world/noise';
+import { mulberry32 } from '../core/world/noise';
 import { limb, loft as rigidLoft, type RGB, type Section } from './humanGeo';
 import { npcStyle, type WorkGesture } from './npcStyle';
 import type { NpcPoseFit } from './npc/poseFit';

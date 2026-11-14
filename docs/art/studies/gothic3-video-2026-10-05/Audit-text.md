@@ -373,7 +373,7 @@ Reference:11:05; 14:29; 15:31
 ## T04 / P0 / Road
 Refine irregular worn shoulders while preserving the authoritative clear graded route.
 
-Source:src/world/layout.ts; terrain.ts; src/presentation/ground/habitat.ts
+Source:src/core/world/layout.ts; terrain.ts; src/presentation/ground/habitat.ts
 
 Acceptance:Walk/run both directions and forks without new obstacles or disconnected visual center.
 
@@ -409,7 +409,7 @@ Reference:All route plates
 ## T08 / P0 / Contact
 Reconcile every revised step/shelf/outcrop with movement support and camera clearance.
 
-Source:src/world/terrain.ts; physics.ts; colliders.ts; rockContacts.ts
+Source:src/core/world/terrain.ts; physics.ts; colliders.ts; rockContacts.ts
 
 Acceptance:No visible walkable surface is nonphysical; ordinary routes remain accessible.
 
@@ -454,7 +454,7 @@ Reference:11:48
 ## T13 / P1 / Ecology
 Author canopy cohorts, subordinate low plants and clear openings by habitat.
 
-Source:src/world/forestStands.ts; forest.ts; src/presentation/floraPopulation.ts
+Source:src/core/world/forestStands.ts; forest.ts; src/presentation/floraPopulation.ts
 
 Acceptance:Lushness varies by place; dense approach retained and contact changes explicit.
 
@@ -472,7 +472,7 @@ Reference:12:18; 18:07
 ## T15 / P1 / Cliff
 Add stratified mass and grass/rock/sand joins to lighthouse platform.
 
-Source:src/world/coast.ts; src/presentation/coastalBackdrop.ts; terrainMaterial.ts
+Source:src/core/world/coast.ts; src/presentation/coastalBackdrop.ts; terrainMaterial.ts
 
 Acceptance:Landmark is supported and connected; no shiny smooth pedestal.
 
@@ -481,7 +481,7 @@ Reference:12:33; 16:03
 ## T16 / P1 / Village relief
 Add low original retaining edges and short coherent terraces at important thresholds.
 
-Source:src/world/terrain.ts; buildingEntries.ts; src/presentation/buildings.ts
+Source:src/core/world/terrain.ts; buildingEntries.ts; src/presentation/buildings.ts
 
 Acceptance:Walking and camera tests pass without corrupting saves or road grades.
 
@@ -508,7 +508,7 @@ Reference:14:06
 ## T19 / P1 / Workshop
 Build covered raised station as one functional structural assembly.
 
-Source:src/presentation/structures.ts; props.ts; src/world/colliders.ts
+Source:src/presentation/structures.ts; props.ts; src/core/world/colliders.ts
 
 Acceptance:Roof/posts/tools/storage/support agree; approach and work space remain clear.
 
@@ -517,7 +517,7 @@ Reference:15:23
 ## T20 / P1 / Beacon
 Refine connected hut, tower, stair, landing and lookout composition.
 
-Source:src/presentation/lighthouse.ts; src/world/lighthouse.ts; cameraRig.ts
+Source:src/presentation/lighthouse.ts; src/core/world/lighthouse.ts; cameraRig.ts
 
 Acceptance:Player can complete the intended route and look outward without clipping.
 
@@ -652,7 +652,7 @@ Reference:05:15; 14:29; 15:23
 ## T35 / P2 / Pickups
 Give original item props consistent art and real save-compatible interaction.
 
-Source:src/presentation/worldPickups.ts; interactions.ts; src/game/
+Source:src/presentation/worldPickups.ts; interactions.ts; src/core/game/
 
 Acceptance:No decorative/real-item ambiguity or duplicated quest-tool reward.
 
@@ -697,7 +697,7 @@ Reference:15:52
 ## T40 / P2 / Lore dressing
 Place a meaningful single allegiance mark at an original station, with contextual cloth/metal.
 
-Source:src/content/; src/presentation/menu/menuBanner.ts; approved emblem sources
+Source:src/core/content/; src/presentation/menu/menuBanner.ts; approved emblem sources
 
 Acceptance:No copied Gothic symbols or random repeated faction badges.
 
@@ -997,7 +997,7 @@ Use a close reference pair to distinguish texture detail from real physical clut
 
 **Observed contrast.** Reference 12:27 has overlapping slopes: near rock/fern bank, descending trees, a middle trough, then an ascending distant wooded hill. The coast at 12:33 layers near vegetation, a lower hut/fence shelf, ochre sand, blue sea, lighthouse wall, distant promontory. The layers remain intelligible despite recording blur. Current Tervain now has a bay/headland and hills, but broad smooth slopes and simple material bands can still expose a procedural surface.
 
-**Exact current source.** `src/world/layout.ts` holds the authored coast, shelves, forest hills/swale, arrival and lighthouse polylines/grades, building footprints and world anchors. World bounds are x −380..200 m, z −170..170 m, canonical height grid cell 2 m. `world/coast.ts` shapes the coast and lighthouse cap. `world/terrain.ts` composes authored forest relief, low boundary rise, local bumps, road/stream cuts, terrace support and natural rock surfaces. `presentation/terrainMesh.ts` uses render subdivision 2: material samples refine to 1 m while sampling the same authored physical planes; 64 rendered-cell resident tiles allow ordinary frustum culling without terrain unloading or distance LOD. Tile normals are copied from the globally computed surface to avoid seams.
+**Exact current source.** `src/core/world/layout.ts` holds the authored coast, shelves, forest hills/swale, arrival and lighthouse polylines/grades, building footprints and world anchors. World bounds are x −380..200 m, z −170..170 m, canonical height grid cell 2 m. `world/coast.ts` shapes the coast and lighthouse cap. `world/terrain.ts` composes authored forest relief, low boundary rise, local bumps, road/stream cuts, terrace support and natural rock surfaces. `presentation/terrainMesh.ts` uses render subdivision 2: material samples refine to 1 m while sampling the same authored physical planes; 64 rendered-cell resident tiles allow ordinary frustum culling without terrain unloading or distance LOD. Tile normals are copied from the globally computed surface to avoid seams.
 
 **Proposed remedy.** Compose the existing coast/forest with a small number of authored banks, shallow gullies, broken shelf rims and variable-width road shoulders. Prioritize silhouettes visible from ordinary playable paths: one left-side foreground bank, a clear bend toward a landmark, a contrasting middle depression and a low distant closure. Use offset, irregular forms instead of repeating radial bumps. The lighthouse approach can widen near its entrance, narrow past a bank, and reveal the roof before the full tower. Do not add an alpine mountain wall over the sparse coast merely because an earlier reference contains distant mountains.
 

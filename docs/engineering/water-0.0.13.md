@@ -7,12 +7,12 @@ game; there is no purchased water shader or FFT ocean.
 
 ## One model of the water
 
-[src/world/water/](../../src/world/water/) holds a renderer-free model, [WaterWorld](../../src/world/water/waterWorld.ts).
+[src/core/world/water/](../../src/core/world/water/) holds a renderer-free model, [WaterWorld](../../src/core/world/water/waterWorld.ts).
 It answers one question for any point: is there water here, how high does it stand, how deep is it, and which way does
 it move? The meshes, floating cargo, the swimmer, arrows and the water sounds all ask it. What is seen, what floats and
 what is heard therefore agree.
 
-**The sea** ([waves.ts](../../src/world/water/waves.ts), [bathymetry.ts](../../src/world/water/bathymetry.ts)):
+**The sea** ([waves.ts](../../src/core/world/water/waves.ts), [bathymetry.ts](../../src/core/world/water/bathymetry.ts)):
 
 - One long-crested swell (period 7.4 s, 0.5 m offshore) arrives from the open sea in sets.
 - Its phase over the bed is solved once at load by fast marching. The local wave number comes from the linear
@@ -23,7 +23,7 @@ what is heard therefore agree.
 - The bed is the terrain inside the world and the distant coast west of it. Beyond the solved grid the coast runs on
   as it leaves the grid.
 
-**Streams and races** ([channels.ts](../../src/world/water/channels.ts)):
+**Streams and races** ([channels.ts](../../src/core/world/water/channels.ts)):
 
 - Each course is resampled every metre.
 - The surface never rises downstream. It stays below the banks, except where the water downstream already stands
@@ -34,10 +34,10 @@ what is heard therefore agree.
   part of it. Nowhere across a stream is the water deeper than over its middle, so down a cross-slope or a cascade it
   runs as a film over the ground.
 
-**The spring** ([spring.ts](../../src/world/water/spring.ts)): a bowl is cut into the hillside below the source. The
+**The spring** ([spring.ts](../../src/core/world/water/spring.ts)): a bowl is cut into the hillside below the source. The
 spring falls a few metres into a pool whose level follows the spring's flow.
 
-**Terrain** ([terrain.ts](../../src/world/terrain.ts)): the mill race's bed is cut down through a low rise so that it
+**Terrain** ([terrain.ts](../../src/core/world/terrain.ts)): the mill race's bed is cut down through a low rise so that it
 falls gently all the way from its intake. The mill wheel moved half a metre over the race's flat bed, so its paddles
 turn in the race's water rather than above the cut's sloping side.
 
@@ -84,7 +84,7 @@ standing in the stream gets a lip of foam. The pool is a level disc in the sprin
   Medium, none on Low. Steps, strokes, splashes, arrows and fish drop impulses into it, and every water surface reads
   it.
 - **Spray:** a pool of 480 droplets.
-- **Floating cargo** ([physics.ts](../../src/world/physics.ts)):
+- **Floating cargo** ([physics.ts](../../src/physics/physics.ts)):
   - Buoyancy acts as eight point forces per barrel or crate. A barrel floats about two fifths under and a crate about
     half.
   - The water's drag pulls each body toward the water's own motion, so cargo bobs on the swell, drifts with a stream

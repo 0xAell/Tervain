@@ -5,7 +5,7 @@ import { pineBinary, pineTemplates } from './pineFixture';
 import { createFloraPopulation, selectFloraPopulation, type FloraTree } from '../../src/presentation/floraPopulation';
 import { buildTreeVariant, type TreeVariant } from '../../src/presentation/treeGen';
 import { groundedTreeY, treeWoodCollisionRadius } from '../../src/presentation/treeGrounding';
-import { Terrain } from '../../src/world/terrain';
+import { Terrain } from '../../src/core/world/terrain';
 import { Exclusions, TREE_SWAY_ENABLED } from '../../src/presentation/vegetation';
 
 let templates: PineTemplates;

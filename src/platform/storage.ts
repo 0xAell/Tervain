@@ -1,10 +1,10 @@
-import { createInitialState } from '../game/state';
-import { normalizeEquippedWeapon, normalizeInventory, normalizeQuickSlots } from '../game/inventory';
-import { ARROW_QUIVER_CAPACITY, normalizeHunting, normalizeHuntTally } from '../game/hunting';
-import { validMapMarker } from '../game/map';
-import { ARMED_START_REVISIONS, CONTENT_REVISION, EVIDENCE_IDS, NPC_IDS, SAVE_FORMAT_VERSION, WRECK_BLADE_PICKUP, type WorldState } from '../game/types';
+import { createInitialState } from '../core/game/state';
+import { normalizeEquippedWeapon, normalizeInventory, normalizeQuickSlots } from '../core/game/inventory';
+import { ARROW_QUIVER_CAPACITY, normalizeHunting, normalizeHuntTally } from '../core/game/hunting';
+import { validMapMarker } from '../core/game/map';
+import { ARMED_START_REVISIONS, CONTENT_REVISION, EVIDENCE_IDS, NPC_IDS, SAVE_FORMAT_VERSION, WRECK_BLADE_PICKUP, type WorldState } from '../core/game/types';
 import { GAME_BUILD } from '../version';
-import type { Allocation, GateState, QuestPhase } from '../game/types';
+import type { Allocation, GateState, QuestPhase } from '../core/game/types';
 
 /** The values the game writes for these fields, so a save holding anything else is caught (A72). */
 const QUEST_PHASES = ['unseen', 'investigating', 'decision_ready', 'committed', 'settled'] as const satisfies readonly QuestPhase[];

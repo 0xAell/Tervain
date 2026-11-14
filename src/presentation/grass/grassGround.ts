@@ -1,5 +1,5 @@
-import type { Terrain } from '../../world/terrain';
-import { WORLD } from '../../world/layout';
+import type { Terrain } from '../../core/world/terrain';
+import { WORLD } from '../../core/world/layout';
 
 type Ground = Pick<Terrain, 'heightAt'>;
 

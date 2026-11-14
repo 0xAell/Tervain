@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from './assets/gltfLoader';
-import { deepwoodCover, forestClearingDistance } from '../world/forest';
-import type { PhysicalWoodGeometry } from '../world/physicsGeometry';
+import { deepwoodCover, forestClearingDistance } from '../core/world/forest';
+import type { PhysicalWoodGeometry } from '../core/world/physicsGeometry';
 import type { BuildContext, SceneModule } from './context';
 import { PlantedCrownIndex } from './plantedCrowns';
 import { assertNaturalModelBudget } from './naturalModelBudget';

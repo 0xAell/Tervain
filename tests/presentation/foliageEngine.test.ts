@@ -12,14 +12,14 @@ import { groundedTreeY, treeWoodCollisionRadius } from '../../src/presentation/t
 import { createPineForest, isPineSpecies, type PineTemplates } from '../../src/presentation/solitaryPine';
 import { buildTreeVariant, type TreeVariant } from '../../src/presentation/treeGen';
 import { pineTemplates } from './pineFixture';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { AssetLibrary } from '../../src/presentation/assets/library';
 import { defaultSettings } from '../../src/platform/settings';
 import type { FrameContext } from '../../src/presentation/context';
-import { worldView } from '../../src/game/worldView';
-import { createInitialState } from '../../src/game/state';
+import { worldView } from '../../src/core/game/worldView';
+import { createInitialState } from '../../src/core/game/state';
 import { REALM_WIND } from '../../src/presentation/realmWind';
 import { splitLeafPrepass } from '../../src/presentation/foliage/leafPrepass';
 

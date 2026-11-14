@@ -1,4 +1,4 @@
-import { BIOME_IDS, biomeAt, type BiomeId, type BiomeSample } from '../../world/biomes';
+import { BIOME_IDS, biomeAt, type BiomeId, type BiomeSample } from '../../core/world/biomes';
 
 /** Muted ink washes match the shared planted habitat field, not a new set of named places.
  * Paths, real water, contours and discovered-place ink remain separate, higher priority marks. */

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { NPCS } from '../../src/content/npcs';
-import { createInitialState } from '../../src/game/state';
+import { NPCS } from '../../src/core/content/npcs';
+import { createInitialState } from '../../src/core/game/state';
 import { EnemyActor, NpcActor } from '../../src/presentation/actors';
 import { buildAmbient } from '../../src/presentation/ambient';
 import { createStandInRig, type Rig } from '../../src/presentation/characters';
@@ -9,9 +9,9 @@ import type { BuildContext, FrameContext } from '../../src/presentation/context'
 import type { MeshyNpcCatalog } from '../../src/presentation/meshynpcs';
 import { ARRIVAL_BUDGET_MS, NEAR_ENTRY_METRES, ResidentArrivals, residentRolesNear, type AwaitingFigure } from '../../src/presentation/residentArrivals';
 import { defaultSettings } from '../../src/platform/settings';
-import { Colliders } from '../../src/world/colliders';
-import { ENEMY_SPAWNS } from '../../src/world/layout';
-import type { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { ENEMY_SPAWNS } from '../../src/core/world/layout';
+import type { Terrain } from '../../src/core/world/terrain';
 
 /** A model that has arrived: something to draw. */
 function arrivedRig(height = 1.8): Rig {

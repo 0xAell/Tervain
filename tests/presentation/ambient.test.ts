@@ -7,9 +7,9 @@ import { buildAmbient } from '../../src/presentation/ambient';
 import { poseRig, type Rig } from '../../src/presentation/characters';
 import type { BuildContext, FrameContext } from '../../src/presentation/context';
 import { createMeshyNpcRig, type MeshyNpcManifest } from '../../src/presentation/meshynpcs';
-import { Colliders } from '../../src/world/colliders';
-import { ANCHORS, BENCH_SEAT_HEIGHT } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { ANCHORS, BENCH_SEAT_HEIGHT } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
 
 // Capture the actual controller-to-poser boundary while retaining the real bone
 // poser. Source geometry/weights/textures are covered by meshynpcs.test.ts.

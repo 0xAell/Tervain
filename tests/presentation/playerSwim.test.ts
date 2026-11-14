@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import { HERO_WALK_SPEED } from '../../src/presentation/hero/locomotion';
 import { Player, SWIM_DEPTH, SWIM_EXIT, SWIM_FLOAT, SWIM_SPEED, wadeFactor, type PlayerCtx, type PlayerWater } from '../../src/presentation/player';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
-import { WaterWorld } from '../../src/world/water/waterWorld';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
+import { WaterWorld } from '../../src/core/world/water/waterWorld';
 
 vi.mock('../../src/presentation/characters', () => ({
   createPlayerRig: () => ({ root: new THREE.Group(), hitFlash: 0 }),

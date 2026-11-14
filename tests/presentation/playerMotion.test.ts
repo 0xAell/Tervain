@@ -1,19 +1,19 @@
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import type { EnemyActor, NpcActor } from '../../src/presentation/actors';
 import { BLADE, FISTS, Player, type PlayerCtx } from '../../src/presentation/player';
-import { Colliders, buildStaticColliders } from '../../src/world/colliders';
-import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L } from '../../src/world/layout';
-import { LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop } from '../../src/world/lighthouse';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders, buildStaticColliders } from '../../src/core/world/colliders';
+import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L } from '../../src/core/world/layout';
+import { LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop } from '../../src/core/world/lighthouse';
+import { Terrain } from '../../src/core/world/terrain';
 import { poseRig } from '../../src/presentation/characters';
 import { HERO_WALK_SPEED, HERO_RUN_SPEED } from '../../src/presentation/hero/locomotion';
-import { initializePhysics, RealmPhysics } from '../../src/world/physics';
+import { initializePhysics, RealmPhysics } from '../../src/physics/physics';
 
 // This is controller/physics coverage, with real game state and colliders; sculpted rendering is tested separately.
 vi.mock('../../src/presentation/characters', () => ({
@@ -55,7 +55,7 @@ describe('player motion and action contacts', () => {
     const enemy = { id: 'contact-enemy', x: 4, y: 5, z: 6, radius: .4, alive: true };
     const animal = { id: 'animal:test', kind: 'circle' as const, x: 8, z: 0, r: .5, active: true };
     s.ctx.npcs = [resident]; s.ctx.enemies = [enemy as unknown as EnemyActor]; s.ctx.wildlifeContacts = [animal];
-    const read = (player = s.player, ctx = s.ctx) => Reflect.get(player, 'contacts').call(player, ctx) as import('../../src/world/colliders').Collider[];
+    const read = (player = s.player, ctx = s.ctx) => Reflect.get(player, 'contacts').call(player, ctx) as import('../../src/core/world/colliders').Collider[];
     const rows = read(), person = rows[1], foe = rows[2];
     resident.x = 10; resident.y = 11; enemy.radius = .8; enemy.y = 12;
     expect(read()).toBe(rows); expect(rows[0]).toBe(animal); expect(rows[1]).toBe(person); expect(rows[2]).toBe(foe);

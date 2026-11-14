@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { DISTANT_COAST, distantCoastHeight } from '../world/distantCoast';
-import { fbm, smoothstep } from '../world/noise';
+import { DISTANT_COAST, distantCoastHeight } from '../core/world/distantCoast';
+import { fbm, smoothstep } from '../core/world/noise';
 import { createTerrainMaterial } from './terrainMaterial';
 import { LAYER, type TerrainTextures } from './terrainTextures';
 import type { SceneModule } from './context';

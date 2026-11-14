@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../src/game/state';
+import { createInitialState } from '../src/core/game/state';
 import { MemoryStore, SaveStore, reviveState } from '../src/platform/storage';
 
 const pose = { id: 'camp_crate_0', position: { x: -91, y: 4.5, z: 27 }, rotation: { x: 0, y: .6, z: 0, w: .8 } };

@@ -1,4 +1,4 @@
-import { BOW_LENGTH } from '../content/bowSize';
+import { BOW_LENGTH } from '../core/content/bowSize';
 import * as THREE from 'three';
 import type { Rig } from './characters';
 import { createHuntingArrow } from './huntingArrow';

@@ -10,7 +10,7 @@
  * Not part of the build.
  */
 import * as THREE from 'three';
-import { NPC_LIST } from '../src/content/npcs';
+import { NPC_LIST } from '../src/core/content/npcs';
 import { AMBIENT_PEOPLE } from '../src/presentation/ambient';
 import { createAmbientRig, createBanditRig, createNpcRig, createPlayerRig, IDLE_VARIANTS, personBuildOptions, poseRig, setArmed, setSash, type IdleVariant, type Mode, type Rig } from '../src/presentation/characters';
 import { sheetsSettled } from '../src/presentation/human/sheetPool';

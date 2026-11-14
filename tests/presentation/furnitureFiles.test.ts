@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { FURNITURE_TRIANGLE_LIMIT, type FurnitureManifest } from '../../src/presentation/furniture';
-import { FURNITURE_SIZES } from '../../src/world/furnitureSizes';
+import { FURNITURE_SIZES } from '../../src/core/world/furnitureSizes';
 
 const root = new URL('../../', import.meta.url);
 const read = (path: string) => readFileSync(new URL(path, root));

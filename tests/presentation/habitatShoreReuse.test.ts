@@ -1,15 +1,15 @@
 import {expect, it, vi} from 'vitest';
 const observed=vi.hoisted(()=>({calls:0}));
-vi.mock('../../src/world/coast',async(importOriginal)=>{
-  const coast=await importOriginal<typeof import('../../src/world/coast')>();
+vi.mock('../../src/core/world/coast',async(importOriginal)=>{
+  const coast=await importOriginal<typeof import('../../src/core/world/coast')>();
   return {...coast,shoreDistance(x:number,z:number){observed.calls++;return coast.shoreDistance(x,z);}};
 });
 import {Habitat,newSample} from '../../src/presentation/ground/habitat';
 import {groundSplat} from '../../src/presentation/groundSplat';
-import {Colliders} from '../../src/world/colliders';
-import {Terrain} from '../../src/world/terrain';
+import {Colliders} from '../../src/core/world/colliders';
+import {Terrain} from '../../src/core/world/terrain';
 import {Exclusions} from '../../src/presentation/vegetation';
-import {coastX,shoreDistance,seaWetness} from '../../src/world/coast';
+import {coastX,shoreDistance,seaWetness} from '../../src/core/world/coast';
 
 it('avoids the duplicate direct shoreline lookup per cold node and keeps warm tiles cached',()=>{
   const terrain=new Terrain();

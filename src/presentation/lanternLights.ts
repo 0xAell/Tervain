@@ -1,4 +1,4 @@
-import { smoothstep } from '../world/noise';
+import { smoothstep } from '../core/world/noise';
 
 interface LanternPosition { x: number; y: number; z: number }
 

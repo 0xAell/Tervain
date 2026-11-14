@@ -1,6 +1,6 @@
-import { rockiness, sampleBathymetry } from '../../world/water/bathymetry';
-import { crestWobble, SWELL_OMEGA } from '../../world/water/waves';
-import type { WaterWorld } from '../../world/water/waterWorld';
+import { rockiness, sampleBathymetry } from '../../core/world/water/bathymetry';
+import { crestWobble, SWELL_OMEGA } from '../../core/world/water/waves';
+import type { WaterWorld } from '../../core/world/water/waterWorld';
 
 /**
  * What the water sounds like from where the listener stands, read from the same model that draws it: the nearest

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from './assets/gltfLoader';
-import { mulberry32 } from '../world/noise';
+import { mulberry32 } from '../core/world/noise';
 import type { Species, TreeVariant } from './treeGen';
 import { barkTextures } from './treeTextures';
 import { leafAtlasInUse, leafAtlasTexture, leafAtlasWanted, loadLeafAtlas, remapPineToAtlas } from './leafAtlas';

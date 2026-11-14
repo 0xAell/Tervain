@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { mergeStaticParts } from './staticMerge';
-import { CARAVAN_ANIMAL_REST as REST, caravanAnimalPoint } from '../world/caravanAnimal';
-import type { Colliders } from '../world/colliders';
-import type { Terrain } from '../world/terrain';
+import { CARAVAN_ANIMAL_REST as REST, caravanAnimalPoint } from '../core/world/caravanAnimal';
+import type { Colliders } from '../core/world/colliders';
+import type { Terrain } from '../core/world/terrain';
 import type { SceneModule } from './context';
 import { makeTexPair } from './buildingTextures';
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
-import { ARCHIVE_ROOM, BUILDINGS, bySpec } from '../../src/world/layout';
-import type { Terrain } from '../../src/world/terrain';
+import { ARCHIVE_ROOM, BUILDINGS, bySpec } from '../../src/core/world/layout';
+import type { Terrain } from '../../src/core/world/terrain';
 import { buildArchiveShell, buildStandard } from '../../src/presentation/buildings';
 import { Ctx } from '../../src/presentation/buildKit';
 import { Region } from '../../src/presentation/regions';

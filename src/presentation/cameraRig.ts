@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import type { BoxCollider, Collider, Colliders } from '../world/colliders';
-import type { Terrain } from '../world/terrain';
-import { BUILDINGS, LIGHTHOUSE, PLACES } from '../world/layout';
+import type { BoxCollider, Collider, Colliders } from '../core/world/colliders';
+import type { Terrain } from '../core/world/terrain';
+import { BUILDINGS, LIGHTHOUSE, PLACES } from '../core/world/layout';
 import { CAMERA_CLEARANCE, cameraColliderEntry } from './cameraObstruction';
 import { RIDE_CAMERA } from './riding';
 import { crownBoom, type CameraCrown } from './cameraCrowns';

@@ -1,14 +1,14 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { coastX } from '../../src/world/coast';
-import { LIGHTHOUSE, SEA_LEVEL } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
-import { BATHY, BATHY_NX, breakerHeight, buildBathymetry, rockiness, sampleBathymetry, type Bathymetry } from '../../src/world/water/bathymetry';
-import { flowDepth, solveChannel } from '../../src/world/water/channels';
-import { SPRING_BASIN, SPRING_SOURCE, springBasinGround } from '../../src/world/water/spring';
-import { FILM, spreads, WaterWorld } from '../../src/world/water/waterWorld';
+import { coastX } from '../../src/core/world/coast';
+import { LIGHTHOUSE, SEA_LEVEL } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
+import { BATHY, BATHY_NX, breakerHeight, buildBathymetry, rockiness, sampleBathymetry, type Bathymetry } from '../../src/core/world/water/bathymetry';
+import { flowDepth, solveChannel } from '../../src/core/world/water/channels';
+import { SPRING_BASIN, SPRING_SOURCE, springBasinGround } from '../../src/core/world/water/spring';
+import { FILM, spreads, WaterWorld } from '../../src/core/world/water/waterWorld';
 import {
   breaking, groupVelocity, SEA_MAX_RISE, seaOffset, SWELL, SWELL_OMEGA, swashRise, swellHeight, waveNumber,
-} from '../../src/world/water/waves';
+} from '../../src/core/world/water/waves';
 
 const G = 9.81;
 let terrain: Terrain;

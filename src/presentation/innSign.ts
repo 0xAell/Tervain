@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import type { BuildingSpec } from '../world/layout';
-import { mulberry32 } from '../world/noise';
+import type { BuildingSpec } from '../core/world/layout';
+import { mulberry32 } from '../core/world/noise';
 import type { Col } from './buildKit';
 import type { Region } from './regions';
 import { jitterTone, TINT } from './structures';

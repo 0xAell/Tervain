@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Habitat, newSample, woodlandColonyAt } from '../../src/presentation/ground/habitat';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain, roadWeight } from '../../src/world/terrain';
-import { ARRIVAL_ROUTE } from '../../src/world/layout';
-import { biomeAt } from '../../src/world/biomes';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain, roadWeight } from '../../src/core/world/terrain';
+import { ARRIVAL_ROUTE } from '../../src/core/world/layout';
+import { biomeAt } from '../../src/core/world/biomes';
 import { groundSplat } from '../../src/presentation/groundSplat';
 import { LAYER } from '../../src/presentation/terrainTextures';
 

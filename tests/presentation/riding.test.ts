@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
-import { createInitialState } from '../../src/game/state';
+import { Game } from '../../src/core/game/game';
+import { createInitialState } from '../../src/core/game/state';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import { MemoryStore, SaveStore, reviveState } from '../../src/platform/storage';
@@ -11,10 +11,10 @@ import { Player, type PlayerCtx } from '../../src/presentation/player';
 import {
   DEER_BODY, MOUNT_SIDE, deerBodyBlocked, MOUNT_STAMINA, MOUNT_TIMES, RIDE, RIDE_CAMERA, deerBodyPoints, doorwayAhead, gaitBob, roomAtDoor, steerMount,
 } from '../../src/presentation/riding';
-import { Colliders } from '../../src/world/colliders';
-import { WORLD } from '../../src/world/layout';
-import { INTERIORS, fromBuildingLocal } from '../../src/world/interiors';
-import type { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { WORLD } from '../../src/core/world/layout';
+import { INTERIORS, fromBuildingLocal } from '../../src/core/world/interiors';
+import type { Terrain } from '../../src/core/world/terrain';
 
 vi.mock('../../src/presentation/characters', () => ({
   createPlayerRig: () => ({ root: new THREE.Group(), hitFlash: 0 }),

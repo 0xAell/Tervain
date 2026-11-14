@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { NPCS } from '../../src/content/npcs';
-import { createInitialState } from '../../src/game/state';
+import { NPCS } from '../../src/core/content/npcs';
+import { createInitialState } from '../../src/core/game/state';
 import { reviveState } from '../../src/platform/storage';
 import { finishNpcPath, NpcActor, resolveGoal, type ActorContext } from '../../src/presentation/actors';
 import type { Rig } from '../../src/presentation/characters';
 import { NpcApproachGreeting } from '../../src/presentation/npcApproachGreeting';
 import { npcStyle } from '../../src/presentation/npcStyle';
 import { workSound } from '../../src/presentation/sound/foley';
-import { Colliders } from '../../src/world/colliders';
-import { ANCHORS } from '../../src/world/layout';
-import type { NavGrid } from '../../src/world/nav';
-import type { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { ANCHORS } from '../../src/core/world/layout';
+import type { NavGrid } from '../../src/core/world/nav';
+import type { Terrain } from '../../src/core/world/terrain';
 
 vi.mock('../../src/presentation/characters', () => ({ poseRig: vi.fn(), applyFlash: vi.fn(), createNpcRig: vi.fn(), createBanditRig: vi.fn(), createThornback: vi.fn() }));
 

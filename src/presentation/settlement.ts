@@ -1,6 +1,6 @@
 import { buildFenceRun } from './fenceContacts';
 import * as THREE from 'three';
-import { addCartColliders, type Colliders, type VerticalBounds } from '../world/colliders';
+import { addCartColliders, type Colliders, type VerticalBounds } from '../core/world/colliders';
 import {
   ANCHORS,
   ARRIVAL_WRECK,
@@ -22,14 +22,14 @@ import {
   WELL,
   WELL_CONSTRUCTION,
   bySpec,
-} from '../world/layout';
-import { mulberry32 } from '../world/noise';
-import type { Terrain } from '../world/terrain';
+} from '../core/world/layout';
+import { mulberry32 } from '../core/world/noise';
+import type { Terrain } from '../core/world/terrain';
 import { Ctx, hash3 } from './buildKit';
 import { authorMillWheel, authorMillWheelSupports } from './millWheel';
 import { buildArchiveShell, buildLighthouse, buildStandard, DOOR_LEAF_INSET, groundOf, roomInterior, type BuildOut, type DoorLeaf } from './buildings';
-import { roomOf } from '../world/interiors';
-import { FURNITURE } from '../world/furniture';
+import { roomOf } from '../core/world/interiors';
+import { FURNITURE } from '../core/world/furniture';
 import { benchSet, campfire, cart, palisade, pot, ropeCoil, stockadeGate, wagon, watchtower, well, workTable, wreck } from './props';
 import { MaterialSet, Region } from './regions';
 import { signSway, type SwingingPart } from './innSign';

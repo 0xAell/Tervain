@@ -1,8 +1,8 @@
-import { cliffiness, coastX, shoreDistance } from '../../world/coast';
-import { deepwoodCover } from '../../world/forest';
-import { forestStandAt } from '../../world/forestStands';
-import { ANCHORS, ARRIVAL_WRECK, BUILDINGS, FOREST_RUIN, FORD, INLAND_HAMLET, LIGHTHOUSE, PLACES, RITE_ALTAR, STREAMS, WAGON, type V2 } from '../../world/layout';
-import { distToPolyline, roadWeight, type Terrain } from '../../world/terrain';
+import { cliffiness, coastX, shoreDistance } from '../../core/world/coast';
+import { deepwoodCover } from '../../core/world/forest';
+import { forestStandAt } from '../../core/world/forestStands';
+import { ANCHORS, ARRIVAL_WRECK, BUILDINGS, FOREST_RUIN, FORD, INLAND_HAMLET, LIGHTHOUSE, PLACES, RITE_ALTAR, STREAMS, WAGON, type V2 } from '../../core/world/layout';
+import { distToPolyline, roadWeight, type Terrain } from '../../core/world/terrain';
 import type { ClipId } from './clips';
 import type { SurfaceKind } from './foley';
 import type { LoopId } from './worldAudioManifest';

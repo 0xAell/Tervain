@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { buildForestFernGeometry, buildForestFloor, buildForestLitterGeometry, buildForestShrubGeometry, createForestFloorPopulation, selectForestFloorPopulation, FOREST_FLOOR_DISTANCE } from '../../src/presentation/forestFloor';
-import { Terrain } from '../../src/world/terrain';
+import { Terrain } from '../../src/core/world/terrain';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { deepwoodCover } from '../../src/world/forest';
-import { ARRIVAL_ROUTE, DEEPWOOD, FOREST_RUIN, FOREST_WAYMARKERS, SPAWN } from '../../src/world/layout';
-import { distToPolyline } from '../../src/world/terrain';
+import { deepwoodCover } from '../../src/core/world/forest';
+import { ARRIVAL_ROUTE, DEEPWOOD, FOREST_RUIN, FOREST_WAYMARKERS, SPAWN } from '../../src/core/world/layout';
+import { distToPolyline } from '../../src/core/world/terrain';
 import type { FrameContext } from '../../src/presentation/context';
-import { createInitialState } from '../../src/game/state';
-import { worldView } from '../../src/game/worldView';
+import { createInitialState } from '../../src/core/game/state';
+import { worldView } from '../../src/core/game/worldView';
 import { disposeTreeTextures } from '../../src/presentation/treeTextures';
 import { createFloraPopulation } from '../../src/presentation/floraPopulation';
-import { biomeAt } from '../../src/world/biomes';
+import { biomeAt } from '../../src/core/world/biomes';
 
 const terrain = new Terrain();
 const exclusions = new Exclusions(terrain);

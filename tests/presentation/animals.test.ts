@@ -3,11 +3,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildAnimals, AnimalAnimation, strideQuartersCrossed, validateAnimalTemplate, type AnimalCallEvent } from '../../src/presentation/animals';
 import { ANIMALS, requiredAnimalClips } from '../../src/presentation/animals/catalog';
 import { animalGroundAllowed, animalHabitatAllowed, animalRouteDistance, animalSegmentClear, findAnimalPath, findAnimalSite, type AnimalTerrain } from '../../src/presentation/animals/navigation';
-import { buildStaticColliders, Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders, Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
 import type { FrameContext } from '../../src/presentation/context';
-import { createInitialState } from '../../src/game/state';
-import { worldView } from '../../src/game/worldView';
+import { createInitialState } from '../../src/core/game/state';
+import { worldView } from '../../src/core/game/worldView';
 import { animalFixture, animalTemplates } from './animalFixture';
 import * as navigation from '../../src/presentation/animals/navigation';
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cameraColliderEntry } from '../../src/presentation/cameraObstruction';
-import { Colliders } from '../../src/world/colliders';
+import { Colliders } from '../../src/core/world/colliders';
 import { CameraRig } from '../../src/presentation/cameraRig';
 
 const flat = { groundAt: () => 0 };

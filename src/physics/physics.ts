@@ -1,13 +1,13 @@
 import RAPIER from '@dimforge/rapier3d-compat';
-import { FENCE_WALL_LIFT, type Collider as WorldCollider, type Colliders } from './colliders';
-import { ARCHIVE_ROOM, BUILDINGS, DECKS, HAMLET_PROPS } from './layout';
-import { buildingEntry, buildingGround } from './buildingEntries';
-import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, PLAYER_FOOT_CLEARANCE } from './playerPlacement';
-import type { Terrain } from './terrain';
-import type { PhysicalObjectPose } from '../game/types';
-import { RockSurfaces, ROCK_CLIMB_ANGLE, ROCK_STEP_HEIGHT } from './rockContacts';
-import type { PhysicalWoodGeometry } from './physicsGeometry';
-import type { WaterSample } from './water/waterWorld';
+import { FENCE_WALL_LIFT, type Collider as WorldCollider, type Colliders } from '../core/world/colliders';
+import { ARCHIVE_ROOM, BUILDINGS, DECKS, HAMLET_PROPS } from '../core/world/layout';
+import { buildingEntry, buildingGround } from '../core/world/buildingEntries';
+import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, PLAYER_FOOT_CLEARANCE } from '../core/world/playerPlacement';
+import type { Terrain } from '../core/world/terrain';
+import type { PhysicalObjectPose } from '../core/game/types';
+import { RockSurfaces, ROCK_CLIMB_ANGLE, ROCK_STEP_HEIGHT } from '../core/world/rockContacts';
+import type { PhysicalWoodGeometry } from '../core/world/physicsGeometry';
+import type { WaterSample } from '../core/world/water/waterWorld';
 
 export interface Vec3 { x: number; y: number; z: number }
 export interface ProjectileContact {

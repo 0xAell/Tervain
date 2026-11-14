@@ -1,4 +1,4 @@
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 import { clamp01, fbmField, sstep, voronoi } from '../procTex';
 
 /**

@@ -1,5 +1,5 @@
-import type { Colliders, VerticalBounds } from '../world/colliders';
-import { INTERIORS, onRoomFloor, roomHalfSize, toBuildingLocal, type InteriorSpec } from '../world/interiors';
+import type { Colliders, VerticalBounds } from '../core/world/colliders';
+import { INTERIORS, onRoomFloor, roomHalfSize, toBuildingLocal, type InteriorSpec } from '../core/world/interiors';
 
 /**
  * Riding the saddled deer (A71): how the deer answers the reins, how big a body it is, how long the hero takes to get up

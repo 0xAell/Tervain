@@ -1,6 +1,6 @@
-import { itemAction, ITEMS } from '../../content/items';
-import { S } from '../../content/strings';
-import type { ItemId } from '../../game/types';
+import { itemAction, ITEMS } from '../../core/content/items';
+import { S } from '../../core/content/strings';
+import type { ItemId } from '../../core/game/types';
 import { clear, h } from './dom';
 import { icon } from './icons';
 import { decodeQuickDrag, QUICK_DRAG_TYPE, QUICK_SLOT_COUNT, quickSlotLabel } from './uiModel';

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import {
   ANIMAL_IDS, ANIMAL_MODEL_IDS, HUNTABLE_ANIMAL_IDS, PROTECTED_ANIMAL_IDS, animalLoot, ARROW_QUIVER_CAPACITY, HUNTER_SPARE_ARROWS, HUNTER_SUPPLY_POSITION,
   huntingHint, normalizeHunting, SKINNING_REACH, type AnimalHit, type AnimalHuntRecord, type AnimalId,
-} from '../../src/game/hunting';
-import { createInitialState } from '../../src/game/state';
-import type { Command, ItemId } from '../../src/game/types';
+} from '../../src/core/game/hunting';
+import { createInitialState } from '../../src/core/game/state';
+import type { Command, ItemId } from '../../src/core/game/types';
 import { MemoryStore, reviveState, SaveStore } from '../../src/platform/storage';
-import { PICKUP_LOCATIONS } from '../../src/world/layout';
+import { PICKUP_LOCATIONS } from '../../src/core/world/layout';
 
 const position = { x: -188, y: 4, z: -66 };
 const hit = (id: AnimalId = 'bear-a', zone: AnimalHit['zone'] = 'body'): AnimalHit => ({ id, zone, position: { ...position }, yaw: .7 });
@@ -356,7 +356,7 @@ describe('early woodland hunting objectives', () => {
 
 describe('the arrows a hide is said to buy (A89 scout)', () => {
   it('are what still fits the quiver, and none when it is full', async () => {
-    const { restockParams, HUNTER_RANKS } = await import('../../src/game/hunting');
+    const { restockParams, HUNTER_RANKS } = await import('../../src/core/game/hunting');
     const s = createInitialState('slot-1');
     s.inventory.arrow = 0;
     expect(restockParams(s).count).toBe(HUNTER_RANKS[0].arrows);
@@ -369,8 +369,8 @@ describe('the arrows a hide is said to buy (A89 scout)', () => {
 
 describe('restock wording follows the hunter rank (A71)', () => {
   it('names the arrows a hide actually buys, and no hunting text promises a fixed six', async () => {
-    const { S } = await import('../../src/content/strings');
-    const { restockParams, HUNTER_RANKS } = await import('../../src/game/hunting');
+    const { S } = await import('../../src/core/content/strings');
+    const { restockParams, HUNTER_RANKS } = await import('../../src/core/game/hunting');
     const s = createInitialState('slot-1');
     s.huntTally = { taken: HUNTER_RANKS[1].taken, species: { deer: HUNTER_RANKS[1].taken } };
     const count = HUNTER_RANKS[1].arrows;

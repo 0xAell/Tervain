@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { Colliders } from '../../src/world/colliders';
-import { FLOAT_LINE, RealmPhysics, initializePhysics, type PropSpec, type WaterField } from '../../src/world/physics';
-import type { Terrain } from '../../src/world/terrain';
-import type { WaterSample } from '../../src/world/water/waterWorld';
+import { Colliders } from '../../src/core/world/colliders';
+import { FLOAT_LINE, RealmPhysics, initializePhysics, type PropSpec, type WaterField } from '../../src/physics/physics';
+import type { Terrain } from '../../src/core/world/terrain';
+import type { WaterSample } from '../../src/core/world/water/waterWorld';
 
 /** A flat bed three metres under still water, with an optional current, west of x = 6 (dry land beyond). */
 const bed = { nx: 20, nz: 20, vertexX: (i: number) => i * 2 - 20, vertexZ: (i: number) => i * 2 - 20,

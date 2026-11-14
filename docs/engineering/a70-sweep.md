@@ -55,7 +55,7 @@ furniture take part in building the world, and deferring them needs that build r
 
 ## Residents indoors
 
-Each resident has a place to sleep (`src/world/homes.ts`). At night they walk in through their door on a fine route
+Each resident has a place to sleep (`src/core/world/homes.ts`). At night they walk in through their door on a fine route
 inside the room, sit on the edge of the bed and lie down; they get up and walk out in the morning. Spoken to in bed, they
 sit up to talk and lie down again. Loading at night puts them in bed, since their positions follow the clock. Four
 residents work indoors in the morning: the baker at the oven, the mill hand at the bench, the estate steward and the

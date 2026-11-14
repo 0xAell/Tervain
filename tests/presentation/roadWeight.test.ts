@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
-import { distToPolyline, roadWeight } from '../../src/world/terrain';
-import { ROADS } from '../../src/world/layout';
-import { smoothstep } from '../../src/world/noise';
+import { distToPolyline, roadWeight } from '../../src/core/world/terrain';
+import { ROADS } from '../../src/core/world/layout';
+import { smoothstep } from '../../src/core/world/noise';
 
 it('preserves full-scan road weights at endpoints, overlapping routes and soft influence boundaries', () => {
   const points: number[][] = [];

@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from './assets/gltfLoader';
-import { FURNITURE, pieceSize, type FurniturePlacement } from '../world/furniture';
-import { FURNITURE_SIZES, type FurnitureId } from '../world/furnitureSizes';
-import { DRESSING, MODEL_SCALE, rugPattern, type Dressing } from '../world/dressing';
-import { fromBuildingLocal, hearthOf, type InteriorSpec, type RoomLocator } from '../world/interiors';
+import { FURNITURE, pieceSize, type FurniturePlacement } from '../core/world/furniture';
+import { FURNITURE_SIZES, type FurnitureId } from '../core/world/furnitureSizes';
+import { DRESSING, MODEL_SCALE, rugPattern, type Dressing } from '../core/world/dressing';
+import { fromBuildingLocal, hearthOf, type InteriorSpec, type RoomLocator } from '../core/world/interiors';
 import { modelAssetUrl } from './assets/modelUrl';
 import { observeModelLoad, withModelLoadSlot, type ModelLoadProgress } from './assets/modelLoadQueue';
 import { downloadAsset } from './assets/download';

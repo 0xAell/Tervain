@@ -5,7 +5,7 @@ import { Grade } from '../../src/presentation/grade';
 import { WaterSystem } from '../../src/presentation/water/waterSystem';
 import { detachWaterOptics, makeWaterOpticsUniforms } from '../../src/presentation/waterOptics';
 import { WaterRenderPass, type WaterRenderInputs } from '../../src/presentation/waterRenderPass';
-import { Terrain } from '../../src/world/terrain';
+import { Terrain } from '../../src/core/world/terrain';
 
 interface Draw {
   scene: THREE.Scene;

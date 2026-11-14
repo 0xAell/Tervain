@@ -1,6 +1,6 @@
-import { MILL_WHEEL_CONSTRUCTION as C, millWheelPlacement } from '../world/millWheel';
-import { mulberry32 } from '../world/noise';
-import type { Terrain } from '../world/terrain';
+import { MILL_WHEEL_CONSTRUCTION as C, millWheelPlacement } from '../core/world/millWheel';
+import { mulberry32 } from '../core/world/noise';
+import type { Terrain } from '../core/world/terrain';
 import type { Region } from './regions';
 import { TINT, jitterTone } from './structures';
 

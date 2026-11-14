@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { BIOME_IDS, BIOME_REGIONS, biomeAt } from '../../src/world/biomes';
-import { SPAWN, STRAND, WORLD } from '../../src/world/layout';
-import { forestStandAt } from '../../src/world/forestStands';
+import { BIOME_IDS, BIOME_REGIONS, biomeAt } from '../../src/core/world/biomes';
+import { SPAWN, STRAND, WORLD } from '../../src/core/world/layout';
+import { forestStandAt } from '../../src/core/world/forestStands';
 
 describe('connected coastal habitats', () => {
   it('shares a deterministic normalized region field with gradual mixed shoulders', () => {

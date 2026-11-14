@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../src/game/state';
+import { createInitialState } from '../../src/core/game/state';
 import { decodeQuickDrag, directionalCell, inventoryItems, quickSlotFromCode, quickSlotLabel, resourceFraction, type FocusRect } from '../../src/presentation/ui/uiModel';
 import { MAP_H, MAP_W, mapHeading, mapX, mapZ, placeMapLabel } from '../../src/presentation/ui/mapProjection';
 

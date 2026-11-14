@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Terrain } from '../../src/world/terrain';
-import { NavGrid } from '../../src/world/nav';
-import { Colliders } from '../../src/world/colliders';
-import { WORLD } from '../../src/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
+import { NavGrid } from '../../src/core/world/nav';
+import { Colliders } from '../../src/core/world/colliders';
+import { WORLD } from '../../src/core/world/layout';
 
 describe('physical ground and navigation construction', () => {
   it('does not cache partial source rows when the first build is cancelled', async () => {

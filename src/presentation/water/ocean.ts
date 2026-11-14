@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { SEA_LEVEL } from '../../world/layout';
-import { BATHY, BATHY_NX, BATHY_NZ, rockinessAt, type Bathymetry } from '../../world/water/bathymetry';
+import { SEA_LEVEL } from '../../core/world/layout';
+import { BATHY, BATHY_NX, BATHY_NZ, rockinessAt, type Bathymetry } from '../../core/world/water/bathymetry';
 import { SKY } from '../skyState';
 import { detachWaterOptics, makeWaterOpticsUniforms, WATER_DETAIL_GLSL, WATER_F0, WATER_OPTICS_GLSL, WATER_RIPPLE_GLSL, WATER_SKY_GLSL } from '../waterOptics';
 import { BATHY_GLSL, WAVE_GLSL } from './waveGlsl';
 import type { WaterTextures } from './waterTextures';
-import { SWELL_DIR, SWELL_K0 } from '../../world/water/waves';
+import { SWELL_DIR, SWELL_K0 } from '../../core/world/water/waves';
 
 /**
  * The sea. One grid of vertices is laid across the screen each frame, from the bottom of the view out to the horizon,

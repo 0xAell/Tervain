@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { buildWoodlandAir } from '../../src/presentation/woodlandAir';
 import { groundSplat } from '../../src/presentation/groundSplat';
 import type { FrameContext } from '../../src/presentation/context';
-import { deepwoodCover } from '../../src/world/forest';
-import { Terrain } from '../../src/world/terrain';
-import { DEEPWOOD, SPAWN } from '../../src/world/layout';
+import { deepwoodCover } from '../../src/core/world/forest';
+import { Terrain } from '../../src/core/world/terrain';
+import { DEEPWOOD, SPAWN } from '../../src/core/world/layout';
 
 const terrain = new Terrain();
 const frame = (x: number, z: number, reducedMotion = false): FrameContext => ({

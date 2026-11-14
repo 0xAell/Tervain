@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Habitat, newSample } from '../../src/presentation/ground/habitat';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
-import { WORLD } from '../../src/world/layout';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
+import { WORLD } from '../../src/core/world/layout';
 
 type Raster = { tile(x: number, z: number): Float32Array; evalNode(x: number, z: number, out: Float32Array, k: number): void };
 function fixture() {

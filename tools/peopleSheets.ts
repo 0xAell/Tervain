@@ -4,8 +4,8 @@
  * and a description. Loaded by tools/export-people-sheets.mjs through Vite (so it shares the game's code); not part of
  * the build. See docs/art/people-retexture.md.
  */
-import { NPC_LIST } from '../src/content/npcs';
-import { S } from '../src/content/strings';
+import { NPC_LIST } from '../src/core/content/npcs';
+import { S } from '../src/core/content/strings';
 import { AMBIENT_PEOPLE } from '../src/presentation/ambient';
 import { createAmbientRig, createBanditRig, createNpcRig, createPlayerRig, personBuildOptions, type PersonSpec, type Rig } from '../src/presentation/characters';
 import type { Outfit } from '../src/presentation/human/dress';

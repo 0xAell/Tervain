@@ -99,12 +99,12 @@ const server = await createServer({ root: repo, configFile: false, appType: 'cus
   optimizeDeps: { noDiscovery: true, include: [] } });
 try {
   const moduleFiles = ['src/presentation/meshynpcs.ts', 'src/presentation/characters.ts', 'src/presentation/npcSurface.ts',
-    'src/presentation/disposeScene.ts', 'src/content/npcs.ts', 'src/presentation/npcStyle.ts', 'src/presentation/ambient.ts'];
+    'src/presentation/disposeScene.ts', 'src/core/content/npcs.ts', 'src/presentation/npcStyle.ts', 'src/presentation/ambient.ts'];
   const moduleHashes = Object.fromEntries(await Promise.all(moduleFiles.map(async name => [name, digest(await fs.readFile(path.join(repo, name)))])));
   const [{ validateMeshyNpcManifest, validateMeshyNpcAsset, MeshyNpcCatalog }, { poseRig }, { NPCS }, { npcStyle },
     { AMBIENT_PEOPLE }, { disposeSceneResources }] = await Promise.all([
     server.ssrLoadModule('/src/presentation/meshynpcs.ts'), server.ssrLoadModule('/src/presentation/characters.ts'),
-    server.ssrLoadModule('/src/content/npcs.ts'), server.ssrLoadModule('/src/presentation/npcStyle.ts'),
+    server.ssrLoadModule('/src/core/content/npcs.ts'), server.ssrLoadModule('/src/presentation/npcStyle.ts'),
     server.ssrLoadModule('/src/presentation/ambient.ts'), server.ssrLoadModule('/src/presentation/disposeScene.ts'),
   ]);
   if (prepareOnly) {

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fbm, ridged, smoothstep } from '../../world/noise';
+import { fbm, ridged, smoothstep } from '../../core/world/noise';
 import { MENU_SKY_GLSL, MENU_SEA_LEVEL, menuSkyUniforms } from './menuSky';
 import { MENU_LIGHTHOUSE } from './menuLayout';
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
@@ -13,11 +13,11 @@ import { Region } from '../../src/presentation/regions';
 import { createScatterPopulation, registerScatterColliders } from '../../src/presentation/scatterPopulation';
 import { LAYER } from '../../src/presentation/terrainTextures';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, type V2 } from '../../src/world/layout';
-import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, canPlayerStandAt, supportedPlayerHeight } from '../../src/world/playerPlacement';
-import { initializePhysics, RealmPhysics } from '../../src/world/physics';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, type V2 } from '../../src/core/world/layout';
+import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, canPlayerStandAt, supportedPlayerHeight } from '../../src/core/world/playerPlacement';
+import { initializePhysics, RealmPhysics } from '../../src/physics/physics';
+import { Terrain } from '../../src/core/world/terrain';
 
 vi.mock('../../src/presentation/characters', () => ({
   createPlayerRig: () => ({ root: new THREE.Group(), hitFlash: 0 }),

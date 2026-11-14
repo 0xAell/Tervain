@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { CameraRig, CEILING_CLEARANCE } from '../../src/presentation/cameraRig';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { BUILDINGS, ARCHIVE_ROOM } from '../../src/world/layout';
-import { buildingEntry } from '../../src/world/buildingEntries';
-import { roomOf } from '../../src/world/interiors';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { BUILDINGS, ARCHIVE_ROOM } from '../../src/core/world/layout';
+import { buildingEntry } from '../../src/core/world/buildingEntries';
+import { roomOf } from '../../src/core/world/interiors';
 
 const flat = { groundAt: () => 0 };
 const colliders = buildStaticColliders();

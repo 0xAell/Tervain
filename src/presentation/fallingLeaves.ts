@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import type { Terrain } from '../world/terrain';
-import { biomeAt } from '../world/biomes';
-import { mulberry32, smoothstep } from '../world/noise';
+import type { Terrain } from '../core/world/terrain';
+import { biomeAt } from '../core/world/biomes';
+import { mulberry32, smoothstep } from '../core/world/noise';
 import type { Quality, SceneModule } from './context';
 import type { FloraTree } from './floraPopulation';
 import type { TreeVariant } from './treeGen';

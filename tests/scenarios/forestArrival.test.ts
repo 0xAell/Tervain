@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { NPC_LIST } from '../../src/content/npcs';
+import { NPC_LIST } from '../../src/core/content/npcs';
 import { buildAmbient } from '../../src/presentation/ambient';
 import { personBuildOptions } from '../../src/presentation/characters';
 import type { BuildContext } from '../../src/presentation/context';
@@ -8,12 +8,12 @@ import { buildForestLandmarks, forestLandmarkGeometry } from '../../src/presenta
 import { createFloraPopulation, registerFloraColliders } from '../../src/presentation/floraPopulation';
 import { createScatterPopulation, registerScatterColliders } from '../../src/presentation/scatterPopulation';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { ANCHORS, ARRIVAL_ROUTE, ARRIVAL_SIGN, ARRIVAL_TRAIL_WIDTH, ARRIVAL_WRECK, BUILDINGS, DECKS, FOREST_HILLS, FOREST_REGION, FOREST_RUIN, FOREST_SWALE, FOREST_WAYMARKERS, HAMLET_PROPS, INLAND_HAMLET, INSPECT_LOCATIONS, LANTERN_ROUTE, PALISADE, PLACES, ROADS, SPAWN, WAGON, type V2 } from '../../src/world/layout';
-import { shoreDistance } from '../../src/world/coast';
-import { deepwoodCover } from '../../src/world/forest';
-import { NavGrid } from '../../src/world/nav';
-import { distToPolyline, forestRelief, roadWeight, Terrain } from '../../src/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { ANCHORS, ARRIVAL_ROUTE, ARRIVAL_SIGN, ARRIVAL_TRAIL_WIDTH, ARRIVAL_WRECK, BUILDINGS, DECKS, FOREST_HILLS, FOREST_REGION, FOREST_RUIN, FOREST_SWALE, FOREST_WAYMARKERS, HAMLET_PROPS, INLAND_HAMLET, INSPECT_LOCATIONS, LANTERN_ROUTE, PALISADE, PLACES, ROADS, SPAWN, WAGON, type V2 } from '../../src/core/world/layout';
+import { shoreDistance } from '../../src/core/world/coast';
+import { deepwoodCover } from '../../src/core/world/forest';
+import { NavGrid } from '../../src/core/world/nav';
+import { distToPolyline, forestRelief, roadWeight, Terrain } from '../../src/core/world/terrain';
 
 // These tests check people's geometry, projection and paint logic, not texture resolution: paint small sheets inline.
 personBuildOptions.sheetSize = 256;

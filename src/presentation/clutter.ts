@@ -1,7 +1,7 @@
-import { BOW_LENGTH } from '../content/bowSize';
+import { BOW_LENGTH } from '../core/content/bowSize';
 import * as THREE from 'three';
-import type { FurnitureId } from '../world/furnitureSizes';
-import type { HungKind } from '../world/dressing';
+import type { FurnitureId } from '../core/world/furnitureSizes';
+import type { HungKind } from '../core/world/dressing';
 
 /**
  * The small things of a lived-in room (A76): bowls, jugs, cups, a loaf, candles and pots on the tables, counters,

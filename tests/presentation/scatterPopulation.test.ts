@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { NPC_LIST } from '../../src/content/npcs';
+import { NPC_LIST } from '../../src/core/content/npcs';
 import type { Quality } from '../../src/presentation/context';
 import { createFloraPopulation, registerFloraColliders } from '../../src/presentation/floraPopulation';
 import { createScatterPopulation, createShoreDetailPopulation, registerScatterColliders, selectScatterPopulation, type ScatterRock } from '../../src/presentation/scatterPopulation';
@@ -7,10 +7,10 @@ import { createShoreWoodSegments } from '../../src/presentation/scatter';
 import { rockShapes, rockTransform } from '../../src/presentation/rockGeometry';
 import * as THREE from 'three';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Colliders, buildStaticColliders } from '../../src/world/colliders';
-import { ANCHORS, BUILDINGS, PICKUP_LOCATIONS, RITE_ALTAR, ROADS, SHORTCUT, SLUICE, SPAWN, type V2 } from '../../src/world/layout';
-import { NavGrid } from '../../src/world/nav';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders, buildStaticColliders } from '../../src/core/world/colliders';
+import { ANCHORS, BUILDINGS, PICKUP_LOCATIONS, RITE_ALTAR, ROADS, SHORTCUT, SLUICE, SPAWN, type V2 } from '../../src/core/world/layout';
+import { NavGrid } from '../../src/core/world/nav';
+import { Terrain } from '../../src/core/world/terrain';
 
 const presets: Quality[] = ['low', 'medium', 'high'];
 let terrain: Terrain;

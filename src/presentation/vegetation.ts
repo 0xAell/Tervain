@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { isWorldPickupItem } from '../content/pickups';
-import { ANCHORS, BUILDINGS, DECKS, FIELDS, FOREST_RUIN, FOREST_WAYMARKERS, INSPECT_LOCATIONS, LIGHTHOUSE, PALISADE, PICKUP_LOCATIONS, PLACES, ROADS, SPAWN, SPRING_POOL, STREAMS, STRAND, WAGON } from '../world/layout';
-import { distToPolyline, roadWeight, type Terrain } from '../world/terrain';
+import { isWorldPickupItem } from '../core/content/pickups';
+import { ANCHORS, BUILDINGS, DECKS, FIELDS, FOREST_RUIN, FOREST_WAYMARKERS, INSPECT_LOCATIONS, LIGHTHOUSE, PALISADE, PICKUP_LOCATIONS, PLACES, ROADS, SPAWN, SPRING_POOL, STREAMS, STRAND, WAGON } from '../core/world/layout';
+import { distToPolyline, roadWeight, type Terrain } from '../core/world/terrain';
 
 export interface SwayUniforms {
   uTime: { value: number };

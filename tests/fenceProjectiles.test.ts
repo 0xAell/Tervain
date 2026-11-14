@@ -1,8 +1,8 @@
 import { beforeAll, expect, it } from 'vitest';
 import RAPIER from '@dimforge/rapier3d-compat';
-import { Colliders, FENCE_WALL_LIFT } from '../src/world/colliders';
-import { initializePhysics, RealmPhysics } from '../src/world/physics';
-import type { Terrain } from '../src/world/terrain';
+import { Colliders, FENCE_WALL_LIFT } from '../src/core/world/colliders';
+import { initializePhysics, RealmPhysics } from '../src/physics/physics';
+import type { Terrain } from '../src/core/world/terrain';
 const floor = { nx: 10, nz: 10, vertexX: (i: number) => i * 2 - 10, vertexZ: (i: number) => i * 2 - 10, vertexHeight: () => 0, heightAt: () => 0, groundAt: () => 0 } as unknown as Terrain;
 beforeAll(initializePhysics);
 it('passes above fence wood, still hits its real bounds, and keeps the movement barrier', () => {

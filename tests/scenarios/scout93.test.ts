@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Input } from '../../src/platform/input';
 import { DEFAULT_BINDINGS, defaultSettings, findConflict, loadSettings } from '../../src/platform/settings';
 import { EnemyActor } from '../../src/presentation/actors';
-import { ENEMY_SPAWNS } from '../../src/world/layout';
+import { ENEMY_SPAWNS } from '../../src/core/world/layout';
 import { createStandInRig } from '../../src/presentation/characters';
 
 afterEach(() => vi.unstubAllGlobals());

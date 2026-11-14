@@ -3,8 +3,8 @@ import { expect, it } from 'vitest';
 import { Ctx } from '../../src/presentation/buildKit';
 import { benchSet } from '../../src/presentation/props';
 import { Region } from '../../src/presentation/regions';
-import { mulberry32 } from '../../src/world/noise';
-import { Terrain } from '../../src/world/terrain';
+import { mulberry32 } from '../../src/core/world/noise';
+import { Terrain } from '../../src/core/world/terrain';
 
 const material = new THREE.MeshBasicMaterial();
 function bench(x: number, z: number, yaw: number, height: (x: number, z: number) => number, grounded: boolean) {

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {expect, it} from 'vitest';
 import {TileLayer, RANK_HEADROOM} from '../../src/presentation/ground/tileStream';
-import {smoothstep} from '../../src/world/noise';
+import {smoothstep} from '../../src/core/world/noise';
 
 it('checks a full ranked prefix once and retains the search when the highest rank is excluded', () => {
   const layer = new TileLayer({name:'full-ranks',tileSize:12,capacity:1024,geometry:new THREE.PlaneGeometry(),material:new THREE.MeshBasicMaterial(),fadeStart:12,fadeEnd:48,power:1.3,maxHeight:2,receiveShadow:false,generate:()=>0});

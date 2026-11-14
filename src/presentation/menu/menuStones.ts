@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fbm, mulberry32, valueNoise } from '../../world/noise';
+import { fbm, mulberry32, valueNoise } from '../../core/world/noise';
 
 /**
  * Standing stones: tall, thin slabs of split rock, older than the order and older than the tree. Each is a subdivided slab

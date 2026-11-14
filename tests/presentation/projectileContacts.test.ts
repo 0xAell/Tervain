@@ -1,8 +1,8 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { Colliders } from '../../src/world/colliders';
-import { initializePhysics, RealmPhysics, type PropSpec } from '../../src/world/physics';
-import type { PhysicalWoodGeometry } from '../../src/world/physicsGeometry';
-import type { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { initializePhysics, RealmPhysics, type PropSpec } from '../../src/physics/physics';
+import type { PhysicalWoodGeometry } from '../../src/core/world/physicsGeometry';
+import type { Terrain } from '../../src/core/world/terrain';
 
 const floor = {
   nx: 10, nz: 10, vertexX: (i: number) => i * 2 - 10, vertexZ: (j: number) => j * 2 - 10,

@@ -5,9 +5,9 @@ import { defaultSettings, findConflict, loadSettings, saveSettings } from '../..
 import { CameraRig } from '../../src/presentation/cameraRig';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
 import type { AudioEngine } from '../../src/presentation/audio';
-import { Game } from '../../src/game/game';
-import { Colliders } from '../../src/world/colliders';
-import type { Terrain } from '../../src/world/terrain';
+import { Game } from '../../src/core/game/game';
+import { Colliders } from '../../src/core/world/colliders';
+import type { Terrain } from '../../src/core/world/terrain';
 
 function controls() {
   const listeners = new Map<string, ((e: any) => void)[]>();

@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorldScene, type WorldBuildProgress } from '../../src/presentation/world';
-import { createInitialState } from '../../src/game/state';
+import { createInitialState } from '../../src/core/game/state';
 import { defaultSettings } from '../../src/platform/settings';
-import { Colliders } from '../../src/world/colliders';
+import { Colliders } from '../../src/core/world/colliders';
 import type { AssetLibrary } from '../../src/presentation/assets/library';
 import type { SceneModule } from '../../src/presentation/context';
 import { disposeSceneResources } from '../../src/presentation/disposeScene';
@@ -11,7 +11,7 @@ import { PINE_FILES } from '../../src/presentation/solitaryPine';
 import { HERO_PINE_FILES } from '../../src/presentation/heroPine';
 import { activeMeshyTreeIds, MESHY_TREE_LODS } from '../../src/presentation/meshyTrees';
 import { ANIMALS } from '../../src/presentation/animals/catalog';
-import { WORLD } from '../../src/world/layout';
+import { WORLD } from '../../src/core/world/layout';
 
 const controls = vi.hoisted(() => ({
   owners: [] as { name: string; dispose: () => void; group?: unknown }[],
@@ -44,17 +44,17 @@ function owner(name: string) {
 
 vi.mock('../../src/presentation/assets/needs', () => ({ ALL_NEEDS: [] }));
 vi.mock('../../src/presentation/assets/library', () => ({ setSharedLibrary: vi.fn() }));
-vi.mock('../../src/world/terrain', () => ({ Terrain: class {
+vi.mock('../../src/core/world/terrain', () => ({ Terrain: class {
   static async create(options: { onProgress?: (completed: number, total: number) => void }) {
     const nz = (WORLD.maxZ - WORLD.minZ) / WORLD.cell;
     options.onProgress?.(nz + 1, nz + 1);
     return { heightAt: () => 0, nz, rooms: { base: () => 0 } };
   }
 } }));
-vi.mock('../../src/world/colliders', async importOriginal => ({
-  ...await importOriginal<typeof import('../../src/world/colliders')>(), buildStaticColliders: () => controls.colliders,
+vi.mock('../../src/core/world/colliders', async importOriginal => ({
+  ...await importOriginal<typeof import('../../src/core/world/colliders')>(), buildStaticColliders: () => controls.colliders,
 }));
-vi.mock('../../src/world/nav', () => ({ NavGrid: class {
+vi.mock('../../src/core/world/nav', () => ({ NavGrid: class {
   static async create(terrain: { nz: number }, _colliders: unknown, _radius: number, options: { onProgress?: (completed: number, total: number) => void }) {
     if (controls.navigationGate) await controls.navigationGate;
     options.onProgress?.(terrain.nz, terrain.nz);
@@ -65,7 +65,7 @@ vi.mock('../../src/world/nav', () => ({ NavGrid: class {
     } };
   }
 } }));
-vi.mock('../../src/world/physics', () => ({ initializePhysics: async () => {}, RealmPhysics: class {
+vi.mock('../../src/physics/physics', () => ({ initializePhysics: async () => {}, RealmPhysics: class {
   dispose = vi.fn(); setWater() {}
   constructor() { controls.owners.push({ name: 'physics', dispose: this.dispose }); }
 } }));

@@ -6,7 +6,7 @@ import { reachArm } from '../../src/presentation/npc/armReach';
 import { GESTURE_TOLERANCE, HANG_LIMIT, measureBody, REST_ANGLES, sideExcess, SWING_LIMIT } from '../../src/presentation/npc/poseFit';
 import { seatLegs } from '../../src/presentation/npc/seat';
 import { createWorkProp, type WorkPropKind } from '../../src/presentation/npc/workProps';
-import { BENCH_SEAT_HEIGHT } from '../../src/world/layout';
+import { BENCH_SEAT_HEIGHT } from '../../src/core/world/layout';
 import { loadResident, residentMesh } from './residentFixtures';
 
 const CAST = ['estate-steward', 'spring-steward', 'ash-recorder', 'quarry-hand', 'maintenance-worker'];

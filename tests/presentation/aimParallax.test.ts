@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { AIM_VIEW, CameraRig } from '../../src/presentation/cameraRig';
 import { arrowDirection } from '../../src/presentation/huntingController';
 import { HuntingArrows } from '../../src/presentation/huntingArrow';
-import { Colliders } from '../../src/world/colliders';
+import { Colliders } from '../../src/core/world/colliders';
 
 const flat = { groundAt: () => 0 };
 

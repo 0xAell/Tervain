@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fromBuildingLocal, type InteriorSpec } from '../world/interiors';
+import { fromBuildingLocal, type InteriorSpec } from '../core/world/interiors';
 import type { DoorLeaf } from './buildings';
 
 /**

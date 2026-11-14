@@ -5,10 +5,10 @@ import { CAMERA_CLEARANCE } from '../../src/presentation/cameraObstruction';
 import { CameraRig } from '../../src/presentation/cameraRig';
 import { well } from '../../src/presentation/props';
 import { Region } from '../../src/presentation/regions';
-import { Colliders, buildStaticColliders } from '../../src/world/colliders';
-import { WELL, WELL_CONSTRUCTION as W } from '../../src/world/layout';
-import { mulberry32 } from '../../src/world/noise';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders, buildStaticColliders } from '../../src/core/world/colliders';
+import { WELL, WELL_CONSTRUCTION as W } from '../../src/core/world/layout';
+import { mulberry32 } from '../../src/core/world/noise';
+import { Terrain } from '../../src/core/world/terrain';
 
 const terrain = new Terrain(), base = terrain.heightAt(WELL.x, WELL.z);
 const authored = buildStaticColliders(terrain);

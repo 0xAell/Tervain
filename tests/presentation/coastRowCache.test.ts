@@ -1,12 +1,12 @@
 import {expect, it, vi} from 'vitest';
 const observed=vi.hoisted(()=>({noiseCalls:0}));
-vi.mock('../../src/world/noise',async(importOriginal)=>{
-  const noise=await importOriginal<typeof import('../../src/world/noise')>();
+vi.mock('../../src/core/world/noise',async(importOriginal)=>{
+  const noise=await importOriginal<typeof import('../../src/core/world/noise')>();
   return {...noise,fbm(x:number,z:number,octaves:number,seed:number){if(seed===61||seed===62)observed.noiseCalls++;return noise.fbm(x,z,octaves,seed);}};
 });
-import {coastX,shoreDistance,seaWetness} from '../../src/world/coast';
-import {COAST} from '../../src/world/layout';
-import {fbm} from '../../src/world/noise';
+import {coastX,shoreDistance,seaWetness} from '../../src/core/world/coast';
+import {COAST} from '../../src/core/world/layout';
+import {fbm} from '../../src/core/world/noise';
 const P=COAST;
 // The uncached curve is the compatibility oracle; it preserves the original evaluation order.
 function uncached(z: number): number {

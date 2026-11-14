@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { Terrain } from '../../src/world/terrain';
+import { Terrain } from '../../src/core/world/terrain';
 import { buildTerrainMesh, TERRAIN_RENDER_SUBDIVISIONS } from '../../src/presentation/terrainMesh';
 import { createTerrainMaterial } from '../../src/presentation/terrainMaterial';
 import { LAYERS, LAYER, makeTerrainTextures, type TerrainTextures } from '../../src/presentation/terrainTextures';
 import { meadowProfile } from '../../src/presentation/grass/grassField';
 import { groundSplat } from '../../src/presentation/groundSplat';
-import { coastX } from '../../src/world/coast';
-import { ROADS, SEA_LEVEL } from '../../src/world/layout';
+import { coastX } from '../../src/core/world/coast';
+import { ROADS, SEA_LEVEL } from '../../src/core/world/layout';
 import { buildForestFernGeometry, buildForestFloor, buildForestLeafTexture, buildForestShrubGeometry } from '../../src/presentation/forestFloor';
 import { disposeTreeTextures } from '../../src/presentation/treeTextures';
 import { Exclusions } from '../../src/presentation/vegetation';

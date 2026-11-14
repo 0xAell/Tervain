@@ -1,5 +1,5 @@
-import { ITEM_ORDER, ITEMS } from '../../content/items';
-import type { ItemId, WorldState } from '../../game/types';
+import { ITEM_ORDER, ITEMS } from '../../core/content/items';
+import type { ItemId, WorldState } from '../../core/game/types';
 
 /** Clamp unreliable/empty resource input before it reaches CSS or an accessible progress value. */
 export function resourceFraction(value: number, maximum: number): number {

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { ANCHORS, PALISADE, PICKUP_LOCATIONS } from '../../src/world/layout';
-import { NavGrid } from '../../src/world/nav';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { ANCHORS, PALISADE, PICKUP_LOCATIONS } from '../../src/core/world/layout';
+import { NavGrid } from '../../src/core/world/nav';
+import { Terrain } from '../../src/core/world/terrain';
 
 const terrain = new Terrain();
 const colliders = buildStaticColliders(terrain);

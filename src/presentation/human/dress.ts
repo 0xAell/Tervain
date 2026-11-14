@@ -1,4 +1,4 @@
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 import type { Frame } from './frame';
 import type { HeadFit } from './head';
 import type { ClothKind } from './humanTex';

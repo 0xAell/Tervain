@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import type { DoorLeaf } from '../../src/presentation/buildings';
 import { DOOR_LINGER, DOOR_REACH, DOOR_SWING, DoorSwings } from '../../src/presentation/doors';
-import { fromBuildingLocal, INTERIORS } from '../../src/world/interiors';
+import { fromBuildingLocal, INTERIORS } from '../../src/core/world/interiors';
 
 const room = INTERIORS.find((r) => r.building.id === 'house_c')!;
 const leaf = (): DoorLeaf => {

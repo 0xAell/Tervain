@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { ANIMAL_IDS, ANIMAL_MODEL_IDS, ANIMAL_SPECIES, SKINNING_REACH, isHuntableAnimalId, type AnimalId, type AnimalHuntRecord, type HuntingState } from '../../../game/hunting';
-import type { Collider } from '../../../world/colliders';
+import { ANIMAL_IDS, ANIMAL_MODEL_IDS, ANIMAL_SPECIES, SKINNING_REACH, isHuntableAnimalId, type AnimalId, type AnimalHuntRecord, type HuntingState } from '../../../core/game/hunting';
+import type { Collider } from '../../../core/world/colliders';
 import type { AnimalDefinition } from '../catalog';
 import { AnimalCorpse, type CorpseBody } from './corpse';
 import { AnimalArrowSurface, type AnimalArrowHit } from './hit';

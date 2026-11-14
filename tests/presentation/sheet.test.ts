@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NPC_LIST } from '../../src/content/npcs';
+import { NPC_LIST } from '../../src/core/content/npcs';
 import { AMBIENT_PEOPLE } from '../../src/presentation/ambient';
 import { createAmbientRig, createBanditRig, createNpcRig, createPlayerRig, personBuildOptions, type Rig } from '../../src/presentation/characters';
 import { overrideIds, overrideUrl, setOverrides } from '../../src/presentation/human/overrides';

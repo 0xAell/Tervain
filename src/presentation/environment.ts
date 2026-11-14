@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import type { FrameContext, Quality } from './context';
 import { SKY } from './skyState';
-import { smoothstep } from '../world/noise';
+import { smoothstep } from '../core/world/noise';
 
 /**
  * By day the generated sky's diffuse light is lifted (A137), with the hemisphere fill in sky.ts, so shade under a house or

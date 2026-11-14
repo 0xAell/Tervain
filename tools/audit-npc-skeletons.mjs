@@ -57,7 +57,7 @@ const report = [];
 try {
   const [{ validateMeshyNpcManifest, MeshyNpcCatalog }, { poseRig }, { NPCS }, { npcStyle }, { AMBIENT_PEOPLE },
     { parseResidentRig }, { residentMotionLibrary, MOTION_CLIPS }] = await Promise.all([
-    '/src/presentation/meshynpcs.ts', '/src/presentation/characters.ts', '/src/content/npcs.ts', '/src/presentation/npcStyle.ts',
+    '/src/presentation/meshynpcs.ts', '/src/presentation/characters.ts', '/src/core/content/npcs.ts', '/src/presentation/npcStyle.ts',
     '/src/presentation/ambient.ts', '/src/presentation/npc/residentRig.ts', '/src/presentation/npc/residentMotion.ts',
   ].map(name => server.ssrLoadModule(name)));
   const dir = path.join(repo, 'public/models/npcs');

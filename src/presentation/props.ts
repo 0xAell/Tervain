@@ -1,4 +1,4 @@
-import { HANDCART_CONSTRUCTION, WAGON_CONSTRUCTION, WELL_CONSTRUCTION as W } from '../world/layout';
+import { HANDCART_CONSTRUCTION, WAGON_CONSTRUCTION, WELL_CONSTRUCTION as W } from '../core/world/layout';
 import { hash3, mulc, rgb } from './buildKit';
 import { vehicleFrame } from './wagonGeometry';
 import type { Region } from './regions';

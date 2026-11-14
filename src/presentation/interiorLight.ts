@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fromBuildingLocal, hearthOf, roomHalfSize, type InteriorSpec, type RoomLocator } from '../world/interiors';
+import { fromBuildingLocal, hearthOf, roomHalfSize, type InteriorSpec, type RoomLocator } from '../core/world/interiors';
 
 /**
  * Light inside the rooms (A66). The sky's fill (its image light and the hemisphere) knows nothing of walls and roofs, so

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { valueNoise } from '../../world/noise';
+import { valueNoise } from '../../core/world/noise';
 
 /**
  * The warden of the vigil, made for this one view. The playable rig is built for walking people seen from a third-person

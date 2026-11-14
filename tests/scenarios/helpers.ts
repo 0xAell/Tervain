@@ -1,6 +1,6 @@
-import { pickEntryNode } from '../../src/game/dialogue';
-import { Game } from '../../src/game/game';
-import type { Command, NpcId } from '../../src/game/types';
+import { pickEntryNode } from '../../src/core/game/dialogue';
+import { Game } from '../../src/core/game/game';
+import type { Command, NpcId } from '../../src/core/game/types';
 
 export function newGame(): Game {
   return new Game();

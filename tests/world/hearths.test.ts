@@ -4,12 +4,12 @@ import { InteriorLight, interiorFlicker } from '../../src/presentation/interiorL
 import { hearthFires } from '../../src/presentation/hearthFire';
 import { signSway } from '../../src/presentation/innSign';
 import { clutterGeometry } from '../../src/presentation/clutter';
-import { reserved } from '../../src/world/furniture';
-import { FURNITURE_SIZES } from '../../src/world/furnitureSizes';
-import { DRESSING, MODEL_SCALE, type HungKind } from '../../src/world/dressing';
+import { reserved } from '../../src/core/world/furniture';
+import { FURNITURE_SIZES } from '../../src/core/world/furnitureSizes';
+import { DRESSING, MODEL_SCALE, type HungKind } from '../../src/core/world/dressing';
 
 const FIRESIDE: readonly HungKind[] = ['kettle', 'stool', 'logbasket'];
-import { BREAST_DEPTH, CHIMNEY_STACK, chimneyOf, doorwayClear, FIREPLACE, fromBuildingLocal, HEARTH_SHAPE, hearthOf, INTERIORS, roomHalfSize, roomLocator, sideWindowZ } from '../../src/world/interiors';
+import { BREAST_DEPTH, CHIMNEY_STACK, chimneyOf, doorwayClear, FIREPLACE, fromBuildingLocal, HEARTH_SHAPE, hearthOf, INTERIORS, roomHalfSize, roomLocator, sideWindowZ } from '../../src/core/world/interiors';
 
 const houses = INTERIORS.filter((room) => room.building.kind === 'house');
 const hearths = INTERIORS.filter((room) => hearthOf(room));

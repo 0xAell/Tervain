@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import {expect,it} from 'vitest';
 import {buildForestFloor} from '../../src/presentation/forestFloor';
-import {Terrain} from '../../src/world/terrain';
+import {Terrain} from '../../src/core/world/terrain';
 import {Exclusions} from '../../src/presentation/vegetation';
 import {disposeTreeTextures} from '../../src/presentation/treeTextures';
 import type {FrameContext} from '../../src/presentation/context';
-import {worldView} from '../../src/game/worldView';
-import {createInitialState} from '../../src/game/state';
+import {worldView} from '../../src/core/game/worldView';
+import {createInitialState} from '../../src/core/game/state';
 
 it('resends cached floor coverage when catch-up pans regrow the drawn prefix',()=>{
   const terrain=new Terrain(),floor=buildForestFloor(terrain,new Exclusions(terrain),'high');

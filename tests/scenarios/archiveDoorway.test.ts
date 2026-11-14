@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 describe('eighth scout fixes: the sealed archive lets him out (A101)', () => {
   it('counts him in until his body is clear of the door and shutter openings', async () => {
     const { WorldScene: World } = await import('../../src/presentation/world');
-    const { buildStaticColliders } = await import('../../src/world/colliders');
-    const { PLAYER_BODY_RADIUS } = await import('../../src/world/playerPlacement');
+    const { buildStaticColliders } = await import('../../src/core/world/colliders');
+    const { PLAYER_BODY_RADIUS } = await import('../../src/core/world/playerPlacement');
     const w = { insideArchive: World.prototype.insideArchive } as unknown as typeof World.prototype;
     const occupies = (x: number, z: number) => World.prototype.occupiesArchive.call(w, x, z, PLAYER_BODY_RADIUS);
     const c = buildStaticColliders();

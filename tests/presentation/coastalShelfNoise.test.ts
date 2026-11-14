@@ -1,12 +1,12 @@
 import {expect, it, vi} from 'vitest';
 const observed=vi.hoisted(()=>({calls:0}));
-vi.mock('../../src/world/noise',async(importOriginal)=>{
-  const noise=await importOriginal<typeof import('../../src/world/noise')>();
+vi.mock('../../src/core/world/noise',async(importOriginal)=>{
+  const noise=await importOriginal<typeof import('../../src/core/world/noise')>();
   return {...noise,fbm(x:number,z:number,octaves:number,seed:number){if(seed===211)observed.calls++;return noise.fbm(x,z,octaves,seed);}};
 });
-import {coastalShelfAt,coastalShelfHeight} from '../../src/world/coast';
-import {COAST_SHELVES} from '../../src/world/layout';
-import {fbm,smoothstep} from '../../src/world/noise';
+import {coastalShelfAt,coastalShelfHeight} from '../../src/core/world/coast';
+import {COAST_SHELVES} from '../../src/core/world/layout';
+import {fbm,smoothstep} from '../../src/core/world/noise';
 function original(x:number,z:number,height:boolean){
   let result=0;
   for(const s of COAST_SHELVES){

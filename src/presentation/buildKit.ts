@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { valueNoise } from '../world/noise';
+import { valueNoise } from '../core/world/noise';
 
 /**
  * Geometry authoring kit for the settled landscape. Everything is written straight into growable typed

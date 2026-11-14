@@ -14,7 +14,7 @@ This follow-on builds on PR12’s stable placement/collision, canopy-linked floo
 
 ## Implemented pattern
 
-PR12 used 48 m grove cells and independent 76/18/6 family trials. Changing those trials to 75/20/5 alone would barely change its smaller assorted patches. The new [forestStands.ts](../../src/world/forestStands.ts) supplies a **continuous spatial family field**: a broad pine body, two coherent oak patches and much smaller fir/birch accents. No forest tree independently rolls its family. There are no per-cell quotas or rejection-until-ratio loops. Keyed randomness still controls positions, acceptance, variants, yaw, ages and conflict priority. Satellites sample the field at their own position, avoiding a dominant-only sapling bias.
+PR12 used 48 m grove cells and independent 76/18/6 family trials. Changing those trials to 75/20/5 alone would barely change its smaller assorted patches. The new [forestStands.ts](../../src/core/world/forestStands.ts) supplies a **continuous spatial family field**: a broad pine body, two coherent oak patches and much smaller fir/birch accents. No forest tree independently rolls its family. There are no per-cell quotas or rejection-until-ratio loops. Keyed randomness still controls positions, acceptance, variants, yaw, ages and conflict priority. Satellites sample the field at their own position, avoiding a dominant-only sapling bias.
 
 The ratio applies to accepted canonical trees tagged with `standId` and `familyRole` in the organic Deepwood field, **including all ages**. Orchard rows, exposed coast, nonforest/outer transition trees, decorative horizon trees and shrubs are separate. Small oak cores can be locally oak-dominant; every small patch is not forced to repeat the regional ratio.
 
@@ -30,7 +30,7 @@ The ratio applies to accepted canonical trees tagged with `standId` and `familyR
 | Cohorts | 33 m regrowth field shifts veteran/mature probabilities; young/sapling layers retained | Height varies with place; existing models are still scaled, not new age topology. |
 | Floor | Accepted canopy, wetness, colonies and clearing field; terrain rejection retained | Understory follows wooded ground and does not refill the open cores. |
 
-[world/forest.ts](../../src/world/forest.ts) owns the organic footprint and clearings; [floraPopulation.ts](../../src/presentation/floraPopulation.ts) owns accepted trees, cohorts, stable IDs and .35 m symmetric trunk spacing; [forestFloor.ts](../../src/presentation/forestFloor.ts) retains grounding, canopy dependence and parent-log quality selection. Models/materials, LOD thresholds, instancing and culling are inherited from PR12.
+[world/forest.ts](../../src/core/world/forest.ts) owns the organic footprint and clearings; [floraPopulation.ts](../../src/presentation/floraPopulation.ts) owns accepted trees, cohorts, stable IDs and .35 m symmetric trunk spacing; [forestFloor.ts](../../src/presentation/forestFloor.ts) retains grounding, canopy dependence and parent-log quality selection. Models/materials, LOD thresholds, instancing and culling are inherited from PR12.
 
 Conservative envelopes at scale one are oak 24.2 m, pine 10.9 m, fir 8.4 m and birch 15.2 m. They bound actual near, middle **and far** wood/leaf vertices; far-card offsets can exceed the old near/middle `crownRadius`. A normalized rotated-ellipse distance lower bound avoids diagonal leakage. Crown clearance applies around clearing cores; crowns intentionally overlap within stands.
 

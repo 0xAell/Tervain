@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/app';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import { Player } from '../../src/presentation/player';
 import { CameraRig } from '../../src/presentation/cameraRig';
 

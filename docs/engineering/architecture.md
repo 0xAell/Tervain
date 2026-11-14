@@ -51,12 +51,12 @@ Asset catalog: exact revisions / hashes / transforms / runtime variants
 
 The renderer displays state. A UI click, animation callback, or loading event should not independently grant an item or resolve a quest. Simulation commands own meaningful effects and create presentation events. This makes saving and automated scenario checks possible without a renderer.
 
-The prototype uses part of this layout: `src/game` and `src/content` (free of renderer code, so scenarios run in Node), `src/world`, `src/presentation`, `src/platform` and `tests/scenarios`. `src/game` is the simulation and `src/content` the authored data; the `tools/assets`, streaming and desktop-adapter entries below are still proposals, and the layout is otherwise a loose fit:
+The prototype uses part of this layout: `src/core/game` and `src/core/content` (free of renderer code, so scenarios run in Node), `src/core/world`, `src/presentation`, `src/platform` and `tests/scenarios`. `src/core/game` is the simulation and `src/core/content` the authored data; the `tools/assets`, streaming and desktop-adapter entries below are still proposals, and the layout is otherwise a loose fit:
 
 ```text
-src/game/          world state, commands, progression, quests
-src/content/       versioned definitions and validation
-src/world/         location assembly, collision, navigation, streaming
+src/core/game/          world state, commands, progression, quests
+src/core/content/       versioned definitions and validation
+src/core/world/         location assembly, collision, navigation, streaming
 src/presentation/  scene, character animation, audio, UI, camera
 src/platform/      desktop/browser adapters and local saves
 tools/assets/      reproducible conversion and inventory tools
@@ -67,7 +67,7 @@ Do not create placeholder packages for all possible systems. Start with the few 
 
 ### Presentation modules in 0.0.5
 
-`src/world` is renderer-free and owns the geography: `layout.ts` (data), `coast.ts` (shoreline, beach, cliffs), `forest.ts` (shared habitat mask), `terrain.ts` (height field, walkability, sea depth), `colliders.ts`, `nav.ts`. `src/presentation` reads it and never writes back:
+`src/core/world` is renderer-free and owns the geography: `layout.ts` (data), `coast.ts` (shoreline, beach, cliffs), `forest.ts` (shared habitat mask), `terrain.ts` (height field, walkability, sea depth), `colliders.ts`, `nav.ts`. `src/presentation` reads it and never writes back:
 
 | Module | Responsibility |
 | --- | --- |

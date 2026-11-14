@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
-import { ANIMAL_MODEL_IDS, HUNTABLE_ANIMAL_IDS, type AnimalHuntRecord } from '../../src/game/hunting';
+import { ANIMAL_MODEL_IDS, HUNTABLE_ANIMAL_IDS, type AnimalHuntRecord } from '../../src/core/game/hunting';
 import { buildAnimals } from '../../src/presentation/animals';
 import { ANIMALS } from '../../src/presentation/animals/catalog';
 import { animalHabitatAllowed } from '../../src/presentation/animals/navigation';
 import type { FrameContext } from '../../src/presentation/context';
-import { createInitialState } from '../../src/game/state';
-import { worldView } from '../../src/game/worldView';
-import { Colliders } from '../../src/world/colliders';
-import type { Terrain } from '../../src/world/terrain';
+import { createInitialState } from '../../src/core/game/state';
+import { worldView } from '../../src/core/game/worldView';
+import { Colliders } from '../../src/core/world/colliders';
+import type { Terrain } from '../../src/core/world/terrain';
 import { animalTemplates } from './animalFixture';
-import { CARAVAN_ANIMAL_REST } from '../../src/world/caravanAnimal';
+import { CARAVAN_ANIMAL_REST } from '../../src/core/world/caravanAnimal';
 
 describe('source model hunting integration', () => {
   it('retains the real saddled 29-bone deer as a living, calm caravan mount through old save states and shots', async () => {

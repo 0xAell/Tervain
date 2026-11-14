@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/app';
-import { NPCS } from '../../src/content/npcs';
-import { isWorldPickupItem, WORLD_PICKUP_ITEM_IDS } from '../../src/content/pickups';
-import { S } from '../../src/content/strings';
-import { Game } from '../../src/game/game';
+import { NPCS } from '../../src/core/content/npcs';
+import { isWorldPickupItem, WORLD_PICKUP_ITEM_IDS } from '../../src/core/content/pickups';
+import { S } from '../../src/core/content/strings';
+import { Game } from '../../src/core/game/game';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
 import { finishNpcPath, NpcActor } from '../../src/presentation/actors';
 import { createStandInRig, type Rig } from '../../src/presentation/characters';
@@ -19,12 +19,12 @@ import { buildScenery, type SceneryHandles } from '../../src/presentation/settle
 import { Exclusions } from '../../src/presentation/vegetation';
 import { WorldScene } from '../../src/presentation/world';
 import { pickupGeometry, pickupPlacement, setPickupVisible } from '../../src/presentation/worldPickups';
-import { buildStaticColliders, Colliders } from '../../src/world/colliders';
-import { ANCHORS, ARRIVAL_ROUTE, FOREST_WAYMARKERS, HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, PICKUP_LOCATIONS, SPAWN } from '../../src/world/layout';
-import { NavGrid } from '../../src/world/nav';
-import { distToPolyline, Terrain } from '../../src/world/terrain';
+import { buildStaticColliders, Colliders } from '../../src/core/world/colliders';
+import { ANCHORS, ARRIVAL_ROUTE, FOREST_WAYMARKERS, HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, PICKUP_LOCATIONS, SPAWN } from '../../src/core/world/layout';
+import { NavGrid } from '../../src/core/world/nav';
+import { distToPolyline, Terrain } from '../../src/core/world/terrain';
 import { Player } from '../../src/presentation/player';
-import type { Collider } from '../../src/world/colliders';
+import type { Collider } from '../../src/core/world/colliders';
 
 // Keep all authored geometry/populations/physics. Raster painting is unrelated to ground contact and reach.
 vi.mock('../../src/presentation/regions', async (importOriginal) => {

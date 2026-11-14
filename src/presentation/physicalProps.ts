@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { RealmPhysics } from '../world/physics';
-import { mulberry32 } from '../world/noise';
+import { RealmPhysics } from '../physics/physics';
+import { mulberry32 } from '../core/world/noise';
 import { makeTexPair } from './buildingTextures';
 import { Ctx } from './buildKit';
 import { Region, disposeGroup, type MatKey } from './regions';

@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import RAPIER from '@dimforge/rapier3d-compat';
-import { Colliders, buildStaticColliders } from '../src/world/colliders';
-import { RealmPhysics, initializePhysics, type PropSpec } from '../src/world/physics';
-import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../src/world/layout';
-import { Terrain } from '../src/world/terrain';
+import { Colliders, buildStaticColliders } from '../src/core/world/colliders';
+import { RealmPhysics, initializePhysics, type PropSpec } from '../src/physics/physics';
+import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../src/core/world/layout';
+import { Terrain } from '../src/core/world/terrain';
 
 const floor = { nx: 10, nz: 10, vertexX: (i: number) => i * 2 - 10, vertexZ: (i: number) => i * 2 - 10,
   vertexHeight: () => 0, heightAt: () => 0, groundAt: () => 0 } as unknown as Terrain;

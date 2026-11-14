@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../src/game/state';
-import { ARROW_QUIVER_CAPACITY } from '../../src/game/hunting';
+import { createInitialState } from '../../src/core/game/state';
+import { ARROW_QUIVER_CAPACITY } from '../../src/core/game/hunting';
 import { reviveState } from '../../src/platform/storage';
 
 const save = (edit: (raw: Record<string, any>) => void) => {

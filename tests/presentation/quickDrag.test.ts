@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../src/game/state';
-import type { ItemId } from '../../src/game/types';
+import { createInitialState } from '../../src/core/game/state';
+import type { ItemId } from '../../src/core/game/types';
 import { quickDragMoved, quickDropOperation } from '../../src/presentation/ui/quickDrag';
 
 describe('pointer hotbar drop decisions', () => {

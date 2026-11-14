@@ -3,7 +3,7 @@ import { createGrassClump } from '../../src/presentation/grass/bladeGeometry';
 import { GRASS_QUALITY } from '../../src/presentation/grass/grassField';
 import { GRASS_BLADE_GLSL } from '../../src/presentation/grass/grassMaterial';
 import { MEADOW_LEVELS } from '../../src/presentation/menu/menuMeadow';
-import { smoothstep } from '../../src/world/noise';
+import { smoothstep } from '../../src/core/world/noise';
 
 /** Evaluate the shader's two smoothstep transitions using its actual bounds, rather than fixture constants. */
 function shaderHeadProfile(name: 'gHead' | 'gBloom'): (t: number) => number {

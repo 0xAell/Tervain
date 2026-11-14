@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
-import { animalLoot, HUNTING_ARROW_RANGE, SKINNING_SECONDS, type AnimalId } from '../../src/game/hunting';
+import { Game } from '../../src/core/game/game';
+import { animalLoot, HUNTING_ARROW_RANGE, SKINNING_SECONDS, type AnimalId } from '../../src/core/game/hunting';
 import { defaultSettings } from '../../src/platform/settings';
 import { HuntingController } from '../../src/presentation/huntingController';
 import type { AnimalArrowHit } from '../../src/presentation/animals/hunting/hit';
-import { S } from '../../src/content/strings';
+import { S } from '../../src/core/content/strings';
 
 const fixtures: { controller: HuntingController }[] = [];
 afterEach(() => { for (const item of fixtures.splice(0)) item.controller.arrows.dispose(); });

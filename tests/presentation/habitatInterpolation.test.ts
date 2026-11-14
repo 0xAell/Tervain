@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest';
 import {Habitat,newSample} from '../../src/presentation/ground/habitat';
-import {WORLD} from '../../src/world/layout';
+import {WORLD} from '../../src/core/world/layout';
 
 it('preserves all interpolated channels and output identity at cell and raster seams',()=>{
   const nodes=17,channels=5,data=new Float32Array(nodes*nodes*channels),requests:number[][]=[];

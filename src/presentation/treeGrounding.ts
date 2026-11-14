@@ -1,7 +1,7 @@
 import type { TreeVariant } from './treeGen';
 import type { FloraTree } from './floraPopulation';
-import { WORLD } from '../world/layout';
-import type { Terrain } from '../world/terrain';
+import { WORLD } from '../core/world/layout';
+import type { Terrain } from '../core/world/terrain';
 import type * as THREE from 'three';
 
 /** The first few centimetres of woody geometry belong inside the soil, not above it. */

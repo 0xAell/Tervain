@@ -4,8 +4,8 @@ import { createPineForest, isPineSpecies, type PineForest } from '../../src/pres
 import { buildTreeVariant, type TreeVariant } from '../../src/presentation/treeGen';
 import { groundedTreeY, treeWoodCollisionRadius } from '../../src/presentation/treeGrounding';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Terrain } from '../../src/world/terrain';
-import { deepwoodCover, FOREST_OPENINGS, forestOpeningCover } from '../../src/world/forest';
+import { Terrain } from '../../src/core/world/terrain';
+import { deepwoodCover, FOREST_OPENINGS, forestOpeningCover } from '../../src/core/world/forest';
 import { pineTemplates } from './pineFixture';
 
 let terrain: Terrain, exclusions: Exclusions, population: FloraTree[];

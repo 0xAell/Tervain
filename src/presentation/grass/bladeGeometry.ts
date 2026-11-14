@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { smoothstep } from '../../world/noise';
+import { smoothstep } from '../../core/world/noise';
 
 /**
  * One clump of grass blades as a tiny, shared mesh. A blade is a strip of `segments` quads narrowing to a single tip
