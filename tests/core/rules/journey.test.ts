@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { NPC_IDS } from '../../../src/core/game/types';
 import {
   AUTOSAVE_SECONDS, bellGain, CHECKPOINT_CLEARANCE, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, HIT_STOP, noThreatNear, THREAT_REACH,
-  UNDER_WORLD, WITNESS_REACH, WITNESSES, WOUNDED_BELOW,
+  OVERHEAR_REACH, SPEECH_SOON_REACH, UNDER_WORLD, WITNESS_REACH, WITNESSES, WOUNDED_BELOW,
 } from '../../../src/core/rules/journey';
 
 const foe = (x: number, z: number, more: Partial<{ alive: boolean; engaged: boolean }> = {}) => ({ x, z, alive: true, engaged: true, ...more });
@@ -68,5 +68,16 @@ describe('pacing', () => {
     expect(HIT_STOP.heavy).toBeGreaterThan(HIT_STOP.light);
     expect(HIT_STOP.heavy).toBeLessThan(0.1);
     expect(WOUNDED_BELOW).toBe(0.3);
+  });
+});
+
+describe('talk in earshot', () => {
+  it('is overheard from 16 m of the two speakers, and their lines are asked for from further off', () => {
+    expect(OVERHEAR_REACH).toBe(16);
+    expect(SPEECH_SOON_REACH).toBe(30);
+    // Lines are made ready before the wanderer is close enough to hear them.
+    expect(SPEECH_SOON_REACH).toBeGreaterThan(OVERHEAR_REACH);
+    // Whoever can witness a deed stands within earshot of talk at the same spot.
+    expect(OVERHEAR_REACH).toBeGreaterThanOrEqual(WITNESS_REACH);
   });
 });

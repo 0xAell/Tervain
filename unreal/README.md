@@ -57,3 +57,12 @@ git sparse-checkout set '/*' '!/unreal/'
 in the repository's CI when either is out of date. `tests/tools/unrealSkeleton.test.ts` checks that every row has
 exactly its struct's members with values of the declared types, that the settings name every table, that every tuning
 value the C++ reads exists in `tuning.json`, and that no binary or content file is committed here.
+
+## What is checked without the engine
+
+The two mirrored rules and the unit conversions are plain C++ that needs only a handful of engine names.
+`tests/tools/unrealRulesParity.test.ts` compiles them with an ordinary C++ compiler against small stand-ins for those
+names (`tests/tools/unreal-standin`) and runs them on a few thousand cases, comparing every result with the
+TypeScript rule it mirrors. That shows the logic was carried over correctly. It does not show that the project builds
+in Unreal Engine: the reflection markup, the data subsystem and the settings are only compiled by the engine's own
+tools.
