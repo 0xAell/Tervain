@@ -6,7 +6,6 @@ import {
   QUICK_SLOT_COUNT,
   SAVE_FORMAT_VERSION,
   type Cond,
-  type FactValue,
   type ItemId,
   type NpcId,
   type NpcState,
@@ -68,14 +67,6 @@ export function cloneState(s: WorldState): WorldState {
 
 export function phaseIndex(p: QuestPhase): number {
   return PHASE_ORDER.indexOf(p);
-}
-
-export function phaseAtLeast(s: WorldState, p: QuestPhase): boolean {
-  return phaseIndex(s.quest.phase) >= phaseIndex(p);
-}
-
-export function getFact(s: WorldState, key: string): FactValue | undefined {
-  return s.facts[key];
 }
 
 export function hasFact(s: WorldState, key: string): boolean {

@@ -125,8 +125,6 @@ const TREE_TRIANGLES = 19_800;
 const CROWN_LAYERS: readonly { turn: number; scale: readonly [number, number, number] }[] = [
   { turn: -1.91, scale: [0.8, 0.87, 0.8] },
 ];
-/** How the large source sheets are cut (A133): sheets over 3 m become pieces of whole grid cells about 2 m across, up to 0.35 m apart in depth. */
-export const SHEET_SPLIT = { minSize: 3, piece: 2, depth: 0.35, tilt: 0.12 } as const;
 /** Each added card's size, of the exported card's (A133). */
 export const CLUSTER_SCALE = 0.85;
 /** Cluster-canopy cards (A134): a near crown's cap, and a middle crown's share of its source triangles. */

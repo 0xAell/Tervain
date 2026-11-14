@@ -15,16 +15,15 @@ import { nextHint } from './core/game/hints';
 import { huntingHint, restockParams } from './core/game/hunting';
 import { INSPECT_POINTS } from './core/content/inspect';
 import { ITEMS, itemAction } from './core/content/items';
-import { hasFact, hourOfDay, evalAll, createInitialState, formatClock, clockDay, evalCond } from './core/game/state';
+import { hasFact, hourOfDay, evalAll, createInitialState, formatClock, clockDay } from './core/game/state';
 import { EVIDENCE_IDS, type Allocation, type Command, type GameEvent, type ItemId, type NpcId, type PlaceId, type WorldState } from './core/game/types';
-import { worldView } from './core/game/worldView';
 import { Input } from './platform/input';
 import { FrameClock, MotionInterpolation, SIM_CATCH_UP, SIM_STEP, cappedFrame } from './platform/frameTiming';
 import { waitForGraphicsReady } from './platform/graphicsReady';
 import { prepareSceneTextures } from './platform/prepareSceneTextures';
 import { codeLabel, loadSettings } from './platform/settings';
-import { BrowserStore, SaveStore, SLOT_IDS, type SlotId } from './platform/storage';
-import { ENEMY_SPAWNS, PLACES, SPAWN, SLUICE, RITE_ALTAR, type V2 } from './core/world/layout';
+import { BrowserStore, SaveStore, type SlotId } from './platform/storage';
+import { ENEMY_SPAWNS, PLACES, SPAWN, type V2 } from './core/world/layout';
 import { MOUNT_STAMINA } from './core/rules/riding';
 import { coastX } from './core/world/coast';
 import { canPlayerStandAt, PLAYER_BODY_RADIUS, supportedPlayerHeight } from './core/world/playerPlacement';
@@ -181,7 +180,6 @@ export class App {
   /** What each frame costs: CPU, GPU where measurable, draw calls and triangles (A76). */
   private perf: PerfMeter | null = null;
   private lockingOut = false;
-  private lastHint = '';
   /** Monotonic seconds for ambient audio scheduling; unlike world time it survives a world rebuild. */
   private audioClock = 0;
   private readonly listenerForward = new THREE.Vector3();
@@ -204,10 +202,8 @@ export class App {
   /** Lines the people near the hero may say soon; the sound world keeps their voices ready. */
   private speechSoon: string[] = [];
   private wasNight: boolean | null = null;
-  private threatUntil = 0;
   private vignetteLevel = 0;
   private wantPlayLock = false;
-  private lastActiveNpcTag = '';
   captionsEnabled = true;
   private hunting = new HuntingController(this, () => this.mode === 'play' && this.overlay === 'none' && !this.worldPaused && document.visibilityState !== 'hidden');
 
@@ -2751,9 +2747,6 @@ export class App {
     this.hud.setThreat(threat);
     this.vignetteLevel = Math.max(0, this.vignetteLevel - dt * 1.8);
     this.hud.setVignette(this.settings.reducedMotion ? this.vignetteLevel * 0.5 : this.vignetteLevel);
-    void this.threatUntil;
-    void this.lastActiveNpcTag;
-    void this.lastHint;
   }
 
   /* ================================== debug ================================== */
@@ -3168,12 +3161,6 @@ export class App {
   }
 }
 
-void evalAll;
-void evalCond;
-void worldView;
-void SLOT_IDS;
-void SLUICE;
-void RITE_ALTAR;
 export type { WorldState };
 
 /** The reason a build failed, short enough for the failure screen's small print. */

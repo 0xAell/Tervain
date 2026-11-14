@@ -3,13 +3,13 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-// The documents that describe the repository as it is now must not point at files that are gone. This test follows
-// every relative link in them. Dated records elsewhere under docs/ are not held to it.
+// No document may point at a file that is gone. This test follows every relative link in the repository's Markdown,
+// dated records included: a record that names a file should still lead to it, or say that it was removed.
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 /** Folders and files whose links are checked. */
-const CHECKED = ['README.md', 'CONTRIBUTING.md', 'docs/README.md', 'docs/unreal', 'data', 'unreal', 'src/core/README.md'];
+const CHECKED = ['README.md', 'CONTRIBUTING.md', 'LICENSE-SCOPE.md', 'docs', 'data', 'unreal', 'src', 'tools'];
 
 function markdown(path: string): string[] {
   const absolute = join(root, path);
@@ -25,7 +25,7 @@ export function relativeLinks(text: string): string[] {
   return targets.filter((target) => !/^(https?:|mailto:|#)/.test(target)).map((target) => decodeURIComponent(target.split('#')[0]!)).filter(Boolean);
 }
 
-describe('links in the current documents', () => {
+describe('links in the documents', () => {
   const files = CHECKED.flatMap(markdown);
 
   it('covers the documents that describe the repository', () => {

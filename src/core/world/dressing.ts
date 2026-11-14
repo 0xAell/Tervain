@@ -501,6 +501,4 @@ function wallSpot(hw: number, hd: number, w: number, free: (r: Rect) => boolean,
 
 export const DRESSING: readonly Dressing[] = INTERIORS.flatMap((room) => dressRoom(room));
 
-/** Pieces drawn from prepared models (the rest, rugs, shelves and small things, are built in code). */
-export const DRESSING_MODELS: readonly Exclude<DressingId, 'rug' | 'board' | 'small' | 'rail' | 'hung' | 'firewood'>[] = ['bread', 'jug', 'candle', 'pots', 'cauldron', 'herbs', 'antlers', 'pelt'];
 export type { PieceId };

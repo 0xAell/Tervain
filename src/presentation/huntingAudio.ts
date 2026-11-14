@@ -23,7 +23,6 @@ const VOICING: Record<HuntingSoundKind, { asset: HuntingAssetId; rate: number; v
   arrow_wood: { asset: 'arrow_ground', rate: 1.45, vary: .08 }, skinning: { asset: 'skinning', rate: 1, vary: 0 },
   skinning_complete: { asset: 'skinning_complete', rate: 1, vary: 0 },
 };
-export function huntingSoundVoicing(kind: HuntingSoundKind) { return VOICING[kind]; }
 /** Bounded retries for transient load failures (A71). */
 const LOAD_TRIES = 5;
 const LOAD_BACKOFF_MS = 5_000;

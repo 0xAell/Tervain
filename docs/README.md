@@ -1,6 +1,6 @@
 # Tervain documentation
 
-Status: foundation outline, 29 September 2026, and dated records of the browser prototype. The owner-approved [0.0.9 release source](production/releases/0.0.9.md) integrates the Weathered Wanderer, Solitary Pine and larger woodland stands with the published [0.0.8 world/item/map/people release](production/releases/0.0.8-integration.md). Combined validation and live deployment acceptance are recorded in the new release record. Historical [0.0.5 forest/menu](production/releases/0.0.5.md), [0.0.7 grove](production/releases/0.0.7.md), and [0.0.4 construction/water](production/releases/0.0.4.md) evidence remains attached to its original source. Tervain is for PC; mobile/touch work is outside the current scope. Design documents propose; [prototype notes](engineering/prototype.md) and dated release notes distinguish implemented behavior, component evidence, and final combined checks.
+What is here and where to start. Most pages are dated records: they say what was decided or built at a version and are not rewritten afterwards. `package.json` holds the current version; the [decision register](decisions.md) has a row for every change since.
 
 ## Reading paths
 
@@ -8,19 +8,44 @@ Status: foundation outline, 29 September 2026, and dated records of the browser 
 | --- | --- |
 | Understand the game | [Vision](vision.md) → [setting](world/setting.md) → [factions](world/factions.md) → [slice](production/vertical-slice.md). |
 | Design a quest | [Gameplay](design/gameplay.md) → [factions](world/factions.md) → [quests and consequences](design/quests-and-consequences.md) → [narrative](world/narrative.md). |
-| Start implementation | [Decisions](decisions.md) → [architecture](engineering/architecture.md) → [prototype](engineering/prototype.md) → [shared assets](engineering/shared-assets.md) → [slice](production/vertical-slice.md). |
-| Rebuild the separate Gothic 3 browser project | [Rebuilding process and current status](engineering/gothic3-rebuild-guide.md) → [step-by-step workflow](engineering/gothic3-rebuild-workflow.md) → [detailed checkpoints](engineering/gothic3-rebuilding-process.md) → the source/evidence files linked by each implementation stage. |
-| Play or test the build | [Prototype](engineering/prototype.md) → [0.0.9 release](production/releases/0.0.9.md) → [0.0.8 integration history](production/releases/0.0.8-integration.md) → [future slice acceptance](production/vertical-slice.md). |
-| Work on item controls and world pickups | [0.0.8 inventory/hotbar/map/pickups](production/releases/0.0.8-world-polish.md#inventory-hotbar-map-and-world-pickups) → [controls and save recovery](engineering/prototype.md) → [A35 scope](decisions.md). |
-| Work on woodland composition | [Larger stands](art/forest-stands-2026-10-03.md) → [Gothic 3 vegetation study](art/gothic3-vegetation-study.md) → [Solitary Pine contract](engineering/solitary-pine.md) → [0.0.9 integration](production/releases/0.0.9.md). |
-| Make environment or character art | [Art/audio/UI](art/art-audio-ui.md) → [setting](world/setting.md) → [shared assets](engineering/shared-assets.md). |
-| Study the Gothic 3 recording and Tervain visual gaps | [Illustrated video audit index](art/studies/gothic3-video-2026-10-05/README.md) → its report, timestamped evidence and proposal ledger → the current grass/water/character records linked there. The comparisons are dated 5 October, not current release acceptance. |
-| Work on the people or the unarmed start | [0.0.8 notes](production/releases/0.0.8.md) → [people notes](production/releases/0.0.5-people.md) → [Gothic 3 people study](art/gothic3-reference.md#people) and [Gothic 1 Remake study](art/gothic3-reference.md#gothic-1-remake-people-at-rest) → [people updates](art/art-audio-ui.md#people-update-1-october-2026-008). |
-| Repaint a person (Codex, an image model, by hand) | [Retexture guide](art/people-retexture.md) → [people sheets inventory](engineering/asset-inventory.md#replacement-people-sheets-008) → [0.0.8 notes](production/releases/0.0.8.md). |
-| Plan the project | [Vision](vision.md) → [roadmap](production/roadmap.md) → [decisions](decisions.md). |
+| Work on the browser build | [Decisions](decisions.md) → [architecture](engineering/architecture.md) → [the core](../src/core/README.md) → [prototype guide](engineering/prototype.md) → [play gate](engineering/play-gate.md). |
+| Port the game to Unreal Engine | [Porting notes](unreal/README.md) → [system mapping](unreal/system-mapping.md) → [conventions](unreal/conventions.md) → [roadmap](unreal/roadmap.md) → [portable data](../data/README.md) → [asset manifest](../data/assets/README.md) → [project seed](../unreal/README.md). |
+| Make environment or character art | [Art, audio and interface](art/art-audio-ui.md) → [setting](world/setting.md) → [shared assets](engineering/shared-assets.md). |
+| Repaint a person | [Retexture guide](art/people-retexture.md) → [people sheets inventory](engineering/asset-inventory.md#replacement-people-sheets-008). |
+| Check where an asset came from and its terms | [Model license ledger](engineering/model-licenses.md) → [asset inventory](engineering/asset-inventory.md) → [asset manifest](../data/assets/README.md) → [NOTICE](../NOTICE). |
 | Check a source or assumption | [Reference ledger](references.md) → the dated upstream record named there. |
-| Work on the menu grove (door, hollow, spirits) | [Grove record](engineering/menu-grove-score.md) → [score analysis guide](../tools/README-menu-score-analysis.md) → [0.0.7 notes](production/releases/0.0.7.md). |
-| Check menu music provenance | [The Sovereign's Oath source record](engineering/menu-score.md) → [audio inventory](engineering/menu-audio-assets.json) → [0.0.5 handoff](production/releases/0.0.5.md). |
+| Plan the project | [Vision](vision.md) → [roadmap](production/roadmap.md) → [decisions](decisions.md). |
+
+## Design
+
+- [Vision](vision.md), [decision register](decisions.md), [reference ledger](references.md).
+- World: [setting](world/setting.md), [factions](world/factions.md), [narrative](world/narrative.md).
+- Play: [gameplay](design/gameplay.md), [quests and consequences](design/quests-and-consequences.md).
+- Art: [art, audio and interface direction](art/art-audio-ui.md), [people retexture guide](art/people-retexture.md), and dated revisions and evidence under [`art/`](art).
+
+## Engineering
+
+- [Architecture](engineering/architecture.md) and the [engine-agnostic core](../src/core/README.md).
+- [Prototype guide](engineering/prototype.md): controls, what is implemented, and its limits.
+- [Play gate](engineering/play-gate.md): the check a pull request must pass, with the latest [GPU run](perf/LATEST.md), the [Mac budget](perf/MAC-BUDGET.md) and the [cuts made toward it](perf/AIR-CUTS.md).
+- Provenance and terms: [model licenses](engineering/model-licenses.md), [asset inventory](engineering/asset-inventory.md), [shared assets](engineering/shared-assets.md), [world audio](engineering/world-audio.md), [animal audio](engineering/animal-audio.md), [menu score](engineering/menu-score.md), [menu grove score](engineering/menu-grove-score.md), [main hero](engineering/main-hero.md), [resident models](engineering/meshy-npcs.md), [solitary pine](engineering/solitary-pine.md), with their machine-readable receipts (`engineering/*.json`).
+- System descriptions written at a release (`engineering/*-0.0.10.md`, `*-0.0.12.md`, `*-0.0.13.md`): water, grass, foliage, physics, rooms, residents and their rigs and motion, hunting, the weathered look.
+- Change records `engineering/a70-*.md` to `a168-*.md`: one per round of work, with what was found, what changed and how it was checked. The decision register links each.
+
+## Porting to Unreal Engine
+
+[`unreal/`](unreal/README.md) in this folder holds the porting notes: system mapping, conventions, the engine's web target and a phased roadmap. The data and the project seed are at the repository root under `data/` and `unreal/`.
+
+## Production
+
+- [Roadmap](production/roadmap.md), [vertical slice](production/vertical-slice.md), [versioning and the promotion gate](production/versioning.md).
+- [Release records](production/releases) for `0.0.4` to `0.0.18`. Later versions are recorded in the decision register and the change records.
+- [Playtest records](playtests).
+- The [teaser](media/teaser) and how it was made: [teaser record](production/teaser-presentable.md).
+
+## The separate Gothic 3 study
+
+Not part of Tervain: [reconstruction method](engineering/gothic3-reconstruction-method.md), [overview](engineering/gothic3-rebuild-overview.md), [guide](engineering/gothic3-rebuild-guide.md), [workflow](engineering/gothic3-rebuild-workflow.md), [checkpoint history](engineering/gothic3-rebuilding-process.md), [browser port scope](engineering/gothic3-browser-port.md), [local-install viewer](engineering/gothic3-local.md), the [look reference](art/gothic3-reference.md), the [vegetation study](art/gothic3-vegetation-study.md) and the [video audit](art/studies/gothic3-video-2026-10-05/README.md).
 
 ## Document authority
 

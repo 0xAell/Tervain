@@ -181,5 +181,3 @@ export function loadLeafAtlas(): Promise<LeafAtlasData | null> {
 
 /** The atlases once loaded and wanted; null otherwise (synchronous, for the tree builders). */
 export const leafAtlasInUse = (): LeafAtlasData | null => (leafAtlasWanted() ? loaded : null);
-/** Test hook. */
-export function setLeafAtlasForTest(data: LeafAtlasData | null) { loaded = data; loading = null; chains.clear(); }

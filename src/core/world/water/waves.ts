@@ -1,4 +1,3 @@
-import { SEA_LEVEL } from '../layout';
 
 /**
  * The sea's waves, as plain functions of position and time, shared by the water shaders (generated from these same
@@ -162,6 +161,3 @@ export function swashRise(shorePhase: number, breakerHeight: number, t: number):
   const shape = f < 0.3 ? Math.sin((f / 0.3) * Math.PI * 0.5) : f < 0.85 ? Math.cos(((f - 0.3) / 0.55) * Math.PI * 0.5) : 0;
   return SWELL.runup * breakerHeight * setFactor(shorePhase, t) * Math.pow(Math.max(shape, 0), 1.3);
 }
-
-/** Still water: the sea level the swash and the tidal-free sea rest on. */
-export const STILL_WATER = SEA_LEVEL;

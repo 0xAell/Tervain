@@ -508,15 +508,3 @@ export async function makeTerrainTextures(size: number, yieldNow: () => Promise<
     },
   };
 }
-
-/** Mean sRGB colour of a layer, for tests and for the reference notes. */
-export function layerMean(name: LayerName, n = 128): RGB {
-  const L = MAKERS[name](n);
-  const s: RGB = [0, 0, 0];
-  for (let o = 0; o < n * n; o++) {
-    s[0] += L.rgb[o * 3]!;
-    s[1] += L.rgb[o * 3 + 1]!;
-    s[2] += L.rgb[o * 3 + 2]!;
-  }
-  return [s[0] / (n * n), s[1] / (n * n), s[2] / (n * n)];
-}

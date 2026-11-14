@@ -1,7 +1,6 @@
 import { hotbarEligible, itemAction, ITEMS } from '../../core/content/items';
 import { NPCS } from '../../core/content/npcs';
 import { S } from '../../core/content/strings';
-import { TRAINING_COST } from '../../core/game/constants';
 import { commitPreconditions, riteCalmActive, rotationBlockers, stabilizePreconditions } from '../../core/game/commands';
 import type { Game } from '../../core/game/game';
 import { buildJournal } from '../../core/game/journal';
@@ -9,10 +8,9 @@ import { clockDay, evalCond, formatClock } from '../../core/game/state';
 import { worldView } from '../../core/game/worldView';
 import type { Allocation, Cond, ItemId, WorldState } from '../../core/game/types';
 import { type Input } from '../../platform/input';
-import { ACTIONS, DEFAULT_BINDINGS, codeLabel, assignSlot, cancelsCapture, findConflict, resetToDefaults, saveSettings, type Action, type Settings } from '../../platform/settings';
+import { ACTIONS, codeLabel, assignSlot, cancelsCapture, findConflict, resetToDefaults, saveSettings, type Action, type Settings } from '../../platform/settings';
 import { SLOT_IDS, type LoadResult, type SaveStore, type SlotId } from '../../platform/storage';
 import { clear, focusableElements, focusFirst, h, moveFocus, visibleControl } from './dom';
-import { EVIDENCE_IDS } from '../../core/game/types';
 import { BUILD_LABEL, GAME_VERSION } from '../../version';
 import { createMenuScreen } from './menuView';
 import { icon } from './icons';
@@ -230,10 +228,6 @@ export function describeCond(c: Cond, s: WorldState): string | null {
     default:
       return S('req.generic');
   }
-}
-
-export function describeMissing(conds: Cond[], s: WorldState): string[] {
-  return conds.map((c) => describeCond(c, s)).filter((x): x is string => !!x);
 }
 
 function fmtPlay(sec: number) {
@@ -855,7 +849,3 @@ function bindRow(ctx: PanelCtx, action: Action, commit: () => void): HTMLElement
   return h('div', { class: 'bind' }, h('span', {}, S(`action.${action}`)), slotBtn(0), slotBtn(1), note);
 }
 
-void DEFAULT_BINDINGS;
-void EVIDENCE_IDS;
-void TRAINING_COST;
-void formatClock;

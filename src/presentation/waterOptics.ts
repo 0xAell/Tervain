@@ -32,12 +32,6 @@ export function waterHighlightLobe(cosine: number, power: number, rayFootprintSq
   return Math.pow(THREE.MathUtils.clamp(cosine, 0, 1), filteredPower) * (filteredPower + 1) / (power + 1);
 }
 
-/** Schlick's Fresnel for water: the share of light reflected at `cosine` between view and normal. */
-export function waterFresnel(cosine: number): number {
-  const c = THREE.MathUtils.clamp(cosine, 0, 1);
-  return WATER_F0 + (1 - WATER_F0) * Math.pow(1 - c, 5);
-}
-
 /** Absorption per metre of water: red vanishes first, while blue-green survives deeper paths. */
 export function waterAbsorptionCoefficients(clarity = 1): THREE.Vector3 {
   if (!Number.isFinite(clarity)) throw new RangeError('Water clarity must be finite.');

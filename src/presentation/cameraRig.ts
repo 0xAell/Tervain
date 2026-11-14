@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { BoxCollider, Collider, Colliders } from '../core/world/colliders';
 import type { Terrain } from '../core/world/terrain';
-import { BUILDINGS, LIGHTHOUSE, PLACES } from '../core/world/layout';
+import { BUILDINGS, LIGHTHOUSE } from '../core/world/layout';
 import { CAMERA_CLEARANCE, cameraColliderEntry } from '../core/rules/cameraObstruction';
 import { RIDE_CAMERA } from '../core/rules/riding';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../core/rules/camera';
@@ -476,7 +476,6 @@ export class CameraRig {
     const lz = 98;
     this.camera.lookAt(lx, terrain.heightAt(-322, 98) + 11 + Math.sin(t * 0.8) * 1.2, lz);
     this.smoothTarget.set(-290, terrain.heightAt(-290, 50), 50);
-    void PLACES;
   }
 
   /** A fixed camera route for repeatable frame-time measurements. */

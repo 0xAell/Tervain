@@ -105,7 +105,7 @@ Fixed in the served build and checked with before and after captures (#213, #214
   stool and a second store, low enough for the space under the windows; pieces that do not fit their wall try another.
 - **Timber frame** stands on the wall's face instead of 6 cm inside it.
 - **Tree crowns**: more light inside and in their own shadow, softer card edges. Near crowns already use 19,800 of their
-  20,000 triangles, so no more cards fit; new crown art needs Meshy (no key in this environment).
+  20,000 triangles, so no more cards fit; new crown art needs Meshy.
 
 Checked in the running game: every furniture model's bounds match its declared size and stand on the floor; residents
 lie in their beds at night (the reeve, 23:30); the hero mounts the saddled deer.

@@ -48,7 +48,6 @@ import { FIELDS,
   WAGON_CONSTRUCTION,
   VILLAGE_HANDCART,
   WORLD,
-  type StreamSpec,
   type V2,
 } from './layout';
 
@@ -712,10 +711,4 @@ export class Terrain {
     if (feetY !== undefined && this.supportAt(x, z, feetY) > this.groundAt(x, z) + 0.02) return true;
     return this.slopeAt(x, z) <= maxSlope;
   }
-}
-
-export function streamById(id: StreamSpec['id']): StreamSpec {
-  const s = STREAMS.find((x) => x.id === id);
-  if (!s) throw new Error(`no stream ${id}`);
-  return s;
 }

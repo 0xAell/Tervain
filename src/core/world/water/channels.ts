@@ -1,4 +1,4 @@
-import { distToPolyline, type Terrain } from '../terrain';
+import type { Terrain } from '../terrain';
 import { FORD, STREAMS, type V2 } from '../layout';
 
 /**
@@ -216,10 +216,4 @@ export function nearestSample(channel: Channel, x: number, z: number): { index: 
     }
   }
   return { index, across, t };
-}
-
-/** Distance from a point to a channel's authored course (cheap, for audio and bounds). */
-export function channelDistance(id: Exclude<ChannelId, 'rill'>, x: number, z: number): number {
-  const spec = STREAMS.find((s) => s.id === id)!;
-  return distToPolyline(x, z, spec.points).d;
 }

@@ -6,14 +6,6 @@ import type { ToolPoints } from './residentProps';
 import type { WorkSite } from './workSites';
 import { buildTurnClips, TurnLead, SIDES, TURN_STEP, TurnSteps, type Legs } from '../turnSteps';
 
-/**
- * The residents' motion (A65): authored clips from Meshy's animation library and Meshy's text-to-motion, all made on
- * one reference rig (models/npcs/motion/residents.glb), retargeted onto each resident's own rig and played by a small
- * crossfading state machine that answers the game's poses: walking locked to the metres actually travelled, standing,
- * talking, sitting down on and getting up from the actual seat, working at each trade, and the bandits' fights.
- */
-export const RESIDENT_MOTION_PROFILE = 'resident-motion-v1';
-
 export type RestPose = Map<ResidentJoint, { position: THREE.Vector3; quaternion: THREE.Quaternion }>;
 export interface ResidentMotionLibrary { rest: RestPose; clips: Map<string, THREE.AnimationClip> }
 

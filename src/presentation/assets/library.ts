@@ -214,19 +214,6 @@ export class AssetLibrary {
   }
 }
 
-/* ---------- Shared instance ---------- */
-
-let shared: AssetLibrary | null = null;
-
-/** The library opened at start-up. Rigs and scene modules read it here so no constructor needs threading through. */
-export function setSharedLibrary(lib: AssetLibrary) {
-  shared = lib;
-}
-
-export function sharedLibrary(): AssetLibrary {
-  return shared ?? (shared = AssetLibrary.empty());
-}
-
 /** A model the game would like loaded before the world is built. */
 export interface AssetNeed {
   id: string;

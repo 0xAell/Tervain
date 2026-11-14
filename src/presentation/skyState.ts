@@ -37,6 +37,3 @@ export const SKY = {
   /** 1 once the generated environment map is lighting the scene, so the direct hemisphere fill can be reduced. */
   ibl: { value: 0 },
 };
-
-/** Water flow state shared by the water shaders and the terrain wetness: spring, main, village, quarry (eased, 0..1). */
-export const FLOWS = { value: new THREE.Vector4(0.3, 0.3, 0.1, 0.3) };

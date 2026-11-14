@@ -1,5 +1,3 @@
-import * as THREE from 'three';
-
 export interface SwayUniforms {
   uTime: { value: number };
   uWind: { value: number };
@@ -11,33 +9,6 @@ export interface SwayUniforms {
  */
 export const TREE_SWAY_ENABLED = false;
 export const TREE_SWAY_MULTIPLIER = TREE_SWAY_ENABLED ? 1 : 0;
-
-/** Standard material whose vertices bend with `aSway` so branch and canopy motion stays attached. */
-export function makeSwayMaterial(u: SwayUniforms, opts: { side?: THREE.Side; flat?: boolean } = {}) {
-  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: opts.flat ?? true, roughness: 0.95, metalness: 0, side: opts.side ?? THREE.FrontSide });
-  mat.onBeforeCompile = (shader) => {
-    shader.uniforms.uTime = u.uTime;
-    shader.uniforms.uWind = u.uWind;
-    shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nattribute float aSway;\nuniform float uTime;\nuniform float uWind;')
-      .replace(
-        '#include <begin_vertex>',
-        `#include <begin_vertex>
-        {
-          vec3 ip = vec3(0.0);
-          #ifdef USE_INSTANCING
-            ip = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
-          #endif
-          float ph = ip.x * 0.31 + ip.z * 0.27;
-          float gust = sin(uTime * 0.35 + ip.x * 0.02) * 0.5 + 0.5;
-          float w = sin(uTime * 1.5 + ph + position.y * 0.7) * aSway * uWind * (0.55 + gust * 0.6) * ${TREE_SWAY_MULTIPLIER.toFixed(1)};
-          transformed.x += w * 0.55;
-          transformed.z += w * 0.3;
-        }`,
-      );
-  };
-  return mat;
-}
 
 
 /**
@@ -79,13 +50,5 @@ vec3 tvSwayLocal(mat4 wm, float amp, float t, float wind) {
   return vec3(dl.x, 0.0, dl.y);
 }
 `;
-
-export function withSway(geo: THREE.BufferGeometry, fn: (y: number, x: number, z: number) => number): THREE.BufferGeometry {
-  const n = geo.attributes.position!.count;
-  const a = new Float32Array(n);
-  for (let i = 0; i < n; i++) a[i] = fn(geo.attributes.position!.getY(i), geo.attributes.position!.getX(i), geo.attributes.position!.getZ(i));
-  geo.setAttribute('aSway', new THREE.BufferAttribute(a, 1));
-  return geo;
-}
 
 export { Exclusions, streamDistance } from '../core/world/exclusions';

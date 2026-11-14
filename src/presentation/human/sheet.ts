@@ -110,11 +110,6 @@ export function layoutSheet(size: number, body: Bounds, head: Bounds): SheetLayo
   return { width: W, height: H, regions };
 }
 
-/** The region of a set seen from a view (undefined for the body from above). */
-export function regionFor(layout: SheetLayout, set: SheetSet, view: ViewName): SheetRegion | undefined {
-  return layout.regions.find((r) => r.set === set && r.view === view);
-}
-
 /** Pixel coordinates (origin top left) and depth toward the viewer of an unwrap-pose point in a region. */
 export function project(r: SheetRegion, x: number, y: number, z: number, out: Float32Array, o = 0) {
   const a = VIEW_AXES[r.view];
