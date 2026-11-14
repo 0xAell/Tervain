@@ -11,7 +11,7 @@ destination to the original PropertyID destructor import `207d88d4`.
 Reproduce it from the installed-game study:
 
 ```powershell
-python tools/gothic3/prepare_ai_helper_property_id_source.py --study "C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04" --output assets/gothic3/ai-helper-property-id-startup/research.json
+python tools/gothic3/prepare_ai_helper_property_id_source.py --study "Gothic3_Decompiled_Study_2026-10-04" --output assets/gothic3/ai-helper-property-id-startup/research.json
 ```
 
 The generator checks original DLL bytes and loader storage geometry. It does

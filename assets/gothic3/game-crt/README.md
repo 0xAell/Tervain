@@ -7,7 +7,7 @@ This additive package records the installed Gothic 3 `Game.dll` CRT algorithms, 
 Run from the repository root with the original study directory available:
 
 ```powershell
-python tools/gothic3/prepare_game_crt_source.py --study 'C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04'
+python tools/gothic3/prepare_game_crt_source.py --study 'Gothic3_Decompiled_Study_2026-10-04'
 ```
 
 The [producer](../../../tools/gothic3/prepare_game_crt_source.py) rejects a different original `Game.dll` SHA. It selects bodies using the actual Game `functions.csv`, follows original entry aliases, and verifies every selected instruction and complete extent against the PE. No constant Engine-to-Game address delta selects a function or field. Original CSV, assembly and complete reconstructed C chunk hashes remain in `native-evidence.json`.

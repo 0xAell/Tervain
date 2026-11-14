@@ -138,4 +138,4 @@ every variant compiled ahead by a flag that has not been identified.
 - All tests pass, including the tree budget (wood under 9,000 triangles, near broadleaf trees under 19,800, every tree
   under 20,000), the receipts, and the buildings' coplanar-face check.
 
-No Meshy credits spent.
+No new Meshy output.

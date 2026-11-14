@@ -1,6 +1,6 @@
 # Frames on a real GPU (A78, 0.0.13)
 
-A76 and A77 measured in a cloud container with software rendering; their frame and CPU times said nothing about a GPU.
+A76 and A77 measured with software rendering; their frame and CPU times said nothing about a GPU.
 This round ran the same benchmark on an RTX 3080 Ti, found where the frames went, and made them lighter with no visible
 change.
 
@@ -105,4 +105,4 @@ breakdowns are described here: per-pass draw calls (wrapping `renderer.renderBuf
 material's `customProgramCacheKey`), GPU time with one thing hidden (the frame cost overlay's timer queries), and CPU
 profiles (DevTools `Profiler` over `tools/cdp.mjs`).
 
-No Meshy credits spent.
+No new Meshy output.

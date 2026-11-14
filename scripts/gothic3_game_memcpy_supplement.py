@@ -311,7 +311,7 @@ The producer is self-contained Python standard-library code. Its final repositor
         bytes=producer.stat().st_size, sha256=SHA(producer.read_bytes()))
     records = generated + [producer_record] + list(original_records.values()) + list(dependencies.values())
     manifest = dict(schema='gothic3-game-memcpy-supplement-source-manifest-v1', inputs=PINS,
-        roots=dict(originalStudy=str(study)), producerPath=producer.relative_to(repo).as_posix(),
+        roots=dict(originalStudy=study.name), producerPath=producer.relative_to(repo).as_posix(),
         usesOnlyPythonStandardLibrary=True, sourceOnly=True,
         manifestSelfReferenceExcluded=True,
         files=sorted(records, key=lambda record: (record['location'], record['path'])))

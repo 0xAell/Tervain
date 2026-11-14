@@ -5,7 +5,7 @@ distant detail, culling) with no visible popping, holes, stretched geometry or l
 with the benchmark and check each change in the served build. High's tree detail default may change if it saves cost
 with no visible loss.
 
-Measured in a cloud container: production build served locally, headless Chromium, software rendering (SwiftShader, no
+Measured without a GPU: production build served locally, headless Chromium, software rendering (SwiftShader, no
 GPU). Draw calls and triangles are what the game submits, the same on any machine; frame and CPU times here are
 SwiftShader's and say nothing about a GPU (see [A76](a76-crowns-turns-walls-frame-cost.md) for running the same
 benchmark on real hardware).

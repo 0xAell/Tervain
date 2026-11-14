@@ -120,7 +120,7 @@ incomplete at the unconnected ScriptAdmin getter with 0/16 property sets attache
 Regenerate from the repository root:
 
 ```powershell
-python tools/gothic3/prepare_game_cinit_math_evidence.py --study 'C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04' --output assets/gothic3/game-cinit-math-source/source.json --runtime-output src/gothic3/native-game-crt-cinit-source.ts
+python tools/gothic3/prepare_game_cinit_math_evidence.py --study 'Gothic3_Decompiled_Study_2026-10-04' --output assets/gothic3/game-cinit-math-source/source.json --runtime-output src/gothic3/native-game-crt-cinit-source.ts
 ```
 
 An independent regeneration matched the committed JSON byte for byte. No runtime

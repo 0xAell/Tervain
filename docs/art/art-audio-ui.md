@@ -45,7 +45,7 @@ The wanderer wakes on the strand in a plain tunic with nothing in hand or at the
 
 ## People update, 1 October 2026 (0.0.8)
 
-The owner asked for a massive NPC rework, with the local Gothic 1 Remake files and their own text notes as study material, and for models whose shapes are easy to retexture with Codex and image generation (A36). The [look reference](gothic3-reference.md#gothic-1-remake-people-at-rest) records the study.
+The owner asked for a massive NPC rework, with the local Gothic 1 Remake files and their own text notes as study material, and for models whose shapes are easy to retexture with image generation (A36). The [look reference](gothic3-reference.md#gothic-1-remake-people-at-rest) records the study.
 
 - **One painted sheet.** Each person is one skinned mesh with one square texture laid out as a character model sheet: the whole figure from the front, the right, the back and the left in an unwrap A-pose, the face large, and the head from the sides, the back and above. The game paints it at load, as a function of each point on the surface so the views agree. The paint covers weave and wear, worn knees, elbows and hems, grimy thighs, sun-faded shoulders, creased boots, quilting, mail rings, fur, hair and the face. A fine detail layer and each piece's roughness stay in the shader.
 - **Made to be repainted.** `npm run people:sheets` exports every person's sheet with a template, a parts map, masks and a prompt; a repainted image installed as `src/assets/people/<id>.png` replaces the paint. Rules: flat albedo, the plain background, consistent views, no emblems or lettering, original inputs only. See the [retexture guide](people-retexture.md).
@@ -115,7 +115,7 @@ Use a stable third-person camera as the proposed baseline. Collision resolution 
 
 ## Menu and interface
 
-**Current owner direction, 30 September 2026 (A26):** make the title and pause menus much closer to Gothic 3: less cartoonish, less polished, more human and rougher, with dust, dirt, mud, and realistic imperfection. The menu belongs in the original Hyperion-inspired shared world with heavy Templar influence. The owner authorized a full rework and integrating Claude PR #3; this supersedes the desert market.
+**Current owner direction, 30 September 2026 (A26):** make the title and pause menus much closer to Gothic 3: less cartoonish, less polished, more human and rougher, with dust, dirt, mud, and realistic imperfection. The menu belongs in the original Hyperion-inspired shared world with heavy Templar influence. The owner authorized a full rework and integrating PR #3; this supersedes the desert market.
 
 The `0.0.5` scene is a **Templar vigil at dusk**. A hooded warden sits across a campfire, with his sword driven into the mud. An ancient tree holds a hermit’s door and lantern within its roots; pilgrims’ rags and iron lanterns hang from low bare boughs, and one great limb is dead. Standing stones occupy the rise, while Lantern Point’s lighthouse stands far off against the sunset. Trodden mud, rainwater in wheel ruts, crows, sparks, smoke, and low mist make the headland feel used. Near-black teal above an amber horizon band follows the measured reference palette; see the [look reference](gothic3-reference.md#the-title-menu). The scene is original authored geometry, not extracted Gothic 3 art or a new playable region.
 

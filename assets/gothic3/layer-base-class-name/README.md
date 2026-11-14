@@ -21,7 +21,7 @@ checked against the original PE bytes.
 Regenerate from the matching offline study:
 
 ```powershell
-python tools/gothic3/prepare_layer_base_class_name_source.py --study 'C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04' --output assets/gothic3/layer-base-class-name/source.json --runtime-output src/gothic3/native-game-layer-base-source.ts
+python tools/gothic3/prepare_layer_base_class_name_source.py --study 'Gothic3_Decompiled_Study_2026-10-04' --output assets/gothic3/layer-base-class-name/source.json --runtime-output src/gothic3/native-game-layer-base-source.ts
 ```
 
 The generated admission module pins this complete receipt independently of the

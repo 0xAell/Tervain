@@ -182,7 +182,7 @@ an ending.
 The installed reference root is
 `C:\Program Files (x86)\Steam\steamapps\common\Gothic 3`.
 The local research archive used for the startup checkpoints is
-`C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04`:
+`Gothic3_Decompiled_Study_2026-10-04`:
 
 - `00_Original_Runtime/SharedBase.dll`: the matching reference DLL.
 - `01_Decompiled_Code/SharedBase_dll/full_disassembly.asm`: retained disassembly.

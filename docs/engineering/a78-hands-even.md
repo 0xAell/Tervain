@@ -50,7 +50,7 @@ fingertips' own outline, and in play the sword's handle covers it.
 
 - `tools/hero/hands.mjs`: the hand close-ups above, for any two builds.
 - `tools/hero/views.mjs`, `tools/hero/mi3d.mjs`: the reference renders and the Meshy multi-image job behind A74's body.
-  They write under `shots/`, which is ignored. `mi3d.mjs create` spends 35 credits.
+  They write under `shots/`, which is ignored. `mi3d.mjs create` starts a paid Meshy job.
 - `tools/resident-hands.mjs`: close looks at the residents' hands (the quarry hand at work, the reeve standing).
 
-No Meshy credits spent in A78. Totals stay as recorded: trees and fingers 30 of 100, hero 35 of 200.
+No new Meshy output in A78.

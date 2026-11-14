@@ -20,7 +20,7 @@ For native repeatable review, open `?shot=1&review=water&motion=1&quality=high`,
 
 ## Natural stone surfaces
 
-The former shore-distance wetness marked elevated lighthouse rock as soaked. [`groundSplat.ts`](../../src/presentation/groundSplat.ts) now limits sea splash wetness by actual height above sea level. The seabed branch also requires submerged ground, including where the raised lighthouse outcrop reaches seaward of the approximate coast. Upper cliffs remain dry while the tidal band and underwater bed stay damp.
+The former shore-distance wetness marked elevated lighthouse rock as soaked. [`groundLayers.ts`](../../src/core/world/groundLayers.ts) now limits sea splash wetness by actual height above sea level. The seabed branch also requires submerged ground, including where the raised lighthouse outcrop reaches seaward of the approximate coast. Upper cliffs remain dry while the tidal band and underwater bed stay damp.
 
 [`terrainMaterial.ts`](../../src/presentation/terrainMaterial.ts) gives dry stone 0.98 roughness and damp stone a 0.78 target, with restrained environmental reflection. Fixed world-axis triplanar colour and correctly oriented relief replace the previous normal-dependent projection. Original generated fractures, coarse plates, irregular strata and mineral grain in [`terrainTextures.ts`](../../src/presentation/terrainTextures.ts) and [`buildingTextures.ts`](../../src/presentation/buildingTextures.ts) add weathered stone detail. Relief changes shading, not the terrain height grid or collision surface. Rock face UVs provide real texture coverage on scattered boulders.
 

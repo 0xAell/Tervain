@@ -25,8 +25,7 @@ the way in, across a window or inside another piece, and never collides:
 - woven wool rugs under the tables and beside the beds, in four patterns of earthy reds, ochres and browns.
 
 Twelve new props were generated with Meshy (barrel, crate, firewood, bread, jug, pots, cooking pot, herbs, antlers, pelt,
-candlestick, farm tools): 180 credits of the 200 the interiors may spend, under a hard cap that
-`tools/meshy-props/generate.mjs` checks against the live balance before every task. They are 1,100–2,600 triangles and
+candlestick, farm tools) with `tools/meshy-props/generate.mjs`. They are 1,100–2,600 triangles and
 100–180 KB each. The table's code-built loaf, jug and candle (A76) gave way to the modelled ones; its bowl and cups stay.
 
 Before (top, live 0.0.13) and after (bottom), at 21:00 with the hearth lit:

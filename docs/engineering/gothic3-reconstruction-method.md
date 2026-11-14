@@ -76,7 +76,7 @@ incomplete.
 | `.github/workflows/pages.yml` | Validation and Pages hosting |
 
 The local native study reference is
-`C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04`.
+`Gothic3_Decompiled_Study_2026-10-04`.
 Its `00_Original_Runtime` directory contains reference binaries and
 `01_Decompiled_Code` contains code research. These machine-specific paths are
 inputs for research, not portable build requirements for every contributor.

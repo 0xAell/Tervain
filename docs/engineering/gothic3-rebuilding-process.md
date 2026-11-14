@@ -8597,7 +8597,7 @@ are unchanged.
 Reproduce this checkpoint with:
 
 ```powershell
-python tools/gothic3/prepare_game_crt_source.py --study 'C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04'
+python tools/gothic3/prepare_game_crt_source.py --study 'Gothic3_Decompiled_Study_2026-10-04'
 npm run typecheck
 npm test -- tests/gothic3-dialogue/game-navigation-class-name.test.ts
 ```

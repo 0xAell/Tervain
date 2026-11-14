@@ -44,4 +44,4 @@ Unit tests cover the boom limit, the floor, a crown that holds the wanderer, and
 The rise is the grass tiles' buffer pool growing to the most tiles ever on screen at once (grass adds none by the
 fourth lap), plus tree shadows drawn for the first time.
 
-No Meshy credits spent; no triangle budget changed.
+No new Meshy output; no triangle budget changed.

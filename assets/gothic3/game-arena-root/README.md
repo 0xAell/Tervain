@@ -102,7 +102,7 @@ initializer have not yet returned; broad validation and deployment are pending.
 From the repository root, supply the matching local study directory:
 
 ```powershell
-python tools/gothic3/prepare_game_arena_root_source.py --study 'C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04' --output assets/gothic3/game-arena-root/source.json
+python tools/gothic3/prepare_game_arena_root_source.py --study 'Gothic3_Decompiled_Study_2026-10-04' --output assets/gothic3/game-arena-root/source.json
 ```
 
 The generator checks original binary hashes, disassembly bytes and captured

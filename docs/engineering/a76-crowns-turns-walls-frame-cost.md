@@ -1,7 +1,7 @@
 # Tree crowns, turns, the wall hairline and frame cost (A76, 0.0.13)
 
 Continues [A75](a75-hands-and-backlog.md). Every change was checked in the production build served locally (`vite
-preview`) in headless Chromium with software rendering (SwiftShader, no GPU) in a cloud container: the captures show what
+preview`) in headless Chromium with software rendering (SwiftShader, no GPU): the captures show what
 the game draws, not how fast a GPU draws it.
 
 ## The hairline at window height inside the rooms
@@ -20,7 +20,7 @@ z-fighting (three views of house_a, before and after, unchanged).
 
 ## Tree crowns
 
-No Meshy credits were spent and no triangles were added; the change is in the leaf shader (`foliage/foliageMaterial.ts`).
+No new Meshy output and no triangles were added; the change is in the leaf shader (`foliage/foliageMaterial.ts`).
 
 - **Cards seen edge-on fade out.** A card nearly edge-on to the eye smeared its texture into long streaks, which is most
   of what read as noisy cut-out cards. Each card's facing is measured per pixel (from the screen-space derivative of the
@@ -161,4 +161,4 @@ the shadow map are all redrawn at once (each pass is now counted). Over the whol
 High's triangles in the median. A first run of this benchmark had measured the pause menu's backdrop instead of the
 world (the menu had opened behind it at load); the route now keeps the screen and drops any frame drawn under a menu.
 
-Meshy credits: none spent. Totals stay as recorded: trees and fingers 30 of 100, hero 35 of 200.
+No new Meshy output.

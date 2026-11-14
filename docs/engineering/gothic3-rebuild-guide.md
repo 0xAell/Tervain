@@ -1758,7 +1758,7 @@ materials, skeleton, animations, entity properties, routines and gameplay state.
 | Publication | Review changes, validate the exact revision and deploy `/gothic3/`. | A recorded deployed revision and observed browser behavior. |
 
 The matching local research inputs are in
-`C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04`.
+`Gothic3_Decompiled_Study_2026-10-04`.
 `00_Original_Runtime/` contains the reference DLLs;
 `01_Decompiled_Code/Game_dll/` contains `functions.csv`,
 `full_disassembly.asm` and the `pseudocode/` directory. These are local research
@@ -2337,7 +2337,7 @@ campaign completion.
 ### Original files and reproducible outputs
 
 The study root on the reference machine is
-`C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04`.
+`Gothic3_Decompiled_Study_2026-10-04`.
 Matching DLLs live under `00_Original_Runtime/`; retained disassembly lives under
 `01_Decompiled_Code/<module>_dll/full_disassembly.asm`. These local paths identify
 preparation inputs; contributors must provide their own matching files.

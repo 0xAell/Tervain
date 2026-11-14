@@ -44,4 +44,4 @@ In the served build on the GPU, before and after, from five cameras: up the trun
 branches, the wood from the side, and the stand from 30 m. The fins now carry bark and shade with the trunk, and the
 dot grid is gone.
 
-No Meshy credits spent. The pine stays the owner's model, with only its normals repaired.
+No new Meshy output. The pine stays the owner's model, with only its normals repaired.

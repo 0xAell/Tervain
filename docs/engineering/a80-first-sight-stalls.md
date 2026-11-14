@@ -71,4 +71,4 @@ First minute on the route, served build, three sessions:
 The worst is the world's first frame. The few frames over 50 ms left are the frame after a slow draw catching up two or
 three steps.
 
-No Meshy credits spent.
+No new Meshy output.
