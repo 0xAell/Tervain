@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { AnimalFigure } from '../animals';
-import type { AnimalClip } from '../animals/catalog';
+import type { AnimalClip } from '../../core/content/animals';
 import type { GrassMover } from '../grass/trample';
 import { menuHeight } from './menuLayout';
 

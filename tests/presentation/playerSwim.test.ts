@@ -4,7 +4,7 @@ import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
-import { HERO_WALK_SPEED } from '../../src/presentation/hero/locomotion';
+import { HERO_WALK_SPEED } from '../../src/core/rules/heroLocomotion';
 import { Player, SWIM_DEPTH, SWIM_EXIT, SWIM_FLOAT, SWIM_SPEED, wadeFactor, type PlayerCtx, type PlayerWater } from '../../src/presentation/player';
 import { Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';

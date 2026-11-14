@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { AIM_VIEW, CameraRig } from '../../src/presentation/cameraRig';
-import { CAMERA_CLEARANCE, cameraColliderEntry } from '../../src/presentation/cameraObstruction';
+import { CAMERA_CLEARANCE, cameraColliderEntry } from '../../src/core/rules/cameraObstruction';
 import { buildStaticColliders, Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';
 import { BUILDINGS } from '../../src/core/world/layout';

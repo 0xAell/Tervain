@@ -12,7 +12,7 @@ import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L } from '../../src/core/world/l
 import { LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop } from '../../src/core/world/lighthouse';
 import { Terrain } from '../../src/core/world/terrain';
 import { poseRig } from '../../src/presentation/characters';
-import { HERO_WALK_SPEED, HERO_RUN_SPEED } from '../../src/presentation/hero/locomotion';
+import { HERO_WALK_SPEED, HERO_RUN_SPEED } from '../../src/core/rules/heroLocomotion';
 import { initializePhysics, RealmPhysics } from '../../src/physics/physics';
 
 // This is controller/physics coverage, with real game state and colliders; sculpted rendering is tested separately.

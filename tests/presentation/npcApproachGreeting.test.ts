@@ -5,7 +5,7 @@ import { createInitialState } from '../../src/core/game/state';
 import { reviveState } from '../../src/platform/storage';
 import { finishNpcPath, NpcActor, resolveGoal, type ActorContext } from '../../src/presentation/actors';
 import type { Rig } from '../../src/presentation/characters';
-import { NpcApproachGreeting } from '../../src/presentation/npcApproachGreeting';
+import { NpcApproachGreeting } from '../../src/core/rules/npcApproachGreeting';
 import { npcStyle } from '../../src/presentation/npcStyle';
 import { workSound } from '../../src/presentation/sound/foley';
 import { Colliders } from '../../src/core/world/colliders';

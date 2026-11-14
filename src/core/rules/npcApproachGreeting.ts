@@ -1,4 +1,4 @@
-import type { NpcDef } from '../core/content/npcs';
+import type { NpcDef } from '../content/npcs';
 
 /** Arrival hysteresis keeps a welcome from looping while the player sorts their inventory. */
 export class NpcApproachGreeting {

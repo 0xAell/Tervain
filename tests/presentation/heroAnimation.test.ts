@@ -6,7 +6,7 @@ import { setArmed, setSash, type Mode } from '../../src/presentation/characters'
 import { HERO_ACTION_FADE, HERO_GAIT_PHASE, HERO_RUN_RIGHT_STANCE, runClipPhase, HERO_HAND_GRIPS, HERO_LEG_TWIST, type HeroGrip, HERO_ARM_TUCK } from '../../src/presentation/hero/animation';
 import { blendDualQuaternions, writeDualQuaternion } from '../../src/presentation/npc/dualQuaternionSkinning';
 import { bindHeroBones, HERO_BONES, HERO_FINGERS, type HeroBoneName } from '../../src/presentation/hero/bones';
-import { HERO_RUN_CYCLE, HERO_RUN_SPEED, HERO_WALK_CYCLE, HERO_WALK_SPEED } from '../../src/presentation/hero/locomotion';
+import { HERO_RUN_CYCLE, HERO_RUN_SPEED, HERO_WALK_CYCLE, HERO_WALK_SPEED } from '../../src/core/rules/heroLocomotion';
 import { createHeroRig, type MainHeroRig } from '../../src/presentation/hero/rig';
 import { fitHeroFingers } from '../../src/presentation/hero/fingerFit';
 import { loadHeroWithoutImages, meshes } from './heroFixture';

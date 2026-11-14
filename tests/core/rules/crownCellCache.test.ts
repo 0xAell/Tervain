@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { CrownIndex, type CameraCrown } from '../../src/presentation/cameraCrowns';
+import { CrownIndex, type CameraCrown } from '../../../src/core/rules/cameraCrowns';
 
 const crown = (x: number, z: number, h = 5): CameraCrown => ({ x, y: 7, z, h, v: 4, floor: 2.6 });
 

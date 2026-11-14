@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { describe, it, expect } from 'vitest';
 import { auditCanopies } from '../../src/diagnostics/canopyAudit';
 import { cullDetachedCards, woodReachLocal } from '../../src/presentation/canopy';
-import { ORCHARD_MAX_SCALE } from '../../src/presentation/treeScale';
+import { ORCHARD_MAX_SCALE } from '../../src/core/world/treeScale';
 import { detachedClumpSet } from '../../src/diagnostics/canopyConnectivity';
 
 // A vertical wood triangle at x = 0 and two leaf cards: one 0.5 m from it (attached) and one 5 m away (detached).

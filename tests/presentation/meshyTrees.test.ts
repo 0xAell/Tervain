@@ -1,5 +1,5 @@
 import { auditCanopies } from '../../src/diagnostics/canopyAudit';
-import { ORCHARD_MAX_SCALE } from '../../src/presentation/treeScale';
+import { ORCHARD_MAX_SCALE } from '../../src/core/world/treeScale';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CROWN_CORE, CROWN_MIN_BOOM, CrownIndex, crownBoom, type CameraCrown } from '../../src/presentation/cameraCrowns';
+import { CROWN_CORE, CROWN_MIN_BOOM, CrownIndex, crownBoom, type CameraCrown } from '../../../src/core/rules/cameraCrowns';
 
 const crown = (x: number, z: number, over: Partial<CameraCrown> = {}): CameraCrown => ({ x, y: 7, z, h: 5, v: 3.5, floor: 2.6, ...over });
 

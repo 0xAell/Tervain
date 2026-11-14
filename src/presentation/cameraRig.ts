@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import type { BoxCollider, Collider, Colliders } from '../core/world/colliders';
 import type { Terrain } from '../core/world/terrain';
 import { BUILDINGS, LIGHTHOUSE, PLACES } from '../core/world/layout';
-import { CAMERA_CLEARANCE, cameraColliderEntry } from './cameraObstruction';
-import { RIDE_CAMERA } from './riding';
-import { crownBoom, type CameraCrown } from './cameraCrowns';
+import { CAMERA_CLEARANCE, cameraColliderEntry } from '../core/rules/cameraObstruction';
+import { RIDE_CAMERA } from '../core/rules/riding';
+import { crownBoom, type CameraCrown } from '../core/rules/cameraCrowns';
 
 const MAX_RECOIL = 0.04;
 /** Inside a room the lens stays this far under the wall top (the tie beams and rafters), never floating up among them. */

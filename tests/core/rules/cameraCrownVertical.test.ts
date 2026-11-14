@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { crownBoom, type CameraCrown } from '../../src/presentation/cameraCrowns';
+import { crownBoom, type CameraCrown } from '../../../src/core/rules/cameraCrowns';
 
 it.each([-20, 30])('does not sample a crown wholly outside the boom height range (centre %s)', (y) => {
   const c: CameraCrown = { x: 0, y, z: 3, h: 5, v: 3.5, floor: -30 };

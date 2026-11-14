@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { ANIMAL_IDS, ANIMAL_MODEL_IDS, HUNTABLE_ANIMAL_IDS, SKINNING_REACH, WILDLIFE_RETURN_DISTANCE, returnWildlife, type AnimalId, type AnimalHuntRecord } from '../../src/core/game/hunting';
 import { buildAnimals, type AnimalCallEvent } from '../../src/presentation/animals';
-import { ANIMALS } from '../../src/presentation/animals/catalog';
+import { ANIMALS } from '../../src/core/content/animals';
 import { AnimalArrowSurface } from '../../src/presentation/animals/hunting/hit';
 import { AnimalImpactEffects } from '../../src/presentation/animals/hunting/impact';
 import type { FrameContext } from '../../src/presentation/context';

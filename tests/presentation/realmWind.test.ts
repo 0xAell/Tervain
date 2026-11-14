@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { buildGroundcover } from '../../src/presentation/groundcover';
 import { createFoliageField } from '../../src/presentation/foliage/foliageWind';
 import { GrassWind } from '../../src/presentation/grass/wind';
-import { REALM_WIND } from '../../src/presentation/realmWind';
+import { REALM_WIND } from '../../src/core/world/wind';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';

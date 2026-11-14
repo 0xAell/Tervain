@@ -1,6 +1,19 @@
-import type { Colliders } from '../core/world/colliders';
-import type { Interactable } from './interactions';
+import type { Colliders } from '../world/colliders';
 import { cameraColliderEntry } from './cameraObstruction';
+
+/** Something in the world the player can act on: where it is, how near he must be, what is offered and what happens. */
+export interface Interactable {
+  id: string;
+  pos(): { x: number; z: number; y?: number };
+  /** The surface being operated may be solid; intervening scenery still blocks the action. */
+  ignoreColliders?: readonly string[];
+  r: number;
+  prompt(): string;
+  enabled(): boolean;
+  act(): void;
+  /** Lower wins when several are in reach. */
+  priority?: number;
+}
 
 /** Reach, facing and actual visibility must all agree before a world action can be offered. */
 export function chooseInteractable(items: readonly Interactable[], player: {x:number;y:number;z:number;yaw:number}, viewYaw: number, terrain: {groundAt(x:number,z:number):number}, colliders: Colliders, dynamicOcclusion?: (from: {x:number;y:number;z:number}, to: {x:number;y:number;z:number}) => boolean): Interactable | null {

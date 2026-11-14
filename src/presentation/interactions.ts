@@ -8,20 +8,10 @@ import { isWorldPickupItem, WORLD_PICKUP_MODELS } from '../core/content/pickups'
 import { worldPickupTargetY } from './worldPickups';
 import { hunterTableSurfaceY } from './hunterSupplies';
 import { hunterRank, hunterSparesArrows, hunterTradingOpen, restockParams } from '../core/game/hunting';
-import { DEER_BODY, doorwayAhead } from './riding';
+import { DEER_BODY, doorwayAhead } from '../core/rules/riding';
+import type { Interactable } from '../core/rules/interaction';
 
-export interface Interactable {
-  id: string;
-  pos(): { x: number; z: number; y?: number };
-  /** The surface being operated may be solid; intervening scenery still blocks the action. */
-  ignoreColliders?: readonly string[];
-  r: number;
-  prompt(): string;
-  enabled(): boolean;
-  act(): void;
-  /** Lower wins when several are in reach. */
-  priority?: number;
-}
+export type { Interactable };
 
 const App_MOUNT = '1005232412';
 const archiveDoorPos = () => frontOf(bySpec('archive'), 0.3);

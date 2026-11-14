@@ -1,4 +1,4 @@
-import type { BoxCollider, Collider } from '../core/world/colliders';
+import type { BoxCollider, Collider } from '../world/colliders';
 
 export interface CameraPoint { x: number; y: number; z: number }
 

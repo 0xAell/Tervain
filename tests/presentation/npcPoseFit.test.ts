@@ -4,7 +4,7 @@ import { applyRigAngles, idleVariant, poseRig, type IdleVariant, type Rig } from
 import { createMeshyNpcRig } from '../../src/presentation/meshynpcs';
 import { reachArm } from '../../src/presentation/npc/armReach';
 import { GESTURE_TOLERANCE, HANG_LIMIT, measureBody, REST_ANGLES, sideExcess, SWING_LIMIT } from '../../src/presentation/npc/poseFit';
-import { seatLegs } from '../../src/presentation/npc/seat';
+import { seatLegs } from '../../src/core/rules/seat';
 import { createWorkProp, type WorkPropKind } from '../../src/presentation/npc/workProps';
 import { BENCH_SEAT_HEIGHT } from '../../src/core/world/layout';
 import { loadResident, residentMesh } from './residentFixtures';

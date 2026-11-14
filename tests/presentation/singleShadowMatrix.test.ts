@@ -5,7 +5,7 @@ import { installFoliage } from '../../src/presentation/foliage/foliageMaterial';
 import { splitLeafPrepass } from '../../src/presentation/foliage/leafPrepass';
 import { createFoliageField, FOLIAGE_RESPONSE } from '../../src/presentation/foliage/foliageWind';
 import { GrassWind } from '../../src/presentation/grass/wind';
-import { REALM_WIND } from '../../src/presentation/realmWind';
+import { REALM_WIND } from '../../src/core/world/wind';
 import { cacheSingleDirectionalShadowMatrix } from '../../src/presentation/foliage/singleShadowMatrix';
 
 function setter(arraySize: number | null) {

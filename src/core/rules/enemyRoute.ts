@@ -1,7 +1,7 @@
-import type { Colliders } from '../core/world/colliders';
-import type { V2 } from '../core/world/layout';
-import type { NavGrid } from '../core/world/nav';
-import type { Terrain } from '../core/world/terrain';
+import type { Colliders } from '../world/colliders';
+import type { V2 } from '../world/layout';
+import type { NavGrid } from '../world/nav';
+import type { Terrain } from '../world/terrain';
 
 type RouteWorld = { terrain: Terrain; colliders: Colliders; nav?: NavGrid };
 

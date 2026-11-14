@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cameraColliderEntry } from '../../src/presentation/cameraObstruction';
+import { cameraColliderEntry } from '../../src/core/rules/cameraObstruction';
 import { Colliders } from '../../src/core/world/colliders';
 import { CameraRig } from '../../src/presentation/cameraRig';
 

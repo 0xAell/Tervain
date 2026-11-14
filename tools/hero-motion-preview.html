@@ -19,7 +19,7 @@
 import * as THREE from 'three';
 import { loadMainHero } from '../src/presentation/mainHero.ts';
 import { createHeroRig } from '../src/presentation/hero/rig.ts';
-import { HERO_WALK_SPEED, HERO_RUN_SPEED } from '../src/presentation/hero/locomotion.ts';
+import { HERO_WALK_SPEED, HERO_RUN_SPEED } from '../src/core/rules/heroLocomotion.ts';
 import { poseRig, setArmed } from '../src/presentation/characters.ts';
 const canvas=document.querySelector('#view');const controls=document.querySelectorAll('select,button');controls.forEach(control=>control.disabled=true);
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import { BARKS, NPCS, type Activity, type NpcDef } from '../core/content/npcs';
-import { evalAll } from '../core/game/state';
+import { NPCS, type Activity, type NpcDef } from '../core/content/npcs';
 import type { EncounterId, NpcId, WorldState } from '../core/game/types';
 import type { CircleCollider, Collider, Colliders } from '../core/world/colliders';
 import { ANCHORS, MAINT_ROUTE, type EnemySpawn, type V2 } from '../core/world/layout';
@@ -10,30 +9,11 @@ import type { Terrain } from '../core/world/terrain';
 import { applyFlash, createBanditRig, createNpcRig, createThornback, poseRig, type Mode, type Pose, type Rig } from './characters';
 import { npcStyle, type WorkGesture } from './npcStyle';
 import { workSiteFor, type WorkSite } from './npc/workSites';
-import { NpcApproachGreeting } from './npcApproachGreeting';
-import { EnemyRoute } from './enemyRoute';
+import { NpcApproachGreeting } from '../core/rules/npcApproachGreeting';
+import { EnemyRoute } from '../core/rules/enemyRoute';
+import { eligibleBarks, resolveGoal, type Goal } from '../core/rules/schedule';
 
-const hourIn = (h: number, from: number, to: number) => (from <= to ? h >= from && h < to : h >= from || h < to);
-
-export interface Goal {
-  anchor: string;
-  activity: Activity;
-  /** An indoor post within the anchor's building (A70). */
-  inside?: string;
-}
-
-/** Choose where an NPC should be, and what they should be doing, at this hour. */
-export function resolveGoal(def: NpcDef, state: WorldState, hour: number): Goal {
-  for (const o of def.overrides ?? []) {
-    if (!evalAll(state, o.when)) continue;
-    if (o.from !== undefined && o.to !== undefined && !hourIn(hour, o.from, o.to)) continue;
-    return { anchor: o.anchor, activity: o.activity };
-  }
-  for (const e of def.schedule) {
-    if (hourIn(hour, e.from, e.to)) return e.inside ? { anchor: e.anchor, activity: e.activity, inside: e.inside } : { anchor: e.anchor, activity: e.activity };
-  }
-  return { anchor: def.home, activity: 'rest' };
-}
+export { resolveGoal, type Goal };
 
 /** A fight this near wakes a sleeper (m), A70. */
 export const NPC_ALARM_REACH = 40;
@@ -776,7 +756,7 @@ export class NpcActor {
       this.barkCooldown -= dt;
       const pd = Math.hypot(ctx.player.x - this.x, ctx.player.z - this.z);
       if (this.barkCooldown <= 0 && pd < 6.5 && !this.talking) {
-        const pool = BARKS.filter((b) => b.npc === this.def.id && evalAll(ctx.state, b.when) && (!b.hours || hourIn(ctx.hour, b.hours[0], b.hours[1])));
+        const pool = eligibleBarks(this.def.id, ctx.state, ctx.hour);
         if (pool.length > 0) {
           const pick = pool[Math.floor(Math.random() * pool.length)]!;
           if (pick.line !== this.lastBarkKey || pool.length === 1) {

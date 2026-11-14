@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { buildAnimals, buildAnimalsAsync } from '../../src/presentation/animals';
-import { ANIMALS } from '../../src/presentation/animals/catalog';
+import { ANIMALS } from '../../src/core/content/animals';
 import { Terrain } from '../../src/core/world/terrain';
 import { buildStaticColliders } from '../../src/core/world/colliders';
 import { animalFixture, animalTemplates } from './animalFixture';

@@ -20,7 +20,7 @@ import { defaultSettings } from '../../src/platform/settings';
 import type { FrameContext } from '../../src/presentation/context';
 import { worldView } from '../../src/core/game/worldView';
 import { createInitialState } from '../../src/core/game/state';
-import { REALM_WIND } from '../../src/presentation/realmWind';
+import { REALM_WIND } from '../../src/core/world/wind';
 import { splitLeafPrepass } from '../../src/presentation/foliage/leafPrepass';
 
 vi.mock('../../src/presentation/forestFloor', () => ({ buildForestFloor: () => ({ group: new THREE.Group(), update() {}, dispose() {} }) }));

@@ -8,7 +8,7 @@ import { Ctx } from '../../src/presentation/buildKit';
 import { groundSplat } from '../../src/presentation/groundSplat';
 import { authorLighthouse } from '../../src/presentation/lighthouse';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
-import { HERO_WALK_SPEED } from '../../src/presentation/hero/locomotion';
+import { HERO_WALK_SPEED } from '../../src/core/rules/heroLocomotion';
 import { Region } from '../../src/presentation/regions';
 import { createScatterPopulation, registerScatterColliders } from '../../src/presentation/scatterPopulation';
 import { LAYER } from '../../src/presentation/terrainTextures';
