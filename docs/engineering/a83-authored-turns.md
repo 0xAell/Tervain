@@ -10,7 +10,6 @@ forward rather than stepped round.
 Two actions from Meshy's animation library, Idle Turn Left (576) and Idle Turn Right (586), were applied to the same
 reference rig as the residents' other 40 clips, while Meshy still held it, so they share its skeleton exactly
 (`build-motion.mjs` checks every joint's rest against the reference to within 1e-4).
-- **Cost:** 9 credits.
 - **The library:** it now holds 42 clips, 27 KB larger. The other 40 clips carried over from the shipped file within
   one 16-bit quantisation step.
 - **Tools:** the rig tools' GLB reader now decodes EXT_meshopt_compression, so a shipped, compressed library can be
@@ -39,4 +38,3 @@ The wanderer still steps from his own walk: his skeleton and clips are his own, 
 - **Served build:** the village baker turned a quarter turn on the spot. Frame by frame, the step that kicked forward
   now lifts lower and lands turned into the turn.
 
-Meshy credits for trees and fingers: 39 of 100.

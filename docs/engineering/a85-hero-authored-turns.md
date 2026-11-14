@@ -11,7 +11,7 @@ names, which is how he already swims with two of their clips (A65).
 - **Steps:** his turning steps are rebuilt from them with A83's `authoredStepPoses`. Each leg's pose is the authored
   change applied to his own stance, without the clip's hip turn, and only where it lifts the foot.
 - **Fallback:** without the library, he keeps the steps from his walk.
-- **Credits:** none. No new clips; the library already holds them.
+- **New clips:** none; the library already holds them.
 
 ## Checked
 

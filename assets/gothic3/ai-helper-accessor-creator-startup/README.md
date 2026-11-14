@@ -9,7 +9,7 @@ The source package records nine original instructions, constructor and cleanup
 imports, receiver storage, and cleanup callback `20549d50`. It is reproducible:
 
 ```powershell
-python tools/gothic3/prepare_ai_helper_accessor_creator_source.py --study "C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04" --output assets/gothic3/ai-helper-accessor-creator-startup/research.json --typescript src/gothic3/native-game-ai-helper-accessor-creator-source.ts
+python tools/gothic3/prepare_ai_helper_accessor_creator_source.py --study "Gothic3_Decompiled_Study_2026-10-04" --output assets/gothic3/ai-helper-accessor-creator-startup/research.json --typescript src/gothic3/native-game-ai-helper-accessor-creator-source.ts
 ```
 
 The class-name call is connected to the existing canonical CString owner.

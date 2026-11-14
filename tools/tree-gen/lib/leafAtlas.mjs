@@ -1,4 +1,4 @@
-// Placeholder leaf-cluster atlas (the real one is another agent's work): 4 x 4 cells of oak-leaf sprigs with soft
+// Placeholder leaf-cluster atlas (the real one is made separately): 4 x 4 cells of oak-leaf sprigs with soft
 // feathered edges and colour bled under the transparent texels so mips never darken. Replace the picture, keep the layout.
 import { makeRng, clamp, lerp, smoothstep } from './util.mjs';
 

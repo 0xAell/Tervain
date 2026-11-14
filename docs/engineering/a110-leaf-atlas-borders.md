@@ -21,7 +21,7 @@ so all three distances change. It also updates the tree receipts and the model l
   fading the borders would cut into leaves.
 - **Encoding:** WebP at quality 100, with the alpha exact. Colours stay within 47.6 dB of the source on opaque pixels.
   The new files total slightly smaller than the old.
-- **Budgets:** no triangle changed, and no Meshy credit was used.
+- **Budgets:** no triangle changed, and nothing new was generated.
 
 ## Checked on the GPU
 

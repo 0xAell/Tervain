@@ -10,7 +10,7 @@ selected SceneAdmin startup dependencies. Native code was not executed.
 From the repository root, run:
 
 ```powershell
-python -B tools/gothic3/prepare_scene_startup_source.py --study 'C:/Users/heyas/OneDrive/Рабочий стол/Gothic3_Decompiled_Study_2026-10-04'
+python -B tools/gothic3/prepare_scene_startup_source.py --study 'Gothic3_Decompiled_Study_2026-10-04'
 ```
 
 [The manifest](manifest.json) records the input identities and output hashes.

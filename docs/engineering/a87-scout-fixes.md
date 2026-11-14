@@ -1,6 +1,6 @@
 # Bug scout: hunting, riding and a new journey (A87, 0.0.13)
 
-Two independent reads of the game outside this session's earlier work found the following. Each was confirmed against
+Two independent reads of the game found the following. Each was confirmed against
 the code end to end and is fixed with a test:
 - combat, hunting and riding;
 - state, saves, quests and the clock.

@@ -7,7 +7,7 @@ shadows are drawn. Gameplay tree and leaf motion had been paused since A16; A62 
 
 ## One wind
 
-The realm has one wind ([realmWind.ts](../../src/presentation/realmWind.ts)), created by the world and shared through
+The realm has one wind ([wind.ts](../../src/core/world/wind.ts)), created by the world and shared through
 the build context. The grass and the trees answer the same gust field ([grass/wind.ts](../../src/presentation/grass/wind.ts)),
 so a gust seen crossing a meadow moves on into the woods. The world steps it once a frame. Reduced Motion stops it and
 holds every tree still.

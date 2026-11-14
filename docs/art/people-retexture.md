@@ -2,7 +2,7 @@
 
 **Status:** implemented in `0.0.8` under [A36](../decisions.md). The export, the template, the fit check, the install folder and the drop preview are working tools; the [0.0.8 notes](../production/releases/0.0.8.md) record what was tested. No sheet made by an image-generation model has been tried yet, and none is installed. Every replacement sheet needs the owner's approval and an inventory record before it ships.
 
-The owner asked for NPC models whose shapes are easy to retexture with Codex and image generation. Since `0.0.8` each person is **one skinned mesh with one square texture**, and that texture is laid out as a **character model sheet**: the whole figure from the front, the right, the back and the left, and the head large from the front and small from the sides, the back and above. An image model, a painter or a script can repaint it as a picture of the person. Then it goes in a folder, and the game wears it.
+The owner asked for NPC models whose shapes are easy to retexture with image generation. Since `0.0.8` each person is **one skinned mesh with one square texture**, and that texture is laid out as a **character model sheet**: the whole figure from the front, the right, the back and the left, and the head large from the front and small from the sides, the back and above. An image model, a painter or a script can repaint it as a picture of the person. Then it goes in a folder, and the game wears it.
 
 ![A painted sheet and its template](previews/0.0.8-people-sheet.jpg)
 
@@ -46,7 +46,7 @@ For each person `<id>`:
 
 ## Three ways to make a new sheet
 
-1. **Edit the sheet (most reliable).** Give an image-editing model `<id>.png`, `<id>.edit-mask.png` and the manifest's `prompt`, adding what should change ("the coat is oxblood wool with a frayed hem"). The layout is already right, so the result only has to stay inside the silhouettes. An agent such as Codex can do the whole round trip without a browser: export with `--only <id>`, read the manifest, call the image model, check the result with `npm run people:check -- <file>`, and save it to the install path.
+1. **Edit the sheet (most reliable).** Give an image-editing model `<id>.png`, `<id>.edit-mask.png` and the manifest's `prompt`, adding what should change ("the coat is oxblood wool with a frayed hem"). The layout is already right, so the result only has to stay inside the silhouettes. A script can do the whole round trip without a browser: export with `--only <id>`, read the manifest, call the image model, check the result with `npm run people:check -- <file>`, and save it to the install path.
 2. **Paint over the template.** Start from `<id>.template.png` when the person should change completely: it shows every piece's shape and where the joints and features are. Ask for the guide lines and labels to be painted out. A strong image-to-image pass loses the silhouettes, so keep the strength moderate and check the result with `npm run people:check` and in the preview.
 3. **Assemble views.** Paint or generate a front, right, back and left view of the person at one scale, a face and four small head views. Place each into its panel, matching the guide lines: chin, shoulder, belt, knee and ankle lie at the same heights in all four body panels. Use the mask to cut away paint outside the figure.
 

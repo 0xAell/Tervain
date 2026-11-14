@@ -75,7 +75,7 @@ now placed by the same reach on the generic frame, and their hands behind the ba
 ## Sitting on real seats
 
 The village's plank benches are 0.55 m high. Each model's seat contact (the buttocks and the backs of the thighs) is
-measured on load ([seat.ts](../../src/presentation/npc/seat.ts)), and a seat's height then decides where the hips go:
+measured on load ([seat.ts](../../src/core/rules/seat.ts)), and a seat's height then decides where the hips go:
 the contact rests on the seat, the thighs stay level unless the seat is high, when they slope so the soles still reach
 the ground, and on a low seat the shins reach forward. Seated residents rest their palms on their thighs. The inn bench
 and the ford camp are now places on the actual benches, and the fireside resident sits on the hearth bench at the same

@@ -37,4 +37,4 @@ next to the build from before A79:
   shows as flat facets at arm's length. Recomputing the wood's normals from the simplified shape made no visible
   difference, so the shading is not the cause. A finer branch mesh does not fit within the 20,000-triangle tree budget.
 
-No Meshy credits spent.
+No new Meshy output.
