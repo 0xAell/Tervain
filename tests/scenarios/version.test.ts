@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../src/game/state';
+import { createInitialState } from '../../src/core/game/state';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
 import { GAME_BUILD, GAME_VERSION } from '../../src/version';
 

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/app';
-import { Game } from '../../src/game/game';
-import { WRECK_BLADE_PICKUP } from '../../src/game/types';
+import { Game } from '../../src/core/game/game';
+import { WRECK_BLADE_PICKUP } from '../../src/core/game/types';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
 
 // Exercise the real exit/save path without constructing the browser's renderer or title UI.

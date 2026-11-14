@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../src/game/state';
-import { SAVE_FORMAT_VERSION } from '../../src/game/types';
+import { createInitialState } from '../../src/core/game/state';
+import { SAVE_FORMAT_VERSION } from '../../src/core/game/types';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
 
 describe('a save from a newer version of the game (A71)', () => {

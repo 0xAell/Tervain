@@ -4,10 +4,10 @@ import { Ctx } from '../src/presentation/buildKit';
 import { Region } from '../src/presentation/regions';
 import { fence } from '../src/presentation/props';
 import { captureProjectileGeometry, buildFenceRun } from '../src/presentation/fenceContacts';
-import { mulberry32 } from '../src/world/noise';
-import { Colliders } from '../src/world/colliders';
-import { initializePhysics, RealmPhysics } from '../src/world/physics';
-import type { Terrain } from '../src/world/terrain';
+import { mulberry32 } from '../src/core/world/noise';
+import { Colliders } from '../src/core/world/colliders';
+import { initializePhysics, RealmPhysics } from '../src/physics/physics';
+import type { Terrain } from '../src/core/world/terrain';
 const floor = { nx: 10, nz: 10, vertexX: (i: number) => i * 2 - 10, vertexZ: (i: number) => i * 2 - 10, vertexHeight: () => 0, heightAt: () => 0, groundAt: () => 0 } as unknown as Terrain;
 beforeAll(initializePhysics);
 it('uses the actual posts/rails for arrows, keeps movement solid and handles pre-step activation', () => {

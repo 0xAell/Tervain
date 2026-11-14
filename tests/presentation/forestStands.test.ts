@@ -6,13 +6,13 @@ import { buildTreeVariant, type Species, type TreeVariant } from '../../src/pres
 import { createPineForest, isPineSpecies, type PineForest } from '../../src/presentation/solitaryPine';
 import { groundedTreeY, treeWoodCollisionRadius } from '../../src/presentation/treeGrounding';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Colliders, buildStaticColliders } from '../../src/world/colliders';
-import { deepwoodCover, FOREST_CLEARINGS, forestClearingCover } from '../../src/world/forest';
-import { FOREST_COMPANION_STANDS, FOREST_CROWN_ENVELOPE, forestStandAt, type ForestFamily } from '../../src/world/forestStands';
-import { DEEPWOOD, SPAWN } from '../../src/world/layout';
-import { NavGrid } from '../../src/world/nav';
-import { canPlayerStandAt } from '../../src/world/playerPlacement';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders, buildStaticColliders } from '../../src/core/world/colliders';
+import { deepwoodCover, FOREST_CLEARINGS, forestClearingCover } from '../../src/core/world/forest';
+import { FOREST_COMPANION_STANDS, FOREST_CROWN_ENVELOPE, forestStandAt, type ForestFamily } from '../../src/core/world/forestStands';
+import { DEEPWOOD, SPAWN } from '../../src/core/world/layout';
+import { NavGrid } from '../../src/core/world/nav';
+import { canPlayerStandAt } from '../../src/core/world/playerPlacement';
+import { Terrain } from '../../src/core/world/terrain';
 import { pineTemplates } from './pineFixture';
 
 let terrain: Terrain, exclusions: Exclusions, population: FloraTree[];

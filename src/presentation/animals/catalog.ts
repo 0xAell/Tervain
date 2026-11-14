@@ -1,5 +1,5 @@
-import type { V2 } from '../../world/layout';
-import { CARAVAN_ANIMAL_REST } from '../../world/caravanAnimal';
+import type { V2 } from '../../core/world/layout';
+import { CARAVAN_ANIMAL_REST } from '../../core/world/caravanAnimal';
 
 export const ANIMAL_TRIANGLE_LIMIT = 50_000;
 export type AnimalSpecies = 'tiger' | 'lion' | 'bear' | 'wolf' | 'cat' | 'dog' | 'boar' | 'deer';

@@ -3,10 +3,10 @@ import { compactAnimalBoneTexture } from './animals/boneTexture';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from './assets/gltfLoader';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import type { Collider } from '../world/colliders';
-import type { PhysicalActor } from '../world/physics';
-import { mulberry32 } from '../world/noise';
-import type { V2 } from '../world/layout';
+import type { Collider } from '../core/world/colliders';
+import type { PhysicalActor } from '../physics/physics';
+import { mulberry32 } from '../core/world/noise';
+import type { V2 } from '../core/world/layout';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { modelAssetUrl } from './assets/modelUrl';
 import { withModelLoadSlot } from './assets/modelLoadQueue';
@@ -17,7 +17,7 @@ import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requ
 import { animalGroundAllowed, animalHabitatAllowed, animalNavigationColliders, findAnimalPath, findAnimalSite, type AnimalSite } from './animals/navigation';
 import { AnimalHunting, type HuntingAnimal } from './animals/hunting/adapter';
 import type { AnimalArrowHit } from './animals/hunting/hit';
-import { WILDLIFE_RETURN_DISTANCE, type AnimalId, type HuntingState } from '../game/hunting';
+import { WILDLIFE_RETURN_DISTANCE, type AnimalId, type HuntingState } from '../core/game/hunting';
 import { finishCooperatively, type CooperativeOptions } from '../platform/cooperative';
 
 export { ANIMALS, ANIMAL_TRIANGLE_LIMIT } from './animals/catalog';

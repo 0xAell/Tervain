@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fbm, mulberry32, valueNoise } from '../../world/noise';
+import { fbm, mulberry32, valueNoise } from '../../core/world/noise';
 import { assertNaturalModelBudget } from '../naturalModelBudget';
 
 /**

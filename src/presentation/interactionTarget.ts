@@ -1,4 +1,4 @@
-import type { Colliders } from '../world/colliders';
+import type { Colliders } from '../core/world/colliders';
 import type { Interactable } from './interactions';
 import { cameraColliderEntry } from './cameraObstruction';
 

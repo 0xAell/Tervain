@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { expect, it } from 'vitest';
 import { oceanVisibilityBounds } from '../../src/presentation/water/ocean';
-import { BATHY, BATHY_NX, BATHY_NZ, type Bathymetry } from '../../src/world/water/bathymetry';
-import { SEA_MAX_RISE } from '../../src/world/water/waves';
+import { BATHY, BATHY_NX, BATHY_NZ, type Bathymetry } from '../../src/core/world/water/bathymetry';
+import { SEA_MAX_RISE } from '../../src/core/world/water/waves';
 
 it('retains every neighbouring bilinear cell and wave guard without covering the dry tile tail', () => {
   const w = BATHY_NX + 1, height = new Float32Array(w * (BATHY_NZ + 1)).fill(-1);

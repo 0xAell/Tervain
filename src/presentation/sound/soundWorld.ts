@@ -1,6 +1,6 @@
-import type { NpcId, PlaceId } from '../../game/types';
-import { ANCHORS, bySpec, frontOf } from '../../world/layout';
-import type { Terrain } from '../../world/terrain';
+import type { NpcId, PlaceId } from '../../core/game/types';
+import { ANCHORS, bySpec, frontOf } from '../../core/world/layout';
+import type { Terrain } from '../../core/world/terrain';
 import { npcStyle } from '../npcStyle';
 import { ANIMAL_AUDIO, ANIMAL_CALL_COOLDOWN, ANIMAL_VOICE_LIMIT, type AnimalCall, type AnimalCallFile } from './animalAudio';
 import { type BankName, clipRef, VariantPicker } from './clips';

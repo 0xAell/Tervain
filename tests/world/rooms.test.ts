@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { FURNITURE } from '../../src/world/furniture';
-import { fromBuildingLocal, INTERIORS, roomHalfSize, roomOf } from '../../src/world/interiors';
-import { BUILDINGS } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { FURNITURE } from '../../src/core/world/furniture';
+import { fromBuildingLocal, INTERIORS, roomHalfSize, roomOf } from '../../src/core/world/interiors';
+import { BUILDINGS } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
 
 const terrain = new Terrain();
 const colliders = buildStaticColliders(terrain);

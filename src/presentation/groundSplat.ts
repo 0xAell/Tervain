@@ -1,11 +1,11 @@
-import { cliffiness, coastalShelfAt, seaWetness, shoreDistance } from '../world/coast';
-import { FIELDS, SEA_LEVEL, STREAMS } from '../world/layout';
-import { clamp, fbm, smoothstep } from '../world/noise';
-import { distToPolyline, roadWeight, type Terrain } from '../world/terrain';
+import { cliffiness, coastalShelfAt, seaWetness, shoreDistance } from '../core/world/coast';
+import { FIELDS, SEA_LEVEL, STREAMS } from '../core/world/layout';
+import { clamp, fbm, smoothstep } from '../core/world/noise';
+import { distToPolyline, roadWeight, type Terrain } from '../core/world/terrain';
 import { LAYER } from './terrainTextures';
-import { deepwoodCover } from '../world/forest';
+import { deepwoodCover } from '../core/world/forest';
 import type { PlantedCrownField } from './plantedCrowns';
-import { biomeAt, type BiomeSample } from '../world/biomes';
+import { biomeAt, type BiomeSample } from '../core/world/biomes';
 
 /**
  * What the ground is made of at a point: eight layer weights (summing to 1) and a wetness. Everything comes from the

@@ -4,7 +4,7 @@
  * edit a plan, run this, then run prepare.mjs.
  *
  *   ELEVENLABS_API_KEY=... node tools/world-audio/generate.mjs voices [--story] [--dry-run] [--max-credits N]
- *       Voices every spoken line in src/content/voice.ts (and with --story the dialogue in dialogue.ts) that is new
+ *       Voices every spoken line in src/core/content/voice.ts (and with --story the dialogue in dialogue.ts) that is new
  *       or whose words changed since it was recorded, with its speaker's designed voice. Lines that are gone are
  *       dropped from tools/world-audio/voices.json and their sources removed.
  *   ELEVENLABS_API_KEY=... node tools/world-audio/generate.mjs design <speaker> "<description>" "<sample line>"
@@ -116,10 +116,10 @@ const writeJson = (file, value) => fs.writeFileSync(file, `${JSON.stringify(valu
 
 async function voices() {
   const plan = JSON.parse(fs.readFileSync(VOICES, 'utf8'));
-  const { VOICE_LINES } = await import(pathUrl('src/content/voice.ts'));
+  const { VOICE_LINES } = await import(pathUrl('src/core/content/voice.ts'));
   const want = { lines: Object.fromEntries(Object.entries(VOICE_LINES).map(([id, l]) => [id, { speaker: l.speaker, text: l.text }])) };
   if (flag('--story')) {
-    const d = await import(pathUrl('src/content/dialogue.ts'));
+    const d = await import(pathUrl('src/core/content/dialogue.ts'));
     want.story = {};
     for (const n of Object.values(d.DIALOGUE_NODES)) {
       want.story[n.text] = { speaker: n.speaker, text: d.DIALOGUE_STRINGS[n.text] };

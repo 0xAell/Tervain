@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../world/noise';
+import { mulberry32 } from '../core/world/noise';
 
 /**
  * Two small tileable data textures shared by the terrain, water and sky shaders. They are generated once from

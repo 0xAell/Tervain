@@ -1,11 +1,11 @@
 import { groundedRockY, rockContactGeometry, SCATTER_SHAPES } from './rockGeometry';
-import type { PhysicalRockGeometry } from '../world/physicsGeometry';
+import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
 export { SCATTER_SHAPES } from './rockGeometry';
-import { cliffiness, coastX, shoreDistance } from '../world/coast';
-import type { Colliders } from '../world/colliders';
-import { LIGHTHOUSE } from '../world/layout';
-import { mulberry32, ridged, smoothstep } from '../world/noise';
-import { clearanceAt, realmRadius, type Terrain } from '../world/terrain';
+import { cliffiness, coastX, shoreDistance } from '../core/world/coast';
+import type { Colliders } from '../core/world/colliders';
+import { LIGHTHOUSE } from '../core/world/layout';
+import { mulberry32, ridged, smoothstep } from '../core/world/noise';
+import { clearanceAt, realmRadius, type Terrain } from '../core/world/terrain';
 import type { Quality } from './context';
 import { streamDistance } from './groundSplat';
 import type { Exclusions } from './vegetation';

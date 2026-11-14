@@ -161,12 +161,12 @@ Each voice was designed from a written description with ElevenLabs Voice Design 
 
 ### What they say
 
-The lines are written in [voice.ts](../../src/content/voice.ts). They keep to the existing people and story; their wording, like the songs' lyrics, is a proposal, not a lore decision.
+The lines are written in [voice.ts](../../src/core/content/voice.ts). They keep to the existing people and story; their wording, like the songs' lyrics, is a proposal, not a lore decision.
 
 - **Exchanges (87).** Each resident's introduction, then what the hero can ask about and the answers, following the state of the valley.
   - 42 open with the hero's question.
   - Once everything has been heard, 30 repeatable ones come round in turn.
-- **Remarks (48)**, in [npcs.ts](../../src/content/npcs.ts). They are said in passing by place, hour (18 have hours) and story (24 have conditions).
+- **Remarks (48)**, in [npcs.ts](../../src/core/content/npcs.ts). They are said in passing by place, hour (18 have hours) and story (24 have conditions).
 - **Overheard scenes (6).**
   - The foreman and his hand at the quarry, while it waits and once it works again.
   - The mill hand and the reeve at the dry mill and at the turning one.
@@ -175,9 +175,9 @@ The lines are written in [voice.ts](../../src/content/voice.ts). They keep to th
   A scene plays once a game day, when its two people stand within 22 m of each other and the player is within 16 m of them.
 - **The hero (42 cues).** Waking and the bell, each place he reaches, what he inspects and finds, his first blade, a beast, bad wounds, a won fight, getting up again, nightfall and dawn, the rescue, the shortcut, the rite and the gate.
 
-Words in square brackets ([sighs], [shouts], [calls out]) direct the delivery. The voice model performs them, and [`shown()`](../../src/content/voice.ts) removes them from every caption and bubble.
+Words in square brackets ([sighs], [shouts], [calls out]) direct the delivery. The voice model performs them, and [`shown()`](../../src/core/content/voice.ts) removes them from every caption and bubble.
 
-The story's text-first dialogue ([dialogue.ts](../../src/content/dialogue.ts)) was written for a conversation window, which A27 keeps out of the game. Every node and choice is voiced word for word by its speaker (the hero for the choices), so a future window can play it without new recordings.
+The story's text-first dialogue ([dialogue.ts](../../src/core/content/dialogue.ts)) was written for a conversation window, which A27 keeps out of the game. Every node and choice is voiced word for word by its speaker (the hero for the choices), so a future window can play it without new recordings.
 
 ### How they were made
 

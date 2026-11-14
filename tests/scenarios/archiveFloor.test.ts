@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { groundOf } from '../../src/presentation/buildings';
-import { ANCHORS, ARCHIVE_ROOM, bySpec } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
+import { ANCHORS, ARCHIVE_ROOM, bySpec } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
 
 const archive = bySpec('archive');
 let terrain: Terrain;

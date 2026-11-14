@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { hotbarEligible, itemAction, ITEMS } from '../../src/content/items';
-import { hasString } from '../../src/content/strings';
-import { applyEffect } from '../../src/game/commands';
-import { Game } from '../../src/game/game';
-import { MAP_MARKER_BOUNDS } from '../../src/game/map';
-import { createInitialState } from '../../src/game/state';
-import { QUICK_SLOT_COUNT, SAVE_FORMAT_VERSION, type Command, type Effect, type GameEvent, type ItemId, type SkillId } from '../../src/game/types';
+import { hotbarEligible, itemAction, ITEMS } from '../../src/core/content/items';
+import { hasString } from '../../src/core/content/strings';
+import { applyEffect } from '../../src/core/game/commands';
+import { Game } from '../../src/core/game/game';
+import { MAP_MARKER_BOUNDS } from '../../src/core/game/map';
+import { createInitialState } from '../../src/core/game/state';
+import { QUICK_SLOT_COUNT, SAVE_FORMAT_VERSION, type Command, type Effect, type GameEvent, type ItemId, type SkillId } from '../../src/core/game/types';
 import { MemoryStore, reviveState, SaveStore, checksum } from '../../src/platform/storage';
 
 function take(game: Game, item: ItemId, qty = 1, pickupId: string = `test_${item}`) {

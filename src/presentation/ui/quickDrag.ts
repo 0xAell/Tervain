@@ -1,6 +1,6 @@
-import { hotbarEligible, isItemId, ITEMS } from '../../content/items';
-import { S } from '../../content/strings';
-import type { ItemId } from '../../game/types';
+import { hotbarEligible, isItemId, ITEMS } from '../../core/content/items';
+import { S } from '../../core/content/strings';
+import type { ItemId } from '../../core/game/types';
 import { h, visibleControl } from './dom';
 import { icon } from './icons';
 import { QUICK_SLOT_COUNT, type QuickDrag } from './uiModel';

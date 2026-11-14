@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { DEEPWOOD } from '../world/layout';
-import { deepwoodCover } from '../world/forest';
-import { mulberry32, smoothstep } from '../world/noise';
+import { DEEPWOOD } from '../core/world/layout';
+import { deepwoodCover } from '../core/world/forest';
+import { mulberry32, smoothstep } from '../core/world/noise';
 import type { BuildContext, SceneModule } from './context';
 
 /** Local depth haze, not a new weather state: the sky resets the base fog before every update. */

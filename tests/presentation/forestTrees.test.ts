@@ -3,12 +3,12 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { createFloraPopulation, floraLod, selectFloraPopulation } from '../../src/presentation/floraPopulation';
 import { buildTreeVariant, type Species } from '../../src/presentation/treeGen';
 import { Exclusions, TREE_SWAY_MULTIPLIER } from '../../src/presentation/vegetation';
-import { deepwoodCover, forestOpeningCover } from '../../src/world/forest';
-import { shoreDistance } from '../../src/world/coast';
-import { Terrain } from '../../src/world/terrain';
-import { ARRIVAL_ROUTE, DEEPWOOD, FOREST_RUIN, FOREST_WAYMARKERS, SPAWN, STRAND } from '../../src/world/layout';
-import { distToPolyline } from '../../src/world/terrain';
-import { biomeAt } from '../../src/world/biomes';
+import { deepwoodCover, forestOpeningCover } from '../../src/core/world/forest';
+import { shoreDistance } from '../../src/core/world/coast';
+import { Terrain } from '../../src/core/world/terrain';
+import { ARRIVAL_ROUTE, DEEPWOOD, FOREST_RUIN, FOREST_WAYMARKERS, SPAWN, STRAND } from '../../src/core/world/layout';
+import { distToPolyline } from '../../src/core/world/terrain';
+import { biomeAt } from '../../src/core/world/biomes';
 
 const terrain = new Terrain();
 const population = createFloraPopulation(terrain, new Exclusions(terrain));

@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { Ctx } from '../../src/presentation/buildKit';
 import { Region } from '../../src/presentation/regions';
 import { buildShrineHallShell, roofFor, roofWallInfill } from '../../src/presentation/structures';
-import { bySpec } from '../../src/world/layout';
-import { interiorOf } from '../../src/world/interiors';
-import { mulberry32 } from '../../src/world/noise';
+import { bySpec } from '../../src/core/world/layout';
+import { interiorOf } from '../../src/core/world/interiors';
+import { mulberry32 } from '../../src/core/world/noise';
 
 const material = new THREE.MeshBasicMaterial({ side: THREE.FrontSide });
 const groupOf = (region: Region) => {

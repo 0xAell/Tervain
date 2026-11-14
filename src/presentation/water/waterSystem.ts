@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import type { Terrain } from '../../world/terrain';
-import { SEA_MAX_RISE } from '../../world/water/waves';
-import { WaterWorld, type WaterFlows, type WaterSample } from '../../world/water/waterWorld';
+import type { Terrain } from '../../core/world/terrain';
+import { SEA_MAX_RISE } from '../../core/world/water/waves';
+import { WaterWorld, type WaterFlows, type WaterSample } from '../../core/world/water/waterWorld';
 import { detachWaterOptics } from '../waterOptics';
 import { RENDER_PX, SKY } from '../skyState';
 import type { WaterRenderInputs, WaterUnder } from '../waterRenderPass';

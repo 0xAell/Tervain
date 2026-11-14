@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ANCHORS, bySpec, frontOf, BENCH_SEAT_HEIGHT } from '../world/layout';
+import { ANCHORS, bySpec, frontOf, BENCH_SEAT_HEIGHT } from '../core/world/layout';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { createAmbientRig, poseRig, type AmbientStyle, type Look, type Mode, type Rig } from './characters';
 import type { AwaitingFigure } from './residentArrivals';

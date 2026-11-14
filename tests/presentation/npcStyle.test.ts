@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NPC_LIST } from '../../src/content/npcs';
+import { NPC_LIST } from '../../src/core/content/npcs';
 import { NPC_STYLES, npcStyle } from '../../src/presentation/npcStyle';
 
 describe('authored NPC presentation profiles', () => {

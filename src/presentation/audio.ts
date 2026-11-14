@@ -1,6 +1,6 @@
 import { HuntingAudio, huntingSoundCaption, huntingSoundCooldown, huntingSoundMix, type HuntingSoundKind, type HuntingSoundPosition, type HuntingSoundListener } from './huntingAudio';
 export type { HuntingSoundKind, HuntingSoundPosition } from './huntingAudio';
-import type { ItemId, PlaceId } from '../game/types';
+import type { ItemId, PlaceId } from '../core/game/types';
 import type { Settings } from '../platform/settings';
 import { ANIMAL_CALL_EVENT, animalCallDetail, type AnimalCall } from './sound/animalAudio';
 import {
@@ -665,7 +665,7 @@ export class AudioEngine {
       && (!this.ready || !this.soundWorld);
   }
 
-  /** A spoken line (src/content/voice.ts): it plays when the world's sound is running, and its length is returned either way. */
+  /** A spoken line (src/core/content/voice.ts): it plays when the world's sound is running, and its length is returned either way. */
   say(line: string, at?: Vec3 | (() => Vec3)): number | null {
     const voiced = (VOICE_AUDIO.lines as Record<string, readonly [string, number, number, string]>)[line];
     if (!voiced) return 0;

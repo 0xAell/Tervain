@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { waterDistance } from '../../src/presentation/ground/habitat';
-import { STREAMS, SPRING_POOL } from '../../src/world/layout';
-import { distToPolyline } from '../../src/world/terrain';
+import { STREAMS, SPRING_POOL } from '../../src/core/world/layout';
+import { distToPolyline } from '../../src/core/world/terrain';
 
 it('shares stream traversal while retaining distinct centre-line and bank distances', () => {
   const centre = new Float64Array(1);

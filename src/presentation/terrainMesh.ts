@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { Terrain } from '../world/terrain';
+import type { Terrain } from '../core/world/terrain';
 import { groundSplat } from './groundSplat';
 import { createTerrainMaterial } from './terrainMaterial';
 import type { TerrainTextures } from './terrainTextures';

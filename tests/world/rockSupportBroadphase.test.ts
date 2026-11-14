@@ -1,7 +1,7 @@
 import { it, expect } from 'vitest';
-import { RockSurfaces, rockTriangleSupport } from '../../src/world/rockContacts';
-import type { PhysicalRockGeometry } from '../../src/world/physicsGeometry';
-import { PLAYER_BODY_RADIUS } from '../../src/world/playerPlacement';
+import { RockSurfaces, rockTriangleSupport } from '../../src/core/world/rockContacts';
+import type { PhysicalRockGeometry } from '../../src/core/world/physicsGeometry';
+import { PLAYER_BODY_RADIUS } from '../../src/core/world/playerPlacement';
 function triangles(count: number): PhysicalRockGeometry {
   const positions = new Float32Array(count * 9);
   for (let i = 0; i < count; i++) positions.set([i * 2, .2, 0, i * 2, .2, 1, i * 2 + 1, .2, 0], i * 9);

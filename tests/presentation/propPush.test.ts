@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { RealmPhysics, initializePhysics, type PropSpec } from '../../src/world/physics';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { RealmPhysics, initializePhysics, type PropSpec } from '../../src/physics/physics';
+import { Terrain } from '../../src/core/world/terrain';
 
 vi.mock('../../src/presentation/characters', () => ({
   createPlayerRig: () => ({ root: new THREE.Group(), hitFlash: 0 }),

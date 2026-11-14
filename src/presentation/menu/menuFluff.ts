@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 import { GUST_SPAN, type GrassWind } from '../grass/wind';
 import { menuHeight } from './menuLayout';
 

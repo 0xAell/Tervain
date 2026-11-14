@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { BARKS as NPC_BARKS, NPCS } from '../../src/content/npcs';
-import { SCENE_REACH, SCENES } from '../../src/content/voice';
-import { createInitialState } from '../../src/game/state';
+import { BARKS as NPC_BARKS, NPCS } from '../../src/core/content/npcs';
+import { SCENE_REACH, SCENES } from '../../src/core/content/voice';
+import { createInitialState } from '../../src/core/game/state';
 import { SpeechDirector } from '../../src/presentation/speech';
 import { resolveGoal } from '../../src/presentation/actors';
-import { ANCHORS } from '../../src/world/layout';
+import { ANCHORS } from '../../src/core/world/layout';
 
 describe('eleventh scout fixes: who can be heard (A104)', () => {
   it('stands every scene\'s pair at their working places within reach of each other', () => {

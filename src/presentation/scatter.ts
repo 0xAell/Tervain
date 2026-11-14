@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { coastX } from '../world/coast';
-import { mulberry32 } from '../world/noise';
-import { clearanceAt } from '../world/terrain';
+import { coastX } from '../core/world/coast';
+import { mulberry32 } from '../core/world/noise';
+import { clearanceAt } from '../core/world/terrain';
 import { Ctx } from './buildKit';
 import type { BuildContext, SceneModule } from './context';
 import { makeTexPair } from './buildingTextures';

@@ -1,8 +1,8 @@
-import { BOW_LENGTH } from '../content/bowSize';
+import { BOW_LENGTH } from '../core/content/bowSize';
 import * as THREE from 'three';
-import { isWorldPickupItem, WORLD_PICKUP_ITEM_IDS, type WorldPickupItem } from '../content/pickups';
-import { WORLD, type PICKUP_LOCATIONS } from '../world/layout';
-import type { Terrain } from '../world/terrain';
+import { isWorldPickupItem, WORLD_PICKUP_ITEM_IDS, type WorldPickupItem } from '../core/content/pickups';
+import { WORLD, type PICKUP_LOCATIONS } from '../core/world/layout';
+import type { Terrain } from '../core/world/terrain';
 import { Ctx } from './buildKit';
 import { Region, type MatKey } from './regions';
 import { hunterTableSurfaceY } from './hunterSupplies';

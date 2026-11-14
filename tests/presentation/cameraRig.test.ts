@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { AIM_VIEW, CameraRig } from '../../src/presentation/cameraRig';
 import { CAMERA_CLEARANCE, cameraColliderEntry } from '../../src/presentation/cameraObstruction';
-import { buildStaticColliders, Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
-import { BUILDINGS } from '../../src/world/layout';
-import { interiorOf } from '../../src/world/interiors';
-import { WaterWorld } from '../../src/world/water/waterWorld';
+import { buildStaticColliders, Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
+import { BUILDINGS } from '../../src/core/world/layout';
+import { interiorOf } from '../../src/core/world/interiors';
+import { WaterWorld } from '../../src/core/world/water/waterWorld';
 
 const flat = { groundAt: () => 0 };
 const distance = (cam: CameraRig) => Math.hypot(cam.camera.position.x, cam.camera.position.y - 1.55, cam.camera.position.z);

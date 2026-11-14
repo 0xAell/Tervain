@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { nextHint } from '../../src/game/hints';
-import { ARMED_START_REVISIONS, CONTENT_REVISION } from '../../src/game/types';
+import { nextHint } from '../../src/core/game/hints';
+import { ARMED_START_REVISIONS, CONTENT_REVISION } from '../../src/core/game/types';
 import { MemoryStore, SaveStore, checksum } from '../../src/platform/storage';
 import { must, newGame } from './helpers';
 

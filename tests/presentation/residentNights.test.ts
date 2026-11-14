@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { afterAll, beforeAll, expect, it, vi } from 'vitest';
-import { NPC_LIST } from '../../src/content/npcs';
-import { createInitialState } from '../../src/game/state';
-import type { WorldState } from '../../src/game/types';
+import { NPC_LIST } from '../../src/core/content/npcs';
+import { createInitialState } from '../../src/core/game/state';
+import type { WorldState } from '../../src/core/game/types';
 import { NpcActor, resolveGoal, type ActorContext } from '../../src/presentation/actors';
 import type { Rig } from '../../src/presentation/characters';
 import { buildAmbient } from '../../src/presentation/ambient';
@@ -13,10 +13,10 @@ import { buildHunterSupplies, disposeHunterSupplies } from '../../src/presentati
 import { createScatterPopulation, registerScatterColliders } from '../../src/presentation/scatterPopulation';
 import { buildScenery, type SceneryHandles } from '../../src/presentation/settlement';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { buildStaticColliders, type Colliders } from '../../src/world/colliders';
-import { NavGrid } from '../../src/world/nav';
-import { Terrain } from '../../src/world/terrain';
-import { berthFor, RESIDENT_HOMES } from '../../src/world/homes';
+import { buildStaticColliders, type Colliders } from '../../src/core/world/colliders';
+import { NavGrid } from '../../src/core/world/nav';
+import { Terrain } from '../../src/core/world/terrain';
+import { berthFor, RESIDENT_HOMES } from '../../src/core/world/homes';
 
 vi.mock('../../src/presentation/characters', () => ({ poseRig: vi.fn(), applyFlash: vi.fn(), createNpcRig: vi.fn(), createBanditRig: vi.fn(), createThornback: vi.fn(),
   createAmbientRig: () => ({ root: new THREE.Group(), height: 1.8, hipY: .95 }) }));

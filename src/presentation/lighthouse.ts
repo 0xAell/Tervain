@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L } from '../world/layout';
-import { LIGHTHOUSE_DOOR_OUTER_WIDTH, LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop, lighthouseWallSectors } from '../world/lighthouse';
-import { mulberry32 } from '../world/noise';
-import type { Terrain } from '../world/terrain';
+import { LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L } from '../core/world/layout';
+import { LIGHTHOUSE_DOOR_OUTER_WIDTH, LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop, lighthouseWallSectors } from '../core/world/lighthouse';
+import { mulberry32 } from '../core/world/noise';
+import type { Terrain } from '../core/world/terrain';
 import type { Batch, Col } from './buildKit';
 import type { Region } from './regions';
 import type { RoofResult } from './roofs';

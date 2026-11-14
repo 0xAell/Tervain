@@ -1,8 +1,8 @@
-import { FENCE_WALL_LIFT, type Colliders } from '../world/colliders';
+import { FENCE_WALL_LIFT, type Colliders } from '../core/world/colliders';
 import { fence } from './props';
 import type { Rnd } from './structures';
 import type { Region } from './regions';
-import type { PhysicalProjectileGeometry } from '../world/physicsGeometry';
+import type { PhysicalProjectileGeometry } from '../core/world/physicsGeometry';
 
 /** Copy only triangles appended by the next static prop, in their rendered world coordinates. */
 export function captureProjectileGeometry(region: Region): () => PhysicalProjectileGeometry {

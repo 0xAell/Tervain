@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fromBuildingLocal, HEARTH_SHAPE, hearthOf, INTERIORS, type InteriorSpec, type RoomLocator } from '../world/interiors';
+import { fromBuildingLocal, HEARTH_SHAPE, hearthOf, INTERIORS, type InteriorSpec, type RoomLocator } from '../core/world/interiors';
 import type { FrameContext, SceneModule } from './context';
 
 /**

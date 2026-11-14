@@ -7,7 +7,7 @@ Before, each was a solid block with a door painted on it; only the archive and t
 entered, and they keep their own rooms. The furniture was made with Meshy's text to 3D from written descriptions and
 prepared for the game.
 
-One description of each room ([world/interiors.ts](../../src/world/interiors.ts)) serves the shell, the colliders,
+One description of each room ([world/interiors.ts](../../src/core/world/interiors.ts)) serves the shell, the colliders,
 the floor underfoot, the furniture, the light and the sound, so they agree.
 
 ## Walls, doors and windows
@@ -44,8 +44,8 @@ The shrine hall's colonnade parts before its great door, so the way in is clear.
 
 ## Underfoot and overhead
 
-[terrain.ts](../../src/world/terrain.ts) gives every room's floor and doorway to `groundAt`, so the wanderer stands on
-the floor and saves made inside restore there. [colliders.ts](../../src/world/colliders.ts) replaces each building's
+[terrain.ts](../../src/core/world/terrain.ts) gives every room's floor and doorway to `groundAt`, so the wanderer stands on
+the floor and saves made inside restore there. [colliders.ts](../../src/core/world/colliders.ts) replaces each building's
 solid block with:
 
 - its walls about the doorway;
@@ -86,7 +86,7 @@ pieces), the normal maps to half that and the metal/roughness maps to a quarter,
 [manifest.json](../../public/models/furniture/manifest.json) records each piece's size, triangles, hash, prompt and
 Meshy tasks, and the game checks each file's size and hash as it loads.
 
-[world/furniture.ts](../../src/world/furniture.ts) furnishes each kind of building from a wish list: beds, a table with
+[world/furniture.ts](../../src/core/world/furniture.ts) furnishes each kind of building from a wish list: beds, a table with
 stools and a chest in the houses, a desk and bookshelf for the reeve, the oven, counter and sacks in the bakery, tables
 and a counter in the inn, bunks in the crew bunks, a rack in the lodge, an altar, bookshelves, racks and rows of benches
 in the shrine hall, and so on. A small solver stands each piece square against a wall or free on the floor, and keeps:
@@ -129,7 +129,7 @@ python tools/prepare-meshy-furniture.py --source <dir>
 node tools/meshy-furniture/record.mjs
 ```
 
-The preparation writes the pieces, their manifest and `src/world/furnitureSizes.ts`, and the record step adds them to
+The preparation writes the pieces, their manifest and `src/core/world/furnitureSizes.ts`, and the record step adds them to
 the model ledger.
 
 ## Verification

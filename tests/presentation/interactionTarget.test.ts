@@ -1,15 +1,15 @@
 import * as THREE from 'three';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { App } from '../../src/app';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import { cameraColliderEntry } from '../../src/presentation/cameraObstruction';
 import { forestLandmarkGeometry } from '../../src/presentation/forestLandmarks';
 import { chooseInteractable } from '../../src/presentation/interactionTarget';
 import { buildInteractables, type Interactable } from '../../src/presentation/interactions';
 import { buildScenery, type SceneryHandles } from '../../src/presentation/settlement';
-import { buildStaticColliders, Colliders } from '../../src/world/colliders';
-import { INSPECT_LOCATIONS } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders, Colliders } from '../../src/core/world/colliders';
+import { INSPECT_LOCATIONS } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
 
 // Replace only raster materials: the actual scenery generators, geometry and colliders still run.
 vi.mock('../../src/presentation/regions', async (importOriginal) => {

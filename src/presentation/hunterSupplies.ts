@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import { mergeStaticParts } from './staticMerge';
-import { HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE as T, hunterStationPoint } from '../world/layout';
-import type { Terrain } from '../world/terrain';
-import type { Colliders } from '../world/colliders';
+import { HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE as T, hunterStationPoint } from '../core/world/layout';
+import type { Terrain } from '../core/world/terrain';
+import type { Colliders } from '../core/world/colliders';
 import { makeTexPair } from './buildingTextures';
-import type { PhysicalRockGeometry } from '../world/physicsGeometry';
+import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
 
 /** Shared horizontal support plane: authored gear rests on the planks, never on the ground beneath them. */
 export function hunterTableSurfaceY(terrain: Pick<Terrain, 'heightAt'>): number {

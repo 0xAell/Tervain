@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { App, quickSlotPressed } from '../../src/app';
-import { Game } from '../../src/game/game';
-import type { ItemId } from '../../src/game/types';
+import { Game } from '../../src/core/game/game';
+import type { ItemId } from '../../src/core/game/types';
 import { HuntingController } from '../../src/presentation/huntingController';
 import { defaultSettings } from '../../src/platform/settings';
 

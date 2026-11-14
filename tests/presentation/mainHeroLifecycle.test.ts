@@ -2,12 +2,12 @@ import * as THREE from 'three';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { App } from '../../src/app';
-import { Game } from '../../src/game/game';
-import { WRECK_BLADE_PICKUP } from '../../src/game/types';
+import { Game } from '../../src/core/game/game';
+import { WRECK_BLADE_PICKUP } from '../../src/core/game/types';
 import type { Rig } from '../../src/presentation/characters';
 import { track } from '../../src/presentation/human/sheetPool';
 import { Player } from '../../src/presentation/player';
-import type { Terrain } from '../../src/world/terrain';
+import type { Terrain } from '../../src/core/world/terrain';
 
 const heroMock = vi.hoisted(() => ({
   load: vi.fn<() => Promise<GLTF>>(),

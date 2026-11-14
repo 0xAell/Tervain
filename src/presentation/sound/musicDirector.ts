@@ -1,5 +1,5 @@
-import type { PlaceId } from '../../game/types';
-import { FOREST_REGION, PLACES } from '../../world/layout';
+import type { PlaceId } from '../../core/game/types';
+import { FOREST_REGION, PLACES } from '../../core/world/layout';
 import { villageCover } from './soundscape';
 import { WORLD_AUDIO, type MusicId } from './worldAudioManifest';
 

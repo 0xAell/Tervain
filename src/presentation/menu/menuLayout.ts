@@ -1,4 +1,4 @@
-import { fbm, smoothstep } from '../../world/noise';
+import { fbm, smoothstep } from '../../core/world/noise';
 
 /**
  * Where everything in the menu vigil stands. Metres, y up; the camera looks roughly toward -z, over a camp on a headland

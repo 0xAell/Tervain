@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../world/noise';
+import { mulberry32 } from '../core/world/noise';
 import { clamp01, fbmField, mixc, pnoise, rnd, sstep, voronoi, type RGB } from './procTex';
 
 /**

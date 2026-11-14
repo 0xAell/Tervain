@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { S } from '../content/strings';
-import type { Game } from '../game/game';
-import { ANIMAL_SPECIES, HUNTING_ARROW_RANGE, skinningSeconds, withinSkinningReach, type AnimalId } from '../game/hunting';
+import { S } from '../core/content/strings';
+import type { Game } from '../core/game/game';
+import { ANIMAL_SPECIES, HUNTING_ARROW_RANGE, skinningSeconds, withinSkinningReach, type AnimalId } from '../core/game/hunting';
 import type { Input } from '../platform/input';
 import { codeLabel, type Settings } from '../platform/settings';
 import type { AudioEngine } from './audio';

@@ -1,5 +1,5 @@
-import { HUNTER_TABLE as T, hunterStationPoint } from '../../world/layout';
-import type { Terrain } from '../../world/terrain';
+import { HUNTER_TABLE as T, hunterStationPoint } from '../../core/world/layout';
+import type { Terrain } from '../../core/world/terrain';
 import { hunterTableSurfaceY } from '../hunterSupplies';
 
 /**

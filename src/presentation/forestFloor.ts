@@ -1,9 +1,9 @@
 import { patchFloorPlantVertex, type FoliageField } from './foliage/foliageWind';
 import * as THREE from 'three';
-import { deepwoodCover, forestClearingCover, forestClearingDistance } from '../world/forest';
-import { WORLD } from '../world/layout';
-import { mulberry32, smoothstep } from '../world/noise';
-import { realmRadius, type Terrain } from '../world/terrain';
+import { deepwoodCover, forestClearingCover, forestClearingDistance } from '../core/world/forest';
+import { WORLD } from '../core/world/layout';
+import { mulberry32, smoothstep } from '../core/world/noise';
+import { realmRadius, type Terrain } from '../core/world/terrain';
 import type { Exclusions } from './vegetation';
 import type { Quality, SceneModule } from './context';
 import { barkTextures } from './treeTextures';
@@ -11,7 +11,7 @@ import { createFloraPopulation, type FloraTree } from './floraPopulation';
 import { streamDistance } from './vegetation';
 import { attachInstanceDistanceVisibility, createPlanarDistanceFade, type InstanceDistanceVisibility } from './distanceVisibility';
 import type { PlantedCrownField } from './plantedCrowns';
-import { biomeAt, type BiomeSample } from '../world/biomes';
+import { biomeAt, type BiomeSample } from '../core/world/biomes';
 import { clamp01, fbmField, sstep } from './procTex';
 import { woodlandColonyAt } from './ground/habitat';
 

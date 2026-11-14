@@ -12,7 +12,7 @@ Main's forest used a jittered 6.2 m grid, mostly 80–98% occupied inside one ax
 
 ## Placement defaults tested
 
-The implementation is in [floraPopulation.ts](../../src/presentation/floraPopulation.ts), [world/forest.ts](../../src/world/forest.ts), [flora.ts](../../src/presentation/flora.ts), [forestFloor.ts](../../src/presentation/forestFloor.ts) and [scatterPopulation.ts](../../src/presentation/scatterPopulation.ts).
+The implementation is in [floraPopulation.ts](../../src/presentation/floraPopulation.ts), [world/forest.ts](../../src/core/world/forest.ts), [flora.ts](../../src/presentation/flora.ts), [forestFloor.ts](../../src/presentation/forestFloor.ts) and [scatterPopulation.ts](../../src/presentation/scatterPopulation.ts).
 
 - Groves use 48 m cells with jittered centres and 18–35 m normalized influence radii. A grove selects a dominant species and companion from stream wetness/height, with 76% dominant, 18% companion and 6% accent trials. A smoothly blended neighbour contributes up to 35% at grove boundaries.
 - Independent keyed randomness supplies candidate position, acceptance, age, appearance and conflict priority. IDs derive from cell/child keys. Fixed-priority symmetric conflict suppression avoids greedy removal cascades; canonical trunks keep at least **.35 m** clearance. Rocks and understory use actual canonical tree information where applicable.

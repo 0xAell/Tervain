@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { footprint, FURNITURE, furnishRoom, pieceSize, type FurniturePlacement } from '../../src/world/furniture';
-import { CHIMNEY_STACK, FIREPLACE, hearthOf, INTERIORS, roomHalfSize, type InteriorSpec } from '../../src/world/interiors';
+import { footprint, FURNITURE, furnishRoom, pieceSize, type FurniturePlacement } from '../../src/core/world/furniture';
+import { CHIMNEY_STACK, FIREPLACE, hearthOf, INTERIORS, roomHalfSize, type InteriorSpec } from '../../src/core/world/interiors';
 
 const inRoom = (room: InteriorSpec) => FURNITURE.filter((p) => p.room === room);
 

@@ -1,4 +1,4 @@
-import type { ItemId } from '../../game/types';
+import type { ItemId } from '../../core/game/types';
 import type { WorkGesture } from '../npcStyle';
 import type { ClipId } from './clips';
 

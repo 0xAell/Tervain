@@ -1,7 +1,7 @@
-import { NPCS } from '../content/npcs';
-import { hourOfDay } from '../game/state';
-import type { WorldState } from '../game/types';
-import { ANCHORS, ENEMY_SPAWNS } from '../world/layout';
+import { NPCS } from '../core/content/npcs';
+import { hourOfDay } from '../core/game/state';
+import type { WorldState } from '../core/game/types';
+import { ANCHORS, ENEMY_SPAWNS } from '../core/world/layout';
 import { resolveGoal } from './actors';
 import { AMBIENT_PLACES } from './ambient';
 import type { MeshyNpcCatalog } from './meshynpcs';

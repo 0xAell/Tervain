@@ -1,11 +1,11 @@
-import { S } from '../../src/content/strings';
+import { S } from '../../src/core/content/strings';
 import * as THREE from 'three';
-import { ENEMY_SPAWNS, SPAWN } from '../../src/world/layout';
+import { ENEMY_SPAWNS, SPAWN } from '../../src/core/world/layout';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/app';
 import { ResidentArrivals } from '../../src/presentation/residentArrivals';
-import { Game } from '../../src/game/game';
-import { createInitialState } from '../../src/game/state';
+import { Game } from '../../src/core/game/game';
+import { createInitialState } from '../../src/core/game/state';
 import { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import { FrameClock, MotionInterpolation, SIM_STEP } from '../../src/platform/frameTiming';

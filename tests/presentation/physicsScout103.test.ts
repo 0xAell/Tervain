@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { buildingEntry, buildingGround } from '../../src/world/buildingEntries';
-import { bySpec } from '../../src/world/layout';
-import { RealmPhysics, initializePhysics, type PropSpec } from '../../src/world/physics';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { buildingEntry, buildingGround } from '../../src/core/world/buildingEntries';
+import { bySpec } from '../../src/core/world/layout';
+import { RealmPhysics, initializePhysics, type PropSpec } from '../../src/physics/physics';
+import { Terrain } from '../../src/core/world/terrain';
 
 let terrain: Terrain;
 beforeAll(async () => { await initializePhysics(); terrain = new Terrain(); });

@@ -8,10 +8,10 @@
  *
  * Levels follow the game's default volume settings. Not part of the build.
  */
-import { DIALOGUE_STRINGS } from '../src/content/dialogue';
-import { ITEMS, itemAction } from '../src/content/items';
-import { SCENES, SPEAKER_NAMES, VOICE_LINES, type Speaker } from '../src/content/voice';
-import type { ItemId, NpcId } from '../src/game/types';
+import { DIALOGUE_STRINGS } from '../src/core/content/dialogue';
+import { ITEMS, itemAction } from '../src/core/content/items';
+import { SCENES, SPEAKER_NAMES, VOICE_LINES, type Speaker } from '../src/core/content/voice';
+import type { ItemId, NpcId } from '../src/core/game/types';
 import { defaultSettings } from '../src/platform/settings';
 import { NPC_STYLES } from '../src/presentation/npcStyle';
 import { HuntingAudio, HUNTING_SOUND_KINDS } from '../src/presentation/huntingAudio';
@@ -26,7 +26,7 @@ import type { Threat } from '../src/presentation/sound/musicDirector';
 import { SoundWorld, type SoundFrame } from '../src/presentation/sound/soundWorld';
 import { VOICE_AUDIO, type VoiceBank } from '../src/presentation/sound/voiceManifest';
 import { WORLD_AUDIO, type LoopId, type MusicId, type SongId } from '../src/presentation/sound/worldAudioManifest';
-import { PLACES, RITE_ALTAR } from '../src/world/layout';
+import { PLACES, RITE_ALTAR } from '../src/core/world/layout';
 
 const app = document.getElementById('app')!;
 const status = document.getElementById('status')!;

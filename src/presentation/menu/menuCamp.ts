@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 import { campfire } from '../props';
 import { rockShapes } from '../scatter';
 import { TINT, jitterTone, sack, type Rnd } from '../structures';

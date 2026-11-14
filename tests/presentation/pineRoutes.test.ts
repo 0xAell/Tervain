@@ -1,14 +1,14 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { NPC_LIST } from '../../src/content/npcs';
+import { NPC_LIST } from '../../src/core/content/npcs';
 import { createFloraPopulation, registerFloraColliders, selectFloraPopulation, type FloraTree } from '../../src/presentation/floraPopulation';
 import { createPineForest, isPineSpecies, type PineForest } from '../../src/presentation/solitaryPine';
 import { buildTreeVariant, type TreeVariant } from '../../src/presentation/treeGen';
 import { groundedTreeY, treeWoodCollisionRadius } from '../../src/presentation/treeGrounding';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Colliders, buildStaticColliders, type CircleCollider } from '../../src/world/colliders';
-import { ANCHORS, PICKUP_LOCATIONS, RITE_ALTAR, ROADS, SHORTCUT, SLUICE, SPAWN, type V2 } from '../../src/world/layout';
-import { NavGrid } from '../../src/world/nav';
-import { Terrain, distToPolyline } from '../../src/world/terrain';
+import { Colliders, buildStaticColliders, type CircleCollider } from '../../src/core/world/colliders';
+import { ANCHORS, PICKUP_LOCATIONS, RITE_ALTAR, ROADS, SHORTCUT, SLUICE, SPAWN, type V2 } from '../../src/core/world/layout';
+import { NavGrid } from '../../src/core/world/nav';
+import { Terrain, distToPolyline } from '../../src/core/world/terrain';
 import { pineTemplates } from './pineFixture';
 
 let forest: PineForest;

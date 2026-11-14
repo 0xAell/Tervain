@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { hasString } from '../../src/content/strings';
-import { Game } from '../../src/game/game';
-import { nextHint } from '../../src/game/hints';
-import { buildJournal } from '../../src/game/journal';
-import { NPC_IDS } from '../../src/game/types';
+import { hasString } from '../../src/core/content/strings';
+import { Game } from '../../src/core/game/game';
+import { nextHint } from '../../src/core/game/hints';
+import { buildJournal } from '../../src/core/game/journal';
+import { NPC_IDS } from '../../src/core/game/types';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
 import { must } from './helpers';
 

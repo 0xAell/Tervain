@@ -1,20 +1,20 @@
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import { createScatterPopulation, registerScatterColliders } from '../../src/presentation/scatterPopulation';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { ARRIVAL_ROUTE } from '../../src/world/layout';
+import { ARRIVAL_ROUTE } from '../../src/core/world/layout';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
 import { groundedRockY, rockContactGeometry, rockShapes, rockTransform, type RockTransform } from '../../src/presentation/rockGeometry';
-import { Colliders } from '../../src/world/colliders';
-import { initializePhysics, RealmPhysics } from '../../src/world/physics';
-import { canPlayerStandAt, supportedPlayerHeight } from '../../src/world/playerPlacement';
-import { rockTriangleSupport, ROCK_STEP_HEIGHT } from '../../src/world/rockContacts';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { initializePhysics, RealmPhysics } from '../../src/physics/physics';
+import { canPlayerStandAt, supportedPlayerHeight } from '../../src/core/world/playerPlacement';
+import { rockTriangleSupport, ROCK_STEP_HEIGHT } from '../../src/core/world/rockContacts';
+import { Terrain } from '../../src/core/world/terrain';
 
 vi.mock('../../src/presentation/characters', () => ({
   createPlayerRig: () => ({ root: new THREE.Group(), hitFlash: 0 }),

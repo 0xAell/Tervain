@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { InteriorLight } from '../../src/presentation/interiorLight';
-import { chimneyOf, fromBuildingLocal, hearthOf, INTERIORS, roomLocator } from '../../src/world/interiors';
+import { chimneyOf, fromBuildingLocal, hearthOf, INTERIORS, roomLocator } from '../../src/core/world/interiors';
 
 const rooms = roomLocator(() => 0);
 const run = (light: InteriorLight, at: { x: number; z: number }, seconds: number, night = 0) => {

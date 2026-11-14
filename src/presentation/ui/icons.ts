@@ -1,4 +1,4 @@
-import type { ItemId } from '../../game/types';
+import type { ItemId } from '../../core/game/types';
 
 /** Original ink-and-metal silhouettes, drawn for Tervain. No reference-game pixels or assets. */
 export type IconName = ItemId | 'inventory' | 'journal' | 'map' | 'compass' | 'health' | 'stamina';

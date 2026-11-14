@@ -4,8 +4,8 @@ import { buildScatter } from '../../src/presentation/scatter';
 import { createShoreDetailPopulation } from '../../src/presentation/scatterPopulation';
 import type { BuildContext, Quality } from '../../src/presentation/context';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
 
 let terrain: Terrain;
 let exclusions: Exclusions;

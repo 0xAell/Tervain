@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { buildStandard } from '../../src/presentation/buildings';
 import { Ctx } from '../../src/presentation/buildKit';
 import { Region } from '../../src/presentation/regions';
-import { bySpec, type BuildingSpec } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
+import { bySpec, type BuildingSpec } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
 
 const material = new THREE.MeshBasicMaterial({ side: THREE.FrontSide });
 

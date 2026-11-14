@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
-import { RealmPhysics, initializePhysics } from '../../src/world/physics';
-import { FURNITURE, pieceSize } from '../../src/world/furniture';
-import { fromBuildingLocal, toBuildingLocal, roomHalfSize } from '../../src/world/interiors';
-import { canPlayerStandAt } from '../../src/world/playerPlacement';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
+import { RealmPhysics, initializePhysics } from '../../src/physics/physics';
+import { FURNITURE, pieceSize } from '../../src/core/world/furniture';
+import { fromBuildingLocal, toBuildingLocal, roomHalfSize } from '../../src/core/world/interiors';
+import { canPlayerStandAt } from '../../src/core/world/playerPlacement';
 
 vi.mock('../../src/presentation/characters', () => ({
   createPlayerRig: () => ({ root: new THREE.Group(), hitFlash: 0 }),

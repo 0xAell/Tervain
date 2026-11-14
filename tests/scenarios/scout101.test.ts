@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
-import { Colliders } from '../../src/world/colliders';
-import type { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import type { Terrain } from '../../src/core/world/terrain';
 
 vi.mock('../../src/presentation/characters', () => ({
   createPlayerRig: () => ({ root: new THREE.Group(), hitFlash: 0 }),
@@ -87,10 +87,10 @@ describe('eighth scout fixes: controls (A101)', () => {
 
 describe('eighth scout fixes: the rotation\'s hours (A101)', () => {
   it('has Pell at the face exactly while the water runs the quarry\'s night shift', async () => {
-    const { Game } = await import('../../src/game/game');
-    const { NPCS } = await import('../../src/content/npcs');
+    const { Game } = await import('../../src/core/game/game');
+    const { NPCS } = await import('../../src/core/content/npcs');
     const { resolveGoal } = await import('../../src/presentation/actors');
-    const { worldView } = await import('../../src/game/worldView');
+    const { worldView } = await import('../../src/core/game/worldView');
     const g = new Game();
     g.state.quest.phase = 'settled';
     g.state.quest.allocation = 'rotation';
@@ -102,7 +102,7 @@ describe('eighth scout fixes: the rotation\'s hours (A101)', () => {
   });
 
   it('sets the quarry-at-work scene only where the quarry works by day', async () => {
-    const { SCENES } = await import('../../src/content/voice');
+    const { SCENES } = await import('../../src/core/content/voice');
     const scene = SCENES.find(s => s.id === 'quarry.working')!;
     expect(JSON.stringify(scene.when)).not.toContain('rotation');
   });

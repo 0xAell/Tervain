@@ -1,6 +1,6 @@
-import type { BuildingSpec } from '../world/layout';
-import { mulberry32 } from '../world/noise';
-import { houseYard, type YardProp } from '../world/houseYards';
+import type { BuildingSpec } from '../core/world/layout';
+import { mulberry32 } from '../core/world/noise';
+import { houseYard, type YardProp } from '../core/world/houseYards';
 import { hash3, mulc, rgb } from './buildKit';
 import type { Region } from './regions';
 import { TINT, barrel, jitterTone, sack, woodpile, type Rnd } from './structures';

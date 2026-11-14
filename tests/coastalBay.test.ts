@@ -6,11 +6,11 @@ import { buildTerrainMesh } from '../src/presentation/terrainMesh';
 import { LAYER, type TerrainTextures } from '../src/presentation/terrainTextures';
 import { MAP_BOUNDS } from '../src/presentation/ui/mapProjection';
 import { mapTerrainColor } from '../src/presentation/ui/mapTerrain';
-import { coastX, shoreDistance } from '../src/world/coast';
-import { DISTANT_COAST, distantCoastHeight } from '../src/world/distantCoast';
-import { ARRIVAL_ROUTE, COAST_SHELVES, LIGHTHOUSE, SEA_LEVEL, SPAWN, WORLD } from '../src/world/layout';
-import { Terrain } from '../src/world/terrain';
-import { BATHY, BATHY_NX, BATHY_NZ, buildBathymetry, SWASH_LIMIT } from '../src/world/water/bathymetry';
+import { coastX, shoreDistance } from '../src/core/world/coast';
+import { DISTANT_COAST, distantCoastHeight } from '../src/core/world/distantCoast';
+import { ARRIVAL_ROUTE, COAST_SHELVES, LIGHTHOUSE, SEA_LEVEL, SPAWN, WORLD } from '../src/core/world/layout';
+import { Terrain } from '../src/core/world/terrain';
+import { BATHY, BATHY_NX, BATHY_NZ, buildBathymetry, SWASH_LIMIT } from '../src/core/world/water/bathymetry';
 
 let terrain: Terrain;
 beforeAll(() => { terrain = new Terrain(); });

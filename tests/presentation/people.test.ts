@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
-import { NPC_LIST } from '../../src/content/npcs';
+import { NPC_LIST } from '../../src/core/content/npcs';
 import { createBanditRig, createNpcRig, createPlayerRig, IDLE_VARIANTS, idleVariant, personBuildOptions, poseRig, setArmed, type Rig } from '../../src/presentation/characters';
 import { makeFaceShape, unwarpV, warpV } from '../../src/presentation/human/headShape';
 import { clothPixels, facePixels, type FacePaint } from '../../src/presentation/human/humanTex';

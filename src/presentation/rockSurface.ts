@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { WORLD } from '../world/layout';
-import type { Terrain } from '../world/terrain';
+import { WORLD } from '../core/world/layout';
+import type { Terrain } from '../core/world/terrain';
 
 /** Join dry mineral faces to their real ground with buried soil, weathered bedding
  * and moss on sheltered shelves. Source UV art and the exact visible/supporting

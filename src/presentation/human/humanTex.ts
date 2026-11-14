@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 import { clamp01, fbmField, sstep, voronoi } from '../procTex';
 export { facePixels, type FacePaint } from './facePaint';
 import { DETAIL_LAYERS, type DetailLayer } from './paint';

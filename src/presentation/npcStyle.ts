@@ -1,4 +1,4 @@
-import type { NpcId } from '../game/types';
+import type { NpcId } from '../core/game/types';
 import type { HairCut } from './human/head';
 import type { BeardStyle, Build } from './human/headShape';
 

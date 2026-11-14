@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import {
   CARCASS_HOURS, HUNTER_RANKS, hunterRank, skinningSeconds, SKINNING_SECONDS, WILDLIFE_RETURN_DISTANCE, WILDLIFE_RETURN_HOURS,
   WOUND_HOURS, type AnimalHit, type AnimalId,
-} from '../../src/game/hunting';
+} from '../../src/core/game/hunting';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
 
 const position = { x: -188, y: 4, z: -66 };

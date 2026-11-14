@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { NPCS } from '../../src/content/npcs';
-import { S } from '../../src/content/strings';
-import { Game } from '../../src/game/game';
+import { NPCS } from '../../src/core/content/npcs';
+import { S } from '../../src/core/content/strings';
+import { Game } from '../../src/core/game/game';
 import { resolveGoal } from '../../src/presentation/actors';
 
 describe('third scout fixes: game rules and content (A94)', () => {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { buildingEntry } from '../../src/world/buildingEntries';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { HOUSEHOLDS } from '../../src/world/furniture';
-import { houseYard, yardToWorld, type YardProp } from '../../src/world/houseYards';
-import { BUILDINGS, ROADS } from '../../src/world/layout';
+import { buildingEntry } from '../../src/core/world/buildingEntries';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { HOUSEHOLDS } from '../../src/core/world/furniture';
+import { houseYard, yardToWorld, type YardProp } from '../../src/core/world/houseYards';
+import { BUILDINGS, ROADS } from '../../src/core/world/layout';
 
 const houses = BUILDINGS.filter((b) => b.kind === 'house');
 

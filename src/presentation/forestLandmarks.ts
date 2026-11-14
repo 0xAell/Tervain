@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import type { Colliders, VerticalBounds } from '../world/colliders';
-import { ARRIVAL_SIGN, FOREST_RUIN, FOREST_WAYMARKERS } from '../world/layout';
-import { mulberry32 } from '../world/noise';
-import type { Terrain } from '../world/terrain';
+import type { Colliders, VerticalBounds } from '../core/world/colliders';
+import { ARRIVAL_SIGN, FOREST_RUIN, FOREST_WAYMARKERS } from '../core/world/layout';
+import { mulberry32 } from '../core/world/noise';
+import type { Terrain } from '../core/world/terrain';
 import { Ctx } from './buildKit';
 import { makeTexPair } from './buildingTextures';
 import type { Quality } from './context';

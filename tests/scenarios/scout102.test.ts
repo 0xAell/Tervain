@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { S } from '../../src/content/strings';
-import { Game } from '../../src/game/game';
-import { nextHint } from '../../src/game/hints';
-import { createInitialState } from '../../src/game/state';
+import { S } from '../../src/core/content/strings';
+import { Game } from '../../src/core/game/game';
+import { nextHint } from '../../src/core/game/hints';
+import { createInitialState } from '../../src/core/game/state';
 import { MemoryStore, SaveStore, reviveState } from '../../src/platform/storage';
 import { slotLabel } from '../../src/presentation/ui/panels';
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { clamp, fbm, mulberry32, ridged, smoothstep } from '../world/noise';
+import { clamp, fbm, mulberry32, ridged, smoothstep } from '../core/world/noise';
 import { assertNaturalModelBudget } from './naturalModelBudget';
 
 type V3 = [number, number, number];
@@ -135,7 +135,7 @@ export function groundedRockY(rock: RockTransform, heightAt: (x: number, z: numb
   return seated - burial;
 }
 
-export function rockContactGeometry(rock: RockTransform, id: string): import('../world/physicsGeometry').PhysicalRockGeometry {
+export function rockContactGeometry(rock: RockTransform, id: string): import('../core/world/physicsGeometry').PhysicalRockGeometry {
   const shapes = rockShapes(), g = (rock.size > .55 ? shapes.big : shapes.small)[rock.shape]!;
   const source = g.getAttribute('position'), matrix = rockTransform(rock), p = new THREE.Vector3();
   const positions = new Float32Array(source.count * 3), indices = new Uint32Array(source.count);

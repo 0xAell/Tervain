@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {expect,it,vi} from 'vitest';
 import {buildForestFloor} from '../../src/presentation/forestFloor';
-import {Terrain} from '../../src/world/terrain';
+import {Terrain} from '../../src/core/world/terrain';
 import {Exclusions} from '../../src/presentation/vegetation';
 import {disposeTreeTextures} from '../../src/presentation/treeTextures';
 

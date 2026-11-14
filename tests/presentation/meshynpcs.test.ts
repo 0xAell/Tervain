@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { NPC_LIST } from '../../src/content/npcs';
+import { NPC_LIST } from '../../src/core/content/npcs';
 import { poseRig, type Rig } from '../../src/presentation/characters';
 import { NPC_SKIN_REPAIR_PROFILE } from '../../src/presentation/npc/skinRepair';
 import { NpcActor, EnemyActor, resolveGoal, type ActorContext } from '../../src/presentation/actors';
 import { BONES, type BoneName } from '../../src/presentation/human/skin';
 import { Frame } from '../../src/presentation/human/frame';
 import { disposeSceneResources } from '../../src/presentation/disposeScene';
-import { ENEMY_SPAWNS } from '../../src/world/layout';
-import { createInitialState } from '../../src/game/state';
-import { Colliders } from '../../src/world/colliders';
+import { ENEMY_SPAWNS } from '../../src/core/world/layout';
+import { createInitialState } from '../../src/core/game/state';
+import { Colliders } from '../../src/core/world/colliders';
 import { createMeshyNpcRig, createMeshyNpcRigSteps, validateMeshyNpcAsset, validateMeshyNpcManifest, NPC_ROLES,
   MeshyNpcCatalog, type MeshyNpcEntry, type MeshyNpcManifest } from '../../src/presentation/meshynpcs';
 

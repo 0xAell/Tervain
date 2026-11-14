@@ -5,8 +5,8 @@ import { createFoliageField } from '../../src/presentation/foliage/foliageWind';
 import { GrassWind } from '../../src/presentation/grass/wind';
 import { REALM_WIND } from '../../src/presentation/realmWind';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
 import type { BuildContext, FrameContext } from '../../src/presentation/context';
 
 describe('one wind for the realm', () => {

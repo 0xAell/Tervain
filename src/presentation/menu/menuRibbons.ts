@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 
 /**
  * Rags tied to the ancient tree's low boughs by pilgrims: strips of undyed wool, faded red and ochre, a bleached linen one,

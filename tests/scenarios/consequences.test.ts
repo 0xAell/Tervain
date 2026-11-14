@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { REPORT_DELAY_MIN } from '../../src/game/constants';
-import { pickEntryNode } from '../../src/game/dialogue';
-import { worldView } from '../../src/game/worldView';
+import { REPORT_DELAY_MIN } from '../../src/core/game/constants';
+import { pickEntryNode } from '../../src/core/game/dialogue';
+import { worldView } from '../../src/core/game/worldView';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import { investigate, must, newGame, takeKit, talk } from './helpers';
 
 describe('archive access and witnessed offenses', () => {

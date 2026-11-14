@@ -11,7 +11,7 @@ size, half of it and a quarter of it, and wood never shines like varnish: roughn
 metal. Geometry, UVs and the maps' content are otherwise Meshy's.
 
 Writes public/models/furniture/<id>.glb, public/models/furniture/manifest.json (sizes, triangles, hashes, provenance)
-and src/world/furnitureSizes.ts (the sizes the colliders and layouts use). Requires numpy and Pillow.
+and src/core/world/furnitureSizes.ts (the sizes the colliders and layouts use). Requires numpy and Pillow.
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # The furniture (A66) and the rooms' small props (A123) share one manifest and one sizes file.
 PLANS = [ROOT / "tools/meshy-furniture/plan.json", ROOT / "tools/meshy-props/plan.json"]
 OUT = ROOT / "public/models/furniture"
-SIZES = ROOT / "src/world/furnitureSizes.ts"
+SIZES = ROOT / "src/core/world/furnitureSizes.ts"
 
 
 def read_glb(path: Path):

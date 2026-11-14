@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 
 /**
  * The water's small detail, made once at start-up and shared by every water surface. All original and procedural:

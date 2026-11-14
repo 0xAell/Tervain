@@ -2,11 +2,11 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { createFloraPopulation, selectFloraPopulation, registerFloraColliders, floraLod, type FloraTree, type FloraClaim } from '../../src/presentation/floraPopulation';
 import { buildTreeVariant } from '../../src/presentation/treeGen';
 import { Exclusions, TREE_SWAY_ENABLED, TREE_SWAY_MULTIPLIER } from '../../src/presentation/vegetation';
-import { Colliders, buildStaticColliders } from '../../src/world/colliders';
-import { ANCHORS, BUILDINGS, ROADS, SPAWN, SLUICE, RITE_ALTAR, SHORTCUT, PICKUP_LOCATIONS, type V2 } from '../../src/world/layout';
-import { NavGrid } from '../../src/world/nav';
-import { Terrain } from '../../src/world/terrain';
-import { NPC_LIST } from '../../src/content/npcs';
+import { Colliders, buildStaticColliders } from '../../src/core/world/colliders';
+import { ANCHORS, BUILDINGS, ROADS, SPAWN, SLUICE, RITE_ALTAR, SHORTCUT, PICKUP_LOCATIONS, type V2 } from '../../src/core/world/layout';
+import { NavGrid } from '../../src/core/world/nav';
+import { Terrain } from '../../src/core/world/terrain';
+import { NPC_LIST } from '../../src/core/content/npcs';
 import type { Quality } from '../../src/presentation/context';
 
 const presets: Quality[] = ['low', 'medium', 'high'];

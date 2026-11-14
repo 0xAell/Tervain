@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { NPC_LIST } from '../../src/content/npcs';
-import { validateContent } from '../../src/content/validate';
-import { buildStaticColliders } from '../../src/world/colliders';
+import { NPC_LIST } from '../../src/core/content/npcs';
+import { validateContent } from '../../src/core/content/validate';
+import { buildStaticColliders } from '../../src/core/world/colliders';
 import {
   ANCHORS,
   ENEMY_SPAWNS,
@@ -19,10 +19,10 @@ import {
   SLUICE,
   SPAWN,
   type V2,
-} from '../../src/world/layout';
-import { coastX, shoreDistance } from '../../src/world/coast';
-import { NavGrid } from '../../src/world/nav';
-import { Terrain } from '../../src/world/terrain';
+} from '../../src/core/world/layout';
+import { coastX, shoreDistance } from '../../src/core/world/coast';
+import { NavGrid } from '../../src/core/world/nav';
+import { Terrain } from '../../src/core/world/terrain';
 
 let terrain: Terrain;
 let colliders: ReturnType<typeof buildStaticColliders>;

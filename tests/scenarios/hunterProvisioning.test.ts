@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { Game } from '../../src/game/game';
-import { HUNTER_MEAT_PRICE, HUNTER_SUPPLY_POSITION, hunterTradingOpen } from '../../src/game/hunting';
-import { buildJournal } from '../../src/game/journal';
+import { Game } from '../../src/core/game/game';
+import { HUNTER_MEAT_PRICE, HUNTER_SUPPLY_POSITION, hunterTradingOpen } from '../../src/core/game/hunting';
+import { buildJournal } from '../../src/core/game/journal';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
 
 const camp = () => {

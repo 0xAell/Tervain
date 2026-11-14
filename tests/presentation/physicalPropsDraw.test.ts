@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { buildPhysicalProps } from '../../src/presentation/physicalProps';
-import type { RealmPhysics } from '../../src/world/physics';
+import type { RealmPhysics } from '../../src/physics/physics';
 
 describe('loose cargo drawn in step (A94 scout)', () => {
   it('shows each prop at its current pose, not the blend from the step before, and offers its meshes for drawing between steps', () => {

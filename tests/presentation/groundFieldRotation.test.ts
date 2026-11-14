@@ -1,7 +1,7 @@
 import {expect,it,vi} from 'vitest';
 import {groundSplat} from '../../src/presentation/groundSplat';
-import {biomeAt} from '../../src/world/biomes';
-import type {Terrain} from '../../src/world/terrain';
+import {biomeAt} from '../../src/core/world/biomes';
+import type {Terrain} from '../../src/core/world/terrain';
 import type {PlantedCrownField} from '../../src/presentation/plantedCrowns';
 
 it('does not recalculate fixed field trigonometry while generating surface samples',()=>{

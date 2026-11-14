@@ -1,11 +1,11 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createFloraPopulation, selectFloraPopulation, type FloraClaim, type FloraTree } from '../../src/presentation/floraPopulation';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { biomeAt } from '../../src/world/biomes';
-import { forestClearingDistance } from '../../src/world/forest';
-import { DEEPWOOD, STRAND } from '../../src/world/layout';
-import { shoreDistance } from '../../src/world/coast';
-import { Terrain } from '../../src/world/terrain';
+import { biomeAt } from '../../src/core/world/biomes';
+import { forestClearingDistance } from '../../src/core/world/forest';
+import { DEEPWOOD, STRAND } from '../../src/core/world/layout';
+import { shoreDistance } from '../../src/core/world/coast';
+import { Terrain } from '../../src/core/world/terrain';
 
 let terrain: Terrain, exclusions: Exclusions, population: FloraTree[];
 beforeAll(() => {

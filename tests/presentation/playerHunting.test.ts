@@ -1,9 +1,9 @@
-import { BOW_LENGTH } from '../../src/content/bowSize';
+import { BOW_LENGTH } from '../../src/core/content/bowSize';
 import * as THREE from 'three';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Player } from '../../src/presentation/player';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import { BOW_READY_SECONDS, PlayerHuntingVisual } from '../../src/presentation/playerHunting';
 import { createHeroRig } from '../../src/presentation/hero/rig';
 import { bindHeroBones } from '../../src/presentation/hero/bones';

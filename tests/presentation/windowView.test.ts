@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { WindowView } from '../../src/presentation/windowView';
-import type { InteriorSpec, RoomLocator } from '../../src/world/interiors';
+import type { InteriorSpec, RoomLocator } from '../../src/core/world/interiors';
 
 /** Counts the faces drawn per frame; enough of a renderer for CubeCamera.update and the spread refresh. */
 function stubRenderer() {

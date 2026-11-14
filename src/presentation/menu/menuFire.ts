@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 
 /**
  * The warden's fire: tongues of flame, sparks and a thin column of smoke, all driven by one clock on the GPU, plus the

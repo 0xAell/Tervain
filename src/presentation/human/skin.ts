@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../../world/noise';
+import { mulberry32 } from '../../core/world/noise';
 
 /**
  * Geometry for skinned people. Every part of a person (body, clothes, head, hair) is written into a `Mesher` in the rig's

@@ -6,10 +6,10 @@ import { cart, wagon, well, workTable } from '../../src/presentation/props';
 import { Region } from '../../src/presentation/regions';
 import { barrel } from '../../src/presentation/structures';
 import { spokedWheel } from '../../src/presentation/wagonGeometry';
-import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, WAGON_CONSTRUCTION as W } from '../../src/world/layout';
-import { LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop } from '../../src/world/lighthouse';
-import { mulberry32 } from '../../src/world/noise';
-import type { Terrain } from '../../src/world/terrain';
+import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, WAGON_CONSTRUCTION as W } from '../../src/core/world/layout';
+import { LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop } from '../../src/core/world/lighthouse';
+import { mulberry32 } from '../../src/core/world/noise';
+import type { Terrain } from '../../src/core/world/terrain';
 
 const material = new THREE.MeshBasicMaterial({ side: THREE.FrontSide });
 const flat = { heightAt: () => 0 } as unknown as Terrain;

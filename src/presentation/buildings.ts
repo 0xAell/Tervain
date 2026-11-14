@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import type { BuildingSpec } from '../world/layout';
-import { ARCHIVE_ROOM } from '../world/layout';
-import { mulberry32 } from '../world/noise';
-import { buildingEntry, buildingGround } from '../world/buildingEntries';
-import { BREAST_DEPTH, CHIMNEY_STACK, chimneyOf, FIREPLACE, HEARTH_DRESS, HEARTH_SHAPE, hearthOf, interiorOf, joistsOf, roomHalfSize, roomOf, sideWindowZ, type InteriorSpec } from '../world/interiors';
-import type { Terrain } from '../world/terrain';
+import type { BuildingSpec } from '../core/world/layout';
+import { ARCHIVE_ROOM } from '../core/world/layout';
+import { mulberry32 } from '../core/world/noise';
+import { buildingEntry, buildingGround } from '../core/world/buildingEntries';
+import { BREAST_DEPTH, CHIMNEY_STACK, chimneyOf, FIREPLACE, HEARTH_DRESS, HEARTH_SHAPE, hearthOf, interiorOf, joistsOf, roomHalfSize, roomOf, sideWindowZ, type InteriorSpec } from '../core/world/interiors';
+import type { Terrain } from '../core/world/terrain';
 import { Ctx, FACES, hash3, mulc, rgb, type Col } from './buildKit';
 import { Region } from './regions';
 import { authorLighthouse } from './lighthouse';
@@ -60,7 +60,7 @@ export interface DoorLeaf {
 /** How far into the doorway (from the inner face of the wall) a leaf hangs when shut, metres. */
 export const DOOR_LEAF_INSET = 0.04;
 
-export { CHIMNEY_STACK, chimneyOf } from '../world/interiors';
+export { CHIMNEY_STACK, chimneyOf } from '../core/world/interiors';
 
 const roofStyleOf = (b: BuildingSpec): RoofKind => {
   switch (b.kind) {

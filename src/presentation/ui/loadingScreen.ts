@@ -1,4 +1,4 @@
-import { S } from '../../content/strings';
+import { S } from '../../core/content/strings';
 import { clear, h } from './dom';
 import { LOADING_PHASES, LoadingProgress } from './loadingProgress';
 import type { LoadingPhase, LoadingUpdate } from './loadingProgress';

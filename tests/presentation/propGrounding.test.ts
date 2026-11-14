@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { Game } from '../../src/game/game';
+import { Game } from '../../src/core/game/game';
 import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
@@ -8,10 +8,10 @@ import { buildStandard } from '../../src/presentation/buildings';
 import { Ctx } from '../../src/presentation/buildKit';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
 import { Region } from '../../src/presentation/regions';
-import { buildingEntry, buildingGround } from '../../src/world/buildingEntries';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { BUILDINGS, HAMLET_PROPS, HANDCART_CONSTRUCTION, VILLAGE_HANDCART, WAGON, WAGON_CONSTRUCTION, type BuildingSpec } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
+import { buildingEntry, buildingGround } from '../../src/core/world/buildingEntries';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { BUILDINGS, HAMLET_PROPS, HANDCART_CONSTRUCTION, VILLAGE_HANDCART, WAGON, WAGON_CONSTRUCTION, type BuildingSpec } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
 
 vi.mock('../../src/presentation/characters', () => ({
   createPlayerRig: () => ({ root: new THREE.Group(), hitFlash: 0 }),

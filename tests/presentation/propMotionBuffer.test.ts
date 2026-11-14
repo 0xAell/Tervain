@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { Colliders } from '../../src/world/colliders';
-import { initializePhysics, RealmPhysics, type PropMotion } from '../../src/world/physics';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { initializePhysics, RealmPhysics, type PropMotion } from '../../src/physics/physics';
+import { Terrain } from '../../src/core/world/terrain';
 
 beforeAll(initializePhysics);
 

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { DIALOGUE_NODES } from '../../src/content/dialogue';
-import { APPLY_DELAY_MIN, REWARD_COIN } from '../../src/game/constants';
-import { buildJournal } from '../../src/game/journal';
-import { Game } from '../../src/game/game';
-import { worldView } from '../../src/game/worldView';
+import { DIALOGUE_NODES } from '../../src/core/content/dialogue';
+import { APPLY_DELAY_MIN, REWARD_COIN } from '../../src/core/game/constants';
+import { buildJournal } from '../../src/core/game/journal';
+import { Game } from '../../src/core/game/game';
+import { worldView } from '../../src/core/game/worldView';
 import { investigate, must, newGame, takeKit, talk } from './helpers';
 
 function stabilized(game: Game) {
@@ -335,7 +335,7 @@ describe('rotation settles once', () => {
 
 describe('guidance toward the sluice repair (A71)', () => {
   it('keeps pointing at the quarry until both the brace and the wrench are carried', async () => {
-    const { nextHint } = await import('../../src/game/hints');
+    const { nextHint } = await import('../../src/core/game/hints');
     const game = newGame();
     must(game, { t: 'discover', place: 'rillford' });
     must(game, { t: 'discover', place: 'sluice' });

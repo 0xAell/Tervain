@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import type { Terrain } from '../../src/world/terrain';
+import type { Terrain } from '../../src/core/world/terrain';
 import type { TerrainTextures } from '../../src/presentation/terrainTextures';
 import type { PlantedCrownField } from '../../src/presentation/plantedCrowns';
 import { buildTerrainMesh, buildTerrainTiles, buildTerrainTilesAsync } from '../../src/presentation/terrainMesh';

@@ -1,8 +1,8 @@
-import { S } from '../../content/strings';
+import { S } from '../../core/content/strings';
 import { h, clear } from './dom';
 import { icon } from './icons';
 import { resourceFraction } from './uiModel';
-import type { ItemId } from '../../game/types';
+import type { ItemId } from '../../core/game/types';
 import { QuickSlotBar } from './hotbar';
 
 function setText(el: HTMLElement, text: string) {

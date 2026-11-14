@@ -6,7 +6,7 @@ house interiors: exposed timber, crowded walls, warm low firelight and a fire yo
 
 ## Hearth
 
-- **Against a wall.** `HEARTH_AT` (src/world/interiors.ts) now names a wall and a place along it. Each hearth is a
+- **Against a wall.** `HEARTH_AT` (src/core/world/interiors.ts) now names a wall and a place along it. Each hearth is a
   chimney breast that stands 0.3 m out from the wall's inner face. Its stack is centred inside the wall, on the same
   centre (`chimneyOf`) as the exterior chimney, which now rises from the ground as a stone breast proud of the wall
   and then on up through the roof. Chimney smoke uses the same centre. The side-wall hearths sit in the back corner.

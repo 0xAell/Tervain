@@ -1,4 +1,4 @@
-import { mulberry32, valueNoise } from '../../world/noise';
+import { mulberry32, valueNoise } from '../../core/world/noise';
 import { beardAt, EYE_INSET, eyeBase, hairlineAt, headPoint, headSection, sculpt, toHead, unwarpU, unwarpV, type BeardStyle, type FaceShape } from './headShape';
 import type { PaintSpec } from './paint';
 import type { Wardrobe } from './person';

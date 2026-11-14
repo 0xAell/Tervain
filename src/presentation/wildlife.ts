@@ -1,9 +1,9 @@
 import * as THREE from 'three';
-import { BUILDINGS, LIGHTHOUSE } from '../world/layout';
-import { coastX } from '../world/coast';
-import { mulberry32 } from '../world/noise';
+import { BUILDINGS, LIGHTHOUSE } from '../core/world/layout';
+import { coastX } from '../core/world/coast';
+import { mulberry32 } from '../core/world/noise';
 import { groundOf } from './buildings';
-import { chimneyOf } from '../world/interiors';
+import { chimneyOf } from '../core/world/interiors';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import type { AssetNeed } from './assets/library';
 import { RENDER_PX, SKY } from './skyState';

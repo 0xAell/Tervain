@@ -17,7 +17,7 @@ import { PlantedCrownIndex } from './plantedCrowns';
 import { parseTreeLab, pickLabSpot } from './treeLab';
 import { CROWN_FLOOR, CrownIndex, type CameraCrown } from './cameraCrowns';
 import { attachCasterCoverage, attachInstanceDistanceVisibility, smoothDistanceFade, type InstanceDistanceVisibility } from './distanceVisibility';
-import type { PhysicalWoodGeometry } from '../world/physicsGeometry';
+import type { PhysicalWoodGeometry } from '../core/world/physicsGeometry';
 import { FOLIAGE_RESPONSE, type FoliageResponse } from './foliage/foliageWind';
 import { SHADER_CLOCK_WRAP } from './grass/wind';
 import { crownOf, foliageGeometryFeatures, installFoliage, installFoliageShadow, type FoliageLook, type InstalledFoliage } from './foliage/foliageMaterial';

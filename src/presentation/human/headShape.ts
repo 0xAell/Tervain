@@ -1,4 +1,4 @@
-import { mulberry32, valueNoise } from '../../world/noise';
+import { mulberry32, valueNoise } from '../../core/world/noise';
 
 /**
  * The shape of a head. A head is lofted through horizontal sections from under the chin (y = -1) to the crown (y = +1)

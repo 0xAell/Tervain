@@ -6,14 +6,14 @@ import { buildFlora } from '../../src/presentation/flora';
 import { createFloraPopulation, registerFloraColliders, selectFloraPopulation, floraLodWeights, type FloraTree } from '../../src/presentation/floraPopulation';
 import { pineTemplates } from './pineFixture';
 import { createPineForest, isPineSpecies, type PineTemplates } from '../../src/presentation/solitaryPine';
-import { Colliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { AssetLibrary } from '../../src/presentation/assets/library';
 import { defaultSettings } from '../../src/platform/settings';
 import type { FrameContext } from '../../src/presentation/context';
-import { worldView } from '../../src/game/worldView';
-import { createInitialState } from '../../src/game/state';
+import { worldView } from '../../src/core/game/worldView';
+import { createInitialState } from '../../src/core/game/state';
 
 // Floor pixels have their own tests/browser gate; isolate actual tree instancing without a DOM canvas.
 vi.mock('../../src/presentation/forestFloor', () => ({ buildForestFloor: () => ({ group: new THREE.Group(), update() {}, dispose() {} }) }));

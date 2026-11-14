@@ -1,13 +1,13 @@
-import { S } from '../../content/strings';
-import { PLACE_ORDER } from '../../game/journal';
-import { hasFact } from '../../game/state';
-import type { MapMarker, PlaceId, WorldState } from '../../game/types';
-import { worldView } from '../../game/worldView';
-import { PLACES, ROADS, STREAMS } from '../../world/layout';
-import type { Terrain } from '../../world/terrain';
+import { S } from '../../core/content/strings';
+import { PLACE_ORDER } from '../../core/game/journal';
+import { hasFact } from '../../core/game/state';
+import type { MapMarker, PlaceId, WorldState } from '../../core/game/types';
+import { worldView } from '../../core/game/worldView';
+import { PLACES, ROADS, STREAMS } from '../../core/world/layout';
+import type { Terrain } from '../../core/world/terrain';
 import { h } from './dom';
-import { validMapMarker } from '../../game/map';
-import { BIOME_IDS } from '../../world/biomes';
+import { validMapMarker } from '../../core/game/map';
+import { BIOME_IDS } from '../../core/world/biomes';
 import { MAP_HABITATS, mapTerrainColor } from './mapTerrain';
 
 import { MAP_BOUNDS, MAP_H, MAP_W, MAP_PIXELS_PER_METRE as PX, mapHeading, mapX as px, mapZ as pz, placeMapLabel, clampMapView, fullMapView, mapCanvasPoint, mapWorldAt, panMap, zoomMapAt, type MapViewport, type MapLabel } from './mapProjection';

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import type { Terrain } from '../../world/terrain';
-import type { Channel } from '../../world/water/channels';
-import { SPRING_BASIN } from '../../world/water/spring';
-import { FILM, POOL_REACH, SPREAD_BELOW_BED, type WaterWorld } from '../../world/water/waterWorld';
+import type { Terrain } from '../../core/world/terrain';
+import type { Channel } from '../../core/world/water/channels';
+import { SPRING_BASIN } from '../../core/world/water/spring';
+import { FILM, POOL_REACH, SPREAD_BELOW_BED, type WaterWorld } from '../../core/world/water/waterWorld';
 import { SKY } from '../skyState';
 import { detachWaterOptics, makeWaterOpticsUniforms, WATER_DETAIL_GLSL, WATER_F0, WATER_OPTICS_GLSL, WATER_RIPPLE_GLSL, WATER_SKY_GLSL } from '../waterOptics';
 import type { WaterTextures } from './waterTextures';

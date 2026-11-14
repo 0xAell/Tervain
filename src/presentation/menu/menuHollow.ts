@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fbm, valueNoise } from '../../world/noise';
+import { fbm, valueNoise } from '../../core/world/noise';
 import type { TreeDoorFace } from './menuTree';
 
 /**

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32, smoothstep } from '../world/noise';
+import { mulberry32, smoothstep } from '../core/world/noise';
 import { SHADER_CLOCK_WRAP } from './grass/wind';
 import { sharedNoise } from './noiseTextures';
 import { RENDER_PX, SKY } from './skyState';

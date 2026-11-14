@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mapTerrainColor } from '../../src/presentation/ui/mapTerrain';
-import { biomeAt } from '../../src/world/biomes';
+import { biomeAt } from '../../src/core/world/biomes';
 
 describe('regional map habitat washes', () => {
   it('follows the actual six shared habitats while retaining physical sea elevation and hill shading', () => {
@@ -33,9 +33,9 @@ describe('regional map habitat washes', () => {
 
 describe('the chart’s extent (A91 scout)', () => {
   it('covers every spot the player can walk, so the arrow never leaves it and every one can be pinned', async () => {
-    const { Terrain } = await import('../../src/world/terrain');
+    const { Terrain } = await import('../../src/core/world/terrain');
     const { MAP_BOUNDS } = await import('../../src/presentation/ui/mapProjection');
-    const { validMapMarker } = await import('../../src/game/map');
+    const { validMapMarker } = await import('../../src/core/game/map');
     const terrain = new Terrain();
     let outside = 0, walkable = 0;
     for (let x = -380; x <= 200; x += 2) for (let z = -172; z <= 172; z += 2) {

@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { buildAnimals, buildAnimalsAsync } from '../../src/presentation/animals';
 import { ANIMALS } from '../../src/presentation/animals/catalog';
-import { Terrain } from '../../src/world/terrain';
-import { buildStaticColliders } from '../../src/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
 import { animalFixture, animalTemplates } from './animalFixture';
 
 describe('wildlife construction during play', () => {

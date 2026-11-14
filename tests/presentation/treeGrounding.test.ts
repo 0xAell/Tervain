@@ -4,9 +4,9 @@ import { createFloraPopulation, selectFloraPopulation, type FloraTree } from '..
 import { createPineForest, isPineSpecies, type PineForest } from '../../src/presentation/solitaryPine';
 import { buildTreeVariant, SPECIES, type TreeVariant } from '../../src/presentation/treeGen';
 import { groundedTreeY, treeRootPolygons, treeWoodCollisionRadius, TREE_ROOT_PLANE, TREE_SOIL_OVERLAP } from '../../src/presentation/treeGrounding';
-import { Terrain } from '../../src/world/terrain';
+import { Terrain } from '../../src/core/world/terrain';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { WORLD } from '../../src/world/layout';
+import { WORLD } from '../../src/core/world/layout';
 import { pineTemplates } from './pineFixture';
 
 let forest: PineForest, terrain: Terrain, population: FloraTree[];

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { mulberry32 } from '../world/noise';
+import { mulberry32 } from '../core/world/noise';
 
 /**
  * Rigid lofted geometry for creatures: a surface lofted through elliptical sections with vertex colours, and a tapering

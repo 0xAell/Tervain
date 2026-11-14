@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { DEPTH_RANK, type MatKey } from '../../src/presentation/regions';
 import { buildScenery } from '../../src/presentation/settlement';
-import { buildStaticColliders } from '../../src/world/colliders';
-import { Terrain } from '../../src/world/terrain';
+import { buildStaticColliders } from '../../src/core/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
 
 // Raster materials only: the real generators, geometry and placements run. Each material carries its key as its name.
 vi.mock('../../src/presentation/regions', async (importOriginal) => {

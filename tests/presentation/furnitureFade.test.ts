@@ -3,8 +3,8 @@ import { expect, it } from 'vitest';
 import type { FrameContext } from '../../src/presentation/context';
 import { buildFurniture } from '../../src/presentation/furniture';
 import { ROOM_SEEN_FADE, ROOM_SEEN_FROM, roomShowing } from '../../src/presentation/world';
-import { FURNITURE } from '../../src/world/furniture';
-import type { RoomLocator } from '../../src/world/interiors';
+import { FURNITURE } from '../../src/core/world/furniture';
+import type { RoomLocator } from '../../src/core/world/interiors';
 
 it('fades a room seen through its windows over the last metres instead of in one step', () => {
   expect(roomShowing(0, ROOM_SEEN_FROM - ROOM_SEEN_FADE - 0.01)).toBe(1);

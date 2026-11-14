@@ -1,16 +1,16 @@
 import { HORIZON_CONIFER_SCALE, ORCHARD_SCALE, PALM_SCALE } from './treeScale';
-import { ARRIVAL_ROUTE, DEEPWOOD, ORCHARD, STRAND, WORLD } from '../world/layout';
-import { deepwoodCover, forestOpeningCover, forestClearingCover, forestClearingDistance } from '../world/forest';
-import { forestStandAt, FOREST_CROWN_ENVELOPE, type ForestFamilyRole } from '../world/forestStands';
-import { cliffiness, shoreDistance } from '../world/coast';
-import { fbm, mulberry32, smoothstep } from '../world/noise';
-import { distToPolyline, realmRadius, type Terrain } from '../world/terrain';
-import type { Colliders } from '../world/colliders';
+import { ARRIVAL_ROUTE, DEEPWOOD, ORCHARD, STRAND, WORLD } from '../core/world/layout';
+import { deepwoodCover, forestOpeningCover, forestClearingCover, forestClearingDistance } from '../core/world/forest';
+import { forestStandAt, FOREST_CROWN_ENVELOPE, type ForestFamilyRole } from '../core/world/forestStands';
+import { cliffiness, shoreDistance } from '../core/world/coast';
+import { fbm, mulberry32, smoothstep } from '../core/world/noise';
+import { distToPolyline, realmRadius, type Terrain } from '../core/world/terrain';
+import type { Colliders } from '../core/world/colliders';
 import type { Quality } from './context';
 import type { Species } from './treeGen';
 import { streamDistance, type Exclusions } from './vegetation';
 import { smoothDistanceFade } from './distanceVisibility';
-import { BIOME_REGIONS, biomeAt } from '../world/biomes';
+import { BIOME_REGIONS, biomeAt } from '../core/world/biomes';
 
 export type TreeAge = 'veteran' | 'mature' | 'young' | 'sapling';
 export interface FloraTree {

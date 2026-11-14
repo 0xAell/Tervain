@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/app';
-import { Game } from '../../src/game/game';
-import { createInitialState } from '../../src/game/state';
+import { Game } from '../../src/core/game/game';
+import { createInitialState } from '../../src/core/game/state';
 import { defaultSettings } from '../../src/platform/settings';
 import { MemoryStore, SaveStore } from '../../src/platform/storage';
 import { slotsPanel, type PanelActions, type PanelCtx, type PanelHost } from '../../src/presentation/ui/panels';

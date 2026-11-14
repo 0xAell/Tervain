@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { RANK_HEADROOM, TileLayer, tileHorizontalDistance, type TileBuffers } from '../../src/presentation/ground/tileStream';
 import { GRASS_CLUMP, GRASS_MAX_SCALE, GRASS_QUALITY, grassReach } from '../../src/presentation/grass/grassField';
-import { smoothstep } from '../../src/world/noise';
+import { smoothstep } from '../../src/core/world/noise';
 
 const SIZE = 16, END = 48, POWER = GRASS_QUALITY.high.far.fade.power;
 function fixture(height = 0, band?: { start: number; end: number }) {

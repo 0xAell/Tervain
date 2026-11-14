@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { Colliders } from '../../src/world/colliders';
-import { WORLD } from '../../src/world/layout';
-import { NavGrid } from '../../src/world/nav';
-import type { Terrain } from '../../src/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
+import { WORLD } from '../../src/core/world/layout';
+import { NavGrid } from '../../src/core/world/nav';
+import type { Terrain } from '../../src/core/world/terrain';
 
 const open = () => new NavGrid({ nx: (WORLD.maxX - WORLD.minX) / WORLD.cell, nz: (WORLD.maxZ - WORLD.minZ) / WORLD.cell,
   groundAt: () => 0, walkable: () => true } as unknown as Terrain, new Colliders());

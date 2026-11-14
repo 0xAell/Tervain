@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import type { Accessory } from '../../content/npcs';
-import type { NpcId } from '../../game/types';
+import type { Accessory } from '../../core/content/npcs';
+import type { NpcId } from '../../core/game/types';
 import type { Outfit } from './dress';
 import type { RGB } from './skin';
 

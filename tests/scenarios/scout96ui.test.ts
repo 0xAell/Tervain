@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { S } from '../../src/content/strings';
-import { hunterRank } from '../../src/game/hunting';
+import { S } from '../../src/core/content/strings';
+import { hunterRank } from '../../src/core/game/hunting';
 import { codeLabel } from '../../src/platform/settings';
 
 describe('fifth scout fixes: interface text (A96)', () => {

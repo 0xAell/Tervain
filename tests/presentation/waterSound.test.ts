@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { bedTargets, farSea, type WorldSoundState } from '../../src/presentation/sound/soundscape';
 import { WaterListener, type WaterSoundState } from '../../src/presentation/water/waterSound';
-import { coastX } from '../../src/world/coast';
-import { FORD, LIGHTHOUSE } from '../../src/world/layout';
-import { Terrain } from '../../src/world/terrain';
-import { SPRING_BASIN } from '../../src/world/water/spring';
-import { WaterWorld } from '../../src/world/water/waterWorld';
-import { SWELL } from '../../src/world/water/waves';
+import { coastX } from '../../src/core/world/coast';
+import { FORD, LIGHTHOUSE } from '../../src/core/world/layout';
+import { Terrain } from '../../src/core/world/terrain';
+import { SPRING_BASIN } from '../../src/core/world/water/spring';
+import { WaterWorld } from '../../src/core/world/water/waterWorld';
+import { SWELL } from '../../src/core/world/water/waves';
 
 let world: WaterWorld;
 beforeAll(() => {

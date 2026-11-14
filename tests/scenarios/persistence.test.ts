@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { APPLY_DELAY_MIN } from '../../src/game/constants';
-import { CONTENT_REVISION, SAVE_FORMAT_VERSION } from '../../src/game/types';
-import { Game } from '../../src/game/game';
+import { APPLY_DELAY_MIN } from '../../src/core/game/constants';
+import { CONTENT_REVISION, SAVE_FORMAT_VERSION } from '../../src/core/game/types';
+import { Game } from '../../src/core/game/game';
 import { MemoryStore, SaveStore, checksum } from '../../src/platform/storage';
 import { investigate, must, newGame, takeKit } from './helpers';
 

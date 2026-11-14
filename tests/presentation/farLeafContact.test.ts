@@ -4,8 +4,8 @@ import { buildFlora } from '../../src/presentation/flora';
 import { woodAnchor } from '../../src/presentation/canopy';
 import type { PineTemplates } from '../../src/presentation/solitaryPine';
 import { AssetLibrary } from '../../src/presentation/assets/library';
-import { Terrain } from '../../src/world/terrain';
-import { Colliders } from '../../src/world/colliders';
+import { Terrain } from '../../src/core/world/terrain';
+import { Colliders } from '../../src/core/world/colliders';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { defaultSettings } from '../../src/platform/settings';
 

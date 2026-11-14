@@ -1,6 +1,6 @@
-import { SEA_LEVEL } from '../../world/layout';
-import { BATHY, BATHY_NX, BATHY_NZ, OPEN_DEPTH } from '../../world/water/bathymetry';
-import { GRAVITY, SWELL, SWELL_DIR, SWELL_K0, SWELL_OMEGA, WIND_WAVES } from '../../world/water/waves';
+import { SEA_LEVEL } from '../../core/world/layout';
+import { BATHY, BATHY_NX, BATHY_NZ, OPEN_DEPTH } from '../../core/world/water/bathymetry';
+import { GRAVITY, SWELL, SWELL_DIR, SWELL_K0, SWELL_OMEGA, WIND_WAVES } from '../../core/world/water/waves';
 
 /**
  * The sea's wave functions in GLSL, generated from the same constants as world/water/waves.ts so the drawn sea, the

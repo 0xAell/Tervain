@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {Habitat, newSample} from '../../src/presentation/ground/habitat';
-import {Colliders} from '../../src/world/colliders';
-import {Terrain} from '../../src/world/terrain';
+import {Colliders} from '../../src/core/world/colliders';
+import {Terrain} from '../../src/core/world/terrain';
 import {Exclusions} from '../../src/presentation/vegetation';
 
 describe('habitat crown sampling', () => {

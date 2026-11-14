@@ -1,8 +1,8 @@
-import { biomeAt } from '../../world/biomes';
-import { Colliders, type Collider } from '../../world/colliders';
-import { BUILDINGS, ROADS, type V2 } from '../../world/layout';
-import { CARAVAN_ANIMAL_REST } from '../../world/caravanAnimal';
-import { distToPolyline, type Terrain } from '../../world/terrain';
+import { biomeAt } from '../../core/world/biomes';
+import { Colliders, type Collider } from '../../core/world/colliders';
+import { BUILDINGS, ROADS, type V2 } from '../../core/world/layout';
+import { CARAVAN_ANIMAL_REST } from '../../core/world/caravanAnimal';
+import { distToPolyline, type Terrain } from '../../core/world/terrain';
 import type { AnimalDefinition } from './catalog';
 
 export interface AnimalSite extends V2 { radius: number }
