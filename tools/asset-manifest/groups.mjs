@@ -4,7 +4,9 @@
  * joins these rules with the files on disk, their sizes and hashes, and the model licence ledger.
  *
  * `plan` is one of:
- *   replace  a coherent pack (Fab, Megascans, MetaHuman) takes its place; the file is a stand-in for scale and intent
+ *   replace  a coherent pack (Fab, Megascans, MetaHuman) takes its place; the file is a stand-in for scale and intent.
+ *            `pack` names the first-choice pack among the candidates of the group's Fab category, `with` any
+ *            companion packs it needs, and `webTarget` the pack to use instead where Nanite is not available
  *   keep     it is the game's own and carries over; re-import it from the path given
  *   rework   the content carries over but must be re-authored for Unreal (re-rigged, re-cut, re-baked)
  *   drop     only the web build or its tooling needs it
@@ -43,14 +45,14 @@ const treeName = (base) => pascal(base.replace(/-(near|mid|far)$/, '').replace(/
 export const GROUPS = [
   {
     id: 'hero', title: 'The wanderer (hero body and animation)', kind: 'model', role: 'hero', match: /^public\/models\/hero\//,
-    plan: 'replace', fab: 'characters',
+    plan: 'replace', fab: 'characters', pack: 'Modular Medieval Citizens',
     why: 'A generated body on a generated rig, with unresolved provenance for two of its sources. A commercial port needs a character with clear terms: a MetaHuman or a modular medieval character from one pack, on the engine’s standard skeleton so animation packs retarget.',
     source: 'Generated with Meshy; see docs/engineering/main-hero.md and the model ledger.',
     unreal: mesh('SkeletalMesh', '/Game/Tervain/Characters/Hero', (base) => `Hero_${pascal(base.replace(/^weathered-wanderer-/, ''))}`),
   },
   {
     id: 'residents', title: 'Residents and hostiles (17 figures)', kind: 'model', role: 'resident', match: /^public\/models\/npcs\/[^/]+\.glb$/,
-    plan: 'replace', fab: 'characters',
+    plan: 'replace', fab: 'characters', pack: 'Modular Medieval Citizens',
     why: 'Seventeen separately generated figures of uneven proportion and surface. One modular villager set gives a coherent cast, shared skeleton and LODs.',
     source: 'Generated or downloaded Meshy models, adapted; see docs/engineering/meshy-npcs.md and the model ledger.',
     unreal: mesh('SkeletalMesh', '/Game/Tervain/Characters/Residents', (base) => `Resident_${pascal(base)}`),
@@ -62,7 +64,7 @@ export const GROUPS = [
   },
   {
     id: 'resident-motion', title: 'Resident motion library', kind: 'model', role: 'animation', match: /^public\/models\/npcs\/motion\//,
-    plan: 'replace', fab: 'animation',
+    plan: 'replace', fab: 'animation', pack: 'MC Village Life Animation Pack', with: ['Game Animation Sample', 'Sword Animset Pro', 'Swim Animset'],
     why: 'Generated clips fitted to the generated rigs. Locomotion, work, sitting and combat should come from an animation pack on the standard skeleton.',
     source: 'Meshy animation library output; see docs/engineering/resident-motion-0.0.13.md.',
     licence: { id: 'LicenseRef-meshy-paid-plan-output', status: 'meshy-paid-plan-output' },
@@ -70,40 +72,40 @@ export const GROUPS = [
   },
   {
     id: 'animals', title: 'Animals (19 rigged models)', kind: 'model', role: 'animal', match: /^public\/models\/animals\//,
-    plan: 'replace', fab: 'animals',
+    plan: 'replace', fab: 'animals', pack: 'FOREST ANIMALS PACK', with: ['ANIMAL VARIETY PACK', 'African Animals', 'Cats Pack'],
     why: 'Community models of mixed quality with in-place clips only. An animal pack supplies matched skeletons, gaits, LODs and often sounds.',
     source: 'Meshy Community downloads, optimised and rigged; see docs/engineering/meshy-animal-assets.json.',
     unreal: mesh('SkeletalMesh', '/Game/Tervain/Animals', (base) => `Animal_${pascal(base)}`),
   },
   {
     id: 'trees-supplied', title: 'Supplied trees (15 kinds, three levels each)', kind: 'model', role: 'tree', match: /^public\/models\/flora\/meshy-012\//,
-    plan: 'replace', fab: 'trees',
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', with: ['DZ Trees - Low Poly Palms'], webTarget: 'European Beech (Megascans Trees)',
     why: 'Generated trees with card crowns rebuilt in code. Scanned tree sets bring real bark, leaf and wind data and proper LODs; the planting (data/world/flora.json) carries over.',
     source: 'Meshy Community downloads, rebuilt by tools/build-meshy-trees.py; see docs/engineering/meshy-tree-assets.json.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Flora/Trees', (base) => `Tree_${treeName(base)}`),
   },
   {
     id: 'trees-generated', title: 'Generated trees (hero oak, birch, apple, pear, bush, sentinel, pine)', kind: 'model', role: 'tree', match: /^public\/models\/flora\/hero\//,
-    plan: 'replace', fab: 'trees',
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', with: ['Apple Tree Pack (Mobile/Desktop)'], webTarget: 'European Beech (Megascans Trees)',
     why: 'The project’s own procedural trees (tools/tree-gen), built for the web build’s triangle budget. They are original and may be kept as a fallback, but a port should use one tree source throughout.',
     source: 'Generated by tools/tree-gen and tools/tree-gen-pine; project-original.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Flora/Trees', (base) => `Tree_${treeName(base)}`),
   },
   {
     id: 'trees-pine', title: 'Solitary pine (three levels)', kind: 'model', role: 'tree', match: /^public\/models\/flora\/solitary-pine/,
-    plan: 'replace', fab: 'trees', why: 'As the supplied trees: replaced with the conifers of the chosen tree set.',
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech (Megascans Trees)', why: 'As the supplied trees: replaced with the conifers of the chosen tree set.',
     source: 'Meshy Community download, adapted; see docs/engineering/solitary-pine.md.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Flora/Trees', (base) => `Tree_${treeName(base)}`),
   },
   {
     id: 'scenery', title: 'Scenery models (rock pile, ancient broadleaf)', kind: 'model', role: 'scenery', match: /^public\/models\/scenery\//,
-    plan: 'replace', fab: 'rocks', why: 'Two one-off generated models. Rocks and landmark trees come from the scanned rock and tree sets.',
+    plan: 'replace', fab: 'rocks', pack: 'Nordic Beach Rock Formation', with: ['Nordic Coastal Cliff'], why: 'Two one-off generated models. Rocks and landmark trees come from the scanned rock and tree sets.',
     source: 'Meshy Community downloads, adapted; see docs/engineering/rock-pile-assets.json and broadleaf-assets.json.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Scenery', (base) => pascal(base.replace(/-under-\d+k$/, ''))),
   },
   {
     id: 'furniture', title: 'Furniture and household pieces (29 models)', kind: 'model', role: 'furniture', match: /^public\/models\/furniture\/[^/]+\.glb$/,
-    plan: 'replace', fab: 'interiors',
+    plan: 'replace', fab: 'interiors', pack: 'Medieval Props: Kit', with: ['Medieval Fantasy Furniture Pack 01'],
     why: 'Generated pieces at inconsistent texel density. A medieval interior pack gives one material language; sizes and placements (data/world/interiors.json) carry over.',
     source: 'Generated with Meshy for the project; see docs/engineering/rooms-0.0.13.md.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Props/Furniture', (base) => `Furniture_${pascal(base)}`),
@@ -120,7 +122,7 @@ export const GROUPS = [
   },
   {
     id: 'building-textures', title: 'Baked building surfaces (12 materials, colour and normal)', kind: 'texture', role: 'building-material', match: /^public\/textures\/buildings\/[^/]+\.jpg$/,
-    plan: 'replace', fab: 'surfaces',
+    plan: 'replace', fab: 'buildings', pack: 'Medieval Modular Town (With Interiors)',
     why: 'Procedurally baked plaster, timber, stone and metal for the web build’s merged building geometry. Buildings in a port come as modular kits with their own scanned or authored materials.',
     source: 'Baked by tools/textures/bake-buildings.py; project-original.', licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
     unreal: texture('/Game/Tervain/Architecture/Textures', (base) => `Building_${pascal(base)}`),
@@ -132,7 +134,7 @@ export const GROUPS = [
   },
   {
     id: 'leaf-atlases', title: 'Leaf atlases', kind: 'texture', role: 'foliage-texture', match: /^public\/textures\/leaf\//,
-    plan: 'replace', fab: 'trees', why: 'Leaf cards cut for the web build’s crowns from the supplied trees’ textures. Replaced together with the trees.',
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech (Megascans Trees)', why: 'Leaf cards cut for the web build’s crowns from the supplied trees’ textures. Replaced together with the trees.',
     source: 'Built by tools/leaf-atlas from the supplied tree textures.', licence: { id: 'CC0-1.0', status: 'owner-recollection' },
     unreal: texture('/Game/Tervain/Flora/Textures', (base) => `Leaf_${pascal(base)}`),
   },
@@ -178,7 +180,7 @@ export const GROUPS = [
   },
   {
     id: 'animal-audio-source', title: 'Animal calls, source clips', kind: 'audio', role: 'sound', match: /^assets\/audio\/source\/animals\//,
-    plan: 'replace', fab: 'animals', why: 'Two generated calls per kind. An animal pack with its own recorded sounds replaces them along with the models; otherwise keep these.',
+    plan: 'keep', fab: 'audio', why: 'Two generated calls per kind, made for these animals. Keep them: no Fab library with the calls of all of them was found. Where the chosen animal pack brings recorded calls for an animal, use those.',
     source: 'ElevenLabs Sound Effects; see docs/engineering/animal-audio-assets.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' },
     unreal: sound('/Game/Tervain/Audio/Animals', (base) => `Animal_${pascal(base)}`),
   },
@@ -213,10 +215,11 @@ const fab = (id) => `https://www.fab.com/listings/${id}`;
 const WEB_TARGET = 'The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view.';
 
 /**
- * What to look for on Fab for each replacement. A candidate is a listing found to exist, by title, in search results on
- * 14 November 2026; none was opened, bought or imported from this repository's environment. Check each again on its
- * page for licence tier, supported engine version, LODs and price before buying, and never commit Fab content to this
- * public repository: the Fab Standard License allows sharing only with collaborators, for example in a private one.
+ * What to look for on Fab for each replacement, and the packs found. A candidate is a listing found to exist, by title,
+ * in search results on 14 November 2026; none was opened on its listing page, bought or imported. A group's `pack` is
+ * the first choice among its category's candidates, chosen from those descriptions. Check each on its page for licence
+ * tier, supported engine version, LODs and price before buying, and never commit Fab content to this public
+ * repository: the Fab Standard License allows sharing only with collaborators, for example in a private one.
  */
 export const FAB = {
   trees: {
@@ -237,8 +240,16 @@ export const FAB = {
       { title: 'Nordic Beach Rock Formation', publisher: 'Quixel Megascans', url: fab('56575b1b-45b6-4d86-bc8e-15819cae003c'), note: 'With Nordic Beach Boulder and Nordic Beach Rock.', verified: 'search result' },
     ],
   },
+  buildings: {
+    brief: 'One modular kit of plain northern European village buildings that can be entered: timber-frame and rubble-stone walls, plaster, plank, thatch or tile roofs, doors, windows and stairs, with interior walls and floors. The mill, the quarry sheds and the watchtower are assembled from it or dressed around it.',
+    constraints: `${WEB_TARGET} The game’s buildings are placed from data/unreal/DT_Buildings.json by footprint, wall height and roof kind: a kit of fixed whole houses will not fit those footprints, a modular one will.`,
+    candidates: [
+      { title: 'Medieval Modular Town (With Interiors)', publisher: 'Jemini Studio', url: fab('432fa0f0-bbc4-411a-b5ac-72ad05b4a4c8'), note: 'Modular timber-frame architecture on stone foundations with working interiors and example props; its version 1.1 is for Unreal Engine 5.1 onwards.', verified: 'search result' },
+    ],
+  },
   surfaces: {
-    brief: 'Tiling ground and building surfaces: forest floor, heath, earth path, gravel, sand and wet sand for the Landscape’s eight layers; and plaster, timber, rubble stone, slate and thatch if the building kit does not bring its own.',
+    appliesTo: 'The Landscape’s eight ground layers. The web build generates its ground textures in code, so no file in this manifest stands for them.',
+    brief: 'Tiling ground surfaces for the Landscape’s eight layers: forest floor, heath, earth path, gravel, sand and wet sand; and plaster, timber, rubble stone, slate and thatch only if the building kit does not bring its own.',
     constraints: 'A Landscape material on the mobile renderer is limited in texture samplers: plan the eight layers as few shared texture sets. No scanned surface was found for heath, wet sand or a dirt path.',
     candidates: [
       { title: 'Forest Floor', publisher: 'Quixel Megascans', url: fab('dae56d09-862c-4f77-9e72-a41281c49633'), note: 'With Mossy Forest Floor.', verified: 'search result' },

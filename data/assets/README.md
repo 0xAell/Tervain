@@ -26,12 +26,32 @@ In short: models, building surfaces and leaf atlases are stand-ins and are repla
 and music, and the emblem, are kept and imported from their source files; the browser's packed and re-encoded copies
 are dropped.
 
-## What to look for on Fab
+## Which pack replaces what
 
-`fab` in the manifest holds a brief for each kind of replacement (trees, rocks, surfaces, interiors, characters,
-animation, animals, audio), its constraints, and candidate listings. A candidate is a listing found to exist, by title,
-in search results on 14 November 2026. None was opened, bought or imported from this repository's environment. Check
-each on its own page for licence tier, engine version, LODs and price before buying.
+Every family with the plan `replace` names the pack that takes its place, in `replaceWith`: the first-choice Fab
+listing with its publisher and address, any companion packs it needs (`with`), and, for the trees, the pack to use
+instead on the web target, where Nanite is not available (`webTarget`). Every file of that family carries the pack's
+title in its own `replaceWith`.
+
+| Family | First choice | With | On the web target |
+| --- | --- | --- | --- |
+| The wanderer; residents and hostiles | Modular Medieval Citizens (Assets3D) | | |
+| Resident motion | MC Village Life Animation Pack (MoCap Central) | Game Animation Sample, Sword Animset Pro, Swim Animset | |
+| Animals | FOREST ANIMALS PACK (PROTOFACTOR INC) | ANIMAL VARIETY PACK, African Animals, Cats Pack | |
+| Trees and leaf atlases | Megaplants: English Oak, with the Silver Birch, Baltic Pine and Norway Spruce of the same series | DZ Trees - Low Poly Palms; Apple Tree Pack (Mobile/Desktop) | European Beech (Megascans Trees) and its series |
+| Rock pile and landmark scenery | Nordic Beach Rock Formation (Quixel Megascans) | Nordic Coastal Cliff | |
+| Furniture and household pieces | Medieval Props: Kit | Medieval Fantasy Furniture Pack 01 | |
+| Building surfaces | Medieval Modular Town (With Interiors) (Jemini Studio) | | |
+
+The game's own sound (voices, world sound, animal calls, hunting sounds, music) is kept, not replaced; the `audio`
+brief lists libraries to fill gaps.
+
+These are first choices made from descriptions, not purchases. `fab` in the manifest holds, for each kind of
+replacement (trees, rocks, buildings, surfaces, interiors, characters, animation, animals, audio), a brief of what the
+game needs, its constraints, and the candidate listings the choice was made from. A candidate is a listing found to
+exist, by title, in search results on 14 November 2026; its `verified` field says so. None has been opened on its
+listing page, bought or imported. Before buying, check each on its page for licence tier, supported engine version,
+LODs and price, and change the choice in `tools/asset-manifest/groups.mjs` if a listing does not hold up.
 
 Fab content is never committed to this repository. The Fab Standard License allows sharing content with collaborators,
 for example in a private repository; this one is public.

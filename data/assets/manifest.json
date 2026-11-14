@@ -2,7 +2,7 @@
   "about": "Every model, texture, image and sound in the repository’s asset folders: size, hash, source, licence, the Unreal asset it would become, and what a port does with it.",
   "generatedBy": "tools/asset-manifest.mjs; the authored groups are in tools/asset-manifest/groups.mjs",
   "plans": {
-    "replace": "A coherent pack takes its place; the file stands in for scale and intent.",
+    "replace": "A coherent pack takes its place; the file stands in for scale and intent. `replaceWith` names the pack.",
     "keep": "The game’s own; carries over. Import it from the path given.",
     "rework": "The content carries over but is re-authored for Unreal.",
     "drop": "Only the web build or its tooling needs it."
@@ -45,12 +45,12 @@
     },
     "byPlan": {
       "replace": {
-        "files": 203,
-        "bytes": 203440613
+        "files": 187,
+        "bytes": 202601488
       },
       "keep": {
-        "files": 582,
-        "bytes": 122907370
+        "files": 598,
+        "bytes": 123746495
       },
       "rework": {
         "files": 0,
@@ -117,8 +117,22 @@
         }
       ]
     },
+    "buildings": {
+      "brief": "One modular kit of plain northern European village buildings that can be entered: timber-frame and rubble-stone walls, plaster, plank, thatch or tile roofs, doors, windows and stairs, with interior walls and floors. The mill, the quarry sheds and the watchtower are assembled from it or dressed around it.",
+      "constraints": "The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view. The game’s buildings are placed from data/unreal/DT_Buildings.json by footprint, wall height and roof kind: a kit of fixed whole houses will not fit those footprints, a modular one will.",
+      "candidates": [
+        {
+          "title": "Medieval Modular Town (With Interiors)",
+          "publisher": "Jemini Studio",
+          "url": "https://www.fab.com/listings/432fa0f0-bbc4-411a-b5ac-72ad05b4a4c8",
+          "note": "Modular timber-frame architecture on stone foundations with working interiors and example props; its version 1.1 is for Unreal Engine 5.1 onwards.",
+          "verified": "search result"
+        }
+      ]
+    },
     "surfaces": {
-      "brief": "Tiling ground and building surfaces: forest floor, heath, earth path, gravel, sand and wet sand for the Landscape’s eight layers; and plaster, timber, rubble stone, slate and thatch if the building kit does not bring its own.",
+      "appliesTo": "The Landscape’s eight ground layers. The web build generates its ground textures in code, so no file in this manifest stands for them.",
+      "brief": "Tiling ground surfaces for the Landscape’s eight layers: forest floor, heath, earth path, gravel, sand and wet sand; and plaster, timber, rubble stone, slate and thatch only if the building kit does not bring its own.",
       "constraints": "A Landscape material on the mobile renderer is limited in texture samplers: plan the eight layers as few shared texture sets. No scanned surface was found for heath, wet sand or a dirt path.",
       "candidates": [
         {
@@ -303,6 +317,14 @@
       "why": "A generated body on a generated rig, with unresolved provenance for two of its sources. A commercial port needs a character with clear terms: a MetaHuman or a modular medieval character from one pack, on the engine’s standard skeleton so animation packs retarget.",
       "source": "Generated with Meshy; see docs/engineering/main-hero.md and the model ledger.",
       "fab": "characters",
+      "replaceWith": {
+        "title": "Modular Medieval Citizens",
+        "publisher": "Assets3D",
+        "url": "https://www.fab.com/listings/3c45dc48-1b07-4e3c-8d9f-52d194d89d5c",
+        "verified": "search result",
+        "with": [],
+        "webTarget": null
+      },
       "files": 3,
       "bytes": 18569692
     },
@@ -314,6 +336,14 @@
       "why": "Seventeen separately generated figures of uneven proportion and surface. One modular villager set gives a coherent cast, shared skeleton and LODs.",
       "source": "Generated or downloaded Meshy models, adapted; see docs/engineering/meshy-npcs.md and the model ledger.",
       "fab": "characters",
+      "replaceWith": {
+        "title": "Modular Medieval Citizens",
+        "publisher": "Assets3D",
+        "url": "https://www.fab.com/listings/3c45dc48-1b07-4e3c-8d9f-52d194d89d5c",
+        "verified": "search result",
+        "with": [],
+        "webTarget": null
+      },
       "files": 17,
       "bytes": 47867312
     },
@@ -325,6 +355,7 @@
       "why": "Per-figure joint and garment measurements for the web build’s own posing. A port’s characters bring their own rigs.",
       "source": "Written by tools/meshy-rig.",
       "fab": null,
+      "replaceWith": null,
       "files": 18,
       "bytes": 7568583
     },
@@ -336,6 +367,33 @@
       "why": "Generated clips fitted to the generated rigs. Locomotion, work, sitting and combat should come from an animation pack on the standard skeleton.",
       "source": "Meshy animation library output; see docs/engineering/resident-motion-0.0.13.md.",
       "fab": "animation",
+      "replaceWith": {
+        "title": "MC Village Life Animation Pack",
+        "publisher": "MoCap Central",
+        "url": "https://www.fab.com/listings/409592b5-f8f8-4be0-b921-e6e9f3cc63dd",
+        "verified": "search result",
+        "with": [
+          {
+            "title": "Game Animation Sample",
+            "publisher": "Epic Games",
+            "url": "https://www.fab.com/listings/880e319a-a59e-4ed2-b268-b32dac7fa016",
+            "verified": "search result"
+          },
+          {
+            "title": "Sword Animset Pro",
+            "publisher": "Kubold",
+            "url": "https://www.fab.com/listings/12783d2f-2bcf-4f3e-9a4a-d554cc3c579a",
+            "verified": "search result"
+          },
+          {
+            "title": "Swim Animset",
+            "publisher": "not recorded",
+            "url": "https://www.fab.com/listings/a584a2c9-91ea-448f-8476-69f895fda567",
+            "verified": "search result"
+          }
+        ],
+        "webTarget": null
+      },
       "files": 2,
       "bytes": 1183959
     },
@@ -347,6 +405,33 @@
       "why": "Community models of mixed quality with in-place clips only. An animal pack supplies matched skeletons, gaits, LODs and often sounds.",
       "source": "Meshy Community downloads, optimised and rigged; see docs/engineering/meshy-animal-assets.json.",
       "fab": "animals",
+      "replaceWith": {
+        "title": "FOREST ANIMALS PACK",
+        "publisher": "PROTOFACTOR INC",
+        "url": "https://www.fab.com/listings/7097a489-67e6-47f7-a85d-55ad2674277a",
+        "verified": "search result",
+        "with": [
+          {
+            "title": "ANIMAL VARIETY PACK",
+            "publisher": "PROTOFACTOR INC",
+            "url": "https://www.fab.com/listings/2dd7964c-a601-4264-a53d-465dcae1644c",
+            "verified": "search result"
+          },
+          {
+            "title": "African Animals",
+            "publisher": "JUNNICHI SUKO",
+            "url": "https://www.fab.com/listings/a8e0d184-2d52-44d7-9e35-a1ae4fa45b1d",
+            "verified": "search result"
+          },
+          {
+            "title": "Cats Pack",
+            "publisher": "RedDeer3D",
+            "url": "https://www.fab.com/listings/43c831f0-fc9f-499d-8d53-9596047dbb5e",
+            "verified": "search result"
+          }
+        ],
+        "webTarget": null
+      },
       "files": 19,
       "bytes": 38402080
     },
@@ -358,6 +443,26 @@
       "why": "Generated trees with card crowns rebuilt in code. Scanned tree sets bring real bark, leaf and wind data and proper LODs; the planting (data/world/flora.json) carries over.",
       "source": "Meshy Community downloads, rebuilt by tools/build-meshy-trees.py; see docs/engineering/meshy-tree-assets.json.",
       "fab": "trees",
+      "replaceWith": {
+        "title": "Megaplants: English Oak",
+        "publisher": "Quixel Megaplants",
+        "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
+        "verified": "search result",
+        "with": [
+          {
+            "title": "DZ Trees - Low Poly Palms",
+            "publisher": "not recorded",
+            "url": "https://www.fab.com/listings/47188c0c-6a96-4060-9877-fc7c6b833d4f",
+            "verified": "search result"
+          }
+        ],
+        "webTarget": {
+          "title": "European Beech (Megascans Trees)",
+          "publisher": "Quixel Megascans",
+          "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
+          "verified": "search result"
+        }
+      },
       "files": 45,
       "bytes": 34192824
     },
@@ -369,6 +474,26 @@
       "why": "The project’s own procedural trees (tools/tree-gen), built for the web build’s triangle budget. They are original and may be kept as a fallback, but a port should use one tree source throughout.",
       "source": "Generated by tools/tree-gen and tools/tree-gen-pine; project-original.",
       "fab": "trees",
+      "replaceWith": {
+        "title": "Megaplants: English Oak",
+        "publisher": "Quixel Megaplants",
+        "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
+        "verified": "search result",
+        "with": [
+          {
+            "title": "Apple Tree Pack (Mobile/Desktop)",
+            "publisher": "not recorded",
+            "url": "https://www.fab.com/listings/1d83287e-b523-4b10-9e36-d3a452668e42",
+            "verified": "search result"
+          }
+        ],
+        "webTarget": {
+          "title": "European Beech (Megascans Trees)",
+          "publisher": "Quixel Megascans",
+          "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
+          "verified": "search result"
+        }
+      },
       "files": 36,
       "bytes": 30693920
     },
@@ -380,6 +505,19 @@
       "why": "As the supplied trees: replaced with the conifers of the chosen tree set.",
       "source": "Meshy Community download, adapted; see docs/engineering/solitary-pine.md.",
       "fab": "trees",
+      "replaceWith": {
+        "title": "Megaplants: English Oak",
+        "publisher": "Quixel Megaplants",
+        "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
+        "verified": "search result",
+        "with": [],
+        "webTarget": {
+          "title": "European Beech (Megascans Trees)",
+          "publisher": "Quixel Megascans",
+          "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
+          "verified": "search result"
+        }
+      },
       "files": 3,
       "bytes": 4017720
     },
@@ -391,6 +529,21 @@
       "why": "Two one-off generated models. Rocks and landmark trees come from the scanned rock and tree sets.",
       "source": "Meshy Community downloads, adapted; see docs/engineering/rock-pile-assets.json and broadleaf-assets.json.",
       "fab": "rocks",
+      "replaceWith": {
+        "title": "Nordic Beach Rock Formation",
+        "publisher": "Quixel Megascans",
+        "url": "https://www.fab.com/listings/56575b1b-45b6-4d86-bc8e-15819cae003c",
+        "verified": "search result",
+        "with": [
+          {
+            "title": "Nordic Coastal Cliff",
+            "publisher": "Quixel Megascans",
+            "url": "https://www.fab.com/listings/35d695d8-ac00-4ac5-8bba-1d46e973af68",
+            "verified": "search result"
+          }
+        ],
+        "webTarget": null
+      },
       "files": 2,
       "bytes": 6029664
     },
@@ -402,6 +555,21 @@
       "why": "Generated pieces at inconsistent texel density. A medieval interior pack gives one material language; sizes and placements (data/world/interiors.json) carry over.",
       "source": "Generated with Meshy for the project; see docs/engineering/rooms-0.0.13.md.",
       "fab": "interiors",
+      "replaceWith": {
+        "title": "Medieval Props: Kit",
+        "publisher": "not recorded",
+        "url": "https://www.fab.com/listings/c2946e73-7554-43cd-975c-ff993ada714e",
+        "verified": "search result",
+        "with": [
+          {
+            "title": "Medieval Fantasy Furniture Pack 01",
+            "publisher": "not recorded",
+            "url": "https://www.fab.com/listings/222da434-25a6-4576-9f1a-1c5e0780df0a",
+            "verified": "search result"
+          }
+        ],
+        "webTarget": null
+      },
       "files": 29,
       "bytes": 7161168
     },
@@ -413,6 +581,7 @@
       "why": "Measured sizes for the web build’s loader; the sizes the game uses are in the core.",
       "source": "Written by tools/prepare-meshy-furniture.py.",
       "fab": null,
+      "replaceWith": null,
       "files": 1,
       "bytes": 22698
     },
@@ -424,6 +593,7 @@
       "why": "A fixture for the web build’s foliage wind tests.",
       "source": "Generated by tools/wind-test-tree.mjs; project-original.",
       "fab": null,
+      "replaceWith": null,
       "files": 1,
       "bytes": 353664
     },
@@ -434,7 +604,15 @@
       "plan": "replace",
       "why": "Procedurally baked plaster, timber, stone and metal for the web build’s merged building geometry. Buildings in a port come as modular kits with their own scanned or authored materials.",
       "source": "Baked by tools/textures/bake-buildings.py; project-original.",
-      "fab": "surfaces",
+      "fab": "buildings",
+      "replaceWith": {
+        "title": "Medieval Modular Town (With Interiors)",
+        "publisher": "Jemini Studio",
+        "url": "https://www.fab.com/listings/432fa0f0-bbc4-411a-b5ac-72ad05b4a4c8",
+        "verified": "search result",
+        "with": [],
+        "webTarget": null
+      },
       "files": 24,
       "bytes": 5832530
     },
@@ -446,6 +624,7 @@
       "why": "Hashes for the web build’s texture loader.",
       "source": "Written by tools/textures/bake-buildings.py.",
       "fab": null,
+      "replaceWith": null,
       "files": 1,
       "bytes": 4688
     },
@@ -457,6 +636,19 @@
       "why": "Leaf cards cut for the web build’s crowns from the supplied trees’ textures. Replaced together with the trees.",
       "source": "Built by tools/leaf-atlas from the supplied tree textures.",
       "fab": "trees",
+      "replaceWith": {
+        "title": "Megaplants: English Oak",
+        "publisher": "Quixel Megaplants",
+        "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
+        "verified": "search result",
+        "with": [],
+        "webTarget": {
+          "title": "European Beech (Megascans Trees)",
+          "publisher": "Quixel Megascans",
+          "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
+          "verified": "search result"
+        }
+      },
       "files": 7,
       "bytes": 8650619
     },
@@ -468,6 +660,7 @@
       "why": "The approved faction emblem of the title screen: part of the game’s identity. Import the PNG; the WebP is the web build’s smaller copy.",
       "source": "Approved identity artwork from the Warpkeep-Assets repository; see docs/engineering/menu-assets.json.",
       "fab": null,
+      "replaceWith": null,
       "files": 2,
       "bytes": 1574128
     },
@@ -479,6 +672,7 @@
       "why": "The title theme the menu’s grove is choreographed to. Import the archived original; the OGG and M4A are web encodings. Its service terms are recorded as unresolved and must be cleared before a commercial release.",
       "source": "Supplied by the project owner; see docs/engineering/menu-score.md and menu-audio-assets.json.",
       "fab": null,
+      "replaceWith": null,
       "files": 3,
       "bytes": 14924490
     },
@@ -490,6 +684,7 @@
       "why": "Each speaker’s lines joined end to end for the browser. A port imports the single takes from the source archive.",
       "source": "Cut from assets/audio/source/voice by tools/world-audio/prepare.mjs.",
       "fab": null,
+      "replaceWith": null,
       "files": 480,
       "bytes": 29033136
     },
@@ -501,6 +696,7 @@
       "why": "The game’s own dialogue, one file a line, keyed as data/game/voice.json. Synthetic voices: keep as the working track and decide on recorded actors before release.",
       "source": "ElevenLabs text to speech with designed voices; see docs/engineering/voice-assets.json.",
       "fab": null,
+      "replaceWith": null,
       "files": 444,
       "bytes": 60107053
     },
@@ -512,6 +708,7 @@
       "why": "Effects packed into banks, and loops and music re-encoded, for the browser. A port imports the source clips.",
       "source": "Packed from assets/audio/source/world by tools/world-audio/prepare.mjs.",
       "fab": null,
+      "replaceWith": null,
       "files": 142,
       "bytes": 62017055
     },
@@ -523,6 +720,7 @@
       "why": "Foley, ambience and the adaptive score, generated for this world and already balanced against each other. Keep them; where a bed or effect is weak, a sound library from Fab fills the gap.",
       "source": "ElevenLabs Sound Effects and Eleven Music; see docs/engineering/world-audio-assets.json.",
       "fab": "audio",
+      "replaceWith": null,
       "files": 127,
       "bytes": 46204263
     },
@@ -534,6 +732,7 @@
       "why": "Browser encodings of the calls in the source archive.",
       "source": "Encoded from assets/audio/source/animals.",
       "fab": null,
+      "replaceWith": null,
       "files": 32,
       "bytes": 712339
     },
@@ -541,10 +740,11 @@
       "id": "animal-audio-source",
       "title": "Animal calls, source clips",
       "role": "sound",
-      "plan": "replace",
-      "why": "Two generated calls per kind. An animal pack with its own recorded sounds replaces them along with the models; otherwise keep these.",
+      "plan": "keep",
+      "why": "Two generated calls per kind, made for these animals. Keep them: no Fab library with the calls of all of them was found. Where the chosen animal pack brings recorded calls for an animal, use those.",
       "source": "ElevenLabs Sound Effects; see docs/engineering/animal-audio-assets.json.",
-      "fab": "animals",
+      "fab": "audio",
+      "replaceWith": null,
       "files": 16,
       "bytes": 839125
     },
@@ -556,6 +756,7 @@
       "why": "Six effects made for the bow and the knife. Keep; a weapon foley library can replace any that read as synthetic.",
       "source": "ElevenLabs Sound Effects; see docs/engineering/hunting-sounds.json.",
       "fab": "audio",
+      "replaceWith": null,
       "files": 6,
       "bytes": 97436
     },
@@ -567,6 +768,7 @@
       "why": "Hashes for the web build’s loader.",
       "source": "Written with the sounds.",
       "fab": null,
+      "replaceWith": null,
       "files": 1,
       "bytes": 7187
     },
@@ -578,6 +780,7 @@
       "why": "Byte-exact copies of another project’s models, kept for provenance and not built into the game. They are not offered under an open licence and do not go into a port.",
       "source": "Warpkeep at revision 786c0b2; see docs/engineering/warpkeep-provenance.json.",
       "fab": null,
+      "replaceWith": null,
       "files": 209,
       "bytes": 23676804
     },
@@ -589,6 +792,7 @@
       "why": "The archive’s own file list.",
       "source": "Written by tools/import-warpkeep-assets.mjs.",
       "fab": null,
+      "replaceWith": null,
       "files": 1,
       "bytes": 105760
     }
@@ -605,7 +809,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -624,7 +828,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -643,7 +847,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -662,7 +866,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -681,7 +885,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -700,7 +904,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -719,7 +923,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -738,7 +942,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -757,7 +961,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -776,7 +980,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -795,7 +999,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -814,7 +1018,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -833,7 +1037,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -852,7 +1056,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -871,7 +1075,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -890,7 +1094,7 @@
         "id": "LicenseRef-ElevenLabs-Paid-Output",
         "status": "service-terms"
       },
-      "plan": "replace",
+      "plan": "keep",
       "unreal": {
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Animals",
@@ -24078,6 +24282,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24098,6 +24303,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24118,6 +24324,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24138,6 +24345,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24158,6 +24366,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24178,6 +24387,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24198,6 +24408,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24218,6 +24429,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24238,6 +24450,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24258,6 +24471,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24278,6 +24492,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24298,6 +24513,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24318,6 +24534,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24338,6 +24555,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24358,6 +24576,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24378,6 +24597,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24398,6 +24618,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24418,6 +24639,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24438,6 +24660,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "FOREST ANIMALS PACK",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Animals",
@@ -24458,6 +24681,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24478,6 +24702,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24498,6 +24723,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24518,6 +24744,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24538,6 +24765,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24558,6 +24786,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24578,6 +24807,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24598,6 +24828,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24618,6 +24849,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24638,6 +24870,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24658,6 +24891,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24678,6 +24912,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24698,6 +24933,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24718,6 +24954,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24738,6 +24975,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24758,6 +24996,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24778,6 +25017,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24798,6 +25038,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24818,6 +25059,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24838,6 +25080,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24858,6 +25101,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24878,6 +25122,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24898,6 +25143,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24918,6 +25164,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24938,6 +25185,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24958,6 +25206,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24978,6 +25227,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -24998,6 +25248,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25018,6 +25269,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25038,6 +25290,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25058,6 +25311,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25078,6 +25332,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25098,6 +25353,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25118,6 +25374,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25138,6 +25395,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25158,6 +25416,7 @@
         "status": "tervain-original-procedural"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25178,6 +25437,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25198,6 +25458,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25218,6 +25479,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25238,6 +25500,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25258,6 +25521,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25278,6 +25542,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25298,6 +25563,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25318,6 +25584,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25338,6 +25605,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25358,6 +25626,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25378,6 +25647,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25398,6 +25668,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25418,6 +25689,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25438,6 +25710,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25458,6 +25731,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25478,6 +25752,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25498,6 +25773,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25518,6 +25794,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25538,6 +25815,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25558,6 +25836,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25578,6 +25857,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25598,6 +25878,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25618,6 +25899,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25638,6 +25920,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25658,6 +25941,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25678,6 +25962,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25698,6 +25983,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25718,6 +26004,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25738,6 +26025,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25758,6 +26046,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25778,6 +26067,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25798,6 +26088,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25818,6 +26109,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25838,6 +26130,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25858,6 +26151,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25878,6 +26172,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25898,6 +26193,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25918,6 +26214,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25938,6 +26235,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25958,6 +26256,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25978,6 +26277,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -25998,6 +26298,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -26018,6 +26319,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -26038,6 +26340,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -26058,6 +26361,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -26078,6 +26382,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -26098,6 +26403,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -26118,6 +26424,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Flora/Trees",
@@ -26138,6 +26445,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26158,6 +26466,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26178,6 +26487,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26198,6 +26508,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26218,6 +26529,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26238,6 +26550,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26258,6 +26571,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26278,6 +26592,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26298,6 +26613,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26318,6 +26634,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26338,6 +26655,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26358,6 +26676,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26378,6 +26697,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26398,6 +26718,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26418,6 +26739,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26438,6 +26760,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26458,6 +26781,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26478,6 +26802,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26498,6 +26823,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26532,6 +26858,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26552,6 +26879,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26572,6 +26900,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26592,6 +26921,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26612,6 +26942,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26632,6 +26963,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26652,6 +26984,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26672,6 +27005,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26692,6 +27026,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26712,6 +27047,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Props: Kit",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Props/Furniture",
@@ -26732,6 +27068,7 @@
         "status": "unresolved-meshy-provenance"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Hero",
@@ -26752,6 +27089,7 @@
         "status": "unresolved-meshy-provenance"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Hero",
@@ -26772,6 +27110,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Hero",
@@ -26792,6 +27131,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26812,6 +27152,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26832,6 +27173,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26852,6 +27194,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26872,6 +27215,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26892,6 +27236,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26912,6 +27257,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26932,6 +27278,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26952,6 +27299,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -26986,6 +27334,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27006,6 +27355,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27025,6 +27375,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "MC Village Life Animation Pack",
       "unreal": null
     },
     {
@@ -27040,6 +27391,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
+      "replaceWith": "MC Village Life Animation Pack",
       "unreal": {
         "type": "AnimationSequence",
         "folder": "/Game/Tervain/Characters/Residents/Animations",
@@ -27060,6 +27412,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27080,6 +27433,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27338,6 +27692,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27358,6 +27713,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27378,6 +27734,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27398,6 +27755,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Modular Medieval Citizens",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27418,6 +27776,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Nordic Beach Rock Formation",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Scenery",
@@ -27438,6 +27797,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
+      "replaceWith": "Nordic Beach Rock Formation",
       "unreal": {
         "type": "StaticMesh",
         "folder": "/Game/Tervain/Scenery",
@@ -27457,6 +27817,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27476,6 +27837,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27495,6 +27857,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27514,6 +27877,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27533,6 +27897,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27552,6 +27917,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27571,6 +27937,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27590,6 +27957,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27623,6 +27991,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27642,6 +28011,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27661,6 +28031,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27680,6 +28051,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27699,6 +28071,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27718,6 +28091,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27737,6 +28111,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27756,6 +28131,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27775,6 +28151,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27794,6 +28171,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27813,6 +28191,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27832,6 +28211,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27851,6 +28231,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27870,6 +28251,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27889,6 +28271,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27908,6 +28291,7 @@
         "status": "project-original"
       },
       "plan": "replace",
+      "replaceWith": "Medieval Modular Town (With Interiors)",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Architecture/Textures",
@@ -27927,6 +28311,7 @@
         "status": "owner-recollection"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
@@ -27946,6 +28331,7 @@
         "status": "owner-recollection"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
@@ -27965,6 +28351,7 @@
         "status": "owner-recollection"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
@@ -27984,6 +28371,7 @@
         "status": "owner-recollection"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
@@ -28003,6 +28391,7 @@
         "status": "owner-recollection"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
@@ -28022,6 +28411,7 @@
         "status": "owner-recollection"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
@@ -28041,6 +28431,7 @@
         "status": "owner-recollection"
       },
       "plan": "replace",
+      "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",

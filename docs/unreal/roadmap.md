@@ -76,7 +76,8 @@ step, as the scenario tests describe; every resident is where their schedule say
 ## Phase 5: content
 
 1. Choose the packs: trees, rocks and surfaces, buildings and interiors, characters and animation, animals. The asset
-   manifest gives a brief and candidates for each; check each listing's licence, LODs and engine version first.
+   manifest names a first choice for each, with a brief and the other candidates; check each listing's licence, LODs
+   and engine version first.
 2. Replace the grey stand-ins family by family, keeping the placements.
 3. Import the kept sound: voice takes, world clips, music. Rebuild the ambience and the music director.
 4. Interface in UMG; effects in Niagara; grass and ground cover.
