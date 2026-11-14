@@ -14,7 +14,9 @@
     "people:sheets": "node tools/export-people-sheets.mjs",
     "people:check": "node tools/export-people-sheets.mjs --check",
     "data:export": "node tools/export-data.mjs",
-    "data:check": "node tools/export-data.mjs --check"
+    "data:check": "node tools/export-data.mjs --check",
+    "assets:manifest": "node tools/asset-manifest.mjs",
+    "assets:check": "node tools/asset-manifest.mjs --check"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",
