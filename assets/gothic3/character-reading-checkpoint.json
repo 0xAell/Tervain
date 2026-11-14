@@ -5,7 +5,7 @@
   "gameplayReady": false,
   "baseline": {
     "receiptPath": "assets/gothic3/construction-reading-checkpoint.json",
-    "receiptSha256": "39b4c20b185442fd69c6a03667f91d84b2004ff5ae41b18b272c53f58d525cfb",
+    "receiptSha256": "68ef5eb79914c238b42a1118219bcab55007ef2ce6141bedc348a1f842016d28",
     "retainedFilesVerified": 19380,
     "intentionalChanges": [
       {
@@ -106,7 +106,7 @@
   "testsExecutedByThisTool": false,
   "publicationIntent": {
     "kind": "source-only-checkpoint",
-    "branch": "codex/gothic3-gameplay-initialization",
+    "branch": "gothic3-gameplay-initialization",
     "remoteActionsPerformedByThisTool": false
   },
   "remaining": [
@@ -127,12 +127,12 @@
     {
       "path": "assets/gothic3/activation-checkpoint.json",
       "bytes": 1802550,
-      "sha256": "3dc900777fe99de0c52d36b3a812f36c4b51e80730357d9fdd4956557112ca8a"
+      "sha256": "98e955c7a29f78dc9e5a13fb6599a50e85fc9cd78da1aaa4d9b0025f66bb6759"
     },
     {
       "path": "assets/gothic3/actor-reading-checkpoint.json",
       "bytes": 2343166,
-      "sha256": "1dbc3356efd52010146b28dcfcaff319e67d7ff274993fc86598cffbda58102f"
+      "sha256": "a8f9d31c13e445b78cbe92144fe0199b09a3ec45ca3f9ccca895a1744cd95229"
     },
     {
       "path": "assets/gothic3/animation-instruction/implementation-receipt.json",
@@ -29117,7 +29117,7 @@
     {
       "path": "assets/gothic3/construction-reading-checkpoint.json",
       "bytes": 3810117,
-      "sha256": "39b4c20b185442fd69c6a03667f91d84b2004ff5ae41b18b272c53f58d525cfb"
+      "sha256": "68ef5eb79914c238b42a1118219bcab55007ef2ce6141bedc348a1f842016d28"
     },
     {
       "path": "assets/gothic3/control-reading/README.md",
@@ -31112,7 +31112,7 @@
     {
       "path": "assets/gothic3/dispatch-checkpoint.json",
       "bytes": 380125,
-      "sha256": "4d5b02f406d1e690f1791541ff3a485ddcfeb45dcd53117a685d3c6173915f40"
+      "sha256": "095578e9dec679af0a293f02027b0515907df11c66ce37ebdfad10e0ae79ab4d"
     },
     {
       "path": "assets/gothic3/entity-construction/README.md",
@@ -54007,7 +54007,7 @@
     {
       "path": "assets/gothic3/lifecycle-checkpoint.json",
       "bytes": 1067970,
-      "sha256": "8efbdc00ba4b13551dfb12f8a231edc4afdf8ecdc7c780afc94da8c14c9e9f6d"
+      "sha256": "01572e5c7be90be1ab4357b267769f5e6b4c6599ef3fecc4e823179758eeb2a0"
     },
     {
       "path": "assets/gothic3/movement-reading/README.md",
@@ -75707,7 +75707,7 @@
     {
       "path": "assets/gothic3/physics-reading-checkpoint.json",
       "bytes": 3510755,
-      "sha256": "47ea248f9e5d3a11268babcb58b85c49f7c3cf3ae25b95ddb7e99f538680e506"
+      "sha256": "c82be0e04d0ee22dfc076798ffc66b5a203df2c418a13e22a6ffdf712a162342"
     },
     {
       "path": "assets/gothic3/player-properties/implementation-receipt.json",
@@ -81102,7 +81102,7 @@
     {
       "path": "assets/gothic3/processing-checkpoint.json",
       "bytes": 1271112,
-      "sha256": "20ba6f3b0a8d612a3c223db6680ad2b4e3c9ead57ed92e66a2f714dd2d07d299"
+      "sha256": "1aa8f81c90daa2d8b3edf7bdffd0d264bfd0ad2902ac64c9cbe3d590f759f360"
     },
     {
       "path": "assets/gothic3/properties/native-evidence.json",
@@ -104522,7 +104522,7 @@
     {
       "path": "assets/gothic3/session-checkpoint.json",
       "bytes": 128072,
-      "sha256": "9de721d32dc96fc14f200c23bd633b7d2832bbfbb051c6cf7cb6fcdefdc58648"
+      "sha256": "e365b961fafe19d2188afaadd38a9690a972c89538b642c04fb85bcd3403965f"
     },
     {
       "path": "assets/gothic3/session-runtime/native-evidence.json",
@@ -118037,47 +118037,47 @@
     {
       "path": "tools/gothic3/freeze_activation_checkpoint.py",
       "bytes": 8756,
-      "sha256": "afa2f29f55eb9f4413bbc431cf1b3bdbceb1e60f9fed8123c2ef984d65955b3f"
+      "sha256": "72c3b71e1d04813adf0d4b6eeab3a27d82395d9baa13eb0dc4c5b8eb839a6d52"
     },
     {
       "path": "tools/gothic3/freeze_actor_checkpoint.py",
       "bytes": 7992,
-      "sha256": "e10c9eaff0daa01f947f91ecd6b5f5defd4e3593b2abd434777c2b9daa2abec3"
+      "sha256": "82580070a07412d8216f64db26dd0f3b819e606759c57701435c89b4caf3ccb0"
     },
     {
       "path": "tools/gothic3/freeze_character_checkpoint.py",
       "bytes": 5916,
-      "sha256": "241938963b480ddfc5bc98f5e4e0b39f30b32014485e5e28c9de9897c619a2bc"
+      "sha256": "628682bc0e0e27c0a72feee3c1098c7be91ba295acba79673897655e5abe47bf"
     },
     {
       "path": "tools/gothic3/freeze_construction_checkpoint.py",
       "bytes": 8929,
-      "sha256": "e5698922a95916fbad232d964d6e0255adda06a0ac34014d2744c86dc2bd84c9"
+      "sha256": "2109a405cb5f185512e1046d6263a29f3aaef7d86aa078def2ff3f3862ba7828"
     },
     {
       "path": "tools/gothic3/freeze_dispatch_checkpoint.py",
       "bytes": 10145,
-      "sha256": "b623f690cd025d5c28a1d1bacd605fb917917f4557d390faa251c5c601aad04f"
+      "sha256": "63378df296804877f7520325c18d52657382bc425a771a49574f2e0dd5fb8220"
     },
     {
       "path": "tools/gothic3/freeze_lifecycle_checkpoint.py",
       "bytes": 8352,
-      "sha256": "c3951da7a604a891bd37f84d658965be3c2bb32c76c1a047d428725c8a5e05de"
+      "sha256": "3c796f94715a581d2a1199fb0066cf6e92a8ded6b4016d7aeb0eaacb4b323f2f"
     },
     {
       "path": "tools/gothic3/freeze_physics_checkpoint.py",
       "bytes": 9928,
-      "sha256": "ae3da609195f593c718e9d25313d5015ec439622df763d8d732d81d5dea68f61"
+      "sha256": "41ad950374424d6c62283be8a14acaaab4abe7ee0e88b7a6be101e8ff9ade6a4"
     },
     {
       "path": "tools/gothic3/freeze_processing_checkpoint.py",
       "bytes": 8379,
-      "sha256": "b9bf0f9a585167873fa1ba9e1f5b23f89dd77bc4b13acbc5187220182ef44cc6"
+      "sha256": "f38aa5be196add102c4eea12582d0cf49445cac850f8cd500d02b914b018214d"
     },
     {
       "path": "tools/gothic3/freeze_session_checkpoint.py",
       "bytes": 10656,
-      "sha256": "8e6e51e0b4a66ae7ec526591c8cae1fb2eb0e2026c0d0a43ba34fed529e616b7"
+      "sha256": "01308f415b9791b7f21c788e86045248924ad90c3340069043babb2735ffa3e2"
     },
     {
       "path": "tools/gothic3/read_gameplay_ini.py",

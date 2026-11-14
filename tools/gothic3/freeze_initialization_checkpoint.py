@@ -109,7 +109,7 @@ def main():
         'validationNotPerformedByThisTool': ['typecheck', 'production build',
                                              'runtime tests', 'browser inspection',
                                              'native game execution or visual equivalence'],
-        'publication': {'kind': 'source-only-checkpoint', 'branch': 'codex/gothic3-gameplay-initialization',
+        'publication': {'kind': 'source-only-checkpoint', 'branch': 'gothic3-gameplay-initialization',
                         'liveDeploymentChanged': False,
                         'reason': 'Historical PR checks did not execute workflow steps; this source checkpoint did not establish release or deployment acceptance.'},
         'files': records, 'publicBytes': sum(r['bytes'] for r in records if r['path'].startswith('public/')),

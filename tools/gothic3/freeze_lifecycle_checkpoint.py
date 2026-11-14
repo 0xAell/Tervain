@@ -13,7 +13,7 @@ from freeze_session_checkpoint import ROOT, file_path, read, record, require, ve
 
 BASE = '2637d1eb83cf0814648151d812f6f8623aaa331d'
 BASE_RECEIPT = 'assets/gothic3/dispatch-checkpoint.json'
-BASE_RECEIPT_SHA256 = '4d5b02f406d1e690f1791541ff3a485ddcfeb45dcd53117a685d3c6173915f40'
+BASE_RECEIPT_SHA256 = '095578e9dec679af0a293f02027b0515907df11c66ce37ebdfad10e0ae79ab4d'
 OUTPUT = 'assets/gothic3/lifecycle-checkpoint.json'
 NAMESPACES = ('entity-lifecycle', 'player-properties', 'routine-scripts', 'session-runtime')
 UPDATED = {'.gitattributes', 'docs/engineering/gothic3-rebuilding-process.md',
@@ -132,7 +132,7 @@ def main():
             'production build', 'tests', 'browser review', 'native execution', 'deployment', 'playthrough'],
         'nativeCodeExecutedByThisTool': False, 'testsExecutedByThisTool': False,
         'publicationIntent': {'kind': 'source-only-checkpoint',
-            'branch': 'codex/gothic3-gameplay-initialization', 'remoteActionsPerformedByThisTool': False},
+            'branch': 'gothic3-gameplay-initialization', 'remoteActionsPerformedByThisTool': False},
         'remaining': ['complete original world/sector activation and reflective patching',
             'navigation full compile/binding and movement/contact/physics',
             'concrete browser engine host for original startup/routine/HUD subcalls',

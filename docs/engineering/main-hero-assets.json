@@ -264,7 +264,7 @@
       "service": "Meshy multi-image to 3D",
       "model": "meshy-7.1",
       "taskId": "01a120c8-22b6-72d4-8c60-2b2451b7edfd",
-      "generatedBy": "Ael's account under Meshy Pro, 9 October 2026",
+      "generatedBy": "The project owner's account under Meshy Pro, 9 October 2026",
       "settings": "2k geometry resolution, 4k PBR textures, A-pose",
       "inputs": "Front, side and back renders of the previous wanderer (the A69 sealed model) in his bind pose",
       "filename": "hero-01a120c8.glb",

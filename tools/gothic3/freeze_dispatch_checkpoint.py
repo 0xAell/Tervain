@@ -14,7 +14,7 @@ from freeze_session_checkpoint import ROOT, file_path, record, verify, read, req
 
 BASE = '864422dbcbb8daea87516b8154e8a63cf661c320'
 BASE_RECEIPT = 'assets/gothic3/session-checkpoint.json'
-BASE_RECEIPT_SHA256 = '9de721d32dc96fc14f200c23bd633b7d2832bbfbb051c6cf7cb6fcdefdc58648'
+BASE_RECEIPT_SHA256 = 'e365b961fafe19d2188afaadd38a9690a972c89538b642c04fb85bcd3403965f'
 OUTPUT = 'assets/gothic3/dispatch-checkpoint.json'
 NAMESPACES = ('properties', 'hud', 'instructions', 'navigation-scene')
 UPDATED = {'.gitattributes', 'docs/engineering/gothic3-rebuilding-process.md',
@@ -173,7 +173,7 @@ def main():
             'native visual or behavior equivalence', 'complete-game playthrough'],
         'nativeCodeExecutedByThisTool': False, 'testsExecutedByThisTool': False,
         'publicationIntent': {'kind': 'source-only-checkpoint',
-                              'branch': 'codex/gothic3-gameplay-initialization',
+                              'branch': 'gothic3-gameplay-initialization',
                               'remoteActionsPerformedByThisTool': False},
         'remaining': ['full original session/entity and property-set lifecycles',
                       'navigation recompile, AIZone/door binding, sector/PVS and physics',

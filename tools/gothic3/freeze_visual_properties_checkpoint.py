@@ -15,7 +15,7 @@ from freeze_hero_properties_checkpoint import audit
 
 BASE = '42c7149a9b08a3b224df0592d02585f1a535e351'
 BASE_RECEIPT = 'assets/gothic3/hero-properties-checkpoint.json'
-BASE_RECEIPT_SHA256 = 'd5085382254827db64dfe913bfaf63af47971842a78539492da738931ba23493'
+BASE_RECEIPT_SHA256 = '01bb1c31cc850037e144395f158b29ae6ebd1676dafb95f03370c38d8cea1973'
 OUTPUT = 'assets/gothic3/visual-properties-checkpoint.json'
 NAMESPACES = ('illuminated-reading', 'effect-reading', 'visual-animation-reading')
 UPDATED = {'.gitattributes', 'docs/engineering/gothic3-rebuilding-process.md', 'src/gothic3/entity-reflection.ts'}
@@ -97,7 +97,7 @@ def main():
         'validationNotPerformedByThisTool':['fresh PE byte comparison','typecheck','production build','tests',
             'native execution','browser review','deployment','playthrough'],
         'nativeCodeExecutedByThisTool':False,'testsExecutedByThisTool':False,
-        'publicationIntent':{'kind':'source-only-checkpoint','branch':'codex/gothic3-gameplay-initialization',
+        'publicationIntent':{'kind':'source-only-checkpoint','branch':'gothic3-gameplay-initialization',
             'remoteActionsPerformedByThisTool':False},
         'heroPropertyFactories':{'boundedImplemented':18,'total':19,'remaining':['PlayerMemory'],
             'playerMemoryLoadingEvidenceIsNotAFactory':True,'allFactoriesConnectedToEnclosingReader':False},

@@ -183,7 +183,7 @@ def main():
             'native visual/behavior equivalence or complete-game playthrough',
         ],
         'publicationIntent': {'kind': 'source-only-checkpoint',
-                              'branch': 'codex/gothic3-gameplay-initialization',
+                              'branch': 'gothic3-gameplay-initialization',
                               'remoteActionsPerformedByThisTool': False},
         'remaining': [
             'complete session and original property/entity hosts',

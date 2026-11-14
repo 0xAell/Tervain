@@ -64,7 +64,7 @@
   ],
   "publicationIntent": {
     "kind": "source-only-checkpoint",
-    "branch": "codex/gothic3-gameplay-initialization",
+    "branch": "gothic3-gameplay-initialization",
     "remoteActionsPerformedByThisTool": false
   },
   "remaining": [
@@ -3344,7 +3344,7 @@
     {
       "path": "tools/gothic3/freeze_session_checkpoint.py",
       "bytes": 10656,
-      "sha256": "8e6e51e0b4a66ae7ec526591c8cae1fb2eb0e2026c0d0a43ba34fed529e616b7"
+      "sha256": "01308f415b9791b7f21c788e86045248924ad90c3340069043babb2735ffa3e2"
     },
     {
       "path": "tools/gothic3/research_inventory_observers.py",

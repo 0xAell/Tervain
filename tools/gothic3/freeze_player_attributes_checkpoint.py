@@ -18,7 +18,7 @@ from research_entity_reflection import WORLD_PATH, WORLD_SHA
 
 BASE = '28f3ca1269a4fa08002f8da35f73bcb5cb3794d6'
 BASE_RECEIPT = 'assets/gothic3/visual-properties-checkpoint.json'
-BASE_RECEIPT_SHA256 = 'a48b49ad5709a3cf1fe44ddee23c71f66d30f6e92fc96ddd1af81ecef136894a'
+BASE_RECEIPT_SHA256 = 'd0702320101b4d6a92fe1ca9008f8c94c08071a341288de453c0eae5ab74d4f7'
 OUTPUT = 'assets/gothic3/player-attributes-checkpoint.json'
 NAMESPACES = ('attribute-reading', 'player-memory-reading')
 UPDATED = {'docs/engineering/gothic3-rebuilding-process.md', 'src/gothic3/player-properties.ts'}
@@ -234,7 +234,7 @@ def main() -> None:
             'live controls, full combat, NPC interaction, quests and save/load',
             'deployed progression through all endings'],
         'publicationIntent': {'kind': 'source-only-checkpoint',
-            'branch': 'codex/gothic3-gameplay-initialization', 'remoteActionsPerformedByThisTool': False},
+            'branch': 'gothic3-gameplay-initialization', 'remoteActionsPerformedByThisTool': False},
         'files': records,
         'publicBytes': sum(item['bytes'] for item in records if item['path'].startswith('public/')),
     }
