@@ -59,6 +59,18 @@ still incomplete.
 - [Step-by-step process, repository map and current status](docs/engineering/gothic3-rebuild-workflow.md)
 - [Technical checkpoint history](docs/engineering/gothic3-rebuilding-process.md)
 
+## Porting to Unreal Engine
+
+The browser prototype is the test bed for a later Unreal Engine version of the game. The repository is arranged so the
+game's data and rules can be carried across:
+
+- [The engine-agnostic core](src/core/README.md): data and rules with no renderer or browser dependency, enforced in CI.
+- [Portable data](data/README.md): the core's tables as JSON with schemas, the terrain as Landscape rasters, and
+  tables shaped for Unreal's importers.
+- [The asset manifest](data/assets/README.md): every model, texture and sound with its source, licence and a plan.
+- [Porting notes](docs/unreal/README.md): how each system maps to Unreal, conventions, the engine's web target and a
+  phased roadmap.
+
 ## Develop locally
 
 ```sh
