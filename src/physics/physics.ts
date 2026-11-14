@@ -1,6 +1,9 @@
 import RAPIER from '@dimforge/rapier3d-compat';
 import { FENCE_WALL_LIFT, type Collider as WorldCollider, type Colliders } from '../core/world/colliders';
-import { ARCHIVE_ROOM, BUILDINGS, DECKS, HAMLET_PROPS } from '../core/world/layout';
+import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../core/world/layout';
+import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG, type PropSpec } from '../core/world/physicalProps';
+// Loose bodies fall under the same gravity as the wanderer.
+import { GRAVITY } from '../core/rules/hero';
 import { buildingEntry, buildingGround } from '../core/world/buildingEntries';
 import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, PLAYER_FOOT_CLEARANCE } from '../core/world/playerPlacement';
 import type { Terrain } from '../core/world/terrain';
@@ -18,16 +21,7 @@ export interface ProjectileContact {
   /** Present only when the closest contact is a person's or an enemy's moving capsule (A86 scout): it walks on. */
   actorId?: string;
 }
-export interface PropSpec {
-  id: string; name: string; kind: 'barrel' | 'crate'; x: number; z: number;
-  width: number; height: number; depth: number; yaw: number; mass: number;
-}
-/** These replace the same stationary work supplies, rather than adding copies over them. */
-export const PHYSICAL_PROPS: readonly PropSpec[] = [
-  ...HAMLET_PROPS.barrels.map((p, i) => ({ ...p, id: `camp_barrel_${i}`, name: 'Empty trade barrel', kind: 'barrel' as const, width: .76 * (i ? .9 : 1), height: i ? .9 : 1, depth: .76 * (i ? .9 : 1), yaw: .1 * i, mass: 18 })),
-  ...HAMLET_PROPS.crates.map((p, i) => ({ ...p, id: `camp_crate_${i}`, name: 'Wooden supply crate', kind: 'crate' as const, width: i ? .66 : .86, height: i ? .47 : .57, depth: i ? .52 : .62, yaw: i ? -.2 : .3, mass: 12 })),
-  ...[[-16.5, 2.4], [16.4, 21], [-136.5, 31.5], [88, -13], [-14.4, -3]].map(([x, z], i) => ({ id: `loose_barrel_${i}`, name: 'Empty wooden barrel', kind: 'barrel' as const, x: x!, z: z!, width: .76, height: 1, depth: .76, yaw: .17 * i, mass: 18 })),
-];
+export { PHYSICAL_PROPS, type PropSpec };
 export interface PropPose extends PhysicalObjectPose { sleeping: boolean }
 export interface PropMotion extends Vec3 {
   id: string; kind: PropSpec['kind']; vx: number; vy: number; vz: number; held: boolean; wet: number;
@@ -44,14 +38,8 @@ export interface WaterField {
 /** A body meeting the water hard enough to throw spray. Energy is 0..1 (a dropped crate .. a thrown barrel). */
 export interface WaterSplash { id: string; x: number; y: number; z: number; energy: number }
 
-/**
- * How far under a floating body rides at rest. Loose cargo is light for carrying and throwing, but a sealed barrel and a
- * plank crate both sit well down in the water, so their buoyancy is taken from this line, not from their gameplay mass.
- */
-export const FLOAT_LINE: Readonly<Record<PropSpec['kind'], number>> = { barrel: 0.42, crate: 0.55 };
-/** Water's drag on a floating body, per second of relative speed, as a share of its mass. */
-const WATER_DRAG = 2.4;
-const GRAVITY = 17;
+export { FLOAT_LINE };
+const WATER_DRAG = PROP_WATER_DRAG;
 export interface PhysicalActor { id: string; x: number; y: number; z: number; radius: number; height: number; active: boolean }
 interface ActorContact { body: RAPIER.RigidBody; collider: RAPIER.Collider; from: Vec3; target: Vec3; active: boolean; radius: number; halfHeight: number }
 let initialization: Promise<void> | undefined;

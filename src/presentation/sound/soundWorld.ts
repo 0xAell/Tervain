@@ -1,5 +1,4 @@
 import type { NpcId, PlaceId } from '../../core/game/types';
-import { ANCHORS, bySpec, frontOf } from '../../core/world/layout';
 import type { Terrain } from '../../core/world/terrain';
 import { npcStyle } from '../npcStyle';
 import { ANIMAL_AUDIO, ANIMAL_CALL_COOLDOWN, ANIMAL_VOICE_LIMIT, type AnimalCall, type AnimalCallFile } from './animalAudio';
@@ -13,6 +12,7 @@ import { VOICE_AUDIO, type VoiceBank, type VoiceLineId } from './voiceManifest';
 import { WORLD_AUDIO, type LoopId, type MusicId, type SongId } from './worldAudioManifest';
 import type { WaterSoundState } from '../water/waterSound';
 import { NIGHT } from '../../core/rules/dayNight';
+import { AMBIENT_RESIDENTS } from '../../core/content/ambientPeople';
 
 /**
  * Tervain's recorded world sound at run time: one-shots placed in the world, looping beds that follow the place,
@@ -155,16 +155,11 @@ const BED_RETRY: [number, number] = [10, 120];
 /** Fight loops and stings are decoded on demand and released after this long unused. */
 const MUSIC_RELEASE = 150;
 
-/** The hamlet's three silent residents stand on the same marks as in ambient.ts; two of them sleep after dark. */
-const MENDER = frontOf(bySpec('net_store'), 2.4);
-const FIRE = ANCHORS.strand_fire ?? { x: -103, z: 16 };
-const KEEPER_DOOR = frontOf(bySpec('keeper_cottage'), 2.4);
+/** The hamlet's three silent residents, on their marks from the core; the net mender's work is heard. */
 const NET_MENDING: WorkSound = { clip: 'item.cloth', every: [5, 11], gain: 0.24 };
-export const AMBIENT_PEOPLE_SOUND: readonly { id: string; x: number; z: number; work: WorkSound | null; sleeps: boolean }[] = [
-  { id: 'ambient:fisher', x: MENDER.x, z: MENDER.z, work: NET_MENDING, sleeps: true },
-  { id: 'ambient:fireside', x: FIRE.x + 1.6, z: FIRE.z + 1.0, work: null, sleeps: true },
-  { id: 'ambient:keeper', x: KEEPER_DOOR.x + 2.6, z: KEEPER_DOOR.z - 1.2, work: null, sleeps: false },
-];
+const AMBIENT_WORK: Partial<Record<string, WorkSound>> = { fisher: NET_MENDING };
+export const AMBIENT_PEOPLE_SOUND: readonly { id: string; x: number; z: number; work: WorkSound | null; sleeps: boolean }[] =
+  AMBIENT_RESIDENTS.map((resident) => ({ id: `ambient:${resident.id}`, x: resident.x, z: resident.z, work: AMBIENT_WORK[resident.id] ?? null, sleeps: resident.sleeps }));
 
 /** A procedural stereo impulse response: sparse early reflections, then a decaying, decorrelated diffuse tail. */
 export function impulse(ctx: BaseAudioContext, seconds: number, decay: number, early: readonly number[]): AudioBuffer {

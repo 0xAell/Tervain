@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { ANCHORS, bySpec, frontOf, BENCH_SEAT_HEIGHT } from '../core/world/layout';
+import { BENCH_SEAT_HEIGHT } from '../core/world/layout';
+import { AMBIENT_RESIDENTS, type AmbientResident } from '../core/content/ambientPeople';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { createAmbientRig, poseRig, type AmbientStyle, type Look, type Mode, type Rig } from './characters';
 import type { AwaitingFigure } from './residentArrivals';
@@ -10,63 +11,26 @@ import { NIGHT } from '../core/rules/dayNight';
  * the landing strand itself has no occupied camp. They carry no quest state.
  */
 
-interface Spec {
-  look: Look;
-  style: AmbientStyle;
-  x: number;
-  z: number;
-  yaw: number;
-  /** Poses to cycle through, with how many seconds each lasts. */
-  cycle: [Mode, number][];
-  /** Conversation changes the upper body while this resident stays on their seat. */
-  seated?: boolean;
-  /** Retires indoors after dark. */
-  sleeps: boolean;
-  /** Radius of the small collider that keeps the player from walking through them. */
-  radius: number;
-}
+/** A hamlet resident's mark and routine (the core's) with the figure that stands there. */
+type Spec = AmbientResident & { look: Look; style: AmbientStyle };
 
-const FIRE = ANCHORS.strand_fire!;
-const DOOR = frontOf(bySpec('keeper_cottage'), 2.4);
-const MENDER = frontOf(bySpec('net_store'), 2.4);
-
-const SPECS: Spec[] = [
-  {
+/** How each of the hamlet's residents looks, by id; who they are and where they stand is in the core. */
+const FIGURES: Record<AmbientResident['id'], { look: Look; style: Omit<AmbientStyle, 'id'> }> = {
+  fisher: {
     look: { skin: 0xb98866, primary: 0x4a4a3c, secondary: 0x2e2a24, hair: 0x6a6660, height: 1.0, girth: 1.08, accessory: 'pack' },
-    style: { id: 'fisher', build: 'man', cut: 'short', beard: 'full', age: 0.62, faceSeed: 12011 },
-    x: MENDER.x,
-    z: MENDER.z,
-    // Mending with his back to the store, looking out over the yard rather than at its door (A69).
-    yaw: bySpec('net_store').yaw,
-    cycle: [['work', 9], ['idle', 4], ['work', 7]],
-    sleeps: true,
-    radius: 0.45,
+    style: { build: 'man', cut: 'short', beard: 'full', age: 0.62, faceSeed: 12011 },
   },
-  {
+  fireside: {
     look: { skin: 0xc79a72, primary: 0x5a4a3a, secondary: 0x6a6a52, hair: 0x3a2a1a, height: 1.0, girth: 0.9, accessory: 'shawl' },
-    style: { id: 'fireside', build: 'woman', cut: 'bun', beard: 'none', age: 0.45, faceSeed: 12107 },
-    x: FIRE.x + 1.6,
-    z: FIRE.z + 1,
-    // The backless hearth bench is authored at yaw .4. Face across its narrow
-    // axis toward the fire, with the hips above its center rather than behind it.
-    yaw: 0.4 + Math.PI,
-    cycle: [['sit', 12], ['talk', 4], ['sit', 8]],
-    seated: true,
-    sleeps: true,
-    radius: 0.4,
+    style: { build: 'woman', cut: 'bun', beard: 'none', age: 0.45, faceSeed: 12107 },
   },
-  {
+  keeper: {
     look: { skin: 0xb0805c, primary: 0x3e4048, secondary: 0x28262a, hair: 0x8a8880, height: 1.03, girth: 1.0, accessory: 'coat', accent: 0x6a5a3a },
-    style: { id: 'keeper', build: 'man', cut: 'short', beard: 'full', age: 0.8, faceSeed: 12203 },
-    x: DOOR.x + 2.6,
-    z: DOOR.z - 1.2,
-    // Beside his door, looking out the way his cottage faces rather than at its corner (A69).
-    yaw: bySpec('keeper_cottage').yaw,
-    cycle: [['idle', 14], ['talk', 3], ['idle', 9]],
-    sleeps: false,
-    radius: 0.45,
+    style: { build: 'man', cut: 'short', beard: 'full', age: 0.8, faceSeed: 12203 },
   },
-];
+};
+
+const SPECS: Spec[] = AMBIENT_RESIDENTS.map((resident) => ({ ...resident, look: FIGURES[resident.id].look, style: { id: resident.id, ...FIGURES[resident.id].style } as AmbientStyle }));
 
 /** Who the hamlet's people are (for the people lineup and the sheet export). */
 export const AMBIENT_PEOPLE: readonly { look: Look; style: AmbientStyle }[] = SPECS.map((s) => ({ look: s.look, style: s.style }));
