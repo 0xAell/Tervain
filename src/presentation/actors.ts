@@ -12,6 +12,8 @@ import { workSiteFor, type WorkSite } from './npc/workSites';
 import { NpcApproachGreeting } from '../core/rules/npcApproachGreeting';
 import { EnemyRoute } from '../core/rules/enemyRoute';
 import { eligibleBarks, resolveGoal, type Goal } from '../core/rules/schedule';
+import { ENEMY_ARCHETYPES, ENEMY_IDLE_YAW, ENEMY_POST_YAW, ENEMY_VARIANT, type EnemyArchetype } from '../core/content/enemies';
+import { afterRecovery, HOSTILE, hostileBlowLands, hostileGivesUp, hostileNotices, hostileStruck, hostileTurnsBack } from '../core/rules/hostile';
 
 export { resolveGoal, type Goal };
 
@@ -833,11 +835,11 @@ export class EnemyActor {
   private routeState: EnemyState = 'idle';
   private dashDir = { x: 0, z: 0 };
   /** Length of the stagger now playing, so its flinch runs 0 → 1 whether a light blow, a heavy one or a parry set it. */
-  private staggerFor = 0.85;
+  private staggerFor: number = HOSTILE.staggerHeavy;
   engaged = false;
   fade = 1;
   private idleYaw: number;
-  private readonly cfg: { speed: number; reach: number; wind: number; strike: number; recover: number; damage: number; notice: number; leash: number; heavy: boolean };
+  private readonly cfg: EnemyArchetype & { leash: number };
   readonly name: string;
 
   constructor(spawn: EnemySpawn, rig?: Rig, arrived = true) {
@@ -846,18 +848,11 @@ export class EnemyActor {
     this.id = spawn.id;
     this.x = spawn.x;
     this.z = spawn.z;
-    this.idleYaw = spawn.id === 'ford_bandit_b' ? 4.0 : 1.2;
-    if (spawn.kind === 'thornback') {
-      this.rig = createThornback();
-      this.hp = this.maxHp = 110;
-      this.cfg = { speed: 4.4, reach: 2.9, wind: 0.95, strike: 0.4, recover: 1.1, damage: 20, notice: 10, leash: spawn.leash, heavy: true };
-      this.name = 'Thornback';
-    } else {
-      this.rig = rig ?? createBanditRig(spawn.id === 'ford_bandit_b' ? 1 : 0);
-      this.hp = this.maxHp = 55;
-      this.cfg = { speed: 3.5, reach: 1.9, wind: 0.6, strike: 0.2, recover: 0.9, damage: 11, notice: 12, leash: spawn.leash, heavy: false };
-      this.name = 'Toll-jumper';
-    }
+    this.idleYaw = ENEMY_POST_YAW[spawn.id] ?? ENEMY_IDLE_YAW;
+    this.cfg = { ...ENEMY_ARCHETYPES[spawn.kind], leash: spawn.leash };
+    this.hp = this.maxHp = this.cfg.hp;
+    this.name = this.cfg.name;
+    this.rig = spawn.kind === 'thornback' ? createThornback() : rig ?? createBanditRig(ENEMY_VARIANT[spawn.id] ?? 0);
     this.rig.root.traverse((o) => {
       o.userData.enemy = spawn.id;
     });
@@ -884,18 +879,19 @@ export class EnemyActor {
   private showOnUpdate = false;
 
   get radius() {
-    return this.id === 'cut_creature' ? 0.85 : 0.4;
+    return this.cfg.radius;
   }
 
   /** Apply a hit from the player. Returns true if this hit killed the enemy. */
   takeHit(damage: number, heavy: boolean, fromX: number, fromZ: number): boolean {
     if (this.state === 'dead' || !this.arrived) return false;
-    this.hp -= damage;
+    const struck = hostileStruck(this.hp, this.state, damage, heavy);
+    this.hp = struck.hp;
     this.rig.hitFlash = 1;
     this.engaged = true;
     const d = Math.hypot(this.x - fromX, this.z - fromZ) || 1;
     const away = { x: (this.x - fromX) / d, z: (this.z - fromZ) / d };
-    if (this.hp <= 0) {
+    if (struck.killed) {
       this.dashDir = away;
       this.state = 'dead';
       this.t = 0;
@@ -903,10 +899,10 @@ export class EnemyActor {
     }
     // A committed swing is not free to interrupt; heavy blows stagger even a wind-up. A light blow that does not
     // interrupt leaves the lunge's heading alone: the strike keeps coming rather than sliding back (A100 scout).
-    if (heavy || (this.state !== 'telegraph' && this.state !== 'strike')) {
+    if (struck.stagger !== null) {
       this.dashDir = away;
       this.state = 'stagger';
-      this.t = this.staggerFor = heavy ? 0.85 : 0.3;
+      this.t = this.staggerFor = struck.stagger;
     }
     return false;
   }
@@ -917,7 +913,7 @@ export class EnemyActor {
     const d = Math.hypot(this.x - fromX, this.z - fromZ) || 1;
     this.dashDir = { x: (this.x - fromX) / d, z: (this.z - fromZ) / d };
     this.state = 'stagger';
-    this.t = this.staggerFor = 1.1;
+    this.t = this.staggerFor = HOSTILE.staggerParried;
     this.rig.hitFlash = 0.5;
   }
 
@@ -999,11 +995,9 @@ export class EnemyActor {
           const facing = Math.atan2(dx, dz);
           // Shortest angular difference, valid however far the stored yaw has drifted.
           const da = Math.abs(Math.atan2(Math.sin(facing - this.yaw), Math.cos(facing - this.yaw)));
-          const seen = dist < 4.5 || da < 1.25;
-          const blocked = ctx.colliders.segmentBlocked(this.x, this.z, p.x, p.z);
-          if (seen && !blocked && fromSpawn < this.cfg.leash) {
+          if (hostileNotices(this.cfg, this.cfg.leash, dist, da, fromSpawn, ctx.colliders.segmentBlocked(this.x, this.z, p.x, p.z))) {
             this.state = 'alert';
-            this.t = 0.55;
+            this.t = HOSTILE.alert;
             this.engaged = true;
             ctx.onGrowl(this);
           }
@@ -1026,7 +1020,7 @@ export class EnemyActor {
       case 'chase': {
         mode = 'run';
         speed01 = 1;
-        if (!p.alive || fromSpawn > this.cfg.leash + 6 || dist > this.cfg.notice * 2.2) {
+        if (hostileGivesUp(this.cfg, this.cfg.leash, p.alive, dist, fromSpawn)) {
           this.state = 'return';
           this.engaged = false;
           break;
@@ -1038,13 +1032,13 @@ export class EnemyActor {
           this.route.reset();
           break;
         }
-        this.moveToward(p.x, p.z, this.cfg.speed, dt, ctx, this.cfg.reach * 0.7);
+        this.moveToward(p.x, p.z, this.cfg.speed, dt, ctx, this.cfg.reach * HOSTILE.approach);
         break;
       }
       case 'telegraph': {
         // The wind-up tracks the player only at the start, so sidestepping works.
         this.t += dt;
-        if (this.t < this.cfg.wind * 0.45) this.yaw = lerpAngle(this.yaw, Math.atan2(dx, dz), enemyTurnEase(0.25, dt));
+        if (this.t < this.cfg.wind * HOSTILE.trackShare) this.yaw = lerpAngle(this.yaw, Math.atan2(dx, dz), enemyTurnEase(0.25, dt));
         mode = 'telegraph';
         if (this.t >= this.cfg.wind) {
           this.state = 'strike';
@@ -1059,15 +1053,15 @@ export class EnemyActor {
         mode = 'strike';
         if (this.cfg.heavy) {
           // The creature lunges forward during its strike.
-          this.moveStep(this.dashDir.x * 7 * dt, this.dashDir.z * 7 * dt, ctx);
+          this.moveStep(this.dashDir.x * HOSTILE.lunge * dt, this.dashDir.z * HOSTILE.lunge * dt, ctx);
         }
-        if (!this.struck && this.t >= this.cfg.strike * 0.5) {
+        if (!this.struck && this.t >= this.cfg.strike * HOSTILE.blowAt) {
           this.struck = true;
           const ax = Math.sin(this.yaw);
           const az = Math.cos(this.yaw);
           const d = Math.hypot(p.x - this.x, p.z - this.z);
           const cos = d > 0 ? ((p.x - this.x) * ax + (p.z - this.z) * az) / d : 1;
-          if (d < this.cfg.reach + 0.5 && cos > 0.35 && p.alive) ctx.strikePlayer(this, this.cfg.damage, this.cfg.heavy);
+          if (hostileBlowLands(this.cfg, d, cos, p.alive)) ctx.strikePlayer(this, this.cfg.damage, this.cfg.heavy);
         }
         // A perfect block parries during the strike call: keep the stagger instead of overwriting it.
         if (this.state !== 'strike') break;
@@ -1080,27 +1074,27 @@ export class EnemyActor {
       case 'recover':
         this.t += dt;
         mode = 'idle';
-        if (this.t >= this.cfg.recover) this.state = dist < this.cfg.notice * 2 && p.alive ? 'chase' : 'return';
+        if (this.t >= this.cfg.recover) this.state = afterRecovery(this.cfg, dist, p.alive);
         break;
       case 'stagger':
         this.t -= dt;
         mode = 'idle';
         {
-          this.moveStep(this.dashDir.x * 2.2 * dt, this.dashDir.z * 2.2 * dt, ctx);
+          this.moveStep(this.dashDir.x * HOSTILE.knockback * dt, this.dashDir.z * HOSTILE.knockback * dt, ctx);
         }
         if (this.t <= 0) this.state = p.alive ? 'chase' : 'return';
         break;
       case 'return': {
         mode = 'walk';
-        speed01 = 0.7;
-        this.moveToward(this.spawn.x, this.spawn.z, this.cfg.speed * 0.7, dt, ctx, 0.6);
+        speed01 = HOSTILE.returnPace;
+        this.moveToward(this.spawn.x, this.spawn.z, this.cfg.speed * HOSTILE.returnPace, dt, ctx, 0.6);
         // They regain their health while they return, and rest again at the post.
-        this.hp = Math.min(this.maxHp, this.hp + dt * 12);
-        if (Math.hypot(this.x - this.spawn.x, this.z - this.spawn.z) < 1) {
+        this.hp = Math.min(this.maxHp, this.hp + dt * HOSTILE.returnHeal);
+        if (Math.hypot(this.x - this.spawn.x, this.z - this.spawn.z) < HOSTILE.home) {
           this.state = 'idle';
           this.engaged = false;
         }
-        if (p.alive && dist < this.cfg.notice * 0.6 && fromSpawn < this.cfg.leash) {
+        if (hostileTurnsBack(this.cfg, this.cfg.leash, p.alive, dist, fromSpawn)) {
           this.state = 'chase';
           this.engaged = true;
         }
