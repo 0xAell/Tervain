@@ -10,7 +10,7 @@ import { CameraRig } from '../../src/presentation/cameraRig';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
 import {
   DEER_BODY, MOUNT_SIDE, deerBodyBlocked, MOUNT_STAMINA, MOUNT_TIMES, RIDE, RIDE_CAMERA, deerBodyPoints, doorwayAhead, gaitBob, roomAtDoor, steerMount,
-} from '../../src/presentation/riding';
+} from '../../src/core/rules/riding';
 import { Colliders } from '../../src/core/world/colliders';
 import { WORLD } from '../../src/core/world/layout';
 import { INTERIORS, fromBuildingLocal } from '../../src/core/world/interiors';

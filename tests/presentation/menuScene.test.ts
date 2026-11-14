@@ -4,7 +4,7 @@ import { MenuScene, type MenuResources, type MenuAwakeningState } from '../../sr
 import { MENU_CAMERA } from '../../src/presentation/menu/menuLayout';
 import type { GrassWind } from '../../src/presentation/grass/wind';
 import type { GrassMover, GrassTrample } from '../../src/presentation/grass/trample';
-import { ANIMALS } from '../../src/presentation/animals/catalog';
+import { ANIMALS } from '../../src/core/content/animals';
 import { animalFixture } from './animalFixture';
 import type { MatKey } from '../../src/presentation/regions';
 

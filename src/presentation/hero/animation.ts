@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { Pose } from '../characters';
 import type { ResidentMotionLibrary } from '../npc/residentMotion';
 import { HERO_BONES, HERO_FINGERS, type HeroBoneName, type HeroBones } from './bones';
-import { HERO_RUN_CYCLE, HERO_RUN_SPEED, HERO_WALK_CYCLE, HERO_WALK_SPEED } from './locomotion';
+import { HERO_RUN_CYCLE, HERO_RUN_SPEED, HERO_WALK_CYCLE, HERO_WALK_SPEED } from '../../core/rules/heroLocomotion';
 import { HERO_SWIM_CYCLE, HERO_SWIM_RATE, heroSwimClips, heroTurnClips } from './swim';
 import { buildTurnClips, TurnLead, SIDES, TURN_STEP, TurnSteps, type Legs, type Side } from '../turnSteps';
 

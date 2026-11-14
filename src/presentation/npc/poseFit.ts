@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { ANGLE_KEYS, applyRigAngles, GESTURE_DEFAULTS, type ArmAngles, type Rig } from '../characters';
 import { reachArm } from './armReach';
 import { weldExact } from './weld';
-import { seatLegs, type SeatMeasure } from './seat';
+import { seatLegs, type SeatMeasure } from '../../core/rules/seat';
 import type { WorkPropKind } from './workProps';
 
 /**

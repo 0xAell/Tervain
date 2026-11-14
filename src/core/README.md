@@ -8,8 +8,9 @@ imports as data or mirrors as code. The Three.js layer (`src/presentation`, `src
 | Folder | Holds |
 | --- | --- |
 | `game/` | Persistent world state, the command vocabulary and its effects, quests, journal, inventory, hunting rules, the save payload. |
-| `content/` | Authored definitions: items, residents and their schedules, dialogue, inspections, pickups, spoken lines, display strings, and their validation. |
-| `world/` | The authored geography and what is derived from it: layout, coast, terrain heights, water, biomes, forest stands, buildings and rooms, furniture, colliders, navigation. |
+| `content/` | Authored definitions: items, residents and their schedules, the animal roster, dialogue, inspections, pickups, spoken lines, display strings, and their validation. |
+| `rules/` | Moment-to-moment rules that need no renderer: where a resident should be at an hour, which remarks they may make, the hero's paces, riding, seats, hostile routing, animal habitat and paths, interaction targeting, and what the follow camera keeps clear of. |
+| `world/` | The authored geography and what is derived from it: layout, coast, terrain heights, water, biomes, forest stands, buildings and rooms, furniture, colliders, navigation, ground contacts, the prevailing wind. |
 | `util/` | Small helpers the core itself needs. |
 
 ## The boundary

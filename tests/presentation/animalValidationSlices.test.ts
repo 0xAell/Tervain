@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { afterEach, expect, it, vi } from 'vitest';
 import { validateAnimalTemplate, validateAnimalTemplateAsync } from '../../src/presentation/animals';
-import { ANIMALS } from '../../src/presentation/animals/catalog';
+import { ANIMALS } from '../../src/core/content/animals';
 import { animalFixture, animalTemplates } from './animalFixture';
 const dog=ANIMALS.find(a=>a.species==='dog')!;
 afterEach(()=>vi.restoreAllMocks());

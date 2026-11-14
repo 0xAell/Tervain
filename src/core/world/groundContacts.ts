@@ -1,8 +1,8 @@
-import { buildingEntry } from '../core/world/buildingEntries';
-import { BUILDINGS, type BuildingSpec } from '../core/world/layout';
-import { fbm, smoothstep } from '../core/world/noise';
-import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
-import type { Terrain } from '../core/world/terrain';
+import { buildingEntry } from './buildingEntries';
+import { BUILDINGS, type BuildingSpec } from './layout';
+import { fbm, smoothstep } from './noise';
+import type { PhysicalRockGeometry } from './physicsGeometry';
+import type { Terrain } from './terrain';
 
 /** Presentation-only wear, mineral toe and sheltered soil. These masks never change
  * a collider, supporting height, canonical object ID or save. */

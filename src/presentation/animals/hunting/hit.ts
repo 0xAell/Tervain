@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { AnimalSpecies } from '../catalog';
+import type { AnimalSpecies } from '../../../core/content/animals';
 import type { AnimalId } from '../../../core/game/hunting';
 
 export interface AnimalArrowHit {

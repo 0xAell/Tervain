@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import fs from 'node:fs';
 import {expect,it} from 'vitest';
 import {buildAnimals} from '../../src/presentation/animals';
-import {ANIMALS} from '../../src/presentation/animals/catalog';
+import {ANIMALS} from '../../src/core/content/animals';
 import {Colliders} from '../../src/core/world/colliders';
 import type {Terrain} from '../../src/core/world/terrain';
 import type {AnimalHuntRecord} from '../../src/core/game/hunting';

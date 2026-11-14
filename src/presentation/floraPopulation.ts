@@ -1,4 +1,4 @@
-import { HORIZON_CONIFER_SCALE, ORCHARD_SCALE, PALM_SCALE } from './treeScale';
+import { HORIZON_CONIFER_SCALE, ORCHARD_SCALE, PALM_SCALE } from '../core/world/treeScale';
 import { ARRIVAL_ROUTE, DEEPWOOD, ORCHARD, STRAND, WORLD } from '../core/world/layout';
 import { deepwoodCover, forestOpeningCover, forestClearingCover, forestClearingDistance } from '../core/world/forest';
 import { forestStandAt, FOREST_CROWN_ENVELOPE, type ForestFamilyRole } from '../core/world/forestStands';

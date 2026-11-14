@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { MENU_DEER_PACE, MENU_DEER_ROUTE, buildMenuDeer, deerPoseAt, deerTimeline } from '../../src/presentation/menu/menuDeer';
 import { MENU_BANNER, MENU_CAMERA, MENU_FIRE, MENU_STONES, MENU_TREE, browZ, menuHeight } from '../../src/presentation/menu/menuLayout';
 import { createAnimalFigure } from '../../src/presentation/animals';
-import { ANIMALS } from '../../src/presentation/animals/catalog';
+import { ANIMALS } from '../../src/core/content/animals';
 import type { GrassMover } from '../../src/presentation/grass/trample';
 import { animalFixture } from './animalFixture';
 

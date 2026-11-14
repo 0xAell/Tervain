@@ -5,9 +5,9 @@ import { Habitat } from './ground/habitat';
 import { createGrassField, GRASS_QUALITY, meadowGround, type GrassReserve, type MeadowGround } from './grass/grassField';
 import { GrassTrample, type GrassMover } from './grass/trample';
 import { GrassWind } from './grass/wind';
-import { REALM_WIND } from './realmWind';
+import { REALM_WIND } from '../core/world/wind';
 
-export { REALM_WIND } from './realmWind';
+export { REALM_WIND } from '../core/world/wind';
 
 /** Assets this module wants loaded before the world is built. */
 export const NEEDS: AssetNeed[] = [];

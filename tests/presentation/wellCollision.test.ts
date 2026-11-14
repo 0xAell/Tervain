@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { Ctx } from '../../src/presentation/buildKit';
-import { CAMERA_CLEARANCE } from '../../src/presentation/cameraObstruction';
+import { CAMERA_CLEARANCE } from '../../src/core/rules/cameraObstruction';
 import { CameraRig } from '../../src/presentation/cameraRig';
 import { well } from '../../src/presentation/props';
 import { Region } from '../../src/presentation/regions';

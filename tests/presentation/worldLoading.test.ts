@@ -10,7 +10,7 @@ import { disposeSceneResources } from '../../src/presentation/disposeScene';
 import { PINE_FILES } from '../../src/presentation/solitaryPine';
 import { HERO_PINE_FILES } from '../../src/presentation/heroPine';
 import { activeMeshyTreeIds, MESHY_TREE_LODS } from '../../src/presentation/meshyTrees';
-import { ANIMALS } from '../../src/presentation/animals/catalog';
+import { ANIMALS } from '../../src/core/content/animals';
 import { WORLD } from '../../src/core/world/layout';
 
 const controls = vi.hoisted(() => ({
@@ -128,7 +128,7 @@ vi.mock('../../src/presentation/furniture', async importOriginal => ({ loadFurni
   if (controls.furnitureGate) await controls.furnitureGate;
   await modelFamily('furniture', 1, progress); return new Map();
 }, buildFurniture: () => owner('furniture'), deferredFurniture: (await importOriginal<typeof import('../../src/presentation/furniture')>()).deferredFurniture }));
-vi.mock('../../src/presentation/groundContacts', () => ({ createGroundContactField: () => ({}) }));
+vi.mock('../../src/core/world/groundContacts', () => ({ createGroundContactField: () => ({}) }));
 vi.mock('../../src/presentation/physicalProps', () => ({ buildPhysicalProps: () => owner('physical supplies') }));
 vi.mock('../../src/presentation/riteResponse', () => ({ buildRiteResponse: () => owner('rite') }));
 

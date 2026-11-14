@@ -11,7 +11,7 @@ import { createStandInRig, type Rig } from '../../src/presentation/characters';
 import * as characterPoses from '../../src/presentation/characters';
 import { createFloraPopulation, registerFloraColliders } from '../../src/presentation/floraPopulation';
 import { forestLandmarkGeometry } from '../../src/presentation/forestLandmarks';
-import { chooseInteractable } from '../../src/presentation/interactionTarget';
+import { chooseInteractable } from '../../src/core/rules/interaction';
 import { buildHunterSupplies, disposeHunterSupplies, hunterTableSurfaceY } from '../../src/presentation/hunterSupplies';
 import { buildInteractables, type Interactable } from '../../src/presentation/interactions';
 import { createScatterPopulation, registerScatterColliders } from '../../src/presentation/scatterPopulation';

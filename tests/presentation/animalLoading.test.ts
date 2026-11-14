@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 import { loadAnimalTemplates } from '../../src/presentation/animals';
-import { ANIMALS, type AnimalDefinition } from '../../src/presentation/animals/catalog';
+import { ANIMALS, type AnimalDefinition } from '../../src/core/content/animals';
 import { animalFixture } from './animalFixture';
 
 function bytes() {

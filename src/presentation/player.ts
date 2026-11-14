@@ -15,9 +15,9 @@ import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, PLAYER_FOOT_CLEARANCE, supporte
 import type { AudioEngine, SurfaceKind } from './audio';
 import { createPlayerRig, poseRig, setArmed, setSash, applyFlash, type Mode, type Pose, type Rig } from './characters';
 import { EnemyActor, NpcActor, lerpAngle } from './actors';
-import { HERO_WALK_SPEED, HERO_RUN_SPEED, HERO_GUARD_SPEED, HERO_WALK_CYCLE, HERO_RUN_CYCLE, HERO_RUN_THRESHOLD } from './hero/locomotion';
+import { HERO_WALK_SPEED, HERO_RUN_SPEED, HERO_GUARD_SPEED, HERO_WALK_CYCLE, HERO_RUN_CYCLE, HERO_RUN_THRESHOLD } from '../core/rules/heroLocomotion';
 import { PlayerHuntingVisual } from './playerHunting';
-import { deerBodyBlocked, deerBodyOverlap, gaitBob, MOUNT_SIDE, MOUNT_STAMINA, MOUNT_TIMES, mountStaminaStep, RIDE, steerMount } from './riding';
+import { deerBodyBlocked, deerBodyOverlap, gaitBob, MOUNT_SIDE, MOUNT_STAMINA, MOUNT_TIMES, mountStaminaStep, RIDE, steerMount } from '../core/rules/riding';
 
 export type PlayerState = 'free' | 'light' | 'heavy' | 'dodge' | 'hurt' | 'channel' | 'dead';
 

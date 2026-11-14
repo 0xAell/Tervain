@@ -5,7 +5,7 @@ import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import { CameraRig } from '../../src/presentation/cameraRig';
-import { CAMERA_CLEARANCE } from '../../src/presentation/cameraObstruction';
+import { CAMERA_CLEARANCE } from '../../src/core/rules/cameraObstruction';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
 import { buildStaticColliders, Colliders, type Collider } from '../../src/core/world/colliders';
 import { LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L, bySpec } from '../../src/core/world/layout';

@@ -4,7 +4,7 @@ import { groundSplat } from './groundSplat';
 import { createTerrainMaterial } from './terrainMaterial';
 import type { TerrainTextures } from './terrainTextures';
 import type { PlantedCrownField } from './plantedCrowns';
-import type { GroundContactField } from './groundContacts';
+import type { GroundContactField } from '../core/world/groundContacts';
 import type { MeadowGround } from './grass/grassField';
 import { finishCooperatively, type CooperativeOptions } from '../platform/cooperative';
 

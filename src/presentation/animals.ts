@@ -13,14 +13,14 @@ import { withModelLoadSlot } from './assets/modelLoadQueue';
 import { downloadAsset } from './assets/download';
 import { matteHide } from './matte';
 import { ANIMAL_AUDIO, ANIMAL_CALL_EVENT, type AnimalCall } from './sound/animalAudio';
-import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from './animals/catalog';
-import { animalGroundAllowed, animalHabitatAllowed, animalNavigationColliders, findAnimalPath, findAnimalSite, type AnimalSite } from './animals/navigation';
+import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
+import { animalGroundAllowed, animalHabitatAllowed, animalNavigationColliders, findAnimalPath, findAnimalSite, type AnimalSite } from '../core/rules/animalNavigation';
 import { AnimalHunting, type HuntingAnimal } from './animals/hunting/adapter';
 import type { AnimalArrowHit } from './animals/hunting/hit';
 import { WILDLIFE_RETURN_DISTANCE, type AnimalId, type HuntingState } from '../core/game/hunting';
 import { finishCooperatively, type CooperativeOptions } from '../platform/cooperative';
 
-export { ANIMALS, ANIMAL_TRIANGLE_LIMIT } from './animals/catalog';
+export { ANIMALS, ANIMAL_TRIANGLE_LIMIT } from '../core/content/animals';
 export type AnimalTemplates = ReadonlyMap<string, GLTF>;
 export type AnimalCallEvent = AnimalCall;
 export { ANIMAL_CALL_EVENT } from './sound/animalAudio';

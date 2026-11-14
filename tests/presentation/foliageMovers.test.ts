@@ -5,7 +5,7 @@ import type { GrassMover } from '../../src/presentation/grass/trample';
 import { createFoliageField, FOLIAGE_MAX_MOVERS } from '../../src/presentation/foliage/foliageWind';
 import { GrassWind } from '../../src/presentation/grass/wind';
 
-import { REALM_WIND } from '../../src/presentation/realmWind';
+import { REALM_WIND } from '../../src/core/world/wind';
 
 const terrain = { heightAt: (x: number, z: number) => x * .1 - z * .2 };
 function original(focus: THREE.Vector3, movers: readonly GrassMover[]) {

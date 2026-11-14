@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from '../../src/presentation/assets/gltfLoader';
-import { ANIMALS, type AnimalDefinition, type AnimalClip } from '../../src/presentation/animals/catalog';
+import { ANIMALS, type AnimalDefinition, type AnimalClip } from '../../src/core/content/animals';
 
 /** Small skin for lifecycle/controller tests. Real delivered topology is checked separately. */
 export function animalFixture(segments = 1): GLTF {

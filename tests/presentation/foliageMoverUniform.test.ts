@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import {WebGLUniforms} from 'three/src/renderers/webgl/WebGLUniforms.js';
 import { createFoliageField, foliageUniforms, patchFoliageVertex, patchFloorPlantVertex, FOLIAGE_RESPONSE } from '../../src/presentation/foliage/foliageWind';
 import { GrassWind } from '../../src/presentation/grass/wind';
-import { REALM_WIND } from '../../src/presentation/realmWind';
+import { REALM_WIND } from '../../src/core/world/wind';
 import {cacheFoliageMoverUniform} from '../../src/presentation/foliage/foliageMoverUniform';
 
 function gpu(struct: boolean) {

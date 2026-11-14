@@ -1,4 +1,4 @@
-import { CONIFER_MAX_SCALE, ORCHARD_MAX_SCALE, PALM_MAX_SCALE } from './treeScale';
+import { CONIFER_MAX_SCALE, ORCHARD_MAX_SCALE, PALM_MAX_SCALE } from '../core/world/treeScale';
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from './assets/gltfLoader';

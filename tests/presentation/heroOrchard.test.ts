@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { auditCanopies } from '../../src/diagnostics/canopyAudit';
 import { activeMeshyTreeIds, createMeshyForest, HERO_ORCHARD_IDS, heroFamilyId, heroOrchardEnabled, MESHY_TREE_IDS, meshyTreeId, meshyTreeModelPath, type MeshyTreeTemplates } from '../../src/presentation/meshyTrees';
-import { ORCHARD_MAX_SCALE } from '../../src/presentation/treeScale';
+import { ORCHARD_MAX_SCALE } from '../../src/core/world/treeScale';
 import { meshyTreeTemplate } from './meshyTreeFixture';
 
 interface Glb { json: any }

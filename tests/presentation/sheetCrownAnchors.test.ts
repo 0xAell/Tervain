@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { createMeshyForest } from '../../src/presentation/meshyTrees';
 import { detachedClumpSet } from '../../src/diagnostics/canopyConnectivity';
 import { woodReachLocal } from '../../src/presentation/canopy';
-import { CONIFER_MAX_SCALE, PALM_MAX_SCALE } from '../../src/presentation/treeScale';
+import { CONIFER_MAX_SCALE, PALM_MAX_SCALE } from '../../src/core/world/treeScale';
 import { meshyTreeTemplates } from './meshyTreeFixture';
 
 it('leaves no fir or palm sheet past the audit reach at its largest planted scale, at every level', async () => {

@@ -17,7 +17,7 @@ import { createFoliageField, type FoliageField } from './foliage/foliageWind';
 import { buildMenuDeer, type MenuDeer } from './menu/menuDeer';
 import { buildMenuFluff, type MenuFluff } from './menu/menuFluff';
 import { createAnimalFigure } from './animals';
-import type { AnimalDefinition } from './animals/catalog';
+import type { AnimalDefinition } from '../core/content/animals';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { TREE_HOLLOW, buildAncientTree } from './menu/menuTree';
 import { buildMenuFire } from './menu/menuFire';

@@ -4,7 +4,7 @@ import { WebGLUniforms } from 'three/src/renderers/webgl/WebGLUniforms.js';
 import { cacheFoliageShakeUniform, SHAKE_COLUMNS } from '../../src/presentation/foliage/foliageShakeUniform';
 import { createFoliageField, FOLIAGE_RESPONSE, foliageUniforms, patchFoliageVertex, patchFloorPlantVertex } from '../../src/presentation/foliage/foliageWind';
 import { GrassWind } from '../../src/presentation/grass/wind';
-import { REALM_WIND } from '../../src/presentation/realmWind';
+import { REALM_WIND } from '../../src/core/world/wind';
 
 function gpu(matrix: boolean) {
   const writes: number[][] = [];

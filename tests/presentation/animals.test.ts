@@ -1,15 +1,15 @@
 import * as THREE from 'three';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildAnimals, AnimalAnimation, strideQuartersCrossed, validateAnimalTemplate, type AnimalCallEvent } from '../../src/presentation/animals';
-import { ANIMALS, requiredAnimalClips } from '../../src/presentation/animals/catalog';
-import { animalGroundAllowed, animalHabitatAllowed, animalRouteDistance, animalSegmentClear, findAnimalPath, findAnimalSite, type AnimalTerrain } from '../../src/presentation/animals/navigation';
+import { ANIMALS, requiredAnimalClips } from '../../src/core/content/animals';
+import { animalGroundAllowed, animalHabitatAllowed, animalRouteDistance, animalSegmentClear, findAnimalPath, findAnimalSite, type AnimalTerrain } from '../../src/core/rules/animalNavigation';
 import { buildStaticColliders, Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';
 import type { FrameContext } from '../../src/presentation/context';
 import { createInitialState } from '../../src/core/game/state';
 import { worldView } from '../../src/core/game/worldView';
 import { animalFixture, animalTemplates } from './animalFixture';
-import * as navigation from '../../src/presentation/animals/navigation';
+import * as navigation from '../../src/core/rules/animalNavigation';
 
 const flat: AnimalTerrain = { heightAt: () => 0, walkable: () => true, carveAt: () => 0, seaDepth: () => 0, deckAt: () => null };
 const dog = ANIMALS.find(animal => animal.id === '1005232511')!;
