@@ -1,0 +1,2001 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/layout.schema.json",
+  "title": "world/layout.json",
+  "description": "The authored geography: bounds, regions, coast, water, roads, places, buildings, anchors and everything placed by hand.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "bounds": {
+      "type": "object",
+      "properties": {
+        "minX": {
+          "type": "integer"
+        },
+        "maxX": {
+          "type": "integer"
+        },
+        "minZ": {
+          "type": "integer"
+        },
+        "maxZ": {
+          "type": "integer"
+        },
+        "cell": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "minX",
+        "maxX",
+        "minZ",
+        "maxZ",
+        "cell"
+      ],
+      "additionalProperties": false
+    },
+    "seaLevel": {
+      "type": "integer"
+    },
+    "deepWater": {
+      "type": "number"
+    },
+    "regions": {
+      "type": "object",
+      "properties": {
+        "valley": {
+          "type": "object",
+          "properties": {
+            "cx": {
+              "type": "integer"
+            },
+            "cz": {
+              "type": "integer"
+            },
+            "rx": {
+              "type": "integer"
+            },
+            "rz": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "cx",
+            "cz",
+            "rx",
+            "rz"
+          ],
+          "additionalProperties": false
+        },
+        "coastal": {
+          "type": "object",
+          "properties": {
+            "cx": {
+              "type": "integer"
+            },
+            "cz": {
+              "type": "integer"
+            },
+            "rx": {
+              "type": "integer"
+            },
+            "rz": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "cx",
+            "cz",
+            "rx",
+            "rz"
+          ],
+          "additionalProperties": false
+        },
+        "forest": {
+          "type": "object",
+          "properties": {
+            "minX": {
+              "type": "integer"
+            },
+            "maxX": {
+              "type": "integer"
+            },
+            "minZ": {
+              "type": "integer"
+            },
+            "maxZ": {
+              "type": "integer"
+            },
+            "shoreClearance": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "minX",
+            "maxX",
+            "minZ",
+            "maxZ",
+            "shoreClearance"
+          ],
+          "additionalProperties": false
+        },
+        "hamlet": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "r": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "strand": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "r": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "orchard": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "w": {
+              "type": "integer"
+            },
+            "d": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "w",
+            "d"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "valley",
+        "coastal",
+        "forest",
+        "hamlet",
+        "strand",
+        "orchard"
+      ],
+      "additionalProperties": false
+    },
+    "coast": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "x",
+          "z"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "streams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "halfWidth": {
+            "type": "number"
+          },
+          "depth": {
+            "type": "number"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer"
+                },
+                "z": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "x",
+                "z"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "halfWidth",
+          "depth",
+          "points"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "ford": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "integer"
+        },
+        "z": {
+          "type": "integer"
+        },
+        "r": {
+          "type": "integer"
+        },
+        "depth": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "z",
+        "r",
+        "depth"
+      ],
+      "additionalProperties": false
+    },
+    "springPool": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "r": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "z",
+        "r"
+      ],
+      "additionalProperties": false
+    },
+    "decks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "hx": {
+            "type": "number"
+          },
+          "hz": {
+            "type": "number"
+          },
+          "yaw": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "x",
+          "z",
+          "hx",
+          "hz",
+          "yaw",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "roads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "number"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "x",
+                "z"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "width",
+          "points"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "arrivalRoute": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "z": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "x",
+              "z"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "width": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "points",
+        "width"
+      ],
+      "additionalProperties": false
+    },
+    "lanternRoute": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "integer"
+              },
+              "z": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "x",
+              "z"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "width": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "points",
+        "width"
+      ],
+      "additionalProperties": false
+    },
+    "spawn": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "integer"
+        },
+        "z": {
+          "type": "integer"
+        },
+        "yaw": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "z",
+        "yaw",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "places": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "integer"
+          },
+          "r": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "z",
+          "r",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "anchors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "yaw": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "seat": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "z",
+          "yaw",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "buildings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "x": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "integer"
+          },
+          "w": {
+            "type": "number"
+          },
+          "d": {
+            "type": "number"
+          },
+          "h": {
+            "type": "number"
+          },
+          "yaw": {
+            "type": "number"
+          },
+          "wall": {
+            "type": "string"
+          },
+          "roof": {
+            "type": "string"
+          },
+          "ground": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "x",
+          "z",
+          "w",
+          "d",
+          "h",
+          "yaw",
+          "wall",
+          "roof",
+          "ground"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "x": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "integer"
+          },
+          "w": {
+            "type": "integer"
+          },
+          "d": {
+            "type": "integer"
+          },
+          "yaw": {
+            "type": "number"
+          },
+          "crop": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "x",
+          "z",
+          "w",
+          "d",
+          "yaw",
+          "crop"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "palisade": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "z": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "x",
+              "z"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "gate": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "z0": {
+              "type": "number"
+            },
+            "z1": {
+              "type": "number"
+            },
+            "leafSwing": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z0",
+            "z1",
+            "leafSwing"
+          ],
+          "additionalProperties": false
+        },
+        "tower": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "z": {
+              "type": "number"
+            },
+            "yaw": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "yaw"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "points",
+        "gate",
+        "tower"
+      ],
+      "additionalProperties": false
+    },
+    "lanterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "z",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "landmarks": {
+      "type": "object",
+      "properties": {
+        "lighthouse": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "r": {
+              "type": "number"
+            },
+            "h": {
+              "type": "integer"
+            },
+            "rockH": {
+              "type": "integer"
+            },
+            "rockR": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r",
+            "h",
+            "rockH",
+            "rockR"
+          ],
+          "additionalProperties": false
+        },
+        "wreck": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "yaw": {
+              "type": "number"
+            },
+            "length": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "yaw",
+            "length"
+          ],
+          "additionalProperties": false
+        },
+        "arrivalSign": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "yaw": {
+              "type": "integer"
+            },
+            "target": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "boardWidth": {
+              "type": "number"
+            },
+            "boardHeight": {
+              "type": "number"
+            },
+            "boardDepth": {
+              "type": "number"
+            },
+            "boardBottom": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "yaw",
+            "target",
+            "label",
+            "boardWidth",
+            "boardHeight",
+            "boardDepth",
+            "boardBottom"
+          ],
+          "additionalProperties": false
+        },
+        "borderSign": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z"
+          ],
+          "additionalProperties": false
+        },
+        "bell": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "r": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "bellTower": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z"
+          ],
+          "additionalProperties": false
+        },
+        "well": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z"
+          ],
+          "additionalProperties": false
+        },
+        "millWheel": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "r": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "wagon": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "number"
+            },
+            "yaw": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "yaw"
+          ],
+          "additionalProperties": false
+        },
+        "handcart": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "yaw": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "yaw"
+          ],
+          "additionalProperties": false
+        },
+        "forestRuin": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "hx": {
+              "type": "number"
+            },
+            "hz": {
+              "type": "integer"
+            },
+            "yaw": {
+              "type": "number"
+            },
+            "r": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "hx",
+            "hz",
+            "yaw",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "waymarkers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "integer"
+              },
+              "z": {
+                "type": "integer"
+              },
+              "yaw": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "z",
+              "yaw"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "hunterCamp": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "yaw": {
+              "type": "number"
+            },
+            "shelter": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "number"
+                },
+                "depth": {
+                  "type": "number"
+                },
+                "frontHeight": {
+                  "type": "number"
+                },
+                "backHeight": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "z",
+                "width",
+                "depth",
+                "frontHeight",
+                "backHeight"
+              ],
+              "additionalProperties": false
+            },
+            "dryingRack": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "number"
+                },
+                "height": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "z",
+                "width",
+                "height"
+              ],
+              "additionalProperties": false
+            },
+            "worker": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "x",
+                "z"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "yaw",
+            "shelter",
+            "dryingRack",
+            "worker"
+          ],
+          "additionalProperties": false
+        },
+        "hunterSupply": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "r": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "hamletProps": {
+          "type": "object",
+          "properties": {
+            "barrels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "z": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "crates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "z": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "handcart": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer"
+                },
+                "z": {
+                  "type": "integer"
+                },
+                "yaw": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "z",
+                "yaw"
+              ],
+              "additionalProperties": false
+            },
+            "firewood": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer"
+                },
+                "z": {
+                  "type": "integer"
+                },
+                "yaw": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "z",
+                "yaw"
+              ],
+              "additionalProperties": false
+            },
+            "rope": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer"
+                },
+                "z": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "x",
+                "z"
+              ],
+              "additionalProperties": false
+            },
+            "pots": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer"
+                },
+                "z": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "x",
+                "z"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "barrels",
+            "crates",
+            "handcart",
+            "firewood",
+            "rope",
+            "pots"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "lighthouse",
+        "wreck",
+        "arrivalSign",
+        "borderSign",
+        "bell",
+        "bellTower",
+        "well",
+        "millWheel",
+        "wagon",
+        "handcart",
+        "forestRuin",
+        "waymarkers",
+        "hunterCamp",
+        "hunterSupply",
+        "hamletProps"
+      ],
+      "additionalProperties": false
+    },
+    "quest": {
+      "type": "object",
+      "properties": {
+        "sluice": {
+          "type": "object",
+          "properties": {
+            "control": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                },
+                "r": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "z",
+                "r"
+              ],
+              "additionalProperties": false
+            },
+            "gateCenter": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer"
+                },
+                "z": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "x",
+                "z"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "control",
+            "gateCenter"
+          ],
+          "additionalProperties": false
+        },
+        "riteAltar": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            },
+            "r": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "ledger": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "number"
+            },
+            "r": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "archiveShutter": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "number"
+            },
+            "r": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "r"
+          ],
+          "additionalProperties": false
+        },
+        "archiveRoom": {
+          "type": "object",
+          "properties": {
+            "wallBase": {
+              "type": "number"
+            },
+            "wallThickness": {
+              "type": "number"
+            },
+            "floorBase": {
+              "type": "number"
+            },
+            "floorTop": {
+              "type": "number"
+            },
+            "doorHalfWidth": {
+              "type": "integer"
+            },
+            "doorHeight": {
+              "type": "number"
+            },
+            "shutterHalfWidth": {
+              "type": "number"
+            },
+            "shutterBottom": {
+              "type": "number"
+            },
+            "shutterTop": {
+              "type": "integer"
+            },
+            "roofPitch": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "wallBase",
+            "wallThickness",
+            "floorBase",
+            "floorTop",
+            "doorHalfWidth",
+            "doorHeight",
+            "shutterHalfWidth",
+            "shutterBottom",
+            "shutterTop",
+            "roofPitch"
+          ],
+          "additionalProperties": false
+        },
+        "shortcut": {
+          "type": "object",
+          "properties": {
+            "lever": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                },
+                "r": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "z",
+                "r"
+              ],
+              "additionalProperties": false
+            },
+            "gate": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "integer"
+                },
+                "z": {
+                  "type": "integer"
+                },
+                "hw": {
+                  "type": "number"
+                },
+                "hd": {
+                  "type": "number"
+                },
+                "yaw": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "z",
+                "hw",
+                "hd",
+                "yaw"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "lever",
+            "gate"
+          ],
+          "additionalProperties": false
+        },
+        "resultChecks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "x": {
+                "type": "number"
+              },
+              "z": {
+                "type": "integer"
+              },
+              "r": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "x",
+              "z",
+              "r"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "sluice",
+        "riteAltar",
+        "ledger",
+        "archiveShutter",
+        "archiveRoom",
+        "shortcut",
+        "resultChecks"
+      ],
+      "additionalProperties": false
+    },
+    "inspectLocations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "r": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "x",
+          "z",
+          "r",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "pickups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "r": {
+            "type": "number"
+          },
+          "item": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "integer"
+          },
+          "nameKey": {
+            "type": "string"
+          },
+          "yaw": {
+            "type": "number"
+          },
+          "support": {
+            "type": "string"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "x",
+          "z",
+          "r",
+          "item",
+          "qty",
+          "nameKey",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "looseCargo": {
+      "type": "object",
+      "properties": {
+        "props": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              },
+              "depth": {
+                "type": "number"
+              },
+              "yaw": {
+                "type": "number"
+              },
+              "mass": {
+                "type": "integer"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "z",
+              "id",
+              "name",
+              "kind",
+              "width",
+              "height",
+              "depth",
+              "yaw",
+              "mass",
+              "y"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "floatLine": {
+          "type": "object",
+          "properties": {
+            "barrel": {
+              "type": "number"
+            },
+            "crate": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "barrel",
+            "crate"
+          ],
+          "additionalProperties": false
+        },
+        "waterDrag": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "props",
+        "floatLine",
+        "waterDrag"
+      ],
+      "additionalProperties": false
+    },
+    "forest": {
+      "type": "object",
+      "properties": {
+        "openings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "x": {
+                "type": "integer"
+              },
+              "z": {
+                "type": "integer"
+              },
+              "rx": {
+                "type": "integer"
+              },
+              "rz": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "x",
+              "z",
+              "rx",
+              "rz"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "clearings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "x": {
+                "type": "integer"
+              },
+              "z": {
+                "type": "integer"
+              },
+              "rx": {
+                "type": "integer"
+              },
+              "rz": {
+                "type": "integer"
+              },
+              "yaw": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "x",
+              "z",
+              "rx",
+              "rz",
+              "yaw"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "openings",
+        "clearings"
+      ],
+      "additionalProperties": false
+    },
+    "biomes": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "regions": {
+          "type": "object",
+          "properties": {
+            "palms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "z": {
+                    "type": "integer"
+                  },
+                  "rx": {
+                    "type": "integer"
+                  },
+                  "rz": {
+                    "type": "integer"
+                  },
+                  "yaw": {
+                    "type": "number"
+                  },
+                  "feather": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z",
+                  "rx",
+                  "rz",
+                  "yaw",
+                  "feather"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "humid": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "z": {
+                    "type": "integer"
+                  },
+                  "rx": {
+                    "type": "integer"
+                  },
+                  "rz": {
+                    "type": "integer"
+                  },
+                  "yaw": {
+                    "type": "number"
+                  },
+                  "feather": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z",
+                  "rx",
+                  "rz",
+                  "yaw",
+                  "feather"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "fir": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "z": {
+                    "type": "integer"
+                  },
+                  "rx": {
+                    "type": "integer"
+                  },
+                  "rz": {
+                    "type": "integer"
+                  },
+                  "yaw": {
+                    "type": "number"
+                  },
+                  "feather": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z",
+                  "rx",
+                  "rz",
+                  "yaw",
+                  "feather"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "warm": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "z": {
+                    "type": "integer"
+                  },
+                  "rx": {
+                    "type": "integer"
+                  },
+                  "rz": {
+                    "type": "integer"
+                  },
+                  "yaw": {
+                    "type": "number"
+                  },
+                  "feather": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z",
+                  "rx",
+                  "rz",
+                  "yaw",
+                  "feather"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "pine": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "integer"
+                  },
+                  "z": {
+                    "type": "integer"
+                  },
+                  "rx": {
+                    "type": "integer"
+                  },
+                  "rz": {
+                    "type": "integer"
+                  },
+                  "yaw": {
+                    "type": "number"
+                  },
+                  "feather": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z",
+                  "rx",
+                  "rz",
+                  "yaw",
+                  "feather"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "palms",
+            "humid",
+            "fir",
+            "warm",
+            "pine"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "ids",
+        "regions"
+      ],
+      "additionalProperties": false
+    },
+    "groundLayers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "bounds",
+    "seaLevel",
+    "deepWater",
+    "regions",
+    "coast",
+    "streams",
+    "ford",
+    "springPool",
+    "decks",
+    "roads",
+    "arrivalRoute",
+    "lanternRoute",
+    "spawn",
+    "places",
+    "anchors",
+    "buildings",
+    "fields",
+    "palisade",
+    "lanterns",
+    "landmarks",
+    "quest",
+    "inspectLocations",
+    "pickups",
+    "looseCargo",
+    "forest",
+    "biomes",
+    "groundLayers"
+  ],
+  "additionalProperties": false
+}

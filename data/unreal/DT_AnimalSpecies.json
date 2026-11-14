@@ -1,0 +1,74 @@
+[
+  {
+    "Name": "tiger",
+    "WalkSpeed": 110,
+    "RunSpeed": 380,
+    "NoticeDistance": 1300,
+    "FleeDistance": 600,
+    "HoldUntil": 0.55,
+    "HerdAlarmDistance": 0
+  },
+  {
+    "Name": "lion",
+    "WalkSpeed": 105,
+    "RunSpeed": 340,
+    "NoticeDistance": 1300,
+    "FleeDistance": 600,
+    "HoldUntil": 0.55,
+    "HerdAlarmDistance": 0
+  },
+  {
+    "Name": "bear",
+    "WalkSpeed": 80,
+    "RunSpeed": 220,
+    "NoticeDistance": 1400,
+    "FleeDistance": 700,
+    "HoldUntil": 0.6,
+    "HerdAlarmDistance": 0
+  },
+  {
+    "Name": "wolf",
+    "WalkSpeed": 120,
+    "RunSpeed": 350,
+    "NoticeDistance": 1400,
+    "FleeDistance": 800,
+    "HoldUntil": 0.65,
+    "HerdAlarmDistance": 3500
+  },
+  {
+    "Name": "cat",
+    "WalkSpeed": 55,
+    "RunSpeed": 180,
+    "NoticeDistance": 450,
+    "FleeDistance": 200,
+    "HoldUntil": 1,
+    "HerdAlarmDistance": 0
+  },
+  {
+    "Name": "dog",
+    "WalkSpeed": 100,
+    "RunSpeed": 260,
+    "NoticeDistance": 500,
+    "FleeDistance": 280,
+    "HoldUntil": 1,
+    "HerdAlarmDistance": 0
+  },
+  {
+    "Name": "boar",
+    "WalkSpeed": 75,
+    "RunSpeed": 200,
+    "NoticeDistance": 1200,
+    "FleeDistance": 600,
+    "HoldUntil": 1,
+    "HerdAlarmDistance": 1800
+  },
+  {
+    "Name": "deer",
+    "WalkSpeed": 115,
+    "RunSpeed": 350,
+    "NoticeDistance": 1600,
+    "FleeDistance": 1000,
+    "HoldUntil": 1,
+    "HerdAlarmDistance": 2400
+  }
+]

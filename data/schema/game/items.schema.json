@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/items.schema.json",
+  "title": "game/items.json",
+  "description": "Every item: display string keys, kind, what using it does, and the order of the inventory panel.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameKey": {
+            "type": "string"
+          },
+          "descKey": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "action": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "healAmount": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "nameKey",
+          "descKey",
+          "kind",
+          "action"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "order": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "worldPickupItems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "items",
+    "order",
+    "worldPickupItems"
+  ],
+  "additionalProperties": false
+}

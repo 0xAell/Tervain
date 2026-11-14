@@ -1,0 +1,541 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/voice.schema.json",
+  "title": "game/voice.json",
+  "description": "Spoken lines by key, residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "speakers": {
+      "type": "object",
+      "properties": {
+        "trail_hunter": {
+          "type": "string"
+        },
+        "hero": {
+          "type": "string"
+        },
+        "caravan_master": {
+          "type": "string"
+        },
+        "rillford_reeve": {
+          "type": "string"
+        },
+        "spring_steward": {
+          "type": "string"
+        },
+        "quarry_foreman": {
+          "type": "string"
+        },
+        "maintenance_worker": {
+          "type": "string"
+        },
+        "estate_steward": {
+          "type": "string"
+        },
+        "ash_recorder": {
+          "type": "string"
+        },
+        "shrine_warden": {
+          "type": "string"
+        },
+        "mill_hand": {
+          "type": "string"
+        },
+        "quarry_hand": {
+          "type": "string"
+        },
+        "village_baker": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "trail_hunter",
+        "hero",
+        "caravan_master",
+        "rillford_reeve",
+        "spring_steward",
+        "quarry_foreman",
+        "maintenance_worker",
+        "estate_steward",
+        "ash_recorder",
+        "shrine_warden",
+        "mill_hand",
+        "quarry_hand",
+        "village_baker"
+      ],
+      "additionalProperties": false
+    },
+    "lines": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "speaker": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "speaker",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "talks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "npc": {
+            "type": "string"
+          },
+          "ask": {
+            "type": "string"
+          },
+          "reply": {
+            "type": "string"
+          },
+          "when": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "t": {
+                  "type": "string"
+                },
+                "below": {
+                  "type": "string"
+                },
+                "c": {
+                  "type": "object",
+                  "properties": {
+                    "t": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "is": {
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "t"
+                  ],
+                  "additionalProperties": false
+                },
+                "id": {
+                  "type": "string"
+                },
+                "is": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "t"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "again": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "npc",
+          "reply"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "cast": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hours": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "when": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "t": {
+                  "type": "string"
+                },
+                "below": {
+                  "type": "string"
+                },
+                "is": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "t"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "cast",
+          "hours",
+          "when",
+          "lines"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "sceneReach": {
+      "type": "integer"
+    },
+    "hero": {
+      "type": "object",
+      "properties": {
+        "arrival": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "arrival.bell": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blade": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "beast": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "wounded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "respawn": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "victory": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "settled": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "night": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dawn": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rescued": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "shortcut": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rite": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "gate.stabilized": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "gate.jammed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.lantern_point": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.deepwood": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.overlook": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.rillford": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.ford": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.spring_shrine": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.sluice": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.quarry": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.the_cut": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "place.archive": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.arrival_wreckage": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.templar_waymarker": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.dry_channel": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.spring_sediment": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.town_diversion": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.quarry_seep": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.sluice_crack": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.inspection_log": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.wetland_fish": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inspect.saltward_kit": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "item.archive_key": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "item.votive_reed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "item.sluice_brace": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "item.gate_wrench": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "item.coin": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "item.healing_herb": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "item.shore_apple": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "arrival",
+        "arrival.bell",
+        "blade",
+        "beast",
+        "wounded",
+        "respawn",
+        "victory",
+        "settled",
+        "night",
+        "dawn",
+        "rescued",
+        "shortcut",
+        "rite",
+        "gate.stabilized",
+        "gate.jammed",
+        "place.lantern_point",
+        "place.deepwood",
+        "place.overlook",
+        "place.rillford",
+        "place.ford",
+        "place.spring_shrine",
+        "place.sluice",
+        "place.quarry",
+        "place.the_cut",
+        "place.archive",
+        "inspect.arrival_wreckage",
+        "inspect.templar_waymarker",
+        "inspect.dry_channel",
+        "inspect.spring_sediment",
+        "inspect.town_diversion",
+        "inspect.quarry_seep",
+        "inspect.sluice_crack",
+        "inspect.inspection_log",
+        "inspect.wetland_fish",
+        "inspect.saltward_kit",
+        "item.archive_key",
+        "item.votive_reed",
+        "item.sluice_brace",
+        "item.gate_wrench",
+        "item.coin",
+        "item.healing_herb",
+        "item.shore_apple"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "speakers",
+    "lines",
+    "talks",
+    "scenes",
+    "sceneReach",
+    "hero"
+  ],
+  "additionalProperties": false
+}

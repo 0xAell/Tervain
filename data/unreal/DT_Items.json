@@ -1,0 +1,162 @@
+[
+  {
+    "Name": "coin",
+    "NameKey": "item.coin",
+    "DescriptionKey": "item.coin.desc",
+    "Kind": "Currency",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "rusted_sword",
+    "NameKey": "item.rusted_sword",
+    "DescriptionKey": "item.rusted_sword.desc",
+    "Kind": "Weapon",
+    "HealAmount": 0,
+    "Action": "Equip"
+  },
+  {
+    "Name": "hunting_bow",
+    "NameKey": "item.hunting_bow",
+    "DescriptionKey": "item.hunting_bow.desc",
+    "Kind": "Weapon",
+    "HealAmount": 0,
+    "Action": "Equip"
+  },
+  {
+    "Name": "arrow",
+    "NameKey": "item.arrow",
+    "DescriptionKey": "item.arrow.desc",
+    "Kind": "Material",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "skinning_knife",
+    "NameKey": "item.skinning_knife",
+    "DescriptionKey": "item.skinning_knife.desc",
+    "Kind": "Tool",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "animal_hide",
+    "NameKey": "item.animal_hide",
+    "DescriptionKey": "item.animal_hide.desc",
+    "Kind": "Material",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "raw_meat",
+    "NameKey": "item.raw_meat",
+    "DescriptionKey": "item.raw_meat.desc",
+    "Kind": "Material",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "sluice_brace",
+    "NameKey": "item.sluice_brace",
+    "DescriptionKey": "item.sluice_brace.desc",
+    "Kind": "Quest",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "gate_wrench",
+    "NameKey": "item.gate_wrench",
+    "DescriptionKey": "item.gate_wrench.desc",
+    "Kind": "Tool",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "archive_key",
+    "NameKey": "item.archive_key",
+    "DescriptionKey": "item.archive_key.desc",
+    "Kind": "Quest",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "votive_reed",
+    "NameKey": "item.votive_reed",
+    "DescriptionKey": "item.votive_reed.desc",
+    "Kind": "Quest",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "poultice",
+    "NameKey": "item.poultice",
+    "DescriptionKey": "item.poultice.desc",
+    "Kind": "Consumable",
+    "HealAmount": 40,
+    "Action": "Consume"
+  },
+  {
+    "Name": "shore_apple",
+    "NameKey": "item.shore_apple",
+    "DescriptionKey": "item.shore_apple.desc",
+    "Kind": "Consumable",
+    "HealAmount": 8,
+    "Action": "Consume"
+  },
+  {
+    "Name": "bread",
+    "NameKey": "item.bread",
+    "DescriptionKey": "item.bread.desc",
+    "Kind": "Consumable",
+    "HealAmount": 16,
+    "Action": "Consume"
+  },
+  {
+    "Name": "healing_herb",
+    "NameKey": "item.healing_herb",
+    "DescriptionKey": "item.healing_herb.desc",
+    "Kind": "Consumable",
+    "HealAmount": 24,
+    "Action": "Consume"
+  },
+  {
+    "Name": "field_mushroom",
+    "NameKey": "item.field_mushroom",
+    "DescriptionKey": "item.field_mushroom.desc",
+    "Kind": "Consumable",
+    "HealAmount": 10,
+    "Action": "Consume"
+  },
+  {
+    "Name": "iron_scrap",
+    "NameKey": "item.iron_scrap",
+    "DescriptionKey": "item.iron_scrap.desc",
+    "Kind": "Material",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "league_sash",
+    "NameKey": "item.league_sash",
+    "DescriptionKey": "item.league_sash.desc",
+    "Kind": "Clothing",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "contract_band",
+    "NameKey": "item.contract_band",
+    "DescriptionKey": "item.contract_band.desc",
+    "Kind": "Clothing",
+    "HealAmount": 0,
+    "Action": "None"
+  },
+  {
+    "Name": "witness_cord",
+    "NameKey": "item.witness_cord",
+    "DescriptionKey": "item.witness_cord.desc",
+    "Kind": "Clothing",
+    "HealAmount": 0,
+    "Action": "None"
+  }
+]

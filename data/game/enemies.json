@@ -1,0 +1,83 @@
+{
+  "about": "Hostile archetypes, their posts, and the numbers of an encounter.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "archetypes": {
+    "thornback": {
+      "name": "Thornback",
+      "hp": 110,
+      "speed": 4.4,
+      "reach": 2.9,
+      "wind": 0.95,
+      "strike": 0.4,
+      "recover": 1.1,
+      "damage": 20,
+      "notice": 10,
+      "heavy": true,
+      "radius": 0.85
+    },
+    "bandit": {
+      "name": "Toll-jumper",
+      "hp": 55,
+      "speed": 3.5,
+      "reach": 1.9,
+      "wind": 0.6,
+      "strike": 0.2,
+      "recover": 0.9,
+      "damage": 11,
+      "notice": 12,
+      "heavy": false,
+      "radius": 0.4
+    }
+  },
+  "posts": [
+    {
+      "id": "ford_bandit_a",
+      "kind": "bandit",
+      "x": 84,
+      "z": 38,
+      "leash": 16,
+      "idleYaw": 1.2,
+      "variant": 0
+    },
+    {
+      "id": "ford_bandit_b",
+      "kind": "bandit",
+      "x": 89,
+      "z": 42,
+      "leash": 16,
+      "idleYaw": 4,
+      "variant": 1
+    },
+    {
+      "id": "cut_creature",
+      "kind": "thornback",
+      "x": 110,
+      "z": -56,
+      "leash": 15,
+      "idleYaw": 1.2,
+      "variant": 0
+    }
+  ],
+  "encounter": {
+    "sightNear": 4.5,
+    "sightHalfAngle": 1.25,
+    "alert": 0.55,
+    "leashSlack": 6,
+    "loseFactor": 2.2,
+    "approach": 0.7,
+    "trackShare": 0.45,
+    "blowAt": 0.5,
+    "blowSlack": 0.5,
+    "blowCos": 0.35,
+    "lunge": 7,
+    "rechaseFactor": 2,
+    "staggerHeavy": 0.85,
+    "staggerLight": 0.3,
+    "staggerParried": 1.1,
+    "knockback": 2.2,
+    "returnPace": 0.7,
+    "returnHeal": 12,
+    "returnNotice": 0.6,
+    "home": 1
+  }
+}

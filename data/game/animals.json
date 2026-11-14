@@ -1,0 +1,691 @@
+{
+  "about": "The nineteen animals, each kind’s paces and temperament, their behaviour, and the hunting rules.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "animals": [
+    {
+      "id": "1005232739",
+      "species": "tiger",
+      "file": "tiger-1005232739.glb",
+      "habitat": "warm-woodland",
+      "home": {
+        "x": 107,
+        "z": 22
+      },
+      "roam": 19,
+      "huntId": "tiger",
+      "huntSpecies": "tiger",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 3
+      }
+    },
+    {
+      "id": "1005232726",
+      "species": "lion",
+      "file": "lion-1005232726.glb",
+      "habitat": "warm-woodland",
+      "home": {
+        "x": 112,
+        "z": 51
+      },
+      "roam": 19,
+      "huntId": "lion",
+      "huntSpecies": "lion",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 3
+      }
+    },
+    {
+      "id": "1005170943",
+      "species": "bear",
+      "file": "bear-1005170943.glb",
+      "habitat": "rocky-woodland",
+      "home": {
+        "x": -180,
+        "z": -57
+      },
+      "roam": 17,
+      "huntId": "bear-a",
+      "huntSpecies": "bear",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 4
+      }
+    },
+    {
+      "id": "1005232657",
+      "species": "bear",
+      "file": "bear-1005232657.glb",
+      "habitat": "rocky-woodland",
+      "home": {
+        "x": -149,
+        "z": -62
+      },
+      "roam": 17,
+      "huntId": "bear-b",
+      "huntSpecies": "bear",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 4
+      }
+    },
+    {
+      "id": "1005232644",
+      "species": "wolf",
+      "file": "wolf-1005232644.glb",
+      "habitat": "deepwood",
+      "home": {
+        "x": -175,
+        "z": 5
+      },
+      "roam": 16,
+      "huntId": "wolf-a",
+      "huntSpecies": "wolf",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 2
+      }
+    },
+    {
+      "id": "1005232637",
+      "species": "wolf",
+      "file": "wolf-1005232637.glb",
+      "habitat": "deepwood",
+      "home": {
+        "x": -166,
+        "z": 37
+      },
+      "roam": 16,
+      "huntId": "wolf-b",
+      "huntSpecies": "wolf",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 2
+      }
+    },
+    {
+      "id": "1005232631",
+      "species": "wolf",
+      "file": "wolf-1005232631.glb",
+      "habitat": "deepwood",
+      "home": {
+        "x": -190,
+        "z": 25
+      },
+      "roam": 16,
+      "huntId": "wolf-c",
+      "huntSpecies": "wolf",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 2
+      }
+    },
+    {
+      "id": "1005232619",
+      "species": "cat",
+      "file": "cat-1005232619.glb",
+      "habitat": "settlement",
+      "home": {
+        "x": -83,
+        "z": 37
+      },
+      "roam": 7,
+      "huntId": "cat-a",
+      "huntSpecies": "cat",
+      "huntable": false,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 0,
+        "raw_meat": 0
+      }
+    },
+    {
+      "id": "1005232608",
+      "species": "cat",
+      "file": "cat-1005232608.glb",
+      "habitat": "settlement",
+      "home": {
+        "x": -98,
+        "z": 54
+      },
+      "roam": 0,
+      "seated": true,
+      "huntId": "cat-b",
+      "huntSpecies": "cat",
+      "huntable": false,
+      "clips": [
+        "Idle",
+        "Alert",
+        "Call",
+        "Groom",
+        "Sleep"
+      ],
+      "loot": {
+        "animal_hide": 0,
+        "raw_meat": 0
+      }
+    },
+    {
+      "id": "1005232556",
+      "species": "cat",
+      "file": "cat-1005232556.glb",
+      "habitat": "settlement",
+      "home": {
+        "x": -10,
+        "z": 27
+      },
+      "roam": 7,
+      "huntId": "cat-c",
+      "huntSpecies": "cat",
+      "huntable": false,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 0,
+        "raw_meat": 0
+      }
+    },
+    {
+      "id": "1005232529",
+      "species": "dog",
+      "file": "dog-1005232529.glb",
+      "habitat": "settlement",
+      "home": {
+        "x": -87,
+        "z": 20
+      },
+      "roam": 9,
+      "huntId": "dog-a",
+      "huntSpecies": "dog",
+      "huntable": false,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 0,
+        "raw_meat": 0
+      }
+    },
+    {
+      "id": "1005232511",
+      "species": "dog",
+      "file": "dog-1005232511.glb",
+      "habitat": "settlement",
+      "home": {
+        "x": 0,
+        "z": 15
+      },
+      "roam": 9,
+      "huntId": "dog-b",
+      "huntSpecies": "dog",
+      "huntable": false,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call"
+      ],
+      "loot": {
+        "animal_hide": 0,
+        "raw_meat": 0
+      }
+    },
+    {
+      "id": "1005232450",
+      "species": "boar",
+      "file": "boar-1005232450.glb",
+      "habitat": "woodland",
+      "home": {
+        "x": -205,
+        "z": -7
+      },
+      "roam": 13,
+      "huntId": "boar-b",
+      "huntSpecies": "boar",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call",
+        "Graze"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 4
+      }
+    },
+    {
+      "id": "1005232442",
+      "species": "boar",
+      "file": "boar-1005232442.glb",
+      "habitat": "woodland",
+      "home": {
+        "x": -188,
+        "z": -19
+      },
+      "roam": 13,
+      "huntId": "boar-a",
+      "huntSpecies": "boar",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call",
+        "Graze"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 4
+      }
+    },
+    {
+      "id": "1005174818",
+      "species": "boar",
+      "file": "boar-1005174818.glb",
+      "habitat": "woodland",
+      "home": {
+        "x": -157,
+        "z": 55
+      },
+      "roam": 14,
+      "huntId": "boar-c",
+      "huntSpecies": "boar",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call",
+        "Graze"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 4
+      }
+    },
+    {
+      "id": "1005232424",
+      "species": "deer",
+      "file": "deer-1005232424.glb",
+      "habitat": "woodland",
+      "home": {
+        "x": -218,
+        "z": 44
+      },
+      "roam": 12,
+      "huntId": "stag",
+      "huntSpecies": "stag",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call",
+        "Graze"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 4
+      }
+    },
+    {
+      "id": "1005232412",
+      "species": "deer",
+      "file": "deer-1005232412.glb",
+      "habitat": "caravan-rest",
+      "home": {
+        "x": -99.8,
+        "z": 30.4
+      },
+      "roam": 0,
+      "tame": true,
+      "homeYaw": 0,
+      "huntId": "deer-mount",
+      "huntSpecies": "deer",
+      "huntable": false,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call",
+        "Graze"
+      ],
+      "loot": {
+        "animal_hide": 0,
+        "raw_meat": 0
+      }
+    },
+    {
+      "id": "1005232351",
+      "species": "deer",
+      "file": "deer-1005232351.glb",
+      "habitat": "woodland",
+      "home": {
+        "x": -146,
+        "z": 28
+      },
+      "roam": 16,
+      "huntId": "deer-a",
+      "huntSpecies": "deer",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call",
+        "Graze"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 3
+      }
+    },
+    {
+      "id": "1005232341",
+      "species": "deer",
+      "file": "deer-1005232341.glb",
+      "habitat": "woodland",
+      "home": {
+        "x": -119,
+        "z": 28
+      },
+      "roam": 16,
+      "huntId": "deer-b",
+      "huntSpecies": "deer",
+      "huntable": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "Alert",
+        "Call",
+        "Graze"
+      ],
+      "loot": {
+        "animal_hide": 1,
+        "raw_meat": 3
+      }
+    }
+  ],
+  "species": {
+    "tiger": {
+      "walk": 1.1,
+      "run": 3.8,
+      "notice": 13,
+      "flee": 6,
+      "holdUntil": 0.55,
+      "herd": 0
+    },
+    "lion": {
+      "walk": 1.05,
+      "run": 3.4,
+      "notice": 13,
+      "flee": 6,
+      "holdUntil": 0.55,
+      "herd": 0
+    },
+    "bear": {
+      "walk": 0.8,
+      "run": 2.2,
+      "notice": 14,
+      "flee": 7,
+      "holdUntil": 0.6,
+      "herd": 0
+    },
+    "wolf": {
+      "walk": 1.2,
+      "run": 3.5,
+      "notice": 14,
+      "flee": 8,
+      "holdUntil": 0.65,
+      "herd": 35
+    },
+    "cat": {
+      "walk": 0.55,
+      "run": 1.8,
+      "notice": 4.5,
+      "flee": 2,
+      "holdUntil": 1,
+      "herd": 0
+    },
+    "dog": {
+      "walk": 1,
+      "run": 2.6,
+      "notice": 5,
+      "flee": 2.8,
+      "holdUntil": 1,
+      "herd": 0
+    },
+    "boar": {
+      "walk": 0.75,
+      "run": 2,
+      "notice": 12,
+      "flee": 6,
+      "holdUntil": 1,
+      "herd": 18
+    },
+    "deer": {
+      "walk": 1.15,
+      "run": 3.5,
+      "notice": 16,
+      "flee": 10,
+      "holdUntil": 1,
+      "herd": 24
+    }
+  },
+  "behaviour": {
+    "firstRest": [
+      3,
+      7
+    ],
+    "rest": [
+      4,
+      9
+    ],
+    "restNoPath": [
+      4,
+      5
+    ],
+    "seatedRest": [
+      9,
+      14
+    ],
+    "firstCall": {
+      "base": 18,
+      "stagger": 2.1,
+      "span": 25
+    },
+    "call": [
+      35,
+      40
+    ],
+    "callClearance": 1,
+    "callAt": 0.25,
+    "callSeconds": 3.8,
+    "gestureSlack": 0.2,
+    "grazeShare": 0.75,
+    "seatedGroomShare": 0.2,
+    "catSleepShare": 0.55,
+    "warnShare": 0.3,
+    "seatedAlert": 14,
+    "alert": [
+      13,
+      12
+    ],
+    "wander": {
+      "base": 4,
+      "roamShare": 0.65,
+      "attempts": 10
+    },
+    "flee": {
+      "base": 7,
+      "step": 0.45,
+      "fan": 0.34
+    },
+    "cornered": {
+      "directions": 16,
+      "reach": 8,
+      "roamShare": 0.95,
+      "keep": 6,
+      "slack": 0.5,
+      "minMove": 2
+    },
+    "plan": [
+      0.9,
+      0.4
+    ],
+    "replanBlocked": 0.4,
+    "turn": 3.5,
+    "watchTurn": 1.4,
+    "turnFirst": 0.18,
+    "arrive": 0.25,
+    "stalled": 0.1,
+    "giveUp": 1,
+    "ledHomeBeyond": 90,
+    "rideRun": 2.6,
+    "rideWalk": 0.15
+  },
+  "triangleLimit": 50000,
+  "protected": [
+    "cat-a",
+    "dog-a",
+    "dog-b",
+    "cat-b",
+    "deer-mount",
+    "cat-c"
+  ],
+  "hunting": {
+    "arrowRange": 65,
+    "skinningReach": 2.8,
+    "skinningSeconds": 3.2,
+    "quiverCapacity": 40,
+    "restockArrows": 6,
+    "spareArrows": 6,
+    "meatPrice": 2,
+    "ranks": [
+      {
+        "taken": 0,
+        "key": "novice",
+        "skinning": 1,
+        "meat": 2,
+        "arrows": 6
+      },
+      {
+        "taken": 3,
+        "key": "tracker",
+        "skinning": 0.85,
+        "meat": 3,
+        "arrows": 8
+      },
+      {
+        "taken": 8,
+        "key": "hunter",
+        "skinning": 0.72,
+        "meat": 4,
+        "arrows": 9
+      },
+      {
+        "taken": 15,
+        "key": "master",
+        "skinning": 0.6,
+        "meat": 5,
+        "arrows": 10
+      }
+    ],
+    "returnHours": {
+      "deer": 20,
+      "stag": 30,
+      "boar": 26,
+      "wolf": 36,
+      "bear": 72,
+      "lion": 72,
+      "tiger": 72,
+      "cat": null,
+      "dog": null
+    },
+    "carcassHours": 30,
+    "woundHours": 6,
+    "returnDistance": 70
+  }
+}

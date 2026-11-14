@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/quest.schema.json",
+  "title": "game/quest.json",
+  "description": "The Dry Bell quest’s vocabulary and timings: phases, evidence, parties, residents’ roles, places, save identity.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "saveFormatVersion": {
+      "type": "integer"
+    },
+    "contentRevision": {
+      "type": "string"
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allocations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "gateStates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "parties": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "partyResident": {
+      "type": "object",
+      "properties": {
+        "mara": {
+          "type": "string"
+        },
+        "edda": {
+          "type": "string"
+        },
+        "darin": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mara",
+        "edda",
+        "darin"
+      ],
+      "additionalProperties": false
+    },
+    "principals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "decisionMakers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "residents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "places": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "firstWeaponPickup": {
+      "type": "string"
+    },
+    "quickSlots": {
+      "type": "integer"
+    },
+    "minutes": {
+      "type": "object",
+      "properties": {
+        "reportDelay": {
+          "type": "integer"
+        },
+        "riteCalm": {
+          "type": "integer"
+        },
+        "applyDelay": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "reportDelay",
+        "riteCalm",
+        "applyDelay"
+      ],
+      "additionalProperties": false
+    },
+    "coin": {
+      "type": "object",
+      "properties": {
+        "training": {
+          "type": "integer"
+        },
+        "reward": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "training",
+        "reward"
+      ],
+      "additionalProperties": false
+    },
+    "mapMarkerBounds": {
+      "type": "object",
+      "properties": {
+        "minX": {
+          "type": "integer"
+        },
+        "maxX": {
+          "type": "integer"
+        },
+        "minZ": {
+          "type": "integer"
+        },
+        "maxZ": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "minX",
+        "maxX",
+        "minZ",
+        "maxZ"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "saveFormatVersion",
+    "contentRevision",
+    "phases",
+    "evidence",
+    "allocations",
+    "gateStates",
+    "parties",
+    "partyResident",
+    "principals",
+    "decisionMakers",
+    "residents",
+    "places",
+    "firstWeaponPickup",
+    "quickSlots",
+    "minutes",
+    "coin",
+    "mapMarkerBounds"
+  ],
+  "additionalProperties": false
+}

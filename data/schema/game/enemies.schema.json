@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/enemies.schema.json",
+  "title": "game/enemies.json",
+  "description": "Hostile archetypes, their posts, and the numbers of an encounter.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "archetypes": {
+      "type": "object",
+      "properties": {
+        "thornback": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "hp": {
+              "type": "integer"
+            },
+            "speed": {
+              "type": "number"
+            },
+            "reach": {
+              "type": "number"
+            },
+            "wind": {
+              "type": "number"
+            },
+            "strike": {
+              "type": "number"
+            },
+            "recover": {
+              "type": "number"
+            },
+            "damage": {
+              "type": "integer"
+            },
+            "notice": {
+              "type": "integer"
+            },
+            "heavy": {
+              "type": "boolean"
+            },
+            "radius": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "name",
+            "hp",
+            "speed",
+            "reach",
+            "wind",
+            "strike",
+            "recover",
+            "damage",
+            "notice",
+            "heavy",
+            "radius"
+          ],
+          "additionalProperties": false
+        },
+        "bandit": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "hp": {
+              "type": "integer"
+            },
+            "speed": {
+              "type": "number"
+            },
+            "reach": {
+              "type": "number"
+            },
+            "wind": {
+              "type": "number"
+            },
+            "strike": {
+              "type": "number"
+            },
+            "recover": {
+              "type": "number"
+            },
+            "damage": {
+              "type": "integer"
+            },
+            "notice": {
+              "type": "integer"
+            },
+            "heavy": {
+              "type": "boolean"
+            },
+            "radius": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "name",
+            "hp",
+            "speed",
+            "reach",
+            "wind",
+            "strike",
+            "recover",
+            "damage",
+            "notice",
+            "heavy",
+            "radius"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "thornback",
+        "bandit"
+      ],
+      "additionalProperties": false
+    },
+    "posts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "x": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "integer"
+          },
+          "leash": {
+            "type": "integer"
+          },
+          "idleYaw": {
+            "type": "number"
+          },
+          "variant": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "x",
+          "z",
+          "leash",
+          "idleYaw",
+          "variant"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "encounter": {
+      "type": "object",
+      "properties": {
+        "sightNear": {
+          "type": "number"
+        },
+        "sightHalfAngle": {
+          "type": "number"
+        },
+        "alert": {
+          "type": "number"
+        },
+        "leashSlack": {
+          "type": "integer"
+        },
+        "loseFactor": {
+          "type": "number"
+        },
+        "approach": {
+          "type": "number"
+        },
+        "trackShare": {
+          "type": "number"
+        },
+        "blowAt": {
+          "type": "number"
+        },
+        "blowSlack": {
+          "type": "number"
+        },
+        "blowCos": {
+          "type": "number"
+        },
+        "lunge": {
+          "type": "integer"
+        },
+        "rechaseFactor": {
+          "type": "integer"
+        },
+        "staggerHeavy": {
+          "type": "number"
+        },
+        "staggerLight": {
+          "type": "number"
+        },
+        "staggerParried": {
+          "type": "number"
+        },
+        "knockback": {
+          "type": "number"
+        },
+        "returnPace": {
+          "type": "number"
+        },
+        "returnHeal": {
+          "type": "integer"
+        },
+        "returnNotice": {
+          "type": "number"
+        },
+        "home": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sightNear",
+        "sightHalfAngle",
+        "alert",
+        "leashSlack",
+        "loseFactor",
+        "approach",
+        "trackShare",
+        "blowAt",
+        "blowSlack",
+        "blowCos",
+        "lunge",
+        "rechaseFactor",
+        "staggerHeavy",
+        "staggerLight",
+        "staggerParried",
+        "knockback",
+        "returnPace",
+        "returnHeal",
+        "returnNotice",
+        "home"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "archetypes",
+    "posts",
+    "encounter"
+  ],
+  "additionalProperties": false
+}

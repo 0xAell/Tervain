@@ -1,0 +1,374 @@
+[
+  {
+    "Name": "caravan_master",
+    "DisplayName": "Joss Merrin",
+    "TitleKey": "npc.title.caravan_master",
+    "Faction": "Traveler",
+    "HomeAnchor": "overlook_wagon",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 0,
+        "ToHour": 24,
+        "Anchor": "overlook_wagon",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "rillford_reeve",
+    "DisplayName": "Mara Venn",
+    "TitleKey": "npc.title.rillford_reeve",
+    "Faction": "League",
+    "HomeAnchor": "reeve_door",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 6,
+        "ToHour": 8,
+        "Anchor": "reeve_door",
+        "Activity": "Work",
+        "IndoorPost": "reeve_table"
+      },
+      {
+        "FromHour": 8,
+        "ToHour": 12,
+        "Anchor": "noticeboard",
+        "Activity": "Talk",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 12,
+        "ToHour": 17,
+        "Anchor": "dry_channel",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 17,
+        "ToHour": 20,
+        "Anchor": "village_square",
+        "Activity": "Talk",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 20,
+        "ToHour": 6,
+        "Anchor": "reeve_door",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "spring_steward",
+    "DisplayName": "Sister Edda Sorn",
+    "TitleKey": "npc.title.spring_steward",
+    "Faction": "Templar",
+    "HomeAnchor": "steward_cell",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 5,
+        "ToHour": 8,
+        "Anchor": "shrine_altar",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 8,
+        "ToHour": 16,
+        "Anchor": "wetland_edge",
+        "Activity": "Work",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 16,
+        "ToHour": 21,
+        "Anchor": "shrine_steps",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 21,
+        "ToHour": 5,
+        "Anchor": "steward_cell",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "quarry_foreman",
+    "DisplayName": "Darin Kest",
+    "TitleKey": "npc.title.quarry_foreman",
+    "Faction": "Marcher",
+    "HomeAnchor": "crew_bunks",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 6,
+        "ToHour": 18,
+        "Anchor": "quarry_yard",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 18,
+        "ToHour": 21,
+        "Anchor": "quarry_office",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 21,
+        "ToHour": 6,
+        "Anchor": "crew_bunks",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "maintenance_worker",
+    "DisplayName": "Ila Rusk",
+    "TitleKey": "npc.title.maintenance_worker",
+    "Faction": "Rimeward",
+    "HomeAnchor": "inn_bench",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 7,
+        "ToHour": 20,
+        "Anchor": "inn_bench",
+        "Activity": "Sit",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 20,
+        "ToHour": 7,
+        "Anchor": "inn_bench",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "estate_steward",
+    "DisplayName": "Oren Halvek",
+    "TitleKey": "npc.title.estate_steward",
+    "Faction": "Marcher",
+    "HomeAnchor": "quarry_office",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 8,
+        "ToHour": 12,
+        "Anchor": "quarry_office",
+        "Activity": "Work",
+        "IndoorPost": "office_table"
+      },
+      {
+        "FromHour": 12,
+        "ToHour": 18,
+        "Anchor": "quarry_office",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 18,
+        "ToHour": 8,
+        "Anchor": "quarry_office",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "ash_recorder",
+    "DisplayName": "Sel Anrit",
+    "TitleKey": "npc.title.ash_recorder",
+    "Faction": "Ash",
+    "HomeAnchor": "ford_camp",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 8,
+        "ToHour": 20,
+        "Anchor": "ford_camp",
+        "Activity": "Sit",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 20,
+        "ToHour": 8,
+        "Anchor": "ford_camp",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "shrine_warden",
+    "DisplayName": "Tolan Harrow",
+    "TitleKey": "npc.title.shrine_warden",
+    "Faction": "Templar",
+    "HomeAnchor": "warden_post",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 6,
+        "ToHour": 11,
+        "Anchor": "archive_door",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 11,
+        "ToHour": 13,
+        "Anchor": "archive_back",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 13,
+        "ToHour": 20,
+        "Anchor": "archive_door",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 20,
+        "ToHour": 6,
+        "Anchor": "warden_post",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "mill_hand",
+    "DisplayName": "Bess Corran",
+    "TitleKey": "npc.title.mill_hand",
+    "Faction": "League",
+    "HomeAnchor": "mill_door",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 7,
+        "ToHour": 10,
+        "Anchor": "mill_door",
+        "Activity": "Work",
+        "IndoorPost": "mill_bench"
+      },
+      {
+        "FromHour": 10,
+        "ToHour": 18,
+        "Anchor": "mill_door",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 18,
+        "ToHour": 7,
+        "Anchor": "mill_door",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "quarry_hand",
+    "DisplayName": "Pell Dunmore",
+    "TitleKey": "npc.title.quarry_hand",
+    "Faction": "Marcher",
+    "HomeAnchor": "crew_bunks",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 6,
+        "ToHour": 18,
+        "Anchor": "quarry_face",
+        "Activity": "Work",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 18,
+        "ToHour": 6,
+        "Anchor": "crew_bunks",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "village_baker",
+    "DisplayName": "Hesper Lowe",
+    "TitleKey": "npc.title.village_baker",
+    "Faction": "League",
+    "HomeAnchor": "bakery_door",
+    "InteractRadius": 270,
+    "Schedule": [
+      {
+        "FromHour": 5,
+        "ToHour": 8,
+        "Anchor": "bakery_door",
+        "Activity": "Work",
+        "IndoorPost": "bakery_oven"
+      },
+      {
+        "FromHour": 8,
+        "ToHour": 17,
+        "Anchor": "bakery_door",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 17,
+        "ToHour": 20,
+        "Anchor": "village_well",
+        "Activity": "Talk",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 20,
+        "ToHour": 5,
+        "Anchor": "bakery_door",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  },
+  {
+    "Name": "trail_hunter",
+    "DisplayName": "Rowan Vale",
+    "TitleKey": "npc.title.trail_hunter",
+    "Faction": "League",
+    "HomeAnchor": "hunter_shelter",
+    "InteractRadius": 300,
+    "Schedule": [
+      {
+        "FromHour": 6,
+        "ToHour": 20,
+        "Anchor": "hunter_station",
+        "Activity": "Work",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 20,
+        "ToHour": 22,
+        "Anchor": "hunter_station",
+        "Activity": "Stand",
+        "IndoorPost": ""
+      },
+      {
+        "FromHour": 22,
+        "ToHour": 6,
+        "Anchor": "hunter_shelter",
+        "Activity": "Rest",
+        "IndoorPost": ""
+      }
+    ]
+  }
+]

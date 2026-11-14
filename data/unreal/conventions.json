@@ -1,0 +1,19 @@
+{
+  "about": "How core values become Unreal values in data/unreal. The canonical data elsewhere under data/ stays in core units.",
+  "core": {
+    "length": "metres",
+    "angle": "radians",
+    "axes": "x east, y up, z south (right-handed, as glTF)",
+    "yaw": "0 faces +z; front = (sin yaw, cos yaw)"
+  },
+  "unreal": {
+    "length": "centimetres",
+    "angle": "degrees",
+    "axes": "X east, Y south, Z up (left-handed)",
+    "yaw": "FRotator yaw, 0 faces +X, positive turns towards +Y"
+  },
+  "position": "Unreal (X, Y, Z) = core (x, z, y) × 100",
+  "yawForForwardX": "UnrealYaw = 90 − coreYaw × 180/π, for assets authored with Unreal’s forward (+X)",
+  "yawForImportedGltf": "UnrealYaw = −coreYaw × 180/π, for meshes imported from glTF, whose front (+z) arrives as +Y",
+  "scale": "uniform scales carry over unchanged"
+}

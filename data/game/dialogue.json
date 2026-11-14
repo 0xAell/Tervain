@@ -1,0 +1,2654 @@
+{
+  "about": "The dialogue graph: nodes, choices, conditions and effects. Text is in strings.en.json under each node’s and choice’s key.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "nodes": [
+    {
+      "id": "joss_intro",
+      "speaker": "caravan_master",
+      "text": "d.joss_intro",
+      "choices": [
+        {
+          "text": "d.joss_intro#0",
+          "next": "joss_bell",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "caravan_master"
+            }
+          ]
+        },
+        {
+          "text": "d.joss_intro#1",
+          "next": "joss_work",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "caravan_master"
+            }
+          ]
+        },
+        {
+          "text": "d.joss_intro#2",
+          "next": "end",
+          "intent": "leave",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "caravan_master"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "joss_bell",
+      "speaker": "caravan_master",
+      "text": "d.joss_bell",
+      "choices": [
+        {
+          "text": "d.joss_bell#0",
+          "next": "joss_work",
+          "intent": "ask"
+        },
+        {
+          "text": "d.joss_bell#1",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_rillford"
+        }
+      ]
+    },
+    {
+      "id": "joss_work",
+      "speaker": "caravan_master",
+      "text": "d.joss_work",
+      "choices": [
+        {
+          "text": "d.joss_work#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_rillford"
+        },
+        {
+          "t": "fact",
+          "key": "told_quarry"
+        },
+        {
+          "t": "fact",
+          "key": "told_shrine"
+        }
+      ]
+    },
+    {
+      "id": "joss_hub",
+      "speaker": "caravan_master",
+      "text": "d.joss_hub",
+      "choices": [
+        {
+          "text": "d.joss_hub#0",
+          "next": "joss_bell",
+          "intent": "ask"
+        },
+        {
+          "text": "d.joss_hub#1",
+          "next": "joss_work",
+          "intent": "ask"
+        },
+        {
+          "text": "d.joss_hub#2",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "joss_after",
+      "speaker": "caravan_master",
+      "text": "d.joss_after",
+      "choices": [
+        {
+          "text": "d.joss_after#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "mara_intro",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_intro",
+      "choices": [
+        {
+          "text": "d.mara_intro#0",
+          "next": "mara_cause",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "rillford_reeve"
+            }
+          ]
+        },
+        {
+          "text": "d.mara_intro#1",
+          "next": "mara_offer",
+          "intent": "offer",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "rillford_reeve"
+            }
+          ]
+        },
+        {
+          "text": "d.mara_intro#2",
+          "next": "end",
+          "intent": "leave",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "rillford_reeve"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mara_cause",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_cause",
+      "choices": [
+        {
+          "text": "d.mara_cause#0",
+          "next": "mara_directions",
+          "intent": "ask"
+        },
+        {
+          "text": "d.mara_cause#1",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "enter",
+          "trigger": "reeve"
+        },
+        {
+          "t": "fact",
+          "key": "told_sluice"
+        },
+        {
+          "t": "fact",
+          "key": "told_shrine"
+        },
+        {
+          "t": "fact",
+          "key": "told_quarry"
+        },
+        {
+          "t": "fact",
+          "key": "told_dry_channel"
+        }
+      ]
+    },
+    {
+      "id": "mara_directions",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_directions",
+      "choices": [
+        {
+          "text": "d.mara_directions#0",
+          "next": "mara_hub",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_ford_path"
+        }
+      ]
+    },
+    {
+      "id": "mara_offer",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_offer",
+      "choices": [
+        {
+          "text": "d.mara_offer#0",
+          "next": "mara_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "enter",
+          "trigger": "reeve"
+        },
+        {
+          "t": "fact",
+          "key": "told_sluice"
+        },
+        {
+          "t": "fact",
+          "key": "told_shrine"
+        },
+        {
+          "t": "fact",
+          "key": "told_quarry"
+        },
+        {
+          "t": "fact",
+          "key": "told_dry_channel"
+        }
+      ]
+    },
+    {
+      "id": "mara_hub",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_hub",
+      "choices": [
+        {
+          "text": "d.mara_hub#0",
+          "next": "mara_needs",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "evidence",
+                "id": "dry_channel"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.mara_hub#1",
+          "next": "mara_needs",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "evidence",
+              "id": "dry_channel"
+            }
+          ]
+        },
+        {
+          "text": "d.mara_hub#2",
+          "next": "mara_diversion",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "fact",
+              "key": "saw_diversion"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "reeve_admits_diversion"
+              }
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.mara_hub#3",
+          "next": "mara_rotation",
+          "intent": "persuade",
+          "when": [
+            {
+              "t": "evidence",
+              "id": "dry_channel"
+            },
+            {
+              "t": "evidence",
+              "id": "diversion_and_seep"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "consent_mara"
+              }
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.mara_hub#4",
+          "next": "mara_ledger",
+          "intent": "offer",
+          "when": [
+            {
+              "t": "evidence",
+              "id": "rotation_ledger"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "told_mara_ledger"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.mara_hub#5",
+          "next": "mara_hide",
+          "intent": "persuade",
+          "when": [
+            {
+              "t": "evidence",
+              "id": "rotation_ledger"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "evidence_hidden"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.mara_hub#6",
+          "next": "mara_directions",
+          "intent": "ask"
+        },
+        {
+          "text": "d.mara_hub#7",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "mara_needs",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_needs",
+      "choices": [
+        {
+          "text": "d.mara_needs#0",
+          "next": "mara_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "evidence",
+          "id": "dry_channel",
+          "via": "testimony",
+          "source": "mara.needs"
+        },
+        {
+          "t": "fact",
+          "key": "claim_reeve_promised_relief"
+        },
+        {
+          "t": "fact",
+          "key": "told_dry_channel"
+        }
+      ]
+    },
+    {
+      "id": "mara_diversion",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_diversion",
+      "choices": [
+        {
+          "text": "d.mara_diversion#0",
+          "next": "mara_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "reeve_admits_diversion"
+        },
+        {
+          "t": "trust",
+          "npc": "rillford_reeve",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "mara_rotation",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_rotation",
+      "choices": [
+        {
+          "text": "d.mara_rotation#0",
+          "next": "mara_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "consent",
+          "party": "mara"
+        }
+      ]
+    },
+    {
+      "id": "mara_ledger",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_ledger",
+      "choices": [
+        {
+          "text": "d.mara_ledger#0",
+          "next": "mara_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_mara_ledger"
+        },
+        {
+          "t": "trust",
+          "npc": "rillford_reeve",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "mara_hide",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_hide",
+      "choices": [
+        {
+          "text": "d.mara_hide#0",
+          "next": "mara_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "evidence_hidden"
+        },
+        {
+          "t": "trust",
+          "npc": "rillford_reeve",
+          "delta": -1
+        }
+      ]
+    },
+    {
+      "id": "mara_jammed",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_jammed",
+      "choices": [
+        {
+          "text": "d.mara_jammed#0",
+          "next": "mara_hub",
+          "intent": "agree"
+        },
+        {
+          "text": "d.mara_jammed#1",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "mara_told_jam"
+        }
+      ]
+    },
+    {
+      "id": "mara_report_rillford",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_report_rillford",
+      "choices": [
+        {
+          "text": "d.mara_report_rillford#0",
+          "next": "mara_after_rillford",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "applied"
+            }
+          ],
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "settle",
+                "via": "mara_report"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.mara_report_rillford#1",
+          "next": "end",
+          "intent": "leave",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "applied"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mara_report_quarry",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_report_quarry",
+      "choices": [
+        {
+          "text": "d.mara_report_quarry#0",
+          "next": "mara_after_quarry",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "applied"
+            }
+          ],
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "settle",
+                "via": "mara_report"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.mara_report_quarry#1",
+          "next": "end",
+          "intent": "leave",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "applied"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mara_report_rotation",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_report_rotation",
+      "choices": [
+        {
+          "text": "d.mara_report_rotation#0",
+          "next": "mara_after_rotation",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "applied"
+            }
+          ],
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "settle",
+                "via": "mara_report"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.mara_report_rotation#1",
+          "next": "end",
+          "intent": "leave",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "applied"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mara_after_rillford",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_after_rillford",
+      "choices": [
+        {
+          "text": "d.mara_after_rillford#0",
+          "next": "mara_after_law",
+          "intent": "ask"
+        },
+        {
+          "text": "d.mara_after_rillford#1",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "mara_after_quarry",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_after_quarry",
+      "choices": [
+        {
+          "text": "d.mara_after_quarry#0",
+          "next": "mara_after_law",
+          "intent": "ask"
+        },
+        {
+          "text": "d.mara_after_quarry#1",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "mara_after_rotation",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_after_rotation",
+      "choices": [
+        {
+          "text": "d.mara_after_rotation#0",
+          "next": "mara_after_law",
+          "intent": "ask"
+        },
+        {
+          "text": "d.mara_after_rotation#1",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "mara_after_law",
+      "speaker": "rillford_reeve",
+      "text": "d.mara_after_law",
+      "choices": [
+        {
+          "text": "d.mara_after_law#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "edda_intro",
+      "speaker": "spring_steward",
+      "text": "d.edda_intro",
+      "choices": [
+        {
+          "text": "d.edda_intro#0",
+          "next": "edda_spring",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "spring_steward"
+            }
+          ]
+        },
+        {
+          "text": "d.edda_intro#1",
+          "next": "end",
+          "intent": "leave",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "spring_steward"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edda_spring",
+      "speaker": "spring_steward",
+      "text": "d.edda_spring",
+      "choices": [
+        {
+          "text": "d.edda_spring#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "enter",
+          "trigger": "steward"
+        },
+        {
+          "t": "fact",
+          "key": "told_sediment"
+        }
+      ]
+    },
+    {
+      "id": "edda_hub",
+      "speaker": "spring_steward",
+      "text": "d.edda_hub",
+      "choices": [
+        {
+          "text": "d.edda_hub#0",
+          "next": "edda_flow",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "evidence",
+                "id": "reduced_spring_flow"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.edda_hub#1",
+          "next": "edda_sluice",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "fact",
+              "key": "saw_sluice_damage"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "edda_confirms_crack"
+              }
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.edda_hub#2",
+          "next": "edda_admits",
+          "intent": "accuse",
+          "when": [
+            {
+              "t": "fact",
+              "key": "saw_inspection_gap"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "edda_admits_deferral"
+              }
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.edda_hub#3",
+          "next": "edda_archive_yes",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "edda_permission"
+              }
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "archive_access_lost"
+              }
+            },
+            {
+              "t": "evidence",
+              "id": "reduced_spring_flow"
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.edda_hub#4",
+          "next": "edda_rite",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "rite_taught"
+              }
+            },
+            {
+              "t": "evidence",
+              "id": "reduced_spring_flow"
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.edda_hub#5",
+          "next": "edda_consent",
+          "intent": "persuade",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "consent_edda"
+              }
+            },
+            {
+              "t": "evidence",
+              "id": "reduced_spring_flow"
+            },
+            {
+              "t": "evidence",
+              "id": "cracked_sluice"
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.edda_hub#6",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "edda_flow",
+      "speaker": "spring_steward",
+      "text": "d.edda_flow",
+      "choices": [
+        {
+          "text": "d.edda_flow#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "claim_steward_sediment"
+        }
+      ]
+    },
+    {
+      "id": "edda_sluice",
+      "speaker": "spring_steward",
+      "text": "d.edda_sluice",
+      "choices": [
+        {
+          "text": "d.edda_sluice#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "evidence",
+          "id": "cracked_sluice",
+          "via": "testimony",
+          "source": "edda.sluice"
+        },
+        {
+          "t": "fact",
+          "key": "edda_confirms_crack"
+        }
+      ]
+    },
+    {
+      "id": "edda_admits",
+      "speaker": "spring_steward",
+      "text": "d.edda_admits",
+      "choices": [
+        {
+          "text": "d.edda_admits#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "edda_admits_deferral"
+        },
+        {
+          "t": "trust",
+          "npc": "spring_steward",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "edda_archive_yes",
+      "speaker": "spring_steward",
+      "text": "d.edda_archive_yes",
+      "choices": [
+        {
+          "text": "d.edda_archive_yes#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "edda_permission"
+        },
+        {
+          "t": "fact",
+          "key": "told_archive_door"
+        }
+      ]
+    },
+    {
+      "id": "edda_rite",
+      "speaker": "spring_steward",
+      "text": "d.edda_rite",
+      "choices": [
+        {
+          "text": "d.edda_rite#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "grant",
+          "id": "edda_reed",
+          "items": {
+            "votive_reed": 1
+          }
+        },
+        {
+          "t": "fact",
+          "key": "rite_taught"
+        }
+      ]
+    },
+    {
+      "id": "edda_consent",
+      "speaker": "spring_steward",
+      "text": "d.edda_consent",
+      "choices": [
+        {
+          "text": "d.edda_consent#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "consent",
+          "party": "edda"
+        }
+      ]
+    },
+    {
+      "id": "edda_caught",
+      "speaker": "spring_steward",
+      "text": "d.edda_caught",
+      "choices": [
+        {
+          "text": "d.edda_caught#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "edda_confronted_trespass"
+        }
+      ]
+    },
+    {
+      "id": "edda_jammed",
+      "speaker": "spring_steward",
+      "text": "d.edda_jammed",
+      "choices": [
+        {
+          "text": "d.edda_jammed#0",
+          "next": "edda_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "edda_knows_forced"
+        }
+      ]
+    },
+    {
+      "id": "edda_after_rillford",
+      "speaker": "spring_steward",
+      "text": "d.edda_after_rillford",
+      "choices": [
+        {
+          "text": "d.edda_after_rillford#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "edda_after_quarry",
+      "speaker": "spring_steward",
+      "text": "d.edda_after_quarry",
+      "choices": [
+        {
+          "text": "d.edda_after_quarry#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "edda_after_rotation",
+      "speaker": "spring_steward",
+      "text": "d.edda_after_rotation",
+      "choices": [
+        {
+          "text": "d.edda_after_rotation#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "darin_intro",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_intro",
+      "choices": [
+        {
+          "text": "d.darin_intro#0",
+          "next": "darin_cause",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "quarry_foreman"
+            }
+          ]
+        },
+        {
+          "text": "d.darin_intro#1",
+          "next": "end",
+          "intent": "leave",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "quarry_foreman"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "darin_cause",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_cause",
+      "choices": [
+        {
+          "text": "d.darin_cause#0",
+          "next": "darin_cut",
+          "intent": "ask"
+        },
+        {
+          "text": "d.darin_cause#1",
+          "next": "darin_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "enter",
+          "trigger": "quarry_worker"
+        },
+        {
+          "t": "fact",
+          "key": "claim_foreman_spring_failing"
+        }
+      ]
+    },
+    {
+      "id": "darin_hub",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_hub",
+      "choices": [
+        {
+          "text": "d.darin_hub#0",
+          "next": "darin_seep",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "fact",
+              "key": "saw_seep"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "foreman_admits_seep"
+              }
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.darin_hub#1",
+          "next": "darin_cut",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "ila_rescued"
+              }
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "told_shortcut"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.darin_hub#2",
+          "next": "darin_brace",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "brace_permitted"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.darin_hub#3",
+          "next": "darin_contract",
+          "intent": "ask"
+        },
+        {
+          "text": "d.darin_hub#4",
+          "next": "darin_humiliate",
+          "intent": "accuse",
+          "when": [
+            {
+              "t": "fact",
+              "key": "saw_seep"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "darin_humiliated"
+              }
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.darin_hub#5",
+          "next": "darin_mediate",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "not",
+                "c": {
+                  "t": "fact",
+                  "key": "darin_humiliated"
+                }
+              }
+            },
+            {
+              "t": "evidence",
+              "id": "cracked_sluice"
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.darin_hub#6",
+          "next": "darin_rotation_ledger",
+          "intent": "persuade",
+          "when": [
+            {
+              "t": "evidence",
+              "id": "diversion_and_seep"
+            },
+            {
+              "t": "evidence",
+              "id": "cracked_sluice"
+            },
+            {
+              "t": "evidence",
+              "id": "rotation_ledger"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "darin_humiliated"
+              }
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "consent_darin"
+              }
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.darin_hub#7",
+          "next": "darin_rotation_pay",
+          "intent": "persuade",
+          "when": [
+            {
+              "t": "evidence",
+              "id": "diversion_and_seep"
+            },
+            {
+              "t": "evidence",
+              "id": "cracked_sluice"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "evidence",
+                "id": "rotation_ledger"
+              }
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "darin_humiliated"
+              }
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "consent_darin"
+              }
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.darin_hub#8",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "darin_seep",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_seep",
+      "choices": [
+        {
+          "text": "d.darin_seep#0",
+          "next": "darin_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "foreman_admits_seep"
+        },
+        {
+          "t": "trust",
+          "npc": "quarry_foreman",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "darin_cut",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_cut",
+      "choices": [
+        {
+          "text": "d.darin_cut#0",
+          "next": "darin_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_shortcut"
+        },
+        {
+          "t": "fact",
+          "key": "told_cut"
+        }
+      ]
+    },
+    {
+      "id": "darin_brace",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_brace",
+      "choices": [
+        {
+          "text": "d.darin_brace#0",
+          "next": "darin_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "brace_permitted"
+        }
+      ]
+    },
+    {
+      "id": "darin_contract",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_contract",
+      "choices": [
+        {
+          "text": "d.darin_contract#0",
+          "next": "darin_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_oren"
+        }
+      ]
+    },
+    {
+      "id": "darin_humiliate",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_humiliate",
+      "choices": [
+        {
+          "text": "d.darin_humiliate#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "darin_humiliated"
+        },
+        {
+          "t": "trust",
+          "npc": "quarry_foreman",
+          "delta": -2
+        },
+        {
+          "t": "fact",
+          "key": "consent_darin",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "darin_mediate",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_mediate",
+      "choices": [
+        {
+          "text": "d.darin_mediate#0",
+          "next": "darin_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "darin_humiliated",
+          "value": false
+        },
+        {
+          "t": "trust",
+          "npc": "quarry_foreman",
+          "delta": 1
+        }
+      ]
+    },
+    {
+      "id": "darin_rotation_ledger",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_rotation_ledger",
+      "choices": [
+        {
+          "text": "d.darin_rotation_ledger#0",
+          "next": "darin_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "consent",
+          "party": "darin"
+        }
+      ]
+    },
+    {
+      "id": "darin_rotation_pay",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_rotation_pay",
+      "choices": [
+        {
+          "text": "d.darin_rotation_pay#0",
+          "next": "darin_hub",
+          "intent": "commit",
+          "when": [
+            {
+              "t": "item",
+              "id": "coin",
+              "min": 10
+            }
+          ],
+          "showLocked": true,
+          "effects": [
+            {
+              "t": "item",
+              "id": "coin",
+              "delta": -10
+            },
+            {
+              "t": "consent",
+              "party": "darin"
+            },
+            {
+              "t": "fact",
+              "key": "darin_bonus_paid"
+            }
+          ]
+        },
+        {
+          "text": "d.darin_rotation_pay#1",
+          "next": "darin_hub",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "darin_report_rillford",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_report_rillford",
+      "choices": [
+        {
+          "text": "d.darin_report_rillford#0",
+          "next": "darin_after_rillford",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "applied"
+            }
+          ],
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "settle",
+                "via": "darin_report"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.darin_report_rillford#1",
+          "next": "end",
+          "intent": "leave",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "applied"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "darin_report_quarry",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_report_quarry",
+      "choices": [
+        {
+          "text": "d.darin_report_quarry#0",
+          "next": "darin_after_quarry",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "applied"
+            }
+          ],
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "settle",
+                "via": "darin_report"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.darin_report_quarry#1",
+          "next": "end",
+          "intent": "leave",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "applied"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "darin_report_rotation",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_report_rotation",
+      "choices": [
+        {
+          "text": "d.darin_report_rotation#0",
+          "next": "darin_after_rotation",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "applied"
+            }
+          ],
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "settle",
+                "via": "darin_report"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.darin_report_rotation#1",
+          "next": "end",
+          "intent": "leave",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "applied"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "darin_after_rillford",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_after_rillford",
+      "choices": [
+        {
+          "text": "d.darin_after_rillford#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "darin_after_quarry",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_after_quarry",
+      "choices": [
+        {
+          "text": "d.darin_after_quarry#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "darin_after_rotation",
+      "speaker": "quarry_foreman",
+      "text": "d.darin_after_rotation",
+      "choices": [
+        {
+          "text": "d.darin_after_rotation#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "ila_stranded",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_stranded",
+      "choices": [
+        {
+          "text": "d.ila_stranded#0",
+          "next": "ila_gate",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "maintenance_worker"
+            }
+          ]
+        },
+        {
+          "text": "d.ila_stranded#1",
+          "next": "end",
+          "intent": "agree",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "maintenance_worker"
+            },
+            {
+              "t": "enter",
+              "trigger": "worker"
+            },
+            {
+              "t": "fact",
+              "key": "told_cut"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ila_gate",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_gate",
+      "choices": [
+        {
+          "text": "d.ila_gate#0",
+          "next": "end",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_shortcut"
+        }
+      ]
+    },
+    {
+      "id": "ila_free_fight",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_free_fight",
+      "choices": [
+        {
+          "text": "d.ila_free_fight#0",
+          "next": "end",
+          "intent": "agree",
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "rescueWorker",
+                "method": "fight"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ila_free_shortcut",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_free_shortcut",
+      "choices": [
+        {
+          "text": "d.ila_free_shortcut#0",
+          "next": "end",
+          "intent": "agree",
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "rescueWorker",
+                "method": "shortcut"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ila_free_router",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_free_router",
+      "choices": [
+        {
+          "text": "d.ila_free_router#0",
+          "next": "ila_free_fight",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "defeated",
+              "id": "cut_creature"
+            }
+          ]
+        },
+        {
+          "text": "d.ila_free_router#1",
+          "next": "ila_free_shortcut",
+          "intent": "agree",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "defeated",
+                "id": "cut_creature"
+              }
+            },
+            {
+              "t": "fact",
+              "key": "shortcut_opened"
+            }
+          ]
+        },
+        {
+          "text": "d.ila_free_router#2",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "ila_testimony",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_testimony",
+      "choices": [
+        {
+          "text": "d.ila_testimony#0",
+          "next": "ila_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "evidence",
+          "id": "worker_testimony",
+          "via": "testimony",
+          "source": "ila.testimony"
+        },
+        {
+          "t": "evidence",
+          "id": "reduced_spring_flow",
+          "via": "testimony",
+          "source": "ila.testimony"
+        },
+        {
+          "t": "fact",
+          "key": "procedure_known"
+        },
+        {
+          "t": "grant",
+          "id": "ila_thanks",
+          "items": {
+            "poultice": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ila_testimony_shortcut",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_testimony_shortcut",
+      "choices": [
+        {
+          "text": "d.ila_testimony_shortcut#0",
+          "next": "ila_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "evidence",
+          "id": "worker_testimony",
+          "via": "testimony",
+          "source": "ila.testimony"
+        },
+        {
+          "t": "evidence",
+          "id": "reduced_spring_flow",
+          "via": "testimony",
+          "source": "ila.testimony"
+        },
+        {
+          "t": "fact",
+          "key": "procedure_known"
+        },
+        {
+          "t": "grant",
+          "id": "ila_thanks",
+          "items": {
+            "poultice": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ila_hub",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_hub",
+      "choices": [
+        {
+          "text": "d.ila_hub#0",
+          "next": "ila_procedure",
+          "intent": "ask"
+        },
+        {
+          "text": "d.ila_hub#1",
+          "next": "ila_who",
+          "intent": "ask"
+        },
+        {
+          "text": "d.ila_hub#2",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "ila_procedure",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_procedure",
+      "choices": [
+        {
+          "text": "d.ila_procedure#0",
+          "next": "ila_hub",
+          "intent": "agree"
+        }
+      ]
+    },
+    {
+      "id": "ila_who",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_who",
+      "choices": [
+        {
+          "text": "d.ila_who#0",
+          "next": "ila_hub",
+          "intent": "agree"
+        }
+      ]
+    },
+    {
+      "id": "ila_after",
+      "speaker": "maintenance_worker",
+      "text": "d.ila_after",
+      "choices": [
+        {
+          "text": "d.ila_after#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "oren_intro",
+      "speaker": "estate_steward",
+      "text": "d.oren_intro",
+      "choices": [
+        {
+          "text": "d.oren_intro#0",
+          "next": "oren_reserve",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "estate_steward"
+            }
+          ]
+        },
+        {
+          "text": "d.oren_intro#1",
+          "next": "end",
+          "intent": "leave",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "estate_steward"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "oren_reserve",
+      "speaker": "estate_steward",
+      "text": "d.oren_reserve",
+      "choices": [
+        {
+          "text": "d.oren_reserve#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "reserve_empty"
+        },
+        {
+          "t": "fact",
+          "key": "claim_reserve_sufficient"
+        }
+      ]
+    },
+    {
+      "id": "oren_hub",
+      "speaker": "estate_steward",
+      "text": "d.oren_hub",
+      "choices": [
+        {
+          "text": "d.oren_hub#0",
+          "next": "oren_reserve",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "reserve_empty"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.oren_hub#1",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "oren_after_quarry",
+      "speaker": "estate_steward",
+      "text": "d.oren_after_quarry",
+      "choices": [
+        {
+          "text": "d.oren_after_quarry#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "oren_after_other",
+      "speaker": "estate_steward",
+      "text": "d.oren_after_other",
+      "choices": [
+        {
+          "text": "d.oren_after_other#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "sel_intro",
+      "speaker": "ash_recorder",
+      "text": "d.sel_intro",
+      "choices": [
+        {
+          "text": "d.sel_intro#0",
+          "next": "sel_records",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "ash_recorder"
+            }
+          ]
+        },
+        {
+          "text": "d.sel_intro#1",
+          "next": "sel_doom",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "ash_recorder"
+            }
+          ]
+        },
+        {
+          "text": "d.sel_intro#2",
+          "next": "end",
+          "intent": "leave",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "ash_recorder"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sel_hub",
+      "speaker": "ash_recorder",
+      "text": "d.sel_hub",
+      "choices": [
+        {
+          "text": "d.sel_hub#0",
+          "next": "sel_records",
+          "intent": "ask"
+        },
+        {
+          "text": "d.sel_hub#1",
+          "next": "sel_doom",
+          "intent": "ask"
+        },
+        {
+          "text": "d.sel_hub#2",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "sel_records",
+      "speaker": "ash_recorder",
+      "text": "d.sel_records",
+      "choices": [
+        {
+          "text": "d.sel_records#0",
+          "next": "sel_hub",
+          "intent": "agree"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_ledger"
+        }
+      ]
+    },
+    {
+      "id": "sel_doom",
+      "speaker": "ash_recorder",
+      "text": "d.sel_doom",
+      "choices": [
+        {
+          "text": "d.sel_doom#0",
+          "next": "sel_hub",
+          "intent": "agree"
+        }
+      ]
+    },
+    {
+      "id": "sel_after",
+      "speaker": "ash_recorder",
+      "text": "d.sel_after",
+      "choices": [
+        {
+          "text": "d.sel_after#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "harrow_intro",
+      "speaker": "shrine_warden",
+      "text": "d.harrow_intro",
+      "choices": [
+        {
+          "text": "d.harrow_intro#0",
+          "next": "harrow_hub",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "shrine_warden"
+            }
+          ]
+        },
+        {
+          "text": "d.harrow_intro#1",
+          "next": "harrow_train",
+          "intent": "ask",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "shrine_warden"
+            }
+          ]
+        },
+        {
+          "text": "d.harrow_intro#2",
+          "next": "end",
+          "intent": "leave",
+          "effects": [
+            {
+              "t": "met",
+              "npc": "shrine_warden"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "harrow_hub",
+      "speaker": "shrine_warden",
+      "text": "d.harrow_hub",
+      "choices": [
+        {
+          "text": "d.harrow_hub#0",
+          "next": "harrow_open",
+          "intent": "persuade",
+          "when": [
+            {
+              "t": "fact",
+              "key": "edda_permission"
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "archive_access_lost"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.harrow_hub#1",
+          "next": "harrow_key",
+          "intent": "persuade",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "edda_permission"
+              }
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "archive_access_lost"
+              }
+            },
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "harrow_lent_key"
+              }
+            },
+            {
+              "t": "any",
+              "c": [
+                {
+                  "t": "evidence",
+                  "id": "reduced_spring_flow"
+                },
+                {
+                  "t": "evidence",
+                  "id": "cracked_sluice"
+                }
+              ]
+            }
+          ],
+          "showLocked": true
+        },
+        {
+          "text": "d.harrow_hub#2",
+          "next": "harrow_train",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "skill",
+                "id": "steady_guard"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.harrow_hub#3",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "harrow_open",
+      "speaker": "shrine_warden",
+      "text": "d.harrow_open",
+      "choices": [
+        {
+          "text": "d.harrow_open#0",
+          "next": "end",
+          "intent": "agree",
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "archiveAccess",
+                "method": "permission"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "harrow_key",
+      "speaker": "shrine_warden",
+      "text": "d.harrow_key",
+      "choices": [
+        {
+          "text": "d.harrow_key#0",
+          "next": "end",
+          "intent": "agree",
+          "effects": [
+            {
+              "t": "grant",
+              "id": "harrow_key",
+              "items": {
+                "archive_key": 1
+              }
+            },
+            {
+              "t": "fact",
+              "key": "harrow_lent_key"
+            },
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "archiveAccess",
+                "method": "borrowed_key"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "harrow_train",
+      "speaker": "shrine_warden",
+      "text": "d.harrow_train",
+      "choices": [
+        {
+          "text": "d.harrow_train#0",
+          "next": "harrow_trained",
+          "intent": "train",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "anyDefeated"
+              }
+            },
+            {
+              "t": "item",
+              "id": "coin",
+              "min": 10
+            }
+          ],
+          "showLocked": true,
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "train",
+                "skill": "steady_guard"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.harrow_train#1",
+          "next": "harrow_trained",
+          "intent": "train",
+          "when": [
+            {
+              "t": "anyDefeated"
+            }
+          ],
+          "showLocked": true,
+          "effects": [
+            {
+              "t": "cmd",
+              "cmd": {
+                "t": "train",
+                "skill": "steady_guard"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.harrow_train#2",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "harrow_trained",
+      "speaker": "shrine_warden",
+      "text": "d.harrow_trained",
+      "choices": [
+        {
+          "text": "d.harrow_trained#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "harrow_hub2",
+      "speaker": "shrine_warden",
+      "text": "d.harrow_hub2",
+      "choices": [
+        {
+          "text": "d.harrow_hub2#0",
+          "next": "harrow_hub",
+          "intent": "ask"
+        },
+        {
+          "text": "d.harrow_hub2#1",
+          "next": "harrow_train",
+          "intent": "ask",
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "skill",
+                "id": "steady_guard"
+              }
+            }
+          ]
+        },
+        {
+          "text": "d.harrow_hub2#2",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "harrow_caretaker",
+      "speaker": "shrine_warden",
+      "text": "d.harrow_caretaker",
+      "choices": [
+        {
+          "text": "d.harrow_caretaker#0",
+          "next": "harrow_hub",
+          "intent": "agree"
+        },
+        {
+          "text": "d.harrow_caretaker#1",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "harrow_caretaker_told"
+        }
+      ]
+    },
+    {
+      "id": "bess_default",
+      "speaker": "mill_hand",
+      "text": "d.bess_default",
+      "choices": [
+        {
+          "text": "d.bess_default#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "bess_rillford",
+      "speaker": "mill_hand",
+      "text": "d.bess_rillford",
+      "choices": [
+        {
+          "text": "d.bess_rillford#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "bess_quarry",
+      "speaker": "mill_hand",
+      "text": "d.bess_quarry",
+      "choices": [
+        {
+          "text": "d.bess_quarry#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "bess_rotation",
+      "speaker": "mill_hand",
+      "text": "d.bess_rotation",
+      "choices": [
+        {
+          "text": "d.bess_rotation#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "pell_default",
+      "speaker": "quarry_hand",
+      "text": "d.pell_default",
+      "choices": [
+        {
+          "text": "d.pell_default#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "enter",
+          "trigger": "quarry_worker"
+        },
+        {
+          "t": "fact",
+          "key": "told_cut"
+        }
+      ]
+    },
+    {
+      "id": "pell_rillford",
+      "speaker": "quarry_hand",
+      "text": "d.pell_rillford",
+      "choices": [
+        {
+          "text": "d.pell_rillford#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "pell_quarry",
+      "speaker": "quarry_hand",
+      "text": "d.pell_quarry",
+      "choices": [
+        {
+          "text": "d.pell_quarry#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "pell_rotation",
+      "speaker": "quarry_hand",
+      "text": "d.pell_rotation",
+      "choices": [
+        {
+          "text": "d.pell_rotation#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "pell_caretaker",
+      "speaker": "quarry_hand",
+      "text": "d.pell_caretaker",
+      "choices": [
+        {
+          "text": "d.pell_caretaker#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "pell_caretaker_told"
+        }
+      ]
+    },
+    {
+      "id": "hesper_default",
+      "speaker": "village_baker",
+      "text": "d.hesper_default",
+      "choices": [
+        {
+          "text": "d.hesper_default#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "told_dry_channel"
+        }
+      ]
+    },
+    {
+      "id": "hesper_rillford",
+      "speaker": "village_baker",
+      "text": "d.hesper_rillford",
+      "choices": [
+        {
+          "text": "d.hesper_rillford#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "hesper_quarry",
+      "speaker": "village_baker",
+      "text": "d.hesper_quarry",
+      "choices": [
+        {
+          "text": "d.hesper_quarry#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "hesper_rotation",
+      "speaker": "village_baker",
+      "text": "d.hesper_rotation",
+      "choices": [
+        {
+          "text": "d.hesper_rotation#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    },
+    {
+      "id": "hesper_caretaker",
+      "speaker": "village_baker",
+      "text": "d.hesper_caretaker",
+      "choices": [
+        {
+          "text": "d.hesper_caretaker#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ],
+      "onEnter": [
+        {
+          "t": "fact",
+          "key": "hesper_caretaker_told"
+        }
+      ]
+    },
+    {
+      "id": "rowan_default",
+      "speaker": "trail_hunter",
+      "text": "d.rowan_default",
+      "choices": [
+        {
+          "text": "d.rowan_default#0",
+          "next": "end",
+          "intent": "leave"
+        }
+      ]
+    }
+  ]
+}

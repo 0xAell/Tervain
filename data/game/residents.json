@@ -1,0 +1,1158 @@
+{
+  "about": "The named residents (role ids, schedules, overrides, homes) and the hamlet’s three silent residents.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "residents": [
+    {
+      "id": "caravan_master",
+      "name": "Joss Merrin",
+      "titleKey": "npc.title.caravan_master",
+      "faction": "traveler",
+      "home": "overlook_wagon",
+      "look": {
+        "skin": 13081202,
+        "primary": 8018490,
+        "secondary": 3815978,
+        "hair": 4864554,
+        "height": 1.02,
+        "girth": 1.1,
+        "accessory": "hat"
+      },
+      "schedule": [
+        {
+          "from": 0,
+          "to": 24,
+          "anchor": "overlook_wagon",
+          "activity": "stand"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.wagon",
+      "observation": "observe.caravan_master",
+      "berth": null
+    },
+    {
+      "id": "rillford_reeve",
+      "name": "Mara Venn",
+      "titleKey": "npc.title.rillford_reeve",
+      "faction": "league",
+      "home": "reeve_door",
+      "look": {
+        "skin": 14263928,
+        "primary": 5077588,
+        "secondary": 12755546,
+        "hair": 5913130,
+        "height": 1,
+        "girth": 1,
+        "accessory": "shawl"
+      },
+      "schedule": [
+        {
+          "from": 6,
+          "to": 8,
+          "anchor": "reeve_door",
+          "activity": "work",
+          "inside": "reeve_table"
+        },
+        {
+          "from": 8,
+          "to": 12,
+          "anchor": "noticeboard",
+          "activity": "talk"
+        },
+        {
+          "from": 12,
+          "to": 17,
+          "anchor": "dry_channel",
+          "activity": "stand"
+        },
+        {
+          "from": 17,
+          "to": 20,
+          "anchor": "village_square",
+          "activity": "talk"
+        },
+        {
+          "from": 20,
+          "to": 6,
+          "anchor": "reeve_door",
+          "activity": "rest"
+        }
+      ],
+      "overrides": [
+        {
+          "when": [
+            {
+              "t": "phase",
+              "is": "committed"
+            }
+          ],
+          "from": 6,
+          "to": 20,
+          "anchor": "village_square",
+          "activity": "talk"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.reeve",
+      "observation": "observe.rillford_reeve",
+      "berth": {
+        "building": "reeve_house",
+        "piece": "bed",
+        "index": 0
+      }
+    },
+    {
+      "id": "spring_steward",
+      "name": "Sister Edda Sorn",
+      "titleKey": "npc.title.spring_steward",
+      "faction": "templar",
+      "home": "steward_cell",
+      "look": {
+        "skin": 13211258,
+        "primary": 5926794,
+        "secondary": 14933188,
+        "hair": 10132122,
+        "height": 0.98,
+        "girth": 0.95,
+        "accessory": "robe",
+        "accent": 14272906
+      },
+      "schedule": [
+        {
+          "from": 5,
+          "to": 8,
+          "anchor": "shrine_altar",
+          "activity": "stand"
+        },
+        {
+          "from": 8,
+          "to": 16,
+          "anchor": "wetland_edge",
+          "activity": "work"
+        },
+        {
+          "from": 16,
+          "to": 21,
+          "anchor": "shrine_steps",
+          "activity": "stand"
+        },
+        {
+          "from": 21,
+          "to": 5,
+          "anchor": "steward_cell",
+          "activity": "rest"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.steward",
+      "observation": "observe.spring_steward",
+      "berth": {
+        "building": "shrine_hall",
+        "piece": "bench",
+        "index": 2
+      }
+    },
+    {
+      "id": "quarry_foreman",
+      "name": "Darin Kest",
+      "titleKey": "npc.title.quarry_foreman",
+      "faction": "marcher",
+      "home": "crew_bunks",
+      "look": {
+        "skin": 12159078,
+        "primary": 8014390,
+        "secondary": 3815999,
+        "hair": 2763306,
+        "height": 1.08,
+        "girth": 1.25,
+        "accessory": "helmet"
+      },
+      "schedule": [
+        {
+          "from": 6,
+          "to": 18,
+          "anchor": "quarry_yard",
+          "activity": "stand"
+        },
+        {
+          "from": 18,
+          "to": 21,
+          "anchor": "quarry_office",
+          "activity": "stand"
+        },
+        {
+          "from": 21,
+          "to": 6,
+          "anchor": "crew_bunks",
+          "activity": "rest"
+        }
+      ],
+      "overrides": [
+        {
+          "when": [
+            {
+              "t": "phase",
+              "is": "committed"
+            },
+            {
+              "t": "fact",
+              "key": "emergency_allocation"
+            },
+            {
+              "t": "alloc",
+              "is": "rillford"
+            }
+          ],
+          "from": 6,
+          "to": 20,
+          "anchor": "village_square",
+          "activity": "talk"
+        },
+        {
+          "when": [
+            {
+              "t": "phase",
+              "is": "committed"
+            },
+            {
+              "t": "alloc",
+              "is": "rotation"
+            }
+          ],
+          "from": 6,
+          "to": 20,
+          "anchor": "village_square",
+          "activity": "talk"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.foreman",
+      "observation": "observe.quarry_foreman",
+      "berth": {
+        "building": "crew_bunks",
+        "piece": "bunk",
+        "index": 1
+      }
+    },
+    {
+      "id": "maintenance_worker",
+      "name": "Ila Rusk",
+      "titleKey": "npc.title.maintenance_worker",
+      "faction": "rimeward",
+      "home": "inn_bench",
+      "look": {
+        "skin": 14201232,
+        "primary": 6969928,
+        "secondary": 11550762,
+        "hair": 3811866,
+        "height": 0.92,
+        "girth": 0.9,
+        "accessory": "satchel"
+      },
+      "schedule": [
+        {
+          "from": 7,
+          "to": 20,
+          "anchor": "inn_bench",
+          "activity": "sit"
+        },
+        {
+          "from": 20,
+          "to": 7,
+          "anchor": "inn_bench",
+          "activity": "rest"
+        }
+      ],
+      "overrides": [
+        {
+          "when": [
+            {
+              "t": "not",
+              "c": {
+                "t": "fact",
+                "key": "ila_rescued"
+              }
+            }
+          ],
+          "anchor": "cut_ledge",
+          "activity": "stand"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.worker",
+      "observation": "observe.maintenance_worker",
+      "berth": {
+        "building": "inn",
+        "piece": "floor"
+      }
+    },
+    {
+      "id": "estate_steward",
+      "name": "Oren Halvek",
+      "titleKey": "npc.title.estate_steward",
+      "faction": "marcher",
+      "home": "quarry_office",
+      "look": {
+        "skin": 14069130,
+        "primary": 3817306,
+        "secondary": 11049562,
+        "hair": 6974058,
+        "height": 1,
+        "girth": 0.9,
+        "accessory": "ledger"
+      },
+      "schedule": [
+        {
+          "from": 8,
+          "to": 12,
+          "anchor": "quarry_office",
+          "activity": "work",
+          "inside": "office_table"
+        },
+        {
+          "from": 12,
+          "to": 18,
+          "anchor": "quarry_office",
+          "activity": "stand"
+        },
+        {
+          "from": 18,
+          "to": 8,
+          "anchor": "quarry_office",
+          "activity": "rest"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.steward_estate",
+      "observation": "observe.estate_steward",
+      "berth": {
+        "building": "quarry_office",
+        "piece": "floor"
+      }
+    },
+    {
+      "id": "ash_recorder",
+      "name": "Sel Anrit",
+      "titleKey": "npc.title.ash_recorder",
+      "faction": "ash",
+      "home": "ford_camp",
+      "look": {
+        "skin": 12886154,
+        "primary": 4868686,
+        "secondary": 9079438,
+        "hair": 2763322,
+        "height": 1,
+        "girth": 0.85,
+        "accessory": "hood"
+      },
+      "schedule": [
+        {
+          "from": 8,
+          "to": 20,
+          "anchor": "ford_camp",
+          "activity": "sit"
+        },
+        {
+          "from": 20,
+          "to": 8,
+          "anchor": "ford_camp",
+          "activity": "rest"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.recorder",
+      "observation": "observe.ash_recorder",
+      "berth": {
+        "anchor": "ford_camp",
+        "piece": "seat"
+      }
+    },
+    {
+      "id": "shrine_warden",
+      "name": "Tolan Harrow",
+      "titleKey": "npc.title.shrine_warden",
+      "faction": "templar",
+      "home": "warden_post",
+      "look": {
+        "skin": 12160618,
+        "primary": 4874106,
+        "secondary": 8026746,
+        "hair": 5917242,
+        "height": 1.06,
+        "girth": 1.15,
+        "accessory": "coat",
+        "accent": 14272906
+      },
+      "schedule": [
+        {
+          "from": 6,
+          "to": 11,
+          "anchor": "archive_door",
+          "activity": "stand"
+        },
+        {
+          "from": 11,
+          "to": 13,
+          "anchor": "archive_back",
+          "activity": "stand"
+        },
+        {
+          "from": 13,
+          "to": 20,
+          "anchor": "archive_door",
+          "activity": "stand"
+        },
+        {
+          "from": 20,
+          "to": 6,
+          "anchor": "warden_post",
+          "activity": "rest"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.warden",
+      "observation": "observe.shrine_warden",
+      "berth": {
+        "building": "shrine_hall",
+        "piece": "bench",
+        "index": 5
+      }
+    },
+    {
+      "id": "mill_hand",
+      "name": "Bess Corran",
+      "titleKey": "npc.title.mill_hand",
+      "faction": "league",
+      "home": "mill_door",
+      "look": {
+        "skin": 13803644,
+        "primary": 10127962,
+        "secondary": 6965818,
+        "hair": 8014378,
+        "height": 0.96,
+        "girth": 1.05,
+        "accessory": "apron"
+      },
+      "schedule": [
+        {
+          "from": 7,
+          "to": 10,
+          "anchor": "mill_door",
+          "activity": "work",
+          "inside": "mill_bench"
+        },
+        {
+          "from": 10,
+          "to": 18,
+          "anchor": "mill_door",
+          "activity": "stand"
+        },
+        {
+          "from": 18,
+          "to": 7,
+          "anchor": "mill_door",
+          "activity": "rest"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.mill",
+      "observation": "observe.mill_hand",
+      "berth": {
+        "building": "house_a",
+        "piece": "bed",
+        "index": 0
+      }
+    },
+    {
+      "id": "quarry_hand",
+      "name": "Pell Dunmore",
+      "titleKey": "npc.title.quarry_hand",
+      "faction": "marcher",
+      "home": "crew_bunks",
+      "look": {
+        "skin": 13081202,
+        "primary": 6974042,
+        "secondary": 3820122,
+        "hair": 3811866,
+        "height": 1,
+        "girth": 1.1,
+        "accessory": "pack"
+      },
+      "schedule": [
+        {
+          "from": 6,
+          "to": 18,
+          "anchor": "quarry_face",
+          "activity": "work"
+        },
+        {
+          "from": 18,
+          "to": 6,
+          "anchor": "crew_bunks",
+          "activity": "rest"
+        }
+      ],
+      "overrides": [
+        {
+          "when": [
+            {
+              "t": "phase",
+              "atLeast": "committed"
+            },
+            {
+              "t": "alloc",
+              "is": "rotation"
+            }
+          ],
+          "from": 19,
+          "to": 6,
+          "anchor": "quarry_face",
+          "activity": "work"
+        },
+        {
+          "when": [
+            {
+              "t": "phase",
+              "atLeast": "committed"
+            },
+            {
+              "t": "alloc",
+              "is": "rotation"
+            }
+          ],
+          "from": 6,
+          "to": 19,
+          "anchor": "crew_bunks",
+          "activity": "rest"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.crew",
+      "observation": "observe.quarry_hand",
+      "berth": {
+        "building": "crew_bunks",
+        "piece": "bunk",
+        "index": 2
+      }
+    },
+    {
+      "id": "village_baker",
+      "name": "Hesper Lowe",
+      "titleKey": "npc.title.village_baker",
+      "faction": "league",
+      "home": "bakery_door",
+      "look": {
+        "skin": 14463114,
+        "primary": 12755546,
+        "secondary": 15261896,
+        "hair": 4864554,
+        "height": 0.97,
+        "girth": 1.15,
+        "accessory": "apron"
+      },
+      "schedule": [
+        {
+          "from": 5,
+          "to": 8,
+          "anchor": "bakery_door",
+          "activity": "work",
+          "inside": "bakery_oven"
+        },
+        {
+          "from": 8,
+          "to": 17,
+          "anchor": "bakery_door",
+          "activity": "stand"
+        },
+        {
+          "from": 17,
+          "to": 20,
+          "anchor": "village_well",
+          "activity": "talk"
+        },
+        {
+          "from": 20,
+          "to": 5,
+          "anchor": "bakery_door",
+          "activity": "rest"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.baker",
+      "observation": "observe.village_baker",
+      "berth": {
+        "building": "bakery",
+        "piece": "floor"
+      }
+    },
+    {
+      "id": "trail_hunter",
+      "name": "Rowan Vale",
+      "titleKey": "npc.title.trail_hunter",
+      "faction": "league",
+      "home": "hunter_shelter",
+      "look": {
+        "skin": 11898224,
+        "primary": 4739132,
+        "secondary": 6639674,
+        "hair": 3944489,
+        "height": 1.02,
+        "girth": 1.06,
+        "accessory": "cloak"
+      },
+      "schedule": [
+        {
+          "from": 6,
+          "to": 20,
+          "anchor": "hunter_station",
+          "activity": "work"
+        },
+        {
+          "from": 20,
+          "to": 22,
+          "anchor": "hunter_station",
+          "activity": "stand"
+        },
+        {
+          "from": 22,
+          "to": 6,
+          "anchor": "hunter_shelter",
+          "activity": "rest"
+        }
+      ],
+      "sleepsKey": "npc.sleeps.hunter",
+      "interactRadius": 3,
+      "approachGreeting": {
+        "line": "rowan.bark.supplies",
+        "radius": 6,
+        "leaveRadius": 11,
+        "cooldown": 120
+      },
+      "observation": "observe.trail_hunter",
+      "berth": {
+        "anchor": "hunter_shelter",
+        "piece": "ground"
+      }
+    }
+  ],
+  "ambient": [
+    {
+      "id": "fisher",
+      "x": -82.7467,
+      "z": 32.124638,
+      "yaw": 0.5,
+      "cycle": [
+        [
+          "work",
+          9
+        ],
+        [
+          "idle",
+          4
+        ],
+        [
+          "work",
+          7
+        ]
+      ],
+      "sleeps": true,
+      "radius": 0.45
+    },
+    {
+      "id": "fireside",
+      "x": -101.4,
+      "z": 17,
+      "yaw": 3.541593,
+      "cycle": [
+        [
+          "sit",
+          12
+        ],
+        [
+          "talk",
+          4
+        ],
+        [
+          "sit",
+          8
+        ]
+      ],
+      "seated": true,
+      "sleeps": true,
+      "radius": 0.4
+    },
+    {
+      "id": "keeper",
+      "x": -89.483365,
+      "z": 60.90805,
+      "yaw": 0.9,
+      "cycle": [
+        [
+          "idle",
+          14
+        ],
+        [
+          "talk",
+          3
+        ],
+        [
+          "idle",
+          9
+        ]
+      ],
+      "sleeps": false,
+      "radius": 0.45
+    }
+  ],
+  "barks": [
+    {
+      "npc": "trail_hunter",
+      "line": "rowan.bark.supplies"
+    },
+    {
+      "npc": "mill_hand",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "bess.bark.wheel"
+    },
+    {
+      "npc": "mill_hand",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "line": "bess.bark.grain"
+    },
+    {
+      "npc": "mill_hand",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rillford"
+        }
+      ],
+      "line": "bess.bark.evening"
+    },
+    {
+      "npc": "village_baker",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "hesper.bark.dough"
+    },
+    {
+      "npc": "village_baker",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "hesper.bark.barrel"
+    },
+    {
+      "npc": "village_baker",
+      "line": "hesper.bark.step"
+    },
+    {
+      "npc": "quarry_hand",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "pell.bark.nothing"
+    },
+    {
+      "npc": "quarry_hand",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "pell.bark.dust"
+    },
+    {
+      "npc": "quarry_hand",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "quarry"
+        }
+      ],
+      "line": "pell.bark.load"
+    },
+    {
+      "npc": "quarry_hand",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rotation"
+        }
+      ],
+      "line": "pell.bark.night"
+    },
+    {
+      "npc": "rillford_reeve",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "mara.bark.where"
+    },
+    {
+      "npc": "rillford_reeve",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "mara.bark.bucket"
+    },
+    {
+      "npc": "rillford_reeve",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rillford"
+        }
+      ],
+      "line": "mara.bark.bread"
+    },
+    {
+      "npc": "quarry_foreman",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "darin.bark.contract"
+    },
+    {
+      "npc": "quarry_foreman",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "darin.bark.count"
+    },
+    {
+      "npc": "quarry_foreman",
+      "line": "darin.bark.stack"
+    },
+    {
+      "npc": "spring_steward",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "edda.bark.quiet"
+    },
+    {
+      "npc": "spring_steward",
+      "line": "edda.bark.patience"
+    },
+    {
+      "npc": "spring_steward",
+      "line": "edda.bark.reeds"
+    },
+    {
+      "npc": "maintenance_worker",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ],
+      "line": "ila.bark.hello"
+    },
+    {
+      "npc": "maintenance_worker",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ],
+      "line": "ila.bark.down"
+    },
+    {
+      "npc": "maintenance_worker",
+      "when": [
+        {
+          "t": "fact",
+          "key": "ila_rescued"
+        }
+      ],
+      "line": "ila.bark.bench"
+    },
+    {
+      "npc": "shrine_warden",
+      "line": "tolan.bark.lamp"
+    },
+    {
+      "npc": "shrine_warden",
+      "line": "tolan.bark.hands"
+    },
+    {
+      "npc": "shrine_warden",
+      "hours": [
+        19,
+        6
+      ],
+      "line": "tolan.bark.lock"
+    },
+    {
+      "npc": "ash_recorder",
+      "line": "sel.bark.write"
+    },
+    {
+      "npc": "ash_recorder",
+      "line": "sel.bark.ink"
+    },
+    {
+      "npc": "ash_recorder",
+      "line": "sel.bark.hour"
+    },
+    {
+      "npc": "estate_steward",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "oren.bark.date"
+    },
+    {
+      "npc": "estate_steward",
+      "line": "oren.bark.columns"
+    },
+    {
+      "npc": "caravan_master",
+      "line": "joss.bark.horse"
+    },
+    {
+      "npc": "caravan_master",
+      "hours": [
+        5,
+        9
+      ],
+      "line": "joss.bark.fog"
+    },
+    {
+      "npc": "caravan_master",
+      "hours": [
+        20,
+        5
+      ],
+      "line": "joss.bark.lamp"
+    },
+    {
+      "npc": "rillford_reeve",
+      "hours": [
+        6,
+        8
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "line": "mara.bark.morning"
+    },
+    {
+      "npc": "rillford_reeve",
+      "hours": [
+        17,
+        20
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "line": "mara.bark.short"
+    },
+    {
+      "npc": "spring_steward",
+      "hours": [
+        5,
+        8
+      ],
+      "line": "edda.bark.blessed"
+    },
+    {
+      "npc": "spring_steward",
+      "hours": [
+        16,
+        21
+      ],
+      "line": "edda.bark.light"
+    },
+    {
+      "npc": "quarry_foreman",
+      "hours": [
+        6,
+        18
+      ],
+      "line": "darin.bark.edge"
+    },
+    {
+      "npc": "quarry_foreman",
+      "hours": [
+        18,
+        21
+      ],
+      "line": "darin.bark.ledgers"
+    },
+    {
+      "npc": "maintenance_worker",
+      "hours": [
+        18,
+        24
+      ],
+      "when": [
+        {
+          "t": "fact",
+          "key": "ila_rescued"
+        }
+      ],
+      "line": "ila.bark.cheerful"
+    },
+    {
+      "npc": "estate_steward",
+      "hours": [
+        8,
+        18
+      ],
+      "line": "oren.bark.counting"
+    },
+    {
+      "npc": "ash_recorder",
+      "hours": [
+        8,
+        18
+      ],
+      "line": "sel.bark.river"
+    },
+    {
+      "npc": "ash_recorder",
+      "hours": [
+        19,
+        20
+      ],
+      "line": "sel.bark.dark"
+    },
+    {
+      "npc": "shrine_warden",
+      "hours": [
+        6,
+        20
+      ],
+      "line": "tolan.bark.along"
+    },
+    {
+      "npc": "mill_hand",
+      "hours": [
+        7,
+        9
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "line": "bess.bark.morning"
+    },
+    {
+      "npc": "quarry_hand",
+      "hours": [
+        17,
+        20
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "line": "pell.bark.done"
+    },
+    {
+      "npc": "village_baker",
+      "hours": [
+        5,
+        8
+      ],
+      "line": "hesper.bark.ovens"
+    },
+    {
+      "npc": "village_baker",
+      "hours": [
+        17,
+        20
+      ],
+      "line": "hesper.bark.queue"
+    }
+  ],
+  "movement": {
+    "walkSpeed": 1.55,
+    "radius": 0.35,
+    "acceleration": 3.2,
+    "braking": 4,
+    "turnWalking": 3.2,
+    "turnStanding": 2.2,
+    "turnEase": 7,
+    "turnStepped": 0.6,
+    "turnStride": 0.3,
+    "settled": 0.3,
+    "arriveExact": 0.06,
+    "arriveNear": 0.15,
+    "lieSeconds": 1.8,
+    "sitBeforeLying": 1.2,
+    "alarmReach": 40,
+    "barkReach": 6.5,
+    "firstBark": [
+      8,
+      10
+    ],
+    "bark": [
+      28,
+      20
+    ]
+  }
+}

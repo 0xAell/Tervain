@@ -1,0 +1,35 @@
+[
+  {
+    "Name": "ford_bandit_a",
+    "Archetype": "bandit",
+    "Location": {
+      "X": 8400,
+      "Y": 3800,
+      "Z": 80.459
+    },
+    "Leash": 1600,
+    "IdleYaw": 21.245
+  },
+  {
+    "Name": "ford_bandit_b",
+    "Archetype": "bandit",
+    "Location": {
+      "X": 8900,
+      "Y": 4200,
+      "Z": 93.479
+    },
+    "Leash": 1600,
+    "IdleYaw": -139.183
+  },
+  {
+    "Name": "cut_creature",
+    "Archetype": "thornback",
+    "Location": {
+      "X": 11000,
+      "Y": -5600,
+      "Z": 600.51
+    },
+    "Leash": 1500,
+    "IdleYaw": 21.245
+  }
+]

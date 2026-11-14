@@ -1,0 +1,2213 @@
+{
+  "about": "Spoken lines by key, residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "speakers": {
+    "trail_hunter": "Rowan Vale",
+    "hero": "You",
+    "caravan_master": "Joss Merrin",
+    "rillford_reeve": "Mara Venn",
+    "spring_steward": "Sister Edda",
+    "quarry_foreman": "Darin Kest",
+    "maintenance_worker": "Ila Rusk",
+    "estate_steward": "Oren Halvek",
+    "ash_recorder": "Sel Anrit",
+    "shrine_warden": "Tolan Harrow",
+    "mill_hand": "Bess Corran",
+    "quarry_hand": "Pell Dunmore",
+    "village_baker": "Hesper Lowe"
+  },
+  "lines": {
+    "rowan.bark.supplies": {
+      "speaker": "trail_hunter",
+      "text": "Rillford's pots are running thin. Take a bow from the bench if you need one. Bring back meat and I'll pay a fair price. Keep your hunt clear of the road."
+    },
+    "hero.arrival": {
+      "speaker": "hero",
+      "text": "Salt in my mouth. Sand in everything. And no name to go with any of it."
+    },
+    "hero.arrival.bell": {
+      "speaker": "hero",
+      "text": "A bell, inland. Somebody is in trouble. Might as well be me who answers."
+    },
+    "hero.place.lantern_point": {
+      "speaker": "hero",
+      "text": "A lighthouse. Dark, for now. Somebody kept it lit once."
+    },
+    "hero.place.deepwood": {
+      "speaker": "hero",
+      "text": "Old trees. Older than whatever I was."
+    },
+    "hero.place.overlook": {
+      "speaker": "hero",
+      "text": "A village below. Smoke from the chimneys, at least."
+    },
+    "hero.place.rillford": {
+      "speaker": "hero",
+      "text": "Rillford. The bell is louder here. So is the quiet."
+    },
+    "hero.place.ford": {
+      "speaker": "hero",
+      "text": "The ford. Washed out, like everything else round here."
+    },
+    "hero.place.spring_shrine": {
+      "speaker": "hero",
+      "text": "A shrine. The water sounds thin."
+    },
+    "hero.place.sluice": {
+      "speaker": "hero",
+      "text": "So this is the sluice. Cracked, and nobody has mended it."
+    },
+    "hero.place.quarry": {
+      "speaker": "hero",
+      "text": "A quarry with no cutting. That is a lot of people standing still."
+    },
+    "hero.place.the_cut": {
+      "speaker": "hero",
+      "text": "The Cut. Mind your footing."
+    },
+    "hero.place.archive": {
+      "speaker": "hero",
+      "text": "Shelves of records. Somebody kept count of everything except me."
+    },
+    "hero.blade": {
+      "speaker": "hero",
+      "text": "A rusted blade. Better than bare hands. Barely."
+    },
+    "hero.beast": {
+      "speaker": "hero",
+      "text": "That is no dog."
+    },
+    "hero.wounded.1": {
+      "speaker": "hero",
+      "text": "[gasps] Not like this."
+    },
+    "hero.wounded.2": {
+      "speaker": "hero",
+      "text": "[breathing hard] I need to rest. Soon."
+    },
+    "hero.respawn.1": {
+      "speaker": "hero",
+      "text": "[exhales] Still breathing. Let us not do that again."
+    },
+    "hero.respawn.2": {
+      "speaker": "hero",
+      "text": "Up. Again."
+    },
+    "hero.victory": {
+      "speaker": "hero",
+      "text": "[breathing hard] Stay down. Please."
+    },
+    "hero.settled": {
+      "speaker": "hero",
+      "text": "The bell has changed. Either I fixed something, or I broke it properly."
+    },
+    "hero.night": {
+      "speaker": "hero",
+      "text": "Dark already. The road looks longer at night."
+    },
+    "hero.dawn": {
+      "speaker": "hero",
+      "text": "Morning. Still no name. Still breathing."
+    },
+    "hero.rescued": {
+      "speaker": "hero",
+      "text": "She is safe. One thing done right today."
+    },
+    "hero.shortcut": {
+      "speaker": "hero",
+      "text": "The old gate is open. A way round, without a fight."
+    },
+    "hero.rite": {
+      "speaker": "hero",
+      "text": "[exhales] The water is calmer. For now."
+    },
+    "hero.gate.stabilized": {
+      "speaker": "hero",
+      "text": "Braced and turning. It will hold."
+    },
+    "hero.gate.jammed": {
+      "speaker": "hero",
+      "text": "[sighs] Jammed. That one is on me."
+    },
+    "hero.inspect.arrival_wreckage": {
+      "speaker": "hero",
+      "text": "A boat, once. Did I come in it? I cannot even tell you that."
+    },
+    "hero.inspect.templar_waymarker": {
+      "speaker": "hero",
+      "text": "Notches in the stone. Someone wanted this path found."
+    },
+    "hero.inspect.dry_channel": {
+      "speaker": "hero",
+      "text": "Dry to the mud. A whole village drinking from one well."
+    },
+    "hero.inspect.spring_sediment": {
+      "speaker": "hero",
+      "text": "Silt. The spring still wells up underneath it. Choked, not dead."
+    },
+    "hero.inspect.town_diversion": {
+      "speaker": "hero",
+      "text": "A fresh cut in the bank. Somebody helped themselves."
+    },
+    "hero.inspect.quarry_seep": {
+      "speaker": "hero",
+      "text": "Water where it should not be, and rock cracked where it was cut too far."
+    },
+    "hero.inspect.sluice_crack": {
+      "speaker": "hero",
+      "text": "That stone will not hold if anyone forces the gate. Careful hands, then."
+    },
+    "hero.inspect.inspection_log": {
+      "speaker": "hero",
+      "text": "A week missing, right before the flood. Convenient. Or careless."
+    },
+    "hero.inspect.wetland_fish": {
+      "speaker": "hero",
+      "text": "The shallows are drying out. The fish knew before anyone did."
+    },
+    "hero.inspect.saltward_kit": {
+      "speaker": "hero",
+      "text": "A level and a marked staff. Somebody knew how to share this water, once."
+    },
+    "hero.item.archive_key": {
+      "speaker": "hero",
+      "text": "A key to a room full of other people’s memories."
+    },
+    "hero.item.votive_reed": {
+      "speaker": "hero",
+      "text": "One reed. One chance. Do not waste it."
+    },
+    "hero.item.sluice_brace": {
+      "speaker": "hero",
+      "text": "A brace for the cracked post. Now to set it without breaking anything."
+    },
+    "hero.item.gate_wrench": {
+      "speaker": "hero",
+      "text": "Heavy. Good. The gate will need persuading."
+    },
+    "hero.item.coin": {
+      "speaker": "hero",
+      "text": "Coin. Whoever I was, I will need some of this."
+    },
+    "hero.item.healing_herb": {
+      "speaker": "hero",
+      "text": "Bitter-smelling leaves. Probably good for something."
+    },
+    "hero.item.shore_apple": {
+      "speaker": "hero",
+      "text": "Salt on the skin of it. Still an apple."
+    },
+    "hero.ask.where": {
+      "speaker": "hero",
+      "text": "Where am I?"
+    },
+    "hero.ask.bell": {
+      "speaker": "hero",
+      "text": "What is that bell?"
+    },
+    "hero.ask.work": {
+      "speaker": "hero",
+      "text": "Where can I find work?"
+    },
+    "hero.ask.ashore": {
+      "speaker": "hero",
+      "text": "Did you see me come ashore?"
+    },
+    "hero.ask.road": {
+      "speaker": "hero",
+      "text": "Where does the road go?"
+    },
+    "hero.ask.water": {
+      "speaker": "hero",
+      "text": "What happened to the water?"
+    },
+    "hero.ask.who": {
+      "speaker": "hero",
+      "text": "Who else wants it?"
+    },
+    "hero.ask.places": {
+      "speaker": "hero",
+      "text": "Where are the sluice and the shrine?"
+    },
+    "hero.ask.choose": {
+      "speaker": "hero",
+      "text": "What would you do?"
+    },
+    "hero.ask.diversion": {
+      "speaker": "hero",
+      "text": "The side gate above the fields. That was you?"
+    },
+    "hero.ask.failing": {
+      "speaker": "hero",
+      "text": "Is the spring failing?"
+    },
+    "hero.ask.gate": {
+      "speaker": "hero",
+      "text": "And the gate?"
+    },
+    "hero.ask.accord": {
+      "speaker": "hero",
+      "text": "What is the Accord?"
+    },
+    "hero.ask.rite": {
+      "speaker": "hero",
+      "text": "Tell me about the rite."
+    },
+    "hero.ask.wait": {
+      "speaker": "hero",
+      "text": "Why not wait for the water?"
+    },
+    "hero.ask.marchers": {
+      "speaker": "hero",
+      "text": "What do the Marchers want?"
+    },
+    "hero.ask.lever": {
+      "speaker": "hero",
+      "text": "Where is that maintenance gate?"
+    },
+    "hero.ask.ila": {
+      "speaker": "hero",
+      "text": "Have you seen Ila?"
+    },
+    "hero.ask.down": {
+      "speaker": "hero",
+      "text": "How do I get you down?"
+    },
+    "hero.ask.gully": {
+      "speaker": "hero",
+      "text": "What did you see in the gully?"
+    },
+    "hero.ask.close": {
+      "speaker": "hero",
+      "text": "How should the gate be closed?"
+    },
+    "hero.ask.from": {
+      "speaker": "hero",
+      "text": "Where are you from?"
+    },
+    "hero.ask.stay": {
+      "speaker": "hero",
+      "text": "Will you stay?"
+    },
+    "hero.ask.reserve": {
+      "speaker": "hero",
+      "text": "And the repair reserve?"
+    },
+    "hero.ask.sufficient": {
+      "speaker": "hero",
+      "text": "Sufficient?"
+    },
+    "hero.ask.owns": {
+      "speaker": "hero",
+      "text": "Who owns the quarry?"
+    },
+    "hero.ask.late": {
+      "speaker": "hero",
+      "text": "And if the delivery is late?"
+    },
+    "hero.ask.write": {
+      "speaker": "hero",
+      "text": "What do you write down?"
+    },
+    "hero.ask.witness": {
+      "speaker": "hero",
+      "text": "Who are the Ash Witness?"
+    },
+    "hero.ask.me": {
+      "speaker": "hero",
+      "text": "What will you write about me?"
+    },
+    "hero.ask.archive": {
+      "speaker": "hero",
+      "text": "What is in the archive?"
+    },
+    "hero.ask.see": {
+      "speaker": "hero",
+      "text": "Can I see it?"
+    },
+    "hero.ask.templar": {
+      "speaker": "hero",
+      "text": "Are you a Templar?"
+    },
+    "hero.ask.mill": {
+      "speaker": "hero",
+      "text": "What does the mill need?"
+    },
+    "hero.ask.grain": {
+      "speaker": "hero",
+      "text": "How is the grain?"
+    },
+    "hero.ask.built": {
+      "speaker": "hero",
+      "text": "Who built the mill?"
+    },
+    "hero.ask.darin": {
+      "speaker": "hero",
+      "text": "What is Darin like to work for?"
+    },
+    "hero.ask.sleep": {
+      "speaker": "hero",
+      "text": "Where do you sleep?"
+    },
+    "hero.ask.help": {
+      "speaker": "hero",
+      "text": "Can I help?"
+    },
+    "hero.ask.bake": {
+      "speaker": "hero",
+      "text": "What do you bake?"
+    },
+    "hero.ask.village": {
+      "speaker": "hero",
+      "text": "How is the village holding up?"
+    },
+    "joss.where": {
+      "speaker": "caravan_master",
+      "text": "The overlook above Rillford, friend. You came up from the strand on foot? Nobody comes up from the strand. Sit a moment before you fall over."
+    },
+    "joss.ashore": {
+      "speaker": "caravan_master",
+      "text": "[chuckles] I saw a man walk out of the surf like it owed him money. Did not seem polite to ask."
+    },
+    "joss.bell": {
+      "speaker": "caravan_master",
+      "text": "Rillford’s drought bell. They ring it when the household channels run dry, and nobody rings it lightly. It has been going since dawn."
+    },
+    "joss.work": {
+      "speaker": "caravan_master",
+      "text": "Ask for the reeve, Mara Venn. East there is a quarry under a Marcher contract, north a Templar spring. Work enough for spare hands, and arguments to go with it."
+    },
+    "joss.road": {
+      "speaker": "caravan_master",
+      "text": "The ford road washed out in the thaw, so the wagon waits here. If you walk down, watch the side path off the ford. Something big has been about."
+    },
+    "joss.roads": {
+      "speaker": "caravan_master",
+      "text": "East to the ford, if the ford were standing. Further on, the Marcher estates, and folk who would charge you for the dust on your boots."
+    },
+    "joss.beast": {
+      "speaker": "caravan_master",
+      "text": "They say the thornback is dead. Then I will take the cut road home, and thank whoever did it."
+    },
+    "joss.after": {
+      "speaker": "caravan_master",
+      "text": "I heard the bell ring differently this morning. Whatever you did down there, it carried up the hill."
+    },
+    "joss.idle": {
+      "speaker": "caravan_master",
+      "text": "Wagon is not going anywhere yet. Neither am I."
+    },
+    "joss.bark.horse": {
+      "speaker": "caravan_master",
+      "text": "Easy, old girl. The road will dry."
+    },
+    "joss.bark.fog": {
+      "speaker": "caravan_master",
+      "text": "Morning. Fog is lifting off the strand."
+    },
+    "joss.bark.lamp": {
+      "speaker": "caravan_master",
+      "text": "[yawns] Lamp is low. So am I."
+    },
+    "mara.intro": {
+      "speaker": "rillford_reeve",
+      "text": "You heard the bell, then. It has not rung in my term until today. I am Mara Venn. Rillford elected me to keep it fed, and this morning I have very little to feed anyone with."
+    },
+    "mara.water": {
+      "speaker": "rillford_reeve",
+      "text": "The late thaw broke the old sluice and choked the spring channels with silt. The household channel behind the mill is dry. Go and see it."
+    },
+    "mara.who": {
+      "speaker": "rillford_reeve",
+      "text": "The quarry wants it for cutting, the shrine wants its share, and I cannot give all three what each is owed."
+    },
+    "mara.places": {
+      "speaker": "rillford_reeve",
+      "text": "North along the mill lane to the sluice. Past it, up the steps, the spring shrine. The quarry is east, along the cut track."
+    },
+    "mara.channel": {
+      "speaker": "rillford_reeve",
+      "text": "You have seen the channel, then. Now you know why I ring that bell myself, some mornings."
+    },
+    "mara.choose": {
+      "speaker": "rillford_reeve",
+      "text": "If it comes to one or the other, I would choose the village, and I will not pretend otherwise. That is why it should not be my choice alone."
+    },
+    "mara.diversion": {
+      "speaker": "rillford_reeve",
+      "text": "[sighs] Yes. I opened it when the channel first ran short, and I called no witnesses. I told myself it was too small to matter. It is not nothing."
+    },
+    "mara.hear": {
+      "speaker": "rillford_reeve",
+      "text": "Talk to Darin and to Sister Edda before you decide anything. I would rather you heard all of us than only me."
+    },
+    "mara.after.rillford": {
+      "speaker": "rillford_reeve",
+      "text": "The channel behind the mill is filling. I can hear it. It cost the quarry, and I know it. We will owe a review."
+    },
+    "mara.after.quarry": {
+      "speaker": "rillford_reeve",
+      "text": "The mill sits still and the households still ration. I said I would abide by your choice, and I will. But Rillford is protesting, and so am I."
+    },
+    "mara.after.rotation": {
+      "speaker": "rillford_reeve",
+      "text": "Mill by day, quarry by night. Neither of us has what we asked for. That is what fair looks like, I suppose."
+    },
+    "mara.bark.bucket": {
+      "speaker": "rillford_reeve",
+      "text": "A bucket a day. That is what I promised them."
+    },
+    "mara.bark.bread": {
+      "speaker": "rillford_reeve",
+      "text": "Water in the channel. Bread by the weekend."
+    },
+    "mara.bark.morning": {
+      "speaker": "rillford_reeve",
+      "text": "[sighs] Another day of buckets."
+    },
+    "mara.bark.short": {
+      "speaker": "rillford_reeve",
+      "text": "Let us hear it, then. Who is short today?"
+    },
+    "mara.scene.cansee": {
+      "speaker": "rillford_reeve",
+      "text": "I can see that, Bess. I am standing in it."
+    },
+    "mara.scene.counting": {
+      "speaker": "rillford_reeve",
+      "text": "[sighs] Everybody is counting. That is the trouble."
+    },
+    "mara.scene.hear": {
+      "speaker": "rillford_reeve",
+      "text": "I hear it. Do not waste a drop."
+    },
+    "mara.scene.broken": {
+      "speaker": "rillford_reeve",
+      "text": "Only that it is still broken."
+    },
+    "mara.scene.three": {
+      "speaker": "rillford_reeve",
+      "text": "Then three will have to do. I am sorry, Hesper."
+    },
+    "mara.scene.share": {
+      "speaker": "rillford_reeve",
+      "text": "Smaller ones, Hesper. We still share."
+    },
+    "edda.intro": {
+      "speaker": "spring_steward",
+      "text": "You have the look of someone walking since dawn. I am Sister Edda Sorn, waterkeeper of this spring. It still gives what it can. It is the channels below that have failed."
+    },
+    "edda.failing": {
+      "speaker": "spring_steward",
+      "text": "It is not failing. Silt obstructs it. If you doubt me, kneel at the intake and put your hand in."
+    },
+    "edda.gate": {
+      "speaker": "spring_steward",
+      "text": "The support beside the gate cracked in the flood. I would not force that gate open. It could give way."
+    },
+    "edda.accord": {
+      "speaker": "spring_steward",
+      "text": "An old agreement between the village, the order and the land. It says who may take water, and that someone must always watch who takes it."
+    },
+    "edda.rite.ask": {
+      "speaker": "spring_steward",
+      "text": "A votive reed, a few words, and patience. It calms an unstable flow for perhaps forty minutes. Long enough to work a gate safely. No longer."
+    },
+    "edda.rite": {
+      "speaker": "spring_steward",
+      "text": "The rite calms an unstable flow for a while. It does not make water. It makes a gate less violent."
+    },
+    "edda.log": {
+      "speaker": "spring_steward",
+      "text": "[exhales] You have read my log. Yes, I deferred the inspection. I trusted old stone, and the stone did not deserve it."
+    },
+    "edda.after.rotation": {
+      "speaker": "spring_steward",
+      "text": "A schedule witnessed by the reeve, the foreman and the spring. This is what the Accord meant. I will not miss another inspection."
+    },
+    "edda.after": {
+      "speaker": "spring_steward",
+      "text": "The wetland has its minimum. An emergency allocation lapses unless it is reviewed, and I will hold the review."
+    },
+    "edda.bark.patience": {
+      "speaker": "spring_steward",
+      "text": "Patience. The water remembers its way."
+    },
+    "edda.bark.reeds": {
+      "speaker": "spring_steward",
+      "text": "Mind the reeds. They were here before any of us."
+    },
+    "edda.bark.blessed": {
+      "speaker": "spring_steward",
+      "text": "Blessed is the water that finds its way home."
+    },
+    "edda.bark.light": {
+      "speaker": "spring_steward",
+      "text": "The light goes early at the spring."
+    },
+    "darin.intro": {
+      "speaker": "quarry_foreman",
+      "text": "Quarry is stopped. No water to cut with, less to drink. Darin Kest. If the reeve sent you to shut me down, save your breath."
+    },
+    "darin.wait": {
+      "speaker": "quarry_foreman",
+      "text": "I have a Marcher contract and a delivery that will not wait on the weather. The estate counts blocks, not excuses."
+    },
+    "darin.marchers": {
+      "speaker": "quarry_foreman",
+      "text": "Stone, on time, and no stories about why it is late. Halvek writes the numbers. I am the one who has to make them true."
+    },
+    "darin.ila": {
+      "speaker": "quarry_foreman",
+      "text": "Ila Rusk went along the cut path to read the seep gully, and something big took the path from her. There is an old maintenance gate. Its lever is by the lower stack."
+    },
+    "darin.lever": {
+      "speaker": "quarry_foreman",
+      "text": "Old gate, older lever. Lower stack, east side of the yard. It sticks. Pull like you mean it."
+    },
+    "darin.seep": {
+      "speaker": "quarry_foreman",
+      "text": "We cut a short extension after the permission ran out. The seep came after. My crew reported it. Nobody came."
+    },
+    "darin.safe": {
+      "speaker": "quarry_foreman",
+      "text": "Ila is down safe? [exhales] Good. She is stubborn, but she is the best eye for rock I have got."
+    },
+    "darin.after.quarry": {
+      "speaker": "quarry_foreman",
+      "text": "Water in the cutting trench again. The delivery goes out. I will not thank you for the look on the village’s face, mind."
+    },
+    "darin.after.rotation": {
+      "speaker": "quarry_foreman",
+      "text": "Nights for us, days for the mill. The crew hates it, and they will do it."
+    },
+    "darin.after.rillford": {
+      "speaker": "quarry_foreman",
+      "text": "Quarry is stopped. My crew is unpaid and idle. The estate will have my hide for this."
+    },
+    "darin.bark.count": {
+      "speaker": "quarry_foreman",
+      "text": "Forty blocks. I can count, Halvek."
+    },
+    "darin.bark.stack": {
+      "speaker": "quarry_foreman",
+      "text": "Who is minding the lower stack?"
+    },
+    "darin.bark.edge": {
+      "speaker": "quarry_foreman",
+      "text": "[shouts] Mind the edge! I am not losing anyone else this season."
+    },
+    "darin.bark.ledgers": {
+      "speaker": "quarry_foreman",
+      "text": "Ledgers. I would rather lift stone."
+    },
+    "darin.scene.blocks": {
+      "speaker": "quarry_foreman",
+      "text": "[shouts] Pell Dunmore! Those blocks will not square themselves."
+    },
+    "darin.scene.well": {
+      "speaker": "quarry_foreman",
+      "text": "Then fetch water from the well."
+    },
+    "darin.scene.contract": {
+      "speaker": "quarry_foreman",
+      "text": "For the contract, Pell."
+    },
+    "darin.scene.load": {
+      "speaker": "quarry_foreman",
+      "text": "[shouts] Load the cart! The steward is counting."
+    },
+    "darin.scene.used": {
+      "speaker": "quarry_foreman",
+      "text": "[laughs] Do not get used to it."
+    },
+    "ila.ledge": {
+      "speaker": "maintenance_worker",
+      "text": "Keep back from the path! A thornback took the ledge below, and it does not like company. I am Ila Rusk, seasonal maintenance."
+    },
+    "ila.down": {
+      "speaker": "maintenance_worker",
+      "text": "There is an old maintenance gate. The lever is by the quarry’s lower stack. Pull it, and I can walk the old track round the ledge."
+    },
+    "ila.notnow": {
+      "speaker": "maintenance_worker",
+      "text": "Not now! Get me off this ledge first, then I will tell you everything."
+    },
+    "ila.waiting": {
+      "speaker": "maintenance_worker",
+      "text": "Still here. Still counting the same three handholds."
+    },
+    "ila.saw": {
+      "speaker": "maintenance_worker",
+      "text": "My legs have forgotten how to be legs. Here is what I saw up there: fresh fractures on the support beside the gate, and the seep feeding the wrong channel."
+    },
+    "ila.close": {
+      "speaker": "maintenance_worker",
+      "text": "Slowly, from the downstream side. Brace the cracked post first, then a quarter turn of the wheel, and wait for the water to settle."
+    },
+    "ila.from": {
+      "speaker": "maintenance_worker",
+      "text": "Rimeward. Up north, where the rivers freeze solid and nobody argues about water. They argue about everything else."
+    },
+    "ila.stay": {
+      "speaker": "maintenance_worker",
+      "text": "Until my legs remember they are legs. Then wherever there is stone that needs reading."
+    },
+    "ila.villain": {
+      "speaker": "maintenance_worker",
+      "text": "Do not look for a villain. Look for who will keep the pieces from failing again."
+    },
+    "ila.bark.hello": {
+      "speaker": "maintenance_worker",
+      "text": "[shouts] Hello? Anyone down there?"
+    },
+    "ila.bark.down": {
+      "speaker": "maintenance_worker",
+      "text": "[whispers] Do not look down, Ila. Do not look down."
+    },
+    "ila.bark.bench": {
+      "speaker": "maintenance_worker",
+      "text": "Warm bench. Dry boots. I could weep."
+    },
+    "ila.bark.cheerful": {
+      "speaker": "maintenance_worker",
+      "text": "Somebody play something cheerful, before I remember the ledge."
+    },
+    "oren.intro": {
+      "speaker": "estate_steward",
+      "text": "Steward Halvek, Marcher estate. If you are here about the delivery, the contract stands regardless of who has water."
+    },
+    "oren.reserve": {
+      "speaker": "estate_steward",
+      "text": "The repair reserve is… sufficient."
+    },
+    "oren.reserve.truth": {
+      "speaker": "estate_steward",
+      "text": "[clears throat] It is empty. The estate has not funded repairs since the winter levy. Please do not repeat that."
+    },
+    "oren.owns": {
+      "speaker": "estate_steward",
+      "text": "The Marcher estate holds the contract. The crown holds the estate. I hold the ledger, which is the only part anyone ever reads."
+    },
+    "oren.late": {
+      "speaker": "estate_steward",
+      "text": "Penalties. Then excuses. Then a new steward. I would prefer to avoid the third."
+    },
+    "oren.date": {
+      "speaker": "estate_steward",
+      "text": "The delivery date has not moved. Is there something else?"
+    },
+    "oren.after.quarry": {
+      "speaker": "estate_steward",
+      "text": "The delivery will go out. The estate notes your part in it. That is not a promise of anything."
+    },
+    "oren.after": {
+      "speaker": "estate_steward",
+      "text": "The estate is reviewing its commitments. A missed delivery reflects on my ledger, not yours. Good day."
+    },
+    "oren.bark.columns": {
+      "speaker": "estate_steward",
+      "text": "Columns that do not add up. How familiar."
+    },
+    "oren.bark.counting": {
+      "speaker": "estate_steward",
+      "text": "Thirty-eight. Thirty-nine. And none since Tuesday."
+    },
+    "sel.intro": {
+      "speaker": "ash_recorder",
+      "text": "Sel Anrit, recorder. Third failure this season: a bridge, a granary road, now the water. You will call it coincidence. I do not."
+    },
+    "sel.write": {
+      "speaker": "ash_recorder",
+      "text": "Everything. Including an old rotation ledger in the shrine archive. The copies disagree. If you can read it, read it."
+    },
+    "sel.witness": {
+      "speaker": "ash_recorder",
+      "text": "We write down what happens, so that later no one can say it happened differently. We take no side. That is the hardest part."
+    },
+    "sel.me": {
+      "speaker": "ash_recorder",
+      "text": "That you arrived without a name, and asked good questions. The rest, you have not done yet."
+    },
+    "sel.pattern": {
+      "speaker": "ash_recorder",
+      "text": "Repair only delays it. Each failure is smaller than the last cause, and larger than the last cure."
+    },
+    "sel.after": {
+      "speaker": "ash_recorder",
+      "text": "I have written down what you did. I do not yet know whether it is a beginning or a delay. But it is written."
+    },
+    "sel.bark.ink": {
+      "speaker": "ash_recorder",
+      "text": "The ink dries slowly today. Damp air."
+    },
+    "sel.bark.hour": {
+      "speaker": "ash_recorder",
+      "text": "Name, place, hour. Always the hour."
+    },
+    "sel.bark.river": {
+      "speaker": "ash_recorder",
+      "text": "The river was higher, once. I have it written."
+    },
+    "sel.bark.dark": {
+      "speaker": "ash_recorder",
+      "text": "Too dark to write. Not too dark to remember."
+    },
+    "tolan.intro": {
+      "speaker": "shrine_warden",
+      "text": "Warden Tolan Harrow. The archive is locked, and Sister Edda holds the say. State your business."
+    },
+    "tolan.archive": {
+      "speaker": "shrine_warden",
+      "text": "Records older than the village. The order keeps them. Few read them, and fewer put them back."
+    },
+    "tolan.see": {
+      "speaker": "shrine_warden",
+      "text": "Not without the Sister’s word. Bring me that, and I will turn the key myself."
+    },
+    "tolan.templar": {
+      "speaker": "shrine_warden",
+      "text": "Sworn to the order for thirty years. These days that means sweeping roots off a doorstep and turning away the curious."
+    },
+    "tolan.guard": {
+      "speaker": "shrine_warden",
+      "text": "If you want steel discipline rather than speeches, I teach a little of it. Feet apart, guard high, and do not flinch."
+    },
+    "tolan.after": {
+      "speaker": "shrine_warden",
+      "text": "The Sister says the water is fair now. I say keep the gate braced and the log honest."
+    },
+    "tolan.bark.hey": {
+      "speaker": "shrine_warden",
+      "text": "[shouts] Hey! Who is there?"
+    },
+    "tolan.bark.hands": {
+      "speaker": "shrine_warden",
+      "text": "Hands where I can see them, pilgrim."
+    },
+    "tolan.bark.lock": {
+      "speaker": "shrine_warden",
+      "text": "[sighs] Another night, another lock to check."
+    },
+    "tolan.bark.along": {
+      "speaker": "shrine_warden",
+      "text": "Move along, pilgrim. The spring is that way."
+    },
+    "bess.intro": {
+      "speaker": "mill_hand",
+      "text": "The wheel has been dry since the flood. Without water I have nothing to grind. I stand here so the reeve sees somebody is minding it."
+    },
+    "bess.mill": {
+      "speaker": "mill_hand",
+      "text": "Water in the channel behind it, that is all. Half a channel would do. A quarter, even. I am not proud."
+    },
+    "bess.grain": {
+      "speaker": "mill_hand",
+      "text": "[laughs] Since you ask: in sacks, going nowhere. Thank you for asking. Nobody else has."
+    },
+    "bess.built": {
+      "speaker": "mill_hand",
+      "text": "My grandmother’s grandmother, if you believe my grandmother. The wheel is younger. Only just."
+    },
+    "bess.after.rillford": {
+      "speaker": "mill_hand",
+      "text": "[laughs] She turns! Grain by evening, and the whole village will smell the flour."
+    },
+    "bess.after": {
+      "speaker": "mill_hand",
+      "text": "Still dry. I will keep standing here. Somebody should."
+    },
+    "bess.bark.grain": {
+      "speaker": "mill_hand",
+      "text": "Go on, ask me how the grain is doing."
+    },
+    "bess.bark.morning": {
+      "speaker": "mill_hand",
+      "text": "Morning! Still dry. Still here."
+    },
+    "bess.scene.dry": {
+      "speaker": "mill_hand",
+      "text": "[calls out] Still dry, reeve!"
+    },
+    "bess.scene.counting": {
+      "speaker": "mill_hand",
+      "text": "Just making sure somebody is counting."
+    },
+    "bess.scene.listen": {
+      "speaker": "mill_hand",
+      "text": "[laughs] Listen to her go, reeve!"
+    },
+    "bess.scene.promise": {
+      "speaker": "mill_hand",
+      "text": "Not one. Promise."
+    },
+    "pell.intro": {
+      "speaker": "quarry_hand",
+      "text": "Foreman says we wait. Nothing to cut with, nothing to drink."
+    },
+    "pell.ila": {
+      "speaker": "quarry_hand",
+      "text": "Ila is up the cut path. Something big took the ledge. Foreman knows about the gate."
+    },
+    "pell.darin": {
+      "speaker": "quarry_hand",
+      "text": "Loud. Honest, mind. He shouts the same at the crew as at the steward. Only the steward shouts back."
+    },
+    "pell.sleep": {
+      "speaker": "quarry_hand",
+      "text": "Crew bunks behind the yard. Four of us, two blankets. We take turns being cold."
+    },
+    "pell.after.rotation": {
+      "speaker": "quarry_hand",
+      "text": "[sighs] Night shift again. Night shift of what? Staring at rocks in the dark?"
+    },
+    "pell.after.quarry": {
+      "speaker": "quarry_hand",
+      "text": "Load the wagon. Quickly, before somebody changes their mind."
+    },
+    "pell.bark.dust": {
+      "speaker": "quarry_hand",
+      "text": "Dust in my teeth and nothing to wash it down."
+    },
+    "pell.bark.done": {
+      "speaker": "quarry_hand",
+      "text": "Another day of nothing, done."
+    },
+    "pell.scene.dry": {
+      "speaker": "quarry_hand",
+      "text": "Nothing to square them with, foreman. The trench is dry."
+    },
+    "pell.scene.uphill": {
+      "speaker": "quarry_hand",
+      "text": "[sighs] Uphill. In buckets. For stone."
+    },
+    "pell.scene.says": {
+      "speaker": "quarry_hand",
+      "text": "For the contract, he says."
+    },
+    "pell.scene.count": {
+      "speaker": "quarry_hand",
+      "text": "Let him count. We are cutting again."
+    },
+    "hesper.intro": {
+      "speaker": "village_baker",
+      "text": "No water, no dough, my love. If you have not looked at the dry channel behind the mill, do."
+    },
+    "hesper.help": {
+      "speaker": "village_baker",
+      "text": "Take a loaf, you look like you need it. Then go and help the reeve. You cannot ask a bucket to do a river’s work."
+    },
+    "hesper.bake": {
+      "speaker": "village_baker",
+      "text": "Rye loaves, when there is water. Flatbread when there is not. Prayers when there is neither."
+    },
+    "hesper.village": {
+      "speaker": "village_baker",
+      "text": "Tired and polite, mostly. Polite will not last, love. Get the water moving before it does not."
+    },
+    "hesper.after.rillford": {
+      "speaker": "village_baker",
+      "text": "Bread by the weekend, and not a day later. I have promised half the village already."
+    },
+    "hesper.after": {
+      "speaker": "village_baker",
+      "text": "Smaller loaves this week. Everybody understands. Nobody likes it."
+    },
+    "hesper.bark.step": {
+      "speaker": "village_baker",
+      "text": "[laughs] Mind the step, love, it is floury."
+    },
+    "hesper.bark.barrel": {
+      "speaker": "village_baker",
+      "text": "Last of the rain barrel, this."
+    },
+    "hesper.bark.ovens": {
+      "speaker": "village_baker",
+      "text": "Ovens first, gossip after."
+    },
+    "hesper.bark.queue": {
+      "speaker": "village_baker",
+      "text": "Who is for the well? Mind the queue."
+    },
+    "hesper.scene.word": {
+      "speaker": "village_baker",
+      "text": "[calls out] Mara! Any word from the sluice?"
+    },
+    "hesper.scene.flour": {
+      "speaker": "village_baker",
+      "text": "I can stretch the flour three more days. Not four."
+    },
+    "hesper.scene.quick": {
+      "speaker": "village_baker",
+      "text": "Do not be sorry, love. Be quick."
+    },
+    "hesper.scene.loaves": {
+      "speaker": "village_baker",
+      "text": "Full loaves tomorrow, Mara!"
+    },
+    "hesper.scene.warm": {
+      "speaker": "village_baker",
+      "text": "[laughs] Smaller, then. But warm."
+    },
+    "bess.bark.wheel": {
+      "speaker": "mill_hand",
+      "text": "The wheel has not turned since the flood."
+    },
+    "bess.bark.evening": {
+      "speaker": "mill_hand",
+      "text": "Grain by evening!"
+    },
+    "hesper.bark.dough": {
+      "speaker": "village_baker",
+      "text": "No water, no dough."
+    },
+    "pell.bark.nothing": {
+      "speaker": "quarry_hand",
+      "text": "Nothing to cut with. Nothing to drink."
+    },
+    "pell.bark.load": {
+      "speaker": "quarry_hand",
+      "text": "Load the wagon. Quickly."
+    },
+    "pell.bark.night": {
+      "speaker": "quarry_hand",
+      "text": "[sighs] Night shift again…"
+    },
+    "mara.bark.where": {
+      "speaker": "rillford_reeve",
+      "text": "Where is the water going?"
+    },
+    "darin.bark.contract": {
+      "speaker": "quarry_foreman",
+      "text": "Contract does not care about the weather."
+    },
+    "edda.bark.quiet": {
+      "speaker": "spring_steward",
+      "text": "The spring is quiet today."
+    },
+    "tolan.bark.lamp": {
+      "speaker": "shrine_warden",
+      "text": "Keep the lamp out of the archive."
+    },
+    "sel.bark.write": {
+      "speaker": "ash_recorder",
+      "text": "Write it down. Someone must."
+    },
+    "oren.bark.date": {
+      "speaker": "estate_steward",
+      "text": "The delivery date has not moved."
+    }
+  },
+  "talks": [
+    {
+      "npc": "caravan_master",
+      "ask": "hero.ask.where",
+      "reply": "joss.where"
+    },
+    {
+      "npc": "caravan_master",
+      "ask": "hero.ask.bell",
+      "reply": "joss.bell",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "caravan_master",
+      "ask": "hero.ask.ashore",
+      "reply": "joss.ashore"
+    },
+    {
+      "npc": "caravan_master",
+      "ask": "hero.ask.work",
+      "reply": "joss.work",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "caravan_master",
+      "reply": "joss.road",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        },
+        {
+          "t": "not",
+          "c": {
+            "t": "defeated",
+            "id": "cut_creature"
+          }
+        }
+      ]
+    },
+    {
+      "npc": "caravan_master",
+      "ask": "hero.ask.road",
+      "reply": "joss.roads"
+    },
+    {
+      "npc": "caravan_master",
+      "reply": "joss.beast",
+      "when": [
+        {
+          "t": "defeated",
+          "id": "cut_creature"
+        }
+      ]
+    },
+    {
+      "npc": "caravan_master",
+      "reply": "joss.after",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "caravan_master",
+      "reply": "joss.idle",
+      "again": true
+    },
+    {
+      "npc": "rillford_reeve",
+      "reply": "mara.intro"
+    },
+    {
+      "npc": "rillford_reeve",
+      "ask": "hero.ask.water",
+      "reply": "mara.water",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "rillford_reeve",
+      "ask": "hero.ask.who",
+      "reply": "mara.who",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "rillford_reeve",
+      "ask": "hero.ask.places",
+      "reply": "mara.places",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "rillford_reeve",
+      "reply": "mara.channel",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        },
+        {
+          "t": "evidence",
+          "id": "dry_channel"
+        }
+      ]
+    },
+    {
+      "npc": "rillford_reeve",
+      "ask": "hero.ask.diversion",
+      "reply": "mara.diversion",
+      "when": [
+        {
+          "t": "fact",
+          "key": "saw_diversion"
+        }
+      ]
+    },
+    {
+      "npc": "rillford_reeve",
+      "ask": "hero.ask.choose",
+      "reply": "mara.choose",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "rillford_reeve",
+      "reply": "mara.hear",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "rillford_reeve",
+      "reply": "mara.after.rillford",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rillford"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "rillford_reeve",
+      "reply": "mara.after.quarry",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "quarry"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "rillford_reeve",
+      "reply": "mara.after.rotation",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rotation"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "spring_steward",
+      "reply": "edda.intro"
+    },
+    {
+      "npc": "spring_steward",
+      "ask": "hero.ask.failing",
+      "reply": "edda.failing",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "spring_steward",
+      "ask": "hero.ask.gate",
+      "reply": "edda.gate",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "spring_steward",
+      "ask": "hero.ask.accord",
+      "reply": "edda.accord"
+    },
+    {
+      "npc": "spring_steward",
+      "ask": "hero.ask.rite",
+      "reply": "edda.rite.ask",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "spring_steward",
+      "reply": "edda.log",
+      "when": [
+        {
+          "t": "fact",
+          "key": "saw_inspection_gap"
+        }
+      ]
+    },
+    {
+      "npc": "spring_steward",
+      "reply": "edda.rite",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        },
+        {
+          "t": "evidence",
+          "id": "reduced_spring_flow"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "spring_steward",
+      "reply": "edda.after.rotation",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rotation"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "spring_steward",
+      "reply": "edda.after",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "not",
+          "c": {
+            "t": "alloc",
+            "is": "rotation"
+          }
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "quarry_foreman",
+      "reply": "darin.intro"
+    },
+    {
+      "npc": "quarry_foreman",
+      "ask": "hero.ask.wait",
+      "reply": "darin.wait",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "quarry_foreman",
+      "ask": "hero.ask.ila",
+      "reply": "darin.ila",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ]
+    },
+    {
+      "npc": "quarry_foreman",
+      "ask": "hero.ask.lever",
+      "reply": "darin.lever",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ]
+    },
+    {
+      "npc": "quarry_foreman",
+      "ask": "hero.ask.marchers",
+      "reply": "darin.marchers"
+    },
+    {
+      "npc": "quarry_foreman",
+      "reply": "darin.safe",
+      "when": [
+        {
+          "t": "fact",
+          "key": "ila_rescued"
+        }
+      ]
+    },
+    {
+      "npc": "quarry_foreman",
+      "reply": "darin.seep",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        },
+        {
+          "t": "evidence",
+          "id": "diversion_and_seep"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "quarry_foreman",
+      "reply": "darin.after.quarry",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "quarry"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "quarry_foreman",
+      "reply": "darin.after.rotation",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rotation"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "quarry_foreman",
+      "reply": "darin.after.rillford",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rillford"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "maintenance_worker",
+      "reply": "ila.ledge",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ]
+    },
+    {
+      "npc": "maintenance_worker",
+      "ask": "hero.ask.down",
+      "reply": "ila.down",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ]
+    },
+    {
+      "npc": "maintenance_worker",
+      "ask": "hero.ask.gully",
+      "reply": "ila.notnow",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ]
+    },
+    {
+      "npc": "maintenance_worker",
+      "reply": "ila.waiting",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "maintenance_worker",
+      "reply": "ila.saw",
+      "when": [
+        {
+          "t": "fact",
+          "key": "ila_rescued"
+        }
+      ]
+    },
+    {
+      "npc": "maintenance_worker",
+      "ask": "hero.ask.close",
+      "reply": "ila.close",
+      "when": [
+        {
+          "t": "fact",
+          "key": "ila_rescued"
+        }
+      ]
+    },
+    {
+      "npc": "maintenance_worker",
+      "ask": "hero.ask.from",
+      "reply": "ila.from",
+      "when": [
+        {
+          "t": "fact",
+          "key": "ila_rescued"
+        }
+      ]
+    },
+    {
+      "npc": "maintenance_worker",
+      "ask": "hero.ask.stay",
+      "reply": "ila.stay",
+      "when": [
+        {
+          "t": "fact",
+          "key": "ila_rescued"
+        }
+      ]
+    },
+    {
+      "npc": "maintenance_worker",
+      "reply": "ila.villain",
+      "when": [
+        {
+          "t": "fact",
+          "key": "ila_rescued"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "estate_steward",
+      "reply": "oren.intro"
+    },
+    {
+      "npc": "estate_steward",
+      "ask": "hero.ask.reserve",
+      "reply": "oren.reserve",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "estate_steward",
+      "ask": "hero.ask.sufficient",
+      "reply": "oren.reserve.truth",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "estate_steward",
+      "ask": "hero.ask.owns",
+      "reply": "oren.owns"
+    },
+    {
+      "npc": "estate_steward",
+      "ask": "hero.ask.late",
+      "reply": "oren.late",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ]
+    },
+    {
+      "npc": "estate_steward",
+      "reply": "oren.date",
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "estate_steward",
+      "reply": "oren.after.quarry",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "quarry"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "estate_steward",
+      "reply": "oren.after",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "not",
+          "c": {
+            "t": "alloc",
+            "is": "quarry"
+          }
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "ash_recorder",
+      "reply": "sel.intro"
+    },
+    {
+      "npc": "ash_recorder",
+      "ask": "hero.ask.write",
+      "reply": "sel.write"
+    },
+    {
+      "npc": "ash_recorder",
+      "ask": "hero.ask.witness",
+      "reply": "sel.witness"
+    },
+    {
+      "npc": "ash_recorder",
+      "ask": "hero.ask.me",
+      "reply": "sel.me"
+    },
+    {
+      "npc": "ash_recorder",
+      "reply": "sel.pattern",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "ash_recorder",
+      "reply": "sel.after",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "shrine_warden",
+      "reply": "tolan.intro"
+    },
+    {
+      "npc": "shrine_warden",
+      "ask": "hero.ask.archive",
+      "reply": "tolan.archive"
+    },
+    {
+      "npc": "shrine_warden",
+      "ask": "hero.ask.see",
+      "reply": "tolan.see",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "shrine_warden",
+      "ask": "hero.ask.templar",
+      "reply": "tolan.templar"
+    },
+    {
+      "npc": "shrine_warden",
+      "reply": "tolan.guard",
+      "again": true,
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "shrine_warden",
+      "reply": "tolan.after",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "mill_hand",
+      "reply": "bess.intro",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "mill_hand",
+      "ask": "hero.ask.grain",
+      "reply": "bess.grain",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "mill_hand",
+      "ask": "hero.ask.built",
+      "reply": "bess.built"
+    },
+    {
+      "npc": "mill_hand",
+      "ask": "hero.ask.mill",
+      "reply": "bess.mill",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "mill_hand",
+      "reply": "bess.after.rillford",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rillford"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "mill_hand",
+      "reply": "bess.after",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "not",
+          "c": {
+            "t": "alloc",
+            "is": "rillford"
+          }
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "quarry_hand",
+      "reply": "pell.intro",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "quarry_hand",
+      "ask": "hero.ask.ila",
+      "reply": "pell.ila",
+      "when": [
+        {
+          "t": "not",
+          "c": {
+            "t": "fact",
+            "key": "ila_rescued"
+          }
+        }
+      ]
+    },
+    {
+      "npc": "quarry_hand",
+      "ask": "hero.ask.darin",
+      "reply": "pell.darin"
+    },
+    {
+      "npc": "quarry_hand",
+      "ask": "hero.ask.sleep",
+      "reply": "pell.sleep"
+    },
+    {
+      "npc": "quarry_hand",
+      "reply": "pell.after.rotation",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rotation"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "quarry_hand",
+      "reply": "pell.after.quarry",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "quarry"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "quarry_hand",
+      "reply": "pell.intro",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "village_baker",
+      "reply": "hesper.intro",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "village_baker",
+      "ask": "hero.ask.help",
+      "reply": "hesper.help",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ]
+    },
+    {
+      "npc": "village_baker",
+      "ask": "hero.ask.bake",
+      "reply": "hesper.bake"
+    },
+    {
+      "npc": "village_baker",
+      "ask": "hero.ask.village",
+      "reply": "hesper.village",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "village_baker",
+      "reply": "hesper.after.rillford",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rillford"
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "village_baker",
+      "reply": "hesper.after",
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "not",
+          "c": {
+            "t": "alloc",
+            "is": "rillford"
+          }
+        }
+      ],
+      "again": true
+    },
+    {
+      "npc": "trail_hunter",
+      "reply": "rowan.bark.supplies",
+      "again": true
+    }
+  ],
+  "scenes": [
+    {
+      "id": "quarry.waiting",
+      "cast": [
+        "quarry_foreman",
+        "quarry_hand"
+      ],
+      "hours": [
+        7,
+        18
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "lines": [
+        "darin.scene.blocks",
+        "pell.scene.dry",
+        "darin.scene.well",
+        "pell.scene.uphill",
+        "darin.scene.contract",
+        "pell.scene.says"
+      ]
+    },
+    {
+      "id": "quarry.working",
+      "cast": [
+        "quarry_foreman",
+        "quarry_hand"
+      ],
+      "hours": [
+        7,
+        18
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "quarry"
+        }
+      ],
+      "lines": [
+        "darin.scene.load",
+        "pell.scene.count",
+        "darin.scene.used"
+      ]
+    },
+    {
+      "id": "mill.dry",
+      "cast": [
+        "mill_hand",
+        "rillford_reeve"
+      ],
+      "hours": [
+        12,
+        17
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "below": "committed"
+        }
+      ],
+      "lines": [
+        "bess.scene.dry",
+        "mara.scene.cansee",
+        "bess.scene.counting",
+        "mara.scene.counting"
+      ]
+    },
+    {
+      "id": "mill.turning",
+      "cast": [
+        "mill_hand",
+        "rillford_reeve"
+      ],
+      "hours": [
+        12,
+        17
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        },
+        {
+          "t": "alloc",
+          "is": "rillford"
+        }
+      ],
+      "lines": [
+        "bess.scene.listen",
+        "mara.scene.hear",
+        "bess.scene.promise"
+      ]
+    },
+    {
+      "id": "square.evening",
+      "cast": [
+        "village_baker",
+        "rillford_reeve"
+      ],
+      "hours": [
+        17,
+        20
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        }
+      ],
+      "lines": [
+        "hesper.scene.word",
+        "mara.scene.broken",
+        "hesper.scene.flour",
+        "mara.scene.three",
+        "hesper.scene.quick"
+      ]
+    },
+    {
+      "id": "square.settled",
+      "cast": [
+        "village_baker",
+        "rillford_reeve"
+      ],
+      "hours": [
+        17,
+        20
+      ],
+      "when": [
+        {
+          "t": "phase",
+          "is": "settled"
+        }
+      ],
+      "lines": [
+        "hesper.scene.loaves",
+        "mara.scene.share",
+        "hesper.scene.warm"
+      ]
+    }
+  ],
+  "sceneReach": 26,
+  "hero": {
+    "arrival": [
+      "hero.arrival"
+    ],
+    "arrival.bell": [
+      "hero.arrival.bell"
+    ],
+    "blade": [
+      "hero.blade"
+    ],
+    "beast": [
+      "hero.beast"
+    ],
+    "wounded": [
+      "hero.wounded.1",
+      "hero.wounded.2"
+    ],
+    "respawn": [
+      "hero.respawn.1",
+      "hero.respawn.2"
+    ],
+    "victory": [
+      "hero.victory"
+    ],
+    "settled": [
+      "hero.settled"
+    ],
+    "night": [
+      "hero.night"
+    ],
+    "dawn": [
+      "hero.dawn"
+    ],
+    "rescued": [
+      "hero.rescued"
+    ],
+    "shortcut": [
+      "hero.shortcut"
+    ],
+    "rite": [
+      "hero.rite"
+    ],
+    "gate.stabilized": [
+      "hero.gate.stabilized"
+    ],
+    "gate.jammed": [
+      "hero.gate.jammed"
+    ],
+    "place.lantern_point": [
+      "hero.place.lantern_point"
+    ],
+    "place.deepwood": [
+      "hero.place.deepwood"
+    ],
+    "place.overlook": [
+      "hero.place.overlook"
+    ],
+    "place.rillford": [
+      "hero.place.rillford"
+    ],
+    "place.ford": [
+      "hero.place.ford"
+    ],
+    "place.spring_shrine": [
+      "hero.place.spring_shrine"
+    ],
+    "place.sluice": [
+      "hero.place.sluice"
+    ],
+    "place.quarry": [
+      "hero.place.quarry"
+    ],
+    "place.the_cut": [
+      "hero.place.the_cut"
+    ],
+    "place.archive": [
+      "hero.place.archive"
+    ],
+    "inspect.arrival_wreckage": [
+      "hero.inspect.arrival_wreckage"
+    ],
+    "inspect.templar_waymarker": [
+      "hero.inspect.templar_waymarker"
+    ],
+    "inspect.dry_channel": [
+      "hero.inspect.dry_channel"
+    ],
+    "inspect.spring_sediment": [
+      "hero.inspect.spring_sediment"
+    ],
+    "inspect.town_diversion": [
+      "hero.inspect.town_diversion"
+    ],
+    "inspect.quarry_seep": [
+      "hero.inspect.quarry_seep"
+    ],
+    "inspect.sluice_crack": [
+      "hero.inspect.sluice_crack"
+    ],
+    "inspect.inspection_log": [
+      "hero.inspect.inspection_log"
+    ],
+    "inspect.wetland_fish": [
+      "hero.inspect.wetland_fish"
+    ],
+    "inspect.saltward_kit": [
+      "hero.inspect.saltward_kit"
+    ],
+    "item.archive_key": [
+      "hero.item.archive_key"
+    ],
+    "item.votive_reed": [
+      "hero.item.votive_reed"
+    ],
+    "item.sluice_brace": [
+      "hero.item.sluice_brace"
+    ],
+    "item.gate_wrench": [
+      "hero.item.gate_wrench"
+    ],
+    "item.coin": [
+      "hero.item.coin"
+    ],
+    "item.healing_herb": [
+      "hero.item.healing_herb"
+    ],
+    "item.shore_apple": [
+      "hero.item.shore_apple"
+    ]
+  }
+}

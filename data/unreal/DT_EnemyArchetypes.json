@@ -1,0 +1,30 @@
+[
+  {
+    "Name": "thornback",
+    "DisplayName": "Thornback",
+    "Health": 110,
+    "Speed": 440,
+    "Reach": 290,
+    "WindUpSeconds": 0.95,
+    "StrikeSeconds": 0.4,
+    "RecoverSeconds": 1.1,
+    "Damage": 20,
+    "NoticeDistance": 1000,
+    "bHeavy": true,
+    "Radius": 85
+  },
+  {
+    "Name": "bandit",
+    "DisplayName": "Toll-jumper",
+    "Health": 55,
+    "Speed": 350,
+    "Reach": 190,
+    "WindUpSeconds": 0.6,
+    "StrikeSeconds": 0.2,
+    "RecoverSeconds": 0.9,
+    "Damage": 11,
+    "NoticeDistance": 1200,
+    "bHeavy": false,
+    "Radius": 40
+  }
+]

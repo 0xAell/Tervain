@@ -11,6 +11,7 @@ imports as data or mirrors as code. The Three.js layer (`src/presentation`, `src
 | `content/` | Authored definitions: items, residents and their schedules, the hamlet's silent residents, the animal roster, hostile archetypes, dialogue, inspections, pickups, spoken lines, display strings, and their validation. |
 | `rules/` | Moment-to-moment rules that need no renderer: the hero's actions, stamina, guard, jump, vault and swim; his paces; riding; how residents move, settle, sleep and remark; how animals rest, call, wander and flee; how a hostile notices, chases, strikes and gives up; the bow and its arrows; the day's clock and what answers the dark; saving, falling and returning, threats, witnesses and the drought bell; the follow camera's feel; house doors; where a resident should be at an hour and which remarks they may make; seats; hostile routing; animal habitat and paths; interaction targeting; what the follow camera keeps clear of. |
 | `world/` | The authored geography and what is derived from it: layout, coast, terrain heights, water, biomes, forest stands, buildings and rooms, furniture, colliders, navigation, ground contacts, loose cargo, the prevailing wind; where every tree stands, the ground kept clear of planting, and what the ground is made of at each point. |
+| `export/` | The core's data as plain documents for another engine: the tables under `data/`, their schemas, the terrain as Landscape rasters, and Unreal-shaped tables (`npm run data:export`). |
 | `util/` | Small helpers the core itself needs. |
 
 ## The boundary

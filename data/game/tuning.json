@@ -1,0 +1,480 @@
+{
+  "about": "Designer-tunable values by system: the hero, riding, the bow, the day’s clock, the journey, the camera and doors.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "hero": {
+    "body": {
+      "radius": 0.4,
+      "height": 1.95
+    },
+    "paces": {
+      "walk": 1.65,
+      "run": 5.85,
+      "guard": 1.0725,
+      "runThreshold": 3.75,
+      "walkCycle": 1.58125,
+      "runCycle": 3.6855
+    },
+    "stamina": {
+      "max": 100,
+      "sprintPerSecond": 0.75,
+      "sprintMin": 0.5,
+      "swimSprintPerSecond": 6,
+      "regen": 24,
+      "regenWinded": 16,
+      "regenGuarding": 6,
+      "recoverAbove": 22,
+      "pauseAfterAction": 0.7,
+      "pauseAfterSprint": 0.5,
+      "pauseAfterJump": 0.4
+    },
+    "actionCost": {
+      "light": 12,
+      "heavy": 30,
+      "dodge": 22,
+      "jump": 6,
+      "blockHit": 18
+    },
+    "actionSeconds": {
+      "light": 0.62,
+      "heavy": 1.05,
+      "dodge": 0.4,
+      "hurt": 0.38
+    },
+    "hitAt": {
+      "light": 0.45,
+      "heavy": 0.6
+    },
+    "perfectBlockWindow": 0.18,
+    "arms": {
+      "fists": {
+        "light": 7,
+        "heavy": 15,
+        "range": {
+          "light": 1.6,
+          "heavy": 1.8
+        },
+        "arc": {
+          "light": 0.85,
+          "heavy": 1
+        },
+        "dur": {
+          "light": 0.5,
+          "heavy": 0.9
+        },
+        "cost": {
+          "light": 9,
+          "heavy": 24
+        },
+        "guard": {
+          "fresh": 0.6,
+          "tired": 0.85,
+          "perfect": 0.35
+        }
+      },
+      "blade": {
+        "light": 19,
+        "heavy": 42,
+        "range": {
+          "light": 2.35,
+          "heavy": 2.7
+        },
+        "arc": {
+          "light": 1.05,
+          "heavy": 1.25
+        },
+        "dur": {
+          "light": 0.62,
+          "heavy": 1.05
+        },
+        "cost": {
+          "light": 12,
+          "heavy": 30
+        },
+        "guard": {
+          "fresh": 0.3,
+          "tired": 0.6,
+          "perfect": "parry"
+        }
+      }
+    },
+    "sheatheAfter": 6,
+    "engagedReach": 18,
+    "guard": {
+      "facing": 0.17,
+      "steadyGuard": 0.6,
+      "heavyCost": 1.6,
+      "tiredBelow": 0.5
+    },
+    "dodge": {
+      "speed": 13,
+      "iframes": 0.3
+    },
+    "jumpSpeed": 5.4,
+    "gravity": 17,
+    "stepHeight": 0.8,
+    "groundFollowDrop": 0.5,
+    "firmFootingSlope": 0.95,
+    "moveResponse": {
+      "swim": 3.2,
+      "ground": 13.3,
+      "sliding": 2.2,
+      "air": 2.8
+    },
+    "vault": {
+      "reach": 1.9,
+      "facing": 0.2,
+      "land": 0.7,
+      "step": 0.6,
+      "seconds": 0.55
+    },
+    "swim": {
+      "depth": 1.35,
+      "exit": 1.15,
+      "float": 1.25,
+      "speed": 1.45,
+      "sprint": 2.3
+    }
+  },
+  "riding": {
+    "ride": {
+      "walk": 2.1,
+      "run": 6.2,
+      "back": 0.9,
+      "accel": 3.4,
+      "brake": 6.5,
+      "turnStill": 2.4,
+      "turnRun": 1.15,
+      "backCone": 2.5,
+      "lean": 0.045,
+      "leanMax": 0.24
+    },
+    "deerBody": {
+      "front": 1,
+      "back": 0.8,
+      "radius": 0.24,
+      "low": 0.35,
+      "high": 1.7
+    },
+    "mountTimes": {
+      "swing": 0.8,
+      "approachMax": 4,
+      "descend": 0.6
+    },
+    "mountSide": 0.95,
+    "camera": {
+      "back": 2.2,
+      "up": 0.85,
+      "rate": 3
+    },
+    "stamina": {
+      "max": 100,
+      "drain": 10,
+      "recover": 15,
+      "spent": 4,
+      "resume": 30
+    }
+  },
+  "bow": {
+    "drawSeconds": 0.7,
+    "arrowSpeed": 65,
+    "gravity": 9.81,
+    "flightSeconds": 7,
+    "waterGravity": 0.25,
+    "waterDrag": 9,
+    "floatSpeed": 1.2,
+    "floatSeconds": 30,
+    "maxFlights": 12,
+    "maxLodged": 24,
+    "readySeconds": 2.5
+  },
+  "clock": {
+    "gameMinutesPerSecond": 1,
+    "sunrise": 6,
+    "sunset": 19,
+    "night": {
+      "fallsAt": 20,
+      "liftsAt": 5,
+      "music": 0.55,
+      "sleepers": 0.75,
+      "catSleeps": 0.7,
+      "lanterns": 0.15
+    },
+    "nightnessByHour": [
+      {
+        "hour": 0,
+        "nightness": 1
+      },
+      {
+        "hour": 0.5,
+        "nightness": 1
+      },
+      {
+        "hour": 1,
+        "nightness": 1
+      },
+      {
+        "hour": 1.5,
+        "nightness": 1
+      },
+      {
+        "hour": 2,
+        "nightness": 1
+      },
+      {
+        "hour": 2.5,
+        "nightness": 1
+      },
+      {
+        "hour": 3,
+        "nightness": 1
+      },
+      {
+        "hour": 3.5,
+        "nightness": 1
+      },
+      {
+        "hour": 4,
+        "nightness": 1
+      },
+      {
+        "hour": 4.5,
+        "nightness": 1
+      },
+      {
+        "hour": 5,
+        "nightness": 0.972303
+      },
+      {
+        "hour": 5.5,
+        "nightness": 0.75
+      },
+      {
+        "hour": 6,
+        "nightness": 0.268438
+      },
+      {
+        "hour": 6.5,
+        "nightness": 0
+      },
+      {
+        "hour": 7,
+        "nightness": 0
+      },
+      {
+        "hour": 7.5,
+        "nightness": 0
+      },
+      {
+        "hour": 8,
+        "nightness": 0
+      },
+      {
+        "hour": 8.5,
+        "nightness": 0
+      },
+      {
+        "hour": 9,
+        "nightness": 0
+      },
+      {
+        "hour": 9.5,
+        "nightness": 0
+      },
+      {
+        "hour": 10,
+        "nightness": 0
+      },
+      {
+        "hour": 10.5,
+        "nightness": 0
+      },
+      {
+        "hour": 11,
+        "nightness": 0
+      },
+      {
+        "hour": 11.5,
+        "nightness": 0
+      },
+      {
+        "hour": 12,
+        "nightness": 0
+      },
+      {
+        "hour": 12.5,
+        "nightness": 0
+      },
+      {
+        "hour": 13,
+        "nightness": 0
+      },
+      {
+        "hour": 13.5,
+        "nightness": 0
+      },
+      {
+        "hour": 14,
+        "nightness": 0
+      },
+      {
+        "hour": 14.5,
+        "nightness": 0
+      },
+      {
+        "hour": 15,
+        "nightness": 0
+      },
+      {
+        "hour": 15.5,
+        "nightness": 0
+      },
+      {
+        "hour": 16,
+        "nightness": 0
+      },
+      {
+        "hour": 16.5,
+        "nightness": 0
+      },
+      {
+        "hour": 17,
+        "nightness": 0
+      },
+      {
+        "hour": 17.5,
+        "nightness": 0
+      },
+      {
+        "hour": 18,
+        "nightness": 0
+      },
+      {
+        "hour": 18.5,
+        "nightness": 0
+      },
+      {
+        "hour": 19,
+        "nightness": 0
+      },
+      {
+        "hour": 19.5,
+        "nightness": 0.392965
+      },
+      {
+        "hour": 20,
+        "nightness": 0.895685
+      },
+      {
+        "hour": 20.5,
+        "nightness": 1
+      },
+      {
+        "hour": 21,
+        "nightness": 1
+      },
+      {
+        "hour": 21.5,
+        "nightness": 1
+      },
+      {
+        "hour": 22,
+        "nightness": 1
+      },
+      {
+        "hour": 22.5,
+        "nightness": 1
+      },
+      {
+        "hour": 23,
+        "nightness": 1
+      },
+      {
+        "hour": 23.5,
+        "nightness": 1
+      },
+      {
+        "hour": 24,
+        "nightness": 1
+      }
+    ]
+  },
+  "journey": {
+    "autosaveSeconds": 90,
+    "hitStop": {
+      "heavy": 0.07,
+      "light": 0.04
+    },
+    "death": {
+      "fadeSeconds": 3.6,
+      "foePace": 0.25,
+      "heal": 100
+    },
+    "threatReach": 14,
+    "checkpointClearance": 18,
+    "underWorld": {
+      "depth": 1.2,
+      "seconds": 0.35
+    },
+    "witnesses": [
+      "shrine_warden",
+      "spring_steward"
+    ],
+    "witnessReach": 15,
+    "overhearReach": 16,
+    "speechSoonReach": 30,
+    "woundedBelow": 0.3,
+    "droughtBell": {
+      "every": 42,
+      "reach": 220,
+      "strikeGapMs": 1400,
+      "allClearGapMs": 600,
+      "strikes": 2,
+      "allClearStrikes": 3
+    }
+  },
+  "camera": {
+    "follow": {
+      "fov": 60,
+      "near": 0.1,
+      "far": 1400,
+      "distance": 6.2,
+      "minDistance": 2.6,
+      "maxDistance": 9,
+      "zoomRate": 0.004,
+      "pitch": 0.32,
+      "minPitch": -0.65,
+      "maxPitch": 1.25,
+      "pivotHeight": 1.55,
+      "follow": 18,
+      "followHeightReduced": 10,
+      "maxRecoil": 0.04
+    },
+    "aim": {
+      "boom": 2.3,
+      "right": 1,
+      "up": 0.3
+    },
+    "room": {
+      "ceilingClearance": 0.8,
+      "enter": 0.5,
+      "leave": 1.2,
+      "hold": 0.6
+    }
+  },
+  "doors": {
+    "reach": 2.4,
+    "linger": 1.5,
+    "opening": 0.6,
+    "closing": 0.9,
+    "swing": 1.570796
+  },
+  "wind": {
+    "direction": [
+      0.93,
+      0.36
+    ],
+    "steady": 0.16,
+    "gust": 0.42,
+    "speed": 4.2
+  }
+}

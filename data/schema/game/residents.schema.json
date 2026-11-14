@@ -1,0 +1,454 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/residents.schema.json",
+  "title": "game/residents.json",
+  "description": "The named residents (role ids, schedules, overrides, homes) and the hamlet’s three silent residents.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "residents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "titleKey": {
+            "type": "string"
+          },
+          "faction": {
+            "type": "string"
+          },
+          "home": {
+            "type": "string"
+          },
+          "look": {
+            "type": "object",
+            "properties": {
+              "skin": {
+                "type": "integer"
+              },
+              "primary": {
+                "type": "integer"
+              },
+              "secondary": {
+                "type": "integer"
+              },
+              "hair": {
+                "type": "integer"
+              },
+              "height": {
+                "type": "number"
+              },
+              "girth": {
+                "type": "number"
+              },
+              "accessory": {
+                "type": "string"
+              },
+              "accent": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "skin",
+              "primary",
+              "secondary",
+              "hair",
+              "height",
+              "girth",
+              "accessory"
+            ],
+            "additionalProperties": false
+          },
+          "schedule": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "integer"
+                },
+                "to": {
+                  "type": "integer"
+                },
+                "anchor": {
+                  "type": "string"
+                },
+                "activity": {
+                  "type": "string"
+                },
+                "inside": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "from",
+                "to",
+                "anchor",
+                "activity"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "sleepsKey": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "berth": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "building": {
+                "type": "string"
+              },
+              "piece": {
+                "type": "string"
+              },
+              "index": {
+                "type": "integer"
+              },
+              "anchor": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "piece"
+            ],
+            "additionalProperties": false
+          },
+          "overrides": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "when": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "t": {
+                        "type": "string"
+                      },
+                      "is": {
+                        "type": "string"
+                      },
+                      "key": {
+                        "type": "string"
+                      },
+                      "c": {
+                        "type": "object",
+                        "properties": {
+                          "t": {
+                            "type": "string"
+                          },
+                          "key": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "t",
+                          "key"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "atLeast": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "t"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "from": {
+                  "type": "integer"
+                },
+                "to": {
+                  "type": "integer"
+                },
+                "anchor": {
+                  "type": "string"
+                },
+                "activity": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "when",
+                "anchor",
+                "activity"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "interactRadius": {
+            "type": "integer"
+          },
+          "approachGreeting": {
+            "type": "object",
+            "properties": {
+              "line": {
+                "type": "string"
+              },
+              "radius": {
+                "type": "integer"
+              },
+              "leaveRadius": {
+                "type": "integer"
+              },
+              "cooldown": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "line",
+              "radius",
+              "leaveRadius",
+              "cooldown"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "titleKey",
+          "faction",
+          "home",
+          "look",
+          "schedule",
+          "sleepsKey",
+          "observation",
+          "berth"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "ambient": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "yaw": {
+            "type": "number"
+          },
+          "cycle": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": [
+                  "integer",
+                  "string"
+                ]
+              }
+            }
+          },
+          "sleeps": {
+            "type": "boolean"
+          },
+          "radius": {
+            "type": "number"
+          },
+          "seated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "x",
+          "z",
+          "yaw",
+          "cycle",
+          "sleeps",
+          "radius"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "barks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "npc": {
+            "type": "string"
+          },
+          "line": {
+            "type": "string"
+          },
+          "when": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "t": {
+                  "type": "string"
+                },
+                "below": {
+                  "type": "string"
+                },
+                "is": {
+                  "type": "string"
+                },
+                "c": {
+                  "type": "object",
+                  "properties": {
+                    "t": {
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "t",
+                    "key"
+                  ],
+                  "additionalProperties": false
+                },
+                "key": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "t"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "hours": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "npc",
+          "line"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "movement": {
+      "type": "object",
+      "properties": {
+        "walkSpeed": {
+          "type": "number"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "acceleration": {
+          "type": "number"
+        },
+        "braking": {
+          "type": "integer"
+        },
+        "turnWalking": {
+          "type": "number"
+        },
+        "turnStanding": {
+          "type": "number"
+        },
+        "turnEase": {
+          "type": "integer"
+        },
+        "turnStepped": {
+          "type": "number"
+        },
+        "turnStride": {
+          "type": "number"
+        },
+        "settled": {
+          "type": "number"
+        },
+        "arriveExact": {
+          "type": "number"
+        },
+        "arriveNear": {
+          "type": "number"
+        },
+        "lieSeconds": {
+          "type": "number"
+        },
+        "sitBeforeLying": {
+          "type": "number"
+        },
+        "alarmReach": {
+          "type": "integer"
+        },
+        "barkReach": {
+          "type": "number"
+        },
+        "firstBark": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "bark": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+      "required": [
+        "walkSpeed",
+        "radius",
+        "acceleration",
+        "braking",
+        "turnWalking",
+        "turnStanding",
+        "turnEase",
+        "turnStepped",
+        "turnStride",
+        "settled",
+        "arriveExact",
+        "arriveNear",
+        "lieSeconds",
+        "sitBeforeLying",
+        "alarmReach",
+        "barkReach",
+        "firstBark",
+        "bark"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "residents",
+    "ambient",
+    "barks",
+    "movement"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,183 @@
+{
+  "about": "Every item: display string keys, kind, what using it does, and the order of the inventory panel.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "items": [
+    {
+      "id": "coin",
+      "nameKey": "item.coin",
+      "descKey": "item.coin.desc",
+      "kind": "currency",
+      "action": null
+    },
+    {
+      "id": "rusted_sword",
+      "nameKey": "item.rusted_sword",
+      "descKey": "item.rusted_sword.desc",
+      "kind": "weapon",
+      "action": "equip"
+    },
+    {
+      "id": "hunting_bow",
+      "nameKey": "item.hunting_bow",
+      "descKey": "item.hunting_bow.desc",
+      "kind": "weapon",
+      "action": "equip"
+    },
+    {
+      "id": "arrow",
+      "nameKey": "item.arrow",
+      "descKey": "item.arrow.desc",
+      "kind": "material",
+      "action": null
+    },
+    {
+      "id": "skinning_knife",
+      "nameKey": "item.skinning_knife",
+      "descKey": "item.skinning_knife.desc",
+      "kind": "tool",
+      "action": null
+    },
+    {
+      "id": "animal_hide",
+      "nameKey": "item.animal_hide",
+      "descKey": "item.animal_hide.desc",
+      "kind": "material",
+      "action": null
+    },
+    {
+      "id": "raw_meat",
+      "nameKey": "item.raw_meat",
+      "descKey": "item.raw_meat.desc",
+      "kind": "material",
+      "action": null
+    },
+    {
+      "id": "sluice_brace",
+      "nameKey": "item.sluice_brace",
+      "descKey": "item.sluice_brace.desc",
+      "kind": "quest",
+      "action": null
+    },
+    {
+      "id": "gate_wrench",
+      "nameKey": "item.gate_wrench",
+      "descKey": "item.gate_wrench.desc",
+      "kind": "tool",
+      "action": null
+    },
+    {
+      "id": "archive_key",
+      "nameKey": "item.archive_key",
+      "descKey": "item.archive_key.desc",
+      "kind": "quest",
+      "action": null
+    },
+    {
+      "id": "votive_reed",
+      "nameKey": "item.votive_reed",
+      "descKey": "item.votive_reed.desc",
+      "kind": "quest",
+      "action": null
+    },
+    {
+      "id": "poultice",
+      "nameKey": "item.poultice",
+      "descKey": "item.poultice.desc",
+      "kind": "consumable",
+      "healAmount": 40,
+      "action": "consume"
+    },
+    {
+      "id": "shore_apple",
+      "nameKey": "item.shore_apple",
+      "descKey": "item.shore_apple.desc",
+      "kind": "consumable",
+      "healAmount": 8,
+      "action": "consume"
+    },
+    {
+      "id": "bread",
+      "nameKey": "item.bread",
+      "descKey": "item.bread.desc",
+      "kind": "consumable",
+      "healAmount": 16,
+      "action": "consume"
+    },
+    {
+      "id": "healing_herb",
+      "nameKey": "item.healing_herb",
+      "descKey": "item.healing_herb.desc",
+      "kind": "consumable",
+      "healAmount": 24,
+      "action": "consume"
+    },
+    {
+      "id": "field_mushroom",
+      "nameKey": "item.field_mushroom",
+      "descKey": "item.field_mushroom.desc",
+      "kind": "consumable",
+      "healAmount": 10,
+      "action": "consume"
+    },
+    {
+      "id": "iron_scrap",
+      "nameKey": "item.iron_scrap",
+      "descKey": "item.iron_scrap.desc",
+      "kind": "material",
+      "action": null
+    },
+    {
+      "id": "league_sash",
+      "nameKey": "item.league_sash",
+      "descKey": "item.league_sash.desc",
+      "kind": "clothing",
+      "action": null
+    },
+    {
+      "id": "contract_band",
+      "nameKey": "item.contract_band",
+      "descKey": "item.contract_band.desc",
+      "kind": "clothing",
+      "action": null
+    },
+    {
+      "id": "witness_cord",
+      "nameKey": "item.witness_cord",
+      "descKey": "item.witness_cord.desc",
+      "kind": "clothing",
+      "action": null
+    }
+  ],
+  "order": [
+    "rusted_sword",
+    "hunting_bow",
+    "arrow",
+    "skinning_knife",
+    "animal_hide",
+    "raw_meat",
+    "coin",
+    "poultice",
+    "healing_herb",
+    "bread",
+    "shore_apple",
+    "field_mushroom",
+    "iron_scrap",
+    "sluice_brace",
+    "gate_wrench",
+    "votive_reed",
+    "archive_key",
+    "league_sash",
+    "contract_band",
+    "witness_cord"
+  ],
+  "worldPickupItems": [
+    "shore_apple",
+    "bread",
+    "healing_herb",
+    "field_mushroom",
+    "iron_scrap",
+    "hunting_bow",
+    "skinning_knife",
+    "arrow"
+  ]
+}

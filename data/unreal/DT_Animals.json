@@ -1,0 +1,306 @@
+[
+  {
+    "Name": "tiger-1005232739",
+    "Species": "tiger",
+    "SourceModel": "tiger-1005232739.glb",
+    "Habitat": "WarmWoodland",
+    "Home": {
+      "X": 10700,
+      "Y": 2200,
+      "Z": 157.515
+    },
+    "RoamRadius": 1900,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "lion-1005232726",
+    "Species": "lion",
+    "SourceModel": "lion-1005232726.glb",
+    "Habitat": "WarmWoodland",
+    "Home": {
+      "X": 11200,
+      "Y": 5100,
+      "Z": 278.009
+    },
+    "RoamRadius": 1900,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "bear-1005170943",
+    "Species": "bear",
+    "SourceModel": "bear-1005170943.glb",
+    "Habitat": "RockyWoodland",
+    "Home": {
+      "X": -18000,
+      "Y": -5700,
+      "Z": 887.451
+    },
+    "RoamRadius": 1700,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "bear-1005232657",
+    "Species": "bear",
+    "SourceModel": "bear-1005232657.glb",
+    "Habitat": "RockyWoodland",
+    "Home": {
+      "X": -14900,
+      "Y": -6200,
+      "Z": 545.892
+    },
+    "RoamRadius": 1700,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "wolf-1005232644",
+    "Species": "wolf",
+    "SourceModel": "wolf-1005232644.glb",
+    "Habitat": "Deepwood",
+    "Home": {
+      "X": -17500,
+      "Y": 500,
+      "Z": 130.585
+    },
+    "RoamRadius": 1600,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "wolf-1005232637",
+    "Species": "wolf",
+    "SourceModel": "wolf-1005232637.glb",
+    "Habitat": "Deepwood",
+    "Home": {
+      "X": -16600,
+      "Y": 3700,
+      "Z": 645.797
+    },
+    "RoamRadius": 1600,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "wolf-1005232631",
+    "Species": "wolf",
+    "SourceModel": "wolf-1005232631.glb",
+    "Habitat": "Deepwood",
+    "Home": {
+      "X": -19000,
+      "Y": 2500,
+      "Z": 136.062
+    },
+    "RoamRadius": 1600,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "cat-1005232619",
+    "Species": "cat",
+    "SourceModel": "cat-1005232619.glb",
+    "Habitat": "Settlement",
+    "Home": {
+      "X": -8300,
+      "Y": 3700,
+      "Z": 121.106
+    },
+    "RoamRadius": 700,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "cat-1005232608",
+    "Species": "cat",
+    "SourceModel": "cat-1005232608.glb",
+    "Habitat": "Settlement",
+    "Home": {
+      "X": -9800,
+      "Y": 5400,
+      "Z": 145.453
+    },
+    "RoamRadius": 0,
+    "bSeated": true,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "cat-1005232556",
+    "Species": "cat",
+    "SourceModel": "cat-1005232556.glb",
+    "Habitat": "Settlement",
+    "Home": {
+      "X": -1000,
+      "Y": 2700,
+      "Z": 104.014
+    },
+    "RoamRadius": 700,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "dog-1005232529",
+    "Species": "dog",
+    "SourceModel": "dog-1005232529.glb",
+    "Habitat": "Settlement",
+    "Home": {
+      "X": -8700,
+      "Y": 2000,
+      "Z": 81.178
+    },
+    "RoamRadius": 900,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "dog-1005232511",
+    "Species": "dog",
+    "SourceModel": "dog-1005232511.glb",
+    "Habitat": "Settlement",
+    "Home": {
+      "X": 0,
+      "Y": 1500,
+      "Z": 105.191
+    },
+    "RoamRadius": 900,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "boar-1005232450",
+    "Species": "boar",
+    "SourceModel": "boar-1005232450.glb",
+    "Habitat": "Woodland",
+    "Home": {
+      "X": -20500,
+      "Y": -700,
+      "Z": 463.378
+    },
+    "RoamRadius": 1300,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "boar-1005232442",
+    "Species": "boar",
+    "SourceModel": "boar-1005232442.glb",
+    "Habitat": "Woodland",
+    "Home": {
+      "X": -18800,
+      "Y": -1900,
+      "Z": 104.47
+    },
+    "RoamRadius": 1300,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "boar-1005174818",
+    "Species": "boar",
+    "SourceModel": "boar-1005174818.glb",
+    "Habitat": "Woodland",
+    "Home": {
+      "X": -15700,
+      "Y": 5500,
+      "Z": 1384.651
+    },
+    "RoamRadius": 1400,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "deer-1005232424",
+    "Species": "deer",
+    "SourceModel": "deer-1005232424.glb",
+    "Habitat": "Woodland",
+    "Home": {
+      "X": -21800,
+      "Y": 4400,
+      "Z": 214.183
+    },
+    "RoamRadius": 1200,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "deer-1005232412",
+    "Species": "deer",
+    "SourceModel": "deer-1005232412.glb",
+    "Habitat": "CaravanRest",
+    "Home": {
+      "X": -9980,
+      "Y": 3040,
+      "Z": 107.053
+    },
+    "RoamRadius": 0,
+    "bSeated": false,
+    "bTame": true,
+    "HomeYaw": 90,
+    "bHasHomeYaw": true
+  },
+  {
+    "Name": "deer-1005232351",
+    "Species": "deer",
+    "SourceModel": "deer-1005232351.glb",
+    "Habitat": "Woodland",
+    "Home": {
+      "X": -14600,
+      "Y": 2800,
+      "Z": 663.109
+    },
+    "RoamRadius": 1600,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  },
+  {
+    "Name": "deer-1005232341",
+    "Species": "deer",
+    "SourceModel": "deer-1005232341.glb",
+    "Habitat": "Woodland",
+    "Home": {
+      "X": -11900,
+      "Y": 2800,
+      "Z": 459.534
+    },
+    "RoamRadius": 1600,
+    "bSeated": false,
+    "bTame": false,
+    "HomeYaw": 0,
+    "bHasHomeYaw": false
+  }
+]

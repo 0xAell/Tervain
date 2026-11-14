@@ -1,0 +1,101 @@
+[
+  {
+    "Name": "shore",
+    "Location": {
+      "X": -25600,
+      "Y": 3200,
+      "Z": 109.675
+    },
+    "Radius": 3000
+  },
+  {
+    "Name": "deepwood",
+    "Location": {
+      "X": -18200,
+      "Y": 1400,
+      "Z": 132.369
+    },
+    "Radius": 4500
+  },
+  {
+    "Name": "lantern_point",
+    "Location": {
+      "X": -31800,
+      "Y": 10400,
+      "Z": 1195.292
+    },
+    "Radius": 2400
+  },
+  {
+    "Name": "overlook",
+    "Location": {
+      "X": -13600,
+      "Y": 2600,
+      "Z": 571.169
+    },
+    "Radius": 1400
+  },
+  {
+    "Name": "rillford",
+    "Location": {
+      "X": 400,
+      "Y": 800,
+      "Z": 102.041
+    },
+    "Radius": 3400
+  },
+  {
+    "Name": "ford",
+    "Location": {
+      "X": 5000,
+      "Y": 3200,
+      "Z": 52.32
+    },
+    "Radius": 1200
+  },
+  {
+    "Name": "spring_shrine",
+    "Location": {
+      "X": -2000,
+      "Y": -9800,
+      "Z": 738.977
+    },
+    "Radius": 2400
+  },
+  {
+    "Name": "sluice",
+    "Location": {
+      "X": 300,
+      "Y": -5700,
+      "Z": 442.294
+    },
+    "Radius": 1300
+  },
+  {
+    "Name": "quarry",
+    "Location": {
+      "X": 8800,
+      "Y": -2400,
+      "Z": 209.882
+    },
+    "Radius": 2200
+  },
+  {
+    "Name": "the_cut",
+    "Location": {
+      "X": 11800,
+      "Y": -6200,
+      "Z": 728.569
+    },
+    "Radius": 1800
+  },
+  {
+    "Name": "archive",
+    "Location": {
+      "X": -4600,
+      "Y": -10000,
+      "Z": 998.323
+    },
+    "Radius": 800
+  }
+]
