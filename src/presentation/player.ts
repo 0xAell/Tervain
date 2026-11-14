@@ -18,15 +18,16 @@ import { EnemyActor, NpcActor, lerpAngle } from './actors';
 import { HERO_WALK_SPEED, HERO_RUN_SPEED, HERO_GUARD_SPEED, HERO_WALK_CYCLE, HERO_RUN_CYCLE, HERO_RUN_THRESHOLD } from '../core/rules/heroLocomotion';
 import { PlayerHuntingVisual } from './playerHunting';
 import { deerBodyBlocked, deerBodyOverlap, gaitBob, MOUNT_SIDE, MOUNT_STAMINA, MOUNT_TIMES, mountStaminaStep, RIDE, steerMount } from '../core/rules/riding';
+import {
+  ACTION_COST as COST, ACTION_SECONDS as DUR, BLADE, blowFaced, FISTS, MOUNT_RUN, MOUNT_WALK, DODGE, ENGAGED_REACH, FIRM_FOOTING_SLOPE, GRAVITY, GROUND_FOLLOW_DROP, HIT_AT,
+  JUMP_SPEED, MOVE_RESPONSE, resolveGuardedHit, SHEATHE_AFTER, STAMINA, STAMINA_MAX, staminaStep, STEP_HEIGHT, SWIM_DEPTH, SWIM_EXIT,
+  SWIM_FLOAT, SWIM_SPEED, SWIM_SPRINT, VAULT, wadeFactor, type Arms, type StaminaState,
+} from '../core/rules/hero';
+
+// The wanderer's rules live in the core (src/core/rules/hero.ts); they are re-exported here for the scene's callers.
+export { BLADE, FISTS, MOUNT_RUN, MOUNT_WALK, PERFECT_BLOCK_WINDOW, STAMINA_MAX, SWIM_DEPTH, SWIM_EXIT, SWIM_FLOAT, SWIM_SPEED, SWIM_SPRINT, VAULT, wadeFactor, type Arms } from '../core/rules/hero';
 
 export type PlayerState = 'free' | 'light' | 'heavy' | 'dodge' | 'hurt' | 'channel' | 'dead';
-
-export const STAMINA_MAX = 100;
-/** A fresh meter supports about 133 seconds of uninterrupted exploration running. */
-const SPRINT_STAMINA_PER_SECOND = 0.75;
-const SPRINT_MIN_STAMINA = 0.5;
-/** The saddled deer's walk and run under a rider (m/s), A70. */
-export const MOUNT_WALK = RIDE.walk, MOUNT_RUN = RIDE.run;
 
 /** Getting onto or off the deer (A71): walking to its side, swinging up into the saddle, or stepping down beside it. */
 export interface MountMove {
@@ -42,59 +43,7 @@ export interface MountMove {
   from: { x: number; z: number; yaw: number };
   stuck: number;
 }
-const COST = { light: 12, heavy: 30, dodge: 22, jump: 6, blockHit: 18 };
-const DUR = { light: 0.62, heavy: 1.05, dodge: 0.4, hurt: 0.38 };
-/** Portion of the action after which the blow lands. */
-const HIT_AT = { light: 0.45, heavy: 0.6 };
-export const PERFECT_BLOCK_WINDOW = 0.18;
-
-/**
- * What the wanderer fights with (proposal). Like the Gothic heroes they arrive with nothing; fists are quick but weak and
- * short, and a guard of bare forearms softens a blow without turning it. The first blade lies in the wreck on the strand.
- */
-export interface Arms {
-  light: number;
-  heavy: number;
-  range: { light: number; heavy: number };
-  arc: { light: number; heavy: number };
-  dur: { light: number; heavy: number };
-  cost: { light: number; heavy: number };
-  /** Share of a blocked blow that still lands (fresh, tired); a perfect block with a blade parries. */
-  guard: { fresh: number; tired: number; perfect: number | 'parry' };
-}
-export const FISTS: Arms = {
-  light: 7,
-  heavy: 15,
-  range: { light: 1.6, heavy: 1.8 },
-  arc: { light: 0.85, heavy: 1.0 },
-  dur: { light: 0.5, heavy: 0.9 },
-  cost: { light: 9, heavy: 24 },
-  guard: { fresh: 0.6, tired: 0.85, perfect: 0.35 },
-};
-export const BLADE: Arms = {
-  light: 19,
-  heavy: 42,
-  range: { light: 2.35, heavy: 2.7 },
-  arc: { light: 1.05, heavy: 1.25 },
-  dur: { light: DUR.light, heavy: DUR.heavy },
-  cost: { light: COST.light, heavy: COST.heavy },
-  guard: { fresh: 0.3, tired: 0.6, perfect: 'parry' },
-};
-/** Seconds without a fight before the blade goes back on the hip. */
-const SHEATHE_AFTER = 6;
 const PLAYER_RADIUS = PLAYER_BODY_RADIUS;
-const STEP_HEIGHT = 0.8;
-const GROUND_FOLLOW_DROP = 0.5;
-const GRAVITY = 17;
-/** A vault over a fence (A125): reach to the rail, how squarely he must face it, where he lands beyond it, the most the
- * ground may differ there, and how long it takes. */
-/**
- * Fence vault (A125). `reach`: how far before the rail a jump still becomes a vault. A player presses jump as the fence
- * comes up, a stride or two away; at 0.85 m the press fell short and he jumped into the rail (playtest 5). `seconds`
- * is the time over a rail taken from 0.6 m; a vault from further back takes proportionally longer. `facing`: how directly
- * across the rail the requested movement must point (any approach that crosses it, not a glancing stroll along it).
- */
-export const VAULT = { reach: 1.9, facing: 0.2, land: 0.7, step: 0.6, seconds: 0.55 } as const;
 const VAULT_NEAR_SPAN = 0.6 + 0.12 + 0.7;
 // Rise before crossing the rail, and finish crossing before descending beside it.
 const VAULT_TRAVEL_START = 0.2;
@@ -102,24 +51,8 @@ function vaultEase(u: number, start = VAULT_TRAVEL_START): number {
   const travel = THREE.MathUtils.clamp((u - start) / (1 - 2 * start), 0, 1);
   return travel * travel * (3 - 2 * travel);
 }
-const FIRM_FOOTING_SLOPE = 0.95;
 /** Sample terrain along the whole move, so a sprint/dodge cannot skip a solid face or water strip. */
 const TERRAIN_STEP = 0.16;
-/** Water deeper than this lifts the wanderer off the bed into a swim; he finds his feet again below SWIM_EXIT. */
-export const SWIM_DEPTH = 1.35;
-export const SWIM_EXIT = 1.15;
-/** How far below the surface a swimmer's feet hang: chest under, head above. */
-export const SWIM_FLOAT = 1.25;
-/** Breaststroke and a hard crawl (m/s); the hard pace spends stamina. */
-export const SWIM_SPEED = 1.45;
-export const SWIM_SPRINT = 2.3;
-const SWIM_SPRINT_STAMINA = 6;
-/** Walking pace kept in water `depth` metres deep: legs push water from the shins up, and a waist-deep wade halves it. */
-export function wadeFactor(depth: number): number {
-  const t = Math.min(1, Math.max(0, (depth - 0.1) / 1.05));
-  return 1 - 0.5 * t * t * (3 - 2 * t);
-}
-
 /** Movable-body contacts share the authoritative player position with the static scenery controller. */
 export interface PlayerPhysicsContacts {
   move(x: number, y: number, z: number, dx: number, dz: number, grounded: boolean): { x: number; y: number; z: number };
@@ -188,6 +121,8 @@ export class Player {
   private hitDone = false;
   private heavy = false;
   private staminaPause = 0;
+  /** The meter handed to the core's stamina rule each step; one object, reused. */
+  private readonly staminaMeter: StaminaState = { stamina: STAMINA_MAX, pause: 0, exhausted: false };
   private iframes = 0;
   private dodgeDir = { x: 0, z: 0 };
   private stepDist = 0;
@@ -907,7 +842,7 @@ export class Player {
 
   private spend(n: number) {
     this.stamina = Math.max(0, this.stamina - n);
-    this.staminaPause = 0.7;
+    this.staminaPause = STAMINA.pauseAfterAction;
     if (this.stamina <= 0.01) this.exhausted = true;
   }
 
@@ -920,30 +855,25 @@ export class Player {
     const dz = from.z - this.z;
     const d = Math.hypot(dx, dz) || 1;
     const f = this.facing;
-    const facing = (dx / d) * f.x + (dz / d) * f.z > 0.17;
+    const facing = blowFaced(dx, dz, f.x, f.z);
     // A blow breaks any channel, not only skinning: a rite or brace left set would freeze its bar and never finish (A71).
     this.cancelChannel();
     this.setBowAim(null);
     if (this.blocking && facing && this.state === 'free') {
       const arms = this.arms(ctx.game);
-      const perfect = this.blockTime < PERFECT_BLOCK_WINDOW;
+      const guarded = resolveGuardedHit({ damage, heavy, arms, blockTime: this.blockTime, stamina: this.stamina, steadyGuard: ctx.game.state.skills.includes('steady_guard') });
       // Only a blade turns a blow aside; a guard of bare forearms softens it.
-      if (perfect && arms.guard.perfect === 'parry') {
+      if (guarded.parried) {
         ctx.audio.hit('perfect');
         from.parried(this.x, this.z);
         this.shake = Math.max(this.shake, 0.1);
         ctx.onHurt(0, true);
         return;
       }
-      const skill = ctx.game.state.skills.includes('steady_guard') ? 0.6 : 1;
-      const cost = COST.blockHit * skill * (heavy ? 1.6 : 1);
-      const tired = this.stamina < cost * 0.5;
-      const share = perfect && typeof arms.guard.perfect === 'number' ? arms.guard.perfect : tired ? arms.guard.tired : arms.guard.fresh;
-      const dmg = Math.round(damage * share);
-      this.spend(cost);
+      this.spend(guarded.cost);
       ctx.audio.hit('block', arms === BLADE);
       this.shake = Math.max(this.shake, 0.18);
-      if (this.stamina <= 0 && heavy) {
+      if (guarded.guardBroken) {
         // Guard break on a heavy blow: a brief stagger, never a lock.
         this.state = 'hurt';
         this.timer = 0;
@@ -951,7 +881,7 @@ export class Player {
         this.blocking = false;
         this.vx = this.vz = 0;
       }
-      this.applyDamage(dmg, true, ctx);
+      this.applyDamage(guarded.damage, true, ctx);
       return;
     }
     ctx.audio.hit('flesh');
@@ -1085,8 +1015,8 @@ export class Player {
 
     // Sprint.
     const sprintHeld = control && inp.held('sprint') && hasInput && !this.blocking && !this.bowAiming;
-    if (sprintHeld && this.state === 'free' && this.stamina <= SPRINT_MIN_STAMINA) this.exhausted = true;
-    const sprinting = sprintHeld && this.stamina > SPRINT_MIN_STAMINA && !this.exhausted && this.state === 'free';
+    if (sprintHeld && this.state === 'free' && this.stamina <= STAMINA.sprintMin) this.exhausted = true;
+    const sprinting = sprintHeld && this.stamina > STAMINA.sprintMin && !this.exhausted && this.state === 'free';
     if (sprintHeld && this.exhausted) inp.clearToggle('sprint');
 
     // Actions (edge-triggered).
@@ -1104,7 +1034,7 @@ export class Player {
         this.state = 'dodge';
         this.timer = 0;
         this.dur = DUR.dodge;
-        this.iframes = 0.3;
+        this.iframes = DODGE.iframes;
         this.blocking = false;
         this.spend(COST.dodge);
         ctx.audio.dodge(this.surface);
@@ -1115,20 +1045,20 @@ export class Player {
         this.grounded = false;
         this.vy = 0;
         this.stamina = Math.max(0, this.stamina - COST.jump);
-        this.staminaPause = 0.4;
+        this.staminaPause = STAMINA.pauseAfterJump;
         ctx.audio.jump(this.surface);
       } else if (inp.pressed('jump') && this.grounded && this.stamina >= COST.jump) {
-        this.vy = 5.4;
+        this.vy = JUMP_SPEED;
         this.grounded = false;
         this.stamina = Math.max(0, this.stamina - COST.jump);
-        this.staminaPause = 0.4;
+        this.staminaPause = STAMINA.pauseAfterJump;
         ctx.audio.jump(this.surface);
       }
     }
 
     // The blade comes out for a fight and goes back on the hip once things are quiet.
     const hasBlade = arms === BLADE;
-    const engaged = ctx.enemies.some((e) => e.alive && e.engaged && Math.hypot(e.x - this.x, e.z - this.z) < 18);
+    const engaged = ctx.enemies.some((e) => e.alive && e.engaged && Math.hypot(e.x - this.x, e.z - this.z) < ENGAGED_REACH);
     if (!hasBlade) this.drawn = false;
     else if (this.state === 'light' || this.state === 'heavy' || this.blocking || engaged) {
       this.drawn = true;
@@ -1174,7 +1104,7 @@ export class Player {
         this.timer += dt;
         speed = 0;
         // Integral of the authored deceleration: equal dodge distance at 30/60/120 Hz, no backwards final frame.
-        const distance = 13 * ((to - from) - (to * to - from * from) / (2 * this.dur));
+        const distance = DODGE.speed * ((to - from) - (to * to - from * from) / (2 * this.dur));
         this.vx = this.vz = 0;
         this.tryMove(this.dodgeDir.x * distance, this.dodgeDir.z * distance, ctx);
         if (this.timer >= this.dur) this.state = 'free';
@@ -1224,7 +1154,7 @@ export class Player {
     // Releasing a direction in mid-air cannot apply ground friction. Directional input still provides modest air control.
     const coasting = !this.grounded && !this.swimming && !hasInput && this.state === 'free';
     const slope = this.channel?.kind === 'skinning' ? { x: 0, z: 0, slip: 0 } : this.downhillGravity(ctx);
-    const rate = this.swimming ? 3.2 : this.grounded ? 13.3 + (2.2 - 13.3) * slope.slip : 2.8;
+    const rate = this.swimming ? MOVE_RESPONSE.swim : this.grounded ? MOVE_RESPONSE.ground + (MOVE_RESPONSE.sliding - MOVE_RESPONSE.ground) * slope.slip : MOVE_RESPONSE.air;
     // The water carries a swimmer along with it and pulls at a wader's legs.
     const current = ctx.water && (this.swimming || this.grounded) ? ctx.water.sample(this.x, this.z) : null;
     const carry = this.swimming ? 1 : 0.35 * Math.min(1, this.waterDepth / 1.2);
@@ -1308,19 +1238,11 @@ export class Player {
     if (pendingBlow) this.resolveBlow(ctx);
 
     // Stamina.
-    if (sprinting && this.state === 'free' && this.lastMoveSpeed > 1 && !this.mount) {
-      this.stamina = Math.max(0, this.stamina - (this.swimming ? SWIM_SPRINT_STAMINA : SPRINT_STAMINA_PER_SECOND) * dt);
-      this.staminaPause = 0.5;
-      if (this.stamina <= SPRINT_MIN_STAMINA) {
-        this.exhausted = true;
-        inp.clearToggle('sprint');
-      }
-    } else if (this.staminaPause <= 0 && !this.blocking) {
-      this.stamina = Math.min(STAMINA_MAX, this.stamina + (this.exhausted ? 16 : 24) * dt);
-    } else if (this.blocking && this.staminaPause <= 0) {
-      this.stamina = Math.min(STAMINA_MAX, this.stamina + 6 * dt);
-    }
-    if (this.exhausted && this.stamina > 22) this.exhausted = false;
+    const meter = this.staminaMeter;
+    meter.stamina = this.stamina; meter.pause = this.staminaPause; meter.exhausted = this.exhausted;
+    const spending = sprinting && this.state === 'free' && this.lastMoveSpeed > 1 && !this.mount;
+    if (staminaStep(meter, dt, spending ? (this.swimming ? 'swim' : 'run') : null, this.blocking)) inp.clearToggle('sprint');
+    this.stamina = meter.stamina; this.staminaPause = meter.pause; this.exhausted = meter.exhausted;
 
     // Footsteps and surface.
     this.surface = this.surfaceAt(ctx);
