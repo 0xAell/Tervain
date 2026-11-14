@@ -5,7 +5,7 @@ import { buildTerrainMesh, TERRAIN_RENDER_SUBDIVISIONS } from '../../src/present
 import { createTerrainMaterial } from '../../src/presentation/terrainMaterial';
 import { LAYERS, LAYER, makeTerrainTextures, type TerrainTextures } from '../../src/presentation/terrainTextures';
 import { meadowProfile } from '../../src/presentation/grass/grassField';
-import { groundSplat } from '../../src/presentation/groundSplat';
+import { groundSplat } from '../../src/core/world/groundLayers';
 import { coastX } from '../../src/core/world/coast';
 import { ROADS, SEA_LEVEL } from '../../src/core/world/layout';
 import { buildForestFernGeometry, buildForestFloor, buildForestLeafTexture, buildForestShrubGeometry } from '../../src/presentation/forestFloor';

@@ -10,9 +10,8 @@ import { checkCancelled, type CooperativeOptions } from '../platform/cooperative
  * cross-fading; the new litter marks occur in both albedo and that same relief.
  */
 
-export const LAYERS = ['grass', 'heath', 'earth', 'gravel', 'sand', 'wetsand', 'rock', 'path'] as const;
-export type LayerName = (typeof LAYERS)[number];
-export const LAYER = Object.fromEntries(LAYERS.map((n, i) => [n, i])) as Record<LayerName, number>;
+import { LAYER, LAYERS, type LayerName } from '../core/world/groundLayers';
+export { LAYER, LAYERS, type LayerName };
 
 import { clamp01, fbmField, hashi, mixc, rnd, sstep, voronoi, type RGB } from './procTex';
 

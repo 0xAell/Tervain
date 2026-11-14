@@ -9,7 +9,7 @@ import { Region, type MatKey } from './regions';
 import { rockShapes } from './rockGeometry';
 import { attachGroundedRockSurface } from './rockSurface';
 export { rockShapes } from './rockGeometry';
-import { streamDistance } from './groundSplat';
+import { streamDistance } from '../core/world/groundLayers';
 import { createScatterPopulation, createShoreDetailPopulation, registerScatterColliders, selectScatterPopulation, type ShoreDetail } from './scatterPopulation';
 import { buildForestLeafTexture } from './forestFloor';
 

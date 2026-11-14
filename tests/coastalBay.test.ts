@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { buildCoastalBackdrop, coastalBackdropGeometry } from '../src/presentation/coastalBackdrop';
-import { groundSplat } from '../src/presentation/groundSplat';
+import { groundSplat } from '../src/core/world/groundLayers';
 import { buildTerrainMesh } from '../src/presentation/terrainMesh';
 import { LAYER, type TerrainTextures } from '../src/presentation/terrainTextures';
 import { MAP_BOUNDS } from '../src/presentation/ui/mapProjection';

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Terrain } from '../core/world/terrain';
-import { groundSplat } from './groundSplat';
+import { groundSplat } from '../core/world/groundLayers';
 import { createTerrainMaterial } from './terrainMaterial';
 import type { TerrainTextures } from './terrainTextures';
 import type { PlantedCrownField } from './plantedCrowns';

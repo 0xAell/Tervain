@@ -5,7 +5,7 @@ import type { Input } from '../../src/platform/input';
 import { defaultSettings } from '../../src/platform/settings';
 import type { AudioEngine } from '../../src/presentation/audio';
 import { Ctx } from '../../src/presentation/buildKit';
-import { groundSplat } from '../../src/presentation/groundSplat';
+import { groundSplat } from '../../src/core/world/groundLayers';
 import { authorLighthouse } from '../../src/presentation/lighthouse';
 import { Player, type PlayerCtx } from '../../src/presentation/player';
 import { HERO_WALK_SPEED } from '../../src/core/rules/heroLocomotion';

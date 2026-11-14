@@ -1,5 +1,5 @@
 import {expect,it,vi} from 'vitest';
-import {groundSplat} from '../../src/presentation/groundSplat';
+import {groundSplat} from '../../src/core/world/groundLayers';
 import {biomeAt} from '../../src/core/world/biomes';
 import type {Terrain} from '../../src/core/world/terrain';
 import type {PlantedCrownField} from '../../src/presentation/plantedCrowns';

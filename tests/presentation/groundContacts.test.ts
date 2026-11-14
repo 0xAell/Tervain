@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { createGroundContactField } from '../../src/core/world/groundContacts';
-import { groundSplat } from '../../src/presentation/groundSplat';
+import { groundSplat } from '../../src/core/world/groundLayers';
 import { attachGroundedRockSurface } from '../../src/presentation/rockSurface';
 import { buildTerrainMesh, buildTerrainTiles } from '../../src/presentation/terrainMesh';
 import { LAYER, type TerrainTextures } from '../../src/presentation/terrainTextures';
