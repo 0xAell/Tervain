@@ -1,0 +1,96 @@
+{
+  "about": "The Dry Bell quest’s vocabulary and timings: phases, evidence, parties, residents’ roles, places, save identity.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "saveFormatVersion": 1,
+  "contentRevision": "deepwood-proto-0.0.5-unarmed",
+  "phases": [
+    "unseen",
+    "investigating",
+    "decision_ready",
+    "committed",
+    "settled"
+  ],
+  "evidence": [
+    "dry_channel",
+    "reduced_spring_flow",
+    "diversion_and_seep",
+    "cracked_sluice",
+    "rotation_ledger",
+    "worker_testimony"
+  ],
+  "allocations": [
+    "rillford",
+    "quarry",
+    "rotation"
+  ],
+  "gateStates": [
+    "damaged",
+    "jammed",
+    "stabilized"
+  ],
+  "parties": [
+    "mara",
+    "edda",
+    "darin"
+  ],
+  "partyResident": {
+    "mara": "rillford_reeve",
+    "edda": "spring_steward",
+    "darin": "quarry_foreman"
+  },
+  "principals": [
+    "rillford_reeve",
+    "spring_steward",
+    "quarry_foreman",
+    "maintenance_worker"
+  ],
+  "decisionMakers": [
+    "rillford_reeve",
+    "spring_steward",
+    "quarry_foreman"
+  ],
+  "residents": [
+    "rillford_reeve",
+    "spring_steward",
+    "quarry_foreman",
+    "maintenance_worker",
+    "estate_steward",
+    "ash_recorder",
+    "shrine_warden",
+    "mill_hand",
+    "quarry_hand",
+    "village_baker",
+    "caravan_master",
+    "trail_hunter"
+  ],
+  "places": [
+    "shore",
+    "lantern_point",
+    "deepwood",
+    "overlook",
+    "rillford",
+    "ford",
+    "spring_shrine",
+    "sluice",
+    "quarry",
+    "the_cut",
+    "archive"
+  ],
+  "firstWeaponPickup": "wreck_blade",
+  "quickSlots": 10,
+  "minutes": {
+    "reportDelay": 20,
+    "riteCalm": 45,
+    "applyDelay": 4
+  },
+  "coin": {
+    "training": 10,
+    "reward": 25
+  },
+  "mapMarkerBounds": {
+    "minX": -352,
+    "maxX": 198,
+    "minZ": -162,
+    "maxZ": 168
+  }
+}

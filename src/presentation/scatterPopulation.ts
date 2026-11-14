@@ -7,7 +7,7 @@ import { LIGHTHOUSE } from '../core/world/layout';
 import { mulberry32, ridged, smoothstep } from '../core/world/noise';
 import { clearanceAt, realmRadius, type Terrain } from '../core/world/terrain';
 import type { Quality } from './context';
-import { streamDistance } from './groundSplat';
+import { streamDistance } from '../core/world/groundLayers';
 import type { Exclusions } from './vegetation';
 
 

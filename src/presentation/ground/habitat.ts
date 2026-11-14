@@ -14,7 +14,7 @@ import {
 import { clamp, fbm, smoothstep } from '../../core/world/noise';
 import { distToPolyline, roadWeight, type Terrain } from '../../core/world/terrain';
 import type { BuildContext } from '../context';
-import { groundSplat } from '../groundSplat';
+import { groundSplat } from '../../core/world/groundLayers';
 import { LAYER } from '../terrainTextures';
 import { shoreDistance } from '../../core/world/coast';
 import { isWorldPickupItem } from '../../core/content/pickups';

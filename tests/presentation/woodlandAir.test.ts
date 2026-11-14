@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { buildWoodlandAir } from '../../src/presentation/woodlandAir';
-import { groundSplat } from '../../src/presentation/groundSplat';
+import { groundSplat } from '../../src/core/world/groundLayers';
 import type { FrameContext } from '../../src/presentation/context';
 import { deepwoodCover } from '../../src/core/world/forest';
 import { Terrain } from '../../src/core/world/terrain';

@@ -5,7 +5,7 @@ vi.mock('../../src/core/world/coast',async(importOriginal)=>{
   return {...coast,shoreDistance(x:number,z:number){observed.calls++;return coast.shoreDistance(x,z);}};
 });
 import {Habitat,newSample} from '../../src/presentation/ground/habitat';
-import {groundSplat} from '../../src/presentation/groundSplat';
+import {groundSplat} from '../../src/core/world/groundLayers';
 import {Colliders} from '../../src/core/world/colliders';
 import {Terrain} from '../../src/core/world/terrain';
 import {Exclusions} from '../../src/presentation/vegetation';

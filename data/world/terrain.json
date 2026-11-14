@@ -1,0 +1,174 @@
+{
+  "about": "How the terrain rasters map onto the world, and landmarks to check an import against.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "heightmap": {
+    "file": "world/terrain-height.png",
+    "format": "16-bit greyscale PNG",
+    "width": 631,
+    "height": 379,
+    "origin": {
+      "x": -405,
+      "z": -189
+    },
+    "spacing": 1,
+    "encoding": {
+      "seaLevelValue": 32768,
+      "unitsPerMetre": 128
+    },
+    "range": {
+      "min": -22,
+      "max": 36.334488
+    },
+    "rows": "row 0 is the northern edge (least z); column 0 is the western edge (least x)"
+  },
+  "layers": [
+    {
+      "name": "grass",
+      "file": "world/terrain-layer-grass.png",
+      "format": "8-bit greyscale PNG"
+    },
+    {
+      "name": "heath",
+      "file": "world/terrain-layer-heath.png",
+      "format": "8-bit greyscale PNG"
+    },
+    {
+      "name": "earth",
+      "file": "world/terrain-layer-earth.png",
+      "format": "8-bit greyscale PNG"
+    },
+    {
+      "name": "gravel",
+      "file": "world/terrain-layer-gravel.png",
+      "format": "8-bit greyscale PNG"
+    },
+    {
+      "name": "sand",
+      "file": "world/terrain-layer-sand.png",
+      "format": "8-bit greyscale PNG"
+    },
+    {
+      "name": "wetsand",
+      "file": "world/terrain-layer-wetsand.png",
+      "format": "8-bit greyscale PNG"
+    },
+    {
+      "name": "rock",
+      "file": "world/terrain-layer-rock.png",
+      "format": "8-bit greyscale PNG"
+    },
+    {
+      "name": "path",
+      "file": "world/terrain-layer-path.png",
+      "format": "8-bit greyscale PNG"
+    }
+  ],
+  "landscape": {
+    "sectionQuads": 63,
+    "sectionsPerComponent": 1,
+    "components": {
+      "x": 10,
+      "z": 6
+    },
+    "unrealLocationCm": {
+      "x": -40500,
+      "y": -18900,
+      "z": 0
+    },
+    "unrealScale": {
+      "x": 100,
+      "y": 100,
+      "z": 100
+    }
+  },
+  "source": {
+    "bounds": {
+      "minX": -380,
+      "maxX": 200,
+      "minZ": -170,
+      "maxZ": 170,
+      "cell": 2
+    },
+    "note": "The game samples a 2 m grid split into triangles; the raster samples that surface every metre. Outside the bounds the edge heights continue flat."
+  },
+  "checkPoints": [
+    {
+      "name": "spawn",
+      "x": -268,
+      "z": 27,
+      "y": 0.519003
+    },
+    {
+      "name": "lighthouse",
+      "x": -324,
+      "z": 104,
+      "y": 11.952917
+    },
+    {
+      "name": "shore",
+      "x": -256,
+      "z": 32,
+      "y": 1.096754
+    },
+    {
+      "name": "deepwood",
+      "x": -182,
+      "z": 14,
+      "y": 1.323693
+    },
+    {
+      "name": "lantern_point",
+      "x": -318,
+      "z": 104,
+      "y": 11.952917
+    },
+    {
+      "name": "overlook",
+      "x": -136,
+      "z": 26,
+      "y": 5.711692
+    },
+    {
+      "name": "rillford",
+      "x": 4,
+      "z": 8,
+      "y": 1.02041
+    },
+    {
+      "name": "ford",
+      "x": 50,
+      "z": 32,
+      "y": 0.523196
+    },
+    {
+      "name": "spring_shrine",
+      "x": -20,
+      "z": -98,
+      "y": 7.389768
+    },
+    {
+      "name": "sluice",
+      "x": 3,
+      "z": -57,
+      "y": 4.422936
+    },
+    {
+      "name": "quarry",
+      "x": 88,
+      "z": -24,
+      "y": 2.098819
+    },
+    {
+      "name": "the_cut",
+      "x": 118,
+      "z": -62,
+      "y": 7.285687
+    },
+    {
+      "name": "archive",
+      "x": -46,
+      "z": -100,
+      "y": 9.983227
+    }
+  ]
+}

@@ -20,6 +20,7 @@ import type { AnimalArrowHit } from './animals/hunting/hit';
 import { WILDLIFE_RETURN_DISTANCE, type AnimalId, type HuntingState } from '../core/game/hunting';
 import { finishCooperatively, type CooperativeOptions } from '../platform/cooperative';
 import { NIGHT } from '../core/rules/dayNight';
+import { ANIMAL_BEHAVIOUR as BEHAVIOUR } from '../core/rules/animalBehaviour';
 
 export { ANIMALS, ANIMAL_TRIANGLE_LIMIT } from '../core/content/animals';
 export type AnimalTemplates = ReadonlyMap<string, GLTF>;
@@ -482,8 +483,8 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     const rng = mulberry32(Number(definition.id.slice(-7)) + index * 271), randomYaw = rng() * Math.PI * 2, yaw = definition.homeYaw ?? randomYaw;
     root.position.set(home.x, terrain.heightAt(home.x, home.z), home.z); root.rotation.y = yaw; group.add(root);
     const state: AnimalClip = body.animation.has('Graze') ? 'Graze' : 'Idle'; body.animation.transition(state);
-    const animal: AnimalInstance = { ...body, definition, root, home, yaw, state, stateTime: 0, rest: 3 + rng() * 7,
-      callIn: 18 + index * 2.1 + rng() * 25, callSent: false, alertIn: 0, path: [], blockedFor: 0, planIn: 0, turn: new THREE.Quaternion(), rng, alarm: null, initialYaw: yaw };
+    const animal: AnimalInstance = { ...body, definition, root, home, yaw, state, stateTime: 0, rest: BEHAVIOUR.firstRest[0] + rng() * BEHAVIOUR.firstRest[1],
+      callIn: BEHAVIOUR.firstCall.base + index * BEHAVIOUR.firstCall.stagger + rng() * BEHAVIOUR.firstCall.span, callSent: false, alertIn: 0, path: [], blockedFor: 0, planIn: 0, turn: new THREE.Quaternion(), rng, alarm: null, initialYaw: yaw };
     animals.push(animal);
     yield;
   }
@@ -494,9 +495,9 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     animal.state = state; animal.stateTime = 0; animal.callSent = false; animal.animation.transition(state);
   };
   const rest = (animal: AnimalInstance) => {
-    animal.path = []; animal.rest = 4 + animal.rng() * 9;
-    const state = animal.definition.seated ? (animal.rng() < 0.2 ? 'Groom' : 'Idle')
-      : animal.animation.has('Graze') && animal.rng() < 0.75 ? 'Graze' : 'Idle';
+    animal.path = []; animal.rest = BEHAVIOUR.rest[0] + animal.rng() * BEHAVIOUR.rest[1];
+    const state = animal.definition.seated ? (animal.rng() < BEHAVIOUR.seatedGroomShare ? 'Groom' : 'Idle')
+      : animal.animation.has('Graze') && animal.rng() < BEHAVIOUR.grazeShare ? 'Graze' : 'Idle';
     enter(animal, state);
   };
   const extrasFor = (animal: AnimalInstance, focus: THREE.Vector3): Collider[] => [
@@ -507,7 +508,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     { id: 'wildlife:player', kind: 'circle', x: focus.x, z: focus.z, r: 0.55, active: true, minY: focus.y, maxY: focus.y + 1.9 },
   ];
   const goal = (animal: AnimalInstance, focus: THREE.Vector3, fleeing: boolean): boolean => {
-    animal.planIn = 0.9 + animal.rng() * 0.4;
+    animal.planIn = BEHAVIOUR.plan[0] + animal.rng() * BEHAVIOUR.plan[1];
     const start = animal.root.position, allExtras = extrasFor(animal, focus);
     // Yield from a newly approaching actor's avoidance margin; the actual step still resolves the full contacts.
     const extras = allExtras.filter(extra => extra.kind !== 'circle' || Math.hypot(extra.x - start.x, extra.z - start.z) > extra.r + animal.home.radius + 0.05);
@@ -516,9 +517,9 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
       if (!path?.length) return false;
       animal.path = path; animal.blockedFor = 0; enter(animal, fleeing ? 'Run' : 'Walk'); return true;
     };
-    for (let attempt = 0; attempt < 10; attempt++) {
-      const a = fleeing ? Math.atan2(start.x - focus.x, start.z - focus.z) + (attempt % 2 ? 1 : -1) * Math.ceil(attempt / 2) * 0.34 : animal.rng() * Math.PI * 2;
-      const distance = fleeing ? 7 + attempt * 0.45 : 4 + animal.rng() * Math.max(1, animal.definition.roam * 0.65);
+    for (let attempt = 0; attempt < BEHAVIOUR.wander.attempts; attempt++) {
+      const a = fleeing ? Math.atan2(start.x - focus.x, start.z - focus.z) + (attempt % 2 ? 1 : -1) * Math.ceil(attempt / 2) * BEHAVIOUR.flee.fan : animal.rng() * Math.PI * 2;
+      const distance = fleeing ? BEHAVIOUR.flee.base + attempt * BEHAVIOUR.flee.step : BEHAVIOUR.wander.base + animal.rng() * Math.max(1, animal.definition.roam * BEHAVIOUR.wander.roamShare);
       const candidate = { x: start.x + Math.sin(a) * distance, z: start.z + Math.cos(a) * distance };
       if (Math.hypot(candidate.x - animal.home.x, candidate.z - animal.home.z) > animal.definition.roam) continue;
       if (tryTo(candidate)) return true;
@@ -526,18 +527,18 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     if (!fleeing) return false;
     // Cornered at the edge of its range with the hunter on the home side (A96 scout: it froze there, to be shot at point
     // blank): it breaks round him, to the place in its range that keeps it farthest from him.
-    const away = Math.hypot(start.x - focus.x, start.z - focus.z), roam = animal.definition.roam * 0.95;
+    const away = Math.hypot(start.x - focus.x, start.z - focus.z), roam = animal.definition.roam * BEHAVIOUR.cornered.roamShare;
     const around: { x: number; z: number; d: number }[] = [];
-    for (let k = 0; k < 16; k++) {
-      const a = (k / 16) * Math.PI * 2;
-      let x = start.x + Math.sin(a) * 8, z = start.z + Math.cos(a) * 8;
+    for (let k = 0; k < BEHAVIOUR.cornered.directions; k++) {
+      const a = (k / BEHAVIOUR.cornered.directions) * Math.PI * 2;
+      let x = start.x + Math.sin(a) * BEHAVIOUR.cornered.reach, z = start.z + Math.cos(a) * BEHAVIOUR.cornered.reach;
       const fromHome = Math.hypot(x - animal.home.x, z - animal.home.z);
       if (fromHome > roam) { x = animal.home.x + (x - animal.home.x) * roam / fromHome; z = animal.home.z + (z - animal.home.z) * roam / fromHome; }
       const d = Math.hypot(x - focus.x, z - focus.z);
-      if (d >= away - 0.5 && Math.hypot(x - start.x, z - start.z) > 2) around.push({ x, z, d });
+      if (d >= away - BEHAVIOUR.cornered.slack && Math.hypot(x - start.x, z - start.z) > BEHAVIOUR.cornered.minMove) around.push({ x, z, d });
     }
     around.sort((p, q) => q.d - p.d);
-    for (const candidate of around.slice(0, 6)) if (tryTo(candidate)) return true;
+    for (const candidate of around.slice(0, BEHAVIOUR.cornered.keep)) if (tryTo(candidate)) return true;
     return false;
   };
   const place = (animal: AnimalInstance, dt: number) => {
@@ -722,7 +723,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
         if (ridden?.animal === animal) {
           const { at } = ridden;
           p.x = at.x; p.z = at.z; animal.yaw = at.yaw; animal.path = []; animal.alarm = null;
-          const pace = Math.abs(at.speed), gait = pace > 2.6 ? 'Run' as const : pace > 0.15 ? 'Walk' as const : 'Idle' as const;
+          const pace = Math.abs(at.speed), gait = pace > BEHAVIOUR.rideRun ? 'Run' as const : pace > BEHAVIOUR.rideWalk ? 'Walk' as const : 'Idle' as const;
           enter(animal, gait);
           const before = animal.animation.gaitPhase();
           animal.animation.update(dt, at.speed); place(animal, dt);
@@ -734,7 +735,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
           continue;
         }
         // Left far from its rest, the mount is led home once well beyond the hunter's sight (A70).
-        if (animal.definition.tame && !animal.definition.seated && distance > 90 && !animalHabitatAllowed(animal.definition, p)) {
+        if (animal.definition.tame && !animal.definition.seated && distance > BEHAVIOUR.ledHomeBeyond && !animalHabitatAllowed(animal.definition, p)) {
           p.x = animal.home.x; p.z = animal.home.z; animal.yaw = animal.initialYaw; animal.path = []; rest(animal);
         }
         // All nineteen remain in the scene on every preset. Expanded skin bounds let Three's actual
@@ -746,32 +747,32 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
         const speeds = ANIMAL_SPEEDS[animal.definition.species];
         const holding = !animal.definition.tame && !animal.definition.seated && !animal.alarm && distance < speeds.flee;
         if (animal.definition.seated) {
-          if (distance < speeds.notice && animal.alertIn <= 0 && animal.state !== 'Alert') { enter(animal, 'Alert'); animal.alertIn = 14; }
+          if (distance < speeds.notice && animal.alertIn <= 0 && animal.state !== 'Alert') { enter(animal, 'Alert'); animal.alertIn = BEHAVIOUR.seatedAlert; }
         } else if (!animal.definition.tame && (distance < speeds.flee * ANIMAL_TEMPERAMENT[animal.definition.species].holdUntil || animal.alarm)) {
           if (!animal.alarm) spreadAlarm(animal, frame.focus);
-          if (animal.planIn <= 0 && (animal.state !== 'Run' || !animal.path.length || animal.blockedFor > 0.4)) {
+          if (animal.planIn <= 0 && (animal.state !== 'Run' || !animal.path.length || animal.blockedFor > BEHAVIOUR.replanBlocked)) {
             if (!goal(animal, fleeingFrom, true)) { animal.path = []; enter(animal, 'Alert'); }
           }
         } else if (distance < speeds.notice && animal.alertIn <= 0 && animal.state !== 'Run' && animal.state !== 'Alert') {
-          animal.path = []; enter(animal, 'Alert'); animal.alertIn = 13 + animal.rng() * 12;
+          animal.path = []; enter(animal, 'Alert'); animal.alertIn = BEHAVIOUR.alert[0] + animal.rng() * BEHAVIOUR.alert[1];
         } else if (!animal.definition.tame && distance < speeds.flee && animal.state !== 'Alert' && animal.state !== 'Call') {
           // A predator inside its flee distance but standing its ground watches the hunter, and now and then warns him off.
-          animal.path = []; enter(animal, animal.rng() < 0.3 && animal.animation.has('Call') ? 'Call' : 'Alert');
+          animal.path = []; enter(animal, animal.rng() < BEHAVIOUR.warnShare && animal.animation.has('Call') ? 'Call' : 'Alert');
         }
-        const callNow = animal.state === 'Call' && !animal.callSent && animal.stateTime >= 0.25;
+        const callNow = animal.state === 'Call' && !animal.callSent && animal.stateTime >= BEHAVIOUR.callAt;
         let speed = 0;
         if (animal.state === 'Walk' || animal.state === 'Run') {
           const target = animal.path[0];
           if (target) {
             const dx = target.x - p.x, dz = target.z - p.z, length = Math.hypot(dx, dz);
             const desiredYaw = Math.atan2(dx, dz), turn = Math.atan2(Math.sin(desiredYaw - animal.yaw), Math.cos(desiredYaw - animal.yaw));
-            animal.yaw += THREE.MathUtils.clamp(turn, -dt * 3.5, dt * 3.5);
+            animal.yaw += THREE.MathUtils.clamp(turn, -dt * BEHAVIOUR.turn, dt * BEHAVIOUR.turn);
             // The rendered body eases toward navigation yaw in place(). Do not
             // translate along the new path while it still faces the old one.
             forward.set(0, 0, 1).applyQuaternion(animal.root.quaternion);
             const facing = Math.atan2(forward.x, forward.z);
             const facingTurn = Math.atan2(Math.sin(desiredYaw - facing), Math.cos(desiredYaw - facing));
-            const turning = Math.abs(turn) > 0.18 || Math.abs(facingTurn) > 0.18;
+            const turning = Math.abs(turn) > BEHAVIOUR.turnFirst || Math.abs(facingTurn) > BEHAVIOUR.turnFirst;
             const step = turning ? 0 : Math.min(length, dt * animal.animation.referenceSpeed(animal.state));
             const extras = extrasFor(animal, frame.focus);
             const next = colliders.move(p.x, p.z, dx / Math.max(length, 1e-5) * step, dz / Math.max(length, 1e-5) * step, animal.home.radius,
@@ -781,27 +782,27 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
               const travel = Math.hypot(next.x - p.x, next.z - p.z);
               p.x = next.x; p.z = next.z; speed = travel / Math.max(dt, 1e-5);
             }
-            animal.blockedFor = !turning && speed < 0.1 ? animal.blockedFor + dt : 0;
-            if (length < 0.25 || step >= length && speed > 0) animal.path.shift();
-            if (animal.blockedFor > 1 || !animal.path.length) rest(animal);
+            animal.blockedFor = !turning && speed < BEHAVIOUR.stalled ? animal.blockedFor + dt : 0;
+            if (length < BEHAVIOUR.arrive || step >= length && speed > 0) animal.path.shift();
+            if (animal.blockedFor > BEHAVIOUR.giveUp || !animal.path.length) rest(animal);
           } else rest(animal);
         } else {
           if (animal.state === 'Alert') {
             const yaw = Math.atan2(frame.focus.x - p.x, frame.focus.z - p.z), turn = Math.atan2(Math.sin(yaw - animal.yaw), Math.cos(yaw - animal.yaw));
-            animal.yaw += THREE.MathUtils.clamp(turn, -dt * 1.4, dt * 1.4);
+            animal.yaw += THREE.MathUtils.clamp(turn, -dt * BEHAVIOUR.watchTurn, dt * BEHAVIOUR.watchTurn);
           }
-          const gestureDuration = animal.state === 'Call' ? Math.max(3.8, animal.animation.duration('Call')) : animal.animation.duration(animal.state);
-          if (['Call', 'Alert', 'Groom'].includes(animal.state) && animal.stateTime > gestureDuration + 0.2) {
+          const gestureDuration = animal.state === 'Call' ? Math.max(BEHAVIOUR.callSeconds, animal.animation.duration('Call')) : animal.animation.duration(animal.state);
+          if (['Call', 'Alert', 'Groom'].includes(animal.state) && animal.stateTime > gestureDuration + BEHAVIOUR.gestureSlack) {
             // Still alarmed with nowhere to run, it stays on watch rather than grazing beside the hunter (A96 scout).
             if (holding || animal.alarm && !animal.definition.tame) { animal.stateTime = 0; enter(animal, 'Alert'); } else rest(animal);
           }
           animal.rest -= dt;
-          if (animal.callIn <= 0 && distance < ANIMAL_AUDIO.species[animal.definition.species].maxDistance && distance > speeds.flee + 1 && ['Idle', 'Graze'].includes(animal.state)) {
+          if (animal.callIn <= 0 && distance < ANIMAL_AUDIO.species[animal.definition.species].maxDistance && distance > speeds.flee + BEHAVIOUR.callClearance && ['Idle', 'Graze'].includes(animal.state)) {
             // Not in its sleep (A96 scout: the cat woke to call whenever its timer ran out at night).
-            enter(animal, 'Call'); animal.callIn = 35 + animal.rng() * 40;
+            enter(animal, 'Call'); animal.callIn = BEHAVIOUR.call[0] + animal.rng() * BEHAVIOUR.call[1];
           } else if (animal.rest <= 0 && ['Idle', 'Graze', 'Sleep'].includes(animal.state)) {
-            if (animal.definition.seated) { enter(animal, frame.nightness > NIGHT.catSleeps && animal.rng() < 0.55 ? 'Sleep' : 'Groom'); animal.rest = 9 + animal.rng() * 14; }
-            else if (!goal(animal, frame.focus, false)) animal.rest = 4 + animal.rng() * 5;
+            if (animal.definition.seated) { enter(animal, frame.nightness > NIGHT.catSleeps && animal.rng() < BEHAVIOUR.catSleepShare ? 'Sleep' : 'Groom'); animal.rest = BEHAVIOUR.seatedRest[0] + animal.rng() * BEHAVIOUR.seatedRest[1]; }
+            else if (!goal(animal, frame.focus, false)) animal.rest = BEHAVIOUR.restNoPath[0] + animal.rng() * BEHAVIOUR.restNoPath[1];
           }
         }
         animal.animation.update(dt, speed); place(animal, dt);

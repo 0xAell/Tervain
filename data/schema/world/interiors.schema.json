@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/interiors.schema.json",
+  "title": "world/interiors.json",
+  "description": "Each walk-in building’s room, hearth, furniture, dressing and yard. Positions are in the building’s own frame (x along its width, z towards its front door).",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "building": {
+            "type": "string"
+          },
+          "wall": {
+            "type": "number"
+          },
+          "wallBase": {
+            "type": "number"
+          },
+          "floorTop": {
+            "type": "number"
+          },
+          "wallTop": {
+            "type": "number"
+          },
+          "door": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "halfWidth": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "halfWidth",
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          "hearth": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "properties": {
+              "stack": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "z": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z"
+                ],
+                "additionalProperties": false
+              },
+              "yaw": {
+                "type": "number"
+              },
+              "wall": {
+                "type": "string"
+              },
+              "breast": {
+                "type": "object",
+                "properties": {
+                  "x0": {
+                    "type": "number"
+                  },
+                  "x1": {
+                    "type": "number"
+                  },
+                  "z0": {
+                    "type": "number"
+                  },
+                  "z1": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x0",
+                  "x1",
+                  "z0",
+                  "z1"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "stack",
+              "yaw",
+              "wall",
+              "breast"
+            ],
+            "additionalProperties": false
+          },
+          "furniture": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "piece": {
+                  "type": "string"
+                },
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                },
+                "yaw": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "piece",
+                "x",
+                "z",
+                "yaw"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "dressing": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "piece": {
+                  "type": "string"
+                },
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                },
+                "yaw": {
+                  "type": "number"
+                },
+                "size": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "scale": {
+                  "type": "number"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "hung": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "piece",
+                "x",
+                "z",
+                "y",
+                "yaw"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "building",
+          "wall",
+          "wallBase",
+          "floorTop",
+          "wallTop",
+          "door",
+          "hearth",
+          "furniture",
+          "dressing"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "yards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "building": {
+            "type": "string"
+          },
+          "props": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "x": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                },
+                "yaw": {
+                  "type": "number"
+                },
+                "hw": {
+                  "type": "number"
+                },
+                "hd": {
+                  "type": "number"
+                },
+                "h": {
+                  "type": "number"
+                },
+                "solid": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "x",
+                "z",
+                "yaw",
+                "hw",
+                "hd",
+                "h",
+                "solid"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "building",
+          "props"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "rooms",
+    "yards"
+  ],
+  "additionalProperties": false
+}

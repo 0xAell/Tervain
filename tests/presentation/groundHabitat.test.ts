@@ -5,7 +5,7 @@ import { Colliders } from '../../src/core/world/colliders';
 import { Terrain, roadWeight } from '../../src/core/world/terrain';
 import { ARRIVAL_ROUTE } from '../../src/core/world/layout';
 import { biomeAt } from '../../src/core/world/biomes';
-import { groundSplat } from '../../src/presentation/groundSplat';
+import { groundSplat } from '../../src/core/world/groundLayers';
 import { LAYER } from '../../src/presentation/terrainTextures';
 
 describe('ground habitat beneath planted crowns', () => {

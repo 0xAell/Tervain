@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/flora.schema.json",
+  "title": "world/flora.json",
+  "description": "Where every tree stands, as the planting rule places it without measuring any tree model: species, variant, position, scale, facing and trunk radius.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "count": {
+      "type": "object",
+      "properties": {
+        "fir": {
+          "type": "integer"
+        },
+        "pine": {
+          "type": "integer"
+        },
+        "shrub": {
+          "type": "integer"
+        },
+        "oak": {
+          "type": "integer"
+        },
+        "birch": {
+          "type": "integer"
+        },
+        "palm": {
+          "type": "integer"
+        },
+        "shorepine": {
+          "type": "integer"
+        },
+        "dead": {
+          "type": "integer"
+        },
+        "orchard": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "fir",
+        "pine",
+        "shrub",
+        "oak",
+        "birch",
+        "palm",
+        "shorepine",
+        "dead",
+        "orchard"
+      ],
+      "additionalProperties": false
+    },
+    "trees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "integer"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "scale": {
+            "type": "number"
+          },
+          "yaw": {
+            "type": "number"
+          },
+          "radius": {
+            "type": "number"
+          },
+          "age": {
+            "type": "string"
+          },
+          "stand": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "species",
+          "variant",
+          "x",
+          "y",
+          "z",
+          "scale",
+          "yaw",
+          "radius",
+          "age",
+          "stand"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "count",
+    "trees"
+  ],
+  "additionalProperties": false
+}

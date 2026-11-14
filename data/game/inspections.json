@@ -1,0 +1,146 @@
+{
+  "about": "What can be examined in the world: requirements, effects and the notice shown. Positions are in world/layout.json.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "points": [
+    {
+      "id": "arrival_wreckage",
+      "effects": [
+        {
+          "t": "fact",
+          "key": "saw_arrival_wreckage"
+        }
+      ],
+      "noticeKey": "inspect.arrival_wreckage"
+    },
+    {
+      "id": "templar_waymarker",
+      "effects": [
+        {
+          "t": "fact",
+          "key": "saw_templar_waymarker"
+        }
+      ],
+      "noticeKey": "inspect.templar_waymarker"
+    },
+    {
+      "id": "dry_channel",
+      "effects": [
+        {
+          "t": "enter",
+          "trigger": "dry_channel"
+        },
+        {
+          "t": "evidence",
+          "id": "dry_channel",
+          "via": "observed",
+          "source": "inspect.dry_channel"
+        }
+      ],
+      "noticeKey": "inspect.dry_channel"
+    },
+    {
+      "id": "spring_sediment",
+      "effects": [
+        {
+          "t": "enter",
+          "trigger": "spring"
+        },
+        {
+          "t": "evidence",
+          "id": "reduced_spring_flow",
+          "via": "observed",
+          "source": "inspect.spring_sediment"
+        }
+      ],
+      "noticeKey": "inspect.spring_sediment"
+    },
+    {
+      "id": "town_diversion",
+      "effects": [
+        {
+          "t": "fact",
+          "key": "saw_diversion"
+        },
+        {
+          "t": "enter",
+          "trigger": "diversion"
+        }
+      ],
+      "noticeKey": "inspect.town_diversion"
+    },
+    {
+      "id": "quarry_seep",
+      "effects": [
+        {
+          "t": "fact",
+          "key": "saw_seep"
+        },
+        {
+          "t": "enter",
+          "trigger": "seep"
+        }
+      ],
+      "noticeKey": "inspect.quarry_seep"
+    },
+    {
+      "id": "sluice_crack",
+      "effects": [
+        {
+          "t": "enter",
+          "trigger": "sluice"
+        },
+        {
+          "t": "evidence",
+          "id": "cracked_sluice",
+          "via": "observed",
+          "source": "inspect.sluice_crack"
+        },
+        {
+          "t": "fact",
+          "key": "saw_sluice_damage"
+        }
+      ],
+      "noticeKey": "inspect.sluice_crack"
+    },
+    {
+      "id": "inspection_log",
+      "effects": [
+        {
+          "t": "fact",
+          "key": "saw_inspection_gap"
+        }
+      ],
+      "noticeKey": "inspect.inspection_log"
+    },
+    {
+      "id": "noticeboard",
+      "effects": [
+        {
+          "t": "fact",
+          "key": "read_noticeboard"
+        }
+      ],
+      "noticeKey": "inspect.noticeboard"
+    },
+    {
+      "id": "wetland_fish",
+      "effects": [
+        {
+          "t": "fact",
+          "key": "saw_fish_nests"
+        }
+      ],
+      "noticeKey": "inspect.wetland_fish"
+    },
+    {
+      "id": "saltward_kit",
+      "effects": [
+        {
+          "t": "fact",
+          "key": "saw_saltward_kit"
+        }
+      ],
+      "noticeKey": "inspect.saltward_kit"
+    }
+  ]
+}

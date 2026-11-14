@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/dialogue.schema.json",
+  "title": "game/dialogue.json",
+  "description": "The dialogue graph: nodes, choices, conditions and effects. Text is in strings.en.json under each node’s and choice’s key.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "speaker": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "next": {
+                  "type": "string"
+                },
+                "intent": {
+                  "type": "string"
+                },
+                "effects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "t": {
+                        "type": "string"
+                      },
+                      "npc": {
+                        "type": "string"
+                      },
+                      "cmd": {
+                        "type": "object",
+                        "properties": {
+                          "t": {
+                            "type": "string"
+                          },
+                          "via": {
+                            "type": "string"
+                          },
+                          "method": {
+                            "type": "string"
+                          },
+                          "skill": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "t"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "delta": {
+                        "type": "integer"
+                      },
+                      "party": {
+                        "type": "string"
+                      },
+                      "key": {
+                        "type": "string"
+                      },
+                      "trigger": {
+                        "type": "string"
+                      },
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "archive_key": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "archive_key"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "t"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "when": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "t": {
+                        "type": "string"
+                      },
+                      "c": {
+                        "type": [
+                          "array",
+                          "object"
+                        ],
+                        "properties": {
+                          "t": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "key": {
+                            "type": "string"
+                          },
+                          "c": {
+                            "type": "object",
+                            "properties": {
+                              "t": {
+                                "type": "string"
+                              },
+                              "key": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "t",
+                              "key"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "t"
+                        ],
+                        "additionalProperties": false,
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "t": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "t",
+                            "id"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "key": {
+                        "type": "string"
+                      },
+                      "min": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "t"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "showLocked": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "text",
+                "next",
+                "intent"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "onEnter": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "t": {
+                  "type": "string"
+                },
+                "key": {
+                  "type": "string"
+                },
+                "trigger": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "via": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "npc": {
+                  "type": "string"
+                },
+                "delta": {
+                  "type": "integer"
+                },
+                "party": {
+                  "type": "string"
+                },
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "votive_reed": {
+                      "type": "integer"
+                    },
+                    "poultice": {
+                      "type": "integer"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "value": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "t"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "speaker",
+          "text",
+          "choices"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "nodes"
+  ],
+  "additionalProperties": false
+}

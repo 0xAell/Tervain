@@ -1,0 +1,155 @@
+[
+  {
+    "Name": "camp_barrel_0",
+    "DisplayName": "Empty trade barrel",
+    "Kind": "Barrel",
+    "Location": {
+      "X": -8200,
+      "Y": 5240,
+      "Z": 103.97
+    },
+    "Yaw": 90,
+    "Size": {
+      "X": 76,
+      "Y": 76,
+      "Z": 100
+    },
+    "MassKg": 18
+  },
+  {
+    "Name": "camp_barrel_1",
+    "DisplayName": "Empty trade barrel",
+    "Kind": "Barrel",
+    "Location": {
+      "X": -8080,
+      "Y": 5280,
+      "Z": 105.256
+    },
+    "Yaw": 84.27,
+    "Size": {
+      "X": 68.4,
+      "Y": 68.4,
+      "Z": 90
+    },
+    "MassKg": 18
+  },
+  {
+    "Name": "camp_crate_0",
+    "DisplayName": "Wooden supply crate",
+    "Kind": "Crate",
+    "Location": {
+      "X": -8900,
+      "Y": 2650,
+      "Z": 132.217
+    },
+    "Yaw": 72.811,
+    "Size": {
+      "X": 86,
+      "Y": 62,
+      "Z": 57
+    },
+    "MassKg": 12
+  },
+  {
+    "Name": "camp_crate_1",
+    "DisplayName": "Wooden supply crate",
+    "Kind": "Crate",
+    "Location": {
+      "X": -8910,
+      "Y": 2730,
+      "Z": 136.891
+    },
+    "Yaw": 101.459,
+    "Size": {
+      "X": 66,
+      "Y": 52,
+      "Z": 47
+    },
+    "MassKg": 12
+  },
+  {
+    "Name": "loose_barrel_0",
+    "DisplayName": "Empty wooden barrel",
+    "Kind": "Barrel",
+    "Location": {
+      "X": -1650,
+      "Y": 240,
+      "Z": 81.549
+    },
+    "Yaw": 90,
+    "Size": {
+      "X": 76,
+      "Y": 76,
+      "Z": 100
+    },
+    "MassKg": 18
+  },
+  {
+    "Name": "loose_barrel_1",
+    "DisplayName": "Empty wooden barrel",
+    "Kind": "Barrel",
+    "Location": {
+      "X": 1640,
+      "Y": 2100,
+      "Z": 116.639
+    },
+    "Yaw": 80.26,
+    "Size": {
+      "X": 76,
+      "Y": 76,
+      "Z": 100
+    },
+    "MassKg": 18
+  },
+  {
+    "Name": "loose_barrel_2",
+    "DisplayName": "Empty wooden barrel",
+    "Kind": "Barrel",
+    "Location": {
+      "X": -13650,
+      "Y": 3150,
+      "Z": 582.254
+    },
+    "Yaw": 70.519,
+    "Size": {
+      "X": 76,
+      "Y": 76,
+      "Z": 100
+    },
+    "MassKg": 18
+  },
+  {
+    "Name": "loose_barrel_3",
+    "DisplayName": "Empty wooden barrel",
+    "Kind": "Barrel",
+    "Location": {
+      "X": 8800,
+      "Y": -1300,
+      "Z": 210.669
+    },
+    "Yaw": 60.779,
+    "Size": {
+      "X": 76,
+      "Y": 76,
+      "Z": 100
+    },
+    "MassKg": 18
+  },
+  {
+    "Name": "loose_barrel_4",
+    "DisplayName": "Empty wooden barrel",
+    "Kind": "Barrel",
+    "Location": {
+      "X": -1440,
+      "Y": -300,
+      "Z": 25.146
+    },
+    "Yaw": 51.039,
+    "Size": {
+      "X": 76,
+      "Y": 76,
+      "Z": 100
+    },
+    "MassKg": 18
+  }
+]

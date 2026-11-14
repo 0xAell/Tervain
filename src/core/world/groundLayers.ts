@@ -1,11 +1,9 @@
-import { cliffiness, coastalShelfAt, seaWetness, shoreDistance } from '../core/world/coast';
-import { FIELDS, SEA_LEVEL, STREAMS } from '../core/world/layout';
-import { clamp, fbm, smoothstep } from '../core/world/noise';
-import { distToPolyline, roadWeight, type Terrain } from '../core/world/terrain';
-import { LAYER } from './terrainTextures';
-import { deepwoodCover } from '../core/world/forest';
-import type { PlantedCrownField } from './plantedCrowns';
-import { biomeAt, type BiomeSample } from '../core/world/biomes';
+import { cliffiness, coastalShelfAt, seaWetness, shoreDistance } from './coast';
+import { FIELDS, SEA_LEVEL, STREAMS } from './layout';
+import { clamp, fbm, smoothstep } from './noise';
+import { distToPolyline, roadWeight, type Terrain } from './terrain';
+import { deepwoodCover } from './forest';
+import { biomeAt, type BiomeSample } from './biomes';
 
 /**
  * What the ground is made of at a point: eight layer weights (summing to 1) and a wetness. Everything comes from the
@@ -14,7 +12,19 @@ import { biomeAt, type BiomeSample } from '../core/world/biomes';
  * the tracks, dry heath on the exposed high ground and greener grass in the damp hollows.
  */
 
-const NL = 8;
+/** The ground's eight materials, in the order their weights are stored. */
+export const LAYERS = ['grass', 'heath', 'earth', 'gravel', 'sand', 'wetsand', 'rock', 'path'] as const;
+export type LayerName = (typeof LAYERS)[number];
+export const LAYER = Object.fromEntries(LAYERS.map((n, i) => [n, i])) as Record<LayerName, number>;
+
+/** Geometric shade proxy, shared by terrain, grass and the woodland floor.
+ * It measures projected planted foliage, not alpha coverage or rendered pixels. */
+export interface PlantedCrownField {
+  coverAt(x: number, z: number): number;
+  broadleafAt(x: number, z: number): number;
+}
+
+const NL = LAYERS.length;
 
 export function streamDistance(x: number, z: number): number {
   let d = Infinity;

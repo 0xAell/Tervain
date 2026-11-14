@@ -10,8 +10,8 @@ import { assertNaturalModelBudget } from './naturalModelBudget';
  * its shape as it recedes. Geometry is in tree-local metres, y up, roots at y = 0.
  */
 
-export type Species = 'oak' | 'birch' | 'pine' | 'fir' | 'shorepine' | 'dead' | 'orchard' | 'shrub' | 'palm';
-export const SPECIES: Species[] = ['oak', 'birch', 'pine', 'fir', 'shorepine', 'dead', 'orchard', 'shrub', 'palm'];
+import { SPECIES, type Species } from '../core/world/flora';
+export { SPECIES, type Species };
 
 type V3 = [number, number, number];
 export type RGB = [number, number, number];

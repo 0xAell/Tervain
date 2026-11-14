@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/animals.schema.json",
+  "title": "game/animals.json",
+  "description": "The nineteen animals, each kind’s paces and temperament, their behaviour, and the hunting rules.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "animals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "species": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "habitat": {
+            "type": "string"
+          },
+          "home": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "z"
+            ],
+            "additionalProperties": false
+          },
+          "roam": {
+            "type": "integer"
+          },
+          "huntId": {
+            "type": "string"
+          },
+          "huntSpecies": {
+            "type": "string"
+          },
+          "huntable": {
+            "type": "boolean"
+          },
+          "clips": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "loot": {
+            "type": "object",
+            "properties": {
+              "animal_hide": {
+                "type": "integer"
+              },
+              "raw_meat": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "animal_hide",
+              "raw_meat"
+            ],
+            "additionalProperties": false
+          },
+          "seated": {
+            "type": "boolean"
+          },
+          "tame": {
+            "type": "boolean"
+          },
+          "homeYaw": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "species",
+          "file",
+          "habitat",
+          "home",
+          "roam",
+          "huntId",
+          "huntSpecies",
+          "huntable",
+          "clips",
+          "loot"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "species": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "walk": {
+            "type": "number"
+          },
+          "run": {
+            "type": "number"
+          },
+          "notice": {
+            "type": "number"
+          },
+          "flee": {
+            "type": "number"
+          },
+          "holdUntil": {
+            "type": "number"
+          },
+          "herd": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "walk",
+          "run",
+          "notice",
+          "flee",
+          "holdUntil",
+          "herd"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "behaviour": {
+      "type": "object",
+      "properties": {
+        "firstRest": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "rest": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "restNoPath": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "seatedRest": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "firstCall": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "integer"
+            },
+            "stagger": {
+              "type": "number"
+            },
+            "span": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "base",
+            "stagger",
+            "span"
+          ],
+          "additionalProperties": false
+        },
+        "call": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "callClearance": {
+          "type": "integer"
+        },
+        "callAt": {
+          "type": "number"
+        },
+        "callSeconds": {
+          "type": "number"
+        },
+        "gestureSlack": {
+          "type": "number"
+        },
+        "grazeShare": {
+          "type": "number"
+        },
+        "seatedGroomShare": {
+          "type": "number"
+        },
+        "catSleepShare": {
+          "type": "number"
+        },
+        "warnShare": {
+          "type": "number"
+        },
+        "seatedAlert": {
+          "type": "integer"
+        },
+        "alert": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "wander": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "integer"
+            },
+            "roamShare": {
+              "type": "number"
+            },
+            "attempts": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "base",
+            "roamShare",
+            "attempts"
+          ],
+          "additionalProperties": false
+        },
+        "flee": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "integer"
+            },
+            "step": {
+              "type": "number"
+            },
+            "fan": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "base",
+            "step",
+            "fan"
+          ],
+          "additionalProperties": false
+        },
+        "cornered": {
+          "type": "object",
+          "properties": {
+            "directions": {
+              "type": "integer"
+            },
+            "reach": {
+              "type": "integer"
+            },
+            "roamShare": {
+              "type": "number"
+            },
+            "keep": {
+              "type": "integer"
+            },
+            "slack": {
+              "type": "number"
+            },
+            "minMove": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "directions",
+            "reach",
+            "roamShare",
+            "keep",
+            "slack",
+            "minMove"
+          ],
+          "additionalProperties": false
+        },
+        "plan": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "replanBlocked": {
+          "type": "number"
+        },
+        "turn": {
+          "type": "number"
+        },
+        "watchTurn": {
+          "type": "number"
+        },
+        "turnFirst": {
+          "type": "number"
+        },
+        "arrive": {
+          "type": "number"
+        },
+        "stalled": {
+          "type": "number"
+        },
+        "giveUp": {
+          "type": "integer"
+        },
+        "ledHomeBeyond": {
+          "type": "integer"
+        },
+        "rideRun": {
+          "type": "number"
+        },
+        "rideWalk": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "firstRest",
+        "rest",
+        "restNoPath",
+        "seatedRest",
+        "firstCall",
+        "call",
+        "callClearance",
+        "callAt",
+        "callSeconds",
+        "gestureSlack",
+        "grazeShare",
+        "seatedGroomShare",
+        "catSleepShare",
+        "warnShare",
+        "seatedAlert",
+        "alert",
+        "wander",
+        "flee",
+        "cornered",
+        "plan",
+        "replanBlocked",
+        "turn",
+        "watchTurn",
+        "turnFirst",
+        "arrive",
+        "stalled",
+        "giveUp",
+        "ledHomeBeyond",
+        "rideRun",
+        "rideWalk"
+      ],
+      "additionalProperties": false
+    },
+    "triangleLimit": {
+      "type": "integer"
+    },
+    "protected": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hunting": {
+      "type": "object",
+      "properties": {
+        "arrowRange": {
+          "type": "integer"
+        },
+        "skinningReach": {
+          "type": "number"
+        },
+        "skinningSeconds": {
+          "type": "number"
+        },
+        "quiverCapacity": {
+          "type": "integer"
+        },
+        "restockArrows": {
+          "type": "integer"
+        },
+        "spareArrows": {
+          "type": "integer"
+        },
+        "meatPrice": {
+          "type": "integer"
+        },
+        "ranks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "taken": {
+                "type": "integer"
+              },
+              "key": {
+                "type": "string"
+              },
+              "skinning": {
+                "type": "number"
+              },
+              "meat": {
+                "type": "integer"
+              },
+              "arrows": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "taken",
+              "key",
+              "skinning",
+              "meat",
+              "arrows"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "returnHours": {
+          "type": "object",
+          "properties": {
+            "deer": {
+              "type": "integer"
+            },
+            "stag": {
+              "type": "integer"
+            },
+            "boar": {
+              "type": "integer"
+            },
+            "wolf": {
+              "type": "integer"
+            },
+            "bear": {
+              "type": "integer"
+            },
+            "lion": {
+              "type": "integer"
+            },
+            "tiger": {
+              "type": "integer"
+            },
+            "cat": {
+              "type": "null"
+            },
+            "dog": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "deer",
+            "stag",
+            "boar",
+            "wolf",
+            "bear",
+            "lion",
+            "tiger",
+            "cat",
+            "dog"
+          ],
+          "additionalProperties": false
+        },
+        "carcassHours": {
+          "type": "integer"
+        },
+        "woundHours": {
+          "type": "integer"
+        },
+        "returnDistance": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "arrowRange",
+        "skinningReach",
+        "skinningSeconds",
+        "quiverCapacity",
+        "restockArrows",
+        "spareArrows",
+        "meatPrice",
+        "ranks",
+        "returnHours",
+        "carcassHours",
+        "woundHours",
+        "returnDistance"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "animals",
+    "species",
+    "behaviour",
+    "triangleLimit",
+    "protected",
+    "hunting"
+  ],
+  "additionalProperties": false
+}

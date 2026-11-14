@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/strings.en.schema.json",
+  "title": "game/strings.en.json",
+  "description": "English display text by key: interface and world strings, then dialogue strings.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "strings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "dialogue": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "strings",
+    "dialogue"
+  ],
+  "additionalProperties": false
+}

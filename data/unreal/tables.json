@@ -1,0 +1,52 @@
+[
+  {
+    "file": "DT_Items.json",
+    "rowStruct": "FTervainItemRow",
+    "rows": 20
+  },
+  {
+    "file": "DT_AnimalSpecies.json",
+    "rowStruct": "FTervainAnimalSpeciesRow",
+    "rows": 8
+  },
+  {
+    "file": "DT_Animals.json",
+    "rowStruct": "FTervainAnimalRow",
+    "rows": 19
+  },
+  {
+    "file": "DT_EnemyArchetypes.json",
+    "rowStruct": "FTervainEnemyArchetypeRow",
+    "rows": 2
+  },
+  {
+    "file": "DT_EnemyPosts.json",
+    "rowStruct": "FTervainEnemyPostRow",
+    "rows": 3
+  },
+  {
+    "file": "DT_Places.json",
+    "rowStruct": "FTervainPlaceRow",
+    "rows": 11
+  },
+  {
+    "file": "DT_Buildings.json",
+    "rowStruct": "FTervainBuildingRow",
+    "rows": 19
+  },
+  {
+    "file": "DT_Residents.json",
+    "rowStruct": "FTervainResidentRow",
+    "rows": 12
+  },
+  {
+    "file": "DT_LooseCargo.json",
+    "rowStruct": "FTervainLooseCargoRow",
+    "rows": 9
+  },
+  {
+    "file": "DT_Trees.json",
+    "rowStruct": "FTervainTreeRow",
+    "rows": 945
+  }
+]

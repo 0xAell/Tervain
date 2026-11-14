@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { NPCS, type Activity, type NpcDef } from '../core/content/npcs';
+import { NPCS, type NpcDef } from '../core/content/npcs';
 import type { EncounterId, NpcId, WorldState } from '../core/game/types';
 import type { CircleCollider, Collider, Colliders } from '../core/world/colliders';
 import { ANCHORS, MAINT_ROUTE, type EnemySpawn, type V2 } from '../core/world/layout';
@@ -12,13 +12,14 @@ import { workSiteFor, type WorkSite } from './npc/workSites';
 import { NpcApproachGreeting } from '../core/rules/npcApproachGreeting';
 import { EnemyRoute } from '../core/rules/enemyRoute';
 import { eligibleBarks, resolveGoal, type Goal } from '../core/rules/schedule';
+import { arrivalRadius, RESIDENT } from '../core/rules/resident';
 import { ENEMY_ARCHETYPES, ENEMY_IDLE_YAW, ENEMY_POST_YAW, ENEMY_VARIANT, type EnemyArchetype } from '../core/content/enemies';
 import { afterRecovery, HOSTILE, hostileBlowLands, hostileGivesUp, hostileNotices, hostileStruck, hostileTurnsBack } from '../core/rules/hostile';
 
 export { resolveGoal, type Goal };
 
 /** A fight this near wakes a sleeper (m), A70. */
-export const NPC_ALARM_REACH = 40;
+export const NPC_ALARM_REACH = RESIDENT.alarmReach;
 
 export interface ActorContext {
   terrain: Terrain;
@@ -52,30 +53,29 @@ export function npcPoseInterval(distance: number, seen: boolean): number {
   return distance > NPC_POSE_FAR ? 4 / 60 : distance > NPC_POSE_NEAR ? 2 / 60 : 0;
 }
 
-export const NPC_WALK_SPEED = 1.55;
+export const NPC_WALK_SPEED = RESIDENT.walkSpeed;
 /** Actual Meshy sole sweeps measured at 60 Hz: 0.78 pose speed gives roughly this stance-cycle travel at 1.8 m stature. */
 export const NPC_WALK_CYCLE_METRES = 1.48;
 export const NPC_WALK_POSE_SPEED = 0.78;
-const NPC_RADIUS = .35;
-const NPC_ACCELERATION = 3.2;
-const NPC_BRAKING = 4;
-const arrivalRadius = (activity: Activity) => activity === 'work' || activity === 'sit' ? .06 : .15;
+const NPC_RADIUS = RESIDENT.radius;
+const NPC_ACCELERATION = RESIDENT.acceleration;
+const NPC_BRAKING = RESIDENT.braking;
 const npcSeed = (id: string) => [...id].reduce((n, c) => (n * 31 + c.charCodeAt(0)) >>> 0, 17);
 /**
  * How fast a resident turns, radians a second (A69): about 180° a second walking and 125° standing, easing into the
  * last part of a turn. People turn about with a step or two; they never spin on the spot.
  */
-const NPC_TURN_WALKING = 3.2, NPC_TURN_STANDING = 2.2, NPC_TURN_EASE = 7;
+const NPC_TURN_WALKING = RESIDENT.turnWalking, NPC_TURN_STANDING = RESIDENT.turnStanding, NPC_TURN_EASE = RESIDENT.turnEase;
 /** A turn on the spot faster than this (radians a second) is stepped round, each radian a stride's arc of gait (A69). */
-const NPC_TURN_STEPPED = .6, NPC_TURN_STRIDE = .3;
+const NPC_TURN_STEPPED = RESIDENT.turnStepped, NPC_TURN_STRIDE = RESIDENT.turnStride;
 /** Within this of their place's heading (radians) a resident settles there: they sit down or start work facing it. */
-const NPC_SETTLED = .3;
+const NPC_SETTLED = RESIDENT.settled;
 const wrapAngle = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
 /** What is done at each indoor post, whoever does it (A70). */
 const INDOOR_GESTURES: Record<string, WorkGesture> = { bakery_oven: 'baking', mill_bench: 'general', office_table: 'ledger', reeve_table: 'ledger' };
 const UP = new THREE.Vector3(0, 1, 0), FORWARD = new THREE.Vector3(0, 0, 1);
 /** Seconds to lie down from sitting on a bed's edge, or to sit up again; and a moment sat on it first (A70). */
-const NPC_LIE_SECONDS = 1.8, NPC_SIT_BEFORE_LYING = 1.2;
+const NPC_LIE_SECONDS = RESIDENT.lieSeconds, NPC_SIT_BEFORE_LYING = RESIDENT.sitBeforeLying;
 /** Asleep beyond this from the player, their pose is renewed only every NPC_ASLEEP_POSE seconds; beyond the second they are not drawn (A70). */
 const NPC_ASLEEP_NEAR = 25, NPC_ASLEEP_FAR = 60, NPC_ASLEEP_POSE = .5;
 
@@ -201,7 +201,7 @@ export class NpcActor {
   private pi = 0;
   private clock = 0;
   private anim = 0;
-  private barkCooldown = 8 + Math.random() * 10;
+  private barkCooldown = RESIDENT.firstBark[0] + Math.random() * RESIDENT.firstBark[1];
   private lastBarkKey = '';
   private placed = false;
   /** Their own model arrived since the last update: where they sit or work is measured again with it (A93 scout). */
@@ -757,7 +757,7 @@ export class NpcActor {
       }
       this.barkCooldown -= dt;
       const pd = Math.hypot(ctx.player.x - this.x, ctx.player.z - this.z);
-      if (this.barkCooldown <= 0 && pd < 6.5 && !this.talking) {
+      if (this.barkCooldown <= 0 && pd < RESIDENT.barkReach && !this.talking) {
         const pool = eligibleBarks(this.def.id, ctx.state, ctx.hour);
         if (pool.length > 0) {
           const pick = pool[Math.floor(Math.random() * pool.length)]!;
@@ -766,7 +766,7 @@ export class NpcActor {
             ctx.onBark(this, pick.line);
           }
         }
-        this.barkCooldown = 28 + Math.random() * 20;
+        this.barkCooldown = RESIDENT.bark[0] + Math.random() * RESIDENT.bark[1];
       }
     }
   }

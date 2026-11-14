@@ -1,0 +1,287 @@
+[
+  {
+    "Name": "reeve_house",
+    "Kind": "Reeve",
+    "Location": {
+      "X": 2000,
+      "Y": -800,
+      "Z": 105.461
+    },
+    "Yaw": 90,
+    "Width": 900,
+    "Depth": 650,
+    "WallHeight": 320,
+    "Wall": "Plaster",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "bakery",
+    "Kind": "Bakery",
+    "Location": {
+      "X": 1400,
+      "Y": 1600,
+      "Z": 110.101
+    },
+    "Yaw": 90,
+    "Width": 700,
+    "Depth": 600,
+    "WallHeight": 300,
+    "Wall": "Plaster",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "inn",
+    "Kind": "Inn",
+    "Location": {
+      "X": -400,
+      "Y": 3000,
+      "Z": 104.881
+    },
+    "Yaw": 90,
+    "Width": 1000,
+    "Depth": 700,
+    "WallHeight": 360,
+    "Wall": "Plaster",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "mill",
+    "Kind": "Mill",
+    "Location": {
+      "X": -2000,
+      "Y": -800,
+      "Z": 102.105
+    },
+    "Yaw": 90,
+    "Width": 800,
+    "Depth": 800,
+    "WallHeight": 440,
+    "Wall": "Stone",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "house_a",
+    "Kind": "House",
+    "Location": {
+      "X": -600,
+      "Y": -600,
+      "Z": 102.791
+    },
+    "Yaw": 81.406,
+    "Width": 700,
+    "Depth": 600,
+    "WallHeight": 300,
+    "Wall": "Plaster",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "house_b",
+    "Kind": "House",
+    "Location": {
+      "X": 800,
+      "Y": -1000,
+      "Z": 103.201
+    },
+    "Yaw": 95.73,
+    "Width": 700,
+    "Depth": 550,
+    "WallHeight": 290,
+    "Wall": "Timber",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "house_c",
+    "Kind": "House",
+    "Location": {
+      "X": 3000,
+      "Y": 1400,
+      "Z": 117.939
+    },
+    "Yaw": 69.946,
+    "Width": 700,
+    "Depth": 600,
+    "WallHeight": 300,
+    "Wall": "Plaster",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "house_d",
+    "Kind": "House",
+    "Location": {
+      "X": -2200,
+      "Y": 2000,
+      "Z": 93.132
+    },
+    "Yaw": 104.324,
+    "Width": 700,
+    "Depth": 600,
+    "WallHeight": 300,
+    "Wall": "Plaster",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "house_e",
+    "Kind": "House",
+    "Location": {
+      "X": 2400,
+      "Y": 2800,
+      "Z": 118.335
+    },
+    "Yaw": 84.27,
+    "Width": 800,
+    "Depth": 600,
+    "WallHeight": 300,
+    "Wall": "Timber",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "house_f",
+    "Kind": "House",
+    "Location": {
+      "X": -1200,
+      "Y": 4400,
+      "Z": 196.032
+    },
+    "Yaw": 78.541,
+    "Width": 700,
+    "Depth": 600,
+    "WallHeight": 300,
+    "Wall": "Plaster",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "sluice_hut",
+    "Kind": "Hut",
+    "Location": {
+      "X": 0,
+      "Y": -6000,
+      "Z": 521.867
+    },
+    "Yaw": 78.541,
+    "Width": 450,
+    "Depth": 400,
+    "WallHeight": 260,
+    "Wall": "Stone",
+    "Roof": "Lean"
+  },
+  {
+    "Name": "shrine_hall",
+    "Kind": "Shrine",
+    "Location": {
+      "X": -2800,
+      "Y": -10600,
+      "Z": 747.655
+    },
+    "Yaw": 90,
+    "Width": 1400,
+    "Depth": 900,
+    "WallHeight": 520,
+    "Wall": "Stone",
+    "Roof": "Hip"
+  },
+  {
+    "Name": "archive",
+    "Kind": "Archive",
+    "Location": {
+      "X": -4600,
+      "Y": -10200,
+      "Z": 998.323
+    },
+    "Yaw": 90,
+    "Width": 800,
+    "Depth": 700,
+    "WallHeight": 340,
+    "Wall": "Stone",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "quarry_office",
+    "Kind": "Office",
+    "Location": {
+      "X": 7600,
+      "Y": -1400,
+      "Z": 198.151
+    },
+    "Yaw": 101.459,
+    "Width": 700,
+    "Depth": 500,
+    "WallHeight": 290,
+    "Wall": "Timber",
+    "Roof": "Lean"
+  },
+  {
+    "Name": "crew_bunks",
+    "Kind": "Bunks",
+    "Location": {
+      "X": 9800,
+      "Y": -1000,
+      "Z": 194.292
+    },
+    "Yaw": 72.811,
+    "Width": 900,
+    "Depth": 500,
+    "WallHeight": 260,
+    "Wall": "Timber",
+    "Roof": "Lean"
+  },
+  {
+    "Name": "overlook_lodge",
+    "Kind": "Lodge",
+    "Location": {
+      "X": -5800,
+      "Y": -1400,
+      "Z": 92.761
+    },
+    "Yaw": 55.623,
+    "Width": 600,
+    "Depth": 500,
+    "WallHeight": 280,
+    "Wall": "Stone",
+    "Roof": "Lean"
+  },
+  {
+    "Name": "fisher_house",
+    "Kind": "Fisher",
+    "Location": {
+      "X": -8000,
+      "Y": 4600,
+      "Z": 102.976
+    },
+    "Yaw": 110.054,
+    "Width": 950,
+    "Depth": 700,
+    "WallHeight": 310,
+    "Wall": "Timber",
+    "Roof": "Gable"
+  },
+  {
+    "Name": "net_store",
+    "Kind": "Store",
+    "Location": {
+      "X": -8500,
+      "Y": 2800,
+      "Z": 143.099
+    },
+    "Yaw": 61.352,
+    "Width": 550,
+    "Depth": 460,
+    "WallHeight": 250,
+    "Wall": "Timber",
+    "Roof": "Lean"
+  },
+  {
+    "Name": "keeper_cottage",
+    "Kind": "Keeper",
+    "Location": {
+      "X": -9600,
+      "Y": 5900,
+      "Z": 143.819
+    },
+    "Yaw": 38.434,
+    "Width": 650,
+    "Depth": 520,
+    "WallHeight": 270,
+    "Wall": "Stone",
+    "Roof": "Gable"
+  }
+]

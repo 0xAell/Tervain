@@ -1,12 +1,8 @@
 import type * as THREE from 'three';
 import type { Species } from './treeGen';
 
-/** Geometric shade proxy, shared by terrain, grass and the woodland floor.
- * It measures projected planted foliage, not alpha coverage or rendered pixels. */
-export interface PlantedCrownField {
-  coverAt(x: number, z: number): number;
-  broadleafAt(x: number, z: number): number;
-}
+import type { PlantedCrownField } from '../core/world/groundLayers';
+export type { PlantedCrownField };
 
 type Placement = { x: number; z: number; s: number; yaw: number };
 type Mask = { minX: number; minZ: number; stepX: number; stepZ: number; cells: Float32Array };

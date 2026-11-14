@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/terrain.schema.json",
+  "title": "world/terrain.json",
+  "description": "How the terrain rasters map onto the world, and landmarks to check an import against.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "heightmap": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "height": {
+          "type": "integer"
+        },
+        "origin": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z"
+          ],
+          "additionalProperties": false
+        },
+        "spacing": {
+          "type": "integer"
+        },
+        "encoding": {
+          "type": "object",
+          "properties": {
+            "seaLevelValue": {
+              "type": "integer"
+            },
+            "unitsPerMetre": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "seaLevelValue",
+            "unitsPerMetre"
+          ],
+          "additionalProperties": false
+        },
+        "range": {
+          "type": "object",
+          "properties": {
+            "min": {
+              "type": "integer"
+            },
+            "max": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "min",
+            "max"
+          ],
+          "additionalProperties": false
+        },
+        "rows": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "file",
+        "format",
+        "width",
+        "height",
+        "origin",
+        "spacing",
+        "encoding",
+        "range",
+        "rows"
+      ],
+      "additionalProperties": false
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "file",
+          "format"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "landscape": {
+      "type": "object",
+      "properties": {
+        "sectionQuads": {
+          "type": "integer"
+        },
+        "sectionsPerComponent": {
+          "type": "integer"
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "z"
+          ],
+          "additionalProperties": false
+        },
+        "unrealLocationCm": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "y": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "z"
+          ],
+          "additionalProperties": false
+        },
+        "unrealScale": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "y": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "z"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "sectionQuads",
+        "sectionsPerComponent",
+        "components",
+        "unrealLocationCm",
+        "unrealScale"
+      ],
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "bounds": {
+          "type": "object",
+          "properties": {
+            "minX": {
+              "type": "integer"
+            },
+            "maxX": {
+              "type": "integer"
+            },
+            "minZ": {
+              "type": "integer"
+            },
+            "maxZ": {
+              "type": "integer"
+            },
+            "cell": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "minX",
+            "maxX",
+            "minZ",
+            "maxZ",
+            "cell"
+          ],
+          "additionalProperties": false
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "bounds",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "checkPoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "x": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "x",
+          "z",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "heightmap",
+    "layers",
+    "landscape",
+    "source",
+    "checkPoints"
+  ],
+  "additionalProperties": false
+}

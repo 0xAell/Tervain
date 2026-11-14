@@ -1,0 +1,2396 @@
+{
+  "about": "The authored geography: bounds, regions, coast, water, roads, places, buildings, anchors and everything placed by hand.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "bounds": {
+    "minX": -380,
+    "maxX": 200,
+    "minZ": -170,
+    "maxZ": 170,
+    "cell": 2
+  },
+  "seaLevel": 0,
+  "deepWater": 0.85,
+  "regions": {
+    "valley": {
+      "cx": 0,
+      "cz": -20,
+      "rx": 192,
+      "rz": 138
+    },
+    "coastal": {
+      "cx": -225,
+      "cz": 20,
+      "rx": 170,
+      "rz": 165
+    },
+    "forest": {
+      "minX": -238,
+      "maxX": -66,
+      "minZ": -104,
+      "maxZ": 112,
+      "shoreClearance": 34
+    },
+    "hamlet": {
+      "x": -82,
+      "z": 34,
+      "r": 29
+    },
+    "strand": {
+      "x": -258,
+      "z": 44,
+      "r": 40
+    },
+    "orchard": {
+      "x": -50,
+      "z": 20,
+      "w": 30,
+      "d": 30
+    }
+  },
+  "coast": [
+    {
+      "x": -350,
+      "z": -172
+    },
+    {
+      "x": -345,
+      "z": -138
+    },
+    {
+      "x": -328,
+      "z": -98
+    },
+    {
+      "x": -304,
+      "z": -58
+    },
+    {
+      "x": -286,
+      "z": -22
+    },
+    {
+      "x": -281,
+      "z": 8
+    },
+    {
+      "x": -273,
+      "z": 34
+    },
+    {
+      "x": -270,
+      "z": 52
+    },
+    {
+      "x": -282,
+      "z": 70
+    },
+    {
+      "x": -304,
+      "z": 84
+    },
+    {
+      "x": -330,
+      "z": 95
+    },
+    {
+      "x": -346,
+      "z": 108
+    },
+    {
+      "x": -340,
+      "z": 124
+    },
+    {
+      "x": -318,
+      "z": 137
+    },
+    {
+      "x": -298,
+      "z": 148
+    },
+    {
+      "x": -290,
+      "z": 172
+    }
+  ],
+  "streams": [
+    {
+      "id": "main",
+      "halfWidth": 3.4,
+      "depth": 1.6,
+      "points": [
+        {
+          "x": -6,
+          "z": -94
+        },
+        {
+          "x": -2,
+          "z": -82
+        },
+        {
+          "x": 6,
+          "z": -68
+        },
+        {
+          "x": 10,
+          "z": -58
+        },
+        {
+          "x": 16,
+          "z": -46
+        },
+        {
+          "x": 24,
+          "z": -32
+        },
+        {
+          "x": 32,
+          "z": -16
+        },
+        {
+          "x": 37,
+          "z": 0
+        },
+        {
+          "x": 41,
+          "z": 14
+        },
+        {
+          "x": 48,
+          "z": 28
+        },
+        {
+          "x": 53,
+          "z": 35
+        },
+        {
+          "x": 64,
+          "z": 46
+        },
+        {
+          "x": 84,
+          "z": 58
+        },
+        {
+          "x": 112,
+          "z": 72
+        },
+        {
+          "x": 150,
+          "z": 84
+        }
+      ]
+    },
+    {
+      "id": "village",
+      "halfWidth": 1.7,
+      "depth": 0.55,
+      "points": [
+        {
+          "x": 14,
+          "z": -47
+        },
+        {
+          "x": 6,
+          "z": -40
+        },
+        {
+          "x": -4,
+          "z": -33
+        },
+        {
+          "x": -12,
+          "z": -24
+        },
+        {
+          "x": -13,
+          "z": -8
+        },
+        {
+          "x": -13,
+          "z": 4
+        },
+        {
+          "x": -14,
+          "z": 14
+        },
+        {
+          "x": -20,
+          "z": 26
+        },
+        {
+          "x": -24,
+          "z": 42
+        },
+        {
+          "x": -26,
+          "z": 60
+        }
+      ]
+    },
+    {
+      "id": "quarry",
+      "halfWidth": 1.6,
+      "depth": 0.5,
+      "points": [
+        {
+          "x": 78,
+          "z": -30
+        },
+        {
+          "x": 62,
+          "z": -30
+        },
+        {
+          "x": 48,
+          "z": -31
+        },
+        {
+          "x": 36,
+          "z": -32
+        },
+        {
+          "x": 27,
+          "z": -32
+        }
+      ]
+    }
+  ],
+  "ford": {
+    "x": 53,
+    "z": 35,
+    "r": 8,
+    "depth": 0.32
+  },
+  "springPool": {
+    "x": -10.5,
+    "z": -93.2,
+    "r": 3.3
+  },
+  "decks": [
+    {
+      "id": "footbridge",
+      "x": 36.6,
+      "z": 1.2,
+      "hx": 6.4,
+      "hz": 1.4,
+      "yaw": 0,
+      "y": 0.75
+    }
+  ],
+  "roads": [
+    {
+      "width": 4.2,
+      "points": [
+        {
+          "x": -252,
+          "z": 31
+        },
+        {
+          "x": -230,
+          "z": 25
+        },
+        {
+          "x": -208,
+          "z": 12
+        },
+        {
+          "x": -182,
+          "z": 10
+        },
+        {
+          "x": -160,
+          "z": 23
+        },
+        {
+          "x": -138,
+          "z": 30
+        },
+        {
+          "x": -110,
+          "z": 22
+        }
+      ]
+    },
+    {
+      "width": 4.2,
+      "points": [
+        {
+          "x": -110,
+          "z": 22
+        },
+        {
+          "x": -91.6,
+          "z": 17
+        },
+        {
+          "x": -80,
+          "z": 16
+        },
+        {
+          "x": -50,
+          "z": 12
+        },
+        {
+          "x": -25,
+          "z": 10
+        },
+        {
+          "x": 2,
+          "z": 8
+        }
+      ]
+    },
+    {
+      "width": 1.6,
+      "points": [
+        {
+          "x": -218,
+          "z": 18
+        },
+        {
+          "x": -218,
+          "z": 24
+        },
+        {
+          "x": -216,
+          "z": 28
+        }
+      ]
+    },
+    {
+      "width": 3.2,
+      "points": [
+        {
+          "x": -252,
+          "z": 31
+        },
+        {
+          "x": -258,
+          "z": 44
+        },
+        {
+          "x": -262,
+          "z": 62
+        },
+        {
+          "x": -274,
+          "z": 78
+        },
+        {
+          "x": -287,
+          "z": 88
+        },
+        {
+          "x": -297,
+          "z": 99
+        },
+        {
+          "x": -300,
+          "z": 117
+        },
+        {
+          "x": -314,
+          "z": 121
+        },
+        {
+          "x": -322,
+          "z": 115
+        },
+        {
+          "x": -324,
+          "z": 110
+        }
+      ]
+    },
+    {
+      "width": 2.2,
+      "points": [
+        {
+          "x": -93,
+          "z": 19
+        },
+        {
+          "x": -91,
+          "z": 30
+        },
+        {
+          "x": -85,
+          "z": 40
+        },
+        {
+          "x": -83,
+          "z": 52
+        },
+        {
+          "x": -90,
+          "z": 62
+        }
+      ]
+    },
+    {
+      "width": 3.6,
+      "points": [
+        {
+          "x": 2,
+          "z": 8
+        },
+        {
+          "x": 14,
+          "z": 8
+        },
+        {
+          "x": 28,
+          "z": 4
+        },
+        {
+          "x": 37,
+          "z": 1
+        },
+        {
+          "x": 50,
+          "z": -8
+        },
+        {
+          "x": 66,
+          "z": -20
+        },
+        {
+          "x": 82,
+          "z": -24
+        }
+      ]
+    },
+    {
+      "width": 3,
+      "points": [
+        {
+          "x": 2,
+          "z": 4
+        },
+        {
+          "x": 4,
+          "z": -12
+        },
+        {
+          "x": 6,
+          "z": -28
+        },
+        {
+          "x": 4,
+          "z": -44
+        },
+        {
+          "x": 2,
+          "z": -58
+        }
+      ]
+    },
+    {
+      "width": 2.6,
+      "points": [
+        {
+          "x": 2,
+          "z": -58
+        },
+        {
+          "x": -4,
+          "z": -72
+        },
+        {
+          "x": -12,
+          "z": -86
+        },
+        {
+          "x": -18,
+          "z": -94
+        }
+      ]
+    },
+    {
+      "width": 3.2,
+      "points": [
+        {
+          "x": 14,
+          "z": 10
+        },
+        {
+          "x": 24,
+          "z": 16
+        },
+        {
+          "x": 34,
+          "z": 24
+        },
+        {
+          "x": 44,
+          "z": 32
+        },
+        {
+          "x": 53,
+          "z": 35
+        }
+      ]
+    },
+    {
+      "width": 3.4,
+      "points": [
+        {
+          "x": 53,
+          "z": 35
+        },
+        {
+          "x": 64,
+          "z": 44
+        },
+        {
+          "x": 88,
+          "z": 54
+        },
+        {
+          "x": 120,
+          "z": 68
+        }
+      ]
+    },
+    {
+      "width": 2,
+      "points": [
+        {
+          "x": 58,
+          "z": 36
+        },
+        {
+          "x": 72,
+          "z": 30
+        },
+        {
+          "x": 86,
+          "z": 36
+        },
+        {
+          "x": 100,
+          "z": 50
+        },
+        {
+          "x": 112,
+          "z": 62
+        }
+      ]
+    },
+    {
+      "width": 2.2,
+      "points": [
+        {
+          "x": 86,
+          "z": -30
+        },
+        {
+          "x": 96,
+          "z": -46
+        },
+        {
+          "x": 108,
+          "z": -56
+        },
+        {
+          "x": 116,
+          "z": -66
+        }
+      ]
+    },
+    {
+      "width": 1.8,
+      "points": [
+        {
+          "x": 98,
+          "z": -18
+        },
+        {
+          "x": 108,
+          "z": -30
+        },
+        {
+          "x": 122,
+          "z": -44
+        },
+        {
+          "x": 130,
+          "z": -58
+        },
+        {
+          "x": 128,
+          "z": -70
+        }
+      ]
+    },
+    {
+      "width": 2.4,
+      "points": [
+        {
+          "x": -20,
+          "z": 6
+        },
+        {
+          "x": -16,
+          "z": -2
+        },
+        {
+          "x": -18,
+          "z": -2
+        }
+      ]
+    }
+  ],
+  "arrivalRoute": {
+    "points": [
+      {
+        "x": -252,
+        "z": 31
+      },
+      {
+        "x": -230,
+        "z": 25
+      },
+      {
+        "x": -208,
+        "z": 12
+      },
+      {
+        "x": -182,
+        "z": 10
+      },
+      {
+        "x": -160,
+        "z": 23
+      },
+      {
+        "x": -138,
+        "z": 30
+      },
+      {
+        "x": -110,
+        "z": 22
+      },
+      {
+        "x": -91.6,
+        "z": 17
+      },
+      {
+        "x": -80,
+        "z": 16
+      },
+      {
+        "x": -50,
+        "z": 12
+      },
+      {
+        "x": -25,
+        "z": 10
+      },
+      {
+        "x": 2,
+        "z": 8
+      }
+    ],
+    "width": 4.2
+  },
+  "lanternRoute": {
+    "points": [
+      {
+        "x": -252,
+        "z": 31
+      },
+      {
+        "x": -258,
+        "z": 44
+      },
+      {
+        "x": -262,
+        "z": 62
+      },
+      {
+        "x": -274,
+        "z": 78
+      },
+      {
+        "x": -287,
+        "z": 88
+      },
+      {
+        "x": -297,
+        "z": 99
+      },
+      {
+        "x": -300,
+        "z": 117
+      },
+      {
+        "x": -314,
+        "z": 121
+      },
+      {
+        "x": -322,
+        "z": 115
+      },
+      {
+        "x": -324,
+        "z": 110
+      }
+    ],
+    "width": 3.2
+  },
+  "spawn": {
+    "x": -268,
+    "z": 27,
+    "yaw": 1.325818,
+    "y": 0.519003
+  },
+  "places": {
+    "shore": {
+      "x": -256,
+      "z": 32,
+      "r": 30,
+      "y": 1.096754
+    },
+    "deepwood": {
+      "x": -182,
+      "z": 14,
+      "r": 45,
+      "y": 1.323693
+    },
+    "lantern_point": {
+      "x": -318,
+      "z": 104,
+      "r": 24,
+      "y": 11.952917
+    },
+    "overlook": {
+      "x": -136,
+      "z": 26,
+      "r": 14,
+      "y": 5.711692
+    },
+    "rillford": {
+      "x": 4,
+      "z": 8,
+      "r": 34,
+      "y": 1.02041
+    },
+    "ford": {
+      "x": 50,
+      "z": 32,
+      "r": 12,
+      "y": 0.523196
+    },
+    "spring_shrine": {
+      "x": -20,
+      "z": -98,
+      "r": 24,
+      "y": 7.389768
+    },
+    "sluice": {
+      "x": 3,
+      "z": -57,
+      "r": 13,
+      "y": 4.422936
+    },
+    "quarry": {
+      "x": 88,
+      "z": -24,
+      "r": 22,
+      "y": 2.098819
+    },
+    "the_cut": {
+      "x": 118,
+      "z": -62,
+      "r": 18,
+      "y": 7.285687
+    },
+    "archive": {
+      "x": -46,
+      "z": -100,
+      "r": 8,
+      "y": 9.983227
+    }
+  },
+  "anchors": {
+    "hunter_station": {
+      "x": -217.62,
+      "z": 31,
+      "yaw": 1.570796,
+      "y": 0.990821
+    },
+    "hunter_shelter": {
+      "x": -211,
+      "z": 30,
+      "yaw": 3.141593,
+      "y": 1.255278
+    },
+    "hunter_shelter_structure": {
+      "x": -211.7,
+      "z": 33.5,
+      "yaw": 3.141593,
+      "y": 1.296563
+    },
+    "hunter_drying_rack": {
+      "x": -219.7,
+      "z": 34.8,
+      "yaw": 3.141593,
+      "y": 1.124861
+    },
+    "hunter_camp_counter": {
+      "x": -216,
+      "z": 31,
+      "yaw": 3.141593,
+      "y": 0.98586
+    },
+    "arrival_sign": {
+      "x": -248,
+      "z": 38,
+      "yaw": 0,
+      "y": 1.134238
+    },
+    "overlook_wagon": {
+      "x": -93,
+      "z": 22,
+      "yaw": 2.87,
+      "y": 0.954709
+    },
+    "village_square": {
+      "x": 3,
+      "z": 9,
+      "yaw": 0,
+      "y": 1.020396
+    },
+    "noticeboard": {
+      "x": 5,
+      "z": 12.9,
+      "yaw": 3.141593,
+      "y": 1.04883
+    },
+    "village_well": {
+      "x": -6,
+      "z": 21.8,
+      "yaw": 0,
+      "y": 1.054003
+    },
+    "dry_channel": {
+      "x": -10,
+      "z": 8,
+      "yaw": -1.6,
+      "y": 0.805074
+    },
+    "reeve_door": {
+      "x": 20,
+      "z": -3.35,
+      "yaw": 0,
+      "y": 1.057109
+    },
+    "bakery_door": {
+      "x": 14,
+      "z": 20.4,
+      "yaw": 0,
+      "y": 1.127414
+    },
+    "mill_door": {
+      "x": -20,
+      "z": -2.6,
+      "yaw": 0,
+      "y": 1.042464
+    },
+    "inn_bench": {
+      "x": -9.35,
+      "z": 35.64,
+      "yaw": 0,
+      "seat": 0.55,
+      "y": 1.387323
+    },
+    "shrine_altar": {
+      "x": -14,
+      "z": -95.6,
+      "yaw": 3.1,
+      "y": 8.400994
+    },
+    "shrine_steps": {
+      "x": -18,
+      "z": -95,
+      "yaw": 0,
+      "y": 7.352949
+    },
+    "wetland_edge": {
+      "x": -15,
+      "z": -86,
+      "yaw": -2.2,
+      "y": 10.115536
+    },
+    "steward_cell": {
+      "x": -27.5,
+      "z": -100.1,
+      "yaw": 0,
+      "y": 7.423948
+    },
+    "archive_door": {
+      "x": -46,
+      "z": -96.9,
+      "yaw": 0,
+      "y": 9.983227
+    },
+    "warden_post": {
+      "x": -28.5,
+      "z": -100.1,
+      "yaw": 0,
+      "y": 7.421369
+    },
+    "archive_back": {
+      "x": -46,
+      "z": -109.4,
+      "yaw": 0,
+      "y": 9.983227
+    },
+    "quarry_yard": {
+      "x": 86,
+      "z": -24,
+      "yaw": 1.2,
+      "y": 2.095567
+    },
+    "quarry_office": {
+      "x": 75.22519,
+      "z": -10.17774,
+      "yaw": -0.2,
+      "y": 1.703755
+    },
+    "quarry_face": {
+      "x": 109.08,
+      "z": -32.67,
+      "yaw": 5.858,
+      "y": 1.724833
+    },
+    "crew_bunks": {
+      "x": 99.152529,
+      "z": -6.274188,
+      "yaw": 0.3,
+      "y": 1.647569
+    },
+    "cut_ledge": {
+      "x": 122,
+      "z": -72,
+      "yaw": 3.1,
+      "y": 9.228748
+    },
+    "ford_camp": {
+      "x": 44.19575,
+      "z": 32.169171,
+      "yaw": 1,
+      "seat": 0.55,
+      "y": 0.970985
+    },
+    "strand_fire": {
+      "x": -103,
+      "z": 16,
+      "yaw": 0,
+      "y": 2.16612
+    },
+    "lantern_door": {
+      "x": -318,
+      "z": 113,
+      "yaw": 0,
+      "y": 11.677449
+    }
+  },
+  "buildings": [
+    {
+      "id": "reeve_house",
+      "kind": "reeve",
+      "x": 20,
+      "z": -8,
+      "w": 9,
+      "d": 6.5,
+      "h": 3.2,
+      "yaw": 0,
+      "wall": "plaster",
+      "roof": "gable",
+      "ground": 1.054608
+    },
+    {
+      "id": "bakery",
+      "kind": "bakery",
+      "x": 14,
+      "z": 16,
+      "w": 7,
+      "d": 6,
+      "h": 3,
+      "yaw": 0,
+      "wall": "plaster",
+      "roof": "gable",
+      "ground": 1.101008
+    },
+    {
+      "id": "inn",
+      "kind": "inn",
+      "x": -4,
+      "z": 30,
+      "w": 10,
+      "d": 7,
+      "h": 3.6,
+      "yaw": 0,
+      "wall": "plaster",
+      "roof": "gable",
+      "ground": 1.048808
+    },
+    {
+      "id": "mill",
+      "kind": "mill",
+      "x": -20,
+      "z": -8,
+      "w": 8,
+      "d": 8,
+      "h": 4.4,
+      "yaw": 0,
+      "wall": "stone",
+      "roof": "gable",
+      "ground": 1.021046
+    },
+    {
+      "id": "house_a",
+      "kind": "house",
+      "x": -6,
+      "z": -6,
+      "w": 7,
+      "d": 6,
+      "h": 3,
+      "yaw": 0.15,
+      "wall": "plaster",
+      "roof": "gable",
+      "ground": 1.02791
+    },
+    {
+      "id": "house_b",
+      "kind": "house",
+      "x": 8,
+      "z": -10,
+      "w": 7,
+      "d": 5.5,
+      "h": 2.9,
+      "yaw": -0.1,
+      "wall": "timber",
+      "roof": "gable",
+      "ground": 1.032011
+    },
+    {
+      "id": "house_c",
+      "kind": "house",
+      "x": 30,
+      "z": 14,
+      "w": 7,
+      "d": 6,
+      "h": 3,
+      "yaw": 0.35,
+      "wall": "plaster",
+      "roof": "gable",
+      "ground": 1.179388
+    },
+    {
+      "id": "house_d",
+      "kind": "house",
+      "x": -22,
+      "z": 20,
+      "w": 7,
+      "d": 6,
+      "h": 3,
+      "yaw": -0.25,
+      "wall": "plaster",
+      "roof": "gable",
+      "ground": 0.931324
+    },
+    {
+      "id": "house_e",
+      "kind": "house",
+      "x": 24,
+      "z": 28,
+      "w": 8,
+      "d": 6,
+      "h": 3,
+      "yaw": 0.1,
+      "wall": "timber",
+      "roof": "gable",
+      "ground": 1.183355
+    },
+    {
+      "id": "house_f",
+      "kind": "house",
+      "x": -12,
+      "z": 44,
+      "w": 7,
+      "d": 6,
+      "h": 3,
+      "yaw": 0.2,
+      "wall": "plaster",
+      "roof": "gable",
+      "ground": 1.960321
+    },
+    {
+      "id": "sluice_hut",
+      "kind": "hut",
+      "x": 0,
+      "z": -60,
+      "w": 4.5,
+      "d": 4,
+      "h": 2.6,
+      "yaw": 0.2,
+      "wall": "stone",
+      "roof": "lean",
+      "ground": 5.218669
+    },
+    {
+      "id": "shrine_hall",
+      "kind": "shrine",
+      "x": -28,
+      "z": -106,
+      "w": 14,
+      "d": 9,
+      "h": 5.2,
+      "yaw": 0,
+      "wall": "stone",
+      "roof": "hip",
+      "ground": 7.476547
+    },
+    {
+      "id": "archive",
+      "kind": "archive",
+      "x": -46,
+      "z": -102,
+      "w": 8,
+      "d": 7,
+      "h": 3.4,
+      "yaw": 0,
+      "wall": "stone",
+      "roof": "gable",
+      "ground": 9.983227
+    },
+    {
+      "id": "quarry_office",
+      "kind": "office",
+      "x": 76,
+      "z": -14,
+      "w": 7,
+      "d": 5,
+      "h": 2.9,
+      "yaw": -0.2,
+      "wall": "timber",
+      "roof": "lean",
+      "ground": 1.981506
+    },
+    {
+      "id": "crew_bunks",
+      "kind": "bunks",
+      "x": 98,
+      "z": -10,
+      "w": 9,
+      "d": 5,
+      "h": 2.6,
+      "yaw": 0.3,
+      "wall": "timber",
+      "roof": "lean",
+      "ground": 1.942918
+    },
+    {
+      "id": "overlook_lodge",
+      "kind": "lodge",
+      "x": -58,
+      "z": -14,
+      "w": 6,
+      "d": 5,
+      "h": 2.8,
+      "yaw": 0.6,
+      "wall": "stone",
+      "roof": "lean",
+      "ground": 0.927605
+    },
+    {
+      "id": "fisher_house",
+      "kind": "fisher",
+      "x": -80,
+      "z": 46,
+      "w": 9.5,
+      "d": 7,
+      "h": 3.1,
+      "yaw": -0.35,
+      "wall": "timber",
+      "roof": "gable",
+      "ground": 1.029758
+    },
+    {
+      "id": "net_store",
+      "kind": "store",
+      "x": -85,
+      "z": 28,
+      "w": 5.5,
+      "d": 4.6,
+      "h": 2.5,
+      "yaw": 0.5,
+      "wall": "timber",
+      "roof": "lean",
+      "ground": 1.430992
+    },
+    {
+      "id": "keeper_cottage",
+      "kind": "keeper",
+      "x": -96,
+      "z": 59,
+      "w": 6.5,
+      "d": 5.2,
+      "h": 2.7,
+      "yaw": 0.9,
+      "wall": "stone",
+      "roof": "gable",
+      "ground": 1.438195
+    }
+  ],
+  "fields": [
+    {
+      "id": "field_south",
+      "x": -4,
+      "z": 64,
+      "w": 40,
+      "d": 20,
+      "yaw": 0.08,
+      "crop": "grain"
+    },
+    {
+      "id": "field_east",
+      "x": 36,
+      "z": 58,
+      "w": 26,
+      "d": 18,
+      "yaw": -0.1,
+      "crop": "greens"
+    },
+    {
+      "id": "field_west",
+      "x": -42,
+      "z": 50,
+      "w": 18,
+      "d": 26,
+      "yaw": 0.05,
+      "crop": "fallow"
+    }
+  ],
+  "palisade": {
+    "points": [
+      {
+        "x": -101,
+        "z": -8
+      },
+      {
+        "x": -95,
+        "z": 2
+      },
+      {
+        "x": -92,
+        "z": 11
+      },
+      {
+        "x": -91.2,
+        "z": 24
+      },
+      {
+        "x": -93.5,
+        "z": 36
+      },
+      {
+        "x": -99,
+        "z": 48
+      },
+      {
+        "x": -108,
+        "z": 59
+      }
+    ],
+    "gate": {
+      "x": -91.6,
+      "z0": 14.6,
+      "z1": 19.4,
+      "leafSwing": 2.55
+    },
+    "tower": {
+      "x": -93.6,
+      "z": 10.6,
+      "yaw": 0.16
+    }
+  },
+  "lanterns": [
+    {
+      "x": -88,
+      "z": 20,
+      "y": 0.887434
+    },
+    {
+      "x": -74,
+      "z": 38,
+      "y": 0.683706
+    },
+    {
+      "x": -94,
+      "z": 62,
+      "y": 1.437163
+    },
+    {
+      "x": 2,
+      "z": 12,
+      "y": 1.028146
+    },
+    {
+      "x": 22,
+      "z": 4,
+      "y": 1.078564
+    },
+    {
+      "x": -20,
+      "z": -3,
+      "y": 1.039967
+    },
+    {
+      "x": -8,
+      "z": 32,
+      "y": 1.11269
+    },
+    {
+      "x": 14,
+      "z": 21,
+      "y": 1.134429
+    },
+    {
+      "x": -16,
+      "z": -96,
+      "y": 7.361013
+    },
+    {
+      "x": -44,
+      "z": -95,
+      "y": 9.983227
+    },
+    {
+      "x": 88,
+      "z": -20,
+      "y": 2.093099
+    },
+    {
+      "x": 78,
+      "z": -10,
+      "y": 1.895407
+    },
+    {
+      "x": -132,
+      "z": 30,
+      "y": 5.480511
+    }
+  ],
+  "landmarks": {
+    "lighthouse": {
+      "x": -324,
+      "z": 104,
+      "r": 3.3,
+      "h": 17,
+      "rockH": 12,
+      "rockR": 44
+    },
+    "wreck": {
+      "x": -274,
+      "z": -10,
+      "yaw": 1.05,
+      "length": 9
+    },
+    "arrivalSign": {
+      "x": -248,
+      "z": 38,
+      "yaw": 0,
+      "target": "rillford",
+      "label": "RILLFORD",
+      "boardWidth": 1.85,
+      "boardHeight": 0.4,
+      "boardDepth": 0.22,
+      "boardBottom": 1.78
+    },
+    "borderSign": {
+      "x": 122,
+      "z": 70
+    },
+    "bell": {
+      "x": -1,
+      "z": 4,
+      "r": 4
+    },
+    "bellTower": {
+      "x": -1,
+      "z": 4
+    },
+    "well": {
+      "x": -6,
+      "z": 18
+    },
+    "millWheel": {
+      "x": -13.45,
+      "z": -8,
+      "r": 2.81
+    },
+    "wagon": {
+      "x": -96,
+      "z": 25.5,
+      "yaw": 1.2
+    },
+    "handcart": {
+      "x": 21,
+      "z": 24,
+      "yaw": 0.7
+    },
+    "forestRuin": {
+      "x": -180,
+      "z": -22,
+      "hx": 5.5,
+      "hz": 4,
+      "yaw": 0.15,
+      "r": 8.5
+    },
+    "waymarkers": [
+      {
+        "x": -230,
+        "z": 32,
+        "yaw": -0.4
+      },
+      {
+        "x": -190,
+        "z": 3,
+        "yaw": 0.35
+      },
+      {
+        "x": -149,
+        "z": 36,
+        "yaw": -0.25
+      },
+      {
+        "x": -121,
+        "z": 14,
+        "yaw": 0.15
+      }
+    ],
+    "hunterCamp": {
+      "x": -216,
+      "z": 31,
+      "yaw": 3.141593,
+      "shelter": {
+        "x": -4.3,
+        "z": -2.5,
+        "width": 3.6,
+        "depth": 3.2,
+        "frontHeight": 2.45,
+        "backHeight": 1.65
+      },
+      "dryingRack": {
+        "x": 3.7,
+        "z": -3.8,
+        "width": 2.8,
+        "height": 2.08
+      },
+      "worker": {
+        "x": 1.62,
+        "z": 0
+      }
+    },
+    "hunterSupply": {
+      "x": -216,
+      "z": 31,
+      "r": 3
+    },
+    "hamletProps": {
+      "barrels": [
+        {
+          "x": -82,
+          "z": 52.4
+        },
+        {
+          "x": -80.8,
+          "z": 52.8
+        }
+      ],
+      "crates": [
+        {
+          "x": -89,
+          "z": 26.5
+        },
+        {
+          "x": -89.1,
+          "z": 27.3
+        }
+      ],
+      "handcart": {
+        "x": -89,
+        "z": 41,
+        "yaw": 0.3
+      },
+      "firewood": {
+        "x": -87,
+        "z": 36,
+        "yaw": 0.6
+      },
+      "rope": {
+        "x": -91,
+        "z": 39
+      },
+      "pots": {
+        "x": -101,
+        "z": 37
+      }
+    }
+  },
+  "quest": {
+    "sluice": {
+      "control": {
+        "x": 3.4,
+        "z": -62.6,
+        "r": 3.8
+      },
+      "gateCenter": {
+        "x": 10,
+        "z": -58
+      }
+    },
+    "riteAltar": {
+      "x": -14,
+      "z": -98,
+      "r": 3.6
+    },
+    "ledger": {
+      "x": -46,
+      "z": -102.4,
+      "r": 2.6
+    },
+    "archiveShutter": {
+      "x": -46,
+      "z": -105.8,
+      "r": 2.6
+    },
+    "archiveRoom": {
+      "wallBase": 0.2,
+      "wallThickness": 0.3,
+      "floorBase": 0.1,
+      "floorTop": 0.24,
+      "doorHalfWidth": 1,
+      "doorHeight": 2.5,
+      "shutterHalfWidth": 0.8,
+      "shutterBottom": 0.7,
+      "shutterTop": 3,
+      "roofPitch": 0.5
+    },
+    "shortcut": {
+      "lever": {
+        "x": 92.6,
+        "z": -8.4,
+        "r": 2.6
+      },
+      "gate": {
+        "x": 100,
+        "z": -19,
+        "hw": 1.2,
+        "hd": 0.5,
+        "yaw": 0.9
+      }
+    },
+    "resultChecks": [
+      {
+        "id": "check_channel",
+        "x": -13.5,
+        "z": 5,
+        "r": 3.4
+      },
+      {
+        "id": "check_mill",
+        "x": -14,
+        "z": -2,
+        "r": 3.4
+      }
+    ]
+  },
+  "inspectLocations": [
+    {
+      "id": "arrival_wreckage",
+      "x": -272,
+      "z": -8,
+      "r": 3.2,
+      "y": 0.90879
+    },
+    {
+      "id": "templar_waymarker",
+      "x": -230,
+      "z": 32,
+      "r": 3.2,
+      "y": 1.104749
+    },
+    {
+      "id": "dry_channel",
+      "x": -13.5,
+      "z": 5,
+      "r": 3.2,
+      "y": 0.08959
+    },
+    {
+      "id": "spring_sediment",
+      "x": -6,
+      "z": -86,
+      "r": 4,
+      "y": 11.501129
+    },
+    {
+      "id": "town_diversion",
+      "x": 12,
+      "z": -46,
+      "r": 4,
+      "y": 1.421189
+    },
+    {
+      "id": "quarry_seep",
+      "x": 74,
+      "z": -30,
+      "r": 4,
+      "y": 1.645817
+    },
+    {
+      "id": "sluice_crack",
+      "x": 5.6,
+      "z": -57.4,
+      "r": 3.4,
+      "y": 3.713425
+    },
+    {
+      "id": "inspection_log",
+      "x": 2.6,
+      "z": -57,
+      "r": 2.6,
+      "y": 4.491091
+    },
+    {
+      "id": "noticeboard",
+      "x": 5,
+      "z": 12.8,
+      "r": 3,
+      "y": 1.047927
+    },
+    {
+      "id": "wetland_fish",
+      "x": -14,
+      "z": -90,
+      "r": 3.5,
+      "y": 8.654068
+    },
+    {
+      "id": "saltward_kit",
+      "x": 15,
+      "z": 20.5,
+      "r": 2.4,
+      "y": 1.136553
+    }
+  ],
+  "pickups": [
+    {
+      "id": "hunter_bow",
+      "x": -215.6,
+      "z": 31,
+      "r": 2.4,
+      "item": "hunting_bow",
+      "qty": 1,
+      "nameKey": "pickup.hunter_bow",
+      "yaw": 4.712389,
+      "support": "hunter_table",
+      "y": 1.005095
+    },
+    {
+      "id": "hunter_knife",
+      "x": -216.58,
+      "z": 31.36,
+      "r": 2.4,
+      "item": "skinning_knife",
+      "qty": 1,
+      "nameKey": "pickup.hunter_knife",
+      "yaw": 3.361593,
+      "support": "hunter_table",
+      "y": 0.993446
+    },
+    {
+      "id": "hunter_arrows",
+      "x": -216.55,
+      "z": 30.7,
+      "r": 2.4,
+      "item": "arrow",
+      "qty": 24,
+      "nameKey": "pickup.hunter_arrows",
+      "yaw": 3.011593,
+      "support": "hunter_table",
+      "y": 0.977561
+    },
+    {
+      "id": "quarry_brace",
+      "x": 90,
+      "z": -12,
+      "r": 2.6,
+      "item": "sluice_brace",
+      "qty": 1,
+      "nameKey": "pickup.brace",
+      "y": 2.112608
+    },
+    {
+      "id": "quarry_wrench",
+      "x": 91.6,
+      "z": -13,
+      "r": 2.6,
+      "item": "gate_wrench",
+      "qty": 1,
+      "nameKey": "pickup.wrench",
+      "y": 2.102076
+    },
+    {
+      "id": "side_path_cache",
+      "x": 112,
+      "z": 62,
+      "r": 3,
+      "item": "coin",
+      "qty": 8,
+      "nameKey": "pickup.cache",
+      "y": 2.591685
+    },
+    {
+      "id": "wreck_blade",
+      "x": -274.174815,
+      "z": -9.29329,
+      "r": 2.4,
+      "item": "rusted_sword",
+      "qty": 1,
+      "nameKey": "pickup.wreck_blade",
+      "y": 0.654213
+    },
+    {
+      "id": "strand_apple",
+      "x": -266,
+      "z": 31,
+      "r": 1.85,
+      "item": "shore_apple",
+      "qty": 1,
+      "nameKey": "item.shore_apple",
+      "yaw": 0.4,
+      "y": 0.572152
+    },
+    {
+      "id": "tide_bread",
+      "x": -266,
+      "z": 12,
+      "r": 1.85,
+      "item": "bread",
+      "qty": 1,
+      "nameKey": "item.bread",
+      "yaw": 1.1,
+      "y": 0.960771
+    },
+    {
+      "id": "wreck_iron_a",
+      "x": -269,
+      "z": -6,
+      "r": 1.85,
+      "item": "iron_scrap",
+      "qty": 1,
+      "nameKey": "item.iron_scrap",
+      "yaw": -0.4,
+      "y": 0.996376
+    },
+    {
+      "id": "wreck_iron_b",
+      "x": -266,
+      "z": -14,
+      "r": 1.85,
+      "item": "iron_scrap",
+      "qty": 1,
+      "nameKey": "item.iron_scrap",
+      "yaw": 0.9,
+      "y": 1.016548
+    },
+    {
+      "id": "shoretrack_apple",
+      "x": -246,
+      "z": 31,
+      "r": 1.85,
+      "item": "shore_apple",
+      "qty": 1,
+      "nameKey": "item.shore_apple",
+      "yaw": 2.1,
+      "y": 1.107933
+    },
+    {
+      "id": "dune_herb",
+      "x": -253,
+      "z": 47,
+      "r": 1.85,
+      "item": "healing_herb",
+      "qty": 1,
+      "nameKey": "item.healing_herb",
+      "yaw": 0.8,
+      "y": 1.069247
+    },
+    {
+      "id": "deepwood_mushroom_a",
+      "x": -225,
+      "z": 22,
+      "r": 1.85,
+      "item": "field_mushroom",
+      "qty": 1,
+      "nameKey": "item.field_mushroom",
+      "yaw": 0.3,
+      "y": 1.099302
+    },
+    {
+      "id": "deepwood_herb_a",
+      "x": -214,
+      "z": 16,
+      "r": 1.85,
+      "item": "healing_herb",
+      "qty": 1,
+      "nameKey": "item.healing_herb",
+      "yaw": 2.2,
+      "y": 1.008293
+    },
+    {
+      "id": "deepwood_mushroom_b",
+      "x": -198,
+      "z": 7,
+      "r": 1.85,
+      "item": "field_mushroom",
+      "qty": 1,
+      "nameKey": "item.field_mushroom",
+      "yaw": -0.7,
+      "y": 0.913983
+    },
+    {
+      "id": "deepwood_apple_a",
+      "x": -184,
+      "z": 12,
+      "r": 1.85,
+      "item": "shore_apple",
+      "qty": 1,
+      "nameKey": "item.shore_apple",
+      "yaw": 1.9,
+      "y": 0.856773
+    },
+    {
+      "id": "deepwood_herb_b",
+      "x": -169,
+      "z": 24,
+      "r": 1.85,
+      "item": "healing_herb",
+      "qty": 1,
+      "nameKey": "item.healing_herb",
+      "yaw": -1.2,
+      "y": 5.860241
+    },
+    {
+      "id": "deepwood_mushroom_c",
+      "x": -156,
+      "z": 26,
+      "r": 1.85,
+      "item": "field_mushroom",
+      "qty": 1,
+      "nameKey": "item.field_mushroom",
+      "yaw": 1.2,
+      "y": 7.519996
+    },
+    {
+      "id": "deepwood_mushroom_d",
+      "x": -140,
+      "z": 33,
+      "r": 1.85,
+      "item": "field_mushroom",
+      "qty": 1,
+      "nameKey": "item.field_mushroom",
+      "yaw": 2.8,
+      "y": 6.036184
+    },
+    {
+      "id": "deepwood_herb_c",
+      "x": -125,
+      "z": 26,
+      "r": 1.85,
+      "item": "healing_herb",
+      "qty": 1,
+      "nameKey": "item.healing_herb",
+      "yaw": 0.1,
+      "y": 4.898546
+    },
+    {
+      "id": "oldtrack_iron",
+      "x": -113,
+      "z": 19,
+      "r": 1.85,
+      "item": "iron_scrap",
+      "qty": 1,
+      "nameKey": "item.iron_scrap",
+      "yaw": 1.5,
+      "y": 4.002929
+    },
+    {
+      "id": "waystation_apple_a",
+      "x": -104,
+      "z": 14,
+      "r": 1.85,
+      "item": "shore_apple",
+      "qty": 1,
+      "nameKey": "item.shore_apple",
+      "yaw": 0.6,
+      "y": 1.490986
+    },
+    {
+      "id": "waystation_bread_a",
+      "x": -101,
+      "z": 22,
+      "r": 1.85,
+      "item": "bread",
+      "qty": 1,
+      "nameKey": "item.bread",
+      "yaw": -0.6,
+      "y": 1.832816
+    },
+    {
+      "id": "waystation_apple_b",
+      "x": -90,
+      "z": 46,
+      "r": 1.85,
+      "item": "shore_apple",
+      "qty": 1,
+      "nameKey": "item.shore_apple",
+      "yaw": 1.4,
+      "y": 1.219684
+    },
+    {
+      "id": "waystation_bread_b",
+      "x": -89,
+      "z": 34,
+      "r": 1.85,
+      "item": "bread",
+      "qty": 1,
+      "nameKey": "item.bread",
+      "yaw": 0.3,
+      "y": 1.300854
+    },
+    {
+      "id": "waystation_iron",
+      "x": -102,
+      "z": 46,
+      "r": 1.85,
+      "item": "iron_scrap",
+      "qty": 1,
+      "nameKey": "item.iron_scrap",
+      "yaw": 2.3,
+      "y": 2.087162
+    },
+    {
+      "id": "waystation_herb",
+      "x": -81,
+      "z": 59,
+      "r": 1.85,
+      "item": "healing_herb",
+      "qty": 1,
+      "nameKey": "item.healing_herb",
+      "yaw": -0.4,
+      "y": 1.188441
+    },
+    {
+      "id": "lantern_iron",
+      "x": -315,
+      "z": 110,
+      "r": 1.85,
+      "item": "iron_scrap",
+      "qty": 1,
+      "nameKey": "item.iron_scrap",
+      "yaw": 0.7,
+      "y": 11.952917
+    },
+    {
+      "id": "lantern_herb",
+      "x": -311,
+      "z": 101,
+      "r": 1.85,
+      "item": "healing_herb",
+      "qty": 1,
+      "nameKey": "item.healing_herb",
+      "yaw": 1.6,
+      "y": 11.888681
+    },
+    {
+      "id": "lantern_bread",
+      "x": -334,
+      "z": 111.5,
+      "r": 1.85,
+      "item": "bread",
+      "qty": 1,
+      "nameKey": "item.bread",
+      "yaw": -0.8,
+      "y": 11.952917
+    },
+    {
+      "id": "lantern_apple",
+      "x": -327,
+      "z": 114,
+      "r": 1.85,
+      "item": "shore_apple",
+      "qty": 1,
+      "nameKey": "item.shore_apple",
+      "yaw": 1.4,
+      "y": 11.952917
+    },
+    {
+      "id": "rillford_apple",
+      "x": -18,
+      "z": 32,
+      "r": 1.85,
+      "item": "shore_apple",
+      "qty": 1,
+      "nameKey": "item.shore_apple",
+      "yaw": 0.2,
+      "y": 0.806695
+    },
+    {
+      "id": "rillford_bread",
+      "x": 7,
+      "z": 32,
+      "r": 1.85,
+      "item": "bread",
+      "qty": 1,
+      "nameKey": "item.bread",
+      "yaw": 2.2,
+      "y": 1.100973
+    },
+    {
+      "id": "rillford_mushroom",
+      "x": -26,
+      "z": 12,
+      "r": 1.85,
+      "item": "field_mushroom",
+      "qty": 1,
+      "nameKey": "item.field_mushroom",
+      "yaw": -1.1,
+      "y": 0.999887
+    },
+    {
+      "id": "rillford_herb",
+      "x": 24,
+      "z": 4,
+      "r": 1.85,
+      "item": "healing_herb",
+      "qty": 1,
+      "nameKey": "item.healing_herb",
+      "yaw": 0.7,
+      "y": 1.094803
+    },
+    {
+      "id": "quarry_iron",
+      "x": 70,
+      "z": -17,
+      "r": 1.85,
+      "item": "iron_scrap",
+      "qty": 1,
+      "nameKey": "item.iron_scrap",
+      "yaw": 1.9,
+      "y": 1.694386
+    },
+    {
+      "id": "quarry_mushroom",
+      "x": 67,
+      "z": -24,
+      "r": 1.85,
+      "item": "field_mushroom",
+      "qty": 1,
+      "nameKey": "item.field_mushroom",
+      "yaw": 0.8,
+      "y": 1.831272
+    },
+    {
+      "id": "quarry_herb",
+      "x": 86,
+      "z": -3,
+      "r": 1.85,
+      "item": "healing_herb",
+      "qty": 1,
+      "nameKey": "item.healing_herb",
+      "yaw": -0.2,
+      "y": 1.718498
+    }
+  ],
+  "looseCargo": {
+    "props": [
+      {
+        "x": -82,
+        "z": 52.4,
+        "id": "camp_barrel_0",
+        "name": "Empty trade barrel",
+        "kind": "barrel",
+        "width": 0.76,
+        "height": 1,
+        "depth": 0.76,
+        "yaw": 0,
+        "mass": 18,
+        "y": 1.039698
+      },
+      {
+        "x": -80.8,
+        "z": 52.8,
+        "id": "camp_barrel_1",
+        "name": "Empty trade barrel",
+        "kind": "barrel",
+        "width": 0.684,
+        "height": 0.9,
+        "depth": 0.684,
+        "yaw": 0.1,
+        "mass": 18,
+        "y": 1.052558
+      },
+      {
+        "x": -89,
+        "z": 26.5,
+        "id": "camp_crate_0",
+        "name": "Wooden supply crate",
+        "kind": "crate",
+        "width": 0.86,
+        "height": 0.57,
+        "depth": 0.62,
+        "yaw": 0.3,
+        "mass": 12,
+        "y": 1.322167
+      },
+      {
+        "x": -89.1,
+        "z": 27.3,
+        "id": "camp_crate_1",
+        "name": "Wooden supply crate",
+        "kind": "crate",
+        "width": 0.66,
+        "height": 0.47,
+        "depth": 0.52,
+        "yaw": -0.2,
+        "mass": 12,
+        "y": 1.368912
+      },
+      {
+        "id": "loose_barrel_0",
+        "name": "Empty wooden barrel",
+        "kind": "barrel",
+        "x": -16.5,
+        "z": 2.4,
+        "width": 0.76,
+        "height": 1,
+        "depth": 0.76,
+        "yaw": 0,
+        "mass": 18,
+        "y": 0.815494
+      },
+      {
+        "id": "loose_barrel_1",
+        "name": "Empty wooden barrel",
+        "kind": "barrel",
+        "x": 16.4,
+        "z": 21,
+        "width": 0.76,
+        "height": 1,
+        "depth": 0.76,
+        "yaw": 0.17,
+        "mass": 18,
+        "y": 1.166388
+      },
+      {
+        "id": "loose_barrel_2",
+        "name": "Empty wooden barrel",
+        "kind": "barrel",
+        "x": -136.5,
+        "z": 31.5,
+        "width": 0.76,
+        "height": 1,
+        "depth": 0.76,
+        "yaw": 0.34,
+        "mass": 18,
+        "y": 5.822542
+      },
+      {
+        "id": "loose_barrel_3",
+        "name": "Empty wooden barrel",
+        "kind": "barrel",
+        "x": 88,
+        "z": -13,
+        "width": 0.76,
+        "height": 1,
+        "depth": 0.76,
+        "yaw": 0.51,
+        "mass": 18,
+        "y": 2.106685
+      },
+      {
+        "id": "loose_barrel_4",
+        "name": "Empty wooden barrel",
+        "kind": "barrel",
+        "x": -14.4,
+        "z": -3,
+        "width": 0.76,
+        "height": 1,
+        "depth": 0.76,
+        "yaw": 0.68,
+        "mass": 18,
+        "y": 0.251458
+      }
+    ],
+    "floatLine": {
+      "barrel": 0.42,
+      "crate": 0.55
+    },
+    "waterDrag": 2.4
+  },
+  "forest": {
+    "openings": [
+      {
+        "id": "waystone_glimpse",
+        "x": -196,
+        "z": 13,
+        "rx": 12,
+        "rz": 8
+      },
+      {
+        "id": "overlook_light",
+        "x": -148,
+        "z": 31,
+        "rx": 14,
+        "rz": 10
+      },
+      {
+        "id": "waystation_glimpse",
+        "x": -123,
+        "z": 20,
+        "rx": 10,
+        "rz": 8
+      }
+    ],
+    "clearings": [
+      {
+        "id": "north_hogback_glade",
+        "x": -180,
+        "z": -58,
+        "rx": 16,
+        "rz": 11,
+        "yaw": -0.28
+      },
+      {
+        "id": "south_hogback_glade",
+        "x": -181,
+        "z": 80,
+        "rx": 19,
+        "rz": 13,
+        "yaw": 0.32
+      }
+    ]
+  },
+  "biomes": {
+    "ids": [
+      "grey-strand",
+      "sheltered-palms",
+      "humid-broadleaf",
+      "pine-deepwood",
+      "cool-fir-ridge",
+      "ochre-woodland"
+    ],
+    "regions": {
+      "palms": [
+        {
+          "x": -266,
+          "z": -82,
+          "rx": 21,
+          "rz": 35,
+          "yaw": -0.18,
+          "feather": 17
+        },
+        {
+          "x": -283,
+          "z": 124,
+          "rx": 21,
+          "rz": 25,
+          "yaw": 0.2,
+          "feather": 16
+        }
+      ],
+      "humid": [
+        {
+          "x": -205,
+          "z": -8,
+          "rx": 21,
+          "rz": 12,
+          "yaw": -0.26,
+          "feather": 10
+        },
+        {
+          "x": -191,
+          "z": 1,
+          "rx": 14,
+          "rz": 12,
+          "yaw": 0.32,
+          "feather": 10
+        }
+      ],
+      "fir": [
+        {
+          "x": -174,
+          "z": -76,
+          "rx": 45,
+          "rz": 24,
+          "yaw": -0.22,
+          "feather": 18
+        }
+      ],
+      "warm": [
+        {
+          "x": -111,
+          "z": 67,
+          "rx": 29,
+          "rz": 31,
+          "yaw": -0.22,
+          "feather": 19
+        },
+        {
+          "x": -52,
+          "z": 20,
+          "rx": 26,
+          "rz": 23,
+          "yaw": 0.1,
+          "feather": 16
+        },
+        {
+          "x": 109,
+          "z": 27,
+          "rx": 36,
+          "rz": 33,
+          "yaw": -0.28,
+          "feather": 23
+        }
+      ],
+      "pine": [
+        {
+          "x": -171,
+          "z": 18,
+          "rx": 32,
+          "rz": 30,
+          "yaw": 0.16,
+          "feather": 13
+        }
+      ]
+    }
+  },
+  "groundLayers": [
+    "grass",
+    "heath",
+    "earth",
+    "gravel",
+    "sand",
+    "wetsand",
+    "rock",
+    "path"
+  ]
+}
