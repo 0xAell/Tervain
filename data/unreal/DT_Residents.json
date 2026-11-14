@@ -12,7 +12,7 @@
         "ToHour": 24,
         "Anchor": "overlook_wagon",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -36,28 +36,28 @@
         "ToHour": 12,
         "Anchor": "noticeboard",
         "Activity": "Talk",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 12,
         "ToHour": 17,
         "Anchor": "dry_channel",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 17,
         "ToHour": 20,
         "Anchor": "village_square",
         "Activity": "Talk",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 20,
         "ToHour": 6,
         "Anchor": "reeve_door",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -74,28 +74,28 @@
         "ToHour": 8,
         "Anchor": "shrine_altar",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 8,
         "ToHour": 16,
         "Anchor": "wetland_edge",
         "Activity": "Work",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 16,
         "ToHour": 21,
         "Anchor": "shrine_steps",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 21,
         "ToHour": 5,
         "Anchor": "steward_cell",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -112,21 +112,21 @@
         "ToHour": 18,
         "Anchor": "quarry_yard",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 18,
         "ToHour": 21,
         "Anchor": "quarry_office",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 21,
         "ToHour": 6,
         "Anchor": "crew_bunks",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -143,14 +143,14 @@
         "ToHour": 20,
         "Anchor": "inn_bench",
         "Activity": "Sit",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 20,
         "ToHour": 7,
         "Anchor": "inn_bench",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -174,14 +174,14 @@
         "ToHour": 18,
         "Anchor": "quarry_office",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 18,
         "ToHour": 8,
         "Anchor": "quarry_office",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -198,14 +198,14 @@
         "ToHour": 20,
         "Anchor": "ford_camp",
         "Activity": "Sit",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 20,
         "ToHour": 8,
         "Anchor": "ford_camp",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -222,28 +222,28 @@
         "ToHour": 11,
         "Anchor": "archive_door",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 11,
         "ToHour": 13,
         "Anchor": "archive_back",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 13,
         "ToHour": 20,
         "Anchor": "archive_door",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 20,
         "ToHour": 6,
         "Anchor": "warden_post",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -267,14 +267,14 @@
         "ToHour": 18,
         "Anchor": "mill_door",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 18,
         "ToHour": 7,
         "Anchor": "mill_door",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -291,14 +291,14 @@
         "ToHour": 18,
         "Anchor": "quarry_face",
         "Activity": "Work",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 18,
         "ToHour": 6,
         "Anchor": "crew_bunks",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -322,21 +322,21 @@
         "ToHour": 17,
         "Anchor": "bakery_door",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 17,
         "ToHour": 20,
         "Anchor": "village_well",
         "Activity": "Talk",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 20,
         "ToHour": 5,
         "Anchor": "bakery_door",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   },
@@ -353,21 +353,21 @@
         "ToHour": 20,
         "Anchor": "hunter_station",
         "Activity": "Work",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 20,
         "ToHour": 22,
         "Anchor": "hunter_station",
         "Activity": "Stand",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       },
       {
         "FromHour": 22,
         "ToHour": 6,
         "Anchor": "hunter_shelter",
         "Activity": "Rest",
-        "IndoorPost": ""
+        "IndoorPost": "None"
       }
     ]
   }

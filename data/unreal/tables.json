@@ -1,52 +1,461 @@
-[
-  {
-    "file": "DT_Items.json",
-    "rowStruct": "FTervainItemRow",
-    "rows": 20
-  },
-  {
-    "file": "DT_AnimalSpecies.json",
-    "rowStruct": "FTervainAnimalSpeciesRow",
-    "rows": 8
-  },
-  {
-    "file": "DT_Animals.json",
-    "rowStruct": "FTervainAnimalRow",
-    "rows": 19
-  },
-  {
-    "file": "DT_EnemyArchetypes.json",
-    "rowStruct": "FTervainEnemyArchetypeRow",
-    "rows": 2
-  },
-  {
-    "file": "DT_EnemyPosts.json",
-    "rowStruct": "FTervainEnemyPostRow",
-    "rows": 3
-  },
-  {
-    "file": "DT_Places.json",
-    "rowStruct": "FTervainPlaceRow",
-    "rows": 11
-  },
-  {
-    "file": "DT_Buildings.json",
-    "rowStruct": "FTervainBuildingRow",
-    "rows": 19
-  },
-  {
-    "file": "DT_Residents.json",
-    "rowStruct": "FTervainResidentRow",
-    "rows": 12
-  },
-  {
-    "file": "DT_LooseCargo.json",
-    "rowStruct": "FTervainLooseCargoRow",
-    "rows": 9
-  },
-  {
-    "file": "DT_Trees.json",
-    "rowStruct": "FTervainTreeRow",
-    "rows": 945
+{
+  "about": "The DataTable files in this folder, the C++ row struct each fills, and every member with its type. The structs are declared in unreal/Source/Tervain/Public/Data/TervainRows.h, written by the same export.",
+  "tables": [
+    {
+      "file": "DT_Items.json",
+      "rowStruct": "FTervainItemRow",
+      "note": "An item. The row name is the item’s id.",
+      "rows": 20,
+      "members": {
+        "NameKey": {
+          "type": "FString",
+          "note": "String table key of its name."
+        },
+        "DescriptionKey": {
+          "type": "FString",
+          "note": "String table key of its description."
+        },
+        "Kind": {
+          "type": "ETervainItemKind",
+          "note": "What it is."
+        },
+        "HealAmount": {
+          "type": "int32",
+          "note": "Health restored when consumed; 0 for anything else."
+        },
+        "Action": {
+          "type": "ETervainItemAction",
+          "note": "What using it does."
+        }
+      }
+    },
+    {
+      "file": "DT_AnimalSpecies.json",
+      "rowStruct": "FTervainAnimalSpeciesRow",
+      "note": "How a kind of animal moves and meets the hunter. The row name is the species.",
+      "rows": 8,
+      "members": {
+        "WalkSpeed": {
+          "type": "float",
+          "note": "Walking pace (cm/s)."
+        },
+        "RunSpeed": {
+          "type": "float",
+          "note": "Running pace (cm/s)."
+        },
+        "NoticeDistance": {
+          "type": "float",
+          "note": "It looks up at the hunter within this distance (cm)."
+        },
+        "FleeDistance": {
+          "type": "float",
+          "note": "It flees, or a predator stands its ground, within this distance (cm)."
+        },
+        "HoldUntil": {
+          "type": "float",
+          "note": "A predator holds its ground until the hunter is within this share of the flee distance; 1 for prey."
+        },
+        "HerdAlarmDistance": {
+          "type": "float",
+          "note": "An alarm carries to its own kind within this distance (cm); 0 for solitary kinds."
+        }
+      }
+    },
+    {
+      "file": "DT_Animals.json",
+      "rowStruct": "FTervainAnimalRow",
+      "note": "One animal and its home. The row name is its species and model id.",
+      "rows": 19,
+      "members": {
+        "Species": {
+          "type": "FName",
+          "note": "Row name in DT_AnimalSpecies."
+        },
+        "SourceModel": {
+          "type": "FString",
+          "note": "The web build’s model file, for reference while it is replaced."
+        },
+        "Habitat": {
+          "type": "ETervainAnimalHabitat",
+          "note": "The ground it keeps to."
+        },
+        "Home": {
+          "type": "FVector",
+          "note": "The centre of its range, on the ground (cm)."
+        },
+        "RoamRadius": {
+          "type": "float",
+          "note": "How far from home it wanders (cm)."
+        },
+        "bSeated": {
+          "type": "bool",
+          "note": "It sits in one place and never walks."
+        },
+        "bTame": {
+          "type": "bool",
+          "note": "It watches travellers and does not flee; the tame deer can be ridden."
+        },
+        "HomeYaw": {
+          "type": "float",
+          "note": "Its facing at home (degrees), when bHasHomeYaw."
+        },
+        "bHasHomeYaw": {
+          "type": "bool",
+          "note": "Whether HomeYaw is set; otherwise it faces at random."
+        }
+      }
+    },
+    {
+      "file": "DT_EnemyArchetypes.json",
+      "rowStruct": "FTervainEnemyArchetypeRow",
+      "note": "A kind of hostile. The row name is the archetype.",
+      "rows": 2,
+      "members": {
+        "DisplayName": {
+          "type": "FString",
+          "note": "Shown above its health bar."
+        },
+        "Health": {
+          "type": "int32",
+          "note": "Health at full."
+        },
+        "Speed": {
+          "type": "float",
+          "note": "Chasing pace (cm/s)."
+        },
+        "Reach": {
+          "type": "float",
+          "note": "Distance at which it starts its attack (cm)."
+        },
+        "WindUpSeconds": {
+          "type": "float",
+          "note": "Seconds of wind-up before the strike."
+        },
+        "StrikeSeconds": {
+          "type": "float",
+          "note": "Seconds the strike lasts."
+        },
+        "RecoverSeconds": {
+          "type": "float",
+          "note": "Seconds of recovery after it."
+        },
+        "Damage": {
+          "type": "int32",
+          "note": "Damage of a blow that lands unguarded."
+        },
+        "NoticeDistance": {
+          "type": "float",
+          "note": "Distance within which it can notice the wanderer (cm)."
+        },
+        "bHeavy": {
+          "type": "bool",
+          "note": "A heavy blow: it lunges, costs more to block and can break a guard."
+        },
+        "Radius": {
+          "type": "float",
+          "note": "Body radius for contact (cm)."
+        }
+      }
+    },
+    {
+      "file": "DT_EnemyPosts.json",
+      "rowStruct": "FTervainEnemyPostRow",
+      "note": "Where a hostile waits. The row name is the encounter’s id, as saved games know it.",
+      "rows": 3,
+      "members": {
+        "Archetype": {
+          "type": "FName",
+          "note": "Row name in DT_EnemyArchetypes."
+        },
+        "Location": {
+          "type": "FVector",
+          "note": "Where it stands, on the ground (cm)."
+        },
+        "Leash": {
+          "type": "float",
+          "note": "How far from its post it will chase (cm)."
+        },
+        "IdleYaw": {
+          "type": "float",
+          "note": "Its facing while it waits (degrees)."
+        }
+      }
+    },
+    {
+      "file": "DT_Places.json",
+      "rowStruct": "FTervainPlaceRow",
+      "note": "A named place the journal and map know. The row name is the place’s id.",
+      "rows": 11,
+      "members": {
+        "Location": {
+          "type": "FVector",
+          "note": "Where it stands, on the ground (cm)."
+        },
+        "Radius": {
+          "type": "float",
+          "note": "The wanderer has found it once within this distance (cm)."
+        }
+      }
+    },
+    {
+      "file": "DT_Buildings.json",
+      "rowStruct": "FTervainBuildingRow",
+      "note": "A building’s footprint. The row name is the building’s id.",
+      "rows": 19,
+      "members": {
+        "Kind": {
+          "type": "ETervainBuildingKind",
+          "note": "What it is used for."
+        },
+        "Location": {
+          "type": "FVector",
+          "note": "The centre of its footprint, on the ground (cm)."
+        },
+        "Yaw": {
+          "type": "float",
+          "note": "The way its front door faces (degrees)."
+        },
+        "Width": {
+          "type": "float",
+          "note": "Across its front (cm)."
+        },
+        "Depth": {
+          "type": "float",
+          "note": "Front to back (cm)."
+        },
+        "WallHeight": {
+          "type": "float",
+          "note": "Height of its walls (cm)."
+        },
+        "Wall": {
+          "type": "ETervainWall",
+          "note": "Wall construction."
+        },
+        "Roof": {
+          "type": "ETervainRoof",
+          "note": "Roof form."
+        }
+      }
+    },
+    {
+      "file": "DT_Residents.json",
+      "rowStruct": "FTervainResidentRow",
+      "note": "A named resident. The row name is their role id, which survives changes of display name.",
+      "rows": 12,
+      "members": {
+        "DisplayName": {
+          "type": "FString",
+          "note": "Working display name."
+        },
+        "TitleKey": {
+          "type": "FString",
+          "note": "String table key of their title."
+        },
+        "Faction": {
+          "type": "ETervainFaction",
+          "note": "Their allegiance."
+        },
+        "HomeAnchor": {
+          "type": "FName",
+          "note": "The anchor they rest at when no span covers the hour."
+        },
+        "InteractRadius": {
+          "type": "float",
+          "note": "How near the wanderer must be to speak to them (cm)."
+        },
+        "Schedule": {
+          "type": "TArray<FTervainScheduleEntry>",
+          "note": "Their day, in order; the first span that covers the hour applies."
+        }
+      }
+    },
+    {
+      "file": "DT_LooseCargo.json",
+      "rowStruct": "FTervainLooseCargoRow",
+      "note": "A barrel or crate that can be pushed, lifted and thrown. The row name is its id, as saved games know it.",
+      "rows": 9,
+      "members": {
+        "DisplayName": {
+          "type": "FString",
+          "note": "Shown when it can be picked up."
+        },
+        "Kind": {
+          "type": "ETervainCargoKind",
+          "note": "Barrel or crate."
+        },
+        "Location": {
+          "type": "FVector",
+          "note": "Where it stands, on the ground (cm)."
+        },
+        "Yaw": {
+          "type": "float",
+          "note": "Its facing (degrees)."
+        },
+        "Size": {
+          "type": "FVector",
+          "note": "Width, depth and height (cm)."
+        },
+        "MassKg": {
+          "type": "float",
+          "note": "Mass for carrying and throwing (kg)."
+        }
+      }
+    },
+    {
+      "file": "DT_Trees.json",
+      "rowStruct": "FTervainTreeRow",
+      "note": "One tree or shrub of the planting. Row names are stable only for one export.",
+      "rows": 945,
+      "members": {
+        "Species": {
+          "type": "FName",
+          "note": "oak, birch, pine, fir, shorepine, dead, orchard, shrub or palm."
+        },
+        "Variant": {
+          "type": "int32",
+          "note": "Which of the species’ models, 0 to 2."
+        },
+        "Location": {
+          "type": "FVector",
+          "note": "Where it stands, on the ground (cm)."
+        },
+        "Yaw": {
+          "type": "float",
+          "note": "Its turn about the vertical (degrees)."
+        },
+        "Scale": {
+          "type": "float",
+          "note": "Uniform scale."
+        },
+        "TrunkRadius": {
+          "type": "float",
+          "note": "Radius of the trunk as an obstacle (cm); 0 for a shrub that does not block."
+        }
+      }
+    }
+  ],
+  "structs": [
+    {
+      "name": "FTervainScheduleEntry",
+      "note": "One span of a resident’s day. A span may run past midnight (FromHour greater than ToHour).",
+      "members": {
+        "FromHour": {
+          "type": "float",
+          "note": "Hour of the day the span starts, 0 to 24."
+        },
+        "ToHour": {
+          "type": "float",
+          "note": "Hour of the day the span ends."
+        },
+        "Anchor": {
+          "type": "FName",
+          "note": "The named place they go to (data/world/layout.json, anchors)."
+        },
+        "Activity": {
+          "type": "ETervainActivity",
+          "note": "What they do there."
+        },
+        "IndoorPost": {
+          "type": "FName",
+          "note": "A furnished spot inside the anchor’s building, or none."
+        }
+      }
+    }
+  ],
+  "enums": {
+    "ETervainItemKind": {
+      "note": "What an item is.",
+      "values": [
+        "Currency",
+        "Tool",
+        "Quest",
+        "Consumable",
+        "Clothing",
+        "Weapon",
+        "Material"
+      ]
+    },
+    "ETervainItemAction": {
+      "note": "What using an item from the hotbar does.",
+      "values": [
+        "None",
+        "Equip",
+        "Consume"
+      ]
+    },
+    "ETervainAnimalHabitat": {
+      "note": "The ground an animal keeps to.",
+      "values": [
+        "Settlement",
+        "CaravanRest",
+        "Woodland",
+        "Deepwood",
+        "RockyWoodland",
+        "WarmWoodland"
+      ]
+    },
+    "ETervainBuildingKind": {
+      "note": "What a building is used for.",
+      "values": [
+        "House",
+        "Mill",
+        "Shrine",
+        "Archive",
+        "Office",
+        "Hut",
+        "Inn",
+        "Bakery",
+        "Reeve",
+        "Bunks",
+        "Lodge",
+        "Fisher",
+        "Store",
+        "Keeper"
+      ]
+    },
+    "ETervainWall": {
+      "note": "A building’s wall construction.",
+      "values": [
+        "Plaster",
+        "Stone",
+        "Timber"
+      ]
+    },
+    "ETervainRoof": {
+      "note": "A building’s roof form.",
+      "values": [
+        "Gable",
+        "Hip",
+        "Lean"
+      ]
+    },
+    "ETervainFaction": {
+      "note": "A resident’s allegiance.",
+      "values": [
+        "League",
+        "Templar",
+        "Marcher",
+        "Rimeward",
+        "Ash",
+        "Traveler"
+      ]
+    },
+    "ETervainActivity": {
+      "note": "What a resident does at a place.",
+      "values": [
+        "Work",
+        "Stand",
+        "Sit",
+        "Talk",
+        "Rest"
+      ]
+    },
+    "ETervainCargoKind": {
+      "note": "A kind of loose cargo.",
+      "values": [
+        "Barrel",
+        "Crate"
+      ]
+    }
   }
-]
+}

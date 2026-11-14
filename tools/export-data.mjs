@@ -69,7 +69,7 @@ export async function buildExport(load) {
   const { portableDocuments } = await load('/src/core/export/portableData.ts');
   const { documentSchema } = await load('/src/core/export/schema.ts');
   const { terrainRaster, terrainDocument } = await load('/src/core/export/terrainRaster.ts');
-  const { unrealTables, unrealStringTable, UNREAL_CONVENTIONS } = await load('/src/core/export/unrealTables.ts');
+  const { unrealTables, unrealStringTable, unrealRowsHeader, UNREAL_CONVENTIONS, UNREAL_ENUMS, UNREAL_STRUCTS } = await load('/src/core/export/unrealTables.ts');
   const { tidy } = await load('/src/core/export/portableData.ts');
   const { LAYERS } = await load('/src/core/world/groundLayers.ts');
   const { Terrain } = await load('/src/core/world/terrain.ts');
@@ -85,10 +85,23 @@ export async function buildExport(load) {
   document('world/terrain.json', terrainDoc.about, terrainDoc);
   files.push({ path: 'world/terrain-height.png', png: { width: raster.width, height: raster.height, bitDepth: 16, samples: raster.heights } });
   LAYERS.forEach((name, i) => files.push({ path: `world/terrain-layer-${name}.png`, png: { width: raster.width, height: raster.height, bitDepth: 8, samples: raster.layers[i] } }));
-  for (const table of unrealTables(terrain)) files.push({ path: `unreal/${table.file}`, text: json(table.rows) });
+  const tables = unrealTables(terrain);
+  const typeName = (type) => (typeof type === 'string' ? type : type.enum ?? `TArray<${type.array}>`);
+  const members = (definition) => Object.fromEntries(Object.entries(definition.fields).map(([name, field]) => [name, { type: typeName(field.type), note: field.note }]));
+  for (const table of tables) files.push({ path: `unreal/${table.file}`, text: json(table.rows) });
   files.push({ path: 'unreal/ST_Tervain.csv', text: unrealStringTable() });
   files.push({ path: 'unreal/conventions.json', text: json(UNREAL_CONVENTIONS) });
-  files.push({ path: 'unreal/tables.json', text: json(unrealTables(terrain).map((table) => ({ file: table.file, rowStruct: table.rowStruct, rows: table.rows.length }))) });
+  files.push({
+    path: 'unreal/tables.json',
+    text: json({
+      about: 'The DataTable files in this folder, the C++ row struct each fills, and every member with its type. The structs are declared in unreal/Source/Tervain/Public/Data/TervainRows.h, written by the same export.',
+      tables: tables.map((table) => ({ file: table.file, rowStruct: table.name, note: table.note, rows: table.rows.length, members: members(table) })),
+      structs: UNREAL_STRUCTS.map((definition) => ({ name: definition.name, note: definition.note, members: members(definition) })),
+      enums: UNREAL_ENUMS,
+    }),
+  });
+  // The row structs' header is part of the Unreal module, outside data/.
+  files.push({ path: '../unreal/Source/Tervain/Public/Data/TervainRows.h', text: unrealRowsHeader(tables) });
   return files;
 }
 

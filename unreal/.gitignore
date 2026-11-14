@@ -1,0 +1,18 @@
+# Build products and local state: never committed.
+/Binaries/
+/DerivedDataCache/
+/Intermediate/
+/Saved/
+/.vs/
+*.sln
+*.VC.db
+*.opensdf
+*.suo
+*.xcworkspace
+
+# This repository holds the port's source and configuration only. Unreal content (and anything bought from Fab) lives
+# outside it; see docs/unreal/conventions.md.
+/Content/**
+!/Content/README.md
+/Plugins/*/Binaries/
+/Plugins/*/Intermediate/
