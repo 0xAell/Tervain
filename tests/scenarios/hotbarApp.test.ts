@@ -107,7 +107,7 @@ describe('actual App hotbar and inventory routes', () => {
     const { app, game, call } = fixture();
     game.state.player.health = game.state.player.maxHealth;
     call('assignQuickSlot', 0, 'bread');
-    call('activateQuickSlot', 0); call('usePoultice');
+    call('activateQuickSlot', 0); call('useHealKeyItem');
     expect(game.state.inventory.bread).toBe(2);
     expect(game.state.inventory.poultice).toBe(1);
     expect(app.audio.consume).not.toHaveBeenCalled();
@@ -142,7 +142,7 @@ describe('actual App hotbar and inventory routes', () => {
     const before = structuredClone(game.state);
     call('activateQuickSlot', 0); call('assignQuickSlot', 3, 'rusted_sword');
     call('swapQuickSlots', 0, 3); call('equipWeapon', 'rusted_sword');
-    call('useInventoryItem', 'bread'); call('usePoultice');
+    call('useInventoryItem', 'bread'); call('useHealKeyItem');
     expect(game.state).toEqual(before);
     expect(app.input.consumePad).not.toHaveBeenCalled();
     expect(app.player.syncEquipment).not.toHaveBeenCalled();

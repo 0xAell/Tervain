@@ -25,6 +25,9 @@ function* navigationSteps(terrain: Terrain, colliders: Colliders, radius: number
   return blocked;
 }
 
+/** The clearance the walk grid keeps round a person's body (m): residents' routes and safe places are found on it. */
+export const WALK_GRID_RADIUS = 0.55;
+
 /**
  * Grid navigation derived from the same terrain and colliders the player walks on. It is
  * rebuilt when dynamic colliders change so a shortcut opening changes reachable routes.
@@ -38,7 +41,7 @@ export class NavGrid {
   private searchWorkspace?: { gScore: Float32Array; came: Int32Array; closed: Uint8Array };
   builtVersion = -1;
 
-  constructor(private terrain: Terrain, private colliders: Colliders, private radius = 0.55, prepared?: { blocked: Uint8Array; version: number }) {
+  constructor(private terrain: Terrain, private colliders: Colliders, private radius = WALK_GRID_RADIUS, prepared?: { blocked: Uint8Array; version: number }) {
     this.w = terrain.nx;
     this.h = terrain.nz;
     this.blocked = prepared?.blocked ?? new Uint8Array(this.w * this.h);
@@ -47,7 +50,7 @@ export class NavGrid {
   }
 
   /** Build navigation while loading, without exposing a partially traversable grid. */
-  static async create(terrain: Terrain, colliders: Colliders, radius = 0.55, options: NavigationConstructionOptions = {}): Promise<NavGrid> {
+  static async create(terrain: Terrain, colliders: Colliders, radius = WALK_GRID_RADIUS, options: NavigationConstructionOptions = {}): Promise<NavGrid> {
     for (;;) {
       const version = colliders.version;
       const blocked = await finishCooperatively(navigationSteps(terrain, colliders, radius), {

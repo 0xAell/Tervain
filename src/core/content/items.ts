@@ -32,6 +32,9 @@ export const ITEMS: Record<ItemId, ItemDef> = {
   witness_cord: { id: 'witness_cord', nameKey: 'item.witness_cord', descKey: 'item.witness_cord.desc', kind: 'clothing' },
 };
 
+/** What the heal key uses: a poultice, never food or herbs, which are eaten from the pack. */
+export const HEAL_KEY_ITEM: ItemId = 'poultice';
+
 /** Ordering for the small inventory panel. */
 export const ITEM_ORDER: ItemId[] = ['rusted_sword', 'hunting_bow', 'arrow', 'skinning_knife', 'animal_hide', 'raw_meat', 'coin', 'poultice', 'healing_herb', 'bread', 'shore_apple', 'field_mushroom', 'iron_scrap', 'sluice_brace', 'gate_wrench', 'votive_reed', 'archive_key', 'league_sash', 'contract_band', 'witness_cord'];
 
