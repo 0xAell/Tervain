@@ -18,7 +18,7 @@ residents, 3 silent ones, 3 hostiles, 19 animals, 20 items, 98 dialogue nodes, 2
 | **Sea, streams and the spring pool.** One water model: swell over a solved bed, streams within their banks, a pool; meshes, physics, swimming and sound all sample it. | `core/world/water/`, `STREAMS`, `SPRING_POOL`, `FORD`, `DECKS` in `layout.ts`. | The **Water** plugin: an ocean body at sea level (Z = 0), river bodies along the stream polylines, a lake body for the pool. Epic lists "Water System" and "Single Layer Water" as supported on the mobile renderer. | Sea level, stream paths and widths, the ford and deck positions. The wave model itself is replaced by the plugin's. |
 | **Trees.** Planted by rule over stands, clearings, coast and biomes; drawn as instanced models at three levels of detail. | `core/world/flora.ts`, `forest.ts`, `forestStands.ts`, `biomes.ts`, `exclusions.ts`, `plantedForest.ts`; exported as `data/world/flora.json` and `data/unreal/DT_Trees.json`, as the web build plants the forest (the rule told each tree's footprint by its model). | **Instanced foliage.** Epic: painted static meshes are "rendered using hardware instancing". Place instances from `DT_Trees` with an editor utility or a **PCG** graph ("a toolset for creating your own procedural content and tools inside Unreal Engine"); later, re-create the planting rule in PCG if the forest is to be edited in the engine. | Every position, facing, scale, species and trunk radius of the forest as it is played, and the places the rule offers without any tree model, for a port that plants its own trees. The models are replaced. |
 | **Grass and ground cover.** Streamed blades and plants placed from the ground's habitat; gusts and a trample field. | `core/world/habitat.ts` (where plants may grow: open ground, moisture, dry patches, shade) and `core/world/forestFloor.ts` (the woodland floor's planting); the blades, plants and their meshes in `presentation/grass/`, `groundcover.ts`, `forestFloor.ts`. | **Landscape Grass Types** driven by the grass and heath layers, or PCG; wind through material world-position offset; trampling through a render-target interaction field and **Niagara**. | The intent, the layer weights and the woodland floor's pieces (`world/placement.json`). The blades are rebuilt. |
-| **Rocks and scatter.** Boulders, pebbles, driftwood, reeds. | `core/world/scatter.ts` (where every stone, driftwood and scrub lies, and which are obstacles); the stones' shapes and meshes in `presentation/rockGeometry.ts`, `scatter.ts`. | Foliage instances or PCG over the rock and sand layers, with scanned rocks. | The placement, in `world/placement.json`: every stone with its kind, size and whether it is an obstacle, and the shore's driftwood and scrub. The meshes are rebuilt. |
+| **Rocks and scatter.** Boulders, pebbles, driftwood, reeds, and the weathered rock piles on the shore. | `core/world/scatter.ts` (where every stone, driftwood and scrub lies, and which are obstacles) and `core/world/rockPiles.ts` (which rock piles the shore keeps); the stones' shapes and meshes in `presentation/rockGeometry.ts`, `scatter.ts`, `sourceRockPile.ts`. | Foliage instances or PCG over the rock and sand layers, with scanned rocks. | The placement, in `world/placement.json`: every stone with its kind, size and whether it is an obstacle, the shore's driftwood and scrub, and the rock piles kept. The meshes are rebuilt. |
 | **Buildings.** Footprints with wall and roof kinds; the scene builds merged geometry and baked surfaces for each. | `BUILDINGS` in `layout.ts`; `data/unreal/DT_Buildings.json`. | A **modular building kit** assembled per building (as level instances or packed level actors), placed from `DT_Buildings`. | Positions, facing, footprints, wall heights, kinds. The geometry is replaced. |
 | **Rooms, furniture and dressing.** Every house can be entered: a room, a hearth, 143 furniture pieces and 525 smaller pieces placed by rule. | `core/world/interiors.ts`, `furniture.ts`, `dressing.ts`, `houseYards.ts`, `homes.ts`; `data/world/interiors.json`. | Placed props inside each building's instance, from `interiors.json` (building-local positions). | Every placement. The models are replaced. |
 | **World extent and streaming.** One world, loaded whole; models arrive in stages. | `WORLD` in `layout.ts`. | One level. **World Partition** is, per Epic, "an automatic data management and distance-based level streaming system that provides a complete solution for large world management"; Epic's page lists templates that "use World Partition but have Enable Streaming disabled by default". At 580 m × 340 m, start with streaming off and turn it on if the world grows. | The bounds. |
@@ -96,12 +96,15 @@ lifted too: an animal's pace, how long its gestures last and how far its call ca
 what cover stops; waking after a fall, entering a journey and saving; who may mount, which fight wakes sleepers and
 who calls out at a trespass; and values the scene had typed again instead of reading them from the core.
 
-A third reading found more. Each is to be lifted, or its data exported, in a pull request of its own:
+A third reading found more, and most of it has been lifted or exported: the forest as the web build plants it, who
+sees a trespass, the sizes figures are drawn at, the props the core's rules lean on (the benches, the noticeboard, the
+kit table, the quarry's boulders and the field fences) and which rock piles the shore keeps. What it found besides is
+to be lifted in a pull request of its own:
 
-- **Props at copied coordinates**: benches, the kit table and the noticeboard stand at positions typed again from the
-  core's layout; and a few small values (the walk grid's widths, the heal key's item, a copy of the night rule in
-  sound, the physics module's fallback heights, which animals graze, a resident's time to stand, the moments of a
-  sitting that save) are typed or decided where the core already has them.
+- **Small values typed again**: the walk grid's widths, the heal key's item, the health bar's low mark, a copy of the
+  night rule in sound and the physics module's fallback heights are typed or decided where the core already has them.
+- **Rules still decided in the scene**: which animals graze, a resident's time to stand, the moments that save besides
+  the core's, and which events earn a remark or a sting.
 
 What stays in the scene layer, and why it is not a rule of the game:
 
@@ -115,12 +118,13 @@ What stays in the scene layer, and why it is not a rule of the game:
   until their models have loaded, a few a frame. That is loading, and an engine loads differently.
 - **Where the arrow leaves the bow** (`presentation/playerHunting.ts`): the nocked arrow's place on the posed model.
 - **Where the props stand and what they block** (`presentation/settlement.ts`, `hunterSupplies.ts`,
-  `forestLandmarks.ts` and a few more): walls, haystacks, the camp fire, the quarry's faces, the hunter's board and the
-  waymarkers are placed with the meshes they belong to, and what each blocks is measured from its mesh. That is level
-  content: a port places these props in its level with collision from their meshes, as it does buildings. The core
-  names the ones its rules refer to (`PROP_COLLIDER`: the fences the hero vaults, the board, the kit table and the
-  first waymarker the interactables see past), and the field fence's thickness the vault measures from; a test fails
-  if the world does not make every prop so named.
+  `forestLandmarks.ts` and a few more): walls, haystacks, the camp fire, the hunter's board and the waymarkers are
+  placed with the meshes they belong to, and what each blocks is measured from its mesh. That is level content: a port
+  places these props in its level with collision from their meshes, as it does buildings. The props the core's rules
+  lean on stand where its layout puts them (`BENCHES`, `NOTICEBOARD`, `KIT_TABLE`, `QUARRY_BOULDERS`, `fieldFenceRuns`),
+  and the core names the ones its rules refer to (`PROP_COLLIDER`: the fences the hero vaults, the board, the kit table
+  and the first waymarker the interactables see past), with the field fence's thickness the vault measures from. Tests
+  fail if the world does not make every prop so named, or stands one of the core's anywhere else.
 - **Which device does what** (`platform/input.ts`): with the bow in hand a gamepad's right trigger draws instead of
   running, and the quick save and load keys are read only while he plays. That is input mapping; a port sets its own
   in its input contexts.

@@ -50,6 +50,7 @@ import {
 import { RESIDENT } from '../rules/resident';
 import { DEER_BODY, MOUNT_SIDE, MOUNT_STAMINA, MOUNT_TIMES, RIDE, RIDE_CAMERA } from '../rules/riding';
 import { BIOME_IDS, BIOME_REGIONS } from '../world/biomes';
+import { buildStaticColliders } from '../world/colliders';
 import { DRESSING } from '../world/dressing';
 import { Exclusions } from '../world/exclusions';
 import { DETAIL_KEEP } from '../world/detail';
@@ -64,14 +65,16 @@ import { RESIDENT_HOMES } from '../world/homes';
 import { houseYard } from '../world/houseYards';
 import { hearthOf, INTERIORS } from '../world/interiors';
 import {
-  ANCHORS, ARCHIVE_ROOM, ARCHIVE_SHUTTER, ARRIVAL_ROUTE, ARRIVAL_SIGN, ARRIVAL_TRAIL_WIDTH, ARRIVAL_WRECK, BELL, BELL_TOWER, BORDER_SIGN, BUILDINGS,
-  COAST, COASTAL, DECKS, DEEP_WATER, ENEMY_SPAWNS, FIELDS, FORD, FOREST_REGION, FOREST_RUIN, FOREST_WAYMARKERS, HAMLET_PROPS, HUNTER_CAMP, HUNTER_SUPPLY,
-  INLAND_HAMLET, INSPECT_LOCATIONS, LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LANTERNS, LEDGER, LIGHTHOUSE, MILL_WHEEL, ORCHARD, PALISADE, PICKUP_LOCATIONS,
-  PLACES, RESULT_CHECKS, RITE_ALTAR, ROADS, SEA_LEVEL, SHORTCUT, SLUICE, SPAWN, SPRING_POOL, STRAND, STREAMS, VALLEY, VILLAGE_HANDCART, WAGON, WELL, WORLD,
+  ANCHORS, ARCHIVE_ROOM, ARCHIVE_SHUTTER, ARRIVAL_ROUTE, ARRIVAL_SIGN, ARRIVAL_TRAIL_WIDTH, ARRIVAL_WRECK, BELL, BELL_TOWER, BENCHES, BORDER_SIGN, BUILDINGS,
+  COAST, COASTAL, DECKS, DEEP_WATER, ENEMY_SPAWNS, FIELD_FENCE_MARGIN, FIELDS, FORD, FOREST_REGION, FOREST_RUIN, FOREST_WAYMARKERS, HAMLET_PROPS, HUNTER_CAMP,
+  HUNTER_SUPPLY, INLAND_HAMLET, INSPECT_LOCATIONS, KIT_TABLE, LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LANTERNS, LEDGER, LIGHTHOUSE, MILL_WHEEL, NOTICEBOARD, ORCHARD,
+  PALISADE, PICKUP_LOCATIONS, PLACES, QUARRY_BOULDERS, RESULT_CHECKS, RITE_ALTAR, ROADS, SEA_LEVEL, SHORTCUT, SLUICE, SPAWN, SPRING_POOL, STRAND, STREAMS,
+  VALLEY, VILLAGE_HANDCART, WAGON, WELL, WORLD, fieldFenceRuns,
 } from '../world/layout';
 import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG } from '../world/physicalProps';
 import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS } from '../world/playerPlacement';
 import type { Terrain } from '../world/terrain';
+import { coastalRockPiles, ROCK_PILE_CLEARANCE, ROCK_PILE_REACH } from '../world/rockPiles';
 import { REALM_WIND } from '../world/wind';
 
 /**
@@ -237,6 +240,12 @@ function world(terrain: Terrain): PortableDocument[] {
   const floor = createForestFloorPopulation(terrain, exclusions, plantedAsFlora());
   // Where a stone lies does not depend on its shape; its resting height and its solid do, and are the port's own.
   const stones = placeScatter(terrain, exclusions, PLANTED_TRUNKS, { groundedY: (rock, heightAt) => heightAt(rock.x, rock.z), contact: (rock, id) => ({ id, bounds: { minY: 0, maxY: rock.size } }) as never });
+  // What stands when the shore's rock piles are laid, as in the game: the buildings and the core's props, the planted
+  // trunks and the stones that are obstacles.
+  const standing = buildStaticColliders(terrain);
+  for (const trunk of PLANTED_TRUNKS) standing.circle('trunk', trunk.x, trunk.z, trunk.radius);
+  for (const rock of stones) if (rock.collisionId && rock.radius > 0) standing.circle(rock.collisionId, rock.x, rock.z, rock.radius);
+  const rockPiles = coastalRockPiles(terrain, exclusions, standing);
   const count: Record<string, number> = {};
   for (const tree of trees) count[tree.sp] = (count[tree.sp] ?? 0) + 1;
   return [
@@ -250,11 +259,12 @@ function world(terrain: Terrain): PortableDocument[] {
         spawn: grounded(SPAWN), places: Object.fromEntries(Object.entries(PLACES).map(([id, place]) => [id, grounded(place)])),
         anchors: Object.fromEntries(Object.entries(ANCHORS).map(([id, anchor]) => [id, grounded(anchor)])),
         buildings: BUILDINGS.map((building) => ({ ...building, ground: height(building) })),
-        fields: FIELDS, palisade: PALISADE, lanterns: LANTERNS.map(grounded),
+        fields: FIELDS.map((field) => ({ ...field, fence: fieldFenceRuns(field) })), fieldFenceMargin: FIELD_FENCE_MARGIN,
+        palisade: PALISADE, lanterns: LANTERNS.map(grounded),
         landmarks: {
           lighthouse: LIGHTHOUSE, wreck: ARRIVAL_WRECK, arrivalSign: ARRIVAL_SIGN, borderSign: BORDER_SIGN, bell: BELL, bellTower: BELL_TOWER, well: WELL,
           millWheel: MILL_WHEEL, wagon: WAGON, handcart: VILLAGE_HANDCART, forestRuin: FOREST_RUIN, waymarkers: FOREST_WAYMARKERS, hunterCamp: HUNTER_CAMP,
-          hunterSupply: HUNTER_SUPPLY, hamletProps: HAMLET_PROPS,
+          hunterSupply: HUNTER_SUPPLY, hamletProps: HAMLET_PROPS, benches: BENCHES, noticeboard: NOTICEBOARD, kitTable: KIT_TABLE, quarryBoulders: QUARRY_BOULDERS,
         },
         quest: { sluice: SLUICE, riteAltar: RITE_ALTAR, ledger: LEDGER, archiveShutter: ARCHIVE_SHUTTER, archiveRoom: ARCHIVE_ROOM, shortcut: SHORTCUT, resultChecks: RESULT_CHECKS },
         inspectLocations: INSPECT_LOCATIONS.map(grounded), pickups: PICKUP_LOCATIONS.map(grounded),
@@ -301,12 +311,13 @@ function world(terrain: Terrain): PortableDocument[] {
     },
     {
       path: 'world/placement.json',
-      about: 'What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone) and the shore’s driftwood and scrub. `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s resting height is left to its own shape: `groundY` is the ground under its centre.',
+      about: 'What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone), the shore’s driftwood and scrub, and the weathered rock piles the shore keeps (solid, climbable rock; `radius` is the circle each blocks). `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s or a rock pile’s resting height is left to its own shape: `groundY` is the ground under its centre.',
       data: {
         detailKeep: DETAIL_KEEP, woodlandFloorFade: FOREST_FLOOR_DISTANCE, stoneShapes: ROCK_SHAPE_COUNT,
         woodlandFloor: floor.map((piece) => ({ id: piece.id, kind: piece.kind, x: piece.x, y: piece.y, z: piece.z, yaw: piece.yaw, scale: piece.scale, rank: piece.rank, variant: piece.variant, colony: piece.colonyId ?? null, onLog: piece.parentLogId ?? null })),
         stones: stones.map((rock) => ({ kind: rock.kind, x: rock.x, groundY: terrain.heightAt(rock.x, rock.z), z: rock.z, size: rock.size, shape: rock.shape, yaw: rock.yaw, squash: rock.squash, rank: rock.decorationRank, obstacleRadius: rock.radius, solid: rock.size >= 0.35 })),
         shore: createShoreDetailPopulation(terrain, exclusions, PLANTED_TRUNKS).map((detail) => ({ kind: detail.kind, x: detail.x, y: detail.y, z: detail.z, yaw: detail.yaw, scale: detail.scale, rank: detail.rank })),
+        rockPiles: { reach: ROCK_PILE_REACH, clearance: ROCK_PILE_CLEARANCE, kept: rockPiles.map((rock) => ({ ...rock, groundY: terrain.heightAt(rock.x, rock.z) })) },
       },
     },
   ];

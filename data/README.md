@@ -12,7 +12,7 @@ TypeScript: an Unreal Engine project in particular (see `data/unreal`).
 | Folder | Holds | Units and axes |
 | --- | --- | --- |
 | `game/` | Items, residents and their schedules, dialogue, inspections, everything the wanderer can act on, the score and the world's sound, spoken lines, display strings, animals and hunting, hostiles, the quest's vocabulary, and tuning values by system. | The core's: metres, seconds, radians. |
-| `world/` | The authored layout (bounds, coast, water, roads, places, buildings, anchors), each room's furniture and dressing, where every tree stands, what lies and grows on the ground besides (the woodland floor, the loose stone, the shore's driftwood and scrub), the sky through the day, and the terrain as rasters. | The core's: `x` east, `z` south, `y` up; a yaw of 0 faces `+z`. |
+| `world/` | The authored layout (bounds, coast, water, roads, places, buildings, anchors), each room's furniture and dressing, where every tree stands, what lies and grows on the ground besides (the woodland floor, the loose stone, the shore's driftwood and scrub and its rock piles), the sky through the day, and the terrain as rasters. | The core's: `x` east, `z` south, `y` up; a yaw of 0 faces `+z`. |
 | `schema/` | A JSON Schema (draft 2020-12) for every document in `game/` and `world/`. | |
 | `unreal/` | The flat tables again, shaped for Unreal's importers, with positions already in Unreal's units. | Centimetres, degrees; X east, Y south, Z up. |
 
@@ -41,7 +41,9 @@ told each tree's trunk and crown by the model that draws it. The core keeps that
 (`src/core/world/plantedForest.ts`), and `tests/presentation/plantedForest.test.ts` plants it again from the shipped
 models and fails if the two part. Each tree has a radius as an obstacle and a larger one where the walk grid keeps clear
 of its drawn wood. The stones and the shore's details in `world/placement.json` are laid round these trunks, as in the
-game.
+game, and so are the weathered rock piles the shore keeps: `src/core/world/rockPiles.ts` leaves out any that would claim
+a route, a tree or a stone, and `tests/presentation/sourceRockPile.test.ts` lays them among everything the game builds
+first and fails if they part from the export.
 
 `world/flora.json` also lists, as `offered`, the places the rule gives without measuring any tree model, with the
 supplied trees' trunk sizes. The drawn models are wider, so the web build keeps fewer of them. A port that brings its
