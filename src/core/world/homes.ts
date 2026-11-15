@@ -77,17 +77,41 @@ export function roomDoorstep(room: InteriorSpec): V2 {
   return fromBuildingLocal(room.building, room.door.x, room.building.d / 2 + 1.4);
 }
 
-interface RoomGrid { version: number; height: number; nx: number; nz: number; x0: number; z0: number; free: Uint8Array }
+/**
+ * Which cells of a room a body can stand in. The grid keeps whole numbers and its cells, and nothing else: where it
+ * begins in the building's frame is the room's own and is worked out from the room when it is wanted
+ * (`roomGridOrigin`), and the height it was built for is kept in millimetres.
+ *
+ * That is deliberate. Kept as `x0`, `z0` and `height` on this object, the origin of one room's grid was once read back
+ * as another's, built just after it: a resident's house took the mill's `z0`, every route in the house then started
+ * 0.9 m off its floor and found no way, and he stood by his bed all morning. Nothing here ever wrote the number
+ * twice. Fractional numbers held in an object's own fields are boxed by the engine, and the house's grid read the
+ * number of the grid made after it by the same literal, as two objects sharing a box would. A whole number is not
+ * boxed, and a number worked out afresh cannot be stale (docs/decisions.md, 15 November 2026).
+ */
+export interface RoomGrid { version: number; heightMm: number; nx: number; nz: number; free: Uint8Array }
 const GRID = 0.15;
 const grids = new WeakMap<InteriorSpec, RoomGrid>();
 
+/** A grid built for one height serves bodies within this of it (mm). */
+const SAME_HEIGHT_MM = 200;
+const millimetres = (height: number) => Math.round(height * 1000);
+
+/**
+ * Where a room's grid begins, in the building's frame (m): aligned on the doorway's middle, so the narrow way in has a
+ * row of cells down its centre, and on the room's back wall.
+ */
+export function roomGridOrigin(room: InteriorSpec): { x0: number; z0: number } {
+  const { hw, hd } = roomHalfSize(room);
+  return { x0: room.door.x - Math.ceil((room.door.x + hw) / GRID) * GRID, z0: -hd };
+}
+
 /** Where a body can stand in a room and its doorway out to the doorstep, on a fine grid in the building's frame. */
-function roomGrid(room: InteriorSpec, terrain: Ground, colliders: Colliders, height: number): RoomGrid {
-  const cached = grids.get(room);
-  if (cached && cached.version === colliders.version && Math.abs(cached.height - height) < 0.2) return cached;
+export function roomGrid(room: InteriorSpec, terrain: Ground, colliders: Colliders, height: number): RoomGrid {
+  const cached = grids.get(room), heightMm = millimetres(height);
+  if (cached && cached.version === colliders.version && Math.abs(cached.heightMm - heightMm) < SAME_HEIGHT_MM) return cached;
   const b = room.building, { hw, hd } = roomHalfSize(room);
-  // Aligned on the doorway's middle, so the narrow way in has a row of cells down its centre.
-  const x0 = room.door.x - Math.ceil((room.door.x + hw) / GRID) * GRID, z0 = -hd;
+  const { x0, z0 } = roomGridOrigin(room);
   const nx = Math.floor((hw - x0) / GRID) + 1, nz = Math.floor((b.d / 2 + 1.7 - z0) / GRID) + 1;
   const free = new Uint8Array(nx * nz);
   for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
@@ -99,7 +123,7 @@ function roomGrid(room: InteriorSpec, terrain: Ground, colliders: Colliders, hei
     if (!Number.isFinite(y) || colliders.blocked(p.x, p.z, BODY + 0.06, { minY: y + 0.02, maxY: y + height })) continue;
     free[j * nx + i] = 1;
   }
-  const grid = { version: colliders.version, height, nx, nz, x0, z0, free };
+  const grid: RoomGrid = { version: colliders.version, heightMm, nx, nz, free };
   grids.set(room, grid);
   return grid;
 }
@@ -110,9 +134,11 @@ function roomGrid(room: InteriorSpec, terrain: Ground, colliders: Colliders, hei
  */
 export function roomRoute(room: InteriorSpec, from: V2, to: V2, terrain: Ground, colliders: Colliders, height: number): V2[] | null {
   const g = roomGrid(room, terrain, colliders, height), b = room.building;
+  // The grid's origin is the room's, worked out here rather than kept on the grid (see RoomGrid).
+  const { x0, z0 } = roomGridOrigin(room);
   const cell = (p: V2) => {
     const l = toBuildingLocal(b, p.x, p.z);
-    const ci = Math.round((l.x - g.x0) / GRID), cj = Math.round((l.z - g.z0) / GRID);
+    const ci = Math.round((l.x - x0) / GRID), cj = Math.round((l.z - z0) / GRID);
     let best = -1, bestD = Infinity;
     for (let dj = -4; dj <= 4; dj++) for (let di = -4; di <= 4; di++) {
       const i = ci + di, j = cj + dj;
@@ -150,13 +176,13 @@ export function roomRoute(room: InteriorSpec, from: V2, to: V2, terrain: Ground,
   const cells: number[] = [];
   for (let at = goal; at >= 0; at = prev[at]!) { cells.push(at); if (at === start) break; }
   cells.reverse();
-  const points = cells.map((at) => { const i = at % g.nx; return fromBuildingLocal(b, g.x0 + i * GRID, g.z0 + ((at - i) / g.nx) * GRID); });
+  const points = cells.map((at) => { const i = at % g.nx; return fromBuildingLocal(b, x0 + i * GRID, z0 + ((at - i) / g.nx) * GRID); });
   // Pull the string: keep a corner only where the straight way past it is not free.
   const clear = (p: V2, q: V2) => {
     const n = Math.max(1, Math.ceil(Math.hypot(q.x - p.x, q.z - p.z) / (GRID * 0.5)));
     for (let s = 1; s < n; s++) {
       const l = toBuildingLocal(b, p.x + (q.x - p.x) * s / n, p.z + (q.z - p.z) * s / n);
-      const i = Math.round((l.x - g.x0) / GRID), j = Math.round((l.z - g.z0) / GRID);
+      const i = Math.round((l.x - x0) / GRID), j = Math.round((l.z - z0) / GRID);
       if (i < 0 || j < 0 || i >= g.nx || j >= g.nz || !g.free[j * g.nx + i]) return false;
     }
     return true;
@@ -166,7 +192,7 @@ export function roomRoute(room: InteriorSpec, from: V2, to: V2, terrain: Ground,
   for (const z of [b.d / 2 + 0.35, hd - 0.5]) {
     let best = -1, bestD = 0.2;
     cells.forEach((at, n) => {
-      const i = at % g.nx, lx = g.x0 + i * GRID, lz = g.z0 + ((at - i) / g.nx) * GRID, d = Math.hypot(lx - room.door.x, lz - z);
+      const i = at % g.nx, lx = x0 + i * GRID, lz = z0 + ((at - i) / g.nx) * GRID, d = Math.hypot(lx - room.door.x, lz - z);
       if (d < bestD) { bestD = d; best = n; }
     });
     if (best > 0) pinned.add(best);
