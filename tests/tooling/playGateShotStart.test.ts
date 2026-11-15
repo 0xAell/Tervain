@@ -7,7 +7,14 @@ import { spawnSync } from 'node:child_process';
 function run(failure = '') {
   const fixture = mkdtempSync(join(tmpdir(), 'tervain-budget-start-'));
   try {
-    for (const name of ['play-gate.mjs', 'webgl-upload-bytes.mjs', 'budget-frame-samples.mjs']) writeFileSync(join(fixture, name), readFileSync(`tools/${name}`));
+    for (const name of ['play-gate.mjs', 'webgl-upload-bytes.mjs', 'budget-frame-samples.mjs', 'budget-probe.mjs']) writeFileSync(join(fixture, name), readFileSync(`tools/${name}`));
+    // The live deployment is whole unless the scenario says otherwise.
+    writeFileSync(join(fixture, 'live-deploy.mjs'), `export async function waitForSettledDeploy() {
+      const fail = process.env.GATE_FIXTURE_FAIL;
+      if (fail === 'unsettled') return { ok: false, unreachable: false, revision: null, files: 0, waitedMs: 720000, problems: ['assets/world-old.js was refused (404)'] };
+      if (fail === 'unreachable') return { ok: false, unreachable: true, revision: null, files: 0, waitedMs: 30000, problems: ['the page was not served (fetch failed: ENOTFOUND)'] };
+      return { ok: true, unreachable: false, revision: '1234567', files: 7, waitedMs: 0, problems: [] };
+    }`);
     writeFileSync(join(fixture, 'cdp.mjs'), `
       import fs from 'node:fs';
       const all = [];
@@ -15,11 +22,14 @@ function run(failure = '') {
         const head = url.includes('/head/'), fail = process.env.GATE_FIXTURE_FAIL;
         const trace = { titlePolls: 0, mouseEvents: 0, waitMs: 0, samples: 0 };
         all.push(trace);
+        // The first live load fails for 'load-failed-once'; every live load fails for 'load-failed'.
+        const failedLoad = !head && (fail === 'load-failed' || (fail === 'load-failed-once' && all.length === 1));
         return {
           async eval(js) {
             if (js.includes('mode === "title"')) { trace.titlePolls++; return false; }
             if (js.includes('menu-choices')) return [0, 0]; // Hidden button remains in the live DOM.
-            if (js.includes('loadingEl.classList')) return fail !== 'not-ready';
+            if (js.includes('loading-failed')) return { booted: true, ready: fail !== 'not-ready' && !failedLoad, failed: failedLoad,
+              text: failedLoad ? 'The journey could not be prepared. Resident fisher could not load (HTTP 404).' : 'Preparing the view 3 of 79', bad: failedLoad ? ['404 public/models/npcs/fisher.glb'] : [], resources: [], rejections: [] };
             if (js.includes('__budgetFrames.samples.length')) return true;
             if (js.includes('return r.samples')) { trace.samples += 4; return Array.from({ length: 4 }, () =>
               [242 + Number(head && fail === 'draws'), 2874566 + Number(head && fail === 'triangles')]); }
@@ -38,8 +48,9 @@ function run(failure = '') {
     const result = spawnSync(process.execPath, [join(fixture, 'play-gate.mjs'), '--url', 'https://gate.invalid/head/',
       '--budget-url', 'https://gate.invalid/live/', '--head', 'abcdef012345'],
     { encoding: 'utf8', timeout: 10000, env: { ...process.env, GATE_FIXTURE_FAIL: failure, GATE_FIXTURE_TRACE: traceFile } });
-    expect(existsSync(traceFile), result.stderr).toBe(true);
-    return { result, trace: JSON.parse(readFileSync(traceFile, 'utf8')) as { titlePolls: number; mouseEvents: number; waitMs: number; samples: number }[] };
+    // No trace is written when no page was opened at all.
+    const trace = existsSync(traceFile) ? JSON.parse(readFileSync(traceFile, 'utf8')) as { titlePolls: number; mouseEvents: number; waitMs: number; samples: number }[] : [];
+    return { result, trace };
   } finally { rmSync(fixture, { recursive: true, force: true }); }
 }
 
@@ -48,6 +59,7 @@ it('probes an already-started shot world without waiting for or clicking its hid
   expect(result.error).toBeUndefined(); expect(result.status).toBe(0);
   expect(result.stdout).toContain('play-gate: PASS abcdef0');
   expect(trace.reduce((n, p) => n + p.samples, 0)).toBe(12);
+  expect(result.stderr).toBe('');
   expect(trace).toHaveLength(3); // Two live probes and the candidate remain required.
   expect(trace.reduce((n, p) => n + p.titlePolls, 0)).toBe(0);
   expect(trace.reduce((n, p) => n + p.mouseEvents, 0)).toBe(0);
@@ -66,4 +78,38 @@ it.each(['draws', 'triangles', 'console', 'revision'])('still rejects a %s regre
   expect(result.status).not.toBe(0);
   expect(result.stdout).toContain('# Budget gate: FAIL');
   expect(result.stdout).not.toContain('play-gate: PASS');
+});
+
+it('stops at once when the live page reports a failed load, says why, and passes when one more load succeeds', () => {
+  const { result, trace } = run('load-failed-once');
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.stdout).toContain('play-gate: PASS abcdef0');
+  expect(result.stderr).toContain('Resident fisher could not load (HTTP 404)');
+  expect(result.stderr).toContain('loading it once more');
+  expect(trace).toHaveLength(4); // The failed live load, its repeat, the second live probe and the candidate.
+  expect(trace[0]!.waitMs).toBe(0); // No ten-minute wait on a page that has already said it failed.
+});
+
+it('fails with the page\'s own words when the live load fails twice', () => {
+  const { result, trace } = run('load-failed');
+  expect(result.status).not.toBe(0);
+  expect(result.stderr).toContain('Budget scene did not become ready (live, first probe): the loading screen reports a failed load');
+  expect(result.stderr).toContain('request: 404 public/models/npcs/fisher.glb');
+  expect(result.stdout).not.toContain('play-gate: PASS');
+  expect(trace).toHaveLength(2);
+});
+
+it('says so when the live build cannot be reached at all, and how to reach it behind a proxy', () => {
+  const { result, trace } = run('unreachable');
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain('Budget gate: FAIL: The live build could not be reached from this machine: the page was not served (fetch failed: ENOTFOUND). Behind a proxy, start the gate with NODE_USE_ENV_PROXY=1.');
+  expect(trace).toHaveLength(0);
+});
+
+it('fails without opening a page when the live deployment is not whole', () => {
+  const { result, trace } = run('unsettled');
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain('Budget gate: FAIL: The live deployment was not whole after 12 minutes: assets/world-old.js was refused (404)');
+  expect(result.stdout).not.toContain('play-gate: PASS');
+  expect(trace).toHaveLength(0);
 });

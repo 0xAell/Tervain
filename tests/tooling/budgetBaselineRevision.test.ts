@@ -7,9 +7,10 @@ import { spawnSync } from 'node:child_process';
 it('rejects changed or unavailable live baselines while preserving cost and head checks', () => {
   const dir=mkdtempSync(join(tmpdir(),'budget-baseline-'));
   try {
-    for(const name of ['play-gate.mjs','webgl-upload-bytes.mjs','budget-frame-samples.mjs']) {
+    for(const name of ['play-gate.mjs','webgl-upload-bytes.mjs','budget-frame-samples.mjs','budget-probe.mjs']) {
       if(existsSync('tools/'+name))writeFileSync(join(dir,name),readFileSync('tools/'+name));
     }
+    writeFileSync(join(dir,'live-deploy.mjs'),`export async function waitForSettledDeploy(){return{ok:true,revision:'1111111',files:7,waitedMs:0,problems:[]};}`);
     writeFileSync(join(dir,'cdp.mjs'),`let liveProbe=0;
 export async function openPage(url) {
  const scenario=process.env.BUDGET_BASELINE_TEST,candidate=url.includes('candidate'),second=!candidate&&++liveProbe===2;
@@ -22,7 +23,7 @@ export async function openPage(url) {
  if(candidate&&scenario==='head')revision='4444444';
  const lower=second&&['stable-spread','changed'].includes(scenario);
  const calls=(lower?226:285)+ +(candidate&&scenario==='draw'),triangles=(lower?2414180:3061335)+ +(candidate&&scenario==='tri');
- const T={mode:'title',world:{terrain:{}},loadingEl:{classList:{contains:()=>true}},hud:{show(){}},player:{setPosition(){}},cam:{},renderer:{info:{render:{calls,triangles}}},perf:{end(){return{calls,triangles};}}};
+ const T={mode:'title',world:{terrain:{}},loadingEl:{classList:{contains:(name)=>name==='off'}},hud:{show(){}},player:{setPosition(){}},cam:{},renderer:{info:{render:{calls,triangles}}},perf:{end(){return{calls,triangles};}}};
  const window={tervain:T},document={baseURI:url,querySelectorAll:()=>[{textContent:'New',getBoundingClientRect:()=>({x:0,y:0,width:1,height:1})}]};
  return {cdp:async()=>{},wait:async()=>{T.mode='play';if(window.__budgetFrames)T.perf.end();},
  eval:async(source)=>new Function('window','document','fetch',source)(window,document,async()=>({json:async()=>({revision})})),
