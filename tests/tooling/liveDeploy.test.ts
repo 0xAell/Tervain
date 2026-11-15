@@ -36,7 +36,7 @@ describe('reading a deployment', () => {
 
   it('is whole when the page, every file and version.json come from one build', async () => {
     const whole = site(build('abc1234', '1111'));
-    expect(await deployState(BASE, whole.fetchImpl)).toEqual({ ok: true, revision: 'abc1234', files: 4, problems: [] });
+    expect(await deployState(BASE, whole.fetchImpl)).toEqual({ ok: true, reached: true, revision: 'abc1234', files: 4, problems: [] });
     // Each file was asked for, not assumed.
     for (const name of ['assets/game-1111.js', 'assets/world-1111.js', 'assets/three.module-AAAA.js', 'assets/game-CCCC.css', 'version.json']) expect(whole.asked).toContain(BASE + name);
     expect((await deployState(BASE.slice(0, -1), whole.fetchImpl)).ok).toBe(true);
@@ -52,9 +52,10 @@ describe('reading a deployment', () => {
   });
 
   it('says when the page itself, its script or version.json is missing', async () => {
-    expect((await deployState(BASE, site({}).fetchImpl)).problems).toEqual(['the page was not served (404)']);
-    const down = (async () => { throw new TypeError('fetch failed'); }) as unknown as typeof fetch;
-    expect((await deployState(BASE, down)).problems).toEqual(['the page was not served (fetch failed)']);
+    expect(await deployState(BASE, site({}).fetchImpl)).toMatchObject({ reached: true, problems: ['the page was not served (404)'] });
+    // No answer at all is the machine's network, and says which fault it was.
+    const down = (async () => { throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ENOTFOUND' } }); }) as unknown as typeof fetch;
+    expect(await deployState(BASE, down)).toMatchObject({ reached: false, problems: ['the page was not served (fetch failed: ENOTFOUND)'] });
     expect((await deployState(BASE, site({ [BASE]: '<html></html>', [`${BASE}version.json`]: '{"revision":"abc1234"}' }).fetchImpl)).problems).toEqual(['the page names no script']);
     const { [`${BASE}version.json`]: _dropped, ...withoutVersion } = build('abc1234', '1111');
     expect((await deployState(BASE, site(withoutVersion).fetchImpl)).problems).toEqual(['version.json names no revision']);
@@ -72,7 +73,7 @@ describe('waiting for a deployment to settle', () => {
 
   it('needs three whole looks in a row at one revision', async () => {
     const steady = clock([build('abc1234', '1111')]);
-    expect(await waitForSettledDeploy(BASE, steady.options)).toEqual({ ok: true, revision: 'abc1234', files: 4, waitedMs: 20_000, problems: [] });
+    expect(await waitForSettledDeploy(BASE, steady.options)).toEqual({ ok: true, unreachable: false, revision: 'abc1234', files: 4, waitedMs: 20_000, problems: [] });
     expect(steady.looks()).toBe(3);
   });
 
@@ -95,6 +96,22 @@ describe('waiting for a deployment to settle', () => {
 
   it('allows more than the ten minutes a cached file can outlive a deploy', async () => {
     const broken = clock([{}]);
-    expect((await waitForSettledDeploy(BASE, broken.options)).waitedMs).toBeGreaterThan(10 * 60_000);
+    expect(await waitForSettledDeploy(BASE, broken.options)).toMatchObject({ ok: false, unreachable: false, problems: ['the page was not served (404)'] });
+    expect((await waitForSettledDeploy(BASE, clock([{}]).options)).waitedMs).toBeGreaterThan(10 * 60_000);
+  });
+
+  it('stops after four looks when the address gives no answer at all, instead of waiting out the twelve minutes', async () => {
+    let looks = 0, time = 0;
+    const down = (async () => { looks++; throw Object.assign(new TypeError('fetch failed'), { cause: { code: 'ENOTFOUND' } }); }) as unknown as typeof fetch;
+    const result = await waitForSettledDeploy(BASE, { fetchImpl: down, sleep: async (ms) => { time += ms; }, now: () => time });
+    expect(result).toEqual({ ok: false, unreachable: true, revision: null, files: 0, waitedMs: 30_000, problems: ['the page was not served (fetch failed: ENOTFOUND)'] });
+    expect(looks).toBe(4);
+  });
+
+  it('counts only looks in a row as no answer: one answer starts the count again', async () => {
+    let looks = 0, time = 0;
+    const flaky = (async (address: string) => { if (address === BASE && ++looks % 3 !== 0) throw new TypeError('fetch failed'); return { ok: false, status: 503, text: async () => '', json: async () => null }; }) as unknown as typeof fetch;
+    const result = await waitForSettledDeploy(BASE, { fetchImpl: flaky, timeoutMs: 120_000, sleep: async (ms) => { time += ms; }, now: () => time });
+    expect(result).toMatchObject({ ok: false, unreachable: false, waitedMs: 120_000 });
   });
 });

@@ -10,7 +10,10 @@ function run(failure = '') {
     for (const name of ['play-gate.mjs', 'webgl-upload-bytes.mjs', 'budget-frame-samples.mjs', 'budget-probe.mjs']) writeFileSync(join(fixture, name), readFileSync(`tools/${name}`));
     // The live deployment is whole unless the scenario says otherwise.
     writeFileSync(join(fixture, 'live-deploy.mjs'), `export async function waitForSettledDeploy() {
-      return process.env.GATE_FIXTURE_FAIL === 'unsettled' ? { ok: false, revision: null, files: 0, waitedMs: 720000, problems: ['assets/world-old.js was refused (404)'] } : { ok: true, revision: '1234567', files: 7, waitedMs: 0, problems: [] };
+      const fail = process.env.GATE_FIXTURE_FAIL;
+      if (fail === 'unsettled') return { ok: false, unreachable: false, revision: null, files: 0, waitedMs: 720000, problems: ['assets/world-old.js was refused (404)'] };
+      if (fail === 'unreachable') return { ok: false, unreachable: true, revision: null, files: 0, waitedMs: 30000, problems: ['the page was not served (fetch failed: ENOTFOUND)'] };
+      return { ok: true, unreachable: false, revision: '1234567', files: 7, waitedMs: 0, problems: [] };
     }`);
     writeFileSync(join(fixture, 'cdp.mjs'), `
       import fs from 'node:fs';
@@ -94,6 +97,13 @@ it('fails with the page\'s own words when the live load fails twice', () => {
   expect(result.stderr).toContain('request: 404 public/models/npcs/fisher.glb');
   expect(result.stdout).not.toContain('play-gate: PASS');
   expect(trace).toHaveLength(2);
+});
+
+it('says so when the live build cannot be reached at all, and how to reach it behind a proxy', () => {
+  const { result, trace } = run('unreachable');
+  expect(result.status).toBe(1);
+  expect(result.stderr).toContain('Budget gate: FAIL: The live build could not be reached from this machine: the page was not served (fetch failed: ENOTFOUND). Behind a proxy, start the gate with NODE_USE_ENV_PROXY=1.');
+  expect(trace).toHaveLength(0);
 });
 
 it('fails without opening a page when the live deployment is not whole', () => {

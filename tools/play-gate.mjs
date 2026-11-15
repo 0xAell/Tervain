@@ -74,7 +74,9 @@ if (args['budget-url']) {
     for (let attempt = 1; ; attempt++) {
       const settled = await waitForSettledDeploy(args['budget-url'], { log: (line) => console.error(line) });
       if (!settled.ok) {
-        console.error(`Budget gate: FAIL: The live deployment was not whole after ${Math.round(settled.waitedMs / 60000)} minutes: ${settled.problems.join('; ')}`);
+        console.error(settled.unreachable
+          ? `Budget gate: FAIL: The live build could not be reached from this machine: ${settled.problems.join('; ')}. Behind a proxy, start the gate with NODE_USE_ENV_PROXY=1.`
+          : `Budget gate: FAIL: The live deployment was not whole after ${Math.round(settled.waitedMs / 60000)} minutes: ${settled.problems.join('; ')}`);
         process.exit(1);
       }
       if (settled.waitedMs > 60_000) console.error(`Waited ${Math.round(settled.waitedMs / 1000)} s for the live deployment to be whole (revision ${settled.revision}).`);
