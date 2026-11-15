@@ -5,7 +5,7 @@
   "scope": "stored-navigation-queries-HUD-composition-property-notifications-SPU-process-and-WAIT",
   "baseline": {
     "receiptPath": "assets/gothic3/session-checkpoint.json",
-    "receiptSha256": "9de721d32dc96fc14f200c23bd633b7d2832bbfbb051c6cf7cb6fcdefdc58648",
+    "receiptSha256": "e365b961fafe19d2188afaadd38a9690a972c89538b642c04fb85bcd3403965f",
     "retainedFilesVerified": 656,
     "intentionalChanges": [
       {
@@ -111,7 +111,7 @@
   "testsExecutedByThisTool": false,
   "publicationIntent": {
     "kind": "source-only-checkpoint",
-    "branch": "codex/gothic3-gameplay-initialization",
+    "branch": "gothic3-gameplay-initialization",
     "remoteActionsPerformedByThisTool": false
   },
   "remaining": [
@@ -9906,7 +9906,7 @@
     {
       "path": "assets/gothic3/session-checkpoint.json",
       "bytes": 128072,
-      "sha256": "9de721d32dc96fc14f200c23bd633b7d2832bbfbb051c6cf7cb6fcdefdc58648"
+      "sha256": "e365b961fafe19d2188afaadd38a9690a972c89538b642c04fb85bcd3403965f"
     },
     {
       "path": "docs/engineering/gothic3-rebuilding-process.md",
@@ -10041,12 +10041,12 @@
     {
       "path": "tools/gothic3/freeze_dispatch_checkpoint.py",
       "bytes": 10145,
-      "sha256": "b623f690cd025d5c28a1d1bacd605fb917917f4557d390faa251c5c601aad04f"
+      "sha256": "63378df296804877f7520325c18d52657382bc425a771a49574f2e0dd5fb8220"
     },
     {
       "path": "tools/gothic3/freeze_session_checkpoint.py",
       "bytes": 10656,
-      "sha256": "8e6e51e0b4a66ae7ec526591c8cae1fb2eb0e2026c0d0a43ba34fed529e616b7"
+      "sha256": "01308f415b9791b7f21c788e86045248924ad90c3340069043babb2735ffa3e2"
     },
     {
       "path": "tools/gothic3/read_gameplay_ini.py",

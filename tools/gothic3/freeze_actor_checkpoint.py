@@ -15,7 +15,7 @@ from freeze_lifecycle_checkpoint import audit, verify_receipt_records
 
 BASE = '4252aa9a8ebeb754ba3676dd356df3483122a5ca'
 BASE_RECEIPT = 'assets/gothic3/activation-checkpoint.json'
-BASE_RECEIPT_SHA256 = '3dc900777fe99de0c52d36b3a812f36c4b51e80730357d9fdd4956557112ca8a'
+BASE_RECEIPT_SHA256 = '98e955c7a29f78dc9e5a13fb6599a50e85fc9cd78da1aaa4d9b0025f66bb6759'
 OUTPUT = 'assets/gothic3/actor-reading-checkpoint.json'
 NAMESPACES = ('animation-spu', 'animation-instruction', 'navigation-reading', 'movement-reading')
 UPDATED = {'.gitattributes', 'docs/engineering/gothic3-rebuilding-process.md',
@@ -114,7 +114,7 @@ def main():
         'validationNotPerformedByThisTool': ['fresh original PE byte comparison', 'typecheck', 'production build',
             'tests', 'browser review', 'native execution', 'deployment', 'playthrough'],
         'nativeCodeExecutedByThisTool': False, 'testsExecutedByThisTool': False,
-        'publicationIntent': {'kind': 'source-only-checkpoint', 'branch': 'codex/gothic3-gameplay-initialization',
+        'publicationIntent': {'kind': 'source-only-checkpoint', 'branch': 'gothic3-gameplay-initialization',
                               'remoteActionsPerformedByThisTool': False},
         'remaining': ['complete the intervening Hero RigidBody and CollisionShape factories and all nineteen property sets',
             'actual world activation/cache/physics/PVS/processing-range membership and property lifecycle',

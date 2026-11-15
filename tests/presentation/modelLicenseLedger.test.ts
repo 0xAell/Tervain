@@ -53,7 +53,7 @@ describe('distributed model source notices', () => {
     const meshy = Object.entries(sources).filter(([, source]) => source.generationService === 'Meshy');
     expect(meshy.length).toBeGreaterThan(0);
     const status: Record<string, string> = {
-      'ael-generated-meshy-pro': 'meshy-paid-plan-output',
+      'owner-generated-meshy-pro': 'meshy-paid-plan-output',
       'meshy-community-download': 'meshy-community-cc0',
       unresolved: 'unresolved-meshy-provenance',
     };
@@ -63,7 +63,7 @@ describe('distributed model source notices', () => {
       expect(evidence, id).toMatch(/\S{20,}|\w+ \w+ \w+/);
       expect(source.license.evidenceStatus, id).toBe(status[classification]);
       expect(source.license.terms, id).toMatch(/meshy\.ai\/terms-of-use.*2026-09-19/);
-      if (classification === 'ael-generated-meshy-pro') {
+      if (classification === 'owner-generated-meshy-pro') {
         expect(source.license.plan, id).toBe('Meshy Pro (paid)');
         expect(evidence, id).toMatch(/task id/);
       }
@@ -81,7 +81,7 @@ describe('distributed model source notices', () => {
       }
     }
     // Only output with task ids from the project's own Meshy generation is project-generated.
-    const generated = meshy.filter(([, source]) => source.provenance.classification === 'ael-generated-meshy-pro').map(([id]) => id).sort();
+    const generated = meshy.filter(([, source]) => source.provenance.classification === 'owner-generated-meshy-pro').map(([id]) => id).sort();
     expect(generated.every(id => id.startsWith('furniture-') || ['resident-rigs', 'resident-motion', 'wanderer-meshy71'].includes(id))).toBe(true);
     expect(sources['wanderer-meshy71']!.provenance.evidence).toMatch(/01a120c8-22b6-72d4-8c60-2b2451b7edfd.*meshy-7\.1|meshy-7\.1.*01a120c8-22b6-72d4-8c60-2b2451b7edfd/);
     expect(generated).toEqual(expect.arrayContaining(['resident-motion', 'resident-rigs', 'furniture-bed']));
@@ -98,7 +98,7 @@ describe('distributed model source notices', () => {
       expect(source?.generationService, asset.file).toBe('Meshy');
       expect(asset.license.evidenceStatus, asset.file).toBe(status[source!.provenance.classification]);
     }
-    for (const rig of ledger.generatedRigs) expect(sources[rig.sourceId]!.provenance.classification, rig.file).toBe('ael-generated-meshy-pro');
+    for (const rig of ledger.generatedRigs) expect(sources[rig.sourceId]!.provenance.classification, rig.file).toBe('owner-generated-meshy-pro');
     expect(ledger.toConfirm.length).toBe(meshy.filter(([, source]) => source.provenance.classification === 'unresolved').length);
     expect(ledger.serviceRules).toMatchObject({ termsUpdated: '2026-09-19' });
     expect(ledger.serviceRules.communityOutput).toMatch(/Creative Commons Zero \(CC0\) 1\.0.*Attribution-NonCommercial 4\.0/);

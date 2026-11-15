@@ -15,7 +15,7 @@ from freeze_lifecycle_checkpoint import verify_receipt_records
 
 BASE = 'a81549c8e537070e7c41d505eb8cfef655ac33b7'
 BASE_RECEIPT = 'assets/gothic3/actor-reading-checkpoint.json'
-BASE_RECEIPT_SHA256 = '1dbc3356efd52010146b28dcfcaff319e67d7ff274993fc86598cffbda58102f'
+BASE_RECEIPT_SHA256 = 'a8f9d31c13e445b78cbe92144fe0199b09a3ec45ca3f9ccca895a1744cd95229'
 OUTPUT = 'assets/gothic3/physics-reading-checkpoint.json'
 NAMESPACES = ('entity-loading', 'rigidbody-reading', 'collision-reading')
 UPDATED = {'.gitattributes', 'docs/engineering/gothic3-rebuilding-process.md',
@@ -142,7 +142,7 @@ def main():
             'validationNotPerformedByThisTool':['fresh PE byte comparison','typecheck','production build',
                 'tests','native execution','browser review','deployment','playthrough'],
             'nativeCodeExecutedByThisTool':False,'testsExecutedByThisTool':False,
-            'publicationIntent':{'kind':'source-only-checkpoint','branch':'codex/gothic3-gameplay-initialization',
+            'publicationIntent':{'kind':'source-only-checkpoint','branch':'gothic3-gameplay-initialization',
                                 'remoteActionsPerformedByThisTool':False},
             'remaining':['all19-concrete-Hero-property-readers-and-original-owner-callbacks',
                 'actual-node-GUID-frustum-timestamp-and-scene-admin-construction-services',

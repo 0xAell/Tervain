@@ -13,7 +13,7 @@ from freeze_construction_checkpoint import audit
 
 BASE = 'eb97f57b3ff2b7838862078276740526f3dc962a'
 BASE_RECEIPT = 'assets/gothic3/construction-reading-checkpoint.json'
-BASE_RECEIPT_SHA256 = '39b4c20b185442fd69c6a03667f91d84b2004ff5ae41b18b272c53f58d525cfb'
+BASE_RECEIPT_SHA256 = '68ef5eb79914c238b42a1118219bcab55007ef2ce6141bedc348a1f842016d28'
 OUTPUT = 'assets/gothic3/character-reading-checkpoint.json'
 NAMESPACES = ('npc-reading','inventory-reading','routine-reading')
 UPDATED = {'.gitattributes','docs/engineering/gothic3-rebuilding-process.md'}
@@ -77,7 +77,7 @@ def main():
         'validationNotPerformedByThisTool':['fresh PE byte comparison','typecheck','production build','tests',
             'native execution','browser review','deployment','playthrough'],
         'nativeCodeExecutedByThisTool':False,'testsExecutedByThisTool':False,
-        'publicationIntent':{'kind':'source-only-checkpoint','branch':'codex/gothic3-gameplay-initialization',
+        'publicationIntent':{'kind':'source-only-checkpoint','branch':'gothic3-gameplay-initialization',
             'remoteActionsPerformedByThisTool':False},
         'remaining':['actual-CString-ownership-and-selected-GUID-service-integration',
             'embedded-SPU-construction-and-real-script-actor-owner-services',

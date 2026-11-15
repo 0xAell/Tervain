@@ -40,6 +40,6 @@ The full-cast sheet and NPC geometry checks now use a named test case for each m
 
 ## Publication boundary
 
-The change is published for review as [PR #11](https://github.com/ael-dev3/Tervain/pull/11) on `codex/wanderer-main-character`. A main merge/deployment is separate from creating its reviewable PR; do not claim the hosted game contains this hero until the merge and successful deployment are verified.
+The change is published for review as [PR #11](https://github.com/ael-dev3/Tervain/pull/11). A main merge/deployment is separate from creating its reviewable PR; do not claim the hosted game contains this hero until the merge and successful deployment are verified.
 
 The existing Pages workflow checks pull requests and publishes merged `main` revisions. Required checks and successful deployment remain separate acceptance gates.

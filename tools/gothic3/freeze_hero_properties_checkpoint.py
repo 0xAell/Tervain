@@ -14,7 +14,7 @@ from freeze_construction_checkpoint import audit as metadata_audit
 
 BASE = 'fd8048844d3e06026f96e8b8096cfcd53e3d9eaa'
 BASE_RECEIPT = 'assets/gothic3/character-reading-checkpoint.json'
-BASE_RECEIPT_SHA256 = '631622106ee73e13a88f0bee09662e0f7f89f71d70b22bcb157ea259d24af04a'
+BASE_RECEIPT_SHA256 = 'b656e02953004927df69c8765df240527dd4271e7551520fcf5fa1ef74e5ed36'
 OUTPUT = 'assets/gothic3/hero-properties-checkpoint.json'
 NAMESPACES = ('interaction-reading','damage-reading','focus-reading','dialog-party-reading')
 UPDATED = {'.gitattributes','docs/engineering/gothic3-rebuilding-process.md'}
@@ -107,7 +107,7 @@ def main():
         'validationNotPerformedByThisTool':['fresh PE byte comparison','typecheck','production build','tests',
             'native execution','browser review','deployment','playthrough'],
         'nativeCodeExecutedByThisTool':False,'testsExecutedByThisTool':False,
-        'publicationIntent':{'kind':'source-only-checkpoint','branch':'codex/gothic3-gameplay-initialization',
+        'publicationIntent':{'kind':'source-only-checkpoint','branch':'gothic3-gameplay-initialization',
             'remoteActionsPerformedByThisTool':False},
         'heroPropertyFactories':{'boundedImplemented':15,'total':19,'remaining':['PlayerMemory','Illuminated','Effect','VisualAnimation']},
         'remaining':['actual-CString-enum-default-proxy-allocator-and-runtime-service-integration',

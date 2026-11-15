@@ -7081,7 +7081,7 @@ completion.
 
 ### Combined integration validation
 
-On 6 October 2026, the local `codex/gothic3-reviewed-integration` branch
+On 6 October 2026, the local `gothic3-reviewed-integration` branch
 at merge `d1182e43ad29b4cb238505f0b83ffb4afcaf97e1` combines the frozen Scene
 checkpoint `9ad68431` with the reviewed [Tervain loading changes](loading-performance.md)
 at `b96a5cba`. Its ancestry retains the original PR42 and PR43 heads. Gothic

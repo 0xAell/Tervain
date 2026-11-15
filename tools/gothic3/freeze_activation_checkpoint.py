@@ -14,7 +14,7 @@ from freeze_lifecycle_checkpoint import audit, verify_receipt_records
 
 BASE = '48c7ee731e96a37cb332d881e912ec5279d5262f'
 BASE_RECEIPT = 'assets/gothic3/processing-checkpoint.json'
-BASE_RECEIPT_SHA256 = '20ba6f3b0a8d612a3c223db6680ad2b4e3c9ead57ed92e66a2f714dd2d07d299'
+BASE_RECEIPT_SHA256 = '1aa8f81c90daa2d8b3edf7bdffd0d264bfd0ad2902ac64c9cbe3d590f759f360'
 OUTPUT = 'assets/gothic3/activation-checkpoint.json'
 NAMESPACES = ('startup-controller', 'entity-reflection', 'movement-state', 'animation-state')
 UPDATED = {'.gitattributes', 'docs/engineering/gothic3-rebuilding-process.md',
@@ -130,7 +130,7 @@ def main():
         'validationNotPerformedByThisTool': ['fresh original PE byte comparison', 'typecheck', 'production build',
             'tests', 'browser review', 'native execution', 'deployment', 'playthrough'],
         'nativeCodeExecutedByThisTool': False, 'testsExecutedByThisTool': False,
-        'publicationIntent': {'kind': 'source-only-checkpoint', 'branch': 'codex/gothic3-gameplay-initialization',
+        'publicationIntent': {'kind': 'source-only-checkpoint', 'branch': 'gothic3-gameplay-initialization',
                               'remoteActionsPerformedByThisTool': False},
         'remaining': ['complete actual property factories/templates and class-specific reflective/native reads',
             'actual world activation/cache/physics/PVS/processing-range membership',

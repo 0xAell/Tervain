@@ -89,7 +89,7 @@ landing through the woodland into Rillford. The report, in the panel and logged 
 draw calls and triangles for the whole route and for each of its 12 segments, with the GPU, browser and viewport.
 `tools/bench.mjs` runs it unattended and writes the JSON.
 
-**What Ael needs to run** (the PC whose GPU is to be measured, with Node 22 and Chrome or Edge installed). In a first
+**What to run** (on the PC whose GPU is to be measured, with Node 22 and Chrome or Edge installed). In a first
 terminal, from the repository:
 
 ```

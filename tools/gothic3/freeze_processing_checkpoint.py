@@ -14,7 +14,7 @@ from freeze_lifecycle_checkpoint import audit, verify_receipt_records
 
 BASE = '08cf0580a0ef02ad3bef43e3f6f8601d35d62f2a'
 BASE_RECEIPT = 'assets/gothic3/lifecycle-checkpoint.json'
-BASE_RECEIPT_SHA256 = '8efbdc00ba4b13551dfb12f8a231edc4afdf8ecdc7c780afc94da8c14c9e9f6d'
+BASE_RECEIPT_SHA256 = '01572e5c7be90be1ab4357b267769f5e6b4c6599ef3fecc4e823179758eeb2a0'
 OUTPUT = 'assets/gothic3/processing-checkpoint.json'
 NAMESPACES = ('entity-reading', 'clock-properties', 'player-state', 'application-process')
 UPDATED = {'.gitattributes', 'docs/README.md', 'docs/engineering/gothic3-rebuilding-process.md',
@@ -128,7 +128,7 @@ def main():
             'production build', 'tests', 'browser review', 'native execution', 'deployment', 'playthrough'],
         'nativeCodeExecutedByThisTool': False, 'testsExecutedByThisTool': False,
         'publicationIntent': {'kind': 'source-only-checkpoint',
-            'branch': 'codex/gothic3-gameplay-initialization', 'remoteActionsPerformedByThisTool': False},
+            'branch': 'gothic3-gameplay-initialization', 'remoteActionsPerformedByThisTool': False},
         'remaining': ['complete reflective class construction/property reads/dynamic-spatial wrappers/template patching',
             'actual world-context activation, cache/physics residency and processing-range/PVS updates',
             'concrete browser application host and successful render-tail/scheduling integration',

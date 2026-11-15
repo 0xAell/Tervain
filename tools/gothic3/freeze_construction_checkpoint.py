@@ -14,7 +14,7 @@ from freeze_lifecycle_checkpoint import verify_receipt_records
 
 BASE = 'cce28354472f8716a65edc8e855003ee74830f6f'
 BASE_RECEIPT = 'assets/gothic3/physics-reading-checkpoint.json'
-BASE_RECEIPT_SHA256 = '47ea248f9e5d3a11268babcb58b85c49f7c3cf3ae25b95ddb7e99f538680e506'
+BASE_RECEIPT_SHA256 = 'c82be0e04d0ee22dfc076798ffc66b5a203df2c418a13e22a6ffdf712a162342'
 OUTPUT = 'assets/gothic3/construction-reading-checkpoint.json'
 NAMESPACES = ('entity-construction', 'control-reading', 'sensor-reading')
 UPDATED = {'.gitattributes', 'docs/engineering/gothic3-rebuilding-process.md',
@@ -124,7 +124,7 @@ def main():
         'validationNotPerformedByThisTool':['fresh PE byte comparison','typecheck','production build','tests',
             'native execution','browser review','deployment','playthrough'],
         'nativeCodeExecutedByThisTool':False,'testsExecutedByThisTool':False,
-        'publicationIntent':{'kind':'source-only-checkpoint','branch':'codex/gothic3-gameplay-initialization',
+        'publicationIntent':{'kind':'source-only-checkpoint','branch':'gothic3-gameplay-initialization',
                              'remoteActionsPerformedByThisTool':False},
         'remaining':['live-original-module-SceneAdmin-entity-construction-and-reader-integration',
             'all19-concrete-Hero-property-factories-and-real-owner-callbacks',

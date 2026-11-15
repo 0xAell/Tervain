@@ -291,7 +291,7 @@
     "gpuResidency": "No reference-device residency measurement claimed"
   },
   "verification": {
-    "reviewer": "Codex",
+    "reviewer": "Project review",
     "dateUTC": "2026-10-04",
     "state": "Combined 0.0.9 source validated locally; remote checks and hosted acceptance are recorded in the release delivery report.",
     "checks": [
@@ -421,7 +421,7 @@
       "otherFamiliesAndMenuGrove": "Preserved"
     },
     "verification": {
-      "reviewer": "Codex",
+      "reviewer": "Project review",
       "dateUTC": "2026-10-03",
       "state": "Local source candidate validated; source PR publication is separate from live deployment",
       "checks": [
@@ -515,7 +515,7 @@
     }
   },
   "worldContactVerification": {
-    "reviewer": "Codex",
+    "reviewer": "Project review",
     "dateUTC": "2026-10-04",
     "scope": "A41 local tree-grounding follow-up to the published combined 0.0.9 baseline; historical baseline verification above remains unchanged.",
     "releaseRecord": "docs/production/releases/0.0.9-world-contact.md",

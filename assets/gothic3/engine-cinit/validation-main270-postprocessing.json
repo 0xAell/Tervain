@@ -35,7 +35,7 @@
     "testsPassed": 4,
     "filesPassed": 1,
     "revision": "27cd11c05515ba13b079af0e2d7cad1c71cb2ed4",
-    "checkout": "codex/gothic3-template-second-argument",
+    "checkout": "gothic3-template-second-argument",
     "scope": "Separate native development checkout; does not claim a full integration-suite rerun."
   }
 }
