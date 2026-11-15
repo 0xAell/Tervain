@@ -1,7 +1,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Containers/UnrealString.h"
 #include "Engine/DeveloperSettings.h"
+#include "UObject/NameTypes.h"
+#include "UObject/SoftObjectPath.h"
 #include "TervainSettings.generated.h"
 
 /**

@@ -1,8 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Containers/UnrealString.h"
 #include "Engine/DataTable.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Templates/SharedPointer.h"
+#include "UObject/NameTypes.h"
+#include "UObject/SoftObjectPath.h"
 #include "Data/TervainRows.h"
 #include "Rules/TervainHeroRules.h"
 #include "TervainDataSubsystem.generated.h"

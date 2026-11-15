@@ -11,7 +11,8 @@ import { ACTION_COST, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STA
 // runs it against the repository's exported data: the data subsystem must read every number in data/game/tuning.json,
 // the settings must find the data folder, and rows must be found in a table. It shows that the seed's C++ is
 // well-formed and that its logic works on the real data. It cannot show that the project builds in the engine: the
-// stand-ins are written from the engine's public API as understood here, not from the engine's headers.
+// stand-ins follow Epic's public documentation name by name (docs/unreal/engine-symbols.json says which page each
+// was checked against, and what could not be checked), not the engine's headers.
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..', '..');
@@ -107,7 +108,7 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
   });
 
   it.skipIf(!compiler)('finds a row by name in the table the settings name, and nothing where there is no table or another kind of row', () => {
-    expect(run('rows')).toEqual(['1', '1 item.bread 12 1', '1', '1', '1', '10 1']);
+    expect(run('rows')).toEqual(['1', '1 item.bread 12 1', '1', '1 1', '1', '1', '10 1']);
   });
 
   it('makes every generated row struct in the driver', () => {

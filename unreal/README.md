@@ -91,9 +91,37 @@ can. Both use an ordinary C++ compiler and small stand-ins for the engine names 
   cases and compares every result with the TypeScript rule it mirrors.
 
 That shows the seed's C++ is well-formed and consistent with itself, and that its logic gives the right answers on
-the real data. It does **not** show that the project builds in Unreal Engine. The stand-ins were written from the
-engine's public API as it was understood here, not from the engine's headers, and they were not checked against
-Epic's API reference. The reflection markup (`UCLASS`, `USTRUCT`, `UPROPERTY`, the `.generated.h` headers), the build
-files (`.Build.cs`, `.Target.cs`) and the `.uproject` are read only by the engine's own tools. The first build on a
-machine with the engine is still the first real test, and a wrong signature or a missing include can still turn up
-there.
+the real data. It does **not** show that the project builds in Unreal Engine.
+
+### How far the engine's public record supports it
+
+Epic's engine source is not public, so the stand-ins could not be written from the engine's headers. Instead, every
+engine name the seed and the stand-ins use is entered in a register,
+[`docs/unreal/engine-symbols.json`](../docs/unreal/engine-symbols.json), with the page of Epic's documentation it was
+checked against and the passage that supports it (for the one rule of the C++ language it relies on, the C++20 working
+draft, the standard Epic says the engine builds with). [The page made from it](../docs/unreal/engine-symbols.md) lists
+them all, and first the ones the public record does not settle.
+
+- Of 196 names, 188 are confirmed by a quoted passage, 6 are documented in part, one could not be found, and one, the
+  game module macro, is shown with a different argument list on the only page that shows it, a page that reads as
+  dated. Each of the eight says what is missing; none can be settled from public pages, only by a build.
+- The check corrected the stand-ins in four places where they did not behave as the engine is documented to (a JSON
+  field name is a string view, names compare without regard to case, a default-constructed vector is not zeroed, and
+  a relative path is resolved against the process's base directory), and the seed in five (it calls the rounding
+  function whose rounding is documented, names the JSON reader's character type, includes the documented header of
+  every engine name it uses instead of relying on what another header brings in, passes every argument of the file,
+  JSON and asset loading calls because the reference prints no default values, and declares its log category in the
+  form Epic's logging guide gives).
+- The stand-ins' character type is wide, as Epic documents TCHAR, so a narrow string passed where the engine wants
+  TCHARs does not compile here.
+- The stand-ins are stricter than the engine about includes: `CoreMinimal.h` gives only the primitive types and the
+  reflection markup, so a source file that forgets a header does not compile here.
+- `npm run unreal:symbols` fails when the seed or a stand-in uses an engine name that is not entered, and
+  `npm run unreal:symbols -- --online` opens every cited page again and looks for each passage. `npm run unreal:check`
+  includes the first.
+
+What this cannot reach: the reflection markup (`UCLASS`, `USTRUCT`, `UPROPERTY`, the `.generated.h` headers), the
+build files (`.Build.cs`, `.Target.cs`) and the `.uproject` are read only by the engine's own tools; the reference
+documents no macros; and the seed targets Unreal Engine 5.9, whose API reference was
+not published when this was checked, so the 5.8 reference was read. The first build on a machine with the engine is
+still the first real test.

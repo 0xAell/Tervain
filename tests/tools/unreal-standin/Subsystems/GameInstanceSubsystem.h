@@ -1,7 +1,7 @@
 // Stand-in for the subsystem base classes: a subsystem is initialised once with its collection.
 #pragma once
 
-#include "UObject/StandInObject.h"
+#include "UObject/Object.h"
 
 class FSubsystemCollectionBase {};
 

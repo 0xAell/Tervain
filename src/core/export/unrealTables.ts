@@ -243,7 +243,11 @@ export function unrealRowsHeader(tables: readonly UnrealStruct[]): string {
     '#pragma once',
     '',
     '#include "CoreMinimal.h"',
+    '#include "Containers/Array.h"',
+    '#include "Containers/UnrealString.h"',
     '#include "Engine/DataTable.h"',
+    '#include "Math/Vector.h"',
+    '#include "UObject/NameTypes.h"',
     '#include "TervainRows.generated.h"',
     '',
   ];

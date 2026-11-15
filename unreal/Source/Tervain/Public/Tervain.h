@@ -3,4 +3,5 @@
 #include "CoreMinimal.h"
 #include "Logging/LogMacros.h"
 
-TERVAIN_API DECLARE_LOG_CATEGORY_EXTERN(LogTervain, Log, All);
+// The form Epic's logging guide gives. The category is used inside this module only, so it needs no export.
+DECLARE_LOG_CATEGORY_EXTERN(LogTervain, Log, All);

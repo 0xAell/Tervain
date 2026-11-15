@@ -27,6 +27,7 @@ has been run.
 On a Windows machine with Unreal Engine 5.9 and its C++ toolchain.
 
 1. Build the `TervainEditor` target from `unreal/`. Fix what the compiler finds; keep the fixes in this repository.
+   Start with the names [the public record does not settle](engine-symbols.md#what-the-public-record-does-not-settle).
 2. Import the ten DataTables and the string table. Confirm row counts against `data/unreal/tables.json`.
 3. Create the Landscape from the height image and import the eight layers.
 4. Check orientation and scale: the heights of the named places in `data/world/terrain.json` must match within a few

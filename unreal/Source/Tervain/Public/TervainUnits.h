@@ -1,6 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Math/Rotator.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 /**
  * Conversions between the game's core units and Unreal's.
