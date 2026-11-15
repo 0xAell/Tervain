@@ -80,7 +80,8 @@ step, as the scenario tests describe; every resident is where their schedule say
    manifest names a first choice for each, with a brief and the other candidates; check each listing's licence, LODs
    and engine version first.
 2. Replace the grey stand-ins family by family, keeping the placements.
-3. Import the kept sound: voice takes, world clips, music. Rebuild the ambience and the music director.
+3. Import the kept sound: voice takes and world clips. The title music comes from the pack the manifest names.
+   Rebuild the ambience and the music director.
 4. Interface in UMG; effects in Niagara; grass and ground cover.
 
 **Holds when:** no asset marked `replace` in the manifest is still in the build; every asset in the build has a clear
@@ -123,7 +124,9 @@ Each of these shortens a later phase and can be done on the web build alone:
 - Lift the remaining design decisions out of the scene layer ([system mapping](system-mapping.md), last section): the
   interactable list, the player's, residents' and animals' state machines, the music director, the rock and grass
   placement, the sky's keyframes.
-- Decide the two open provenance questions in the model ledger and the music's terms before anything is shipped.
+- Replace, before anything is released, the files the [asset manifest](../../data/assets/README.md#replace-before-ship)
+  marks `replaceBeforeShip`: the hero's two sources of unsettled origin and the title theme. Each names its pack, so
+  nothing waits on the questions themselves.
 - Keep `data/` in step: CI already fails when it is not.
 - Finish the tidy-up of the scene layer. Two pieces are built and tested but unused: the prepared Ancient Guardian
   broadleaf (`src/presentation/sourceBroadleaf.ts`; no scene places it) and the Warpkeep asset library hook

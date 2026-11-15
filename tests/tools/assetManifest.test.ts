@@ -113,6 +113,48 @@ describe('the asset manifest', () => {
     }
   });
 
+  it('marks every file with an open question replace-before-ship, with a named pack, and keeps none of them', () => {
+    const open = committed.assets.filter((asset) => /^unresolved/.test(asset.licence.status));
+    // The hero's two sources of unsettled origin, and the title theme in its three encodings.
+    expect(open.map((asset) => asset.path)).toEqual([
+      'assets/audio/source/the-sovereigns-oath-original.m4a', 'public/assets/audio/the-sovereigns-oath.m4a', 'public/assets/audio/the-sovereigns-oath.ogg',
+      'public/models/hero/weathered-wanderer-animated-hero.glb', 'public/models/hero/weathered-wanderer-hero-50k.glb',
+    ]);
+    expect(committed.assets.filter((asset) => asset.replaceBeforeShip).map((asset) => asset.path)).toEqual(open.map((asset) => asset.path));
+    const groups = new Map(committed.groups.map((group) => [group.id, group]));
+    for (const asset of open) {
+      const group = groups.get(asset.group)!;
+      expect(asset.plan, asset.path).toBe('replace');
+      expect(asset.replaceWith, asset.path).toBe(group.replaceWith!.title);
+      // The replacement is a listing that was read on its own page.
+      expect(group.replaceWith!.verified, asset.path).toBe('listing page');
+      expect(group.replaceWith!.url, asset.path).toMatch(/^https:\/\/www\.fab\.com\/listings\//);
+      expect(group.replaceBeforeShip!.question.length, group.id).toBeGreaterThan(40);
+    }
+    // Nothing a port keeps or reworks has an open question, and no group states a question without such a file.
+    for (const asset of committed.assets) if (asset.plan === 'keep' || asset.plan === 'rework') expect(asset.licence.status, asset.path).not.toMatch(/unresolved/);
+    for (const group of committed.groups) {
+      const marked = committed.assets.filter((asset) => asset.group === group.id && asset.replaceBeforeShip);
+      if (!marked.length) { expect(group.replaceBeforeShip, group.id).toBeNull(); continue; }
+      expect(group.replaceBeforeShip, group.id).toMatchObject({ files: marked.length, bytes: marked.reduce((total, asset) => total + asset.bytes, 0) });
+    }
+    expect(committed.groups.filter((group) => group.replaceBeforeShip).map((group) => [group.id, group.replaceWith!.title])).toEqual([
+      ['hero', 'Modular Medieval NPC V2 - Metahuman'], ['menu-music', 'Medieval Fantasy Game Music Pack'],
+    ]);
+    expect(committed.replaceBeforeShip).toMatchObject({ decided: '2026-11-15', by: 'the project owner' });
+    expect(committed.totals.replaceBeforeShip).toEqual({ files: 5, bytes: open.reduce((total, asset) => total + asset.bytes, 0) });
+  });
+
+  it('rejects in its schema a file marked replace-before-ship that is kept', () => {
+    const ajv = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true });
+    const validate = ajv.compile(read('data/schema/assets/manifest.schema.json') as Record<string, unknown>);
+    const marked = committed.assets.find((asset) => asset.replaceBeforeShip)!;
+    const { replaceWith: _replaceWith, ...kept } = marked;
+    expect(validate({ ...committed, assets: [marked] })).toBe(true);
+    expect(validate({ ...committed, assets: [{ ...kept, plan: 'keep' }] })).toBe(false);
+    expect(validate({ ...committed, assets: [{ ...marked, replaceBeforeShip: false }] })).toBe(false);
+  });
+
   it('adds up', () => {
     const sum = (assets: AssetManifest['assets']) => ({ files: assets.length, bytes: assets.reduce((total, asset) => total + asset.bytes, 0) });
     expect(committed.totals.all).toEqual(sum(committed.assets));

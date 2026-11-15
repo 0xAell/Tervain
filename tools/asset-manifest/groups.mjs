@@ -10,6 +10,10 @@
  *   keep     it is the game's own and carries over; re-import it from the path given
  *   rework   the content carries over but must be re-authored for Unreal (re-rigged, re-cut, re-baked)
  *   drop     only the web build or its tooling needs it
+ *
+ * `beforeShip` states the open question about a family's source or licence terms. A file with such a question (a
+ * licence status that begins with "unresolved") is marked `replaceBeforeShip` in the manifest, and its family must be
+ * one that is replaced: by the owner's decision of 15 November 2026 nothing with an open question is released.
  */
 
 /**
@@ -52,6 +56,7 @@ export const GROUPS = [
     packWhy: CHARACTERS_WHY,
     why: 'A generated body on a generated rig, with unresolved provenance for two of its sources. A commercial port needs a character with clear terms: a MetaHuman or a modular medieval character from one pack, on the engine’s standard skeleton so animation packs retarget.',
     source: 'Generated with Meshy; see docs/engineering/main-hero.md and the model ledger.',
+    beforeShip: 'Where two of its sources came from is not settled: generated for the project, or downloaded from a community listing. The model ledger lists them under toConfirm.',
     unreal: mesh('SkeletalMesh', '/Game/Tervain/Characters/Hero', (base) => `Hero_${pascal(base.replace(/^weathered-wanderer-/, ''))}`),
   },
   {
@@ -158,8 +163,11 @@ export const GROUPS = [
   },
   {
     id: 'menu-music', title: 'Title music: The Sovereign’s Oath', kind: 'audio', role: 'music', match: /^(public\/assets\/audio\/the-sovereigns-oath\.|assets\/audio\/source\/the-sovereigns-oath)/,
-    plan: 'keep', fab: null, why: 'The title theme the menu’s grove is choreographed to. Import the archived original; the OGG and M4A are web encodings. Its service terms are recorded as unresolved and must be cleared before a commercial release.',
+    plan: 'replace', fab: 'audio', pack: 'Medieval Fantasy Game Music Pack',
+    packWhy: 'The music listing among the candidates: 32 tracks, an hour of music with full pieces, loops and diegetic pieces, so a title theme and quiet loops come from one set under one licence. The menu’s grove is choreographed to the present theme’s timing and is re-timed to the piece chosen.',
+    why: 'The title theme the menu’s grove is choreographed to. The terms of the service it was made with are not settled, so it is replaced before anything is released; until then it stands in for length and mood.',
     source: 'Supplied by the project owner; see docs/engineering/menu-score.md and menu-audio-assets.json.', licence: { id: 'LicenseRef-Service-Terms', status: 'unresolved' },
+    beforeShip: 'Whether the terms of the service the theme was made with allow a commercial release is not settled.',
     unreal: (path) => (path.startsWith('assets/') ? { type: 'SoundWave', folder: '/Game/Tervain/Audio/Music', name: 'SW_Music_TheSovereignsOath', lod: null } : null),
   },
   {

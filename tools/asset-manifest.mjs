@@ -30,6 +30,10 @@ export function trackedAssetFiles(directory = root) {
 
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 
+/** A licence status that leaves a question open. The day the owner decided what happens to such files. */
+const OPEN_QUESTION = /^unresolved/;
+const BEFORE_SHIP_DECIDED = '2026-11-15';
+
 /** The pack a `replace` group names, with its companions, resolved against the candidates of the group's Fab category. */
 function replacement(group) {
   if (group.plan !== 'replace') return null;
@@ -58,19 +62,27 @@ export function buildManifest(directory = root) {
       ? { id: recorded.license.spdx ?? `LicenseRef-${recorded.license.evidenceStatus}`, status: recorded.license.evidenceStatus }
       : group.licence ?? null;
     if (!licence) throw new Error(`No licence recorded for ${file}: add it to the model ledger or to its group.`);
+    // An open question about a file's source or terms: it is replaced before anything is released, never kept.
+    const open = OPEN_QUESTION.test(licence.status);
+    if (open && group.plan !== 'replace') throw new Error(`${file} has an open licence question (${licence.status}) but its family "${group.id}" is not replaced.`);
+    if (open && !group.beforeShip) throw new Error(`${group.id} holds a file with an open licence question: say what it is in beforeShip.`);
     const unreal = group.unreal(file);
     assets.push({
       path: file, group: group.id, kind, bytes: fs.statSync(absolute).size, sha256: sha256(absolute), shipped: file.startsWith('public/'),
       ...(recorded?.sourceId ? { sourceId: recorded.sourceId } : {}), licence, plan: group.plan,
-      ...(group.plan === 'replace' ? { replaceWith: replacement(group).title } : {}), unreal,
+      ...(group.plan === 'replace' ? { replaceWith: replacement(group).title } : {}), ...(open ? { replaceBeforeShip: true } : {}), unreal,
     });
   }
   if (unmatched.length) throw new Error(`Files under the asset roots that no group in tools/asset-manifest/groups.mjs claims:\n  ${unmatched.join('\n  ')}`);
   const groups = GROUPS.map((group) => {
     const members = assets.filter((asset) => asset.group === group.id);
+    const open = members.filter((asset) => asset.replaceBeforeShip);
+    if (group.beforeShip && !open.length && members.length) throw new Error(`${group.id} states an open question but none of its files has an unresolved licence.`);
     return {
       id: group.id, title: group.title, role: group.role, plan: group.plan, why: group.why, source: group.source,
-      fab: group.fab, replaceWith: replacement(group), files: members.length, bytes: members.reduce((sum, asset) => sum + asset.bytes, 0),
+      fab: group.fab, replaceWith: replacement(group),
+      replaceBeforeShip: open.length ? { question: group.beforeShip, files: open.length, bytes: open.reduce((sum, asset) => sum + asset.bytes, 0) } : null,
+      files: members.length, bytes: members.reduce((sum, asset) => sum + asset.bytes, 0),
     };
   }).filter((group) => group.files > 0);
   const total = (filter) => { const members = assets.filter(filter); return { files: members.length, bytes: members.reduce((sum, asset) => sum + asset.bytes, 0) }; };
@@ -83,6 +95,10 @@ export function buildManifest(directory = root) {
       rework: 'The content carries over but is re-authored for Unreal.',
       drop: 'Only the web build or its tooling needs it.',
     },
+    replaceBeforeShip: {
+      rule: 'A file marked `replaceBeforeShip` has an open question about its source or its licence terms. It is replaced by the pack its family names before anything is released, whatever the answer turns out to be; nothing waits on the question.',
+      decided: BEFORE_SHIP_DECIDED, by: 'the project owner',
+    },
     unrealConventions: {
       units: 'centimetres', up: 'Z', handedness: 'left-handed', forward: '+X', import: 'glTF sources are metres, Y up, right-handed; Unreal’s glTF import converts them (positions ×100, Y and Z exchanged)',
       contentRoot: '/Game/Tervain', prefixes: UNREAL_PREFIX, textureSuffixes: TEXTURE_SUFFIX,
@@ -90,7 +106,7 @@ export function buildManifest(directory = root) {
       naming: 'Epic’s pattern [AssetTypePrefix]_[AssetName]_[Descriptor]_[OptionalVariantLetterOrNumber], here as [Prefix]_[Family]_[Name] in PascalCase, one asset per name',
       lod: 'The near, middle and far files of one tree or figure are LOD0, LOD1 and LOD2 of one mesh, never three assets. Imported LOD meshes are named <Asset>_LOD0, _LOD1, _LOD2.',
     },
-    totals: { all: total(() => true), shipped: total((asset) => asset.shipped), byPlan: Object.fromEntries(['replace', 'keep', 'rework', 'drop'].map((plan) => [plan, total((asset) => asset.plan === plan)])) },
+    totals: { all: total(() => true), shipped: total((asset) => asset.shipped), replaceBeforeShip: total((asset) => asset.replaceBeforeShip === true), byPlan: Object.fromEntries(['replace', 'keep', 'rework', 'drop'].map((plan) => [plan, total((asset) => asset.plan === plan)])) },
     fab: FAB,
     groups,
     assets,

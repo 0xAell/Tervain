@@ -8,7 +8,7 @@ score says so.
 | Requirement | Score | In one line |
 | --- | --- | --- |
 | [Engine-agnostic core](#1-engine-agnostic-core) | 8 / 10 | The data and rules are out of the renderer, with a boundary CI enforces. Some control flow is still in the scene layer. |
-| [Asset manifest](#2-asset-manifest) | 9 / 10 | Every file has a source, a licence, a plan and a named replacement. Two provenance questions are the owner's to settle. |
+| [Asset manifest](#2-asset-manifest) | 9 / 10 | Every file has a source, a licence, a plan and a named replacement. Files with an open question are marked replace-before-ship. |
 | [Unreal mapping documents](#3-unreal-mapping-documents) | 9 / 10 | Every quotation is checked against its page and every number against the data. Four sources could not be read. |
 | [C++ skeleton](#4-c-skeleton) | 8 / 10 | It compiles, links and runs against stand-ins and cannot drift from the core unnoticed. It has never been built by the engine. |
 | [Cleanup](#5-cleanup) | 9 / 10 | The tree is clean of private material and stays so by a CI check. Two unused pieces of scene code remain. |
@@ -49,7 +49,7 @@ What is missing from a ten, and the plan:
 What is there:
 
 - [`data/assets/manifest.json`](../../data/assets/README.md): all 1,671 model, texture and sound files with source,
-  licence, size, the Unreal asset each would become, and a plan: 187 to replace, 598 to keep, 886 to drop. Everything
+  licence, size, the Unreal asset each would become, and a plan: 190 to replace, 595 to keep, 886 to drop. Everything
   marked for replacement names a first-choice pack on Fab and the alternatives.
 - The manifest is generated (`npm run assets:manifest`), has a schema, and `npm run assets:check` fails in CI when it
   no longer matches the files on disk.
@@ -60,12 +60,13 @@ What is there:
 
 What is missing from a ten, and the plan:
 
-- Two provenance questions in the model ledger and the terms of the music are open, and only the owner can settle
-  them. Nothing with an open question should ship.
+- Two provenance questions in the model ledger and the terms of the music are open. They no longer hold anything
+  up: by the owner's decision the five files are marked [`replaceBeforeShip`](../../data/assets/README.md#replace-before-ship),
+  each with a named pack, and the generator refuses a manifest that keeps such a file.
 - The listings were read once. Prices and supported engine versions change.
 - No pack has been opened in the engine, so whether its levels of detail suit the mobile renderer is unknown.
-- Plan: the owner settles the two questions; the listings are read again before anything is bought; each pack's
-  levels of detail are checked in the port's Phase 5 before it replaces a stand-in.
+- Plan: the listings are read again before anything is bought; each pack's levels of detail are checked in the
+  port's Phase 5 before it replaces a stand-in.
 
 ## 3. Unreal mapping documents
 

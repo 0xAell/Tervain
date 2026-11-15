@@ -22,9 +22,9 @@ Every file carries one of four plans, decided per family (`groups` in the manife
 
 `totals.byPlan` in the manifest counts the files and bytes under each.
 
-In short: models, building surfaces and leaf atlases are stand-ins and are replaced; the game's own dialogue, sound
-and music, and the emblem, are kept and imported from their source files; the browser's packed and re-encoded copies
-are dropped.
+In short: models, building surfaces, leaf atlases and the title music are stand-ins and are replaced; the game's own
+dialogue and sound, and the emblem, are kept and imported from their source files; the browser's packed and
+re-encoded copies are dropped.
 
 ## Which pack replaces what
 
@@ -42,9 +42,26 @@ target (`webTarget`). Every file of that family carries the pack's title in its 
 | Rock pile and landmark scenery | Nordic Beach Rock Formation (Quixel Megascans) | Nordic Coastal Cliff | |
 | Furniture and household pieces | Medieval Props: Kit (Dragon Motion) | Medieval Fantasy Furniture Pack 01 | |
 | Building surfaces | Medieval Modular Town (With Interiors) (Jemini Studio) | | |
+| Title music | Medieval Fantasy Game Music Pack (Skyhammer Sound) | | |
 
-The game's own sound (voices, world sound, animal calls, hunting sounds, music) is kept, not replaced; the `audio`
-brief lists libraries to fill gaps.
+The game's own sound (voices, world sound, animal calls, hunting sounds) is kept, not replaced; the `audio` brief
+lists libraries to fill gaps.
+
+## Replace before ship
+
+A file with an open question about where it came from or what its terms allow is marked `replaceBeforeShip`, and its
+family states the question. By the owner's decision of 15 November 2026 such a file is replaced by the pack its family
+names before anything is released, whatever the answer turns out to be, so nothing waits on the question.
+`replaceBeforeShip` at the top of the manifest states the rule and `totals.replaceBeforeShip` counts the files.
+
+| Files | The open question | Replaced by |
+| --- | --- | --- |
+| The hero's two sources, `weathered-wanderer-hero-50k.glb` and `weathered-wanderer-animated-hero.glb` | Whether they were generated for the project or downloaded from a community listing (the model ledger's `toConfirm`) | Modular Medieval NPC V2 - Metahuman (Polyphoria) |
+| The title theme in its three encodings (`the-sovereigns-oath`) | Whether the terms of the service it was made with allow a commercial release | Medieval Fantasy Game Music Pack (Skyhammer Sound) |
+
+The generator refuses to write a manifest in which a file with an unresolved licence is kept, and
+`tests/tools/assetManifest.test.ts` holds the list above. The web build goes on serving these files as it does
+today; the marking is about a commercial release.
 
 `fab` in the manifest holds, for each kind of replacement (trees, rocks, buildings, surfaces, interiors, characters,
 animation, animals, audio), a brief of what the game needs, its constraints, and the candidate listings the choice
