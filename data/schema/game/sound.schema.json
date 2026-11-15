@@ -1,0 +1,405 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/sound.schema.json",
+  "title": "game/sound.json",
+  "description": "The in-world score and the world’s sound, as the rules see them: the pieces of the score with their purpose, origin and length in seconds; which pieces answer each mood, threat and place; the score’s pacing in seconds and metres; the looping beds of the soundscape; and the single calls placed around the listener, with how often each comes at full density. Where each bed is heard, and how dense each call is by place and hour, are rules in core/rules/soundscape.ts; the mood of a place and the threat of a moment are rules in core/rules/music.ts.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "music": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "kind": {
+            "type": "string"
+          },
+          "mood": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "kind",
+          "mood",
+          "origin",
+          "duration"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "playlists": {
+      "type": "object",
+      "properties": {
+        "vale": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "wild": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sacred": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "night": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "vale",
+        "wild",
+        "sacred",
+        "night"
+      ],
+      "additionalProperties": false
+    },
+    "threatLoops": {
+      "type": "object",
+      "properties": {
+        "alert": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "combat": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "alert",
+        "combat"
+      ],
+      "additionalProperties": false
+    },
+    "placeRegion": {
+      "type": "object",
+      "properties": {
+        "shore": {
+          "type": "string"
+        },
+        "deepwood": {
+          "type": "string"
+        },
+        "overlook": {
+          "type": "string"
+        },
+        "lantern_point": {
+          "type": "string"
+        },
+        "rillford": {
+          "type": "string"
+        },
+        "ford": {
+          "type": "string"
+        },
+        "sluice": {
+          "type": "string"
+        },
+        "quarry": {
+          "type": "string"
+        },
+        "the_cut": {
+          "type": "string"
+        },
+        "spring_shrine": {
+          "type": "string"
+        },
+        "archive": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "shore",
+        "deepwood",
+        "overlook",
+        "lantern_point",
+        "rillford",
+        "ford",
+        "sluice",
+        "quarry",
+        "the_cut",
+        "spring_shrine",
+        "archive"
+      ],
+      "additionalProperties": false
+    },
+    "regionSting": {
+      "type": "object",
+      "properties": {
+        "coast": {
+          "type": "string"
+        },
+        "wood": {
+          "type": "string"
+        },
+        "vale": {
+          "type": "string"
+        },
+        "stone": {
+          "type": "string"
+        },
+        "sacred": {
+          "type": "string"
+        },
+        "light": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "coast",
+        "wood",
+        "vale",
+        "stone",
+        "sacred",
+        "light"
+      ],
+      "additionalProperties": false
+    },
+    "pacing": {
+      "type": "object",
+      "properties": {
+        "quietAfterPiece": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "firstWait": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "moodSettle": {
+          "type": "integer"
+        },
+        "combatHold": {
+          "type": "integer"
+        },
+        "alertHold": {
+          "type": "number"
+        },
+        "afterDiegetic": {
+          "type": "integer"
+        },
+        "quietAfterThreat": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "quietAfterVictory": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "quietAfterGivingWay": {
+          "type": "number"
+        },
+        "retryWithoutPiece": {
+          "type": "integer"
+        },
+        "combatWithin": {
+          "type": "integer"
+        },
+        "alertWithin": {
+          "type": "integer"
+        },
+        "fade": {
+          "type": "object",
+          "properties": {
+            "piece": {
+              "type": "number"
+            },
+            "alert": {
+              "type": "number"
+            },
+            "combat": {
+              "type": "number"
+            },
+            "menu": {
+              "type": "number"
+            },
+            "diegetic": {
+              "type": "integer"
+            },
+            "calm": {
+              "type": "integer"
+            },
+            "sacred": {
+              "type": "integer"
+            },
+            "victory": {
+              "type": "number"
+            },
+            "fall": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "piece",
+            "alert",
+            "combat",
+            "menu",
+            "diegetic",
+            "calm",
+            "sacred",
+            "victory",
+            "fall"
+          ],
+          "additionalProperties": false
+        },
+        "composedShare": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "quietAfterPiece",
+        "firstWait",
+        "moodSettle",
+        "combatHold",
+        "alertHold",
+        "afterDiegetic",
+        "quietAfterThreat",
+        "quietAfterVictory",
+        "quietAfterGivingWay",
+        "retryWithoutPiece",
+        "combatWithin",
+        "alertWithin",
+        "fade",
+        "composedShare"
+      ],
+      "additionalProperties": false
+    },
+    "beds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "clip": {
+            "type": "string"
+          },
+          "every": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "gain": {
+            "type": "number"
+          },
+          "pitch": {
+            "type": "number"
+          },
+          "burst": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "gap": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "clip",
+          "every",
+          "gain",
+          "pitch",
+          "burst",
+          "gap"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "pointSources": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "z": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "x",
+          "z"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "music",
+    "playlists",
+    "threatLoops",
+    "placeRegion",
+    "regionSting",
+    "pacing",
+    "beds",
+    "calls",
+    "pointSources"
+  ],
+  "additionalProperties": false
+}

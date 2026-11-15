@@ -7,7 +7,7 @@ import {
   bellCue, consumeCues, EQUIP, hitCue, hoofCues, landCues, MAP_OPEN, PAGE, pickupCues, SATCHEL_CLOSE, SATCHEL_OPEN, stepCue, swingCue, UNEQUIP, worldCues,
   type Cue, type SurfaceKind, type WorldAction,
 } from './sound/foley';
-import type { Vec3 } from './sound/soundscape';
+import type { Vec3 } from '../core/rules/soundscape';
 import { type PlayOptions, type SoundFrame, SoundWorld } from './sound/soundWorld';
 import { VOICE_AUDIO, type VoiceLineId } from './sound/voiceManifest';
 

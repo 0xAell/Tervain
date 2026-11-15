@@ -1,4 +1,6 @@
-import { WORLD_AUDIO } from './worldAudioManifest';
+import type { MusicId as ScoreId } from '../../core/content/music';
+import type { BedId, EmitterClip } from '../../core/rules/soundscape';
+import { WORLD_AUDIO, type LoopId, type MusicId } from './worldAudioManifest';
 
 /**
  * The one-shot clips of the world audio sprites, by name. A clip has one or more variants (separate takes cut from the
@@ -9,6 +11,13 @@ import { WORLD_AUDIO } from './worldAudioManifest';
 type Banks = typeof WORLD_AUDIO.banks;
 export type BankName = keyof Banks;
 export type ClipId = { [B in BankName]: keyof Banks[B]['clips'] }[BankName] & string;
+
+/**
+ * The core names the beds, the calls and the pieces its rules decide about; the prepared audio names what was made.
+ * This line stops compiling when the two part: a bed or a piece on one side only, or a call without a clip.
+ */
+type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : never) : never;
+export const AUDIO_NAMES_AGREE: [Same<BedId, LoopId>, Same<ScoreId, MusicId>, EmitterClip extends ClipId ? true : never] = [true, true, true];
 
 export interface ClipRef {
   bank: BankName;

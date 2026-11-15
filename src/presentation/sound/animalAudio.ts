@@ -1,4 +1,4 @@
-import type { Vec3 } from './soundscape';
+import type { Vec3 } from '../../core/rules/soundscape';
 
 /** Calls belong to the animated animal that makes them; none are ambient beds or listener-relative emitters. */
 export const ANIMAL_AUDIO = {

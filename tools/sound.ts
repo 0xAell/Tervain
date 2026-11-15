@@ -17,12 +17,12 @@ import { NPC_STYLES } from '../src/presentation/npcStyle';
 import { HuntingAudio, HUNTING_SOUND_KINDS } from '../src/presentation/huntingAudio';
 import { ANIMAL_AUDIO, type AnimalSpecies } from '../src/presentation/sound/animalAudio';
 import { type ClipId } from '../src/presentation/sound/clips';
-import { INN } from '../src/presentation/sound/soundscape';
+import { INN } from '../src/core/rules/soundscape';
 import {
   bellCue, consumeCues, EQUIP, hitCue, landCues, MAP_OPEN, PAGE, pickupCues, SATCHEL_CLOSE, SATCHEL_OPEN, stepCue, swingCue, UNEQUIP,
   workSound, worldCues, type Cue, type SurfaceKind, type WorldAction,
 } from '../src/presentation/sound/foley';
-import type { Threat } from '../src/presentation/sound/musicDirector';
+import type { Threat } from '../src/core/rules/music';
 import { SoundWorld, type SoundFrame } from '../src/presentation/sound/soundWorld';
 import { VOICE_AUDIO, type VoiceBank } from '../src/presentation/sound/voiceManifest';
 import { WORLD_AUDIO, type LoopId, type MusicId, type SongId } from '../src/presentation/sound/worldAudioManifest';

@@ -30,8 +30,8 @@ import { canPlayerStandAt, PLAYER_BODY_RADIUS, supportedPlayerHeight } from './c
 import { EnemyActor, NpcActor, type ActorContext, type EnemyContext } from './presentation/actors';
 import { AudioEngine } from './presentation/audio';
 import { SpeechDirector } from './presentation/speech';
-import { threatFrom } from './presentation/sound/musicDirector';
-import { windTone } from './presentation/sound/soundscape';
+import { threatFrom } from './core/rules/music';
+import { windTone } from './core/rules/soundscape';
 import { CameraRig } from './presentation/cameraRig';
 import { NearFade, heroNearCoverage } from './presentation/nearFade';
 import { Grade, WORLD_EXPOSURE } from './presentation/grade';

@@ -1,0 +1,599 @@
+{
+  "about": "The in-world score and the world’s sound, as the rules see them: the pieces of the score with their purpose, origin and length in seconds; which pieces answer each mood, threat and place; the score’s pacing in seconds and metres; the looping beds of the soundscape; and the single calls placed around the listener, with how often each comes at full density. Where each bed is heard, and how dense each call is by place and hour, are rules in core/rules/soundscape.ts; the mood of a place and the threat of a moment are rules in core/rules/music.ts.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "music": [
+    {
+      "id": "vale_1",
+      "title": null,
+      "kind": "piece",
+      "mood": "vale",
+      "origin": "generated",
+      "duration": 74.184
+    },
+    {
+      "id": "vale_2",
+      "title": null,
+      "kind": "piece",
+      "mood": "vale",
+      "origin": "generated",
+      "duration": 73.7627
+    },
+    {
+      "id": "wild_1",
+      "title": null,
+      "kind": "piece",
+      "mood": "wild",
+      "origin": "generated",
+      "duration": 73.9253
+    },
+    {
+      "id": "wild_2",
+      "title": null,
+      "kind": "piece",
+      "mood": "wild",
+      "origin": "generated",
+      "duration": 73.9067
+    },
+    {
+      "id": "wild_3",
+      "title": null,
+      "kind": "piece",
+      "mood": "wild",
+      "origin": "generated",
+      "duration": 71.936
+    },
+    {
+      "id": "night_1",
+      "title": null,
+      "kind": "piece",
+      "mood": "night",
+      "origin": "generated",
+      "duration": 72.856
+    },
+    {
+      "id": "night_2",
+      "title": null,
+      "kind": "piece",
+      "mood": "night",
+      "origin": "generated",
+      "duration": 70.9013
+    },
+    {
+      "id": "sacred",
+      "title": null,
+      "kind": "piece",
+      "mood": "sacred",
+      "origin": "generated",
+      "duration": 72.8533
+    },
+    {
+      "id": "danger",
+      "title": null,
+      "kind": "loop",
+      "mood": "danger",
+      "origin": "generated",
+      "duration": 38.18
+    },
+    {
+      "id": "combat",
+      "title": null,
+      "kind": "loop",
+      "mood": "combat",
+      "origin": "generated",
+      "duration": 36.8
+    },
+    {
+      "id": "sting_discover",
+      "title": null,
+      "kind": "sting",
+      "mood": "sting",
+      "origin": "generated",
+      "duration": 5.1707
+    },
+    {
+      "id": "sting_victory",
+      "title": null,
+      "kind": "sting",
+      "mood": "sting",
+      "origin": "generated",
+      "duration": 5.2293
+    },
+    {
+      "id": "sting_death",
+      "title": null,
+      "kind": "sting",
+      "mood": "sting",
+      "origin": "generated",
+      "duration": 4.8933
+    },
+    {
+      "id": "sting_quest",
+      "title": null,
+      "kind": "sting",
+      "mood": "sting",
+      "origin": "generated",
+      "duration": 5.5787
+    },
+    {
+      "id": "sting_lute",
+      "title": null,
+      "kind": "sting",
+      "mood": "sting",
+      "origin": "generated",
+      "duration": 7.0533
+    },
+    {
+      "id": "vale_3",
+      "title": null,
+      "kind": "piece",
+      "mood": "vale",
+      "origin": "generated",
+      "duration": 72.488
+    },
+    {
+      "id": "wild_4",
+      "title": null,
+      "kind": "piece",
+      "mood": "wild",
+      "origin": "generated",
+      "duration": 71.4293
+    },
+    {
+      "id": "night_3",
+      "title": null,
+      "kind": "piece",
+      "mood": "night",
+      "origin": "generated",
+      "duration": 71.1413
+    },
+    {
+      "id": "sacred_2",
+      "title": null,
+      "kind": "piece",
+      "mood": "sacred",
+      "origin": "generated",
+      "duration": 72.4373
+    },
+    {
+      "id": "danger_2",
+      "title": null,
+      "kind": "loop",
+      "mood": "danger",
+      "origin": "generated",
+      "duration": 27.5
+    },
+    {
+      "id": "combat_2",
+      "title": null,
+      "kind": "loop",
+      "mood": "combat",
+      "origin": "generated",
+      "duration": 32
+    },
+    {
+      "id": "theme_vale",
+      "title": "Rillford at Work",
+      "kind": "piece",
+      "mood": "vale",
+      "origin": "composed",
+      "duration": 84.232
+    },
+    {
+      "id": "theme_wild",
+      "title": "The Deepwood",
+      "kind": "piece",
+      "mood": "wild",
+      "origin": "composed",
+      "duration": 72.3467
+    },
+    {
+      "id": "theme_night",
+      "title": "Embers",
+      "kind": "piece",
+      "mood": "night",
+      "origin": "composed",
+      "duration": 66.768
+    },
+    {
+      "id": "theme_sacred",
+      "title": "The Spring",
+      "kind": "piece",
+      "mood": "sacred",
+      "origin": "composed",
+      "duration": 77.3173
+    },
+    {
+      "id": "danger_watch",
+      "title": "Something Watches",
+      "kind": "loop",
+      "mood": "danger",
+      "origin": "composed",
+      "duration": 20
+    },
+    {
+      "id": "battle_ford",
+      "title": "Steel at the Ford",
+      "kind": "loop",
+      "mood": "combat",
+      "origin": "composed",
+      "duration": 19.5918
+    },
+    {
+      "id": "sting_victory_theme",
+      "title": "A Fight Won",
+      "kind": "sting",
+      "mood": "sting",
+      "origin": "composed",
+      "duration": 6.4
+    },
+    {
+      "id": "sting_fall_theme",
+      "title": "The Fall",
+      "kind": "sting",
+      "mood": "sting",
+      "origin": "composed",
+      "duration": 12.0427
+    },
+    {
+      "id": "sting_quest_theme",
+      "title": "A Step of the Story",
+      "kind": "sting",
+      "mood": "sting",
+      "origin": "composed",
+      "duration": 7.0187
+    },
+    {
+      "id": "place_coast",
+      "title": "The Grey Strand",
+      "kind": "sting",
+      "mood": "place",
+      "origin": "composed",
+      "duration": 12.2143
+    },
+    {
+      "id": "place_wood",
+      "title": "Into the Deepwood",
+      "kind": "sting",
+      "mood": "place",
+      "origin": "composed",
+      "duration": 12.2143
+    },
+    {
+      "id": "place_vale",
+      "title": "The Vale Opens",
+      "kind": "sting",
+      "mood": "place",
+      "origin": "composed",
+      "duration": 9.472
+    },
+    {
+      "id": "place_stone",
+      "title": "Cut Stone",
+      "kind": "sting",
+      "mood": "place",
+      "origin": "composed",
+      "duration": 10.688
+    },
+    {
+      "id": "place_sacred",
+      "title": "Holy Water",
+      "kind": "sting",
+      "mood": "place",
+      "origin": "composed",
+      "duration": 10.7333
+    },
+    {
+      "id": "place_light",
+      "title": "Lantern Point",
+      "kind": "sting",
+      "mood": "place",
+      "origin": "composed",
+      "duration": 5.6373
+    }
+  ],
+  "playlists": {
+    "vale": [
+      "vale_1",
+      "vale_2",
+      "vale_3",
+      "theme_vale"
+    ],
+    "wild": [
+      "wild_1",
+      "wild_2",
+      "wild_3",
+      "wild_4",
+      "theme_wild"
+    ],
+    "sacred": [
+      "sacred",
+      "sacred_2",
+      "theme_sacred"
+    ],
+    "night": [
+      "night_1",
+      "night_2",
+      "night_3",
+      "theme_night"
+    ]
+  },
+  "threatLoops": {
+    "alert": [
+      "danger",
+      "danger_2",
+      "danger_watch"
+    ],
+    "combat": [
+      "combat",
+      "combat_2",
+      "battle_ford"
+    ]
+  },
+  "placeRegion": {
+    "shore": "coast",
+    "deepwood": "wood",
+    "overlook": "wood",
+    "lantern_point": "light",
+    "rillford": "vale",
+    "ford": "vale",
+    "sluice": "vale",
+    "quarry": "stone",
+    "the_cut": "stone",
+    "spring_shrine": "sacred",
+    "archive": "sacred"
+  },
+  "regionSting": {
+    "coast": "place_coast",
+    "wood": "place_wood",
+    "vale": "place_vale",
+    "stone": "place_stone",
+    "sacred": "place_sacred",
+    "light": "place_light"
+  },
+  "pacing": {
+    "quietAfterPiece": [
+      35,
+      80
+    ],
+    "firstWait": [
+      8,
+      18
+    ],
+    "moodSettle": 8,
+    "combatHold": 4,
+    "alertHold": 1.5,
+    "afterDiegetic": 20,
+    "quietAfterThreat": [
+      12,
+      24
+    ],
+    "quietAfterVictory": [
+      14,
+      26
+    ],
+    "quietAfterGivingWay": 4.5,
+    "retryWithoutPiece": 30,
+    "combatWithin": 16,
+    "alertWithin": 34,
+    "fade": {
+      "piece": 2.5,
+      "alert": 2.2,
+      "combat": 0.8,
+      "menu": 1.2,
+      "diegetic": 3,
+      "calm": 3,
+      "sacred": 4,
+      "victory": 1.5,
+      "fall": 0.4
+    },
+    "composedShare": 0.666667
+  },
+  "beds": [
+    "sea",
+    "forest_day",
+    "forest_night",
+    "meadow_day",
+    "village_day",
+    "village_night",
+    "cliff_wind",
+    "interior",
+    "cut",
+    "brook",
+    "mill",
+    "quarry",
+    "spring",
+    "marsh",
+    "fire",
+    "hall_drone",
+    "surf",
+    "surf_rocks",
+    "sea_far",
+    "lap",
+    "rapids",
+    "underwater"
+  ],
+  "calls": [
+    {
+      "id": "gull",
+      "clip": "gull",
+      "every": [
+        5,
+        14
+      ],
+      "gain": 0.5,
+      "pitch": 0.06,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "songbird",
+      "clip": "songbird",
+      "every": [
+        6,
+        15
+      ],
+      "gain": 0.42,
+      "pitch": 0.05,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "smallbird",
+      "clip": "smallbird",
+      "every": [
+        5,
+        12
+      ],
+      "gain": 0.38,
+      "pitch": 0.07,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "woodpecker",
+      "clip": "woodpecker",
+      "every": [
+        28,
+        70
+      ],
+      "gain": 0.4,
+      "pitch": 0.04,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "crow",
+      "clip": "crow",
+      "every": [
+        18,
+        45
+      ],
+      "gain": 0.42,
+      "pitch": 0.05,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "owl",
+      "clip": "owl",
+      "every": [
+        25,
+        60
+      ],
+      "gain": 0.4,
+      "pitch": 0.03,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "frog",
+      "clip": "frog",
+      "every": [
+        3,
+        9
+      ],
+      "gain": 0.38,
+      "pitch": 0.08,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "chicken",
+      "clip": "chicken",
+      "every": [
+        20,
+        45
+      ],
+      "gain": 0.38,
+      "pitch": 0.06,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "rooster",
+      "clip": "rooster",
+      "every": [
+        40,
+        90
+      ],
+      "gain": 0.45,
+      "pitch": 0.03,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "horse",
+      "clip": "horse",
+      "every": [
+        25,
+        60
+      ],
+      "gain": 0.42,
+      "pitch": 0.04,
+      "burst": null,
+      "gap": null
+    },
+    {
+      "id": "chime",
+      "clip": "chime",
+      "every": [
+        7,
+        18
+      ],
+      "gain": 0.34,
+      "pitch": 0,
+      "burst": [
+        1,
+        4
+      ],
+      "gap": [
+        0.14,
+        0.6
+      ]
+    },
+    {
+      "id": "bubble",
+      "clip": "bubble",
+      "every": [
+        1.2,
+        3.5
+      ],
+      "gain": 0.3,
+      "pitch": 0.12,
+      "burst": [
+        1,
+        3
+      ],
+      "gap": [
+        0.04,
+        0.22
+      ]
+    },
+    {
+      "id": "creak",
+      "clip": "creak",
+      "every": [
+        14,
+        35
+      ],
+      "gain": 0.36,
+      "pitch": 0.08,
+      "burst": null,
+      "gap": null
+    }
+  ],
+  "pointSources": {
+    "millWheel": {
+      "x": -14,
+      "z": -8
+    },
+    "quarryWork": {
+      "x": 92,
+      "z": -26
+    },
+    "inn": {
+      "x": -4,
+      "z": 30
+    }
+  }
+}

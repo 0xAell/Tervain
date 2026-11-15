@@ -1,6 +1,6 @@
 import { ROCK_STEP_HEIGHT } from '../core/world/rockContacts';
 import { Colliders, FENCE_WALL_LIFT } from '../core/world/colliders';
-import { roomFloorSurface } from './sound/soundscape';
+import { roomFloorSurface } from '../core/rules/soundscape';
 import * as THREE from 'three';
 import { cliffiness, shoreDistance } from '../core/world/coast';
 import type { Game } from '../core/game/game';

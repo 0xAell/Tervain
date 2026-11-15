@@ -1,7 +1,7 @@
-import type { PlaceId } from '../../core/game/types';
-import { FOREST_REGION, PLACES } from '../../core/world/layout';
+import { MUSIC, type MusicEntry, type MusicId, type MusicOrigin } from '../content/music';
+import type { PlaceId } from '../game/types';
+import { FOREST_REGION, PLACES } from '../world/layout';
 import { villageCover } from './soundscape';
-import { WORLD_AUDIO, type MusicId } from './worldAudioManifest';
 
 /**
  * The in-world score, decided without any audio objects. Gothic-like pacing: a piece for the mood of the place plays
@@ -41,10 +41,9 @@ export type MusicAction =
   | { t: 'stop'; fadeOut: number }
   | { t: 'sting'; id: MusicId };
 
-type MusicEntry = (typeof WORLD_AUDIO.music)[MusicId];
-type Origin = MusicEntry['origin'];
+type Origin = MusicOrigin;
 
-const entries = Object.entries(WORLD_AUDIO.music) as [MusicId, MusicEntry][];
+const entries = Object.entries(MUSIC) as [MusicId, MusicEntry][];
 const ids = (pick: (e: MusicEntry) => boolean) => entries.filter(([, e]) => pick(e)).map(([id]) => id);
 export const PLAYLISTS: Record<Mood, MusicId[]> = {
   vale: ids((e) => e.kind === 'piece' && e.mood === 'vale'),
@@ -88,18 +87,33 @@ export function threatFrom(enemies: readonly { x: number; z: number; alive: bool
   for (const e of enemies) {
     if (!e.alive || !e.engaged) continue;
     const d = Math.hypot(e.x - x, e.z - z);
-    if (d < 16 && e.state !== 'alert' && e.state !== 'return') return 'combat';
-    if (d < 34) threat = 'alert';
+    if (d < MUSIC_PACING.combatWithin && e.state !== 'alert' && e.state !== 'return') return 'combat';
+    if (d < MUSIC_PACING.alertWithin) threat = 'alert';
   }
   return threat;
 }
 
-const QUIET_AFTER_PIECE: [number, number] = [35, 80];
-const FIRST_WAIT: [number, number] = [8, 18];
-const MOOD_SETTLE = 8;
-const COMBAT_HOLD = 4;
-/** After the inn's tune, the score waits at least this long before a piece. */
-const AFTER_DIEGETIC = 20;
+/**
+ * The score's pacing, in seconds. A piece is followed by a long quiet; the first piece of a session waits a little; a
+ * piece for another mood gives way only when the new mood has held; a fight's music holds a moment after its end.
+ */
+export const MUSIC_PACING = {
+  quietAfterPiece: [35, 80], firstWait: [8, 18], moodSettle: 8, combatHold: 4, alertHold: 1.5,
+  /** After the inn's tune, the score waits at least this long before a piece. */
+  afterDiegetic: 20,
+  quietAfterThreat: [12, 24], quietAfterVictory: [14, 26], quietAfterGivingWay: 4.5, retryWithoutPiece: 30,
+  /** How near an engaged enemy means a fight, and how near one that has noticed the player means a warning (m). */
+  combatWithin: 16, alertWithin: 34,
+  /** Fades (s): a piece in, a warning in, a battle in, and out for a menu, the inn, calm and sacred ground. */
+  fade: { piece: 2.5, alert: 2.2, combat: 0.8, menu: 1.2, diegetic: 3, calm: 3, sacred: 4, victory: 1.5, fall: 0.4 },
+  /** The share of story stings played in their composed form. */
+  composedShare: 2 / 3,
+} as const;
+const QUIET_AFTER_PIECE: readonly [number, number] = MUSIC_PACING.quietAfterPiece;
+const FIRST_WAIT: readonly [number, number] = MUSIC_PACING.firstWait;
+const MOOD_SETTLE = MUSIC_PACING.moodSettle;
+const COMBAT_HOLD = MUSIC_PACING.combatHold;
+const AFTER_DIEGETIC = MUSIC_PACING.afterDiegetic;
 
 type State =
   | { s: 'off' }
@@ -127,7 +141,7 @@ export class MusicDirector {
     return this.state.s === 'piece' ? this.state.id : null;
   }
 
-  private range([a, b]: [number, number]): number {
+  private range([a, b]: readonly [number, number]): number {
     return a + (b - a) * this.random();
   }
 
@@ -137,7 +151,7 @@ export class MusicDirector {
     // The first time a mood is heard, its own arrangement of the theme: the place's voice before its variations.
     if (!this.heard.has(mood)) {
       this.heard.add(mood);
-      const own = list.find((id) => WORLD_AUDIO.music[id].origin === 'composed');
+      const own = list.find((id) => MUSIC[id].origin === 'composed');
       if (own) return own;
     }
     const choices = list.length > 1 ? list.filter((id) => id !== this.last) : list;
@@ -149,7 +163,7 @@ export class MusicDirector {
   /** A fight keeps one voice: a composed warning leads to the composed battle. Within a voice the takes come in turn. */
   private loopFor(level: 'alert' | 'combat'): MusicId {
     const list = THREAT_LOOPS[level];
-    const voice = list.filter((id) => WORLD_AUDIO.music[id].origin === this.fightVoice);
+    const voice = list.filter((id) => MUSIC[id].origin === this.fightVoice);
     const pool = voice.length ? voice : list;
     const key = `${level}.${this.fightVoice}`;
     const turn = this.loopTurns.get(key) ?? 0;
@@ -160,7 +174,7 @@ export class MusicDirector {
   update(dt: number, ctx: MusicContext): MusicAction[] {
     const out: MusicAction[] = [];
     if (!ctx.active) {
-      if (this.state.s !== 'off') out.push({ t: 'stop', fadeOut: 1.2 });
+      if (this.state.s !== 'off') out.push({ t: 'stop', fadeOut: MUSIC_PACING.fade.menu });
       this.state = { s: 'off' };
       return out;
     }
@@ -173,11 +187,11 @@ export class MusicDirector {
         // Each new encounter alternates the voice of its fight music.
         this.fightVoice = this.fightVoice === 'composed' ? 'generated' : 'composed';
         const combat = ctx.threat === 'combat';
-        out.push({ t: 'loop', id: this.loopFor(combat ? 'combat' : 'alert'), fadeIn: combat ? 0.8 : 2.2 });
+        out.push({ t: 'loop', id: this.loopFor(combat ? 'combat' : 'alert'), fadeIn: combat ? MUSIC_PACING.fade.combat : MUSIC_PACING.fade.alert });
         this.state = { s: 'threat', level: ctx.threat, calm: 0 };
       } else {
         if (ctx.threat === 'combat' && st.level === 'alert') {
-          out.push({ t: 'loop', id: this.loopFor('combat'), fadeIn: 0.8 });
+          out.push({ t: 'loop', id: this.loopFor('combat'), fadeIn: MUSIC_PACING.fade.combat });
           st.level = 'combat';
         }
         st.calm = 0;
@@ -187,7 +201,7 @@ export class MusicDirector {
 
     if (ctx.diegetic && st.s !== 'threat') {
       // Music in the world itself (the inn): the score gives way and waits until it is over.
-      if (st.s === 'piece') out.push({ t: 'stop', fadeOut: 3 });
+      if (st.s === 'piece') out.push({ t: 'stop', fadeOut: MUSIC_PACING.fade.diegetic });
       if (st.s !== 'wait' || st.left < AFTER_DIEGETIC) this.state = { s: 'wait', left: AFTER_DIEGETIC };
       return out;
     }
@@ -198,9 +212,9 @@ export class MusicDirector {
         break;
       case 'threat':
         st.calm += dt;
-        if (st.calm >= (st.level === 'combat' ? COMBAT_HOLD : 1.5)) {
-          out.push({ t: 'stop', fadeOut: 3 });
-          this.state = { s: 'wait', left: this.range([12, 24]) };
+        if (st.calm >= (st.level === 'combat' ? COMBAT_HOLD : MUSIC_PACING.alertHold)) {
+          out.push({ t: 'stop', fadeOut: MUSIC_PACING.fade.calm });
+          this.state = { s: 'wait', left: this.range(MUSIC_PACING.quietAfterThreat) };
         }
         break;
       case 'wait':
@@ -209,9 +223,9 @@ export class MusicDirector {
           const id = this.pick(mood);
           if (id) {
             this.last = id;
-            out.push({ t: 'piece', id, fadeIn: 2.5 });
-            this.state = { s: 'piece', id, mood, left: WORLD_AUDIO.music[id].duration, offMood: 0 };
-          } else st.left = 30;
+            out.push({ t: 'piece', id, fadeIn: MUSIC_PACING.fade.piece });
+            this.state = { s: 'piece', id, mood, left: MUSIC[id].duration, offMood: 0 };
+          } else st.left = MUSIC_PACING.retryWithoutPiece;
         }
         break;
       case 'piece':
@@ -220,8 +234,8 @@ export class MusicDirector {
         st.offMood = mood === st.mood ? 0 : st.offMood + dt;
         if (ctx.pieceFinished ?? st.left <= 0) this.state = { s: 'wait', left: this.range(QUIET_AFTER_PIECE) };
         else if (st.offMood > MOOD_SETTLE && (mood === 'sacred' || st.mood === 'sacred')) {
-          out.push({ t: 'stop', fadeOut: 4 });
-          this.state = { s: 'wait', left: 4.5 };
+          out.push({ t: 'stop', fadeOut: MUSIC_PACING.fade.sacred });
+          this.state = { s: 'wait', left: MUSIC_PACING.quietAfterGivingWay };
         }
         break;
     }
@@ -230,20 +244,20 @@ export class MusicDirector {
 
   /** The composed form two times in three; the generated one keeps some variety. */
   private either(composed: MusicId, generated: MusicId): MusicId {
-    return this.random() < 2 / 3 ? composed : generated;
+    return this.random() < MUSIC_PACING.composedShare ? composed : generated;
   }
 
   /** A sting over the quiet: never over a fight. A discovery names its place, so its region can answer. */
   sting(kind: 'discover' | 'quest' | 'victory' | 'death', place?: PlaceId): MusicAction[] {
     if (kind === 'death') {
       this.state = { s: 'off' };
-      return [{ t: 'stop', fadeOut: 0.4 }, { t: 'sting', id: this.either('sting_fall_theme', 'sting_death') }];
+      return [{ t: 'stop', fadeOut: MUSIC_PACING.fade.fall }, { t: 'sting', id: this.either('sting_fall_theme', 'sting_death') }];
     }
     if (kind === 'victory') {
       const was = this.state;
-      this.state = { s: 'wait', left: this.range([14, 26]) };
+      this.state = { s: 'wait', left: this.range(MUSIC_PACING.quietAfterVictory) };
       const id = this.either('sting_victory_theme', 'sting_victory');
-      return was.s === 'threat' ? [{ t: 'stop', fadeOut: 1.5 }, { t: 'sting', id }] : [{ t: 'sting', id }];
+      return was.s === 'threat' ? [{ t: 'stop', fadeOut: MUSIC_PACING.fade.victory }, { t: 'sting', id }] : [{ t: 'sting', id }];
     }
     if (this.state.s === 'threat') return [];
     if (kind === 'quest') return [{ t: 'sting', id: this.either('sting_quest_theme', 'sting_quest') }];

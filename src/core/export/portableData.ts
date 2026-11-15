@@ -24,6 +24,9 @@ import {
 import { ANIMAL_BEHAVIOUR } from '../rules/animalBehaviour';
 import { GROUND_TARGET_HEIGHT, INTERACT_EYE_HEIGHT } from '../rules/interaction';
 import { interactableTable, RESIDENT_REACH_HEIGHT, RIDER_REACH_HEIGHT } from '../rules/interactables';
+import { MUSIC } from '../content/music';
+import { MUSIC_PACING, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS } from '../rules/music';
+import { BEDS, emitterRuleTable, INN, MILL_SOUND, QUARRY_SOUND } from '../rules/soundscape';
 import { BOW } from '../rules/bow';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../rules/camera';
 import { NIGHT, nightness, SUNRISE_HOUR, SUNSET_HOUR } from '../rules/dayNight';
@@ -130,6 +133,15 @@ function game(): PortableDocument[] {
       data: {
         reachHeights: { resident: RESIDENT_REACH_HEIGHT, rider: RIDER_REACH_HEIGHT, groundPoint: GROUND_TARGET_HEIGHT, eye: INTERACT_EYE_HEIGHT },
         interactables: interactableTable().map((entry) => ({ id: entry.id, place: entry.place, reach: entry.reach, priority: entry.priority, ignoreColliders: entry.ignoreColliders ?? [], needs: entry.needs, act: entry.act })),
+      },
+    },
+    {
+      path: 'game/sound.json',
+      about: 'The in-world score and the world’s sound, as the rules see them: the pieces of the score with their purpose, origin and length in seconds; which pieces answer each mood, threat and place; the score’s pacing in seconds and metres; the looping beds of the soundscape; and the single calls placed around the listener, with how often each comes at full density. Where each bed is heard, and how dense each call is by place and hour, are rules in core/rules/soundscape.ts; the mood of a place and the threat of a moment are rules in core/rules/music.ts.',
+      data: {
+        music: Object.entries(MUSIC).map(([id, entry]) => ({ id, title: null, ...entry })),
+        playlists: PLAYLISTS, threatLoops: THREAT_LOOPS, placeRegion: PLACE_REGION, regionSting: REGION_STING, pacing: MUSIC_PACING,
+        beds: BEDS, calls: emitterRuleTable(), pointSources: { millWheel: MILL_SOUND, quarryWork: QUARRY_SOUND, inn: { x: INN.x, z: INN.z } },
       },
     },
     {
