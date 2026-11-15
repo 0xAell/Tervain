@@ -11,6 +11,7 @@ import { CENTRED_CLIPS, KEEP_REST, MOTION_CLIPS, residentClipNames, residentMoti
 import { residentRestPose } from '../../src/presentation/npc/residentRig';
 import { FINGER_JOINTS } from '../../src/presentation/npc/residentFingers';
 import { loadResident, loadResidentMotion, loadResidentRigData, residentManifest, residentMesh } from './residentFixtures';
+import { RESIDENT } from '../../src/core/rules/resident';
 
 const file = (path: string) => readFileSync(new URL(`../../public/models/npcs/${path}`, import.meta.url));
 const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
@@ -228,8 +229,8 @@ describe('the residents\' own rigs (A65)', () => {
     const back = motion.seatApproach(0.55);
     expect(back).toBeGreaterThan(0.3);
     expect(back).toBeLessThan(0.7);
-    expect(motion.standUpSeconds).toBeGreaterThan(2);
-    expect(motion.standUpSeconds).toBeLessThan(3.5);
+    // The sit-up motion stands the body up in the core's time to stand, which residents wait out before walking off.
+    expect(motion.standUpSeconds).toBeCloseTo(RESIDENT.standUpSeconds, 3);
     const hips = mesh.skeleton.bones.find(bone => bone.name === 'Hips')!, v = new THREE.Vector3();
     const where = () => { rig.root.updateMatrixWorld(true); return hips.getWorldPosition(v).clone(); };
     const pose = (mode: Pose['mode'], seated: boolean): Pose => ({ mode, speed: 0, time: 0, t: 0, amp: 1, seated, seatHeight: 0.55, seatBack: back });

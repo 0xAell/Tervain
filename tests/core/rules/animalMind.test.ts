@@ -23,7 +23,7 @@ function herdOf(definitions: readonly AnimalDefinition[], facts: Partial<Wildlif
   const minds = definitions.map((definition, index) => {
     const home = findAnimalSite(definition, 0.6, terrain, colliders, occupied, 1.2); occupied.push(home);
     const body: Body = { position: { x: home.x, y: terrain.heightAt(home.x, home.z), z: home.z }, height: 1.2, motions: [],
-      has: () => true, transition: (clip) => { body.motions.push(clip); },
+      transition: (clip) => { body.motions.push(clip); },
       facing: () => body.mind!.yaw };
     const mind = new AnimalMind(definition, home, index, body, herd);
     body.mind = mind;
@@ -46,6 +46,15 @@ describe('an animal’s life, on the core alone', () => {
     }
     // The first calls are staggered so the valley does not call at once.
     expect(new Set(first.map((mind) => Math.round(mind.callIn))).size).toBeGreaterThan(first.length / 2);
+  });
+
+  it('grazes only if its kind does: a deer settles to graze or stand, a wolf only ever to stand', () => {
+    const { minds } = herdOf([...wild('deer').slice(0, 1), ...wild('wolf').slice(0, 1)]), [deer, wolf] = minds as [AnimalMind, AnimalMind];
+    const deerStates = new Set<string>(), wolfStates = new Set<string>();
+    for (let i = 0; i < 200; i++) { deer.settle(); deerStates.add(deer.state); wolf.settle(); wolfStates.add(wolf.state); }
+    expect([...deerStates].sort()).toEqual(['Graze', 'Idle']);
+    expect([...wolfStates]).toEqual(['Idle']);
+    expect(deer.motions.has('Graze')).toBe(true); expect(wolf.motions.has('Graze')).toBe(false);
   });
 
   it('wanders within its range with nobody near, and never leaves it', () => {

@@ -26,6 +26,11 @@ export const RESIDENT = {
   /** They have arrived within this distance of a work place or a seat (m), or of anywhere else. */
   arriveExact: 0.06,
   arriveNear: 0.15,
+  /**
+   * Seconds to get to one's feet from a seat (A69): they walk off on their feet, not mid-rise. The supplied sit-up motion
+   * takes this long to stand the body up; tests/presentation/residentRig.test.ts fails if the two part.
+   */
+  standUpSeconds: 2.4667,
   /** Seconds to lie down from sitting on a bed's edge, or to sit up again; and a moment sat on it first (A70). */
   lieSeconds: 1.8,
   sitBeforeLying: 1.2,

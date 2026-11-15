@@ -467,10 +467,9 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
   for (const [index, { definition, template, home, validated }] of fitted.entries()) {
     const body = cloneAnimal(template, definition, validated), root = new THREE.Group(); root.name = `${definition.species} / ${definition.id}`; root.add(body.scene);
     body.scene.traverse(object => { if ((object as THREE.Mesh).isMesh) (object as THREE.Mesh).castShadow = ctx.quality !== 'low'; });
-    // The body as the mind needs it: where it stands, how tall it is, its motions, and the way the drawn body faces.
+    // The body as the mind needs it: where it stands, how tall it is, the motion it plays, and the way the drawn body faces.
     const mind = new AnimalMind(definition, home, index, {
       position: root.position, height: body.size.y,
-      has: clip => body.animation.has(clip),
       transition: clip => body.animation.transition(clip),
       facing: () => { facingScratch.set(0, 0, 1).applyQuaternion(root.quaternion); return Math.atan2(facingScratch.x, facingScratch.z); },
     }, herd);

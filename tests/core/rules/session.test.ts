@@ -7,7 +7,7 @@ import { AUTOSAVE_SECONDS, CHECKPOINT_CLEARANCE, DEATH, DROUGHT_BELL, HIT_STOP, 
 import { MOUNT_STAMINA } from '../../../src/core/rules/riding';
 import { RESIDENT } from '../../../src/core/rules/resident';
 import {
-  AFLOAT, archiveClosesBehind, archiveDoorAttempt, archiveOpen, autosaveDue, AWAITED_MOUNT_REACH, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
+  AFLOAT, archiveClosesBehind, archiveDoorAttempt, archiveOpen, AUTOSAVE_MOMENTS, autosaveAt, autosaveDue, AWAITED_MOUNT_REACH, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
   ENTRY_RESTORES, fallRemaining, HAND_SAVE_SLOTS, hitStopFor, journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter,
   rideable, riteReady, SAFE_PLACE_RINGS, safePlace, SAVE_SLOTS, savedMount, savingAllowed, SHAKE, STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING,
   type PlacingWorld, type RespawnPoint,
@@ -305,5 +305,23 @@ describe('the archive’s door, timed work and what the journey points to', () =
     const key = objectiveKey(hunting, 'hint.quest'), place = objectivePlace(hunting, 'rillford');
     if (key === 'hint.quest') expect(place).toBe('rillford');
     else expect(place).toBe(['hunting.objective.kit', 'hunting.objective.spare', 'hunting.objective.restock'].includes(key) ? 'deepwood' : null);
+  });
+});
+
+describe('the moments the journey saves itself', () => {
+  const playing = { playing: true, paused: false };
+  it('saves at the story\u2019s moments whenever saving is allowed, and moves where he wakes', () => {
+    expect(autosaveAt('story', { ...playing, begun: false })).toEqual({ save: true, movesWaking: true });
+    expect(autosaveAt('story', { playing: true, paused: true, begun: true })).toEqual({ save: false, movesWaking: false });
+  });
+
+  it('saves quietly every interval and whenever play is left, once the journey has begun, leaving where he wakes', () => {
+    for (const moment of ['interval', 'toTitle', 'pageLeft'] as const) {
+      expect(autosaveAt(moment, { ...playing, begun: true }), moment).toEqual({ save: true, movesWaking: false });
+      // A new run that has done nothing yet keeps an earlier save.
+      expect(autosaveAt(moment, { ...playing, begun: false }), moment).toEqual({ save: false, movesWaking: false });
+      expect(autosaveAt(moment, { playing: false, paused: false, begun: true }), moment).toEqual({ save: false, movesWaking: false });
+    }
+    expect([...AUTOSAVE_MOMENTS]).toEqual(['story', 'interval', 'toTitle', 'pageLeft']);
   });
 });

@@ -255,7 +255,9 @@ describe('hunting through the existing nineteen animal controllers', () => {
     expect(Math.abs(rotation.y)).toBeGreaterThan(.01);
     module.syncHunting({ tiger: record('dead', pose) });
     expect(module.snapshot()[0]!.state).toBe('Dead');
-    expect(head.quaternion.angleTo(rotation)).toBeLessThan(1e-6); expect(root.quaternion.angleTo(rootRotation)).toBeLessThan(1e-6); expect(root.position.y).toBeCloseTo(height);
+    // The collapse starts from the pose exactly. (An angle is no measure here: a pose sampled from one clip unblended need
+    // not be of unit length, and angleTo then reads a ten-thousandth of a radian between a rotation and itself.)
+    expect(head.quaternion.toArray()).toEqual(rotation.toArray()); expect(root.quaternion.angleTo(rootRotation)).toBeLessThan(1e-6); expect(root.position.y).toBeCloseTo(height);
     let knife = module.skinningFrame('tiger', { x: pose.x + 1, z: pose.z }); expect(knife?.ready).toBe(false);
     for (let k = 0; k < 15; k++) module.update(.1, frame());
     knife = module.skinningFrame('tiger', { x: pose.x + 1, z: pose.z }); expect(knife?.ready).toBe(true);

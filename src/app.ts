@@ -28,7 +28,7 @@ import { PLAYER_BODY_RADIUS } from './core/world/playerPlacement';
 import { EnemyActor, NpcActor, type ActorContext, type EnemyContext } from './presentation/actors';
 import { AudioEngine } from './presentation/audio';
 import { SpeechDirector } from './presentation/speech';
-import { threatFrom } from './core/rules/music';
+import { eventSting, fightWon, threatFrom } from './core/rules/music';
 import { seaBedNearness, windTone } from './core/rules/soundscape';
 import { CameraRig } from './presentation/cameraRig';
 import { NearFade, heroNearCoverage } from './presentation/nearFade';
@@ -69,15 +69,18 @@ import { setHighLodBands, setHighLodSpecies } from './presentation/floraPopulati
 import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
 import { handsForCargo, keepsHold } from './core/rules/cargo';
-import { BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, trespassOutcry, woundedNow } from './core/rules/speech';
+import {
+  BUBBLE, bubbleMs, CLEARING_FOE, dayPartCue, defeatRemark, eventRemarks, HERO_CUE_AGAIN, HERO_CUE_DELAY, SCENE_CHECK_SECONDS, scenesInEarshot, trespassOutcry, UNNOTED_LOSSES, warCry,
+  woundedNow,
+} from './core/rules/speech';
 import { fightingFoes } from './core/rules/residentWalk';
 import { RESIDENT } from './core/rules/resident';
 import { MOUNT_ID } from './core/rules/interactables';
 import { AUTOSAVE_SECONDS, bellGain, bellWait, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH, witnessesOf } from './core/rules/journey';
 import {
-  archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
+  archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveAt, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
   journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
-  STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING, type RespawnMoment, type RespawnPoint,
+  STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING, type AutosaveMoment, type RespawnMoment, type RespawnPoint,
 } from './core/rules/session';
 import { STAMINA_MAX } from './core/rules/hero';
 import { CAMERA } from './core/rules/camera';
@@ -287,7 +290,7 @@ export class App {
     });
     document.addEventListener('keydown', (e) => this.onUiKey(e), true);
     // Save on backgrounding, and freeze simulation/audio even if the browser still calls RAF.
-    window.addEventListener('pagehide', () => this.autosaveQuiet());
+    window.addEventListener('pagehide', () => this.autosaveQuiet('pageLeft'));
     document.addEventListener('visibilitychange', () => {
       const hidden = document.visibilityState === 'hidden';
       this.frameClock.setHidden(hidden);
@@ -296,7 +299,7 @@ export class App {
       if (hidden) {
         this.hunting.controls(0, false);
         this.clearSpeech(true);
-        this.autosaveQuiet();
+        this.autosaveQuiet('pageLeft');
         if (this.mode === 'play' && this.overlay === 'none' && !this.bench.active) this.openPause();
       }
     });
@@ -1162,7 +1165,7 @@ export class App {
 
   quitToTitle() {
     if (this.worldPaused) return;
-    this.autosaveQuiet();
+    this.autosaveQuiet('toTitle');
     this.enterTitle();
   }
 
@@ -1352,7 +1355,7 @@ export class App {
       this.autosaveTimer -= dt;
       if (autosaveDue(this.autosaveTimer)) {
         this.autosaveTimer = AUTOSAVE_SECONDS;
-        this.autosaveQuiet();
+        this.autosaveQuiet('interval');
       }
       this.game.addPlaySeconds(dt);
       this.clockAcc += dt * CLOCK_RATE;
@@ -2199,6 +2202,11 @@ export class App {
   private onGameEvents(events: GameEvent[]) {
     this.worldDirty = true;
     for (const e of events) {
+      // What he says of it and the sting it earns are the core's (rules/speech.ts, rules/music.ts).
+      for (const remark of eventRemarks(e, { archiveOpen: this.archiveOpen() })) this.speech.hero(remark.cue, { delay: remark.delay });
+      const sting = eventSting(e);
+      if (sting?.kind === 'quest') this.audio.quest();
+      else if (sting?.kind === 'discover') this.audio.discover(sting.place);
       switch (e.t) {
         case 'equipment':
           this.inventoryNotesChanged = true;
@@ -2218,21 +2226,15 @@ export class App {
           if (e.phase === 'settled') {
             this.hud.toast(S('toast.settled'), 'good');
             this.ringBell(true);
-            this.speech.hero('settled', { delay: HERO_CUE_DELAY.settled });
-          } else this.audio.quest();
+          }
           break;
         case 'grant':
-          for (const [id, qty] of Object.entries(e.items) as [ItemId, number][]) {
-            this.hud.toast(S('toast.item.gain', { qty, name: S(ITEMS[id].nameKey) }), 'good');
-            // A reward is remarked on as a find is (A89 scout: the key's and the reed's lines were never heard).
-            this.speech.hero(`item.${id}` as HeroCue, { delay: HERO_CUE_DELAY.item });
-          }
+          for (const [id, qty] of Object.entries(e.items) as [ItemId, number][]) this.hud.toast(S('toast.item.gain', { qty, name: S(ITEMS[id].nameKey) }), 'good');
           this.audio.pickup(Object.keys(e.items)[0] as ItemId | undefined);
           break;
         case 'item':
           if (e.delta > 0) this.hud.toast(S('toast.item.gain', { qty: e.delta, name: S(ITEMS[e.id].nameKey) }), 'good');
-          if (e.delta > 0) this.speech.hero(itemCue(e.id), { delay: HERO_CUE_DELAY.item });
-          else if (e.id !== 'sluice_brace' && e.id !== 'votive_reed' && e.id !== 'arrow') this.hud.toast(S('toast.item.lose', { qty: -e.delta, name: S(ITEMS[e.id].nameKey) }));
+          else if (!UNNOTED_LOSSES.includes(e.id)) this.hud.toast(S('toast.item.lose', { qty: -e.delta, name: S(ITEMS[e.id].nameKey) }));
           break;
         case 'toast':
           if (e.key.startsWith('hunting.')) this.hud.toast(S(e.key, e.params));
@@ -2243,29 +2245,14 @@ export class App {
           break;
         case 'skill':
           this.hud.toast(S('toast.skill', { name: S(`skill.${e.id}`) }), 'good');
-          this.audio.quest();
           break;
         case 'place':
           this.hud.toast(S('toast.place', { name: S(`place.${e.id}`) }), 'evidence');
-          this.audio.discover(e.id);
-          // The archive's shelves are remarked on once it stands open, not from outside its locked door (A89 scout).
-          if (placeRemarked(e.id, this.archiveOpen())) this.speech.hero(`place.${e.id}` as HeroCue, { delay: HERO_CUE_DELAY.place });
           // Discovering somewhere new moves the respawn point there.
           this.markCheckpoint('place');
           break;
-        case 'shortcut':
-          this.speech.hero('shortcut', { delay: HERO_CUE_DELAY.shortcut });
-          break;
-        case 'rite':
-          this.speech.hero('rite', { delay: HERO_CUE_DELAY.rite });
-          break;
-        case 'gate':
-          if (e.gate === 'stabilized' || e.gate === 'jammed') this.speech.hero(`gate.${e.gate}`, { delay: HERO_CUE_DELAY.gate });
-          break;
         case 'worker_rescued':
-          this.speech.hero('rescued', { delay: HERO_CUE_DELAY.rescued });
           this.hud.toast(S(e.method === 'shortcut' ? 'toast.shortcut.rescued' : 'toast.rescued'), 'good');
-          this.audio.quest();
           break;
         case 'autosave':
           this.autosave(e.reason);
@@ -2308,11 +2295,12 @@ export class App {
   }
 
   private autosave(reason: string) {
-    if (!savingAllowed({ playing: this.mode === 'play', paused: this.worldPaused })) return;
+    const at = autosaveAt('story', { playing: this.mode === 'play', paused: this.worldPaused, begun: true });
+    if (!at.save) return;
     this.stamp();
     const r = this.saves.save('auto', this.game.state);
     if (r.ok) {
-      this.markCheckpoint('eventAutosave');
+      if (at.movesWaking) this.markCheckpoint('eventAutosave');
       this.hud.toast(S('menu.saved', { slot: S('menu.slot.auto') }));
     } else this.hud.toast(S('menu.savefailed', { reason: r.message }), 'bad');
     void reason;
@@ -2323,11 +2311,9 @@ export class App {
     return journeyBegun(this.game.state, this.inventoryNotesChanged);
   }
 
-  private autosaveQuiet() {
-    // Backgrounding can happen while the old graphics/physics world has been
-    // disposed and its replacement is still loading. Never snapshot that gap.
-    // The timed autosave does not move the respawn point (respawnAfter).
-    if (!savingAllowed({ playing: this.mode === 'play', paused: this.worldPaused }) || !this.hasProgress()) return;
+  /** Backgrounding can happen while the old world is disposed and its replacement still loads: that gap is never saved. */
+  private autosaveQuiet(moment: Exclude<AutosaveMoment, 'story'>) {
+    if (!autosaveAt(moment, { playing: this.mode === 'play', paused: this.worldPaused, begun: this.hasProgress() }).save) return;
     this.stamp();
     this.saves.save('auto', this.game.state);
   }
@@ -2494,12 +2480,9 @@ export class App {
       reducedMotion: this.settings.reducedMotion,
       strikePlayer: (e, dmg, heavy) => p.receiveHit(dmg, heavy, e, this.playerContext(true)),
       onGrowl: (e) => {
-        const at = { x: e.x, y: e.y + 1.2, z: e.z };
-        if (e.spawn.kind === 'thornback') {
-          this.audio.growl(at);
-          this.speech.hero('beast', { delay: HERO_CUE_DELAY.beast });
-        }
-        else this.audio.shout(at);
+        const at = { x: e.x, y: e.y + 1.2, z: e.z }, cry = warCry(e.spawn.kind);
+        if (cry.cry === 'growl') this.audio.growl(at); else this.audio.shout(at);
+        if (cry.remark) this.speech.hero(cry.remark.cue, { delay: cry.remark.delay });
       },
       time: this.world.time,
     };
@@ -2512,12 +2495,10 @@ export class App {
 
   private onEnemyDefeated(e: EnemyActor) {
     this.game.dispatch({ t: 'defeat', id: e.id });
-    // The fight is won when nobody else is still on the player.
-    if (!this.enemies.some((o) => o !== e && o.alive && o.engaged)) this.audio.victory();
-    if (e.id === 'cut_creature') {
-      this.hud.toast(S('toast.cleared'), 'good');
-      this.speech.hero('victory', { delay: HERO_CUE_DELAY.victory });
-    }
+    if (fightWon(e, this.enemies)) this.audio.victory();
+    if (e.id === CLEARING_FOE) this.hud.toast(S('toast.cleared'), 'good');
+    const remark = defeatRemark(e.id);
+    if (remark) this.speech.hero(remark.cue, { delay: remark.delay });
   }
 
   private onPlayerDeath() {

@@ -1142,6 +1142,7 @@
     "settled": 0.3,
     "arriveExact": 0.06,
     "arriveNear": 0.15,
+    "standUpSeconds": 2.4667,
     "lieSeconds": 1.8,
     "sitBeforeLying": 1.2,
     "alarmReach": 40,
