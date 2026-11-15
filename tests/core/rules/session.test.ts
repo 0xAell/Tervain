@@ -9,10 +9,12 @@ import { RESIDENT } from '../../../src/core/rules/resident';
 import {
   AFLOAT, archiveClosesBehind, archiveDoorAttempt, archiveOpen, autosaveDue, AWAITED_MOUNT_REACH, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
   ENTRY_RESTORES, fallRemaining, HAND_SAVE_SLOTS, hitStopFor, journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter,
-  riteReady, SAFE_PLACE_RINGS, safePlace, SAVE_SLOTS, savedMount, savingAllowed, SHAKE, STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING,
+  rideable, riteReady, SAFE_PLACE_RINGS, safePlace, SAVE_SLOTS, savedMount, savingAllowed, SHAKE, STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING,
   type PlacingWorld, type RespawnPoint,
 } from '../../../src/core/rules/session';
 import { PLACES, SPAWN } from '../../../src/core/world/layout';
+import { ANIMALS } from '../../../src/core/content/animals';
+import { MOUNT_ID } from '../../../src/core/rules/interactables';
 
 // A sitting's rules, on the core alone: no loop, no scene, no storage.
 
@@ -220,10 +222,18 @@ describe('where he may be set down', () => {
 });
 
 describe('the deer', () => {
-  it('is gone to only afoot, alive, with the world running', () => {
-    const can = { playing: true, riding: false, mounting: false, alive: true };
+  it('is gone to only afoot, alive, out of the water, with the world running', () => {
+    const can = { playing: true, riding: false, mounting: false, alive: true, swimming: false };
     expect(mayMount(can)).toBe(true);
-    for (const change of [{ playing: false }, { riding: true }, { mounting: true }, { alive: false }]) expect(mayMount({ ...can, ...change })).toBe(false);
+    for (const change of [{ playing: false }, { riding: true }, { mounting: true }, { alive: false }, { swimming: true }]) expect(mayMount({ ...can, ...change }), JSON.stringify(change)).toBe(false);
+  });
+
+  it('is the one animal that can be ridden: a tame deer that walks', () => {
+    expect(rideable({ species: 'deer', tame: true })).toBe(true);
+    expect(rideable({ species: 'deer' }), 'a wild deer').toBe(false);
+    expect(rideable({ species: 'deer', tame: true, seated: true })).toBe(false);
+    expect(rideable({ species: 'dog', tame: true }), 'a pet').toBe(false);
+    expect(ANIMALS.filter(rideable).map((animal) => animal.id)).toEqual([MOUNT_ID]);
   });
 
   it('waits for a rider loaded in the saddle only while he waits for it', () => {

@@ -4,7 +4,7 @@ import { createInitialState, evalAll } from '../../../src/core/game/state';
 import type { NpcId } from '../../../src/core/game/types';
 import { OVERHEAR_REACH, WOUNDED_BELOW } from '../../../src/core/rules/journey';
 import {
-  BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, SPEECH, SpeechDirector, woundedNow,
+  BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, SPEECH, SpeechDirector, trespassOutcry, woundedNow,
   type SceneResident,
 } from '../../../src/core/rules/speech';
 
@@ -143,5 +143,12 @@ describe('when the occasions for speech come', () => {
     expect(offered(at(one!, 0), at(two!, 2), { x: 1 + OVERHEAR_REACH + 0.5, z: 0 })).not.toContain(scene.id);
     state.npcs[one!].available = false;
     expect(offered(at(one!, 0), at(two!, 2))).not.toContain(scene.id);
+  });
+});
+
+describe('a trespass seen', () => {
+  it('makes the warden shout his voiced line, and anyone else show the cry in a bubble', () => {
+    expect(trespassOutcry('shrine_warden')).toEqual({ voiced: true, line: 'tolan.bark.hey' });
+    expect(trespassOutcry('spring_steward')).toEqual({ voiced: false, text: 'toast.warden.hey' });
   });
 });

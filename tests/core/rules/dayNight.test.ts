@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { daylight, isNightHour, NIGHT, nightness, sunArcAngle, SUNRISE_HOUR, SUNSET_HOUR } from '../../../src/core/rules/dayNight';
+import { daylight, goneInForTheNight, isNightHour, NIGHT, nightness, sunArcAngle, SUNRISE_HOUR, SUNSET_HOUR } from '../../../src/core/rules/dayNight';
 
 describe('daylight and night', () => {
   it('is full day from 07:00 to 18:36 and full night from 20:30 to 04:48', () => {
@@ -55,5 +55,13 @@ describe('what answers the dark', () => {
     expect(NIGHT.music).toBeLessThan(NIGHT.catSleeps);
     expect(NIGHT.catSleeps).toBeLessThan(NIGHT.sleepers);
     expect(nightness(NIGHT.fallsAt)).toBeGreaterThan(NIGHT.sleepers);
+  });
+});
+
+describe('the hamlet’s silent people', () => {
+  it('who sleep go in once the night is deep enough for sleepers; the others stay out', () => {
+    expect(goneInForTheNight(true, NIGHT.sleepers + 0.01)).toBe(true);
+    expect(goneInForTheNight(true, NIGHT.sleepers)).toBe(false);
+    expect(goneInForTheNight(false, 1)).toBe(false);
   });
 });

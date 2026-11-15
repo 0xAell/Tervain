@@ -46,5 +46,10 @@ export const NIGHT = {
   lanterns: 0.15,
 } as const;
 
+/** Whether one of the hamlet's silent people who sleeps has gone in for the night: then they are neither seen nor in anyone's way. */
+export function goneInForTheNight(sleeps: boolean, nightness: number): boolean {
+  return sleeps && nightness > NIGHT.sleepers;
+}
+
 /** Whether the hour falls in the wanderer's night, from nightfall round to dawn. */
 export const isNightHour = (hour: number): boolean => hour >= NIGHT.fallsAt || hour < NIGHT.liftsAt;

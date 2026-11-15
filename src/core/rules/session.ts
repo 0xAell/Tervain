@@ -223,9 +223,14 @@ export function placesReached(discovered: Partial<Record<PlaceId, unknown>>, x: 
 
 /* ============================ The deer ============================ */
 
-/** He may go to the deer's side only afoot, alive, with the world running and not already getting up or down. */
-export function mayMount(facts: { playing: boolean; riding: boolean; mounting: boolean; alive: boolean }): boolean {
-  return facts.playing && !facts.riding && !facts.mounting && facts.alive;
+/** He may go to the deer's side only afoot, alive, out of the water, with the world running and not already getting up or down. */
+export function mayMount(facts: { playing: boolean; riding: boolean; mounting: boolean; alive: boolean; swimming: boolean }): boolean {
+  return facts.playing && !facts.riding && !facts.mounting && facts.alive && !facts.swimming;
+}
+
+/** The one kind of animal that can be ridden: a tame deer that walks (the saddled one at the caravan rest). */
+export function rideable(animal: { species: string; tame?: boolean; seated?: boolean }): boolean {
+  return animal.species === 'deer' && !!animal.tame && !animal.seated;
 }
 
 /** Loaded in the saddle, he waits where he is for the deer to arrive; having gone further than this (m) he stays afoot. */

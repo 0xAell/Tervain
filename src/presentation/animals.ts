@@ -1,4 +1,4 @@
-import { STANDING_BODY } from '../core/rules/session';
+import { rideable, STANDING_BODY } from '../core/rules/session';
 import * as THREE from 'three';
 import { compactAnimalBoneTexture } from './animals/boneTexture';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -553,7 +553,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     setPeople(next) { herd.people = next; },
     syncHunting: (records, restore, at) => { if (at) herd.hunter = { x: at.x, z: at.z }; hunting.syncHunting(records, restore); },
     mount(id) {
-      const animal = animals.find(a => a.definition.id === id && a.definition.tame && !a.definition.seated && a.definition.species === 'deer');
+      const animal = animals.find(a => a.definition.id === id && rideable(a.definition));
       if (!animal || !hunting.isVisible(animal)) return null;
       const p = animal.root.position;
       return { x: p.x, y: p.y, z: p.z, yaw: animal.yaw, seat: seatOf(animal) };
