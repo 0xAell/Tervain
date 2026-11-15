@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { HUNTING_ARROW_RANGE, SKINNING_REACH, type AnimalHuntRecord } from '../../../src/core/game/hunting';
+import { HUNTING_ARROW_RANGE, SKINNING_REACH, WILDLIFE_RETRY_SECONDS, type AnimalHuntRecord } from '../../../src/core/game/hunting';
 import {
-  ArrowFlights, arrowMeets, arrowZone, bowAvailable, BowHand, SHOT, shotTarget, SKINNING, skinningRefusal, skinningStance, SKULL_BAND, SKULLS,
-  woundedFleesFrom, type ArrowFlight, type Point3, type SceneryContact, type SkinningFacts,
+  ArrowFlights, arrowMeets, arrowZone, bowAvailable, BowHand, coverAtBow, nearestCarcass, SHOT, shotTarget, SKINNING, skinningRefusal, skinningStance,
+  SKULL_BAND, SKULLS, takesFright, woundedFleesFrom, type ArrowFlight, type Point3, type SceneryContact, type SkinningFacts,
 } from '../../../src/core/rules/archery';
 import { BOW } from '../../../src/core/rules/bow';
 
@@ -71,6 +71,32 @@ describe('what the arrow is aimed at', () => {
     expect(shotTarget(eye, muzzle, far, post, null)).toBe(far);
     expect(shotTarget(eye, muzzle, far, post, { distance: 20, point: p(0, 1, 17) })).toEqual(p(0, 1, 17));
     expect(shotTarget(eye, muzzle, far, { ...post, distance: toBow + SHOT.pastBow + 0.01 }, null)).toEqual(post.point);
+  });
+});
+
+describe('who a shot frightens, and cover at the bow', () => {
+  it('frightens huntable game that is about and alive or wounded, within the alarm; not pets, carcasses or game away', () => {
+    const game = { huntable: true, returning: false };
+    expect(takesFright(game, SHOT.alarm)).toBe(true);
+    expect(takesFright({ ...game, status: 'injured' }, 3)).toBe(true);
+    expect(takesFright(game, SHOT.alarm + 0.01)).toBe(false);
+    expect(takesFright({ ...game, huntable: false }, 1), 'a pet or the mount').toBe(false);
+    expect(takesFright({ ...game, returning: true }, 1), 'away on its way home').toBe(false);
+    expect(takesFright({ ...game, status: 'dead' }, 1), 'a carcass').toBe(false);
+    expect(takesFright({ ...game, status: 'skinned' }, 1)).toBe(false);
+    expect(takesFright(game, 30, 40), 'a wider alarm').toBe(true);
+  });
+
+  it('stops the arrow at cover between his chest and the bow, traced from his chest', () => {
+    const asked: [Point3, Point3][] = [];
+    const post = { point: p(0.2, 1.3, 0.3) };
+    expect(coverAtBow(p(0, 0, 0), p(0.3, 1.4, 0.5), (from, to) => { asked.push([from, to]); return post; })).toBe(post);
+    expect(asked).toEqual([[p(0, SHOT.chest, 0), p(0.3, 1.4, 0.5)]]);
+    expect(coverAtBow(p(0, 0, 0), p(0.3, 1.4, 0.5), () => null)).toBeNull();
+  });
+
+  it('lets game kept away by the hunter try again every second to come back', () => {
+    expect(WILDLIFE_RETRY_SECONDS).toBe(1);
   });
 });
 
@@ -248,6 +274,21 @@ describe('which part was struck', () => {
     const from = woundedFleesFrom({ x: 10, z: 20 }, Math.PI / 2); // facing +x
     expect(from.x).toBeCloseTo(10 - SHOT.woundedFleesBehind, 9);
     expect(from.z).toBeCloseTo(20, 9);
+  });
+});
+
+describe('the carcass to skin', () => {
+  const lying = (x: number, z: number, status: AnimalHuntRecord['status'] = 'dead') => ({ record: { status, position: { x, y: 0, z } } });
+  it('is the nearest one lying dead within reach of him on the ground, whatever its height', () => {
+    const far = lying(SKINNING_REACH + 0.1, 0), near = lying(1, 1), nearer = lying(0.5, 0), wounded = lying(0.1, 0, 'injured');
+    expect(nearestCarcass([far, near, nearer, wounded], { x: 0, z: 0 })).toEqual({ candidate: nearer, distance: 0.5 });
+    expect(nearestCarcass([far, { record: null }, wounded], { x: 0, z: 0 })).toBeNull();
+    // Height is the refusal's to judge, so the prompt can name the carcass and say it is too far.
+    const below = { record: { status: 'dead' as const, position: { x: 1, y: -5, z: 0 } } };
+    expect(nearestCarcass([below], { x: 0, z: 0 })?.candidate).toBe(below);
+    // The first of two equally near is kept.
+    const twin = lying(0.5, 0);
+    expect(nearestCarcass([nearer, twin], { x: 0, z: 0 })?.candidate).toBe(nearer);
   });
 });
 

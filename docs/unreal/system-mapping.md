@@ -95,9 +95,6 @@ rules, who speaks when, carrying loose cargo and reviving a save.
 
 A second reading afterwards found more. Each is to be lifted in a pull request of its own:
 
-- **What a shot frightens** (only game that is alive or wounded and not on its way home), the retry of game on its way
-  home and the reach to a carcass (`presentation/animals/hunting/adapter.ts`), and **an arrow stopped by cover between
-  the chest and the bow** (`presentation/huntingController.ts`).
 - **Waking after a fall** (where the hero wakes, what is restored, foes sent back to their posts), **what loading
   restores**, **when the game may be saved** and **the first bell of a sitting** (`src/app.ts`).
 - **Who may mount** (checked again in the scene, with the mount's id typed in), **which fight wakes sleepers**, **who

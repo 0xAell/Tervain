@@ -185,7 +185,7 @@ export class AnimalMind {
     const away = (p: V2) => hunter ? Math.hypot(p.x - hunter.x, p.z - hunter.z) : 0;
     if (hunter) best = away(this.home);
     // Expiry measures the old carcass, not the new site. If the entire return range is too close, wait without
-    // probing terrain or resetting the live controller every frame. The caller retries once a second.
+    // probing terrain or resetting the live controller every frame. The caller retries every WILDLIFE_RETRY_SECONDS.
     if (returning && hunter && best + this.definition.roam * .7 < WILDLIFE_RETURN_DISTANCE) return false;
     for (let attempt = 0; attempt < 8 && this.definition.roam > 2 && !this.definition.tame; attempt++) {
       const a = this.rng() * Math.PI * 2, r = this.definition.roam * (0.2 + 0.5 * this.rng());

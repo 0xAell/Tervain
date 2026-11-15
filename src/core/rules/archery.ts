@@ -322,6 +322,26 @@ export function zoneOnBody(zone: 'head' | 'body' | null, dead: boolean): 'head' 
 }
 
 /** Where a wounded animal runs from when it has nothing else to run from: a point behind it. */
+/** An animal as a shot finds it: whether it can be hunted at all, whether it is away on its way home, and how it fared. */
+export interface ShotWitness { huntable: boolean; returning: boolean; status?: AnimalHuntRecord['status'] }
+
+/**
+ * Who takes fright at a shot: game that can be hunted, is in the world (not away on its way home) and is alive or only
+ * wounded, within `radius` of where the bow was loosed. Pets and the mount cannot be hunted, so a shot does not scatter
+ * them, and a carcass does not run.
+ */
+export function takesFright(animal: ShotWitness, distance: number, radius: number = SHOT.alarm): boolean {
+  return animal.huntable && !animal.returning && (animal.status === undefined || animal.status === 'injured') && distance <= radius;
+}
+
+/**
+ * The arrow is first traced from his chest to the bow (`SHOT.chest`). Cover between the two is what the arrow strikes,
+ * at once: the drawn bow cannot put an arrow through a post he stands behind. `scenery` answers what a line meets.
+ */
+export function coverAtBow<H>(hunter: Point3, bow: Point3, scenery: (from: Point3, to: Point3) => H | null): H | null {
+  return scenery({ x: hunter.x, y: hunter.y + SHOT.chest, z: hunter.z }, bow);
+}
+
 export function woundedFleesFrom(position: { x: number; z: number }, yaw: number): { x: number; z: number } {
   return { x: position.x - Math.sin(yaw) * SHOT.woundedFleesBehind, z: position.z - Math.cos(yaw) * SHOT.woundedFleesBehind };
 }
@@ -359,6 +379,22 @@ export function skinningStance(chest: { x: number; z: number }, hunter: { x: num
   const limit = SKINNING_REACH - SKINNING.inside, off = Math.hypot(x - recorded.x, z - recorded.z);
   if (off > limit) { x = recorded.x + (x - recorded.x) * limit / off; z = recorded.z + (z - recorded.z) * limit / off; }
   return { x, z };
+}
+
+/**
+ * The carcass he would skin: the nearest one lying dead within the skinning reach of him on the ground. Whether it is
+ * near enough in height, and the rest, is skinningRefusal's to say, so that the prompt can name it and tell him why not.
+ */
+export function nearestCarcass<T extends { record: { status: AnimalHuntRecord['status']; position: { x: number; z: number } } | null | undefined }>(
+  candidates: readonly T[], hunter: { x: number; z: number }, reach: number = SKINNING_REACH): { candidate: T; distance: number } | null {
+  let nearest: { candidate: T; distance: number } | null = null;
+  for (const candidate of candidates) {
+    const record = candidate.record;
+    if (record?.status !== 'dead') continue;
+    const distance = Math.hypot(record.position.x - hunter.x, record.position.z - hunter.z);
+    if (distance <= reach && (!nearest || distance < nearest.distance)) nearest = { candidate, distance };
+  }
+  return nearest;
 }
 
 /** What is known when he would skin, or goes on skinning. */
