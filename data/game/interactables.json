@@ -1,0 +1,1388 @@
+{
+  "about": "Everything the wanderer can act on: where it is, how near he must come, its place in the order of offers (lower first; each whole step outweighs two metres), the solids that are the thing itself, the facts of the moment it needs, and what acting on it does. When the state offers each, and its prompt, are rules in core/rules/interactables.ts.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "reachHeights": {
+    "resident": 1.1,
+    "rider": 1.4,
+    "groundPoint": 1,
+    "eye": 1.4
+  },
+  "interactables": [
+    {
+      "id": "hunter_notes",
+      "place": {
+        "at": "hunter_table",
+        "x": -216,
+        "z": 32.13,
+        "above": 0.72
+      },
+      "reach": 3,
+      "priority": 1,
+      "ignoreColliders": [
+        "hunter_board",
+        "hunter_board_post"
+      ],
+      "needs": [],
+      "act": {
+        "do": "hunting_notes"
+      }
+    },
+    {
+      "id": "hunter_restock",
+      "place": {
+        "at": "hunter_table",
+        "x": -216,
+        "z": 31,
+        "above": 0.12
+      },
+      "reach": 3,
+      "priority": -0.6,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "restock_arrows"
+      }
+    },
+    {
+      "id": "hunter_sell_meat",
+      "place": {
+        "at": "hunter_table",
+        "x": -216.7,
+        "z": 30.75,
+        "above": 0.12
+      },
+      "reach": 2.2,
+      "priority": -0.6,
+      "ignoreColliders": [],
+      "needs": [
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "sell_game_meat"
+      }
+    },
+    {
+      "id": "mount_deer",
+      "place": {
+        "at": "mount",
+        "mount": "1005232412"
+      },
+      "reach": 2.6,
+      "priority": -0.4,
+      "ignoreColliders": [
+        "animal:1005232412"
+      ],
+      "needs": [
+        "can_mount",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "mount",
+        "mount": "1005232412"
+      }
+    },
+    {
+      "id": "dismount",
+      "place": {
+        "at": "rider",
+        "above": 1.4
+      },
+      "reach": 3,
+      "priority": -5,
+      "ignoreColliders": [],
+      "needs": [
+        "riding"
+      ],
+      "act": {
+        "do": "dismount"
+      }
+    },
+    {
+      "id": "dismount_door",
+      "place": {
+        "at": "rider",
+        "above": 1.4
+      },
+      "reach": 3,
+      "priority": -6,
+      "ignoreColliders": [],
+      "needs": [
+        "riding_at_doorway"
+      ],
+      "act": {
+        "do": "dismount"
+      }
+    },
+    {
+      "id": "npc:caravan_master",
+      "place": {
+        "at": "resident",
+        "npc": "caravan_master",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "caravan_master"
+      }
+    },
+    {
+      "id": "npc:rillford_reeve",
+      "place": {
+        "at": "resident",
+        "npc": "rillford_reeve",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "rillford_reeve"
+      }
+    },
+    {
+      "id": "npc:spring_steward",
+      "place": {
+        "at": "resident",
+        "npc": "spring_steward",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "spring_steward"
+      }
+    },
+    {
+      "id": "npc:quarry_foreman",
+      "place": {
+        "at": "resident",
+        "npc": "quarry_foreman",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "quarry_foreman"
+      }
+    },
+    {
+      "id": "npc:maintenance_worker",
+      "place": {
+        "at": "resident",
+        "npc": "maintenance_worker",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "maintenance_worker"
+      }
+    },
+    {
+      "id": "npc:estate_steward",
+      "place": {
+        "at": "resident",
+        "npc": "estate_steward",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "estate_steward"
+      }
+    },
+    {
+      "id": "npc:ash_recorder",
+      "place": {
+        "at": "resident",
+        "npc": "ash_recorder",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "ash_recorder"
+      }
+    },
+    {
+      "id": "npc:shrine_warden",
+      "place": {
+        "at": "resident",
+        "npc": "shrine_warden",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "shrine_warden"
+      }
+    },
+    {
+      "id": "npc:mill_hand",
+      "place": {
+        "at": "resident",
+        "npc": "mill_hand",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "mill_hand"
+      }
+    },
+    {
+      "id": "npc:quarry_hand",
+      "place": {
+        "at": "resident",
+        "npc": "quarry_hand",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "quarry_hand"
+      }
+    },
+    {
+      "id": "npc:village_baker",
+      "place": {
+        "at": "resident",
+        "npc": "village_baker",
+        "above": 1.1
+      },
+      "reach": 2.7,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "village_baker"
+      }
+    },
+    {
+      "id": "npc:trail_hunter",
+      "place": {
+        "at": "resident",
+        "npc": "trail_hunter",
+        "above": 1.1
+      },
+      "reach": 3,
+      "priority": -1,
+      "ignoreColliders": [],
+      "needs": [
+        "resident_in_sight",
+        "no_threat_near"
+      ],
+      "act": {
+        "do": "observe",
+        "npc": "trail_hunter"
+      }
+    },
+    {
+      "id": "inspect:arrival_wreckage",
+      "place": {
+        "at": "point",
+        "x": -272,
+        "z": -8
+      },
+      "reach": 3.2,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "arrival_wreckage"
+      }
+    },
+    {
+      "id": "inspect:templar_waymarker",
+      "place": {
+        "at": "point",
+        "x": -230,
+        "z": 32
+      },
+      "reach": 3.2,
+      "priority": 0,
+      "ignoreColliders": [
+        "forest-waymarker:0"
+      ],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "templar_waymarker"
+      }
+    },
+    {
+      "id": "inspect:dry_channel",
+      "place": {
+        "at": "point",
+        "x": -13.5,
+        "z": 5
+      },
+      "reach": 3.2,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "dry_channel"
+      }
+    },
+    {
+      "id": "inspect:spring_sediment",
+      "place": {
+        "at": "point",
+        "x": -6,
+        "z": -86
+      },
+      "reach": 4,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "spring_sediment"
+      }
+    },
+    {
+      "id": "inspect:town_diversion",
+      "place": {
+        "at": "point",
+        "x": 12,
+        "z": -46
+      },
+      "reach": 4,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "town_diversion"
+      }
+    },
+    {
+      "id": "inspect:quarry_seep",
+      "place": {
+        "at": "point",
+        "x": 74,
+        "z": -30
+      },
+      "reach": 4,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "quarry_seep"
+      }
+    },
+    {
+      "id": "inspect:sluice_crack",
+      "place": {
+        "at": "point",
+        "x": 5.6,
+        "z": -57.4
+      },
+      "reach": 3.4,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "sluice_crack"
+      }
+    },
+    {
+      "id": "inspect:inspection_log",
+      "place": {
+        "at": "point",
+        "x": 2.6,
+        "z": -57
+      },
+      "reach": 2.6,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "inspection_log"
+      }
+    },
+    {
+      "id": "inspect:noticeboard",
+      "place": {
+        "at": "point",
+        "x": 5,
+        "z": 12.8
+      },
+      "reach": 3,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "noticeboard"
+      }
+    },
+    {
+      "id": "inspect:wetland_fish",
+      "place": {
+        "at": "point",
+        "x": -14,
+        "z": -90
+      },
+      "reach": 3.5,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "wetland_fish"
+      }
+    },
+    {
+      "id": "inspect:saltward_kit",
+      "place": {
+        "at": "point",
+        "x": 15,
+        "z": 20.5
+      },
+      "reach": 2.4,
+      "priority": 0,
+      "ignoreColliders": [
+        "kit_table"
+      ],
+      "needs": [],
+      "act": {
+        "do": "inspect",
+        "point": "saltward_kit"
+      }
+    },
+    {
+      "id": "pickup:hunter_bow",
+      "place": {
+        "at": "pickup",
+        "pickup": "hunter_bow",
+        "x": -215.6,
+        "z": 31
+      },
+      "reach": 2.4,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "hunter_bow",
+        "item": "hunting_bow",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:hunter_knife",
+      "place": {
+        "at": "pickup",
+        "pickup": "hunter_knife",
+        "x": -216.58,
+        "z": 31.36
+      },
+      "reach": 2.4,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "hunter_knife",
+        "item": "skinning_knife",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:hunter_arrows",
+      "place": {
+        "at": "pickup",
+        "pickup": "hunter_arrows",
+        "x": -216.55,
+        "z": 30.7
+      },
+      "reach": 2.4,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "hunter_arrows",
+        "item": "arrow",
+        "qty": 24
+      }
+    },
+    {
+      "id": "pickup:quarry_brace",
+      "place": {
+        "at": "pickup",
+        "pickup": "quarry_brace",
+        "x": 90,
+        "z": -12
+      },
+      "reach": 2.6,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "quarry_brace",
+        "item": "sluice_brace",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:quarry_wrench",
+      "place": {
+        "at": "pickup",
+        "pickup": "quarry_wrench",
+        "x": 91.6,
+        "z": -13
+      },
+      "reach": 2.6,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "quarry_wrench",
+        "item": "gate_wrench",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:side_path_cache",
+      "place": {
+        "at": "pickup",
+        "pickup": "side_path_cache",
+        "x": 112,
+        "z": 62
+      },
+      "reach": 3,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "side_path_cache",
+        "item": "coin",
+        "qty": 8
+      }
+    },
+    {
+      "id": "pickup:wreck_blade",
+      "place": {
+        "at": "pickup",
+        "pickup": "wreck_blade",
+        "x": -274.174815,
+        "z": -9.29329
+      },
+      "reach": 2.4,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "wreck_blade",
+        "item": "rusted_sword",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:strand_apple",
+      "place": {
+        "at": "pickup",
+        "pickup": "strand_apple",
+        "x": -266,
+        "z": 31
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "strand_apple",
+        "item": "shore_apple",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:tide_bread",
+      "place": {
+        "at": "pickup",
+        "pickup": "tide_bread",
+        "x": -266,
+        "z": 12
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "tide_bread",
+        "item": "bread",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:wreck_iron_a",
+      "place": {
+        "at": "pickup",
+        "pickup": "wreck_iron_a",
+        "x": -269,
+        "z": -6
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "wreck_iron_a",
+        "item": "iron_scrap",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:wreck_iron_b",
+      "place": {
+        "at": "pickup",
+        "pickup": "wreck_iron_b",
+        "x": -266,
+        "z": -14
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "wreck_iron_b",
+        "item": "iron_scrap",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:shoretrack_apple",
+      "place": {
+        "at": "pickup",
+        "pickup": "shoretrack_apple",
+        "x": -246,
+        "z": 31
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "shoretrack_apple",
+        "item": "shore_apple",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:dune_herb",
+      "place": {
+        "at": "pickup",
+        "pickup": "dune_herb",
+        "x": -253,
+        "z": 47
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "dune_herb",
+        "item": "healing_herb",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:deepwood_mushroom_a",
+      "place": {
+        "at": "pickup",
+        "pickup": "deepwood_mushroom_a",
+        "x": -225,
+        "z": 22
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "deepwood_mushroom_a",
+        "item": "field_mushroom",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:deepwood_herb_a",
+      "place": {
+        "at": "pickup",
+        "pickup": "deepwood_herb_a",
+        "x": -214,
+        "z": 16
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "deepwood_herb_a",
+        "item": "healing_herb",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:deepwood_mushroom_b",
+      "place": {
+        "at": "pickup",
+        "pickup": "deepwood_mushroom_b",
+        "x": -198,
+        "z": 7
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "deepwood_mushroom_b",
+        "item": "field_mushroom",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:deepwood_apple_a",
+      "place": {
+        "at": "pickup",
+        "pickup": "deepwood_apple_a",
+        "x": -184,
+        "z": 12
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "deepwood_apple_a",
+        "item": "shore_apple",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:deepwood_herb_b",
+      "place": {
+        "at": "pickup",
+        "pickup": "deepwood_herb_b",
+        "x": -169,
+        "z": 24
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "deepwood_herb_b",
+        "item": "healing_herb",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:deepwood_mushroom_c",
+      "place": {
+        "at": "pickup",
+        "pickup": "deepwood_mushroom_c",
+        "x": -156,
+        "z": 26
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "deepwood_mushroom_c",
+        "item": "field_mushroom",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:deepwood_mushroom_d",
+      "place": {
+        "at": "pickup",
+        "pickup": "deepwood_mushroom_d",
+        "x": -140,
+        "z": 33
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "deepwood_mushroom_d",
+        "item": "field_mushroom",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:deepwood_herb_c",
+      "place": {
+        "at": "pickup",
+        "pickup": "deepwood_herb_c",
+        "x": -125,
+        "z": 26
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "deepwood_herb_c",
+        "item": "healing_herb",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:oldtrack_iron",
+      "place": {
+        "at": "pickup",
+        "pickup": "oldtrack_iron",
+        "x": -113,
+        "z": 19
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "oldtrack_iron",
+        "item": "iron_scrap",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:waystation_apple_a",
+      "place": {
+        "at": "pickup",
+        "pickup": "waystation_apple_a",
+        "x": -104,
+        "z": 14
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "waystation_apple_a",
+        "item": "shore_apple",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:waystation_bread_a",
+      "place": {
+        "at": "pickup",
+        "pickup": "waystation_bread_a",
+        "x": -101,
+        "z": 22
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "waystation_bread_a",
+        "item": "bread",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:waystation_apple_b",
+      "place": {
+        "at": "pickup",
+        "pickup": "waystation_apple_b",
+        "x": -90,
+        "z": 46
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "waystation_apple_b",
+        "item": "shore_apple",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:waystation_bread_b",
+      "place": {
+        "at": "pickup",
+        "pickup": "waystation_bread_b",
+        "x": -89,
+        "z": 34
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "waystation_bread_b",
+        "item": "bread",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:waystation_iron",
+      "place": {
+        "at": "pickup",
+        "pickup": "waystation_iron",
+        "x": -102,
+        "z": 46
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "waystation_iron",
+        "item": "iron_scrap",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:waystation_herb",
+      "place": {
+        "at": "pickup",
+        "pickup": "waystation_herb",
+        "x": -81,
+        "z": 59
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "waystation_herb",
+        "item": "healing_herb",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:lantern_iron",
+      "place": {
+        "at": "pickup",
+        "pickup": "lantern_iron",
+        "x": -315,
+        "z": 110
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "lantern_iron",
+        "item": "iron_scrap",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:lantern_herb",
+      "place": {
+        "at": "pickup",
+        "pickup": "lantern_herb",
+        "x": -311,
+        "z": 101
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "lantern_herb",
+        "item": "healing_herb",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:lantern_bread",
+      "place": {
+        "at": "pickup",
+        "pickup": "lantern_bread",
+        "x": -334,
+        "z": 111.5
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "lantern_bread",
+        "item": "bread",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:lantern_apple",
+      "place": {
+        "at": "pickup",
+        "pickup": "lantern_apple",
+        "x": -327,
+        "z": 114
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "lantern_apple",
+        "item": "shore_apple",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:rillford_apple",
+      "place": {
+        "at": "pickup",
+        "pickup": "rillford_apple",
+        "x": -18,
+        "z": 32
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "rillford_apple",
+        "item": "shore_apple",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:rillford_bread",
+      "place": {
+        "at": "pickup",
+        "pickup": "rillford_bread",
+        "x": 7,
+        "z": 32
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "rillford_bread",
+        "item": "bread",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:rillford_mushroom",
+      "place": {
+        "at": "pickup",
+        "pickup": "rillford_mushroom",
+        "x": -26,
+        "z": 12
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "rillford_mushroom",
+        "item": "field_mushroom",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:rillford_herb",
+      "place": {
+        "at": "pickup",
+        "pickup": "rillford_herb",
+        "x": 24,
+        "z": 4
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "rillford_herb",
+        "item": "healing_herb",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:quarry_iron",
+      "place": {
+        "at": "pickup",
+        "pickup": "quarry_iron",
+        "x": 70,
+        "z": -17
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "quarry_iron",
+        "item": "iron_scrap",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:quarry_mushroom",
+      "place": {
+        "at": "pickup",
+        "pickup": "quarry_mushroom",
+        "x": 67,
+        "z": -24
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "quarry_mushroom",
+        "item": "field_mushroom",
+        "qty": 1
+      }
+    },
+    {
+      "id": "pickup:quarry_herb",
+      "place": {
+        "at": "pickup",
+        "pickup": "quarry_herb",
+        "x": 86,
+        "z": -3
+      },
+      "reach": 1.85,
+      "priority": -0.5,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pickup",
+        "pickup": "quarry_herb",
+        "item": "healing_herb",
+        "qty": 1
+      }
+    },
+    {
+      "id": "lever",
+      "place": {
+        "at": "point",
+        "x": 92.6,
+        "z": -8.4
+      },
+      "reach": 2.6,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "pull_lever"
+      }
+    },
+    {
+      "id": "sluice",
+      "place": {
+        "at": "point",
+        "x": 3.4,
+        "z": -62.6
+      },
+      "reach": 3.8,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "open_sluice"
+      }
+    },
+    {
+      "id": "archive_door",
+      "place": {
+        "at": "point",
+        "x": -46,
+        "z": -98.2
+      },
+      "reach": 2.4,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "try_archive_door"
+      }
+    },
+    {
+      "id": "archive_shutter",
+      "place": {
+        "at": "point",
+        "x": -46,
+        "z": -105.8
+      },
+      "reach": 2.6,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "force_shutter"
+      }
+    },
+    {
+      "id": "ledger",
+      "place": {
+        "at": "point",
+        "x": -46,
+        "z": -102.4
+      },
+      "reach": 2.6,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "read_ledger"
+      }
+    },
+    {
+      "id": "rite",
+      "place": {
+        "at": "point",
+        "x": -14,
+        "z": -98
+      },
+      "reach": 3.6,
+      "priority": 0,
+      "ignoreColliders": [
+        "altar"
+      ],
+      "needs": [],
+      "act": {
+        "do": "perform_rite"
+      }
+    },
+    {
+      "id": "check_channel",
+      "place": {
+        "at": "point",
+        "x": -13.5,
+        "z": 5
+      },
+      "reach": 3.4,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "check_result"
+      }
+    },
+    {
+      "id": "check_mill",
+      "place": {
+        "at": "point",
+        "x": -14,
+        "z": -2
+      },
+      "reach": 3.4,
+      "priority": 0,
+      "ignoreColliders": [],
+      "needs": [],
+      "act": {
+        "do": "check_result"
+      }
+    }
+  ]
+}

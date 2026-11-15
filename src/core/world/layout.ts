@@ -386,6 +386,19 @@ export function hunterStationPoint(localX: number, localZ: number): V2 {
   return hunterCampPoint(localX, localZ);
 }
 
+/** The top of the hunter's table: a level plane on the highest ground under its legs. Gear rests on the planks, never on the ground beneath them. */
+export function hunterTableSurfaceY(terrain: { heightAt(x: number, z: number): number }): number {
+  const T = HUNTER_TABLE;
+  let footing = -Infinity;
+  for (const x of [-T.legX, T.legX]) for (const z of [-T.legZ, T.legZ]) {
+    for (const dx of [-T.legWidth / 2, T.legWidth / 2]) for (const dz of [-T.legWidth / 2, T.legWidth / 2]) {
+      const point = hunterStationPoint(x + dx, z + dz);
+      footing = Math.max(footing, terrain.heightAt(point.x, point.z));
+    }
+  }
+  return footing + T.topAboveFooting;
+}
+
 export const PICKUP_LOCATIONS: (WorldPoint & { item: ItemId; qty: number; nameKey: string; yaw?: number; support?: 'hunter_table' })[] = [
   { id: 'hunter_bow', ...hunterStationPoint(-.4, 0), r: 2.4, item: 'hunting_bow', qty: 1, nameKey: 'pickup.hunter_bow', yaw: HUNTER_TABLE.yaw + Math.PI / 2, support: 'hunter_table' },
   { id: 'hunter_knife', ...hunterStationPoint(.58, -.36), r: 2.4, item: 'skinning_knife', qty: 1, nameKey: 'pickup.hunter_knife', yaw: HUNTER_TABLE.yaw + .22, support: 'hunter_table' },
