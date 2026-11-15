@@ -295,3 +295,9 @@ export const BARKS: Bark[] = [
   { npc: 'village_baker', hours: [5, 8], line: 'hesper.bark.ovens' },
   { npc: 'village_baker', hours: [17, 20], line: 'hesper.bark.queue' },
 ];
+
+/** A woman's figure is drawn this much smaller than the look's height gives; a resident's height as a body is the drawn figure's. */
+export const WOMAN_FIGURE_SCALE = 0.94;
+
+/** How large a resident's figure is drawn: the look's height, and smaller for a woman. */
+export const figureScale = (lookHeight: number, woman: boolean): number => lookHeight * (woman ? WOMAN_FIGURE_SCALE : 1);

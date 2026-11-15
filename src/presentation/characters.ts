@@ -25,6 +25,7 @@ import type { HeroAnimationController } from './hero/animation';
 import type { ResidentMotion } from './npc/residentMotion';
 import type { ResidentFingers } from './npc/residentFingers';
 import type { WorkSite } from './npc/workSites';
+import { ENEMY_FIGURE } from '../core/content/enemies';
 
 /**
  * People and creatures. People are built the way Gothic 3 builds its actors (docs/art/gothic3-reference.md#people): one
@@ -878,7 +879,7 @@ export function createThornback(): Rig {
     sheathed: null,
     grip: 'none',
     sash: null,
-    height: 1.4,
+    height: ENEMY_FIGURE.thornbackHeight,
     hipY: 0.8,
     cur,
     materials: [hideM, boneM],

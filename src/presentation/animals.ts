@@ -12,7 +12,7 @@ import { withModelLoadSlot } from './assets/modelLoadQueue';
 import { downloadAsset } from './assets/download';
 import { matteHide } from './matte';
 import { ANIMAL_CALL_EVENT, type AnimalCall } from './sound/animalAudio';
-import { ANIMALS, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
+import { ANIMALS, ANIMAL_HOME_MARGIN, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
 import { animalNavigationColliders, findAnimalSite, type AnimalSite } from '../core/rules/animalNavigation';
 import { AnimalHunting, type HuntingAnimal } from './animals/hunting/adapter';
 import type { AnimalArrowHit } from './animals/hunting/hit';
@@ -459,7 +459,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     const template = templates.get(definition.id);
     if (!template) throw new Error(`The ${definition.species} source model was not loaded.`);
     const validated = validateAnimalTemplate(template, definition);
-    const size = validated.bounds.getSize(new THREE.Vector3()), radius = Math.hypot(size.x, size.z) / 2 + 0.14;
+    const size = validated.bounds.getSize(new THREE.Vector3()), radius = Math.hypot(size.x, size.z) / 2 + ANIMAL_HOME_MARGIN;
     const home = findAnimalSite(definition, radius, terrain, colliders, occupied, size.y); occupied.push(home);
     fitted.push({ definition, template, home, validated });
     yield;

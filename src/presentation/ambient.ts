@@ -5,6 +5,7 @@ import type { BuildContext, FrameContext, SceneModule } from './context';
 import { createAmbientRig, poseRig, type AmbientStyle, type Look, type Mode, type Rig } from './characters';
 import type { AwaitingFigure } from './residentArrivals';
 import { goneInForTheNight } from '../core/rules/dayNight';
+import { figureScale } from '../core/content/npcs';
 
 /**
  * Silent residents of the inland hamlet. Their positions follow the relocated buildings and hearth;
@@ -69,7 +70,7 @@ export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { peopl
   const people: Resident[] = [];
   const awaiting: AwaitingFigure[] = [];
   SPECS.forEach((spec, i) => {
-    const role = `ambient:${spec.style.id}`, height = spec.look.height * (spec.style.build === 'woman' ? 0.94 : 1);
+    const role = `ambient:${spec.style.id}`, height = figureScale(spec.look.height, spec.style.build === 'woman');
     // A model still on its way leaves a stand-in with nothing to draw and no body to bump into (stage 2).
     const arrived = !ctx.npcAssets || ctx.npcAssets.has(role);
     const rig = !ctx.npcAssets ? createAmbientRig(spec.look, spec.style) : arrived ? ctx.npcAssets.create(role, height) : ctx.npcAssets.standIn(role, height);

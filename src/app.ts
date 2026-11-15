@@ -6,7 +6,7 @@ import { pruneContentCache } from './presentation/assets/download';
 import { prefetchJourney, warmJourney } from './presentation/journeyPrefetch';
 import * as THREE from 'three';
 import { beginStaticSkinFrame, endStaticSkinFrame } from './presentation/npc/dualQuaternionSkinning';
-import { NPCS } from './core/content/npcs';
+import { figureScale, NPCS } from './core/content/npcs';
 import { SPEAKER_NAMES, VOICE_LINES, shown, type HeroCue } from './core/content/voice';
 import { S } from './core/content/strings';
 import { CLOCK_RATE, RITE_CALM_MIN } from './core/game/constants';
@@ -73,7 +73,7 @@ import { BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, 
 import { fightingFoes } from './core/rules/residentWalk';
 import { RESIDENT } from './core/rules/resident';
 import { MOUNT_ID } from './core/rules/interactables';
-import { AUTOSAVE_SECONDS, bellGain, bellWait, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH } from './core/rules/journey';
+import { AUTOSAVE_SECONDS, bellGain, bellWait, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH, witnessesOf } from './core/rules/journey';
 import {
   archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
   journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
@@ -81,7 +81,7 @@ import {
 } from './core/rules/session';
 import { STAMINA_MAX } from './core/rules/hero';
 import { CAMERA } from './core/rules/camera';
-import { ENEMY_VARIANT } from './core/content/enemies';
+import { banditScale, ENEMY_VARIANT } from './core/content/enemies';
 
 /** How far round the line from the camera to the wanderer leaves give way (A84), metres. */
 const FOLIAGE_FOCUS_RADIUS = 1.3;
@@ -478,7 +478,7 @@ export class App {
       personBuildOptions.sheetSize = this.settings.quality === 'low' ? 512 : 1024;
       // Stage private Meshy rigs before the world adopts them, so a failed build can release the complete cast.
       for (const definition of Object.values(NPCS)) {
-        const height = definition.look.height * (npcStyle(definition.id).build === 'woman' ? 0.94 : 1);
+        const height = figureScale(definition.look.height, npcStyle(definition.id).build === 'woman');
         const role = `named:${definition.id}`, arrived = cast.has(role);
         // Someone whose model is still on its way keeps their schedule unseen and cannot be met until it is here (stage 2).
         const npc = new NpcActor(definition, arrived ? cast.create(role, height) : cast.standIn(role, height), arrived);
@@ -489,7 +489,7 @@ export class App {
       }
       for (const spawn of ENEMY_SPAWNS) {
         const variant = ENEMY_VARIANT[spawn.id] ?? 0;
-        const role = `enemy:${spawn.id}`, scale = 1.04 + variant * 0.05, arrived = spawn.kind === 'thornback' || cast.has(role);
+        const role = `enemy:${spawn.id}`, scale = banditScale(variant), arrived = spawn.kind === 'thornback' || cast.has(role);
         const rig = spawn.kind === 'thornback' ? undefined : arrived ? cast.create(role, scale, 'blade') : cast.standIn(role, scale, 'blade');
         // A bandit still waiting for their model is out of every fight until it is here (stage 2).
         const enemy = new EnemyActor(spawn, rig, arrived);
@@ -2039,14 +2039,9 @@ export class App {
 
   /** Who could plausibly have seen the player at this spot: awake, close, with a clear line of sight. */
   observersAt(x: number, z: number): NpcId[] {
-    const out: NpcId[] = [];
-    for (const n of this.npcs) {
-      // Asleep in their beds, they see nothing (A70).
-      if (!couldWitness(n.id, Math.hypot(n.x - x, n.z - z), !n.hidden, n.asleep, this.game.state.npcs[n.id].available)) continue;
-      const ignore = new Set<string>();
-      if (!this.world.colliders.segmentBlocked(n.x, n.z, x, z, ignore)) out.push(n.id);
-    }
-    return out;
+    // Asleep in their beds, they see nothing (A70); who sees is the core's (witnessesOf).
+    return witnessesOf(x, z, this.npcs.map((n) => ({ id: n.id, x: n.x, z: n.z, present: !n.hidden, asleep: n.asleep, available: this.game.state.npcs[n.id].available })),
+      this.world.colliders);
   }
 
   forceShutter() {
