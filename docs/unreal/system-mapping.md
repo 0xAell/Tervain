@@ -1,15 +1,16 @@
 # System mapping: the web build to Unreal Engine
 
 For each system of the web build: where its data and rules live in this repository, what it becomes in Unreal Engine,
-and what carries over. One-line descriptions of Unreal systems marked **Epic** are quoted from Epic's documentation
-(read 14 November 2026). The choices are proposals to test in the port's first phases, not measured results.
+and what carries over. Descriptions of Unreal systems in quotation marks are Epic's own words, each checked against
+its page on 15 November 2026 ([`sources.json`](sources.json)). The choices in the Unreal columns are this project's
+proposals, to test in the port's first phases; none is a measured result.
 
 The size of the task: a world of 580 m × 340 m, 19 buildings (18 with a room), 945 planted trees and shrubs, 12 named
 residents, 3 silent ones, 3 hostiles, 19 animals, 20 items, 98 dialogue nodes, 245 spoken lines and one quest.
 
 ## The world
 
-| Web build | Data and rules | Unreal | Carries over |
+| Web build | Data and rules | Unreal (proposal) | Carries over |
 | --- | --- | --- | --- |
 | **Terrain.** A height field on a 2 m grid, drawn as tiles with a height-blended material. | `core/world/terrain.ts`, `coast.ts`, `layout.ts`; exported as `data/world/terrain-height.png` and `terrain.json`. | **Landscape**, 631 × 379 vertices at 1 m (10 × 6 components of 63 quads), Z scale 100. | The heightmap, imported as is. Stream beds, the spring basin and the mill race are already carved into it. |
 | **Ground materials.** Eight layers weighted by height, slope, water, shore, roads and fields. | `core/world/groundLayers.ts`; exported as `terrain-layer-*.png`. | **Landscape layers** with imported weightmaps; one Landscape material. | The eight weight images. The textures are replaced (asset manifest, `surfaces`). The trees' shade on the ground is not in the exported weights. |
@@ -20,21 +21,21 @@ residents, 3 silent ones, 3 hostiles, 19 animals, 20 items, 98 dialogue nodes, 2
 | **Rocks and scatter.** Boulders, pebbles, driftwood, reeds. | Scene only: `presentation/scatterPopulation.ts`, `scatter.ts`. | Foliage instances or PCG over the rock and sand layers, with scanned rocks. | Rebuilt. |
 | **Buildings.** Footprints with wall and roof kinds; the scene builds merged geometry and baked surfaces for each. | `BUILDINGS` in `layout.ts`; `data/unreal/DT_Buildings.json`. | A **modular building kit** assembled per building (as level instances or packed level actors), placed from `DT_Buildings`. | Positions, facing, footprints, wall heights, kinds. The geometry is replaced. |
 | **Rooms, furniture and dressing.** Every house can be entered: a room, a hearth, 143 furniture pieces and 525 smaller pieces placed by rule. | `core/world/interiors.ts`, `furniture.ts`, `dressing.ts`, `houseYards.ts`, `homes.ts`; `data/world/interiors.json`. | Placed props inside each building's instance, from `interiors.json` (building-local positions). | Every placement. The models are replaced. |
-| **World extent and streaming.** One world, loaded whole; models arrive in stages. | `WORLD` in `layout.ts`. | One level. **World Partition** is, per Epic, "an automatic data management and distance-based level streaming system that provides a complete solution for large world management"; Epic's own templates use it with streaming disabled. At 580 m × 340 m, start with streaming off and turn it on if the world grows. | The bounds. |
+| **World extent and streaming.** One world, loaded whole; models arrive in stages. | `WORLD` in `layout.ts`. | One level. **World Partition** is, per Epic, "an automatic data management and distance-based level streaming system that provides a complete solution for large world management"; Epic's page lists templates that "use World Partition but have Enable Streaming disabled by default". At 580 m × 340 m, start with streaming off and turn it on if the world grows. | The bounds. |
 | **Colliders and navigation.** Circles and boxes with vertical bounds; a walkable grid with A*. | `core/world/colliders.ts`, `nav.ts`, `buildingEntries.ts`. | **Chaos** collision on the meshes themselves; a **navigation mesh** with modifiers for water and doors. | Nothing as data: both follow from the placed meshes. The rules they encode (what blocks, where a door is) are worth reading. |
 | **Sky and time of day.** Keyframed sky, sun and moon arcs, fog, cloud cover; one game minute a second. | `core/rules/dayNight.ts` (daylight, sun angle, nightness, what answers the dark); keyframes in `presentation/sky.ts`. | **Sky Atmosphere**, a directional light, a sky light and exponential height fog, driven by a time-of-day actor. On the mobile renderer Epic lists Sky Atmosphere as supported and Volumetric Clouds as not. | The clock rate, sunrise and sunset, the nightness curve (`tuning.json`, `clock`) and the thresholds for lanterns, music and sleepers. |
 | **Wind.** One prevailing wind for grass and trees. | `core/world/wind.ts`. | A wind source feeding foliage materials. | Direction, strengths and speed. |
 
 ## The player
 
-| Web build | Data and rules | Unreal | Carries over |
+| Web build | Data and rules | Unreal (proposal) | Carries over |
 | --- | --- | --- | --- |
-| **Movement.** Walk, run, guard pace, step height, slopes, jump, fence vault, wading and swimming. | `core/rules/hero.ts`, `heroLocomotion.ts`; `tuning.json`, `hero`. | `ACharacter` with the **Character Movement** component (walking, falling and swimming modes); a vault as a root-motion or scripted move. Epic marks the newer Mover plugin "Experimental... use caution when shipping with it": do not build on it yet. | Every number. |
+| **Movement.** Walk, run, guard pace, step height, slopes, jump, fence vault, wading and swimming. | `core/rules/hero.ts`, `heroLocomotion.ts`; `tuning.json`, `hero`. | `ACharacter` with the **Character Movement** component (walking, falling and swimming modes); a vault as a root-motion or scripted move. Epic's page on the newer Mover plugin says "Learn to use this Experimental feature, but use caution when shipping with it.": do not build on it yet. | Every number. |
 | **Stamina and combat.** Light and heavy blows, dodge with a moment of invulnerability, guard, perfect block and parry, guard break; fists and a blade. | `core/rules/hero.ts` (`staminaStep`, `resolveGuardedHit`, the arms tables); mirrored in `unreal/.../Rules/TervainHeroRules`. | Two workable shapes: **plain components** on the character calling the mirrored rules, or the **Gameplay Ability System** ("a framework for building attributes, abilities, and interactions that an Actor can own and trigger") with health and stamina as attributes, blows, dodge and block as abilities, and costs and recovery as gameplay effects. | The rules and numbers. See the choice below. |
 | **The bow.** Draw, a low ballistic arc through the reticle, arrows that lodge, splash, sink and float. | `core/rules/bow.ts`; ranges and hunting in `core/game/hunting.ts`. | A projectile actor with its own gravity and a sweep each tick; Niagara for the trail and splash. | Speeds, times, limits and the launch formula. |
 | **Riding.** The saddled deer: reins with bounded turn and acceleration, gallop stamina, mounting and dismounting, doorways it will not enter. | `core/rules/riding.ts`. | A mount pawn the character attaches to and possesses or drives; the rules mirrored as functions. | Every number and the rules. |
 | **Camera.** A follow boom that shortens for obstructions and tree crowns, an over-the-shoulder aim view, a room view, a ride view. | `core/rules/camera.ts`, `cameraObstruction.ts`, `cameraCrowns.ts`. | A **spring arm** and camera component (the arm's collision test replaces the hand-made obstruction), with the aim, room and ride offsets blended. Field of view: see [conventions](conventions.md). | Distances, limits and offsets. |
-| **Input.** Keyboard, mouse and gamepad, with rebinding. | Actions in `platform/settings.ts`: move, sprint, jump, interact, skin, grab, throw, attack, heavy, block, dodge, heal, journal, map, inventory, camera, quick save and load, pause, ten quick slots. | **Enhanced Input**, which per Epic "is enabled by default": an input action per action above, and mapping contexts for on foot, mounted, aiming and the interface. | The action list and default bindings. |
+| **Input.** Keyboard, mouse and gamepad, with rebinding. | Actions in `platform/settings.ts`: move, sprint, jump, interact, skin, grab, throw, attack, heavy, block, dodge, heal, journal, map, inventory, camera, quick save and load, pause, ten quick slots. | **Enhanced Input** (Epic: "Enhanced Input is enabled by default."): an input action per action above, and mapping contexts for on foot, mounted, aiming and the interface. | The action list and default bindings. |
 | **Interaction.** The nearest thing within reach that he faces or looks at, not hidden by scenery, lowest priority first. | `core/rules/interaction.ts`; the list of interactables in `presentation/interactions.ts`. | An interaction component that gathers candidates by overlap and ranks them with the mirrored rule; prompts through the interface. | The ranking rule; the reach and priority of each interactable are still in the scene file. |
 
 ### Components or the Gameplay Ability System
@@ -48,7 +49,7 @@ numbers are in data either way.
 
 ## People, animals and hostiles
 
-| Web build | Data and rules | Unreal | Carries over |
+| Web build | Data and rules | Unreal (proposal) | Carries over |
 | --- | --- | --- | --- |
 | **Residents' days.** Each has a schedule of places and activities by hour, overrides by quest state, a home and a bed, indoor work posts. They walk routes, sit on real seats, work with tools, sleep, and wake to a fight. | `core/content/npcs.ts`, `core/rules/schedule.ts`, `resident.ts`, `seat.ts`, `core/world/homes.ts`; `DT_Residents`, `data/game/residents.json`. | An AI controller per resident running a **StateTree** ("a general-purpose hierarchical state machine that combines the Selectors from behavior trees with States and Transitions from state machines"), choosing its goal with the mirrored schedule rule. Places to work, sit and sleep become **Smart Objects** ("a set of activities in the level that can be used through a reservation system"). | Schedules, anchors, movement numbers, the rule that picks a goal. |
 | **Talk.** Passing remarks, exchanges with the wanderer, overheard scenes, his own remarks; a dialogue graph with conditions and effects kept for a conversation interface. | `core/content/voice.ts`, `dialogue.ts`, `core/game/dialogue.ts`; `data/game/voice.json`, `dialogue.json`. | No built-in dialogue system: a small runtime over the imported graph, with conditions and effects evaluated by the ported game state. Lines as sound waves keyed as in `voice.json`. | The graph, the lines, the conditions. |
@@ -58,7 +59,7 @@ numbers are in data either way.
 
 ## State, quest and saving
 
-| Web build | Data and rules | Unreal | Carries over |
+| Web build | Data and rules | Unreal (proposal) | Carries over |
 | --- | --- | --- | --- |
 | **World state and commands.** One persistent state; every meaningful change goes through a command, which emits events for the scene. | `core/game/state.ts`, `commands.ts`, `types.ts`, `game.ts`. | A **game-instance subsystem** holding the state as structs, with the commands as functions and events as delegates. This is the heart of the port and the part with the most tests to mirror (`tests/scenarios`). | The state's shape, every command, every scenario test. |
 | **The quest.** The Dry Bell: evidence, phases, three parties' consent, an allocation, consequences. | `core/game/` and `core/content/`; `data/game/quest.json`, `inspections.json`. | Part of the same subsystem. | Everything. |
@@ -67,7 +68,7 @@ numbers are in data either way.
 
 ## Presentation
 
-| Web build | Unreal | Notes |
+| Web build | Unreal (proposal) | Notes |
 | --- | --- | --- |
 | **Figures and animation.** Rigged models with authored clips, code-driven turns, foot placement and finger poses. | Skeletal meshes on the engine's standard skeleton, **animation blueprints**, blend spaces and montages; foot placement with IK. Motion matching is optional. | Replaced with packs (asset manifest). Timings that gameplay depends on (when a blow lands, how long a dodge lasts) are in the core and must drive the montages, not the other way round. |
 | **Effects.** Leaf bursts, falling leaves, splashes, spray, hearth fire, smoke, dust, motes. | **Niagara**: per Epic, "Unreal Engine's next-generation VFX system". | Rebuilt. |

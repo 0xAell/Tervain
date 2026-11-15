@@ -1,6 +1,7 @@
 # Roadmap for the port
 
-The port in phases. Each phase ends with something that can be checked, and the next does not start until it holds.
+The port in phases. Everything on this page is this project's plan, not a description of work done, except Phase 0.
+Each phase ends with something that can be checked, and the next does not start until it holds.
 The order puts the cheapest proofs first: that the data imports and the units agree, then that the game's feel
 survives, then content.
 
@@ -101,17 +102,18 @@ Fab content stays out of this repository.
 Only after Unreal Engine 5.9 is released, not in preview.
 
 1. Build the compatibility tier for the web target and measure it in Chrome: load time, download size, memory against
-   the 2 GB ceiling, frame time.
+   the reported 2 GB ceiling, frame time.
 2. Confirm saving works across reloads.
-3. Decide hosting. GitHub Pages cannot send custom headers and limits a site to 1 GB.
+3. Decide hosting. GitHub Pages cannot send custom headers and limits a site to 1 GB (see [the web target](web-target.md)).
 
 **Holds when:** a build of the whole game runs in Chrome within memory with saved games that persist. If it does not,
 the Three.js build remains the browser version and the Unreal build is desktop only. See [the web target](web-target.md).
 
 ## Later: Unreal Engine 6
 
-Epic's stated plan is early access at the end of 2027, with gameplay moving to Verse and Actors and Blueprints
-deprecated in time. Nothing needs doing now beyond the habit this repository already has: rules that are small,
+Epic's stated plan, as reported in search results of its announcements (see [the web target](web-target.md)), is early
+access at the end of 2027, with gameplay moving to Verse and Actors and Blueprints deprecated in time. Nothing needs
+doing now beyond the habit this repository already has: rules that are small,
 tested and free of engine classes, and data in files.
 
 ## Work that can be done in this repository meanwhile

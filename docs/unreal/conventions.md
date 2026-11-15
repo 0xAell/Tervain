@@ -1,7 +1,9 @@
 # Conventions for the port
 
 How values, names and files cross from the web build to Unreal Engine. Statements marked **Epic** are quoted from
-Epic's documentation as read on 14 November 2026; the rest are this project's choices.
+Epic's documentation, and each was checked against the page itself on 15 November 2026: [`sources.json`](sources.json)
+lists the pages and passages, and `npm run docs:sources` checks them again. The rest are this project's choices, to be
+tested on the first import.
 
 ## Units and axes
 
@@ -26,7 +28,7 @@ The conversions, used by the export for everything under `data/unreal` and provi
 - **Yaw, for a mesh imported from glTF**, whose front (`+z`) arrives as `+Y`: `UnrealYaw = −coreYaw × 180/π`.
 - **Scale:** uniform scales carry over unchanged.
 
-Epic's documentation does not name a default north. Here east is `+X` and south is `+Y`, so north is `−Y`. Set a
+None of the pages read for this document names a default north. Here east is `+X` and south is `+Y`, so north is `−Y`. Set a
 SunSky actor's north offset to match rather than rotating the world.
 
 ### Field of view
@@ -60,8 +62,9 @@ packaging settings when the game is first packaged.
   16-bit precision", so "at the default Z scale value of 100, your height values will be between 256 m and -256 m."
   The image stores sea level as 32768 and 128 units to the metre, so a Z scale of 100 reproduces the terrain. Its
   heights run from −22 m to +36.3 m.
-- **Epic:** heightmaps import as "16-bit grayscale PNG"; a target layer is "single-channel, grayscale, 8 bits per
-  pixel" at the Landscape's overall resolution. The eight `terrain-layer-*.png` files are that.
+- **Epic:** heightmaps import as "16-bit grayscale PNG". The eight `terrain-layer-*.png` files are 8-bit greyscale
+  images at the Landscape's resolution, one per layer. Epic's current pages do not state the format a layer image must
+  have, so that they import as they are is an assumption to confirm on the first import.
 - Location and scale are in `data/world/terrain.json`: location `(−40500, −18900, 0)` cm, scale `(100, 100, 100)`.
 - Row 0 of the image is the northern edge. Whether Unreal lays image rows along `+Y` as expected is to be confirmed on
   the first import: check the heights of the named places in `terrain.json`. The importer has a *Flip Y Axis* option.
@@ -112,6 +115,8 @@ Triangle budgets the web build holds, as a starting point: 20,000 for a tree, 50
 
 ## Keeping content out of this repository
 
-`unreal/Content` is ignored by git. Unreal content, and above all anything from Fab, is kept in the port's own storage:
-the Fab Standard License allows sharing content with collaborators, for example in a private repository, and this
-repository is public.
+`unreal/Content` is ignored by git. Unreal content, and above all anything from Fab, is kept in the port's own storage.
+Fab's summary of its Standard License lets a buyer "Share the asset (directly, via a private repository or in the
+Project) with your collaborators that are working on the Project with you" and not "Resell or redistribute the asset
+for free on a standalone basis or allow others to do the same". This repository is public, so nothing from Fab goes
+into it.
