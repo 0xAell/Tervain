@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { Colliders, VerticalBounds } from '../core/world/colliders';
+import { PROP_COLLIDER, type Colliders, type VerticalBounds } from '../core/world/colliders';
 import { ARRIVAL_SIGN, FOREST_RUIN, FOREST_WAYMARKERS } from '../core/world/layout';
 import { mulberry32 } from '../core/world/noise';
 import type { Terrain } from '../core/world/terrain';
@@ -55,7 +55,7 @@ export function forestLandmarkGeometry(terrain: Pick<Terrain, 'heightAt'>, colli
     moss(R, rnd, -0.25, 0.3, 0.24, 0.3);
     moss(R, rnd, 0.21, 0.29, -0.24, 0.26);
     R.ctx.pop();
-    colliders.circle(`forest-waymarker:${index}`, mark.x, mark.z, 0.58, true, bounds());
+    colliders.circle(PROP_COLLIDER.waymarker(index), mark.x, mark.z, 0.58, true, bounds());
     regions.push(R);
   }
 

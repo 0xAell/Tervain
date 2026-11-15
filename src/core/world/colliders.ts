@@ -128,6 +128,21 @@ function boxHit(c: BoxCollider, ax: number, az: number, dx: number, dz: number, 
 
 /** How far above its top rail a fence blocks (A125): crossed by a vault, never stepped onto. */
 export const FENCE_WALL_LIFT = 0.6;
+/** Half the thickness a field fence blocks across (m): the vault measures its crossing from it. */
+export const FIELD_FENCE_HALF_THICKNESS = 0.12;
+
+/**
+ * The props the rules refer to by name. Where props stand is level content, placed by whoever builds the world with the
+ * meshes they belong to; these are the names the core's rules use for them, so the two cannot drift apart: the vault
+ * looks for fences, and the table of interactables sees past the hunter's board, the kit table and the first waymarker.
+ */
+export const PROP_COLLIDER = {
+  fence: 'fence',
+  hunterBoard: 'hunter_board',
+  hunterBoardPost: 'hunter_board_post',
+  kitTable: 'kit_table',
+  waymarker: (index: number) => `forest-waymarker:${index}`,
+} as const;
 
 export class Colliders {
   readonly all: Collider[] = [];

@@ -1,4 +1,4 @@
-import { FENCE_WALL_LIFT, type Colliders } from '../core/world/colliders';
+import { FENCE_WALL_LIFT, FIELD_FENCE_HALF_THICKNESS, PROP_COLLIDER, type Colliders } from '../core/world/colliders';
 import { fence } from './props';
 import type { Rnd } from './structures';
 import type { Region } from './regions';
@@ -40,7 +40,7 @@ export function buildFenceRun(region: Region, random: Rnd, points: [number, numb
   }
   for (let i = 0; i < points.length - 1; i++) {
     const [ax, az] = points[i]!, [bx, bz] = points[i + 1]!;
-    colliders.box('fence', (ax + bx) / 2, (az + bz) / 2, .12, Math.hypot(bx - ax, bz - az) / 2,
+    colliders.box(PROP_COLLIDER.fence, (ax + bx) / 2, (az + bz) / 2, FIELD_FENCE_HALF_THICKNESS, Math.hypot(bx - ax, bz - az) / 2,
       Math.atan2(bx - ax, bz - az), true, { minY, maxY: maxY + FENCE_WALL_LIFT, projectileMesh });
   }
 }

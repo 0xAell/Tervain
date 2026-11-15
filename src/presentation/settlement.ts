@@ -1,6 +1,6 @@
 import { buildFenceRun } from './fenceContacts';
 import * as THREE from 'three';
-import { addCartColliders, type Colliders, type VerticalBounds } from '../core/world/colliders';
+import { addCartColliders, PROP_COLLIDER, type Colliders, type VerticalBounds } from '../core/world/colliders';
 import {
   ANCHORS,
   ARRIVAL_WRECK,
@@ -809,7 +809,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     R.timber.rod(15.22, ky + 0.77, 20.30, 15.38, ky + 0.77, 20.54, 0.017, 4, TINT.woodDark, { jit: 0.01, amp: 0.01 });
     R.timber.box(0.11, 0.055, 0.065, 15.37, ky + 0.765, 20.55, TINT.woodDark, { ry: 0.48, jit: 0.01, amp: 0.01 });
     R.timber.box(0.06, 1.3, 0.06, 15.4, ky + 0.75, 20.5, 0xc2b07a, { jit: 0.05 });
-    colliders.box('kit_table', 15, 20.5, 0.55, 0.35, 0, true, { minY: ky, maxY: ky + 0.84 });
+    colliders.box(PROP_COLLIDER.kitTable, 15, 20.5, 0.55, 0.35, 0, true, { minY: ky, maxY: ky + 0.84 });
     colliders.circle('kit_staff', 15.4, 20.5, Math.hypot(0.03, 0.03), true, { minY: ky + 0.75, maxY: ky + 2.05 });
     cart(R, rnd, VILLAGE_HANDCART.x, gy(VILLAGE_HANDCART.x, VILLAGE_HANDCART.z), VILLAGE_HANDCART.z, VILLAGE_HANDCART.yaw);
     sack(R, rnd, -3, gy(-3, 12.5), 12.5, 1);
