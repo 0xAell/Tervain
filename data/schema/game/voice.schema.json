@@ -525,6 +525,166 @@
         "item.shore_apple"
       ],
       "additionalProperties": false
+    },
+    "timing": {
+      "type": "object",
+      "properties": {
+        "answerGap": {
+          "type": "number"
+        },
+        "loadWait": {
+          "type": "number"
+        },
+        "loadTries": {
+          "type": "integer"
+        },
+        "remarkWait": {
+          "type": "integer"
+        },
+        "remarkRetry": {
+          "type": "number"
+        },
+        "sceneLead": {
+          "type": "number"
+        },
+        "resumeDelay": {
+          "type": "number"
+        },
+        "unvoiced": {
+          "type": "object",
+          "properties": {
+            "least": {
+              "type": "number"
+            },
+            "charactersPerSecond": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "least",
+            "charactersPerSecond"
+          ],
+          "additionalProperties": false
+        },
+        "heroCueDelay": {
+          "type": "object",
+          "properties": {
+            "arrival": {
+              "type": "integer"
+            },
+            "arrivalBell": {
+              "type": "integer"
+            },
+            "dayPart": {
+              "type": "integer"
+            },
+            "inspect": {
+              "type": "number"
+            },
+            "archive": {
+              "type": "number"
+            },
+            "settled": {
+              "type": "integer"
+            },
+            "item": {
+              "type": "number"
+            },
+            "place": {
+              "type": "number"
+            },
+            "shortcut": {
+              "type": "integer"
+            },
+            "rite": {
+              "type": "integer"
+            },
+            "gate": {
+              "type": "integer"
+            },
+            "rescued": {
+              "type": "number"
+            },
+            "beast": {
+              "type": "number"
+            },
+            "victory": {
+              "type": "number"
+            },
+            "respawn": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "arrival",
+            "arrivalBell",
+            "dayPart",
+            "inspect",
+            "archive",
+            "settled",
+            "item",
+            "place",
+            "shortcut",
+            "rite",
+            "gate",
+            "rescued",
+            "beast",
+            "victory",
+            "respawn"
+          ],
+          "additionalProperties": false
+        },
+        "heroCueAgain": {
+          "type": "object",
+          "properties": {
+            "wounded": {
+              "type": "integer"
+            },
+            "respawn": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "wounded",
+            "respawn"
+          ],
+          "additionalProperties": false
+        },
+        "sceneCheckSeconds": {
+          "type": "number"
+        },
+        "bubble": {
+          "type": "object",
+          "properties": {
+            "leastMs": {
+              "type": "integer"
+            },
+            "tailMs": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "leastMs",
+            "tailMs"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "answerGap",
+        "loadWait",
+        "loadTries",
+        "remarkWait",
+        "remarkRetry",
+        "sceneLead",
+        "resumeDelay",
+        "unvoiced",
+        "heroCueDelay",
+        "heroCueAgain",
+        "sceneCheckSeconds",
+        "bubble"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -535,7 +695,8 @@
     "talks",
     "scenes",
     "sceneReach",
-    "hero"
+    "hero",
+    "timing"
   ],
   "additionalProperties": false
 }

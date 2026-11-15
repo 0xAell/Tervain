@@ -28,6 +28,7 @@ import { MUSIC } from '../content/music';
 import { MUSIC_PACING, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS } from '../rules/music';
 import { BEDS, emitterRuleTable, INN, MILL_SOUND, QUARRY_SOUND } from '../rules/soundscape';
 import { BOW } from '../rules/bow';
+import { BUBBLE, HERO_CUE_AGAIN, HERO_CUE_DELAY, SCENE_CHECK_SECONDS, SPEECH } from '../rules/speech';
 import { AFLOAT, AWAITED_MOUNT_REACH, CLOCK_TICK_MINUTES, ENTRY, SAFE_PLACE_RINGS, SHAKE, STANDING_BODY, TIMED_WORK } from '../rules/session';
 import { SHOT, SKINNING, SKULL_BAND, SKULLS } from '../rules/archery';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../rules/camera';
@@ -154,7 +155,8 @@ function game(): PortableDocument[] {
     {
       path: 'game/voice.json',
       about: 'Spoken lines by key, residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks.',
-      data: { speakers: SPEAKER_NAMES, lines: VOICE_LINES, talks: TALKS, scenes: SCENES, sceneReach: SCENE_REACH, hero: HERO_LINES },
+      data: { speakers: SPEAKER_NAMES, lines: VOICE_LINES, talks: TALKS, scenes: SCENES, sceneReach: SCENE_REACH, hero: HERO_LINES,
+        timing: { ...SPEECH, heroCueDelay: HERO_CUE_DELAY, heroCueAgain: HERO_CUE_AGAIN, sceneCheckSeconds: SCENE_CHECK_SECONDS, bubble: BUBBLE } },
     },
     {
       path: 'game/strings.en.json',

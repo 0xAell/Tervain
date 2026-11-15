@@ -2209,5 +2209,44 @@
     "item.shore_apple": [
       "hero.item.shore_apple"
     ]
+  },
+  "timing": {
+    "answerGap": 0.35,
+    "loadWait": 0.25,
+    "loadTries": 12,
+    "remarkWait": 20,
+    "remarkRetry": 0.6,
+    "sceneLead": 0.3,
+    "resumeDelay": 1.2,
+    "unvoiced": {
+      "least": 0.4,
+      "charactersPerSecond": 14
+    },
+    "heroCueDelay": {
+      "arrival": 3,
+      "arrivalBell": 11,
+      "dayPart": 1,
+      "inspect": 0.8,
+      "archive": 1.5,
+      "settled": 2,
+      "item": 0.6,
+      "place": 1.2,
+      "shortcut": 1,
+      "rite": 2,
+      "gate": 1,
+      "rescued": 2.5,
+      "beast": 0.7,
+      "victory": 0.8,
+      "respawn": 1
+    },
+    "heroCueAgain": {
+      "wounded": 40,
+      "respawn": 1
+    },
+    "sceneCheckSeconds": 0.5,
+    "bubble": {
+      "leastMs": 3600,
+      "tailMs": 800
+    }
   }
 }
