@@ -26,10 +26,8 @@ export interface AmbienceEnvironment {
   nightness: number;
   waterProximity: number;
   flow: number;
-  millNear: number;
   millTurning: boolean;
   windAmount: number;
-  quarryNear: number;
   quarryWorking: boolean;
   time: number;
   underRoof: boolean;

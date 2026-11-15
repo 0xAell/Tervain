@@ -1,12 +1,12 @@
 import { hotbarEligible, itemAction, ITEMS } from '../../core/content/items';
 import { NPCS } from '../../core/content/npcs';
 import { S } from '../../core/content/strings';
-import { commitPreconditions, riteCalmActive, rotationBlockers, stabilizePreconditions } from '../../core/game/commands';
+import { commitPreconditions, hasProcedure, riteCalmActive, rotationBlockers, stabilizePreconditions } from '../../core/game/commands';
 import type { Game } from '../../core/game/game';
 import { buildJournal } from '../../core/game/journal';
 import { clockDay, evalCond, formatClock } from '../../core/game/state';
 import { worldView } from '../../core/game/worldView';
-import type { Allocation, Cond, ItemId, WorldState } from '../../core/game/types';
+import { PARTIES, PARTY_NPC, type Allocation, type Cond, type ItemId, type WorldState } from '../../core/game/types';
 import { type Input } from '../../platform/input';
 import { ACTIONS, codeLabel, assignSlot, cancelsCapture, findConflict, resetToDefaults, saveSettings, type Action, type Settings } from '../../platform/settings';
 import { HAND_SAVE_SLOTS } from '../../core/rules/session';
@@ -500,7 +500,7 @@ export function sluicePanel(ctx: PanelCtx): HTMLElement {
   if (gate !== 'stabilized') {
     const block = stabilizePreconditions(s);
     const safeRite = riteCalmActive(s);
-    const safeProc = s.evidence.worker_testimony !== undefined;
+    const safeProc = hasProcedure(s);
     const note = safeRite ? S('sluice.brace.safe.rite') : safeProc ? S('sluice.brace.safe.procedure') : S('sluice.brace.unsafe');
     frag.push(
       h(
@@ -544,7 +544,7 @@ export function sluicePanel(ctx: PanelCtx): HTMLElement {
           h('p', { class: 'cost' }, `− ${S(`sluice.alloc.${a}.cost`)}`),
           h('p', { class: 'kind' }, S(`sluice.alloc.${a}.kind`)),
           reasons.map((r) => h('p', { class: 'need' }, `${S('hud.requires')} ${r}`)),
-          a === 'rotation' && !reasons.length && s.npcs.quarry_foreman.available && s.npcs.rillford_reeve.available && s.npcs.spring_steward.available ? null : a === 'rotation' && [s.npcs.quarry_foreman, s.npcs.rillford_reeve, s.npcs.spring_steward].some((n) => !n.available) ? h('p', { class: 'need' }, S('sluice.alloc.caretaker')) : null,
+          a === 'rotation' && !reasons.length && PARTIES.every((p) => s.npcs[PARTY_NPC[p]].available) ? null : a === 'rotation' && PARTIES.some((p) => !s.npcs[PARTY_NPC[p]].available) ? h('p', { class: 'need' }, S('sluice.alloc.caretaker')) : null,
           h('div', { class: 'row', style: { marginTop: '6px' } }, h('button', { class: 'btn primary', disabled: disabled || committedAlready, 'data-nav': true, onClick: () => (disabled || committedAlready ? null : showCommitConfirm(ctx, a)) }, S(`sluice.alloc.${a}`))),
         ),
       );

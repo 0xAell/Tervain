@@ -1632,7 +1632,7 @@ describe('audio engine and the recorded world', () => {
   it('steps the procedural beds back while recorded beds sound, and restores them for menus', async () => {
     const { ctx, audio } = engine();
     audio.resume();
-    const env = { nightness: 0, waterProximity: 1, flow: 1, millNear: 0, millTurning: false, windAmount: 1, quarryNear: 0, quarryWorking: false, time: 0, underRoof: false, seaProximity: 1 };
+    const env = { nightness: 0, waterProximity: 1, flow: 1, millTurning: false, windAmount: 1, quarryWorking: false, time: 0, underRoof: false, seaProximity: 1 };
     const wind = ctx.nodes.filter((n) => n.kind === 'gain')[5] as unknown as { gain: Param };
     audio.update(1, env);
     const full = wind.gain.value;

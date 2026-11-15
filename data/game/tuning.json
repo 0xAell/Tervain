@@ -601,6 +601,7 @@
       "maxDistance": 9,
       "zoomRate": 0.004,
       "pitch": 0.32,
+      "entryPitch": 0.3,
       "minPitch": -0.65,
       "maxPitch": 1.25,
       "pivotHeight": 1.55,
@@ -611,7 +612,9 @@
     "aim": {
       "boom": 2.3,
       "right": 1,
-      "up": 0.3
+      "up": 0.3,
+      "fov": 48,
+      "drawFov": 4
     },
     "room": {
       "ceilingClearance": 0.8,

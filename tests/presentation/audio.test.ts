@@ -79,8 +79,8 @@ describe('semantic audio captions', () => {
 });
 
 const environment = (overrides: Partial<AmbienceEnvironment> = {}): AmbienceEnvironment => ({
-  nightness: 0, waterProximity: 1, flow: 1, millNear: 0, millTurning: false,
-  windAmount: 1, quarryNear: 0, quarryWorking: false, time: 0, underRoof: false,
+  nightness: 0, waterProximity: 1, flow: 1, millTurning: false,
+  windAmount: 1, quarryWorking: false, time: 0, underRoof: false,
   seaProximity: 1, ...overrides,
 });
 

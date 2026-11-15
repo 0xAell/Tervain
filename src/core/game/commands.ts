@@ -136,7 +136,8 @@ export function recomputeDerived(s: WorldState, events: GameEvent[]) {
   }
 }
 
-function hasProcedure(s: WorldState): boolean {
+/** Whether he knows the safe way to brace the sluice: the worker's testimony told him. */
+export function hasProcedure(s: WorldState): boolean {
   return s.evidence.worker_testimony !== undefined;
 }
 

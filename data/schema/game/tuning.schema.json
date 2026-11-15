@@ -1373,6 +1373,9 @@
             "pitch": {
               "type": "number"
             },
+            "entryPitch": {
+              "type": "number"
+            },
             "minPitch": {
               "type": "number"
             },
@@ -1401,6 +1404,7 @@
             "maxDistance",
             "zoomRate",
             "pitch",
+            "entryPitch",
             "minPitch",
             "maxPitch",
             "pivotHeight",
@@ -1421,12 +1425,20 @@
             },
             "up": {
               "type": "number"
+            },
+            "fov": {
+              "type": "integer"
+            },
+            "drawFov": {
+              "type": "integer"
             }
           },
           "required": [
             "boom",
             "right",
-            "up"
+            "up",
+            "fov",
+            "drawFov"
           ],
           "additionalProperties": false
         },

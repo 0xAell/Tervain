@@ -108,6 +108,11 @@ const THE_CUT = PLACES.the_cut;
 const OVERLOOK_WAGON = ANCHORS.overlook_wagon ?? WAGON;
 
 /** Proximity to the sea: 1 at the waterline, fading inland. */
+/** How near the sea's low bed is heard (0..1): it carries farther inland than the surf, falling off over the land from the coast line. */
+export function seaBedNearness(x: number, z: number): number {
+  return Math.exp(-Math.max(0, x - coastX(z)) / 95);
+}
+
 export function seaProximity(x: number, z: number): number {
   return Math.exp(-Math.max(0, shoreDistance(x, z)) / 55);
 }
