@@ -1,8 +1,10 @@
 # Unreal Engine 5.9's web target
 
-Unreal Engine 5.9 can build a game for the browser. This page records what is known about that target as of 14
+Unreal Engine 5.9 can build a game for the browser. This page records what is known about that target as of 15
 November 2026, how firmly, and what it means for Tervain. The engine was not available when this was written: nothing
-here was built or run.
+here was built or run. Every statement says where it comes from: Epic's documentation, read on the page and listed in
+[`sources.json`](sources.json); a search result of a page that was not read; a third party; or this project's own
+judgement.
 
 The short of it: the target is experimental and in preview, it renders with the mobile renderer, and it has a memory
 ceiling. Tervain's first Unreal build should be for desktop. The existing Three.js build stays the browser test bed
@@ -10,12 +12,14 @@ until the engine's web target is released and measured.
 
 ## What is established, and how
 
-**From Epic's documentation** (the Unreal Engine 5.9 Preview release notes, last updated 9 November 2026), quoted:
+**From Epic's documentation** (the Unreal Engine 5.9 Preview release notes, last updated 9 November 2026, read on the
+page on 15 November 2026), quoted:
 
 > UE 5.9 introduces a new experimental WebAssembly target with its own project settings and WebGPU rendering support.
 
-That sentence is all the documentation says. There is no web platform page in the 5.9 documentation yet, and the
-release is a preview: the page's title is "Unreal Engine 5.9 Preview Release Notes".
+That sentence is all the release notes say about it. No page about the web target was found among the 5.9
+documentation pages read for this document, and the release is a preview: the page's heading is "Unreal Engine 5.9
+Preview Release Notes".
 
 **From Epic's forum announcement of the preview**, as reported by search results (the page itself was not
 read when this was written, so these are not checked against the source):
@@ -68,14 +72,17 @@ or additional setup".
 | MSAA | Yes | No |
 
 **On Lumen.** Lumen is sometimes described as experimental on the web target. Epic's table lists Lumen as
-unsupported on both mobile shading paths, and Epic's separate page on Lumen for mobile covers only the desktop
-renderer on some Android devices. Until Epic says otherwise for the web target, plan for no Lumen there: baked or
+unsupported on both mobile shading paths, and Epic's separate page on Lumen for mobile says "Lumen is available for
+high-end devices compatible with Android Vulkan Shader Model 5 (SM5) running the desktop renderer." Until Epic says
+otherwise for the web target, plan for no Lumen there: baked or
 simple dynamic lighting, with Lumen as a desktop-only quality tier.
 
 ## What that means for Tervain
 
 **Geometry.** No Nanite means every mesh needs real levels of detail and a triangle budget. Epic's mobile guidance
-(written for much older devices, and so a floor, not a target) is at most 500,000 triangles and 700 draw calls in view.
+says "Triangle count of the entire scene should be <=500k for any view." and "Draw calls of the entire scene should be
+<=700 for any single view." It was written for much older devices (the triangle figure is "the maximum poly count that
+can hit 30fps on both iPad4 and iPad Air"), and so is a floor, not a target.
 The web build today draws 284 draw calls and about 2.9 million triangles in the reference view of its budget check at
 its High preset. Its draw calls already fit; its triangles are roughly six times the guidance, most of them trees
 (up to 20,000 triangles each) and the hero (150,000). A web-target build of the port needs lighter tree levels and a
@@ -86,18 +93,22 @@ depend on Nanite Foliage (see the asset manifest's notes).
 point lights. No Virtual Shadow Maps. No Lumen. No volumetric clouds: use a sky dome or cloud layers.
 
 **Materials.** Epic's mobile guidance: "You have five texture samplers available, but using all of those makes for a
-fairly expensive Materials", and for Landscape materials a hard limit of 16 samplers on the OpenGL ES 3.1 mobile path. The
-ground has eight layers: plan the Landscape material around few shared texture sets.
+fairly expensive Materials". For Landscape materials Epic says most platforms have no hard limit on layers, "The
+exception being ES3.1 (mobile), which still has a hard limit in terms of sampler count (16), across all texture
+accesses in the material." Whether that limit applies to the WebGPU target is not stated. The ground has eight layers:
+plan the Landscape material around few shared texture sets.
 
-**Memory.** With a crash reported above 2 GB, content has to fit well under it. The web build serves about 300 MiB of
-assets in all; cooked Unreal content for the same world will be of a different size, and must be measured. Texture
+**Memory.** With a crash reported above 2 GB (a search result, as above), content has to fit well under it. The web
+build serves about 300 MiB of assets in all; cooked Unreal content for the same world will be of a different size, and
+must be measured. Texture
 resolution and audio are the usual levers.
 
 **Saving.** Until the reported save-game issue is fixed, saved games cannot be relied on in a web build.
 
 **Hosting.** GitHub Pages cannot send custom response headers, so a threaded build there depends on the exported
-service worker. Pages limits a published site to 1 GB, which this repository's workflow already checks for the
-Three.js build. An Unreal web build would be built on a Windows machine with the engine and uploaded as an artifact;
+service worker. GitHub documents a limit of 1 GB for a published site (its page was not re-read for this document);
+this repository's build already holds the Three.js build to that figure (`PAGES_SITE_BYTE_LIMIT` in
+`tools/modelAssetDelivery.ts`). An Unreal web build would be built on a Windows machine with the engine and uploaded as an artifact;
 nothing in this repository's CI can build it.
 
 **Project shape.** The target needs a C++ project. The seed in `unreal/` is one.

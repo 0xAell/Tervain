@@ -281,3 +281,4 @@ Not measured in this review: texture taps, shader cost, JS frame CPU (see each P
 - Low walk replay: no pop-in event; pixels changed by each step's update 3,873 → 3,252. Low meadow walk toward the sentinels, against 0.0.47: spikes −0.1%, −0.1%, +0.0%; jumps −0.6%, −0.3%, −0.2%. High walks with the wind running, against 0.0.47: oaks +0.1%, +0.1%, +0.3%; orchard +0.1%, −0.1%, −0.3%; the same walk twice on one build differs by up to 0.3%.
 - Tree build at load: +4% (5.48 s → 5.72 s for twelve broadleaf templates, in node).
 - Details: docs/engineering/a168-0048-far-crowns.md. Budget gate against live on the release head: in the release PR.
+- Budget gate on main, 0.0.48 (ebf5848): draws 284, triangles 2,915,743, console errors 0. Measured on 15 November 2026 on a software renderer at the gate's pose; the same figures on every run since #775.

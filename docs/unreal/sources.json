@@ -1,0 +1,915 @@
+{
+  "about": "Where the statements about Unreal Engine and Fab in docs/unreal come from. Each source says whether it was read on its own page or only seen in a search result; each passage is text of that source and names the documents that quote or rely on it (\"says\" is the document's wording where it is not a quotation). Table rows are rows of the source page with the cells the documents repeat. `node tools/check-doc-sources.mjs` fetches every page that was read and looks for each passage and row; tests/tooling/docSources.test.ts holds the register and the documents together.",
+  "checked": "2026-11-15",
+  "documents": [
+    "README.md",
+    "conventions.md",
+    "system-mapping.md",
+    "web-target.md",
+    "roadmap.md"
+  ],
+  "sources": {
+    "release-notes-5-9": {
+      "publisher": "Epic Games",
+      "title": "Unreal Engine 5.9 Release Notes",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-5-9-release-notes",
+      "read": "page"
+    },
+    "coordinate-system": {
+      "publisher": "Epic Games",
+      "title": "Coordinate System and Spaces in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/coordinate-system-and-spaces-in-unreal-engine",
+      "read": "page"
+    },
+    "units": {
+      "publisher": "Epic Games",
+      "title": "Units of Measurement in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/units-of-measurement-in-unreal-engine",
+      "read": "page"
+    },
+    "data-tables": {
+      "publisher": "Epic Games",
+      "title": "Data Driven Gameplay Elements in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/data-driven-gameplay-elements-in-unreal-engine",
+      "read": "page"
+    },
+    "string-tables": {
+      "publisher": "Epic Games",
+      "title": "Using String Tables for Text in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/using-string-tables-for-text-in-unreal-engine",
+      "read": "page"
+    },
+    "landscape-guide": {
+      "publisher": "Epic Games",
+      "title": "Landscape Technical Guide in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-technical-guide-in-unreal-engine",
+      "read": "page"
+    },
+    "landscape-heightmaps": {
+      "publisher": "Epic Games",
+      "title": "Importing and Exporting Landscape Heightmaps in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/importing-and-exporting-landscape-heightmaps-in-unreal-engine",
+      "read": "page"
+    },
+    "landscape-materials": {
+      "publisher": "Epic Games",
+      "title": "Landscape Materials in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/landscape-materials-in-unreal-engine",
+      "read": "page"
+    },
+    "naming": {
+      "publisher": "Epic Games",
+      "title": "Recommended Asset Naming Conventions in Unreal Engine projects",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/recommended-asset-naming-conventions-in-unreal-engine-projects",
+      "read": "page"
+    },
+    "rendering-features": {
+      "publisher": "Epic Games",
+      "title": "Rendering Features Reference",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/rendering-features-reference",
+      "read": "page"
+    },
+    "mobile-performance": {
+      "publisher": "Epic Games",
+      "title": "Performance Guidelines for Mobile Devices in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/performance-guidelines-for-mobile-devices-in-unreal-engine",
+      "read": "page"
+    },
+    "lumen-mobile": {
+      "publisher": "Epic Games",
+      "title": "Using Lumen Global Illumination on Mobile in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/using-lumen-global-illumination-on-mobile-in-unreal-engine",
+      "read": "page"
+    },
+    "foliage-mode": {
+      "publisher": "Epic Games",
+      "title": "Foliage Mode in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/foliage-mode-in-unreal-engine",
+      "read": "page"
+    },
+    "pcg": {
+      "publisher": "Epic Games",
+      "title": "Procedural Content Generation Overview for Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/procedural-content-generation-overview-for-unreal-engine",
+      "read": "page"
+    },
+    "world-partition": {
+      "publisher": "Epic Games",
+      "title": "World Partition in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/world-partition-in-unreal-engine",
+      "read": "page"
+    },
+    "mover": {
+      "publisher": "Epic Games",
+      "title": "Mover in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/mover-in-unreal-engine",
+      "read": "page"
+    },
+    "gameplay-abilities": {
+      "publisher": "Epic Games",
+      "title": "Gameplay Ability System for Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-ability-system-for-unreal-engine",
+      "read": "page"
+    },
+    "enhanced-input": {
+      "publisher": "Epic Games",
+      "title": "Enhanced Input in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/enhanced-input-in-unreal-engine",
+      "read": "page"
+    },
+    "state-tree": {
+      "publisher": "Epic Games",
+      "title": "State Tree in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/state-tree-in-unreal-engine",
+      "read": "page"
+    },
+    "smart-objects": {
+      "publisher": "Epic Games",
+      "title": "Smart Objects in Unreal Engine - Overview",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/smart-objects-in-unreal-engine---overview",
+      "read": "page"
+    },
+    "niagara": {
+      "publisher": "Epic Games",
+      "title": "Overview of Niagara Effects for Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/overview-of-niagara-effects-for-unreal-engine",
+      "read": "page"
+    },
+    "nanite-foliage": {
+      "publisher": "Epic Games",
+      "title": "Nanite Foliage",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/nanite-foliage",
+      "read": "page"
+    },
+    "vegetation-editor": {
+      "publisher": "Epic Games",
+      "title": "Procedural Vegetation Editor in Unreal Engine",
+      "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/procedural-vegetation-editor-in-unreal-engine",
+      "read": "page"
+    },
+    "fab-licence": {
+      "publisher": "Epic Games",
+      "title": "Fab End User License Agreement, summary of the Standard License",
+      "url": "https://www.fab.com/eula",
+      "read": "page"
+    },
+    "forum-5-9-preview": {
+      "publisher": "Epic Games",
+      "title": "Unreal Engine 5.9 MegaJam Preview (forum announcement, with known issues)",
+      "url": "https://forums.unrealengine.com/t/unreal-engine-5-9-megajam-preview/2852840",
+      "read": "search result"
+    },
+    "road-to-ue6": {
+      "publisher": "Epic Games",
+      "title": "The Road to UE 6 (State of Unreal, June 2026)",
+      "url": "https://www.unrealengine.com/news/the-road-to-ue-6",
+      "read": "search result"
+    },
+    "third-party-web-tests": {
+      "publisher": "Third parties",
+      "title": "Write-ups of tests of the 5.9 preview web target",
+      "url": "https://digitalgarden.si/blog/unreal-engine-wasm-webgpu/",
+      "read": "search result"
+    },
+    "github-pages-limits": {
+      "publisher": "GitHub",
+      "title": "GitHub Pages limits",
+      "url": "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits",
+      "read": "search result"
+    }
+  },
+  "passages": [
+    {
+      "source": "release-notes-5-9",
+      "text": "UE 5.9 introduces a new experimental WebAssembly target with its own project settings and WebGPU rendering support.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "release-notes-5-9",
+      "text": "Unreal Engine 5.9 Preview Release Notes",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "release-notes-5-9",
+      "text": "Last updated 11/9/26",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "last updated 9 November 2026"
+    },
+    {
+      "source": "coordinate-system",
+      "text": "In the Unreal Editor the coordinate system is left-handed and uses a Z-up axis.",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "coordinate-system",
+      "text": "The X-axis determines how far forward or backward an actor is located. Positive values are forward.",
+      "in": [
+        "conventions.md"
+      ],
+      "says": "Positive X is forward"
+    },
+    {
+      "source": "coordinate-system",
+      "text": "The Y-axis determines how far to the left or right an actor is located. Positive values are to the right.",
+      "in": [
+        "conventions.md"
+      ],
+      "says": "positive Y is to the right"
+    },
+    {
+      "source": "coordinate-system",
+      "text": "Positive values are upwards.",
+      "in": [
+        "conventions.md"
+      ],
+      "says": "positive Z is up"
+    },
+    {
+      "source": "units",
+      "text": "Distance/Length Centimeters (cm)",
+      "in": [
+        "conventions.md"
+      ],
+      "says": "Distance defaults to centimetres"
+    },
+    {
+      "source": "data-tables",
+      "text": "must inherit from FTableRowBase to be recognized by the importer",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "data-tables",
+      "text": "uses Name for .JSON",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "string-tables",
+      "text": "The CSV format used for string tables has two mandatory columns, Key and SourceString",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "string-tables",
+      "text": "CSV string tables aren't staged automatically",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "landscape-guide",
+      "text": "you could have any Landscape of AxB Components with a total size in vertices of (A63+1 , B63+1).",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "landscape-guide",
+      "text": "Unreal Engine calculates your heightmap's height by using values between -256 and 255.992, stored with 16-bit precision",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "landscape-guide",
+      "text": "at the default Z scale value of 100, your height values will be between 256 m and -256 m.",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "landscape-heightmaps",
+      "text": "16-bit grayscale PNG",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "landscape-heightmaps",
+      "text": "Flip Y Axis Flips the Y coordinate of the imported file.",
+      "in": [
+        "conventions.md"
+      ],
+      "says": "Flip Y Axis"
+    },
+    {
+      "source": "naming",
+      "text": "[AssetTypePrefix]_[AssetName]_[Descriptor]_[OptionalVariantLetterOrNumber]",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "SM_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "SK_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "SKEL_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "PHYS_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "T_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "M_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "MI_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "AS_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "AM_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "BS_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "ABP_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "BP_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "WBP_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "DT_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "CT_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "FXS_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "FXE_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "E_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "naming",
+      "text": "F_",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "rendering-features",
+      "text": "Mobile Rendering Features Reference",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "rendering-features",
+      "text": "supported, but may require some prerequisites or additional setup",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "rendering-features",
+      "text": "Water System",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "rendering-features",
+      "text": "Single Layer Water",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "mobile-performance",
+      "text": "Triangle count of the entire scene should be <=500k for any view.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "mobile-performance",
+      "text": "Draw calls of the entire scene should be <=700 for any single view.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "mobile-performance",
+      "text": "the maximum poly count that can hit 30fps on both iPad4 and iPad Air",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "mobile-performance",
+      "text": "You have five texture samplers available, but using all of those makes for a fairly expensive Materials",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "landscape-materials",
+      "text": "The exception being ES3.1 (mobile), which still has a hard limit in terms of sampler count (16), across all texture accesses in the material.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "lumen-mobile",
+      "text": "Lumen is available for high-end devices compatible with Android Vulkan Shader Model 5 (SM5) running the desktop renderer.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "foliage-mode",
+      "text": "rendered using hardware instancing",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "pcg",
+      "text": "a toolset for creating your own procedural content and tools inside Unreal Engine",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "world-partition",
+      "text": "an automatic data management and distance-based level streaming system that provides a complete solution for large world management",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "world-partition",
+      "text": "The following templates use World Partition but have Enable Streaming disabled by default",
+      "in": [
+        "system-mapping.md"
+      ],
+      "says": "use World Partition but have Enable Streaming disabled by default"
+    },
+    {
+      "source": "mover",
+      "text": "Learn to use this Experimental feature, but use caution when shipping with it.",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "gameplay-abilities",
+      "text": "a framework for building attributes, abilities, and interactions that an Actor can own and trigger",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "enhanced-input",
+      "text": "Enhanced Input is enabled by default.",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "state-tree",
+      "text": "a general-purpose hierarchical state machine that combines the Selectors from behavior trees with States and Transitions from state machines",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "smart-objects",
+      "text": "a set of activities in the level that can be used through a reservation system",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "niagara",
+      "text": "Unreal Engine's next-generation VFX system",
+      "in": [
+        "system-mapping.md"
+      ]
+    },
+    {
+      "source": "nanite-foliage",
+      "text": "Learn to use this Experimental feature, but use caution when shipping with it.",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "Nanite Foliage"
+    },
+    {
+      "source": "vegetation-editor",
+      "text": "PVE is experimental.",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "Procedural Vegetation Editor"
+    },
+    {
+      "source": "fab-licence",
+      "text": "Share the asset (directly, via a private repository or in the Project) with your collaborators that are working on the Project with you",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "fab-licence",
+      "text": "Resell or redistribute the asset for free on a standalone basis or allow others to do the same",
+      "in": [
+        "conventions.md"
+      ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "uses the mobile renderer",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "currently requires a source build and C++ project",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "Chrome offering the best experience",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "prototypes we plan to refactor before the full 5.9 release ships",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "road-to-ue6",
+      "text": "Actors and Blueprints will be in early versions of UE6",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "UE-411671 – Game crashes above 2 GB Wasm memory",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "Known issue UE-411671: the game crashes above 2 GB of WebAssembly memory."
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "UE-412003 – Save games/settings lost on reload (Launcher-built C++ web games)",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "Known issue UE-412003: save games and settings are lost on reload in some builds"
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "itch.io rejects browser games over 500 MB total or 200 MB per file",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "itch.io refuses browser games over 500 MB in total or 200 MB a file"
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "work best on iOS 27",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "One issue notes the target works best on iOS 27."
+    }
+  ],
+  "rows": [
+    {
+      "source": "rendering-features",
+      "label": "Nanite Virtualize Geometry",
+      "cells": [
+        "No",
+        "No"
+      ],
+      "in": "web-target.md",
+      "as": "Nanite virtualized geometry"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Virtual Shadow Maps",
+      "cells": [
+        "No",
+        "No"
+      ],
+      "in": "web-target.md",
+      "as": "Virtual Shadow Maps"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Lumen GI and Reflections: Software Ray Tracing",
+      "cells": [
+        "No",
+        "No"
+      ],
+      "in": "web-target.md",
+      "as": "Lumen global illumination and reflections (software or hardware ray tracing)"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Lumen GI and Reflections: Hardware Ray Tracing",
+      "cells": [
+        "No",
+        "No"
+      ],
+      "in": "web-target.md",
+      "as": "Lumen global illumination and reflections (software or hardware ray tracing)"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Hardware Ray Tracing Features",
+      "cells": [
+        "No",
+        "No"
+      ],
+      "in": "web-target.md",
+      "as": "Hardware ray tracing features"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Cascade Shadow Maps",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Cascaded shadow maps"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Distance Field Shadows",
+      "cells": [
+        "Yes *",
+        "Yes *"
+      ],
+      "in": "web-target.md",
+      "as": "Distance field shadows"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Directional Light",
+      "cells": [
+        "1 directional light of any type",
+        "1 directional light of any type"
+      ],
+      "in": "web-target.md",
+      "as": "Directional lights"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Point Light Shadows",
+      "cells": [
+        "Yes *",
+        "Yes *"
+      ],
+      "in": "web-target.md",
+      "as": "Point light shadows"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Volumetric Fog",
+      "cells": [
+        "Yes *",
+        "Yes *"
+      ],
+      "in": "web-target.md",
+      "as": "Volumetric fog"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Volumetric Clouds",
+      "cells": [
+        "No",
+        "No"
+      ],
+      "in": "web-target.md",
+      "as": "Volumetric clouds"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Sky Atmosphere",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Sky Atmosphere"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Screen Space Reflections",
+      "cells": [
+        "Yes *",
+        "Yes *"
+      ],
+      "in": "web-target.md",
+      "as": "Screen space reflections"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Planar Reflections",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Planar reflections"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Single Layer Water",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Single Layer Water, and the Water system"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Water System",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Single Layer Water, and the Water system"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Virtual Textures: Runtime",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Runtime and streaming virtual textures"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Virtual Textures: Streaming",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Runtime and streaming virtual textures"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Temporal Super Resolution (TSR)",
+      "cells": [
+        "No",
+        "No"
+      ],
+      "in": "web-target.md",
+      "as": "Temporal Super Resolution"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Temporal Anti-Aliasing (TAA)",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Temporal anti-aliasing, FXAA"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Fast Approximation Anti-Aliasing (FXAA)",
+      "cells": [
+        "Yes",
+        "Yes"
+      ],
+      "in": "web-target.md",
+      "as": "Temporal anti-aliasing, FXAA"
+    },
+    {
+      "source": "rendering-features",
+      "label": "Multi-Sample Anti-Aliasing (MSAA)",
+      "cells": [
+        "Yes",
+        "No"
+      ],
+      "in": "web-target.md",
+      "as": "MSAA"
+    }
+  ],
+  "cited": [
+    "third-party-web-tests",
+    "github-pages-limits"
+  ],
+  "terms": [
+    "Yes"
+  ]
+}

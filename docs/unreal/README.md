@@ -6,8 +6,12 @@ the bridge: what carries over, how each system maps, what the engine's web targe
 work.
 
 Nothing here has been run in Unreal Engine. The repository was prepared without the engine at hand, so every statement
-about Unreal is either quoted from Epic's documentation (and marked so) or a plan to be tested on the first machine
-that has the engine.
+about Unreal is one of three things, and says which: Epic's own words, quoted and checked against Epic's page; something
+reported by others or seen only in a search result, and marked as not checked; or a plan of this project, to be tested
+on the first machine that has the engine. [`sources.json`](sources.json) lists every source and every passage taken
+from it. `npm run docs:sources` reads the pages again and looks for each passage; a test in CI keeps the register and
+these documents together, checks every number that describes this repository against its data, and fails on a number
+or quotation that has no source and is not marked as a plan.
 
 ## What the repository gives a port
 
