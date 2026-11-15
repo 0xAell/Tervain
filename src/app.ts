@@ -7,7 +7,7 @@ import { prefetchJourney, warmJourney } from './presentation/journeyPrefetch';
 import * as THREE from 'three';
 import { beginStaticSkinFrame, endStaticSkinFrame } from './presentation/npc/dualQuaternionSkinning';
 import { NPCS } from './core/content/npcs';
-import { SCENE_REACH, SCENES, SPEAKER_NAMES, VOICE_LINES, inHours, shown, type HeroCue } from './core/content/voice';
+import { SPEAKER_NAMES, VOICE_LINES, shown, type HeroCue } from './core/content/voice';
 import { S } from './core/content/strings';
 import { CLOCK_RATE, RITE_CALM_MIN } from './core/game/constants';
 import { Game } from './core/game/game';
@@ -15,7 +15,7 @@ import { nextHint } from './core/game/hints';
 import { restockParams } from './core/game/hunting';
 import { INSPECT_POINTS } from './core/content/inspect';
 import { ITEMS, itemAction } from './core/content/items';
-import { hourOfDay, evalAll, createInitialState, formatClock, clockDay } from './core/game/state';
+import { hourOfDay, createInitialState, formatClock, clockDay } from './core/game/state';
 import { EVIDENCE_IDS, type Allocation, type GameEvent, type ItemId, type NpcId, type PlaceId, type WorldState } from './core/game/types';
 import { Input } from './platform/input';
 import { FrameClock, MotionInterpolation, SIM_CATCH_UP, SIM_STEP, cappedFrame } from './platform/frameTiming';
@@ -70,7 +70,8 @@ import { installDepthOnlyShadowPass } from './presentation/softShadows';
 import { setHighLodBands, setHighLodSpecies } from './presentation/floraPopulation';
 import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
-import { AUTOSAVE_SECONDS, bellGain, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, OVERHEAR_REACH, SPEECH_SOON_REACH, WOUNDED_BELOW } from './core/rules/journey';
+import { BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, woundedNow } from './core/rules/speech';
+import { AUTOSAVE_SECONDS, bellGain, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH } from './core/rules/journey';
 import {
   archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, fallRemaining, hitStopFor, journeyBegun,
   mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, riteReady, safePlace, savedMount, SHAKE, standingBodies, TIMED_WORK, trustedPropTop,
@@ -1035,8 +1036,8 @@ export class App {
     this.speech.forget();
     this.beginPlay(null);
     if (!this.quietStart) {
-      this.speech.hero('arrival', { delay: 3 });
-      this.speech.hero('arrival.bell', { delay: 11 });
+      this.speech.hero('arrival', { delay: HERO_CUE_DELAY.arrival });
+      this.speech.hero('arrival.bell', { delay: HERO_CUE_DELAY.arrivalBell });
     }
     // A brief notice leaves movement, look and the world clock running. The journal keeps the premise.
     this.hud.toast(S('arrival.wake'));
@@ -1394,7 +1395,7 @@ export class App {
         if (!n.talking) n.faceTo = null;
       }
       this.sceneClock += dt;
-      if (this.sceneClock > 0.5) {
+      if (this.sceneClock > SCENE_CHECK_SECONDS) {
         this.sceneClock = 0;
         this.overhear(hour);
         const state = this.game.state;
@@ -1403,13 +1404,13 @@ export class App {
           .flatMap((n) => this.speech.soon(n.id, state, hour));
       }
       // Nightfall and dawn, once each, in the hero's words.
-      const night = isNightHour(hour);
-      if (this.wasNight !== null && night !== this.wasNight) this.speech.hero(night ? 'night' : 'dawn', { delay: 1 });
+      const night = isNightHour(hour), turned = dayPartCue(this.wasNight, night);
+      if (turned) this.speech.hero(turned, { delay: HERO_CUE_DELAY.dayPart });
       this.wasNight = night;
       this.updateActors(dt, hour);
       // The hero's breath gives out before he does.
       const health = this.game.state.player.health / Math.max(1, this.game.state.player.maxHealth);
-      if (health < WOUNDED_BELOW && this.healthFrac >= WOUNDED_BELOW && this.player.alive) this.speech.hero('wounded', { again: 40 });
+      if (woundedNow(health, this.healthFrac, this.player.alive)) this.speech.hero('wounded', { again: HERO_CUE_AGAIN.wounded });
       this.healthFrac = health;
     }
     if (playing && this.mode === 'play' && !hitStopped) {
@@ -1989,7 +1990,7 @@ export class App {
       return;
     }
     this.showObservation(S(pt.noticeKey));
-    this.speech.hero(`inspect.${pointId}` as HeroCue, { delay: 0.8 });
+    this.speech.hero(`inspect.${pointId}` as HeroCue, { delay: HERO_CUE_DELAY.inspect });
   }
 
   pickup(id: string, item: ItemId, qty: number) {
@@ -2024,7 +2025,7 @@ export class App {
     if (r.ok) {
       this.hud.toast(S(attempt.opens === 'borrowed_key' ? 'toast.unlocked.key' : 'toast.archive.open'), 'good');
       this.audio.worldEvent('door', '[The archive door opens]');
-      this.speech.hero('place.archive' as HeroCue, { delay: 1.5 });
+      this.speech.hero('place.archive' as HeroCue, { delay: HERO_CUE_DELAY.archive });
       this.world.syncStatic(this.game.state, false);
     } else this.hud.toast(S('toast.archive.withdrawn'), 'bad');
   }
@@ -2059,13 +2060,13 @@ export class App {
     if (this.game.state.locationChanges.archive_shutter === 'sealed') this.hud.toast(S('toast.archive.caught'), 'bad');
     else {
       this.hud.toast(S('toast.archive.forced'));
-      this.speech.hero('place.archive' as HeroCue, { delay: 1.5 });
+      this.speech.hero('place.archive' as HeroCue, { delay: HERO_CUE_DELAY.archive });
     }
     this.world.syncStatic(this.game.state, false);
     // A witness cue the player can act on: the observer calls out.
     const w = this.npcs.find((n) => seenBy.includes(n.id));
     if (w?.id === 'shrine_warden') this.bark(w, 'tolan.bark.hey');
-    else if (w) this.bubbleState.set(w.id, { text: S('toast.warden.hey'), until: performance.now() + 3600 });
+    else if (w) this.bubbleState.set(w.id, { text: S('toast.warden.hey'), until: performance.now() + BUBBLE.leastMs });
   }
 
   readLedger() {
@@ -2217,20 +2218,20 @@ export class App {
           if (e.phase === 'settled') {
             this.hud.toast(S('toast.settled'), 'good');
             this.ringBell(true);
-            this.speech.hero('settled', { delay: 2 });
+            this.speech.hero('settled', { delay: HERO_CUE_DELAY.settled });
           } else this.audio.quest();
           break;
         case 'grant':
           for (const [id, qty] of Object.entries(e.items) as [ItemId, number][]) {
             this.hud.toast(S('toast.item.gain', { qty, name: S(ITEMS[id].nameKey) }), 'good');
             // A reward is remarked on as a find is (A89 scout: the key's and the reed's lines were never heard).
-            this.speech.hero(`item.${id}` as HeroCue, { delay: 0.6 });
+            this.speech.hero(`item.${id}` as HeroCue, { delay: HERO_CUE_DELAY.item });
           }
           this.audio.pickup(Object.keys(e.items)[0] as ItemId | undefined);
           break;
         case 'item':
           if (e.delta > 0) this.hud.toast(S('toast.item.gain', { qty: e.delta, name: S(ITEMS[e.id].nameKey) }), 'good');
-          if (e.delta > 0) this.speech.hero(e.id === 'rusted_sword' ? 'blade' : (`item.${e.id}` as HeroCue), { delay: 0.6 });
+          if (e.delta > 0) this.speech.hero(itemCue(e.id), { delay: HERO_CUE_DELAY.item });
           else if (e.id !== 'sluice_brace' && e.id !== 'votive_reed' && e.id !== 'arrow') this.hud.toast(S('toast.item.lose', { qty: -e.delta, name: S(ITEMS[e.id].nameKey) }));
           break;
         case 'toast':
@@ -2248,21 +2249,21 @@ export class App {
           this.hud.toast(S('toast.place', { name: S(`place.${e.id}`) }), 'evidence');
           this.audio.discover(e.id);
           // The archive's shelves are remarked on once it stands open, not from outside its locked door (A89 scout).
-          if (e.id !== 'archive' || this.archiveOpen()) this.speech.hero(`place.${e.id}` as HeroCue, { delay: 1.2 });
+          if (placeRemarked(e.id, this.archiveOpen())) this.speech.hero(`place.${e.id}` as HeroCue, { delay: HERO_CUE_DELAY.place });
           // Discovering somewhere new moves the respawn point there.
           this.markCheckpoint();
           break;
         case 'shortcut':
-          this.speech.hero('shortcut', { delay: 1 });
+          this.speech.hero('shortcut', { delay: HERO_CUE_DELAY.shortcut });
           break;
         case 'rite':
-          this.speech.hero('rite', { delay: 2 });
+          this.speech.hero('rite', { delay: HERO_CUE_DELAY.rite });
           break;
         case 'gate':
-          if (e.gate === 'stabilized' || e.gate === 'jammed') this.speech.hero(`gate.${e.gate}`, { delay: 1 });
+          if (e.gate === 'stabilized' || e.gate === 'jammed') this.speech.hero(`gate.${e.gate}`, { delay: HERO_CUE_DELAY.gate });
           break;
         case 'worker_rescued':
-          this.speech.hero('rescued', { delay: 2.5 });
+          this.speech.hero('rescued', { delay: HERO_CUE_DELAY.rescued });
           this.hud.toast(S(e.method === 'shortcut' ? 'toast.shortcut.rescued' : 'toast.rescued'), 'good');
           this.audio.quest();
           break;
@@ -2417,15 +2418,8 @@ export class App {
   private overhear(hour: number) {
     const state = this.game.state;
     const day = clockDay(state.clock);
-    for (const scene of SCENES) {
-      if (!inHours(hour, scene.hours) || !evalAll(state, scene.when)) continue;
-      const [a, b] = scene.cast.map((id) => this.npcs.find((n) => n.id === id));
-      if (!a || !b || a.hidden || b.hidden || a.asleep || b.asleep || !state.npcs[a.id].available || !state.npcs[b.id].available) continue;
-      // Only two people at their places talk between themselves: neither is stopped and turned about mid-route (A69).
-      if (a.underway || b.underway) continue;
-      // The quarry pair stand 24.7 m apart, yard to face, since A70 moved the face: a foreman calls across his yard (A104 scout).
-      if (Math.hypot(a.x - b.x, a.z - b.z) > SCENE_REACH) continue;
-      if (Math.hypot(this.player.x - (a.x + b.x) / 2, this.player.z - (a.z + b.z) / 2) > OVERHEAR_REACH) continue;
+    // Only two people at their places, within calling distance and near enough to be heard, talk between themselves (A69, A104 scout).
+    for (const { scene, a, b } of scenesInEarshot(state, hour, (id) => this.npcs.find((n) => n.id === id), this.player)) {
       const where = (id: NpcId) => {
         const p = (id === a.id ? a : b).headPosition;
         return { x: p.x, y: p.y, z: p.z };
@@ -2455,7 +2449,7 @@ export class App {
     // Heard from where they are as they say it: a remark made on the way walks on with them (A70).
     const seconds = this.speech.remark(a.id, line, () => { const p = a.headPosition; return { x: p.x, y: p.y, z: p.z }; });
     if (seconds <= 0) return false;
-    this.bubbleState.set(a.id, { text: shown(text), until: performance.now() + Math.max(3600, seconds * 1000 + 800) });
+    this.bubbleState.set(a.id, { text: shown(text), until: performance.now() + bubbleMs(seconds) });
     return true;
   }
 
@@ -2502,7 +2496,7 @@ export class App {
         const at = { x: e.x, y: e.y + 1.2, z: e.z };
         if (e.spawn.kind === 'thornback') {
           this.audio.growl(at);
-          this.speech.hero('beast', { delay: 0.7 });
+          this.speech.hero('beast', { delay: HERO_CUE_DELAY.beast });
         }
         else this.audio.shout(at);
       },
@@ -2521,7 +2515,7 @@ export class App {
     if (!this.enemies.some((o) => o !== e && o.alive && o.engaged)) this.audio.victory();
     if (e.id === 'cut_creature') {
       this.hud.toast(S('toast.cleared'), 'good');
-      this.speech.hero('victory', { delay: 0.8 });
+      this.speech.hero('victory', { delay: HERO_CUE_DELAY.victory });
     }
   }
 
@@ -2552,7 +2546,7 @@ export class App {
     this.hitStop = 0;
     this.autosaveTimer = AUTOSAVE_SECONDS; // the countdown restarts with the life, as it does with a load (A71)
     this.input.reset();
-    this.speech.hero('respawn', { delay: 1, again: 1 });
+    this.speech.hero('respawn', { delay: HERO_CUE_DELAY.respawn, again: HERO_CUE_AGAIN.respawn });
     // Escape or leaving the window during the fall could not pause a dead player; it pauses now, rather than the world
     // running on unattended and uncaptured (A70).
     const unfocused = typeof document.hasFocus === 'function' && !document.hasFocus();
