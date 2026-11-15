@@ -157,7 +157,7 @@
       "publisher": "Epic Games",
       "title": "Unreal Engine 5.9 MegaJam Preview (forum announcement, with known issues)",
       "url": "https://forums.unrealengine.com/t/unreal-engine-5-9-megajam-preview/2852840",
-      "read": "search result"
+      "read": "page"
     },
     "road-to-ue6": {
       "publisher": "Epic Games",
@@ -165,17 +165,23 @@
       "url": "https://www.unrealengine.com/news/the-road-to-ue-6",
       "read": "search result"
     },
+    "ue6-forum-thread": {
+      "publisher": "Users of Epic's forum",
+      "title": "They want to remove Blueprint in UE6 (a thread quoting Epic's post)",
+      "url": "https://forums.unrealengine.com/t/they-want-to-remove-blueprint-in-ue6/2729352",
+      "read": "page"
+    },
     "third-party-web-tests": {
-      "publisher": "Third parties",
-      "title": "Write-ups of tests of the 5.9 preview web target",
+      "publisher": "Digital Garden (third party)",
+      "title": "Unreal Engine 5.9 Wasm and WebGPU in Chrome: A Windows Launcher Test",
       "url": "https://digitalgarden.si/blog/unreal-engine-wasm-webgpu/",
-      "read": "search result"
+      "read": "page"
     },
     "github-pages-limits": {
       "publisher": "GitHub",
       "title": "GitHub Pages limits",
       "url": "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits",
-      "read": "search result"
+      "read": "page"
     }
   },
   "passages": [
@@ -644,8 +650,15 @@
       ]
     },
     {
-      "source": "road-to-ue6",
-      "text": "Actors and Blueprints will be in early versions of UE6",
+      "source": "ue6-forum-thread",
+      "text": "We're moving the gameplay programming model to Verse",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "ue6-forum-thread",
+      "text": "while we aren't currently planning another official UE5 release after 5.8",
       "in": [
         "web-target.md"
       ]
@@ -664,23 +677,107 @@
       "in": [
         "web-target.md"
       ],
-      "says": "Known issue UE-412003: save games and settings are lost on reload in some builds"
+      "says": "Known issue UE-412003: save games and settings are lost on reload in C++ web games built with the Launcher's engine"
     },
     {
       "source": "forum-5-9-preview",
-      "text": "itch.io rejects browser games over 500 MB total or 200 MB per file",
+      "text": "Opening the packaged index.html from disk (file://) shows a cross-origin isolation error or a hosting card instead of starting the game.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "UE-411672 - Bink video isn't supported on the web",
       "in": [
         "web-target.md"
       ],
-      "says": "itch.io refuses browser games over 500 MB in total or 200 MB a file"
+      "says": "\"Bink video isn't supported on the web\" (UE-411672)"
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "UE-412027 - Projects created with new_template_project.py --web-ready can't join a server, through the WebSocket relay or otherwise: the web build has no IpNetDriver.",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "Projects made with the web-ready project template \"can't join a server\" because \"the web build has no IpNetDriver\" (UE-412027)"
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "The premade builds on Mac and Linux are missing part of the Wasm (Web) support files.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "itch.io rejects oversized browser games: 500 MB total, 200 MB per file.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "Lyra and Development builds exceed these limits.",
+      "in": [
+        "web-target.md"
+      ]
     },
     {
       "source": "forum-5-9-preview",
       "text": "work best on iOS 27",
       "in": [
         "web-target.md"
-      ],
-      "says": "One issue notes the target works best on iOS 27."
+      ]
+    },
+    {
+      "source": "third-party-web-tests",
+      "text": "The main Wasm module was 139,368,825 bytes raw and 25,589,983 bytes at Brotli quality 11.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "third-party-web-tests",
+      "text": "The module's target triple was wasm64, but the packaged module used lowered 32-bit linear memory",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "third-party-web-tests",
+      "text": "A local HTTP server hosts the package so the browser gets the required isolation headers.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "third-party-web-tests",
+      "text": "displayed the isolation error and never reached READY",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "third-party-web-tests",
+      "text": "the median engine first frame was 2.093 seconds and the server sent 50,111,928 bytes before READY",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "github-pages-limits",
+      "text": "Published GitHub Pages sites may be no larger than 1 GB.",
+      "in": [
+        "web-target.md"
+      ]
+    },
+    {
+      "source": "github-pages-limits",
+      "text": "GitHub Pages deployments will timeout if they take longer than 10 minutes.",
+      "in": [
+        "web-target.md"
+      ]
     }
   ],
   "rows": [
@@ -906,8 +1003,7 @@
     }
   ],
   "cited": [
-    "third-party-web-tests",
-    "github-pages-limits"
+    "road-to-ue6"
   ],
   "terms": [
     "Yes"

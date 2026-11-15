@@ -40,7 +40,7 @@ describe('the register of sources and the Unreal documents', () => {
   it('say in each document how its statements are sourced', () => {
     expect(document('README.md')).toContain('[`sources.json`](sources.json)');
     for (const file of ['conventions.md', 'system-mapping.md', 'web-target.md']) expect(document(file), file).toContain('(sources.json)');
-    expect(document('web-target.md')).toMatch(/as reported by search results/);
+    expect(document('web-target.md')).toMatch(/could not be read from where this was written/);
     expect(document('system-mapping.md').match(/\| Unreal \(proposal\) \|/g)).toHaveLength(5);
     expect(document('roadmap.md')).toContain("Everything on this page is this project's plan");
   });
@@ -53,8 +53,10 @@ describe('the register of sources and the Unreal documents', () => {
     const reworded = (file: string) => (file === 'conventions.md' ? document(file).replace('uses a Z-up axis', 'uses a Y-up axis') : document(file));
     expect(registerProblems(register, reworded).join('\n')).toMatch(/conventions\.md does not say "In the Unreal Editor the coordinate system is left-handed/);
 
-    const unmarked = (file: string) => (file === 'web-target.md' ? document(file).replace(/as reported by search results/g, 'as stated').replace(/search results?/g, 'the pages').replace(/not (?:read|checked|re-read)/g, 'read') : document(file));
-    expect(registerProblems(register, unmarked).join('\n')).toMatch(/web-target\.md relies on a source that was not read on its page without saying so/);
+    // A source seen only in a search result must be marked as such where the document relies on it.
+    const unread = copy();
+    unread.sources['forum-5-9-preview']!.read = 'search result';
+    expect(registerProblems(unread).join('\n')).toMatch(/web-target\.md relies on a source that was not read on its page without saying so/);
 
     const added = (file: string) => (file === 'roadmap.md' ? `${document(file)}\nEpic says "the web target ships in 5.9".\n` : document(file));
     expect(registerProblems(register, added)).toEqual(['roadmap.md: quotes "the web target ships in 5.9" with no source in the register']);

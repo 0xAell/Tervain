@@ -76,9 +76,14 @@ What is there:
 
 - [System mapping](system-mapping.md), [conventions](conventions.md), [the web target](web-target.md) and the
   [roadmap](roadmap.md), with an [index](README.md) that says what carries over.
-- [`sources.json`](sources.json) registers 28 sources and the 70 passages and 22 table rows taken from them.
-  `npm run docs:sources` read 24 of those sources on their own pages on 15 November 2026 and found every passage and
-  row, including the whole mobile renderer table. The check corrected the documents in six places.
+- [`sources.json`](sources.json) registers 29 sources and the 83 passages and 22 table rows taken from them.
+  `npm run docs:sources` read 28 of those sources on their own pages on 15 November 2026 and found every passage and
+  row, including the whole mobile renderer table and the known issues of the 5.9 preview. The check corrected the
+  documents in six places, and reading the last three sources corrected four more: the missing network driver is a
+  known issue of one project template, not of the target; the third-party test's module was about 133 MiB, not 134;
+  neither Epic nor the test describes a service worker that sets the isolation headers, so that is gone; and that
+  GitHub Pages cannot send those headers is now marked as this project's own judgement, since GitHub's page does not
+  mention headers.
 - In CI, [`tests/tooling/docSources.test.ts`](../../tests/tooling/docSources.test.ts) fails on a quotation without a
   source, [`tests/tooling/docNumbers.test.ts`](../../tests/tooling/docNumbers.test.ts) compares every number about this
   repository with its data and fails on a bare number, and
@@ -87,12 +92,12 @@ What is there:
 
 What is missing from a ten, and the plan:
 
-- Four sources could not be read from where this was written: Epic's forum announcement of the 5.9 preview, Epic's
-  Unreal Engine 6 post, the third-party tests of the web target, and GitHub's page of Pages limits. The documents say
-  that what comes from them is reported, and a test fails if that is removed, but it is not checked.
+- One source could not be read from where this was written: Epic's Unreal Engine 6 post, whose site answers automated
+  readers with a challenge page. The documents take nothing from it: they link it, say it could not be read, and quote
+  only what users of Epic's forum report of it, from a thread read on the page.
 - Unreal Engine 5.9 is a preview. What is written about its web target can change at release.
-- Plan: read the four sources where they can be reached, mark them as read in the register and run
-  `npm run docs:sources`; run it again when 5.9 is released and correct the web target page.
+- Plan: run `npm run docs:sources` again when 5.9 is released and correct the web target page; read the Unreal Engine 6
+  post from a browser when its plans start to matter for the port.
 
 ## 4. C++ skeleton
 
