@@ -9,8 +9,9 @@ the editor target and fix whatever the compiler finds. The code keeps to long-st
 game-instance subsystem, developer settings, the JSON reader) to make that step small. What the repository's own tests
 do check, with an ordinary C++ compiler, is set out [below](#what-is-checked-without-the-engine).
 
-The web build does not depend on anything in this folder, and nothing here is built or deployed by this repository's
-CI. The repository holds source and configuration only: no binaries, no `.uasset` or `.umap` files, and no content
+The web build does not depend on anything in this folder, and nothing here is built by the engine or deployed by
+this repository's CI. One CI job, *Unreal seed*, checks that this folder still agrees with the core
+([below](#keeping-this-folder-in-step-with-the-core)). The repository holds source and configuration only: no binaries, no `.uasset` or `.umap` files, and no content
 from Fab (`.gitignore` here ignores `Content/`).
 
 ## What is here
@@ -21,6 +22,7 @@ from Fab (`.gitignore` here ignores `Content/`).
 | `Source/Tervain.Target.cs`, `Source/TervainEditor.Target.cs` | Game and editor build targets. |
 | `Source/Tervain/Tervain.Build.cs` | The module's dependencies: Core, CoreUObject, Engine, DeveloperSettings, Json. |
 | `Source/Tervain/Public/Data/TervainRows.h` | **Generated.** One row struct per DataTable under `data/unreal/`, with the enums and nested structs they use. Written by `npm run data:export` from `src/core/export/unrealTables.ts`; do not edit it. |
+| `Source/Tervain/Public/Data/TervainIds.h` | **Generated.** The core's ids as constants: items, residents, hostiles and their posts, animal species, places, buildings, and the quest's phases, evidence, allocations, gate states and parties, with the save format version and content revision. Written by the same export from `src/core/export/unrealIds.ts`; do not edit it. Name an id through it (`FName(TervainIds::Item::Bread)`) so that an id the core renames stops the build instead of failing to find a row. |
 | `Source/Tervain/Public/TervainUnits.h` | Conversions between the core's units (metres, radians, x east, y up, z south) and Unreal's (centimetres, degrees, X east, Y south, Z up). |
 | `Source/Tervain/Public/TervainSettings.h` | Project settings: where the exported data folder is, and which DataTable asset holds each table. |
 | `Source/Tervain/Public/TervainDataSubsystem.h` | A game-instance subsystem that reads `data/game/tuning.json` and finds rows in the imported tables. |
@@ -52,12 +54,27 @@ git sparse-checkout init --no-cone
 git sparse-checkout set '/*' '!/unreal/'
 ```
 
-## Keeping the structs in step
+## Keeping this folder in step with the core
 
-`TervainRows.h` and the JSON tables are generated from the same definitions, and `tests/core/dataExport.test.ts` fails
-in the repository's CI when either is out of date. `tests/tools/unrealSkeleton.test.ts` checks that every row has
-exactly its struct's members with values of the declared types, that the settings name every table, that every tuning
-value the C++ reads exists in `tuning.json`, and that no binary or content file is committed here.
+The core (`src/core`) is the source, and this folder mirrors it. `npm run unreal:check` fails when the two stop
+agreeing, and the CI job *Unreal seed* (`.github/workflows/unreal-seed.yml`) runs it on every pull request and on
+`main`. It checks:
+
+- **Generated files.** `data/`, `TervainRows.h` and `TervainIds.h` are exactly what the core's export writes today
+  (`npm run data:export` rewrites them; `tests/core/dataExport.test.ts` makes the same comparison in the test run).
+- **Ids.** `tests/tools/unrealDrift.test.ts` takes the ids from the core's own modules and compares them with
+  `TervainIds.h`: every group, every id, the constant's name, the order, the save format version and the content
+  revision. It compiles the header and compares the values the C++ holds. Entity groups must equal the row names of
+  the table they point at. The test also alters copies of the header (an id renamed, removed, added, reordered, a
+  stale version) and requires each to be reported.
+- **Tables.** `tests/tools/unrealSkeleton.test.ts` checks that every row has exactly its struct's members with values
+  of the declared types, that the settings name every table, and that no binary or content file is committed here.
+- **Tuning.** Every member of the two tuning structs is filled from a number that exists in `data/game/tuning.json`,
+  each from its own path, and the stamina and guard keys the C++ does not read are listed in the test, so a key added
+  to the core is noticed. `TervainUnits.h` uses the factor the exported tables were converted with.
+- **Rules and build.** The two tests described [above](#what-is-checked-without-the-engine).
+
+After changing ids, tables or tuning in the core: `npm run data:export`, then `npm run unreal:check`.
 
 ## What is checked without the engine
 

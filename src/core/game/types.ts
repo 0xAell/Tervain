@@ -23,8 +23,11 @@ export const WRECK_BLADE_PICKUP = 'wreck_blade';
 export type QuestPhase = 'unseen' | 'investigating' | 'decision_ready' | 'committed' | 'settled';
 export const PHASE_ORDER: readonly QuestPhase[] = ['unseen', 'investigating', 'decision_ready', 'committed', 'settled'];
 
-export type Allocation = 'rillford' | 'quarry' | 'rotation';
-export type GateState = 'damaged' | 'jammed' | 'stabilized';
+/** How the water may be shared out, and the states of the sluice gate. */
+export const ALLOCATIONS = ['rillford', 'quarry', 'rotation'] as const;
+export type Allocation = typeof ALLOCATIONS[number];
+export const GATE_STATES = ['damaged', 'jammed', 'stabilized'] as const;
+export type GateState = typeof GATE_STATES[number];
 
 export type EvidenceId =
   | 'dry_channel'

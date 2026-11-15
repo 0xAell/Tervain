@@ -43,7 +43,10 @@ All of it is under [`data/`](../../data/README.md). None of these imports has be
 **DataTables.** Each `data/unreal/DT_*.json` is an array of rows with a `Name`. **Epic:** a row container "must
 inherit from `FTableRowBase` to be recognized by the importer", and the import key "uses Name for `.JSON`". The row
 structs are in `unreal/Source/Tervain/Public/Data/TervainRows.h`, generated from the same definitions as the files;
-`data/unreal/tables.json` pairs each file with its struct.
+`data/unreal/tables.json` pairs each file with its struct. The row names C++ may need to spell out (items, residents,
+hostiles, places, buildings) and the quest's vocabulary are constants in
+`unreal/Source/Tervain/Public/Data/TervainIds.h`, written by the same export; `npm run unreal:check` fails when
+either header and the core disagree.
 
 **Strings.** `data/unreal/ST_Tervain.csv` is a string table. **Epic:** "The CSV format used for string tables has two
 mandatory columns, Key and SourceString", and "CSV string tables aren't staged automatically": add it to the

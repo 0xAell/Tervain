@@ -46,7 +46,9 @@ model-independent planting is the starting point.
 `unreal/DT_*.json` are arrays of rows, each with a `Name`: the shape Unreal's DataTable editor reads with *Import* and
 writes with *Export as JSON*. `unreal/tables.json` lists each file with its row struct and every member's type. The
 structs themselves are declared in `unreal/Source/Tervain/Public/Data/TervainRows.h`, which the same export writes, so
-a row's fields and its struct's members cannot drift apart. `ST_Tervain.csv` is a
+a row's fields and its struct's members cannot drift apart. The same export writes `TervainIds.h` beside it: the row
+names and the quest's vocabulary as C++ constants. `npm run unreal:check` compares both headers, the tables and the
+tuning values the C++ reads with the core, and a CI job runs it on every pull request. `ST_Tervain.csv` is a
 string table (`Key,SourceString`). `conventions.json` states the unit and axis conversions used, including the two yaw
 conversions: one for assets authored facing Unreal's `+X`, one for meshes imported from glTF.
 

@@ -100,8 +100,10 @@ export async function buildExport(load) {
       enums: UNREAL_ENUMS,
     }),
   });
-  // The row structs' header is part of the Unreal module, outside data/.
+  // The row structs' header and the ids' header are part of the Unreal module, outside data/.
   files.push({ path: '../unreal/Source/Tervain/Public/Data/TervainRows.h', text: unrealRowsHeader(tables) });
+  const { unrealIdsHeader } = await load('/src/core/export/unrealIds.ts');
+  files.push({ path: '../unreal/Source/Tervain/Public/Data/TervainIds.h', text: unrealIdsHeader() });
   return files;
 }
 
