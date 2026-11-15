@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest';
-import {Habitat,newSample} from '../../src/presentation/ground/habitat';
+import {Habitat,newSample} from '../../src/core/world/habitat';
 import {WORLD} from '../../src/core/world/layout';
 
 it('preserves all interpolated channels and output identity at cell and raster seams',()=>{

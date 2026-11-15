@@ -8,7 +8,7 @@ vi.mock('../../src/presentation/grass/grassField', async importOriginal => {
   const original = await importOriginal<typeof import('../../src/presentation/grass/grassField')>();
   return { ...original, createGrassField: vi.fn() };
 });
-vi.mock('../../src/presentation/ground/habitat', () => ({ Habitat: class {} }));
+vi.mock('../../src/core/world/habitat', () => ({ Habitat: class {} }));
 
 describe('grass catch-up work allowance', () => {
   it.each(['low', 'high'] as const)('shares one allowance through nine steps and resets without trample work (%s)', quality => {

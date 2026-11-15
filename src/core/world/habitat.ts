@@ -9,16 +9,14 @@ import {
   SPRING_POOL,
   STREAMS,
   WORLD,
-} from '../../core/world/layout';
-import { clamp, fbm, smoothstep } from '../../core/world/noise';
-import { distToPolyline, roadWeight, type Terrain } from '../../core/world/terrain';
-import type { BuildContext } from '../context';
-import { groundSplat } from '../../core/world/groundLayers';
-import { LAYER } from '../terrainTextures';
-import { shoreDistance } from '../../core/world/coast';
-import { isWorldPickupItem } from '../../core/content/pickups';
-import type { PlantedCrownField } from '../plantedCrowns';
-import { biomeAt } from '../../core/world/biomes';
+} from './layout';
+import { clamp, fbm, smoothstep } from './noise';
+import { distToPolyline, roadWeight, type Terrain } from './terrain';
+import type { Colliders } from './colliders';
+import { groundSplat, LAYER, type PlantedCrownField } from './groundLayers';
+import { shoreDistance } from './coast';
+import { isWorldPickupItem } from '../content/pickups';
+import { biomeAt } from './biomes';
 
 /**
  * A cheap, lazily evaluated map of where plants may grow and what kind of ground it is.
@@ -100,6 +98,9 @@ export function waterDistance(x: number, z: number, centreOut?: Float64Array): n
   return Math.min(d, pd);
 }
 
+/** What the habitat is read from: the ground, what stands on it, the ground kept clear, and the shade of the planted crowns. */
+export interface HabitatWorld { terrain: Terrain; colliders: Pick<Colliders, 'all'>; excl: object; plantedCrowns?: PlantedCrownField }
+
 export class Habitat {
   readonly terrain: Terrain;
   readonly trees: TreeSpot[] = [];
@@ -112,7 +113,7 @@ export class Habitat {
   private noiseForest: boolean;
   private readonly plantedCrowns?: PlantedCrownField;
 
-  constructor(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'excl' | 'plantedCrowns'>) {
+  constructor(ctx: HabitatWorld) {
     this.terrain = ctx.terrain;
     this.plantedCrowns = ctx.plantedCrowns;
 

@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { waterDistance } from '../../src/presentation/ground/habitat';
+import { waterDistance } from '../../src/core/world/habitat';
 import { STREAMS, SPRING_POOL } from '../../src/core/world/layout';
 import { distToPolyline } from '../../src/core/world/terrain';
 

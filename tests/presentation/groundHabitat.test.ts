@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Habitat, newSample, woodlandColonyAt } from '../../src/presentation/ground/habitat';
+import { Habitat, newSample, woodlandColonyAt } from '../../src/core/world/habitat';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { Colliders } from '../../src/core/world/colliders';
 import { Terrain, roadWeight } from '../../src/core/world/terrain';

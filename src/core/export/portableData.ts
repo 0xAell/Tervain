@@ -46,6 +46,9 @@ import { DEER_BODY, MOUNT_SIDE, MOUNT_STAMINA, MOUNT_TIMES, RIDE, RIDE_CAMERA } 
 import { BIOME_IDS, BIOME_REGIONS } from '../world/biomes';
 import { DRESSING } from '../world/dressing';
 import { Exclusions } from '../world/exclusions';
+import { DETAIL_KEEP } from '../world/detail';
+import { createForestFloorPopulation, FOREST_FLOOR_DISTANCE } from '../world/forestFloor';
+import { createShoreDetailPopulation, placeScatter, ROCK_SHAPE_COUNT } from '../world/scatter';
 import { createFloraPopulation } from '../world/flora';
 import { FOREST_CLEARINGS, FOREST_OPENINGS } from '../world/forest';
 import { FURNITURE } from '../world/furniture';
@@ -215,7 +218,10 @@ function game(): PortableDocument[] {
 function world(terrain: Terrain): PortableDocument[] {
   const height = (p: { x: number; z: number }) => terrain.heightAt(p.x, p.z);
   const grounded = <T extends { x: number; z: number }>(p: T) => ({ ...p, y: height(p) });
-  const trees = createFloraPopulation(terrain, new Exclusions(terrain));
+  const exclusions = new Exclusions(terrain), trees = createFloraPopulation(terrain, exclusions);
+  const floor = createForestFloorPopulation(terrain, exclusions, trees);
+  // Where a stone lies does not depend on its shape; its resting height and its solid do, and are the port's own.
+  const stones = placeScatter(terrain, exclusions, trees, { groundedY: (rock, heightAt) => heightAt(rock.x, rock.z), contact: (rock, id) => ({ id, bounds: { minY: 0, maxY: rock.size } }) as never });
   const count: Record<string, number> = {};
   for (const tree of trees) count[tree.sp] = (count[tree.sp] ?? 0) + 1;
   return [
@@ -261,6 +267,16 @@ function world(terrain: Terrain): PortableDocument[] {
       data: {
         count,
         trees: trees.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, age: tree.age ?? null, stand: tree.standId ?? null })),
+      },
+    },
+    {
+      path: 'world/placement.json',
+      about: 'What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone) and the shore’s driftwood and scrub. `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s resting height is left to its own shape: `groundY` is the ground under its centre.',
+      data: {
+        detailKeep: DETAIL_KEEP, woodlandFloorFade: FOREST_FLOOR_DISTANCE, stoneShapes: ROCK_SHAPE_COUNT,
+        woodlandFloor: floor.map((piece) => ({ id: piece.id, kind: piece.kind, x: piece.x, y: piece.y, z: piece.z, yaw: piece.yaw, scale: piece.scale, rank: piece.rank, variant: piece.variant, colony: piece.colonyId ?? null, onLog: piece.parentLogId ?? null })),
+        stones: stones.map((rock) => ({ kind: rock.kind, x: rock.x, groundY: terrain.heightAt(rock.x, rock.z), z: rock.z, size: rock.size, shape: rock.shape, yaw: rock.yaw, squash: rock.squash, rank: rock.decorationRank, obstacleRadius: rock.radius, solid: rock.size >= 0.35 })),
+        shore: createShoreDetailPopulation(terrain, exclusions, trees).map((detail) => ({ kind: detail.kind, x: detail.x, y: detail.y, z: detail.z, yaw: detail.yaw, scale: detail.scale, rank: detail.rank })),
       },
     },
   ];
