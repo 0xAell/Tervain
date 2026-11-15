@@ -121,10 +121,10 @@ describe('the ids the Unreal seed names and the core', () => {
     const found = declared(header);
     const driver = [
       '#include "Data/TervainIds.h"', '#include <cstdio>', '',
-      'template <unsigned long Count> static void Print(const char* Group, const TCHAR* const (&Ids)[Count]) { for (const TCHAR* Id : Ids) std::printf("%s %s\\n", Group, Id); }', '',
+      'template <unsigned long Count> static void Print(const char* Group, const TCHAR* const (&Ids)[Count]) { for (const TCHAR* Id : Ids) std::printf("%s %ls\\n", Group, Id); }', '',
       'int main()', '{',
       ...Object.keys(found.groups).map((group) => `\tPrint("${group}", TervainIds::${group}::All);`),
-      ...Object.entries(found.constants).map(([name, value]) => `\tstd::printf("${name} ${typeof value === 'number' ? '%d' : '%s'}\\n", TervainIds::${name});`),
+      ...Object.entries(found.constants).map(([name, value]) => `\tstd::printf("${name} ${typeof value === 'number' ? '%d' : '%ls'}\\n", TervainIds::${name});`),
       '\treturn 0;', '}', '',
     ].join('\n');
     writeFileSync(join(work, 'ids.cpp'), driver);

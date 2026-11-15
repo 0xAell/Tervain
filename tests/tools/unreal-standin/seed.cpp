@@ -7,6 +7,9 @@
 #include "TervainDataSubsystem.h"
 #include "TervainSettings.h"
 #include "TervainUnits.h"
+#include "UObject/NameTypes.h"
+#include "UObject/SoftObjectPath.h"
+#include "UObject/UObjectGlobals.h"
 
 #include <iostream>
 #include <string>
@@ -23,8 +26,8 @@ int main(int Count, char** Arguments)
 {
 	if (Count < 3) return 2;
 	const std::string Mode = Arguments[1];
-	StandIn::ProjectDir() = Arguments[2];
-	if (Count > 3) StandIn::MutableDefault<UTervainSettings>()->DataDirectory = FString(Arguments[3]);
+	StandIn::ProjectDir() = StandIn::Widen(Arguments[2]);
+	if (Count > 3) StandIn::MutableDefault<UTervainSettings>()->DataDirectory = FString(StandIn::Widen(Arguments[3]));
 
 	UTervainDataSubsystem Data;
 	FSubsystemCollectionBase Collection;
@@ -35,7 +38,7 @@ int main(int Count, char** Arguments)
 		// One dotted path per line on standard input; a path that names no number prints the default given here.
 		std::printf("%d\n", Data.HasTuning() ? 1 : 0);
 		std::string Line;
-		while (std::getline(std::cin, Line)) std::printf("%.9g\n", Data.GetTuningNumber(FString(Line), -12345.f));
+		while (std::getline(std::cin, Line)) std::printf("%.9g\n", Data.GetTuningNumber(FString(StandIn::Widen(Line)), -12345.f));
 	}
 	else if (Mode == "structs")
 	{
@@ -57,7 +60,7 @@ int main(int Count, char** Arguments)
 	else if (Mode == "settings")
 	{
 		const UTervainSettings* Settings = GetDefault<UTervainSettings>();
-		std::printf("%s\n%s\n%s\n%d\n%d\n", Settings->GetCategoryName().StandInValue().c_str(), *Settings->GetDataDirectory(), StandInGameName_Tervain(),
+		std::printf("%s\n%s\n%s\n%d\n%d\n", StandIn::Narrow(Settings->GetCategoryName().StandInValue()).c_str(), StandIn::Narrow(Settings->GetDataDirectory().StandInValue()).c_str(), StandInGameName_Tervain(),
 			StandInModule_Tervain() != nullptr ? 1 : 0, Data.HasTuning() ? 1 : 0);
 	}
 	else if (Mode == "rows")
@@ -73,11 +76,13 @@ int main(int Count, char** Arguments)
 		Bread.HealAmount = 12;
 		Bread.Action = ETervainItemAction::Consume;
 		Items.StandInAddRow(TEXT("bread"), &Bread);
-		StandIn::Objects()["/Game/Tervain/Data/DT_Items.DT_Items"] = &Items;
+		StandIn::Objects()[TEXT("/Game/Tervain/Data/DT_Items.DT_Items")] = &Items;
 		StandIn::MutableDefault<UTervainSettings>()->ItemsTable = FSoftObjectPath(TEXT("/Game/Tervain/Data/DT_Items.DT_Items"));
 		const FTervainItemRow* Found = Data.FindItem(FName(TEXT("bread")));
-		std::printf("%d %s %d %d\n", Found == &Bread ? 1 : 0, Found ? *Found->NameKey : "", Found ? Found->HealAmount : -1, Found && Found->Kind == ETervainItemKind::Consumable ? 1 : 0);
+		std::printf("%d %s %d %d\n", Found == &Bread ? 1 : 0, Found ? StandIn::Narrow(Found->NameKey.StandInValue()).c_str() : "", Found ? Found->HealAmount : -1, Found && Found->Kind == ETervainItemKind::Consumable ? 1 : 0);
 		std::printf("%d\n", Data.FindItem(FName(TEXT("no-such-item"))) == nullptr ? 1 : 0);
+		// Names compare without regard to case, as the engine's do: the row "bread" answers to "Bread".
+		std::printf("%d %d\n", Data.FindItem(FName(TEXT("Bread"))) == &Bread ? 1 : 0, FName(TEXT("BREAD")) == FName(TEXT("bread")) ? 1 : 0);
 
 		// A path with nothing behind it, and a table whose rows are of another struct, give null rather than a wrong row.
 		StandIn::MutableDefault<UTervainSettings>()->ResidentsTable = FSoftObjectPath(TEXT("/Game/Tervain/Data/DT_Missing.DT_Missing"));

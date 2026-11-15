@@ -4,15 +4,28 @@
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonReader.h"
 
-#include <cstdlib>
+#include <cwchar>
+#include <memory>
+#include <string>
 
 class FJsonSerializer
 {
 public:
-	/** Read a JSON object from the reader's text. False, with OutObject untouched, when the text is not one JSON object. */
-	static bool Deserialize(const TSharedRef<TJsonReader<>>& Reader, TSharedPtr<FJsonObject>& OutObject)
+	/** Options, as Epic's API reference gives TJsonSerializer::EFlags. */
+	enum EFlags
 	{
-		const std::string& Text = Reader->Text;
+		None = 0,
+		StoreNumbersAsStrings = 1,
+	};
+
+	/**
+	 * Read a JSON object from the reader's text. False, with OutObject untouched, when the text is not one JSON object.
+	 * The signature is the one Epic's API reference gives, with no default arguments, since the reference prints none.
+	 */
+	static bool Deserialize(const TSharedRef<TJsonReader<TCHAR>>& Reader, TSharedPtr<FJsonObject>& OutObject, EFlags InOptions)
+	{
+		(void)InOptions;
+		const std::wstring& Text = Reader->Text;
 		size_t At = 0;
 		std::shared_ptr<FJsonObject> Root = std::make_shared<FJsonObject>();
 		if (!Object(Text, At, *Root)) return false;
@@ -23,48 +36,48 @@ public:
 	}
 
 private:
-	static void Space(const std::string& Text, size_t& At) { while (At < Text.size() && (Text[At] == ' ' || Text[At] == '\n' || Text[At] == '\r' || Text[At] == '\t')) ++At; }
-	static bool Literal(const std::string& Text, size_t& At, const char* Word)
+	static void Space(const std::wstring& Text, size_t& At) { while (At < Text.size() && (Text[At] == ' ' || Text[At] == '\n' || Text[At] == '\r' || Text[At] == '\t')) ++At; }
+	static bool Literal(const std::wstring& Text, size_t& At, const wchar_t* Word)
 	{
-		const std::string Expected(Word);
+		const std::wstring Expected(Word);
 		if (Text.compare(At, Expected.size(), Expected) != 0) return false;
 		At += Expected.size();
 		return true;
 	}
-	static bool String(const std::string& Text, size_t& At, std::string& Out)
+	static bool String(const std::wstring& Text, size_t& At, std::wstring& Out)
 	{
 		if (At >= Text.size() || Text[At] != '"') return false;
 		for (++At; At < Text.size(); ++At)
 		{
-			const char Character = Text[At];
+			const wchar_t Character = Text[At];
 			if (Character == '"') { ++At; return true; }
 			if (Character == '\\')
 			{
 				if (++At >= Text.size()) return false;
-				const char Escaped = Text[At];
-				if (Escaped == 'u') { if (At + 4 >= Text.size()) return false; At += 4; Out += '?'; }
-				else Out += Escaped == 'n' ? '\n' : Escaped == 't' ? '\t' : Escaped == 'r' ? '\r' : Escaped == 'b' ? '\b' : Escaped == 'f' ? '\f' : Escaped;
+				const wchar_t Escaped = Text[At];
+				if (Escaped == 'u') { if (At + 4 >= Text.size()) return false; At += 4; Out += L'?'; }
+				else Out += Escaped == L'n' ? L'\n' : Escaped == L't' ? L'\t' : Escaped == L'r' ? L'\r' : Escaped == L'b' ? L'\b' : Escaped == L'f' ? L'\f' : Escaped;
 			}
 			else Out += Character;
 		}
 		return false;
 	}
-	static bool Number(const std::string& Text, size_t& At, double& Out)
+	static bool Number(const std::wstring& Text, size_t& At, double& Out)
 	{
-		const char* Start = Text.c_str() + At;
-		char* End = nullptr;
-		Out = std::strtod(Start, &End);
+		const wchar_t* Start = Text.c_str() + At;
+		wchar_t* End = nullptr;
+		Out = std::wcstod(Start, &End);
 		if (End == Start) return false;
 		At += static_cast<size_t>(End - Start);
 		return true;
 	}
 	/** Any value; an object or a number is handed back, anything else is read past. */
-	static bool Value(const std::string& Text, size_t& At, std::shared_ptr<FJsonObject>& OutObject, double& OutNumber, bool& bIsNumber)
+	static bool Value(const std::wstring& Text, size_t& At, std::shared_ptr<FJsonObject>& OutObject, double& OutNumber, bool& bIsNumber)
 	{
 		Space(Text, At);
 		bIsNumber = false;
 		if (At >= Text.size()) return false;
-		const char Character = Text[At];
+		const wchar_t Character = Text[At];
 		if (Character == '{') { OutObject = std::make_shared<FJsonObject>(); return Object(Text, At, *OutObject); }
 		if (Character == '[')
 		{
@@ -80,14 +93,14 @@ private:
 				return false;
 			}
 		}
-		if (Character == '"') { std::string Ignored; return String(Text, At, Ignored); }
-		if (Character == 't') return Literal(Text, At, "true");
-		if (Character == 'f') return Literal(Text, At, "false");
-		if (Character == 'n') return Literal(Text, At, "null");
+		if (Character == '"') { std::wstring Ignored; return String(Text, At, Ignored); }
+		if (Character == 't') return Literal(Text, At, L"true");
+		if (Character == 'f') return Literal(Text, At, L"false");
+		if (Character == 'n') return Literal(Text, At, L"null");
 		bIsNumber = Number(Text, At, OutNumber);
 		return bIsNumber;
 	}
-	static bool Object(const std::string& Text, size_t& At, FJsonObject& Out)
+	static bool Object(const std::wstring& Text, size_t& At, FJsonObject& Out)
 	{
 		Space(Text, At);
 		if (At >= Text.size() || Text[At] != '{') return false;
@@ -96,7 +109,7 @@ private:
 		for (;;)
 		{
 			Space(Text, At);
-			std::string Key;
+			std::wstring Key;
 			if (!String(Text, At, Key)) return false;
 			Space(Text, At);
 			if (At >= Text.size() || Text[At] != ':') return false;

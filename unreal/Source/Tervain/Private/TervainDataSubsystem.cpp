@@ -1,12 +1,17 @@
 #include "TervainDataSubsystem.h"
 
+#include "Containers/Array.h"
 #include "Dom/JsonObject.h"
+#include "HAL/FileManager.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "Templates/Casts.h"
 #include "Tervain.h"
 #include "TervainSettings.h"
+#include "UObject/ObjectMacros.h"
+#include "UObject/UObjectGlobals.h"
 
 void UTervainDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -14,14 +19,16 @@ void UTervainDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 	const FString File = FPaths::Combine(GetDefault<UTervainSettings>()->GetDataDirectory(), TEXT("game"), TEXT("tuning.json"));
 	FString Text;
-	if (!FFileHelper::LoadFileToString(Text, *File))
+	// Every parameter Epic's API reference gives is passed: the reference prints no default arguments. The read flag is
+	// named in full and cast, which compiles whether EFileRead is a scoped enum or not; the reference does not say.
+	if (!FFileHelper::LoadFileToString(Text, *File, FFileHelper::EHashOptions::None, static_cast<uint32>(EFileRead::FILEREAD_None)))
 	{
 		UE_LOG(LogTervain, Warning, TEXT("Tuning values not found at %s. Set the data directory in Project Settings > Game > Tervain."), *File);
 		return;
 	}
 
-	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Text);
-	if (!FJsonSerializer::Deserialize(Reader, Tuning) || !Tuning.IsValid())
+	const TSharedRef<TJsonReader<TCHAR>> Reader = TJsonReaderFactory<TCHAR>::Create(Text);
+	if (!FJsonSerializer::Deserialize(Reader, Tuning, FJsonSerializer::EFlags::None) || !Tuning.IsValid())
 	{
 		UE_LOG(LogTervain, Error, TEXT("%s is not valid JSON."), *File);
 		Tuning.Reset();
@@ -80,7 +87,7 @@ FTervainGuardTuning UTervainDataSubsystem::GetGuardTuning() const
 
 UDataTable* UTervainDataSubsystem::LoadTable(const FSoftObjectPath& Path) const
 {
-	return Path.IsNull() ? nullptr : Cast<UDataTable>(Path.TryLoad());
+	return Path.IsNull() ? nullptr : Cast<UDataTable>(Path.TryLoad(nullptr, LOAD_None));
 }
 
 const FTervainItemRow* UTervainDataSubsystem::FindItem(FName ItemId) const

@@ -115,10 +115,12 @@ What is there:
 
 What is missing from a ten, and the plan:
 
-- It has never been built by Unreal's build tool or opened in the editor. The stand-ins were written from the engine's
-  public API as understood here and were not checked against the engine's headers or Epic's API reference, which
-  could not be reached. The reflection markup, the build files and the project file are read only by the engine's own
-  tools. A wrong signature or a missing include can still turn up.
+- It has never been built by Unreal's build tool or opened in the editor. Every engine name it and its stand-ins use
+  has since been checked against Epic's documentation ([the register](engine-symbols.md)): 188 of 196 are confirmed
+  by a quoted passage, 6 are documented in part, one is not documented and one is shown differently on a dated page,
+  and the check corrected the stand-ins and the seed where they disagreed with it. The seed now passes every argument
+  the reference prints, so it relies on no default value it cannot see. The reflection markup, the build files and
+  the project file are read only by the engine's own tools. A wrong signature can still turn up.
 - Plan: the roadmap's Phase 1, on a machine with the engine: build the editor target, fix what the compiler finds,
   keep the fixes here, and import the tables and the Landscape. No amount of work in this repository replaces that
   step.

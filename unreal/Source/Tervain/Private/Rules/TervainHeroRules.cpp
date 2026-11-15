@@ -1,5 +1,7 @@
 #include "Rules/TervainHeroRules.h"
 
+#include "Math/UnrealMathUtility.h"
+
 bool TervainRules::StaminaStep(FTervainStaminaState& State, const FTervainStaminaTuning& Tuning, float DeltaSeconds, ETervainStaminaDrain Drain, bool bGuarding)
 {
 	bool bWinded = false;
@@ -41,7 +43,7 @@ FTervainGuardedHit TervainRules::ResolveGuardedHit(const FTervainGuardTuning& Tu
 	Out.Cost = Tuning.BlockCost * (bSteadyGuard ? Tuning.SteadyGuard : 1.f) * (bHeavy ? Tuning.HeavyCost : 1.f);
 	const bool bTired = Stamina < Out.Cost * Tuning.TiredBelow;
 	const float Share = bPerfect ? Arms.PerfectShare : bTired ? Arms.TiredShare : Arms.FreshShare;
-	Out.Damage = FMath::RoundToInt(static_cast<float>(Damage) * Share);
+	Out.Damage = FMath::RoundToInt32(static_cast<float>(Damage) * Share);
 	Out.Stamina = FMath::Max(0.f, Stamina - Out.Cost);
 	Out.bGuardBroken = Out.Stamina <= 0.f && bHeavy;
 	return Out;

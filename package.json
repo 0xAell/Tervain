@@ -24,7 +24,8 @@
     "docs:sources": "node tools/check-doc-sources.mjs",
     "hygiene:check": "node tools/commit-hygiene.mjs",
     "smoke:live": "node tools/live-smoke.mjs",
-    "unreal:check": "node tools/export-data.mjs --check && vitest run tests/tools/unrealDrift.test.ts tests/tools/unrealSkeleton.test.ts tests/tools/unrealRulesParity.test.ts tests/tools/unrealSeedBuild.test.ts"
+    "unreal:check": "node tools/export-data.mjs --check && node tools/engine-symbols.mjs && vitest run tests/tools/unrealDrift.test.ts tests/tools/unrealSkeleton.test.ts tests/tools/unrealRulesParity.test.ts tests/tools/unrealSeedBuild.test.ts tests/tools/engineSymbols.test.ts",
+    "unreal:symbols": "node tools/engine-symbols.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",
