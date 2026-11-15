@@ -28,6 +28,7 @@ import { MUSIC } from '../content/music';
 import { MUSIC_PACING, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS } from '../rules/music';
 import { BEDS, emitterRuleTable, INN, MILL_SOUND, QUARRY_SOUND } from '../rules/soundscape';
 import { BOW } from '../rules/bow';
+import { AFLOAT, AWAITED_MOUNT_REACH, CLOCK_TICK_MINUTES, ENTRY, SAFE_PLACE_RINGS, SHAKE, STANDING_BODY, TIMED_WORK } from '../rules/session';
 import { SHOT, SKINNING, SKULL_BAND, SKULLS } from '../rules/archery';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../rules/camera';
 import { NIGHT, nightness, SUNRISE_HOUR, SUNSET_HOUR } from '../rules/dayNight';
@@ -207,6 +208,7 @@ function game(): PortableDocument[] {
           nightnessByHour: Array.from({ length: 49 }, (_, i) => ({ hour: i / 2, nightness: nightness(i / 2 % 24) })),
         },
         journey: {
+          sitting: { clockTickMinutes: CLOCK_TICK_MINUTES, afloat: AFLOAT, safePlaceRings: SAFE_PLACE_RINGS, entry: ENTRY, standingBody: STANDING_BODY, awaitedMountReach: AWAITED_MOUNT_REACH, timedWork: TIMED_WORK, shake: SHAKE },
           autosaveSeconds: AUTOSAVE_SECONDS, hitStop: HIT_STOP, death: DEATH, threatReach: THREAT_REACH, checkpointClearance: CHECKPOINT_CLEARANCE,
           underWorld: UNDER_WORLD, witnesses: WITNESSES, witnessReach: WITNESS_REACH, overhearReach: OVERHEAR_REACH, speechSoonReach: SPEECH_SOON_REACH,
           woundedBelow: WOUNDED_BELOW, droughtBell: DROUGHT_BELL,

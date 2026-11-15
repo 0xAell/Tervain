@@ -203,6 +203,12 @@ export class EnemyActor extends HostileActor {
   protected get height(): number { return this.rig.height; }
   protected override bodyStruck(strength: number): void { this.rig.hitFlash = strength; }
   protected override bodyShown(visible: boolean): void { this.rig.root.visible = visible; }
+
+  /** Put as the saved journey has them (core); one who had fallen and is whole again stands upright. */
+  override restore(defeated: boolean): void {
+    super.restore(defeated);
+    if (!defeated) this.rig.body.rotation.set(0, 0, 0);
+  }
   protected override bodyReady(): void { if (this.showOnUpdate) { this.showOnUpdate = false; this.rig.root.visible = true; } }
 
   /** A bandit's model has arrived (stage 2): it takes the stand-in's place where they wait, and they can fight. */

@@ -974,6 +974,119 @@
     "journey": {
       "type": "object",
       "properties": {
+        "sitting": {
+          "type": "object",
+          "properties": {
+            "clockTickMinutes": {
+              "type": "number"
+            },
+            "afloat": {
+              "type": "object",
+              "properties": {
+                "depth": {
+                  "type": "number"
+                },
+                "over": {
+                  "type": "number"
+                },
+                "feetBelow": {
+                  "type": "number"
+                },
+                "headroom": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "depth",
+                "over",
+                "feetBelow",
+                "headroom"
+              ],
+              "additionalProperties": false
+            },
+            "safePlaceRings": {
+              "type": "integer"
+            },
+            "entry": {
+              "type": "object",
+              "properties": {
+                "propSupport": {
+                  "type": "number"
+                },
+                "buried": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "propSupport",
+                "buried"
+              ],
+              "additionalProperties": false
+            },
+            "standingBody": {
+              "type": "object",
+              "properties": {
+                "residentRadius": {
+                  "type": "number"
+                },
+                "height": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "residentRadius",
+                "height"
+              ],
+              "additionalProperties": false
+            },
+            "awaitedMountReach": {
+              "type": "integer"
+            },
+            "timedWork": {
+              "type": "object",
+              "properties": {
+                "rite": {
+                  "type": "integer"
+                },
+                "brace": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "rite",
+                "brace"
+              ],
+              "additionalProperties": false
+            },
+            "shake": {
+              "type": "object",
+              "properties": {
+                "surge": {
+                  "type": "number"
+                },
+                "jam": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "surge",
+                "jam"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "clockTickMinutes",
+            "afloat",
+            "safePlaceRings",
+            "entry",
+            "standingBody",
+            "awaitedMountReach",
+            "timedWork",
+            "shake"
+          ],
+          "additionalProperties": false
+        },
         "autosaveSeconds": {
           "type": "integer"
         },
@@ -1087,6 +1200,7 @@
         }
       },
       "required": [
+        "sitting",
         "autosaveSeconds",
         "hitStop",
         "death",
