@@ -36,8 +36,8 @@ What is missing from a ten, and the plan:
 
 - The numbers and decisions of the player's actions, the residents' walking and the animals' behaviour are in the
   core, but the state machines that call them are still in `src/presentation/player.ts`, `actors.ts` and `animals.ts`.
-  So are the sky's keyframes. The table of interactables, the score's director with the soundscape's rules, and the
-  placing of stones, grass habitat and the woodland floor have since been lifted. [System mapping](system-mapping.md#still-in-the-scene-layer) lists them.
+  The table of interactables, the score's director with the soundscape's rules, the placing of stones, grass habitat
+  and the woodland floor, and the sky's keys have since been lifted. [System mapping](system-mapping.md#still-in-the-scene-layer) lists them.
 - Plan: lift them one pull request each, smallest first: the interactable table, then the player's action states (the
   port's Phase 3 needs it), the residents' route following, the animals, the music director, the placement rules, the
   sky keyframes. Each lands with its tests and without a change in the budget gate's figures.

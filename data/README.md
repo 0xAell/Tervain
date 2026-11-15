@@ -12,7 +12,7 @@ TypeScript: an Unreal Engine project in particular (see `data/unreal`).
 | Folder | Holds | Units and axes |
 | --- | --- | --- |
 | `game/` | Items, residents and their schedules, dialogue, inspections, everything the wanderer can act on, the score and the world's sound, spoken lines, display strings, animals and hunting, hostiles, the quest's vocabulary, and tuning values by system. | The core's: metres, seconds, radians. |
-| `world/` | The authored layout (bounds, coast, water, roads, places, buildings, anchors), each room's furniture and dressing, where every tree stands, what lies and grows on the ground besides (the woodland floor, the loose stone, the shore's driftwood and scrub), and the terrain as rasters. | The core's: `x` east, `z` south, `y` up; a yaw of 0 faces `+z`. |
+| `world/` | The authored layout (bounds, coast, water, roads, places, buildings, anchors), each room's furniture and dressing, where every tree stands, what lies and grows on the ground besides (the woodland floor, the loose stone, the shore's driftwood and scrub), the sky through the day, and the terrain as rasters. | The core's: `x` east, `z` south, `y` up; a yaw of 0 faces `+z`. |
 | `schema/` | A JSON Schema (draft 2020-12) for every document in `game/` and `world/`. | |
 | `unreal/` | The flat tables again, shaped for Unreal's importers, with positions already in Unreal's units. | Centimetres, degrees; X east, Y south, Z up. |
 
