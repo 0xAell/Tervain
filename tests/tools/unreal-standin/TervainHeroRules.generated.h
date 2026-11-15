@@ -1,2 +1,4 @@
-// Stand-in for the header Unreal's header tool generates beside TervainHeroRules.h. Empty on purpose.
+// Stand-in for the header the engine generates beside TervainHeroRules.h: its structs need nothing here.
 #pragma once
+#undef GENERATED_BODY
+#define GENERATED_BODY()

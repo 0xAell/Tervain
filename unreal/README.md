@@ -3,10 +3,11 @@
 A minimal Unreal Engine C++ project that mirrors the data types of the game's engine-agnostic core. It is a starting
 point for the port, not a playable project: there is no level, no content and no gameplay here yet.
 
-**Status: not compiled.** These files were written without Unreal Engine at hand, so nothing here has been opened in
-the editor or built. The first task of the port is to generate project files, build the editor target and fix
-whatever the compiler finds. The code keeps to long-standing engine APIs (DataTables, a game-instance subsystem,
-developer settings, the JSON reader) to make that step small.
+**Status: not built in Unreal Engine.** These files were written without the engine at hand, so nothing here has been
+opened in the editor or built by the engine's tools. The first task of the port is to generate project files, build
+the editor target and fix whatever the compiler finds. The code keeps to long-standing engine APIs (DataTables, a
+game-instance subsystem, developer settings, the JSON reader) to make that step small. What the repository's own tests
+do check, with an ordinary C++ compiler, is set out [below](#what-is-checked-without-the-engine).
 
 The web build does not depend on anything in this folder, and nothing here is built or deployed by this repository's
 CI. The repository holds source and configuration only: no binaries, no `.uasset` or `.umap` files, and no content
@@ -60,9 +61,22 @@ value the C++ reads exists in `tuning.json`, and that no binary or content file 
 
 ## What is checked without the engine
 
-The two mirrored rules and the unit conversions are plain C++ that needs only a handful of engine names.
-`tests/tools/unrealRulesParity.test.ts` compiles them with an ordinary C++ compiler against small stand-ins for those
-names (`tests/tools/unreal-standin`) and runs them on a few thousand cases, comparing every result with the
-TypeScript rule it mirrors. That shows the logic was carried over correctly. It does not show that the project builds
-in Unreal Engine: the reflection markup, the data subsystem and the settings are only compiled by the engine's own
-tools.
+Unreal Engine is not available where this repository's tests run, so two tests stand in for a build as far as they
+can. Both use an ordinary C++ compiler and small stand-ins for the engine names the seed uses
+(`tests/tools/unreal-standin`):
+
+- `tests/tools/unrealSeedBuild.test.ts` compiles **every source file of the module** with warnings as errors, links
+  them, and runs the result against the repository's exported data. The data subsystem must read each of the 179
+  numbers in `data/game/tuning.json` to the value in the file, give the default for a path that names no number, and
+  log a warning when the data folder is not where the settings point. The settings must find `data/` beside the
+  project, and a row must be found by name in the table the settings name. Every generated row struct is made.
+- `tests/tools/unrealRulesParity.test.ts` runs the two mirrored rules and the unit conversions on a few thousand
+  cases and compares every result with the TypeScript rule it mirrors.
+
+That shows the seed's C++ is well-formed and consistent with itself, and that its logic gives the right answers on
+the real data. It does **not** show that the project builds in Unreal Engine. The stand-ins were written from the
+engine's public API as it was understood here, not from the engine's headers, and they were not checked against
+Epic's API reference. The reflection markup (`UCLASS`, `USTRUCT`, `UPROPERTY`, the `.generated.h` headers), the build
+files (`.Build.cs`, `.Target.cs`) and the `.uproject` are read only by the engine's own tools. The first build on a
+machine with the engine is still the first real test, and a wrong signature or a missing include can still turn up
+there.
