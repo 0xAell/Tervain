@@ -146,9 +146,11 @@ What is missing from a ten, and the plan:
 - Two pieces of scene code are built and tested but unused: the prepared broadleaf in
   `src/presentation/sourceBroadleaf.ts` and the asset library hook in `src/presentation/assets/library.ts`. Each is
   tied into the model ledger and the load-budget tests.
-- The Gothic 3 study is most of the repository's files and shares no code with the game.
-- Plan: remove or use each of the two pieces in a pull request of its own, with the ledger and the tests that name it;
-  move the study to its own repository if the owner wants the seed to stand alone.
+- The Gothic 3 study is most of the repository's files. It stays in this repository by the owner's decision, as a
+  separate project: no file of the game imports it or is imported by it, it is compiled and tested as its own project
+  in its own CI jobs, and the seed's checks do not cover it
+  ([`tests/tooling/gothic3Study.test.ts`](../../tests/tooling/gothic3Study.test.ts) fails when any of that changes).
+- Plan: remove or use each of the two pieces in a pull request of its own, with the ledger and the tests that name it.
 
 ## How the seed was verified
 

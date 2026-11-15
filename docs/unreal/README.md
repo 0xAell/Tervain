@@ -46,4 +46,5 @@ or quotation that has no source and is not marked as a plan.
 - **Stand-ins to replace:** most models and surfaces (see the asset manifest).
 
 The separate Gothic 3 study and reconstruction in this repository (`src/gothic3`, `assets/gothic3`, `public/gothic3`
-and their tools and tests) is not part of Tervain and not part of the port.
+and their tools and tests) is not part of Tervain and not part of the port. It shares no code with the game and is
+compiled and tested apart from it; the [README](../../README.md#gothic-3-study-and-reconstruction) says how.

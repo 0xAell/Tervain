@@ -131,5 +131,3 @@ Each of these shortens a later phase and can be done on the web build alone:
   broadleaf (`src/presentation/sourceBroadleaf.ts`; no scene places it) and the Warpkeep asset library hook
   (`src/presentation/assets/library.ts`; its lists of needs are empty). Each is tied into the model ledger and the
   load-budget tests, so removing or using them is a change of its own.
-- Consider moving the separate Gothic 3 study to its own repository. It is most of this repository's files and shares
-  no code with the game.

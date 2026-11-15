@@ -37,6 +37,9 @@ function buildStamp() {
   };
 }
 
+/** The tests of the separate Gothic 3 study: a project of their own, outside the game's and the seed's checks. */
+export const GOTHIC3_STUDY_TESTS = ['tests/gothic3*/**/*.test.ts', 'tests/gothic3*.test.ts'];
+
 // The site is served from https://ael-dev3.github.io/Tervain/ so assets need a repo-relative base.
 export default defineConfig(({ command, mode }) => {
   const modelBase = productionModelAssetBase(command, mode, process.env);
@@ -68,11 +71,16 @@ export default defineConfig(({ command, mode }) => {
       chunkSizeWarningLimit: 1200,
     },
     test: {
-      include: ['tests/**/*.test.ts'],
-      setupFiles: ['tests/setup/downloads.ts'],
       environment: 'node',
       // Geometry and inline painting are CPU-heavy; avoid competing workers causing spurious timeouts.
       maxWorkers: 2,
+      // Two sets of tests that share nothing: the game's, which are also the port seed's checks, and the separate
+      // Gothic 3 study's. `vitest run --project game` never loads the study, and the study's tests never load the game
+      // (tests/tooling/gothic3Study.test.ts holds both to that).
+      projects: [
+        { extends: true, test: { name: 'game', include: ['tests/**/*.test.ts'], exclude: GOTHIC3_STUDY_TESTS, setupFiles: ['tests/setup/downloads.ts'] } },
+        { extends: true, test: { name: 'gothic3', include: GOTHIC3_STUDY_TESTS } },
+      ],
     },
   };
 });
