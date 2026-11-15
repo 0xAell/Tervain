@@ -55,7 +55,7 @@ numbers are in data either way.
 | **Talk.** Passing remarks, exchanges with the wanderer, overheard scenes, his own remarks; a dialogue graph with conditions and effects kept for a conversation interface. | `core/content/voice.ts`, `dialogue.ts`, `core/game/dialogue.ts`; `data/game/voice.json`, `dialogue.json`. | No built-in dialogue system: a small runtime over the imported graph, with conditions and effects evaluated by the ported game state. Lines as sound waves keyed as in `voice.json`. | The graph, the lines, the conditions. |
 | **Hostiles.** Two bandits and a creature: notice, alert, chase, wind-up, strike, recover, stagger, return. | `core/content/enemies.ts`, `core/rules/hostile.ts`, `enemyRoute.ts`, and `core/rules/hostileActor.ts`, the fight as one state machine; `DT_EnemyArchetypes`, `DT_EnemyPosts`. `presentation/actors.ts` adds the body. | A StateTree or behaviour tree per hostile with the same states, deciding with the mirrored functions; perception by the same distance and angle test or the AI perception component. | Archetypes, posts, every number and decision. |
 | **Animals.** Nineteen with homes and ranges: rest, graze, wander, watch, call, flee, break out when cornered; herds carry an alarm; predators hold their ground. | `core/content/animals.ts`, `core/rules/animalBehaviour.ts`, `animalNavigation.ts`, and `core/rules/animalMind.ts`, each animal's behaviour and the herd's shared alarm as one state machine; `DT_Animals`, `DT_AnimalSpecies`. `presentation/animals.ts` adds the body. | A StateTree per animal. Nineteen actors need no crowd system. | Roster, paces, temperaments, behaviour numbers, and the behaviour itself, with tests that run a herd without a model. |
-| **Hunting.** Arrow hits by zone, wounds, carcasses, skinning, a hunter's trade and ranks, game that returns after days. | `core/game/hunting.ts` (durable rules). | Ported game state and commands. | All of it: these rules are already free of the scene. |
+| **Hunting.** The draw, the arrow's flight and what it meets, hits by zone, wounds, carcasses, skinning, a hunter's trade and ranks, game that returns after days. | `core/game/hunting.ts` (what lasts), `core/rules/bow.ts` (the bow's numbers) and `core/rules/archery.ts` (the shot: the draw, the aim, the flight in air and water, what it meets, which part was struck, where to stand to skin). The scene answers what a ray meets (`presentation/huntingController.ts`). | Ported game state and commands; the flight as a projectile component or the mirrored function; line traces for what a ray meets. | All of it. |
 
 ## State, quest and saving
 
@@ -91,10 +91,6 @@ mirrored tests pass on the same numbers.
 The scene layer was read end to end on 15 November 2026, after the lifts above, for anything that still decides how
 the game plays rather than how it looks or sounds. These do. Read them in place until they are lifted:
 
-- **The shot.** When the bow may be drawn, what the arrow's ray and flight meet, the arrow's flight itself (gravity,
-  water, range), which part of an animal was hit, and where the hunter must stand to skin a carcass:
-  `presentation/huntingController.ts`, `huntingArrow.ts`, `animals/hunting/hit.ts` and `adapter.ts`. The numbers and
-  the lasting rules are in the core (`core/rules/bow.ts`, `core/game/hunting.ts`).
 - **The session's rules.** In `src/app.ts`: the order of a step, how the clock is advanced, dying and waking at the
   checkpoint, when the checkpoint moves, when the game saves itself and whether a new journey may overwrite the last,
   where a loaded hero is set down safely, hostiles put back at their posts, getting onto and off the deer, the archive's

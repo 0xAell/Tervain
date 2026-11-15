@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { NearFade } from './nearFade';
 import { BOW } from '../core/rules/bow';
+import { ArrowFlights, type ArrowFlight } from '../core/rules/archery';
 
 /** A pointed, feathered wooden arrow. Its local +Z is the direction of flight; the tip is the origin. */
 export function createHuntingArrow(): THREE.Group {
@@ -52,13 +53,8 @@ export interface ArrowImpact {
   lodge?: boolean;
 }
 
-export interface ArrowShot {
-  readonly id: number;
-  readonly position: THREE.Vector3;
-  readonly velocity: THREE.Vector3;
-  readonly mesh: THREE.Group;
-  readonly age: number;
-}
+/** An arrow in the air (core/rules/archery.ts), with the mesh that shows it. */
+export type ArrowShot = ArrowFlight<THREE.Vector3> & { readonly mesh: THREE.Group };
 
 /** Return the earliest scenery/animal contact on the entire travelled segment, or null. */
 export type ArrowSweep = (from: THREE.Vector3, to: THREE.Vector3, shot: ArrowShot) => ArrowImpact | null;
@@ -70,51 +66,46 @@ export interface ArrowWater {
   sample(x: number, z: number): { surface: number; flowX: number; flowZ: number } | null;
   enter(point: THREE.Vector3, speed: number): void;
 }
-/** In water an arrow loses speed within a few tenths of a second; slower than this it floats up and drifts. */
-const ARROW_WATER_DRAG = BOW.waterDrag;
-const ARROW_FLOAT_SPEED = BOW.floatSpeed;
 const ARROW_FLOAT_SECONDS = BOW.floatSeconds;
 
-/** Presentation-owned flights. Gameplay resolves swept contacts and ammunition separately. */
+/** The arrows' meshes. How they fly, what slows them and when they are spent is the core's (core/rules/archery.ts). */
 export class HuntingArrows {
   readonly group = new THREE.Group();
-  private readonly flights: { id: number; position: THREE.Vector3; velocity: THREE.Vector3; mesh: THREE.Group; age: number; wet?: boolean }[] = [];
+  private readonly flights: ArrowFlights<THREE.Vector3>;
   private readonly lodged: { mesh: THREE.Group; age: number; rest?: THREE.Quaternion; axis?: THREE.Vector3 }[] = [];
   private readonly floating: { mesh: THREE.Group; age: number; heading: number }[] = [];
   private readonly fade = new NearFade();
   private template: THREE.Group | null = null;
-  private nextId = 1;
   private disposed = false;
   /** Stuck shafts shiver unless motion is reduced (B11). */
   quiver = true;
   private readonly forwardAxis = new THREE.Vector3(0, 0, 1);
   private readonly orientationDirection = new THREE.Vector3();
 
-  constructor(private readonly maxFlights: number = BOW.maxFlights, private readonly maxLodged: number = BOW.maxLodged) {
+  constructor(maxFlights: number = BOW.maxFlights, private readonly maxLodged: number = BOW.maxLodged) {
     this.group.name = 'Hunting / swept arrow flights';
+    this.flights = new ArrowFlights((x, y, z) => new THREE.Vector3(x, y, z), maxFlights);
   }
 
-  get activeCount(): number { return this.flights.length; }
+  get activeCount(): number { return this.flights.count; }
   get lodgedCount(): number { return this.lodged.length; }
   get floatingCount(): number { return this.floating.length; }
 
   launch(origin: THREE.Vector3, direction: THREE.Vector3, speed = 38): ArrowShot | null {
-    if (this.disposed || !origin.toArray().every(Number.isFinite) || !direction.toArray().every(Number.isFinite) ||
-      direction.lengthSq() < 1e-8 || !Number.isFinite(speed) || speed <= 0) return null;
-    while (this.flights.length >= this.maxFlights) this.remove(this.flights.shift()!.mesh);
+    if (this.disposed) return null;
+    const flight = this.flights.launch(origin, direction, speed, (old) => this.remove((old as ArrowShot).mesh));
+    if (!flight) return null;
     if (!this.template) {
       this.template = createHuntingArrow();
       this.fade.patchAll(this.template);
     }
-    const flight = { id: this.nextId++, position: origin.clone(), velocity: direction.clone().normalize().multiplyScalar(speed),
-      mesh: this.template.clone(), age: 0 };
     // The nocked arrow carries the hero's near-fade patch; a loosed one shares that program (here always fully drawn)
     // instead of linking a plain one in its first frame of flight (a 0.17 s frame in the play gate).
-    flight.mesh.position.copy(origin);
-    this.orient(flight.mesh, flight.velocity);
-    this.group.add(flight.mesh);
-    this.flights.push(flight);
-    return flight;
+    const shot = Object.assign(flight, { mesh: this.template.clone() }) as ArrowShot;
+    shot.mesh.position.copy(origin);
+    this.orient(shot.mesh, shot.velocity);
+    this.group.add(shot.mesh);
+    return shot;
   }
 
   /** Small analytic ballistic segments keep collision reliable even during a long frame. */
@@ -138,81 +129,45 @@ export class HuntingArrows {
         lodged.mesh.quaternion.copy(lodged.rest).multiply(_quiver.setFromAxisAngle(lodged.axis!, amplitude));
       }
     }
-    for (let i = this.flights.length - 1; i >= 0; i--) {
-      const shot = this.flights[i]!;
-      // A downward aim while wading can put the muzzle below water before release.
-      // It is already immersed, so apply drag without inventing a surface-entry splash.
-      if (water && !shot.wet && shot.age === 0) {
-        const launchWater = water.sample(shot.position.x, shot.position.z);
-        if (launchWater && shot.position.y < launchWater.surface) shot.wet = true;
-      }
-      let remaining = Math.min(dt, Math.max(0, BOW.flightSeconds - shot.age));
-      let hit = false;
-      while (remaining > 1e-8) {
-        const step = Math.min(remaining, 1 / 120);
-        const from = shot.position.clone();
-        const to = from.clone().addScaledVector(shot.velocity, step);
-        const gravity = shot.wet ? HUNTING_ARROW_GRAVITY * BOW.waterGravity : HUNTING_ARROW_GRAVITY;
-        to.y -= .5 * gravity * step * step;
-        const impact = sweep(from, to, shot);
-        // Breaking the surface: a splash, and from then on the water's drag. Not when the arrow struck something first,
-        // such as a bridge deck a hand's breadth above the stream (A100 scout: it splashed under the planks, then lodged).
-        if (water && !shot.wet) {
-          const w = water.sample(to.x, to.z);
-          if (w && from.y >= w.surface && to.y < w.surface) {
-            const t = (from.y - w.surface) / Math.max(1e-6, from.y - to.y), crossing = from.clone().lerp(to, t);
-            if (!impact || impact.point.distanceToSquared(from) >= crossing.distanceToSquared(from)) {
-              shot.wet = true;
-              water.enter(crossing, shot.velocity.length());
-            }
-          }
+    this.flights.step<ArrowImpact>(dt, (from, to, flight) => sweep(from, to, flight as ArrowShot), {
+      // Breaking the surface: a splash.
+      entered: (_flight, point, speed) => water!.enter(point, speed),
+      met: (flight, impact) => {
+        const shot = flight as ArrowShot;
+        shot.mesh.position.copy(impact.point);
+        this.orient(shot.mesh, shot.velocity);
+        setTrail(shot.mesh, 0);
+        if (impact.lodge !== false) {
+          if (impact.parent) { impact.parent.updateWorldMatrix(true, false); impact.parent.attach(shot.mesh); }
+          this.lodged.push({ mesh: shot.mesh, age: 0, rest: this.quiver ? shot.mesh.quaternion.clone() : undefined, axis: new THREE.Vector3(1, 0, 0) });
+          while (this.lodged.length > this.maxLodged) this.remove(this.lodged.shift()!.mesh);
         }
-        shot.age += step;
-        shot.velocity.y -= gravity * step;
-        if (shot.wet) shot.velocity.multiplyScalar(Math.exp(-ARROW_WATER_DRAG * step));
-        if (impact) {
-          shot.position.copy(impact.point);
-          shot.mesh.position.copy(impact.point);
-          this.orient(shot.mesh, shot.velocity);
-          setTrail(shot.mesh, 0);
-          if (impact.lodge !== false) {
-            if (impact.parent) { impact.parent.updateWorldMatrix(true, false); impact.parent.attach(shot.mesh); }
-            this.lodged.push({ mesh: shot.mesh, age: 0, rest: this.quiver ? shot.mesh.quaternion.clone() : undefined, axis: new THREE.Vector3(1, 0, 0) });
-            while (this.lodged.length > this.maxLodged) this.remove(this.lodged.shift()!.mesh);
-          }
-          hit = true;
-          onImpact?.(shot, impact);
-          if (impact.lodge === false) this.remove(shot.mesh);
-          break;
-        }
-        shot.position.copy(to);
-        remaining -= step;
-        if (shot.wet && shot.velocity.length() < ARROW_FLOAT_SPEED) {
-          // Spent in the water: wood floats, so it rises and lies on the surface.
-          shot.mesh.position.copy(shot.position);
-          setTrail(shot.mesh, 0);
-          this.floating.push({ mesh: shot.mesh, age: 0, heading: Math.atan2(shot.velocity.x, shot.velocity.z) });
-          while (this.floating.length > this.maxLodged) this.remove(this.floating.shift()!.mesh);
-          hit = true;
-          break;
-        }
-      }
-      if (hit) this.flights.splice(i, 1);
-      else if (shot.age >= BOW.flightSeconds) { this.remove(shot.mesh); this.flights.splice(i, 1); }
-      else {
+        onImpact?.(shot, impact);
+        if (impact.lodge === false) this.remove(shot.mesh);
+      },
+      floated: (flight) => {
+        const shot = flight as ArrowShot;
+        shot.mesh.position.copy(shot.position);
+        setTrail(shot.mesh, 0);
+        this.floating.push({ mesh: shot.mesh, age: 0, heading: Math.atan2(shot.velocity.x, shot.velocity.z) });
+        while (this.floating.length > this.maxLodged) this.remove(this.floating.shift()!.mesh);
+      },
+      gone: (flight) => this.remove((flight as ArrowShot).mesh),
+      flew: (flight) => {
+        const shot = flight as ArrowShot;
         shot.mesh.position.copy(shot.position); this.orient(shot.mesh, shot.velocity);
         // Up to ~3 m behind a full-speed arrow, nothing once it slows, never longer than the path it has flown.
         const speed = shot.velocity.length();
         setTrail(shot.mesh, shot.wet ? 0 : Math.min(shot.age * speed, Math.max(0, speed - 15) * .06));
-      }
-    }
+      },
+    }, water);
   }
 
   clear(): void {
-    for (const shot of this.flights) this.remove(shot.mesh);
+    this.flights.clear((flight) => this.remove((flight as ArrowShot).mesh));
     for (const shot of this.lodged) this.remove(shot.mesh);
     for (const shot of this.floating) this.remove(shot.mesh);
-    this.flights.length = this.lodged.length = this.floating.length = 0;
+    this.lodged.length = this.floating.length = 0;
   }
 
   /** Floating arrows rise to the surface, lie flat along their last heading and drift with the current. */

@@ -784,6 +784,120 @@
       ],
       "additionalProperties": false
     },
+    "shot": {
+      "type": "object",
+      "properties": {
+        "pastBow": {
+          "type": "number"
+        },
+        "chest": {
+          "type": "number"
+        },
+        "alarm": {
+          "type": "integer"
+        },
+        "animalWins": {
+          "type": "number"
+        },
+        "step": {
+          "type": "number"
+        },
+        "woundedFleesBehind": {
+          "type": "integer"
+        },
+        "skinning": {
+          "type": "object",
+          "properties": {
+            "stanceSlack": {
+              "type": "number"
+            },
+            "eye": {
+              "type": "number"
+            },
+            "lift": {
+              "type": "number"
+            },
+            "slack": {
+              "type": "number"
+            },
+            "least": {
+              "type": "number"
+            },
+            "beside": {
+              "type": "number"
+            },
+            "clear": {
+              "type": "number"
+            },
+            "inside": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "stanceSlack",
+            "eye",
+            "lift",
+            "slack",
+            "least",
+            "beside",
+            "clear",
+            "inside"
+          ],
+          "additionalProperties": false
+        },
+        "skullBand": {
+          "type": "object",
+          "properties": {
+            "below": {
+              "type": "number"
+            },
+            "above": {
+              "type": "number"
+            },
+            "headShare": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "below",
+            "above",
+            "headShare"
+          ],
+          "additionalProperties": false
+        },
+        "skulls": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "height": {
+                "type": "number"
+              },
+              "rear": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "height",
+              "rear"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "pastBow",
+        "chest",
+        "alarm",
+        "animalWins",
+        "step",
+        "woundedFleesBehind",
+        "skinning",
+        "skullBand",
+        "skulls"
+      ],
+      "additionalProperties": false
+    },
     "clock": {
       "type": "object",
       "properties": {
@@ -1169,6 +1283,7 @@
     "hero",
     "riding",
     "bow",
+    "shot",
     "clock",
     "journey",
     "camera",

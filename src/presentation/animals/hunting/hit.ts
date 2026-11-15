@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { AnimalSpecies } from '../../../core/content/animals';
 import type { AnimalId } from '../../../core/game/hunting';
+import { arrowZone } from '../../../core/rules/archery';
 
 export interface AnimalArrowHit {
   id: AnimalId;
@@ -12,19 +13,6 @@ export interface AnimalArrowHit {
   position: { x: number; y: number; z: number };
   yaw: number;
 }
-
-// Skull stations in the delivered models' rest geometry. Antlers/ears are not a skull hit box.
-// These values follow the same individual proportions as the authored skeletons, including the seated cat.
-const SKULLS: Record<string, { height: number; rear: number }> = {
-  'bear-a': { height: .75, rear: .27 }, 'bear-b': { height: .76, rear: .26 },
-  lion: { height: .83, rear: .21 }, tiger: { height: .76, rear: .22 },
-  'wolf-a': { height: .82, rear: .22 }, 'wolf-b': { height: .79, rear: .21 }, 'wolf-c': { height: .80, rear: .28 },
-  'cat-a': { height: .76, rear: .22 }, 'cat-b': { height: .83, rear: .23 }, 'cat-c': { height: .76, rear: .21 },
-  'dog-a': { height: .81, rear: .21 }, 'dog-b': { height: .78, rear: .19 },
-  'boar-a': { height: .64, rear: .33 }, 'boar-b': { height: .65, rear: .28 }, 'boar-c': { height: .65, rear: .28 },
-  stag: { height: .70, rear: .23 }, 'deer-mount': { height: .69, rear: .23 },
-  'deer-a': { height: .70, rear: .24 }, 'deer-b': { height: .66, rear: .24 },
-};
 
 interface Surface {
   mesh: THREE.SkinnedMesh;
@@ -161,17 +149,10 @@ export class AnimalArrowSurface {
       this.rest.addScaledVector(this.source.fromBufferAttribute(position, vertex), amount);
       for (let component = 0; component < 4; component++) if (headJoints.has(indices.getComponent(vertex, component))) headWeight += amount * weights.getComponent(vertex, component);
     }
-    const profile = SKULLS[this.definition.id];
-    if (!profile) return 'body';
+    // Where the point lies on the body at rest, and how much of it moves with the head; the core says which part that is.
     const height = bounds.max.y - bounds.min.y, length = bounds.max.z - bounds.min.z;
-    const relativeY = (this.rest.y - bounds.min.y) / height;
-    const fromNose = (bounds.max.z - this.rest.z) / length;
-    const crowned = this.definition.species === 'deer';
-    // Antlers are rigidly weighted to Head for animation. Weight alone would turn every antler into a lethal head shot.
-    if (crowned && relativeY > profile.height + .075) return null;
-    const skull = fromNose <= profile.rear && relativeY >= profile.height - .22 && relativeY <= profile.height + .075;
-    // These two stocky cats blend the face heavily with Chest/Neck. Deformation weights are not tissue labels.
-    const faceInfluence = this.definition.species === 'cat' || headWeight >= .22;
-    return skull && faceInfluence ? 'head' : 'body';
+    return arrowZone(this.definition.id, this.definition.species, {
+      height: (this.rest.y - bounds.min.y) / height, fromNose: (bounds.max.z - this.rest.z) / length, headShare: headWeight,
+    });
   }
 }
