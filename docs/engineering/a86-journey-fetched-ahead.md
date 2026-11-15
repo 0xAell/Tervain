@@ -1,6 +1,6 @@
 # The journey's files fetched from the menu (A86, 0.0.13)
 
-The last open handover item was staged loading of the near tree files: open the world on the middle models and swap
+The last open backlog item was staged loading of the near tree files: open the world on the middle models and swap
 the near ones in as they arrive. Before building it, the wait it was meant to shorten was measured on a 20 Mbit/s link
 (Medium, served build, cache off).
 
@@ -9,7 +9,7 @@ the near ones in as they arrive. Before building it, the wait it was meant to sh
 | Clicked at once | 43–47 s |
 | After 30 s in the menu | 35 s |
 
-The handover thought the trees were fetched while the menu was open. They were not: all 26.5 MiB of them were asked
+The backlog assumed the trees were fetched while the menu was open. They were not: all 26.5 MiB of them were asked
 for only after the click, and finished 20 s later. The whole journey downloads 56 MiB.
 
 ## Change
@@ -39,4 +39,4 @@ Same link, served build:
 Opening on the middle models and swapping the near ones in would shorten the wait only for a click made before the
 files arrive. On High it is not possible without a visible swap, since there the near model is drawn at every distance.
 It would also need re-exported middle files with their own images, plus a manifest of each tree's measurements. With
-the menu now fetching the files, it is left undone; the notes under "Staged loading" in the handover still apply.
+the menu now fetching the files, it is left undone.
