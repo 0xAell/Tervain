@@ -1,7 +1,7 @@
 import { anchorFarFoliage } from './canopy';
 import { intersectsTreeBounds } from './foliage/treeBounds';
 import { treeFootprint, treePlacementBox } from './foliage/treeFootprint';
-import { createMeshyForest, type MeshyTreeTemplates } from './meshyTrees';
+import { createMeshyForest, type MeshyForest, type MeshyTreeTemplates } from './meshyTrees';
 import * as THREE from 'three';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { SPECIES, buildTreeVariant, type TreeVariant, type Species } from './treeGen';
@@ -10,14 +10,16 @@ import { disposeTreeTextures } from './treeTextures';
 import { createFloraPopulation, selectFloraPopulation, registerFloraColliders, FLORA_VARIANTS, FLORA_FADE_START, FLORA_MAX_DISTANCE, floraLodWeightsFor, type FloraTree } from './floraPopulation';
 import { buildForestFloor } from './forestFloor';
 import { buildFallingLeaves } from './fallingLeaves';
-import { createPineForest, isPineSpecies, type PineTemplates } from './solitaryPine';
-import { createHeroPineForest, heroPineEnabled, heroPineTemplates } from './heroPine';
+import { createPineForest, isPineSpecies, type PineForest, type PineTemplates } from './solitaryPine';
+import { createHeroPineForest, heroPineEnabled, heroPineTemplates, type HeroPineForest } from './heroPine';
 import { groundedTreeY, seatTreeFlares, treeWoodCollisionRadius } from './treeGrounding';
 import { PlantedCrownIndex } from './plantedCrowns';
 import { parseTreeLab, pickLabSpot } from './treeLab';
 import { CROWN_FLOOR, CrownIndex, type CameraCrown } from '../core/rules/cameraCrowns';
 import { attachCasterCoverage, attachInstanceDistanceVisibility, smoothDistanceFade, type InstanceDistanceVisibility } from './distanceVisibility';
 import type { PhysicalWoodGeometry } from '../core/world/physicsGeometry';
+import type { Terrain } from '../core/world/terrain';
+import type { Exclusions } from '../core/world/exclusions';
 import { FOLIAGE_RESPONSE, type FoliageResponse } from './foliage/foliageWind';
 import { SHADER_CLOCK_WRAP } from './grass/wind';
 import { crownOf, foliageGeometryFeatures, installFoliage, installFoliageShadow, type FoliageLook, type InstalledFoliage } from './foliage/foliageMaterial';
@@ -112,6 +114,67 @@ interface Batch {
   placements: { matrix: THREE.Matrix4; bounds: THREE.Sphere; box: THREE.Box3 }[];
 }
 
+/** The models the web build draws its trees with, and the ones whose footprints plant them. */
+export interface ForestModels {
+  /** Whether a species is drawn by the pine forest's models. */
+  usesPine(sp: Species): boolean;
+  /** The model that draws a tree. */
+  variantFor(tree: Pick<FloraTree, 'sp' | 'v' | 'assetId'>): TreeVariant;
+  /** The model whose footprint plants a tree: the supplied tree a generated model replaces, so swapping a model never moves or removes a tree. */
+  footprintFor(tree: Pick<FloraTree, 'sp' | 'v' | 'assetId'>): TreeVariant;
+  /** Every drawing model built so far, by species, variant and asset, for whoever disposes of them. */
+  readonly variants: Map<string, TreeVariant>;
+}
+
+/** The web build's tree models, each built once. `hero`, when given, draws the pines (`onHero` hears each of its variants). */
+export function forestModels(pine: PineForest, meshy: MeshyForest | null, hero: HeroPineForest | null = null, onHero?: (variant: TreeVariant) => void): ForestModels {
+  // Component authoring tools may intentionally omit the new catalog. The shipped world always supplies it.
+  const usesPine = (sp: Species) => sp === 'pine' || !meshy && isPineSpecies(sp);
+  const variants = new Map<string, TreeVariant>();
+  const variantFor = (tree: Pick<FloraTree, 'sp' | 'v' | 'assetId'>): TreeVariant => {
+    const key = `${tree.sp}:${tree.v}:${tree.assetId ?? ""}`;
+    let variant = variants.get(key);
+    if (!variant) {
+      if (hero && tree.sp === 'pine') { variant = hero.variant(tree.v); onHero?.(variant); }
+      else variant = usesPine(tree.sp) ? pine.variant(tree.sp as 'pine' | 'fir' | 'shorepine', tree.v + 1) : meshy ? meshy.variant(tree.sp as Exclude<Species, 'pine'>, tree.v, tree.assetId) : buildTreeVariant(tree.sp, tree.v + 1);
+      variants.set(key, variant);
+    }
+    return variant;
+  };
+  const footprints = new Map<string, TreeVariant>();
+  const footprintFor = (tree: Pick<FloraTree, 'sp' | 'v' | 'assetId'>): TreeVariant => {
+    if (usesPine(tree.sp) || !meshy) return variantFor(tree);
+    const key = `${tree.sp}:${tree.v}:${tree.assetId ?? ""}`;
+    let found = footprints.get(key);
+    if (!found) { found = meshy.footprint(tree.sp as Exclude<Species, 'pine'>, tree.v, tree.assetId); footprints.set(key, found); }
+    return found;
+  };
+  return { usesPine, variantFor, footprintFor, variants };
+}
+
+/**
+ * The forest as the web build plants it: the core's planting rule (core/world/flora.ts), told each tree's trunk
+ * footprint, its seat on the ground and its crown's reach from the models above, then each tree's flare seated on its
+ * slope. The core keeps the result as content (core/world/plantedForest.ts) for the export; a test fails if they part.
+ */
+export function plantForest(terrain: Terrain, excl: Pick<Exclusions, 'blocked'>, pine: PineForest, meshy: MeshyForest | null, models: ForestModels): FloraTree[] {
+  const { usesPine, footprintFor, variantFor } = models;
+  const population = createFloraPopulation(terrain, excl, (tree, legacyFootprint) => usesPine(tree.sp)
+    ? pine.collisionRadius(tree.sp as 'pine' | 'fir' | 'shorepine', tree.v + 1, tree.s, terrain.heightAt(tree.x, tree.z) - tree.y)
+    : legacyFootprint > 0 ? treeWoodCollisionRadius(footprintFor(tree), tree.s, terrain.heightAt(tree.x, tree.z) - tree.y) : legacyFootprint,
+    (tree) => groundedTreeY(terrain, tree, footprintFor(tree)), undefined,
+    meshy ? (tree) => footprintFor(tree).crownRadius * tree.s : undefined);
+  // Seat each placed tree's whole lower flare on its slope (playtest 5: flares hovered up to 1.3 m over downhill ground).
+  // Shrubs keep their planting seat (their low branches spread wide at flare height), and pines have no spreading flare.
+  seatTreeFlares(population, terrain, footprintFor, usesPine, variantFor);
+  return population;
+}
+
+/** A planted tree's radius as an obstacle: the wood actually drawn, measured after seating. */
+export function plantedObstacleRadius(terrain: Pick<Terrain, 'heightAt'>, models: ForestModels, tree: FloraTree): number {
+  return models.usesPine(tree.sp) ? tree.radius : treeWoodCollisionRadius(models.variantFor(tree), tree.s, terrain.heightAt(tree.x, tree.z) - tree.y);
+}
+
 export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, deferFloor = false, meshyTemplates?: MeshyTreeTemplates): SceneModule & {
   counts: { trees: number; triangles: number; species: Record<string, number> }; physicalWood: readonly PhysicalWoodGeometry[]; initializeFloor(extraTrees?: readonly FloraTree[]): void;
   /** Meshes drawn only into the sun's shadow map; the world shows them for the shadow pass alone. */
@@ -137,40 +200,11 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
   const heroTemplates = heroPineEnabled() ? heroPineTemplates() : null;
   const hero = heroTemplates ? createHeroPineForest(heroTemplates) : null;
   const heroVariants = new Set<TreeVariant>();
-  const usesHero = (sp: Species) => !!hero && sp === 'pine';
-  // Component authoring tools may intentionally omit the new catalog. The shipped world always supplies it.
-  const usesPine = (sp: Species) => sp === 'pine' || !meshy && isPineSpecies(sp);
-  const variants = new Map<string, TreeVariant>();
-  const variantFor = (tree: Pick<FloraTree, 'sp' | 'v' | 'assetId'>): TreeVariant => {
-    const key = `${tree.sp}:${tree.v}:${tree.assetId ?? ""}`;
-    let variant = variants.get(key);
-    if (!variant) {
-      if (hero && usesHero(tree.sp)) { variant = hero.variant(tree.v); heroVariants.add(variant); }
-      else variant = usesPine(tree.sp) ? pine.variant(tree.sp as 'pine' | 'fir' | 'shorepine', tree.v + 1) : meshy ? meshy.variant(tree.sp as Exclude<Species, 'pine'>, tree.v, tree.assetId) : buildTreeVariant(tree.sp, tree.v + 1);
-      variants.set(key, variant);
-    }
-    return variant;
-  };
-  // Placement reads the footprint of the supplied tree a generated model replaces, so swapping a model never moves or removes a tree.
-  const footprints = new Map<string, TreeVariant>();
-  const footprintFor = (tree: Pick<FloraTree, 'sp' | 'v' | 'assetId'>): TreeVariant => {
-    if (usesPine(tree.sp) || !meshy) return variantFor(tree);
-    const key = `${tree.sp}:${tree.v}:${tree.assetId ?? ""}`;
-    let found = footprints.get(key);
-    if (!found) { found = meshy.footprint(tree.sp as Exclude<Species, 'pine'>, tree.v, tree.assetId); footprints.set(key, found); }
-    return found;
-  };
-  const population = createFloraPopulation(terrain, excl, (tree, legacyFootprint) => usesPine(tree.sp)
-    ? pine.collisionRadius(tree.sp as 'pine' | 'fir' | 'shorepine', tree.v + 1, tree.s, terrain.heightAt(tree.x, tree.z) - tree.y)
-    : legacyFootprint > 0 ? treeWoodCollisionRadius(footprintFor(tree), tree.s, terrain.heightAt(tree.x, tree.z) - tree.y) : legacyFootprint,
-    (tree) => groundedTreeY(terrain, tree, footprintFor(tree)), undefined,
-    meshy ? (tree) => footprintFor(tree).crownRadius * tree.s : undefined);
-  // Seat each placed tree's whole lower flare on its slope (playtest 5: flares hovered up to 1.3 m over downhill ground).
-  // Shrubs keep their planting seat (their low branches spread wide at flare height), and pines have no spreading flare.
-  seatTreeFlares(population, terrain, footprintFor, usesPine, variantFor);
+  const models = forestModels(pine, meshy, hero, (variant) => heroVariants.add(variant));
+  const { usesPine, variantFor, footprintFor, variants } = models;
+  const population = plantForest(terrain, excl, pine, meshy, models);
   // Navigation uses the wood actually drawn after seating (a generated oak's flare and roots differ from the footprint that keeps placement).
-  registerFloraColliders(population, colliders, undefined, tree => usesPine(tree.sp) ? tree.radius
-    : treeWoodCollisionRadius(variantFor(tree), tree.s, terrain.heightAt(tree.x, tree.z) - tree.y));
+  registerFloraColliders(population, colliders, undefined, (tree) => plantedObstacleRadius(terrain, models, tree));
   // Static rigid-body contact uses the same complete wood as the visible source tree,
   // rather than treating its broad ground-plane navigation circle as an infinite cylinder.
   // Pack only once per variant; hundreds of instances share these source buffers.
