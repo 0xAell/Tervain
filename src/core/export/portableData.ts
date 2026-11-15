@@ -28,6 +28,7 @@ import { MUSIC } from '../content/music';
 import { MUSIC_PACING, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS } from '../rules/music';
 import { BEDS, emitterRuleTable, INN, MILL_SOUND, QUARRY_SOUND } from '../rules/soundscape';
 import { BOW } from '../rules/bow';
+import { SHOT, SKINNING, SKULL_BAND, SKULLS } from '../rules/archery';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../rules/camera';
 import { NIGHT, nightness, SUNRISE_HOUR, SUNSET_HOUR } from '../rules/dayNight';
 import { moonDirection, SKY_KEYS, SKY_LIGHT, sunDirection } from '../rules/sky';
@@ -200,6 +201,7 @@ function game(): PortableDocument[] {
         },
         riding: { ride: RIDE, deerBody: DEER_BODY, mountTimes: MOUNT_TIMES, mountSide: MOUNT_SIDE, camera: RIDE_CAMERA, stamina: MOUNT_STAMINA },
         bow: BOW,
+        shot: { ...SHOT, skinning: SKINNING, skullBand: SKULL_BAND, skulls: SKULLS },
         clock: {
           gameMinutesPerSecond: CLOCK_RATE, sunrise: SUNRISE_HOUR, sunset: SUNSET_HOUR, night: NIGHT,
           nightnessByHour: Array.from({ length: 49 }, (_, i) => ({ hour: i / 2, nightness: nightness(i / 2 % 24) })),

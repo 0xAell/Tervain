@@ -187,6 +187,107 @@
     "maxLodged": 24,
     "readySeconds": 2.5
   },
+  "shot": {
+    "pastBow": 0.3,
+    "chest": 1.25,
+    "alarm": 18,
+    "animalWins": 0.00001,
+    "step": 0.008333,
+    "woundedFleesBehind": 2,
+    "skinning": {
+      "stanceSlack": 0.4,
+      "eye": 0.95,
+      "lift": 0.04,
+      "slack": 0.06,
+      "least": 0.55,
+      "beside": 0.35,
+      "clear": 0.38,
+      "inside": 0.45
+    },
+    "skullBand": {
+      "below": 0.22,
+      "above": 0.075,
+      "headShare": 0.22
+    },
+    "skulls": {
+      "bear-a": {
+        "height": 0.75,
+        "rear": 0.27
+      },
+      "bear-b": {
+        "height": 0.76,
+        "rear": 0.26
+      },
+      "lion": {
+        "height": 0.83,
+        "rear": 0.21
+      },
+      "tiger": {
+        "height": 0.76,
+        "rear": 0.22
+      },
+      "wolf-a": {
+        "height": 0.82,
+        "rear": 0.22
+      },
+      "wolf-b": {
+        "height": 0.79,
+        "rear": 0.21
+      },
+      "wolf-c": {
+        "height": 0.8,
+        "rear": 0.28
+      },
+      "cat-a": {
+        "height": 0.76,
+        "rear": 0.22
+      },
+      "cat-b": {
+        "height": 0.83,
+        "rear": 0.23
+      },
+      "cat-c": {
+        "height": 0.76,
+        "rear": 0.21
+      },
+      "dog-a": {
+        "height": 0.81,
+        "rear": 0.21
+      },
+      "dog-b": {
+        "height": 0.78,
+        "rear": 0.19
+      },
+      "boar-a": {
+        "height": 0.64,
+        "rear": 0.33
+      },
+      "boar-b": {
+        "height": 0.65,
+        "rear": 0.28
+      },
+      "boar-c": {
+        "height": 0.65,
+        "rear": 0.28
+      },
+      "stag": {
+        "height": 0.7,
+        "rear": 0.23
+      },
+      "deer-mount": {
+        "height": 0.69,
+        "rear": 0.23
+      },
+      "deer-a": {
+        "height": 0.7,
+        "rear": 0.24
+      },
+      "deer-b": {
+        "height": 0.66,
+        "rear": 0.24
+      }
+    }
+  },
   "clock": {
     "gameMinutesPerSecond": 1,
     "sunrise": 6,

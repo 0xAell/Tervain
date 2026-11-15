@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ANIMAL_IDS, ANIMAL_MODEL_IDS, ANIMAL_SPECIES, SKINNING_REACH, isHuntableAnimalId, type AnimalId, type AnimalHuntRecord, type HuntingState } from '../../../core/game/hunting';
 import type { Collider } from '../../../core/world/colliders';
+import { SHOT, skinningStance, woundedFleesFrom } from '../../../core/rules/archery';
 import type { AnimalDefinition } from '../../../core/content/animals';
 import { AnimalCorpse, type CorpseBody } from './corpse';
 import { AnimalArrowSurface, type AnimalArrowHit } from './hit';
@@ -64,7 +65,7 @@ export class AnimalHunting {
       if (record.status === 'injured') {
         // Wounded, it flees the shot it already took fright at, or the hunter. The point behind it is only a last resort:
         // fleeing from it sent the animal (and its herd) along its own facing, often straight at the archer (A101 scout).
-        this.frighten(animal, { x: record.position.x - Math.sin(record.yaw) * 2, z: record.position.z - Math.cos(record.yaw) * 2 }, true);
+        this.frighten(animal, woundedFleesFrom(record.position, record.yaw), true);
       } else if (record.status === 'dead') {
         corpse.begin(animal.definition.id, restore || !this.running);
         corpse.update(0, this.terrain, record.position, record.yaw, 0);
@@ -138,12 +139,12 @@ export class AnimalHunting {
     const resident = this.residents.find(resident => resident.id === hit.id);
     if (resident && isHuntableAnimalId(hit.id) && !resident.returning && resident.record?.status !== 'skinned') this.effects.impact(resident.animal, hit, direction);
   }
-  alertShot(position: { x: number; z: number }, radius = 18) {
+  alertShot(position: { x: number; z: number }, radius: number = SHOT.alarm) {
     if (!this.running || this.disposed) return;
     for (const resident of this.residents) if (isHuntableAnimalId(resident.id) && !resident.returning && (!resident.record || resident.record.status === 'injured')
       && Math.hypot(resident.animal.root.position.x - position.x, resident.animal.root.position.z - position.z) <= radius) this.frighten(resident.animal, position);
   }
-  nearestCarcass(player: { x: number; z: number }, maxDistance = 2.8) {
+  nearestCarcass(player: { x: number; z: number }, maxDistance: number = SKINNING_REACH) {
     if (this.disposed) return null;
     let nearest: { id: AnimalId; species: typeof ANIMAL_SPECIES[AnimalId]; position: { x: number; y: number; z: number }; yaw: number; distance: number } | null = null;
     for (const resident of this.residents) {
@@ -161,22 +162,10 @@ export class AnimalHunting {
     if (!chest) return null;
     animal.root.updateMatrixWorld(true); chest.getWorldPosition(this.point);
     const target = { x: this.point.x, y: this.point.y, z: this.point.z };
-    this.direction.set(player.x - target.x, 0, player.z - target.z);
-    if (this.direction.lengthSq() < .01) this.direction.set(Math.cos(animal.yaw), 0, -Math.sin(animal.yaw));
-    this.direction.normalize();
-    let reach = Math.max(.55, animal.size.x * .5 + .35);
-    // Put the knife stance outside the actual collapsed body/antler footprint, on the player's side.
-    if (corpse.bounds) {
-      const b = corpse.bounds;
-      const exitX = Math.abs(this.direction.x) > 1e-5 ? ((this.direction.x > 0 ? b.max.x + .38 : b.min.x - .38) - target.x) / this.direction.x : Infinity;
-      const exitZ = Math.abs(this.direction.z) > 1e-5 ? ((this.direction.z > 0 ? b.max.z + .38 : b.min.z - .38) - target.z) / this.direction.z : Infinity;
-      reach = Math.max(reach, Math.min(exitX, exitZ) + .01);
-    }
-    let x = target.x + this.direction.x * reach, z = target.z + this.direction.z * reach;
-    // The stance stays within the skinning reach of where the carcass is recorded (A96 scout): beyond a stag's antlers it
-    // lay up to 3.3 m off, where both the prompt and the command call it too far, and the prompt vanished on approach.
-    const record = resident.record.position, limit = SKINNING_REACH - 0.45, off = Math.hypot(x - record.x, z - record.z);
-    if (off > limit) { x = record.x + (x - record.x) * limit / off; z = record.z + (z - record.z) * limit / off; }
+    // Outside the collapsed body and its antlers, on the player's side, within reach of where the carcass is recorded.
+    const b = corpse.bounds;
+    const { x, z } = skinningStance(target, player, { yaw: animal.yaw, width: animal.size.x },
+      b ? { minX: b.min.x, maxX: b.max.x, minZ: b.min.z, maxZ: b.max.z } : null, resident.record.position);
     return { target, stance: { x, y: this.terrain.heightAt(x, z), z }, yaw: Math.atan2(target.x - x, target.z - z), ready: corpse.ready };
   }
   setRunning(value: boolean) { this.running = value && !this.disposed; }
