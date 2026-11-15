@@ -597,7 +597,7 @@ sequence from installed inputs to a playable campaign.
 
 [PR #235](https://github.com/ael-dev3/Tervain/pull/235) completes the selected
 Engine environment-vector allocation, copying, publication and cleanup paths.
-It joins Claude's already-merged [PR #236](https://github.com/ael-dev3/Tervain/pull/236).
+It joins the already-merged [PR #236](https://github.com/ael-dev3/Tervain/pull/236).
 Main revision `9a06762233cb145177a84bd2947441cbd500e2ca` passed its
 [build and Pages deployment](https://github.com/ael-dev3/Tervain/actions/runs/38094298066).
 The environment continuation passed 3,428 tests across 313 files, typechecking
@@ -645,7 +645,7 @@ Earlier sections below preserve historical boundaries and validation receipts.
 ## Historical state — 10 October 2026: Engine argument setup return
 
 PR #230 deployed native startup revision `f1505ca863aefc10d5a6cb883d1d379b8ac296ff`,
-whose default stops at `30684a93` after 5261 admitted operations. Claude's
+whose default stops at `30684a93` after 5261 admitted operations.
 [PR #232](https://github.com/ael-dev3/Tervain/pull/232) subsequently merged as
 `960fbbd109c57774113f2e964630e5a9c43b6ee0`; its main build and Pages deployment
 passed. Complete native startup and the campaign remain unfinished.
@@ -698,7 +698,7 @@ Runtime revision `6a236ba50` passed all 3,316 tests across 313 files in 491.90
 seconds. Source/image checks and independent regeneration cover the later
 descriptive constructor receipt; that addition does not change the runtime.
 TypeScript checking and the locale-helper production build pass. The rebuilding
-guide update is joined to this branch. After joining main and Claude PR #222,
+guide update is joined to this branch. After joining main and PR #222,
 63 focused checks across seven files and a fresh production build pass.
 Complete startup, live NPC/campaign
 integration and a new-game-to-ending browser campaign remain unfinished.
@@ -2818,7 +2818,7 @@ not native execution, exhaustive program verification or a game playthrough.
 
 ## 9. A separate viewer that reads the visitor's installation
 
-[Claude's local-install viewer](gothic3-local.md), integrated from
+[The local-install viewer](gothic3-local.md), integrated from
 [PR #21](https://github.com/ael-dev3/Tervain/pull/21), provides another way to
 study Ardea at `/gothic3-local/`. The visitor selects their installed Gothic 3
 folder. Original TypeScript readers decode archives, meshes, images, material
@@ -11753,7 +11753,7 @@ and emitted instructions regenerate byte-for-byte. The full suite passes
 2,901 tests across 273 files (200.61 seconds). Publication is pending. Complete DLL startup, world activation and campaign
 completion remain unfinished.
 
-The subsequent integration of Claude's merged loading/grass PR #154 changes
+The subsequent integration of the merged loading/grass PR #154 changes
 35 presentation, loading, configuration and documentation files; the startup
 files are disjoint. All 78 affected presentation checks pass after integration,
 as do typechecking and the production build. The 2,901-test startup checkpoint
@@ -12033,7 +12033,7 @@ a comparison confirms their assertions and other code are unchanged.
 Typechecking and four focused checks pass after that adjustment. The full rerun
 passed 2,990 tests across 277 files in 249.11 seconds for this descriptor prefix.
 
-Separately, the deployed Ardea route was inspected in the Codex browser. Scene
+Separately, the deployed Ardea route was inspected in a desktop browser. Scene
 recovery reported 202 objects, 70 characters and three source routine positions.
 Entering Ardea completed Hero, journal and world-clock loading and rendered the
 scene with grounded Hero coordinates and HP 100/100. This is startup observation
@@ -12081,7 +12081,7 @@ and a finishable browser campaign has not been demonstrated.
 PR #169 merged the descriptor and section checkpoint as
 `f7227a67fbab82208cd3e2f8945879166e354d78` after successful validation run
 37866293534. Its Pages deployment 37867316566 completed successfully.
-Claude's documentation audit PR #166 also passed validation, merged as
+The documentation audit PR #166 also passed validation, merged as
 `7b9556fd042ff7c675de42625e1baf05ad4f818d`, and deployed successfully in run
 37866667399. Its findings are module fixture evidence, not implemented fixes.
 
@@ -12398,7 +12398,7 @@ returns through the original SpyAdmin callback. ErrorAdmin's format image keeps
 its identity on later messages; each use checks the original bytes. This fixes
 replacement of an image already referenced by a pending native call.
 
-Main revision `3136ae2adc087107704643c0e4829cc4e6d70d56`, including Claude's
+Main revision `3136ae2adc087107704643c0e4829cc4e6d70d56`, including the
 prototype changes, is integrated at `354040c8`. A path comparison proves main's
 Gothic files match PR #178's validated head; conflict resolution preserves the
 local Gothic continuation while incorporating main's other changes. Dependency
@@ -12804,7 +12804,7 @@ separator corruption cases; splitting those cases retained their assertions
 and per-case allowance. Both cases and the combined full suite now pass.
 This checkpoint is prepared for publication; these local results do not prove
 a deployed revision, complete Engine attachment, world activation or campaign
-completion. Claude's PR #233 has since merged and deployed as `7bf89f379`;
+completion. PR #233 has since merged and deployed as `7bf89f379`;
 that presentation change is separate from this locally validated revision.
 
 ### 11 October 2026: Engine environment-vector counting prefix
@@ -12965,7 +12965,7 @@ files (259.31 seconds); full-suite and build stages did not start. The latest
 configuration check accounts for restored flags and the newly published output.
 Fresh combined validation remains required before publishing this continuation.
 
-Main revision `2f721b1525291936b7ce51cdea5939b6c7d4cb37`, including Claude's PR
+Main revision `2f721b1525291936b7ce51cdea5939b6c7d4cb37`, including PR
 #239, completed both build and Pages deployment in workflow `38102253395`.
 That deployment does not include this local native continuation or prove a
 browser campaign playable through an ending.

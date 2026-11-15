@@ -89,7 +89,7 @@ revision. They do not establish native-game equivalence or a completed game.
 ## Screenshots
 
 At the owner's request (4 October 2026) the README shows four screenshots, kept beside this note in
-[`gothic3-local/`](gothic3-local/). Claude captured them that day in headless Chrome at 1600×900, from the viewer reading
+[`gothic3-local/`](gothic3-local/). They were captured that day in headless Chrome at 1600×900, from the viewer reading
 the owner's Steam installation; the files are JPEG copies of those captures.
 
 | File | Shows | Viewer state |

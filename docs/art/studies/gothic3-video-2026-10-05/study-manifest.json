@@ -13,14 +13,14 @@
       "sourceBytes": 15428356,
       "sourceSha256": "ca58d4a56f27fe22f556f8dab6e169fc0336b6977fa484967738c63a7a926a0c",
       "publishedFile": "Tervain-Visual-Audit.pdf",
-      "modification": "Text operands containing private paths (pages64/86) and account-specific publication details (pages63/95) replaced. No overlay; page count, images and other extracted text preserved."
+      "modification": "Text operands containing private paths (pages64/86) and account-specific publication details (pages63/95) replaced. No overlay; page count, images and other extracted text preserved. On 15 November 2026 the text on pages 51, 63, 68, 95, 96 and 97 that described how publication was coordinated was replaced or blanked in the same way."
     },
     {
       "source": "separately submitted Desktop PDF",
       "sourceBytes": 15428255,
       "sourceSha256": "7ee63a9dd57ef46deb11b2b4537728cf80196ce0654e811a0937abcae0d6b6bd",
       "publishedFile": "Tervain-Visual-Audit-submitted.pdf",
-      "modification": "Text operands containing private paths (pages64/86) and account-specific publication details (pages63/95) replaced. No overlay; page count, images and other extracted text preserved."
+      "modification": "Text operands containing private paths (pages64/86) and account-specific publication details (pages63/95) replaced. No overlay; page count, images and other extracted text preserved. On 15 November 2026 the text on pages 51, 63, 68, 95, 96 and 97 that described how publication was coordinated was replaced or blanked in the same way."
     }
   ],
   "preferredReport": "Tervain-Visual-Audit.pdf",
@@ -48,14 +48,14 @@
     },
     {
       "file": "Audit-text.md",
-      "bytes": 132063,
-      "sha256": "30f1747507cbb3e0dba8df4f660df72a934bd3c49200ac3c441e5c57ed70ce15",
+      "bytes": 131338,
+      "sha256": "86132821940002fc5030451e61faf4ea53a8927637cae997b76ee5f9a5e25d05",
       "modification": "repository derivative or sanitized source record"
     },
     {
       "file": "Audit.html",
-      "bytes": 211510,
-      "sha256": "2d64840fcfd5a19a7f3dbd2c10a464178324775d96ad904705ee03c59c48a48b",
+      "bytes": 210714,
+      "sha256": "18fe68d474832a8b3c1f356fe1eb96a5292d93ccfca4b1f95e434968f80dd6c2",
       "modification": "repository derivative or sanitized source record"
     },
     {
@@ -66,14 +66,14 @@
     },
     {
       "file": "Tervain-Visual-Audit-submitted.pdf",
-      "bytes": 15436220,
-      "sha256": "ee5e2fa1285220a3b5195229ba5ca2d790553c7c4b8299b88f9f1eae95551d3d",
+      "bytes": 15451745,
+      "sha256": "fe0434669076146ead69a7b123af45e0dbcc89c84e890a7f6e282c4c2a027a99",
       "modification": "repository derivative or sanitized source record"
     },
     {
       "file": "Tervain-Visual-Audit.pdf",
-      "bytes": 15436297,
-      "sha256": "a73e9c0912016542b1099603b561652cbf3a0014d41ef7415dced78490a65079",
+      "bytes": 15451846,
+      "sha256": "d3b92b2b30cc33e2b7910ce26e05a357fc382baece3916674ccc73819340d63c",
       "modification": "repository derivative or sanitized source record"
     },
     {
@@ -3342,8 +3342,8 @@
     },
     {
       "file": "reference-ledger.md",
-      "bytes": 33023,
-      "sha256": "a141c80b5ceb6aad67a731bad6a5df267960c7a29e7fd1719afc49e72618c590",
+      "bytes": 32918,
+      "sha256": "4362dc731f1f42e139bfaaec7daec6457b849f56aae30e152fbb9b56ea341890",
       "modification": "repository derivative or sanitized source record"
     },
     {
@@ -3468,8 +3468,8 @@
     },
     {
       "file": "tervain-gap-sourcearchitecture-render-material-camera-HUD-performance-proposal.md",
-      "bytes": 39017,
-      "sha256": "8ef92fdcb9accad751b06fcc333f85e40bf455fdaadd1c23b89c2ea875b5440b",
+      "bytes": 38362,
+      "sha256": "81c22832ac4a19b574583d00147a44ba3ae76df26787c84e47726279be3cf40a",
       "modification": "repository derivative or sanitized source record"
     }
   ]
