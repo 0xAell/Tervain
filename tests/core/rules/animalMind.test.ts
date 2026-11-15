@@ -1,0 +1,141 @@
+import { beforeAll, describe, expect, it } from 'vitest';
+import { ANIMALS, ANIMAL_SPEEDS, type AnimalClip, type AnimalDefinition } from '../../../src/core/content/animals';
+import { ANIMAL_BEHAVIOUR } from '../../../src/core/rules/animalBehaviour';
+import { AnimalMind, Wildlife, type AnimalBodyFacts, type AnimalPoint, type WildlifeFacts } from '../../../src/core/rules/animalMind';
+import { animalNavigationColliders, findAnimalSite, type AnimalSite } from '../../../src/core/rules/animalNavigation';
+import { buildStaticColliders, type Colliders } from '../../../src/core/world/colliders';
+import { Terrain } from '../../../src/core/world/terrain';
+
+// What an animal does is decided in the core: these run a herd on the core alone, each animal with a body that is a
+// point, a height and a list of motions. No model, no skeleton, no renderer.
+
+let terrain: Terrain, colliders: Colliders;
+beforeAll(() => { terrain = new Terrain(); colliders = animalNavigationColliders(buildStaticColliders(terrain)); }, 120_000);
+
+const CLIPS: AnimalClip[] = ['Idle', 'Walk', 'Run', 'Alert', 'Call', 'Graze', 'Groom', 'Sleep'];
+interface Body extends AnimalBodyFacts { motions: AnimalClip[]; mind?: AnimalMind }
+
+/** A herd of the given animals, each at a home the navigation rule finds for it. */
+function herdOf(definitions: readonly AnimalDefinition[], facts: Partial<WildlifeFacts> = {}) {
+  const gone = new Set<AnimalMind>(), dead = new Set<AnimalMind>();
+  const herd = new Wildlife(terrain, colliders, { present: (mind) => !gone.has(mind), dead: (mind) => dead.has(mind), callReach: () => 80, ...facts });
+  const occupied: AnimalSite[] = [];
+  const minds = definitions.map((definition, index) => {
+    const home = findAnimalSite(definition, 0.6, terrain, colliders, occupied, 1.2); occupied.push(home);
+    const body: Body = { position: { x: home.x, y: terrain.heightAt(home.x, home.z), z: home.z }, height: 1.2, motions: [],
+      has: () => true, duration: () => 2, referenceSpeed: (clip) => (clip === 'Run' ? 4 : 1.2), transition: (clip) => { body.motions.push(clip); },
+      facing: () => body.mind!.yaw };
+    const mind = new AnimalMind(definition, home, index, body, herd);
+    body.mind = mind;
+    return mind;
+  });
+  return { herd, minds, gone, dead };
+}
+const far: AnimalPoint = { x: 400, y: 0, z: 400 };
+const wild = (species: string) => ANIMALS.filter((definition) => definition.species === species && !definition.tame && !definition.seated);
+const steps = (mind: AnimalMind, seconds: number, focus: AnimalPoint, each?: () => void) => { for (let t = 0; t < seconds; t += 0.05) { mind.step(0.05, focus, 0); each?.(); } };
+
+describe('an animal’s life, on the core alone', () => {
+  it('begins at its home grazing or idle, the same on every start', () => {
+    const first = herdOf(ANIMALS).minds, again = herdOf(ANIMALS).minds;
+    expect(first.map((mind) => [mind.yaw, mind.rest, mind.callIn, mind.state])).toEqual(again.map((mind) => [mind.yaw, mind.rest, mind.callIn, mind.state]));
+    for (const mind of first) {
+      expect(['Graze', 'Idle']).toContain(mind.state);
+      expect(mind.rest).toBeGreaterThanOrEqual(ANIMAL_BEHAVIOUR.firstRest[0]);
+      expect((mind.body as Body).motions).toEqual([mind.state]);
+    }
+    // The first calls are staggered so the valley does not call at once.
+    expect(new Set(first.map((mind) => Math.round(mind.callIn))).size).toBeGreaterThan(first.length / 2);
+  });
+
+  it('wanders within its range with nobody near, and never leaves it', () => {
+    const { minds } = herdOf(wild('deer').slice(0, 1)), deer = minds[0]!;
+    let walked = 0, farthest = 0;
+    steps(deer, 240, far, () => {
+      const p = deer.body.position;
+      farthest = Math.max(farthest, Math.hypot(p.x - deer.home.x, p.z - deer.home.z));
+      if (deer.state === 'Walk') walked++;
+    });
+    expect(walked).toBeGreaterThan(20);
+    expect(farthest).toBeGreaterThan(1);
+    expect(farthest).toBeLessThanOrEqual(deer.definition.roam + 0.02);
+    expect((deer.body as Body).motions).toContain('Walk');
+    expect((deer.body as Body).motions).not.toContain('Run');
+  });
+
+  it('runs from someone who comes too near, away from them, and the herd runs with it', () => {
+    const { minds } = herdOf(wild('deer')), [deer, ...others] = minds;
+    const p = deer!.body.position, flee = ANIMAL_SPEEDS.deer.flee;
+    const hunter: AnimalPoint = { x: p.x + flee * 0.6, y: p.y, z: p.z };
+    const before = Math.hypot(p.x - hunter.x, p.z - hunter.z);
+    steps(deer!, 6, hunter);
+    expect((deer!.body as Body).motions).toContain('Run');
+    expect(Math.hypot(p.x - hunter.x, p.z - hunter.z)).toBeGreaterThan(before);
+    // Its own kind within the herd's reach take the alarm; none of another kind would.
+    const near = others.filter((other) => Math.hypot(other.body.position.x - deer!.home.x, other.body.position.z - deer!.home.z) < 24);
+    for (const other of near) expect(other.alarm).not.toBeNull();
+  });
+
+  it('stands and watches someone at a distance, then goes back to its rest', () => {
+    const { minds } = herdOf(wild('boar').slice(0, 1)), boar = minds[0]!, speeds = ANIMAL_SPEEDS.boar;
+    const watcher: AnimalPoint = { x: boar.body.position.x + (speeds.notice + speeds.flee) / 2, y: boar.body.position.y, z: boar.body.position.z };
+    boar.step(0.05, watcher, 0);
+    expect(boar.state).toBe('Alert');
+    // It turns to face them.
+    steps(boar, 3, watcher);
+    const heading = Math.atan2(watcher.x - boar.body.position.x, watcher.z - boar.body.position.z);
+    expect(Math.abs(Math.atan2(Math.sin(heading - boar.yaw), Math.cos(heading - boar.yaw)))).toBeLessThan(0.2);
+  });
+
+  it('calls now and then with one of its two calls, once per call', () => {
+    const { minds } = herdOf(wild('wolf').slice(0, 1)), wolf = minds[0]!;
+    const listener: AnimalPoint = { x: wolf.body.position.x + 40, y: 0, z: wolf.body.position.z };
+    const calls: number[] = [];
+    for (let t = 0; t < 400 && calls.length < 3; t += 0.05) { const step = wolf.step(0.05, listener, 0); if (step?.call) calls.push(step.call); }
+    expect(calls.length).toBe(3);
+    for (const call of calls) expect([1, 2]).toContain(call);
+    expect((wolf.body as Body).motions.filter((clip) => clip === 'Call').length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('does nothing while it is gone or dead, runs when a shot is loosed near it, and settles somewhere new when it returns', () => {
+    const { herd, minds, gone, dead } = herdOf(wild('deer').slice(0, 1)), deer = minds[0]!;
+    dead.add(deer);
+    expect(deer.step(0.05, far, 0)).toBeNull();
+    dead.delete(deer); gone.add(deer);
+    expect(deer.step(0.05, far, 0)).toBeNull();
+    gone.delete(deer);
+    const shot = { x: deer.body.position.x + 6, z: deer.body.position.z };
+    deer.startled(shot);
+    expect(deer.alarm).toMatchObject({ x: shot.x, z: shot.z });
+    expect(['Run', 'Alert']).toContain(deer.state);
+    // Back after being gone, with the hunter far away: a new place in its range, idle, with nothing left of the alarm.
+    herd.hunter = { x: far.x, z: far.z };
+    expect(deer.resettle(true)).toBe(true);
+    expect(deer.alarm).toBeNull();
+    expect(Math.hypot(deer.body.position.x - deer.home.x, deer.body.position.z - deer.home.z)).toBeLessThanOrEqual(deer.definition.roam);
+    expect(['Idle', 'Graze']).toContain(deer.state);
+    // With the hunter standing on its range, a returning animal waits.
+    herd.hunter = { x: deer.home.x, z: deer.home.z };
+    expect(deer.resettle(true)).toBe(false);
+  });
+
+  it('carries a rider where he steers, at his pace, and takes up its own life again when let go', () => {
+    const mount = ANIMALS.find((definition) => definition.tame)!, { minds } = herdOf([mount]), deer = minds[0]!;
+    const at = { x: deer.home.x + 2, z: deer.home.z + 1, yaw: 1.2, speed: 0 };
+    expect(deer.carry(at)).toBe('Idle');
+    expect([deer.body.position.x, deer.body.position.z, deer.yaw]).toEqual([at.x, at.z, at.yaw]);
+    expect(deer.carry({ ...at, speed: ANIMAL_BEHAVIOUR.rideWalk + 0.1 })).toBe('Walk');
+    expect(deer.carry({ ...at, speed: -(ANIMAL_BEHAVIOUR.rideRun + 0.1) })).toBe('Run');
+    deer.settle();
+    expect(['Idle', 'Graze']).toContain(deer.state);
+    expect(deer.path).toEqual([]);
+  });
+
+  it('walks round the others, the people and whoever is near', () => {
+    const { herd, minds } = herdOf(wild('deer').slice(0, 2));
+    herd.people = [{ id: 'person:baker', x: 1, y: 0, z: 2, radius: 0.4, height: 1.8, active: true }, { id: 'person:away', x: 0, y: 0, z: 0, radius: 0.4, height: 1.8, active: false }];
+    const extras = herd.extrasFor(minds[0]!, { x: 5, y: 1, z: 5 });
+    expect(extras.map((extra) => extra.id)).toEqual([`animal:${minds[1]!.definition.id}`, 'person:baker', 'wildlife:player']);
+    expect(CLIPS).toContain(minds[0]!.state);
+  });
+});

@@ -122,7 +122,7 @@ tested and free of engine classes, and data in files.
 Each of these shortens a later phase and can be done on the web build alone:
 
 - Lift the remaining design decisions out of the scene layer ([system mapping](system-mapping.md), last section): the
-  player's and animals' state machines.
+  player's state machine.
 - Replace, before anything is released, the files the [asset manifest](../../data/assets/README.md#replace-before-ship)
   marks `replaceBeforeShip`: the hero's two sources of unsettled origin and the title theme. Each names its pack, so
   nothing waits on the questions themselves.
