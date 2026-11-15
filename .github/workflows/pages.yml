@@ -81,9 +81,10 @@ jobs:
           cache: npm
       - run: npm ci
       # The game's tests, which are also the port seed's checks. The separate Gothic 3 study's tests are another
-      # project and run in the jobs below; neither loads the other's code.
+      # project and run in the jobs below; neither loads the other's code. Their time limit is the project's own
+      # (GAME_TEST_TIMEOUT in vite.config.ts), the same one a local run gets.
       - name: Game and seed tests (shard ${{ matrix.shard }} of 4)
-        run: npx vitest run --project game --shard=${{ matrix.shard }}/4 --testTimeout=90000
+        run: npx vitest run --project game --shard=${{ matrix.shard }}/4
 
   # The separate Gothic 3 study: its own tests, apart from the game's. Its three heaviest suites run in the jobs that
   # follow.
