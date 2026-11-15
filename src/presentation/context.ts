@@ -6,7 +6,6 @@ import type { Settings } from '../platform/settings';
 import type { WorldView } from '../core/game/worldView';
 import type { Colliders } from '../core/world/colliders';
 import type { Terrain } from '../core/world/terrain';
-import type { AssetLibrary } from './assets/library';
 import type { Exclusions, SwayUniforms } from './vegetation';
 import type { MeshyNpcCatalog } from './meshynpcs';
 import type { PlantedCrownField } from './plantedCrowns';
@@ -19,7 +18,6 @@ export type Quality = Detail;
 export interface BuildContext {
   terrain: Terrain;
   colliders: Colliders;
-  library: AssetLibrary;
   quality: Quality;
   settings: Settings;
   /** Shared wind uniforms for the procedural foliage materials. */

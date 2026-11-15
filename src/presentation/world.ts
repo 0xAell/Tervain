@@ -29,8 +29,8 @@ import type { GrassMover } from './grass/trample';
 import { buildWildlife } from './wildlife';
 import { buildEnvironment, type EnvironmentHandle } from './environment';
 import { Exclusions, type SwayUniforms } from './vegetation';
-import { ALL_NEEDS } from './assets/needs';
-import type { AssetLibrary, LoadProgress } from './assets/library';
+/** How far the world's models have come, as the loading screen is told. */
+export interface LoadProgress { loaded: number; total: number; label: string }
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { WaterSystem } from './water/waterSystem';
 import { SkyCapture } from './water/skyCapture';
@@ -133,7 +133,6 @@ export class WorldScene {
   readonly sky: SkyRig;
   readonly water: WaterSystem;
   readonly sway: SwayUniforms;
-  readonly library: AssetLibrary;
   /** Forest, ground cover, wildlife: updated every frame with the shared frame context. */
   readonly modules: WorldModules;
   /** Settles once the furniture and animals that follow the world in have arrived or failed (A95). */
@@ -176,7 +175,7 @@ export class WorldScene {
   buildStats: { ms: number } = { ms: 0 };
 
   /** Load, construct and activate in separate phases. No partial scene escapes this promise. */
-  static async create(state: WorldState, settings: Settings, library: AssetLibrary, onProgress?: (p: LoadProgress) => void, npcAssets?: MeshyNpcCatalog, options: WorldCreateOptions = {}): Promise<WorldScene> {
+  static async create(state: WorldState, settings: Settings, onProgress?: (p: LoadProgress) => void, npcAssets?: MeshyNpcCatalog, options: WorldCreateOptions = {}): Promise<WorldScene> {
     const yieldNow = options.yieldNow ?? yieldToBrowser;
     const phase = (stage: WorldBuildProgress['phase'], label: string, completed?: number, total?: number) => {
       checkCancelled(options.signal);
@@ -187,14 +186,8 @@ export class WorldScene {
       await yieldNow();
       checkCancelled(options.signal);
     };
-    const libraryModels = new Set<string>();
-    for (const need of ALL_NEEDS) {
-      const lod = library.resolveLod(need.id, need.lod);
-      if (lod) libraryModels.add(`${need.id}:${lod}`);
-    }
     // Count actual GLBs: each woodland tree needs all of its LOD files before its group is ready.
     const modelFamilies = {
-      library: { completed: 0, total: libraryModels.size },
       pine: { completed: 0, total: PINE_FILES.length },
       heroPine: { completed: 0, total: heroPineEnabled() ? HERO_PINE_FILES.length : 0 },
       stone: { completed: 0, total: 1 },
@@ -216,7 +209,6 @@ export class WorldScene {
     const surfaces = loadBakedTextures(settings.quality);
     let pine: PineTemplates, rockPile: GLTF, treeTemplates: MeshyTreeTemplates, animalTemplates: AnimalTemplates | null, furniture: FurnitureTemplates | null;
     try {
-      await library.preload(ALL_NEEDS, progress => modelProgress('library', progress.loaded, progress.total, progress.label));
       [pine, rockPile, treeTemplates, animalTemplates, furniture] = await Promise.all([
         Promise.all([loadSolitaryPine((loaded, total) => modelProgress('pine', loaded, total, 'Coastal pines')), heroPineEnabled() ? loadHeroPine((loaded, total) => modelProgress('heroPine', loaded, total, 'Coastal pines')) : null]).then(([templates]) => templates),
         loadSourceRockPile((loaded, total) => modelProgress('stone', loaded, total, 'Woodland stone')),
@@ -234,7 +226,7 @@ export class WorldScene {
     });
     await checkpoint('textures', 'Weathered surfaces', 8, 8);
     await surfaces;
-    return await WorldScene.build(state, settings, library, tex, pine, rockPile, treeTemplates, animalTemplates, furniture, npcAssets, options, phase, checkpoint);
+    return await WorldScene.build(state, settings, tex, pine, rockPile, treeTemplates, animalTemplates, furniture, npcAssets, options, phase, checkpoint);
   }
 
   /** Release GPU resources the scene graph does not own. */
@@ -253,7 +245,7 @@ export class WorldScene {
   /** Whether a room's window capture is shown (it reads the sun's shadow map in every direction). */
   private windowShown = false;
 
-  private static async build(state: WorldState, settings: Settings, library: AssetLibrary, terrainTex: TerrainTextures, pine: PineTemplates, rockPile: GLTF,
+  private static async build(state: WorldState, settings: Settings, terrainTex: TerrainTextures, pine: PineTemplates, rockPile: GLTF,
     treeTemplates: MeshyTreeTemplates, animalTemplates: AnimalTemplates | null, furniture: FurnitureTemplates | null, npcAssets: MeshyNpcCatalog | undefined, options: WorldCreateOptions,
     phase: (stage: WorldBuildProgress['phase'], label: string, completed?: number, total?: number) => void,
     checkpoint: (stage: WorldBuildProgress['phase'], label: string, completed?: number, total?: number) => Promise<void>): Promise<WorldScene> {
@@ -296,7 +288,7 @@ export class WorldScene {
       const sway: SwayUniforms = { uTime: { value: 0 }, uWind: { value: 1 } };
       // One wind for the realm: the grass and the trees answer the same gusts as they cross the land.
       const foliage = createFoliageField(own(new GrassWind(REALM_WIND)));
-      const ctx: BuildContext = { terrain, colliders, library, quality: settings.quality, settings, sway, excl: new Exclusions(terrain), npcAssets, foliage };
+      const ctx: BuildContext = { terrain, colliders, quality: settings.quality, settings, sway, excl: new Exclusions(terrain), npcAssets, foliage };
       await checkpoint('woodland', 'Woodland landmarks');
       const landmarks = own(buildForestLandmarks(terrain, colliders, settings.quality));
       addModule('woodland landmarks', { group: landmarks.group, update() {}, stats: () => landmarks.stats });
@@ -431,7 +423,7 @@ export class WorldScene {
 
       const riteResponse = own(buildRiteResponse(scenery.riteBowl));
       checkCancelled(options.signal);
-      const world = new WorldScene(state, library, {
+      const world = new WorldScene(state, {
         scene, terrain, colliders, sky, water, sway, modules, environment, scenery, animals, terrainMesh,
         physics, nav, lanternLights, dust, dustData, riteResponse, foliage, buildMs: performance.now() - t0, disposeOwned, letIn, arrived: Promise.allSettled(late).then(() => undefined), warming, quality: settings.quality,
       });
@@ -444,8 +436,7 @@ export class WorldScene {
     }
   }
 
-  private constructor(state: WorldState, library: AssetLibrary, resources: WorldResources) {
-    this.library = library;
+  private constructor(state: WorldState, resources: WorldResources) {
     this.scene = resources.scene;
     this.terrain = resources.terrain;
     this.colliders = resources.colliders;

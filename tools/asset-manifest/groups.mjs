@@ -112,10 +112,10 @@ export const GROUPS = [
     unreal: mesh('StaticMesh', '/Game/Tervain/Flora/Trees', (base) => `Tree_${treeName(base)}`),
   },
   {
-    id: 'scenery', title: 'Scenery models (rock pile, ancient broadleaf)', kind: 'model', role: 'scenery', match: /^public\/models\/scenery\//,
+    id: 'scenery', title: 'Scenery model (rock pile)', kind: 'model', role: 'scenery', match: /^public\/models\/scenery\//,
     plan: 'replace', fab: 'rocks', pack: 'Nordic Beach Rock Formation', with: ['Nordic Coastal Cliff'],
-    packWhy: 'A free scanned formation of the northern coast the game’s strand is modelled on, with the cliff piece for the lighthouse rock. Both are single assets: more pieces of the same Nordic series are needed for variety.', why: 'Two one-off generated models. Rocks and landmark trees come from the scanned rock and tree sets.',
-    source: 'Meshy Community downloads, adapted; see docs/engineering/rock-pile-assets.json and broadleaf-assets.json.',
+    packWhy: 'A free scanned formation of the northern coast the game’s strand is modelled on, with the cliff piece for the lighthouse rock. Both are single assets: more pieces of the same Nordic series are needed for variety.', why: 'A one-off generated model. Rocks come from the scanned rock sets.',
+    source: 'A Meshy Community download, adapted; see docs/engineering/rock-pile-assets.json.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Scenery', (base) => pascal(base.replace(/-under-\d+k$/, ''))),
   },
   {

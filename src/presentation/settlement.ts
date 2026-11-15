@@ -34,11 +34,7 @@ import { benchSet, campfire, cart, palisade, pot, ropeCoil, stockadeGate, wagon,
 import { MaterialSet, Region } from './regions';
 import { signSway, type SwingingPart } from './innSign';
 import { TINT, buildShrineHallShell, crate, door, fieldstone, jitterTone, roofFor, sack, villageBell, windowAt, woodpile, type Rnd } from './structures';
-import type { AssetNeed } from './assets/library';
 import { buildWorldPickups, isWorldPickupItem } from './worldPickups';
-
-/** Assets this module wants loaded before the world is built (none: everything here is built from primitives). */
-export const NEEDS: AssetNeed[] = [];
 
 export function makeTextTexture(w: number, h: number, draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void): THREE.CanvasTexture {
   const c = document.createElement('canvas');

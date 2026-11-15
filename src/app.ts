@@ -45,8 +45,6 @@ import { PanelHost, aboutPanel, controlsPanel, huntingPanel, inventoryPanel, jou
 import { h, clear } from './presentation/ui/dom';
 import { createMenuScreen } from './presentation/ui/menuView';
 import { installMenuMaterials } from './presentation/ui/menuMaterials';
-import { AssetLibrary } from './presentation/assets/library';
-import { ALL_NEEDS } from './presentation/assets/needs';
 import { personBuildOptions } from './presentation/characters';
 import { sheetsSettled } from './presentation/human/sheetPool';
 import type { WorldScene } from './presentation/world';
@@ -110,7 +108,6 @@ export class App {
   private menuScene!: MenuScene;
   private menuVisitActive = false;
   private menuVisitCounter = 0;
-  library: AssetLibrary = AssetLibrary.empty();
   cam = new CameraRig();
   private readonly heroFade = new NearFade();
   player = new Player();
@@ -489,7 +486,7 @@ export class App {
           adopt: (catalog, rig) => enemy.adoptRig(rig ?? catalog.create(role, scale, 'blade')), make: (catalog) => catalog.createSteps(role, scale, 'blade') });
       }
       const { WorldScene } = await import('./presentation/world');
-      this.world = await WorldScene.create(this.game.state, structuredClone(this.settings), this.library, undefined, this.npcAssets!, {
+      this.world = await WorldScene.create(this.game.state, structuredClone(this.settings), undefined, this.npcAssets!, {
         // The animals follow the world in; a first visit downloads about a fifth less before entering (A70).
         deferWildlife: true,
         // So does the rooms' furniture: none of it is needed to set foot in the valley (backlog 4).
@@ -681,7 +678,6 @@ export class App {
       this.pauseForWorldBuild(true);
       this.initialJourneyLoading = true;
       try {
-        if (ALL_NEEDS.length > 0) this.library = await AssetLibrary.open();
         // Everything the journey downloads starts now (A68): the wanderer, the residents, then the world's models and
         // surfaces behind them, instead of each group waiting for the one before it to be prepared.
         const hero = this.prepareMainHero();

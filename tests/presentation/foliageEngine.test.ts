@@ -15,7 +15,6 @@ import { pineTemplates } from './pineFixture';
 import { Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { AssetLibrary } from '../../src/presentation/assets/library';
 import { defaultSettings } from '../../src/platform/settings';
 import type { FrameContext } from '../../src/presentation/context';
 import { worldView } from '../../src/core/game/worldView';
@@ -448,7 +447,7 @@ describe('the forest with wind, shadow-only casters and strikes', () => {
   it('casts shadows only from casters inside the sun volume, hides empty meshes, and shakes a struck tree', () => {
     vi.stubGlobal('location', { search: '' });
     const quality = 'high', f = field();
-    const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality, settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } }, foliage: f }, templates);
+    const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality, settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } }, foliage: f }, templates);
     for (const lod of [0, 1, 2]) {
       const targets = forest.canopyAuditTargets!(lod);
       expect(targets.length).toBeLessThanOrEqual(forest.counts.trees);
@@ -702,7 +701,7 @@ describe('the forest with wind, shadow-only casters and strikes', () => {
   it('excludes empty lateral regions of tall-tree spheres from narrow views', () => {
     vi.stubGlobal('location', { search: '' });
     const f = field(), quality = 'high';
-    const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality, settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } }, foliage: f }, templates);
+    const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality, settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } }, foliage: f }, templates);
     try {
       // Independent reference: collect every detail level by placement before inspecting packed draws.
       const source = new Map<string, { matrix: THREE.Matrix4; local: THREE.Box3; world?: THREE.Box3 }>();
@@ -745,7 +744,7 @@ describe('the forest with wind, shadow-only casters and strikes', () => {
   it('keeps cached shadow rejections safe across accumulated small sun-volume moves', () => {
     vi.stubGlobal('location', { search: '' });
     const f = field(), quality = 'high';
-    const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality, settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } }, foliage: f }, templates);
+    const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality, settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } }, foliage: f }, templates);
     try {
       const camera = new THREE.PerspectiveCamera(58, 1, .1, 1400);
       const sun = new THREE.OrthographicCamera(-35, 35, 35, -35, .1, 400);
@@ -770,14 +769,14 @@ describe('the forest with wind, shadow-only casters and strikes', () => {
 
   it('builds no casters on Low and keeps the colour pass unchanged without a shared wind', () => {
     vi.stubGlobal('location', { search: '' });
-    const low = buildFlora({ terrain, excl, colliders: new Colliders(), quality: 'low', settings: { ...defaultSettings(), quality: 'low' }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } }, foliage: field() }, templates);
+    const low = buildFlora({ terrain, excl, colliders: new Colliders(), quality: 'low', settings: { ...defaultSettings(), quality: 'low' }, sway: { uTime: { value: 0 }, uWind: { value: 0 } }, foliage: field() }, templates);
     expect(low.shadowCasters.children).toHaveLength(0);
     const lowLeaves = low.group.children.filter(o => (o as THREE.Mesh).isMesh && o.name.endsWith(':foliage')) as THREE.Mesh[];
     const maskedLow = lowLeaves.filter(o => (o.material as THREE.Material).alphaTest > 0);
     expect(maskedLow.length).toBeGreaterThan(0);
     expect(maskedLow.every(o => !(o.material as THREE.Material).alphaToCoverage)).toBe(true);
     low.dispose!();
-    const plain = buildFlora({ terrain, excl, colliders: new Colliders(), quality: 'medium', settings: { ...defaultSettings(), quality: 'medium' }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+    const plain = buildFlora({ terrain, excl, colliders: new Colliders(), quality: 'medium', settings: { ...defaultSettings(), quality: 'medium' }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
     const leaf = plain.group.children.find((o) => o.name.endsWith(':0:foliage')) as THREE.InstancedMesh;
     expect((leaf.material as THREE.Material).customProgramCacheKey()).not.toContain('tervain-foliage');
     const maskedMedium = plain.group.children.filter(o => (o as THREE.Mesh).isMesh && o.name.endsWith(':foliage') && ((o as THREE.Mesh).material as THREE.Material).alphaTest > 0) as THREE.Mesh[];

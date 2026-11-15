@@ -154,6 +154,5 @@ export const MODEL_FILES: Readonly<Record<string, readonly [sha256: string, byte
   'npcs/shrine-warden.glb': ['b82333008ad803ce4ce6bd65b0e6d275e2757f763b200cf5222971d813a830a5', 2821356],
   'npcs/spring-steward.glb': ['2403e31682348fc721b8f4f85e1eef9b8302fa1875d38b1d0e04f1258a6c17bc', 1065936],
   'npcs/village-baker.glb': ['8ea1be0ca00fe358ff6a23702c108c0a9ed7a052d9dce3994320d1c6c2a6576b', 2717548],
-  'scenery/ancient-guardian-broadleaf-under-20k.glb': ['ffaa0d0857fe28baca75416875db4ef8dd834650204cee819738e745c7326406', 4827200],
   'scenery/weathered-rock-pile-under-20k.glb': ['fd885874c8a4ca49a75b4f75e0e4405362c4709c100a3c994f9a1dbcf2f4ce52', 1202464],
 };

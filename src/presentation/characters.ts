@@ -7,7 +7,6 @@ import { limb, loft as rigidLoft, type RGB, type Section } from './humanGeo';
 import { npcStyle, type WorkGesture } from './npcStyle';
 import type { NpcPoseFit } from './npc/poseFit';
 import { seatLegs } from '../core/rules/seat';
-import type { AssetNeed } from './assets/library';
 import { Frame } from './human/frame';
 import { buildHead, type HairCut, type HeadFit } from './human/head';
 import { makeFaceShape, type BeardStyle, type Build, type FaceShape } from './human/headShape';
@@ -26,9 +25,6 @@ import type { HeroAnimationController } from './hero/animation';
 import type { ResidentMotion } from './npc/residentMotion';
 import type { ResidentFingers } from './npc/residentFingers';
 import type { WorkSite } from './npc/workSites';
-
-/** Assets this module wants loaded before the world is built. */
-export const NEEDS: AssetNeed[] = [];
 
 /**
  * People and creatures. People are built the way Gothic 3 builds its actors (docs/art/gothic3-reference.md#people): one

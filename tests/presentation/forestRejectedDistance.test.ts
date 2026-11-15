@@ -5,7 +5,6 @@ import {smoothDistanceFade} from '../../src/presentation/distanceVisibility';
 import {Terrain} from '../../src/core/world/terrain';
 import {Colliders} from '../../src/core/world/colliders';
 import {Exclusions} from '../../src/presentation/vegetation';
-import {AssetLibrary} from '../../src/presentation/assets/library';
 import {defaultSettings} from '../../src/platform/settings';
 import {pineTemplates} from './pineFixture';
 import {worldView} from '../../src/core/game/worldView';
@@ -20,7 +19,7 @@ vi.mock('../../src/presentation/distanceVisibility',async original=>{const actua
 vi.mock('../../src/presentation/foliage/treeBounds',()=>({intersectsTreeBounds:(f:THREE.Frustum,s:THREE.Sphere,b:THREE.Box3)=>f.intersectsSphere(s)&&f.intersectsBox(b)}));
 let forest:ReturnType<typeof buildFlora>;
 const camera=new THREE.PerspectiveCamera(60,16/9,.1,1200);
-beforeAll(async()=>{const terrain=new Terrain();forest=buildFlora({terrain,excl:new Exclusions(terrain),colliders:new Colliders(),quality:'high',settings:defaultSettings(),library:AssetLibrary.empty(),sway:{uTime:{value:0},uWind:{value:0}}},await pineTemplates());});
+beforeAll(async()=>{const terrain=new Terrain();forest=buildFlora({terrain,excl:new Exclusions(terrain),colliders:new Colliders(),quality:'high',settings:defaultSettings(),sway:{uTime:{value:0},uWind:{value:0}}},await pineTemplates());});
 afterAll(()=>forest.dispose?.());
 const frame=(shadowFrustum?:THREE.Frustum):FrameContext=>({camera,quality:'high',reducedMotion:true,shadowsForViewOnly:false,shadowFrustum,time:0,focus:new THREE.Vector3(),nightness:0,sunDir:new THREE.Vector3(0,1,0),hour:12,view:worldView(createInitialState())});
 const fades=()=>vi.mocked(smoothDistanceFade).mock.calls.filter(([,start,end])=>start===900&&end===1020).length;

@@ -48,8 +48,8 @@ What is missing from a ten, and the plan:
 
 What is there:
 
-- [`data/assets/manifest.json`](../../data/assets/README.md): all 1,671 model, texture and sound files with source,
-  licence, size, the Unreal asset each would become, and a plan: 190 to replace, 595 to keep, 886 to drop. Everything
+- [`data/assets/manifest.json`](../../data/assets/README.md): all 1,670 model, texture and sound files with source,
+  licence, size, the Unreal asset each would become, and a plan: 189 to replace, 595 to keep, 886 to drop. Everything
   marked for replacement names a first-choice pack on Fab and the alternatives.
 - The manifest is generated (`npm run assets:manifest`), has a schema, and `npm run assets:check` fails in CI when it
   no longer matches the files on disk.
@@ -143,14 +143,12 @@ What is there:
 
 What is missing from a ten, and the plan:
 
-- Two pieces of scene code are built and tested but unused: the prepared broadleaf in
-  `src/presentation/sourceBroadleaf.ts` and the asset library hook in `src/presentation/assets/library.ts`. Each is
-  tied into the model ledger and the load-budget tests.
+- The two pieces of scene code that were built and tested but unused have been removed with the records and tests
+  that named them: the prepared broadleaf with its model, and the asset library hook with its empty lists of needs.
 - The Gothic 3 study is most of the repository's files. It stays in this repository by the owner's decision, as a
   separate project: no file of the game imports it or is imported by it, it is compiled and tested as its own project
   in its own CI jobs, and the seed's checks do not cover it
   ([`tests/tooling/gothic3Study.test.ts`](../../tests/tooling/gothic3Study.test.ts) fails when any of that changes).
-- Plan: remove or use each of the two pieces in a pull request of its own, with the ledger and the tests that name it.
 
 ## How the seed was verified
 
