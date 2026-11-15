@@ -159,8 +159,8 @@ What is missing from a ten, and the plan:
   exit in the browser's log.
 - **A clean checkout.** A fresh clone of `main` (82,461 files) installs, typechecks, passes the data and manifest
   checks, builds, and passes the whole test suite: 524 files, 5,172 tests, 1 skipped
-  ([#797](https://github.com/ael-dev3/Tervain/pull/797)). One finding was left for its own pull request: four
-  advisories in the development tooling, fixed by upgrading Vite.
+  ([#797](https://github.com/ael-dev3/Tervain/pull/797)). Its one finding, four advisories in the development
+  tooling, was fixed in the pull request that followed by updating Vite and Vitest in the lockfile.
 - **The published build.** After every deploy, CI plays the live build: it must load, draw, pause and resume, walk and
   log no error (`npm run smoke:live`, [#797](https://github.com/ael-dev3/Tervain/pull/797)).
 - **One loose end.** `tests/presentation/npcSchedules.test.ts` failed once in CI on a pull request that did not touch
