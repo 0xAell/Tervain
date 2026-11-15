@@ -6,7 +6,9 @@ import { PLACES, SPAWN } from '../world/layout';
 import type { NavGrid } from '../world/nav';
 import { canPlayerStandAt, PLAYER_BODY_RADIUS, supportedPlayerHeight } from '../world/playerPlacement';
 import type { Terrain } from '../world/terrain';
-import { AUTOSAVE_SECONDS, HIT_STOP, UNDER_WORLD } from './journey';
+import { STAMINA_MAX } from './hero';
+import { AUTOSAVE_SECONDS, checkpointAllowed, DEATH, HIT_STOP, UNDER_WORLD } from './journey';
+import { MOUNT_STAMINA } from './riding';
 import { RESIDENT } from './resident';
 
 /**
@@ -104,6 +106,9 @@ export function safePlace(world: PlacingWorld, x: number, z: number, feetY?: num
   return { ...position, y: terrain.groundAt(position.x, position.z) };
 }
 
+/** What entering a journey restores, new or loaded: a save keeps neither his tiredness nor the deer's, and the next timed autosave is a whole interval away. */
+export const ENTRY_RESTORES = { stamina: STAMINA_MAX, exhausted: false, mountStamina: MOUNT_STAMINA.max, mountSpent: false, autosaveSeconds: AUTOSAVE_SECONDS } as const;
+
 /** Entering a world from a save. */
 export const ENTRY = {
   /** A loose thing he was standing on is trusted as footing if its top is within this (m) of his saved height. */
@@ -120,6 +125,52 @@ export function trustedPropTop(propTop: number | null, savedY: number): number |
 /** Whether he would enter buried: under land that changed since the save, and neither afloat nor in the archive. */
 export function buriedOnEntry(y: number, ground: number, facts: { afloat: boolean; inArchive: boolean }): boolean {
   return !facts.afloat && !facts.inArchive && y < ground - ENTRY.buried;
+}
+
+/* ============================ The place he returns to, and waking ============================ */
+
+/** Where a fall brings him back to. */
+export interface RespawnPoint { x: number; y?: number; z: number; yaw: number }
+
+/**
+ * When that place may move: when a journey is entered, when he discovers a place, and when the journey saves itself
+ * because something happened. The timed autosave and saves made by hand leave it where it is.
+ */
+export type RespawnMoment = 'entry' | 'place' | 'eventAutosave';
+
+/** Where a journey's place to return to starts: the strand, on the ground. */
+export function strandRespawn(groundAt: (x: number, z: number) => number): RespawnPoint {
+  return { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw, y: groundAt(SPAWN.x, SPAWN.z) };
+}
+
+/**
+ * The place he returns to after `moment`, with him standing at `here`. Entering a journey starts again from the
+ * strand; at every moment it moves to where he stands unless a living foe or an undefeated post is within
+ * CHECKPOINT_CLEARANCE (checkpointAllowed), so a save made beside a foe's post cannot make it a place to die again.
+ */
+export function respawnAfter(current: RespawnPoint, moment: RespawnMoment, here: RespawnPoint, strand: RespawnPoint,
+  livingFoes: Iterable<{ x: number; z: number }>, undefeatedPosts: Iterable<{ x: number; z: number }>): RespawnPoint {
+  const before = moment === 'entry' ? strand : current;
+  return checkpointAllowed(here.x, here.z, livingFoes, undefeatedPosts) ? { x: here.x, y: here.y, z: here.z, yaw: here.yaw } : before;
+}
+
+/**
+ * What waking after a fall restores, at the place he returns to: `DEATH.heal` of his health, all his stamina (he does
+ * not rise exhausted), every foe back at its post with its health whole, and a whole interval before the next timed
+ * autosave.
+ */
+export const WAKING = { heal: DEATH.heal, stamina: STAMINA_MAX, foesToPosts: true, autosaveSeconds: AUTOSAVE_SECONDS } as const;
+
+/* ============================ Saving ============================ */
+
+/** The journey's save slots. The game writes the auto slot itself and the quick key the quick slot; the three others are written by hand. All of them can be loaded. */
+export const SAVE_SLOTS = ['auto', 'quick', 'slot-1', 'slot-2', 'slot-3'] as const;
+export type SaveSlot = (typeof SAVE_SLOTS)[number];
+export const HAND_SAVE_SLOTS: readonly SaveSlot[] = ['slot-1', 'slot-2', 'slot-3'];
+
+/** The journey is saved, by hand, by the quick key or by itself, only while he plays: not while he lies fallen, not paused, not between worlds. */
+export function savingAllowed(facts: { playing: boolean; paused: boolean; worldReady?: boolean }): boolean {
+  return facts.playing && !facts.paused && facts.worldReady !== false;
 }
 
 /** Fallen through the ground: beneath it by `UNDER_WORLD.depth`, and neither swimming, in the archive nor in the saddle. */

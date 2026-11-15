@@ -1,4 +1,5 @@
 import { reviveState } from '../core/game/revive';
+import { SAVE_SLOTS, type SaveSlot } from '../core/rules/session';
 import { CONTENT_REVISION, SAVE_FORMAT_VERSION, type WorldState } from '../core/game/types';
 import { GAME_BUILD } from '../version';
 
@@ -65,8 +66,9 @@ export class BrowserStore implements KeyValueStore {
   }
 }
 
-export const SLOT_IDS = ['auto', 'quick', 'slot-1', 'slot-2', 'slot-3'] as const;
-export type SlotId = (typeof SLOT_IDS)[number];
+/** The slots are the core's (core/rules/session.ts): which are written by hand, which by the game. */
+export const SLOT_IDS = SAVE_SLOTS;
+export type SlotId = SaveSlot;
 
 /** Upper bound for a save payload; larger values are rejected as corrupt. */
 export const MAX_SAVE_BYTES = 512 * 1024;

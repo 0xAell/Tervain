@@ -95,8 +95,6 @@ rules, who speaks when, carrying loose cargo and reviving a save.
 
 A second reading afterwards found more. Each is to be lifted in a pull request of its own:
 
-- **Waking after a fall** (where the hero wakes, what is restored, foes sent back to their posts), **what loading
-  restores**, **when the game may be saved** and **the first bell of a sitting** (`src/app.ts`).
 - **Who may mount** (checked again in the scene, with the mount's id typed in), **which fight wakes sleepers**, **who
   calls out at a trespass** and **when the hamlet's silent people go in for the night**.
 - **Where the props stand and what they block**: walls, haystacks, the camp fire, the hunter's board and table and the
