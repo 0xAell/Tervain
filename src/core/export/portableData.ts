@@ -1,5 +1,5 @@
 import { AMBIENT_RESIDENTS } from '../content/ambientPeople';
-import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips } from '../content/animals';
+import { ANIMALS, ANIMAL_CALL_REACH, ANIMAL_GESTURE_SECONDS, ANIMAL_SENSES, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips } from '../content/animals';
 import { NPC_OBSERVATIONS } from '../content/arrival';
 import { DIALOGUE_NODES, DIALOGUE_STRINGS } from '../content/dialogue';
 import { ENEMY_ARCHETYPES, ENEMY_IDLE_YAW, ENEMY_POST_YAW, ENEMY_VARIANT } from '../content/enemies';
@@ -166,14 +166,14 @@ function game(): PortableDocument[] {
     },
     {
       path: 'game/animals.json',
-      about: 'The nineteen animals, each kind’s paces and temperament, their behaviour, and the hunting rules.',
+      about: 'The nineteen animals with their paces, each kind’s senses, temperament and call, how long a gesture lasts, their behaviour, and the hunting rules.',
       data: {
         animals: ANIMALS.map((animal) => {
           const hunt = ANIMAL_IDS.find((id) => ANIMAL_MODEL_IDS[id] === animal.id)!;
           return { ...animal, huntId: hunt, huntSpecies: ANIMAL_SPECIES[hunt], huntable: HUNTABLE_ANIMAL_IDS.includes(hunt), clips: requiredAnimalClips(animal), loot: animalLoot(hunt) };
         }),
-        species: Object.fromEntries(Object.keys(ANIMAL_SPEEDS).map((species) => [species, { ...ANIMAL_SPEEDS[species as keyof typeof ANIMAL_SPEEDS], ...ANIMAL_TEMPERAMENT[species as keyof typeof ANIMAL_TEMPERAMENT] }])),
-        behaviour: ANIMAL_BEHAVIOUR, triangleLimit: ANIMAL_TRIANGLE_LIMIT, protected: PROTECTED_ANIMAL_IDS,
+        species: Object.fromEntries(Object.keys(ANIMAL_SENSES).map((species) => [species, { ...ANIMAL_SENSES[species as keyof typeof ANIMAL_SENSES], ...ANIMAL_TEMPERAMENT[species as keyof typeof ANIMAL_TEMPERAMENT], callReach: ANIMAL_CALL_REACH[species as keyof typeof ANIMAL_CALL_REACH] }])),
+        gestureSeconds: ANIMAL_GESTURE_SECONDS, behaviour: ANIMAL_BEHAVIOUR, triangleLimit: ANIMAL_TRIANGLE_LIMIT, protected: PROTECTED_ANIMAL_IDS,
         hunting: {
           arrowRange: HUNTING_ARROW_RANGE, skinningReach: SKINNING_REACH, skinningSeconds: SKINNING_SECONDS, quiverCapacity: ARROW_QUIVER_CAPACITY,
           restockArrows: ARROW_RESTOCK_AMOUNT, spareArrows: HUNTER_SPARE_ARROWS, meatPrice: HUNTER_MEAT_PRICE, ranks: HUNTER_RANKS,

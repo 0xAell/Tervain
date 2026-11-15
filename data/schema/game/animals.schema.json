@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/animals.schema.json",
   "title": "game/animals.json",
-  "description": "The nineteen animals, each kind’s paces and temperament, their behaviour, and the hunting rules.",
+  "description": "The nineteen animals with their paces, each kind’s senses, temperament and call, how long a gesture lasts, their behaviour, and the hunting rules.",
   "type": "object",
   "properties": {
     "about": {
@@ -46,6 +46,12 @@
           },
           "roam": {
             "type": "integer"
+          },
+          "walk": {
+            "type": "number"
+          },
+          "run": {
+            "type": "number"
           },
           "huntId": {
             "type": "string"
@@ -95,6 +101,8 @@
           "habitat",
           "home",
           "roam",
+          "walk",
+          "run",
           "huntId",
           "huntSpecies",
           "huntable",
@@ -109,12 +117,6 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "walk": {
-            "type": "number"
-          },
-          "run": {
-            "type": "number"
-          },
           "notice": {
             "type": "number"
           },
@@ -126,18 +128,40 @@
           },
           "herd": {
             "type": "integer"
+          },
+          "callReach": {
+            "type": "integer"
           }
         },
         "required": [
-          "walk",
-          "run",
           "notice",
           "flee",
           "holdUntil",
-          "herd"
+          "herd",
+          "callReach"
         ],
         "additionalProperties": false
       }
+    },
+    "gestureSeconds": {
+      "type": "object",
+      "properties": {
+        "Alert": {
+          "type": "integer"
+        },
+        "Call": {
+          "type": "integer"
+        },
+        "Groom": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "Alert",
+        "Call",
+        "Groom"
+      ],
+      "additionalProperties": false
     },
     "behaviour": {
       "type": "object",
@@ -508,6 +532,7 @@
     "units",
     "animals",
     "species",
+    "gestureSeconds",
     "behaviour",
     "triangleLimit",
     "protected",

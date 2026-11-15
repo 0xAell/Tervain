@@ -12,14 +12,32 @@ export interface AnimalDefinition {
   readonly habitat: AnimalHabitat;
   readonly home: V2;
   readonly roam: number;
+  /** The paces it walks and runs at (m/s); 0 for an animal that never walks. */
+  readonly walk: number;
+  readonly run: number;
   readonly seated?: boolean;
   /** Domesticated animals watch nearby travellers instead of fleeing from them. */
   readonly tame?: boolean;
   readonly homeYaw?: number;
 }
 
+/**
+ * The pace each animal walks and runs at (m/s), by model id. These are the speeds the game plays. They were measured
+ * from the strides of the supplied models, so the drawn feet do not slide: whoever draws an animal plays its stride
+ * at the pace it is given, and a port gives its own animations the same paces.
+ */
+const PACE: Readonly<Record<string, readonly [walk: number, run: number]>> = {
+  '1005232739': [0.417, 1.650], '1005232726': [0.419, 1.691],
+  '1005170943': [0.520, 1.475], '1005232657': [0.511, 1.452],
+  '1005232644': [0.394, 1.199], '1005232637': [0.385, 1.182], '1005232631': [0.397, 1.205],
+  '1005232619': [0.156, 0.487], '1005232608': [0, 0], '1005232556': [0.140, 0.459],
+  '1005232529': [0.334, 1.018], '1005232511': [0.324, 1.000],
+  '1005232450': [0.371, 1.045], '1005232442': [0.353, 0.996], '1005174818': [0.371, 1.044],
+  '1005232424': [0.634, 2.097], '1005232412': [0.633, 2.092], '1005232351': [0.622, 0.995], '1005232341': [0.633, 2.092],
+};
+
 const entry = (species: AnimalSpecies, id: string, habitat: AnimalHabitat, x: number, z: number, roam: number, seated = false): AnimalDefinition => ({
-  id, species, file: `${species}-${id}.glb`, habitat, home: { x, z }, roam, ...(seated ? { seated: true } : {}),
+  id, species, file: `${species}-${id}.glb`, habitat, home: { x, z }, roam, walk: PACE[id]![0], run: PACE[id]![1], ...(seated ? { seated: true } : {}),
 });
 
 /** All supplied animals have a persistent home, including on the lowest presentation preset.
@@ -46,17 +64,23 @@ export const ANIMALS: readonly AnimalDefinition[] = [
   entry('deer', '1005232341', 'woodland', -119, 28, 16),
 ];
 
-/** In-place clips are driven by real resolved travel, so an animal meeting a trunk cannot keep running in place. */
-export const ANIMAL_SPEEDS: Record<AnimalSpecies, { walk: number; run: number; notice: number; flee: number }> = {
-  tiger: { walk: 1.1, run: 3.8, notice: 13, flee: 6 },
-  lion: { walk: 1.05, run: 3.4, notice: 13, flee: 6 },
-  bear: { walk: 0.8, run: 2.2, notice: 14, flee: 7 },
-  wolf: { walk: 1.2, run: 3.5, notice: 14, flee: 8 },
-  cat: { walk: 0.55, run: 1.8, notice: 4.5, flee: 2 },
-  dog: { walk: 1, run: 2.6, notice: 5, flee: 2.8 },
-  boar: { walk: 0.75, run: 2, notice: 12, flee: 6 },
-  deer: { walk: 1.15, run: 3.5, notice: 16, flee: 10 },
+/** How near each kind lets someone come (m): it looks up within `notice`, and flees, or a predator stands its ground, within `flee`. */
+export const ANIMAL_SENSES: Record<AnimalSpecies, { notice: number; flee: number }> = {
+  tiger: { notice: 13, flee: 6 },
+  lion: { notice: 13, flee: 6 },
+  bear: { notice: 14, flee: 7 },
+  wolf: { notice: 14, flee: 8 },
+  cat: { notice: 4.5, flee: 2 },
+  dog: { notice: 5, flee: 2.8 },
+  boar: { notice: 12, flee: 6 },
+  deer: { notice: 16, flee: 10 },
 };
+
+/** How long an animal holds a gesture before it moves on (s). The supplied models' clips run exactly this long, and a port's montages keep it. */
+export const ANIMAL_GESTURE_SECONDS: Readonly<Record<'Alert' | 'Call' | 'Groom', number>> = { Alert: 2, Call: 4, Groom: 4 };
+
+/** How far each kind's call carries (m): an animal calls only when someone is within it, and the call is heard out to it. */
+export const ANIMAL_CALL_REACH: Readonly<Record<AnimalSpecies, number>> = { tiger: 76, lion: 82, bear: 62, wolf: 75, cat: 24, dog: 46, boar: 44, deer: 40 };
 
 /**
  * How each kind meets the hunter (A70). Predators hold their ground, watching, until he comes within `holdUntil` of their

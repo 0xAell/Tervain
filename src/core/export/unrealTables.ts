@@ -1,4 +1,4 @@
-import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT } from '../content/animals';
+import { ANIMALS, ANIMAL_CALL_REACH, ANIMAL_SENSES, ANIMAL_TEMPERAMENT } from '../content/animals';
 import { DIALOGUE_STRINGS } from '../content/dialogue';
 import { ENEMY_ARCHETYPES, ENEMY_IDLE_YAW, ENEMY_POST_YAW } from '../content/enemies';
 import { ITEMS, itemAction } from '../content/items';
@@ -90,18 +90,17 @@ export function unrealTables(terrain: Terrain): UnrealTable[] {
       rows: Object.values(ITEMS).map((item) => ({ Name: item.id, NameKey: item.nameKey, DescriptionKey: item.descKey, Kind: pascal(item.kind), HealAmount: item.healAmount ?? 0, Action: pascal(itemAction(item.id) ?? 'none') })),
     },
     {
-      file: 'DT_AnimalSpecies.json', name: 'FTervainAnimalSpeciesRow', note: 'How a kind of animal moves and meets the hunter. The row name is the species.',
+      file: 'DT_AnimalSpecies.json', name: 'FTervainAnimalSpeciesRow', note: 'How a kind of animal meets the hunter and how far it calls. The row name is the species.',
       fields: {
-        WalkSpeed: f('float', 'Walking pace (cm/s).'),
-        RunSpeed: f('float', 'Running pace (cm/s).'),
         NoticeDistance: f('float', 'It looks up at the hunter within this distance (cm).'),
         FleeDistance: f('float', 'It flees, or a predator stands its ground, within this distance (cm).'),
         HoldUntil: f('float', 'A predator holds its ground until the hunter is within this share of the flee distance; 1 for prey.'),
         HerdAlarmDistance: f('float', 'An alarm carries to its own kind within this distance (cm); 0 for solitary kinds.'),
+        CallReach: f('float', 'It calls only when someone is within this distance, and its call is heard out to it (cm).'),
       },
-      rows: Object.keys(ANIMAL_SPEEDS).map((species) => {
-        const pace = ANIMAL_SPEEDS[species as keyof typeof ANIMAL_SPEEDS], temper = ANIMAL_TEMPERAMENT[species as keyof typeof ANIMAL_TEMPERAMENT];
-        return { Name: species, WalkSpeed: cm(pace.walk), RunSpeed: cm(pace.run), NoticeDistance: cm(pace.notice), FleeDistance: cm(pace.flee), HoldUntil: temper.holdUntil, HerdAlarmDistance: cm(temper.herd) };
+      rows: Object.keys(ANIMAL_SENSES).map((species) => {
+        const senses = ANIMAL_SENSES[species as keyof typeof ANIMAL_SENSES], temper = ANIMAL_TEMPERAMENT[species as keyof typeof ANIMAL_TEMPERAMENT];
+        return { Name: species, NoticeDistance: cm(senses.notice), FleeDistance: cm(senses.flee), HoldUntil: temper.holdUntil, HerdAlarmDistance: cm(temper.herd), CallReach: cm(ANIMAL_CALL_REACH[species as keyof typeof ANIMAL_CALL_REACH]) };
       }),
     },
     {
@@ -112,6 +111,8 @@ export function unrealTables(terrain: Terrain): UnrealTable[] {
         Habitat: f({ enum: 'ETervainAnimalHabitat' }, 'The ground it keeps to.'),
         Home: f('FVector', 'The centre of its range, on the ground (cm).'),
         RoamRadius: f('float', 'How far from home it wanders (cm).'),
+        WalkSpeed: f('float', 'Walking pace (cm/s); the stride is played to match. 0 for an animal that never walks.'),
+        RunSpeed: f('float', 'Running pace (cm/s); the stride is played to match. 0 for an animal that never walks.'),
         bSeated: f('bool', 'It sits in one place and never walks.'),
         bTame: f('bool', 'It watches travellers and does not flee; the tame deer can be ridden.'),
         HomeYaw: f('float', 'Its facing at home (degrees), when bHasHomeYaw.'),
@@ -119,7 +120,7 @@ export function unrealTables(terrain: Terrain): UnrealTable[] {
       },
       rows: ANIMALS.map((animal) => ({
         Name: `${animal.species}-${animal.id}`, Species: animal.species, SourceModel: animal.file, Habitat: pascal(animal.habitat),
-        Home: toUnreal(animal.home.x, ground(animal.home.x, animal.home.z), animal.home.z), RoamRadius: cm(animal.roam),
+        Home: toUnreal(animal.home.x, ground(animal.home.x, animal.home.z), animal.home.z), RoamRadius: cm(animal.roam), WalkSpeed: cm(animal.walk), RunSpeed: cm(animal.run),
         bSeated: !!animal.seated, bTame: !!animal.tame, HomeYaw: animal.homeYaw === undefined ? 0 : yawToUnreal(animal.homeYaw), bHasHomeYaw: animal.homeYaw !== undefined,
       })),
     },

@@ -168,19 +168,11 @@ struct TERVAIN_API FTervainItemRow : public FTableRowBase
 	ETervainItemAction Action = ETervainItemAction::None;
 };
 
-/** How a kind of animal moves and meets the hunter. The row name is the species. */
+/** How a kind of animal meets the hunter and how far it calls. The row name is the species. */
 USTRUCT(BlueprintType)
 struct TERVAIN_API FTervainAnimalSpeciesRow : public FTableRowBase
 {
 	GENERATED_BODY()
-
-	/** Walking pace (cm/s). */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
-	float WalkSpeed = 0.f;
-
-	/** Running pace (cm/s). */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
-	float RunSpeed = 0.f;
 
 	/** It looks up at the hunter within this distance (cm). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
@@ -197,6 +189,10 @@ struct TERVAIN_API FTervainAnimalSpeciesRow : public FTableRowBase
 	/** An alarm carries to its own kind within this distance (cm); 0 for solitary kinds. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
 	float HerdAlarmDistance = 0.f;
+
+	/** It calls only when someone is within this distance, and its call is heard out to it (cm). */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
+	float CallReach = 0.f;
 };
 
 /** One animal and its home. The row name is its species and model id. */
@@ -224,6 +220,14 @@ struct TERVAIN_API FTervainAnimalRow : public FTableRowBase
 	/** How far from home it wanders (cm). */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
 	float RoamRadius = 0.f;
+
+	/** Walking pace (cm/s); the stride is played to match. 0 for an animal that never walks. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
+	float WalkSpeed = 0.f;
+
+	/** Running pace (cm/s); the stride is played to match. 0 for an animal that never walks. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
+	float RunSpeed = 0.f;
 
 	/** It sits in one place and never walks. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")

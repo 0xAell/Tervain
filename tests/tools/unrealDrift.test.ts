@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
-import { ANIMAL_SPEEDS } from '../../src/core/content/animals';
+import { ANIMAL_SENSES } from '../../src/core/content/animals';
 import { ENEMY_ARCHETYPES } from '../../src/core/content/enemies';
 import { ITEMS } from '../../src/core/content/items';
 import { NPCS } from '../../src/core/content/npcs';
@@ -34,7 +34,7 @@ const CORE: Record<string, readonly string[]> = {
   Resident: Object.keys(NPCS),
   EnemyArchetype: Object.keys(ENEMY_ARCHETYPES),
   EnemyPost: ENEMY_SPAWNS.map((spawn) => spawn.id),
-  AnimalSpecies: Object.keys(ANIMAL_SPEEDS),
+  AnimalSpecies: Object.keys(ANIMAL_SENSES),
   Place: Object.keys(PLACES),
   Building: BUILDINGS.map((building) => building.id),
   QuestPhase: PHASE_ORDER,
