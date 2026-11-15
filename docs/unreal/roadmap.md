@@ -106,17 +106,17 @@ Only after Unreal Engine 5.9 is released, not in preview.
 1. Build the compatibility tier for the web target and measure it in Chrome: load time, download size, memory against
    the reported 2 GB ceiling, frame time.
 2. Confirm saving works across reloads.
-3. Decide hosting. GitHub Pages cannot send custom headers and limits a site to 1 GB (see [the web target](web-target.md)).
+3. Decide hosting. The build needs cross-origin isolation headers, which this project judges, untested, that GitHub
+   Pages cannot send, and GitHub limits a site to 1 GB (see [the web target](web-target.md)).
 
 **Holds when:** a build of the whole game runs in Chrome within memory with saved games that persist. If it does not,
 the Three.js build remains the browser version and the Unreal build is desktop only. See [the web target](web-target.md).
 
 ## Later: Unreal Engine 6
 
-Epic's stated plan, as reported in search results of its announcements (see [the web target](web-target.md)), is early
-access at the end of 2027, with gameplay moving to Verse and Actors and Blueprints deprecated in time. Nothing needs
-doing now beyond the habit this repository already has: rules that are small,
-tested and free of engine classes, and data in files.
+Epic's post on its plans could not be read from here; users on Epic's forum report that it moves gameplay programming
+to Verse (see [the web target](web-target.md)). Nothing needs doing now beyond the habit this repository already has:
+rules that are small, tested and free of engine classes, and data in files.
 
 ## Work that can be done in this repository meanwhile
 
