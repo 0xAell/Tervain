@@ -1,4 +1,4 @@
-import { ANIMAL_SPEEDS } from '../content/animals';
+import { ANIMAL_SENSES } from '../content/animals';
 import { ENEMY_ARCHETYPES } from '../content/enemies';
 import { ITEMS } from '../content/items';
 import { NPCS } from '../content/npcs';
@@ -31,7 +31,7 @@ export function unrealIdGroups(): UnrealIdGroup[] {
     { name: 'Resident', table: 'DT_Residents.json', note: 'Named residents, by role. A role id survives a change of display name.', ids: Object.values(NPCS).map((def) => def.id) },
     { name: 'EnemyArchetype', table: 'DT_EnemyArchetypes.json', note: 'Kinds of hostile.', ids: Object.keys(ENEMY_ARCHETYPES) },
     { name: 'EnemyPost', table: 'DT_EnemyPosts.json', note: 'Where hostiles wait: the encounter ids saved games know.', ids: ENEMY_SPAWNS.map((spawn) => spawn.id) },
-    { name: 'AnimalSpecies', table: 'DT_AnimalSpecies.json', note: 'Kinds of animal.', ids: Object.keys(ANIMAL_SPEEDS) },
+    { name: 'AnimalSpecies', table: 'DT_AnimalSpecies.json', note: 'Kinds of animal.', ids: Object.keys(ANIMAL_SENSES) },
     { name: 'Place', table: 'DT_Places.json', note: 'Named places the journal and map know.', ids: Object.keys(PLACES) },
     { name: 'Building', table: 'DT_Buildings.json', note: 'Buildings.', ids: BUILDINGS.map((building) => building.id) },
     { name: 'QuestPhase', note: 'The phases of the Dry Bell quest, in order.', ids: PHASE_ORDER },

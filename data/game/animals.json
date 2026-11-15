@@ -1,5 +1,5 @@
 {
-  "about": "The nineteen animals, each kind’s paces and temperament, their behaviour, and the hunting rules.",
+  "about": "The nineteen animals with their paces, each kind’s senses, temperament and call, how long a gesture lasts, their behaviour, and the hunting rules.",
   "units": "metres, seconds, radians; x east, z south, y up",
   "animals": [
     {
@@ -12,6 +12,8 @@
         "z": 22
       },
       "roam": 19,
+      "walk": 0.417,
+      "run": 1.65,
       "huntId": "tiger",
       "huntSpecies": "tiger",
       "huntable": true,
@@ -37,6 +39,8 @@
         "z": 51
       },
       "roam": 19,
+      "walk": 0.419,
+      "run": 1.691,
       "huntId": "lion",
       "huntSpecies": "lion",
       "huntable": true,
@@ -62,6 +66,8 @@
         "z": -57
       },
       "roam": 17,
+      "walk": 0.52,
+      "run": 1.475,
       "huntId": "bear-a",
       "huntSpecies": "bear",
       "huntable": true,
@@ -87,6 +93,8 @@
         "z": -62
       },
       "roam": 17,
+      "walk": 0.511,
+      "run": 1.452,
       "huntId": "bear-b",
       "huntSpecies": "bear",
       "huntable": true,
@@ -112,6 +120,8 @@
         "z": 5
       },
       "roam": 16,
+      "walk": 0.394,
+      "run": 1.199,
       "huntId": "wolf-a",
       "huntSpecies": "wolf",
       "huntable": true,
@@ -137,6 +147,8 @@
         "z": 37
       },
       "roam": 16,
+      "walk": 0.385,
+      "run": 1.182,
       "huntId": "wolf-b",
       "huntSpecies": "wolf",
       "huntable": true,
@@ -162,6 +174,8 @@
         "z": 25
       },
       "roam": 16,
+      "walk": 0.397,
+      "run": 1.205,
       "huntId": "wolf-c",
       "huntSpecies": "wolf",
       "huntable": true,
@@ -187,6 +201,8 @@
         "z": 37
       },
       "roam": 7,
+      "walk": 0.156,
+      "run": 0.487,
       "huntId": "cat-a",
       "huntSpecies": "cat",
       "huntable": false,
@@ -212,6 +228,8 @@
         "z": 54
       },
       "roam": 0,
+      "walk": 0,
+      "run": 0,
       "seated": true,
       "huntId": "cat-b",
       "huntSpecies": "cat",
@@ -238,6 +256,8 @@
         "z": 27
       },
       "roam": 7,
+      "walk": 0.14,
+      "run": 0.459,
       "huntId": "cat-c",
       "huntSpecies": "cat",
       "huntable": false,
@@ -263,6 +283,8 @@
         "z": 20
       },
       "roam": 9,
+      "walk": 0.334,
+      "run": 1.018,
       "huntId": "dog-a",
       "huntSpecies": "dog",
       "huntable": false,
@@ -288,6 +310,8 @@
         "z": 15
       },
       "roam": 9,
+      "walk": 0.324,
+      "run": 1,
       "huntId": "dog-b",
       "huntSpecies": "dog",
       "huntable": false,
@@ -313,6 +337,8 @@
         "z": -7
       },
       "roam": 13,
+      "walk": 0.371,
+      "run": 1.045,
       "huntId": "boar-b",
       "huntSpecies": "boar",
       "huntable": true,
@@ -339,6 +365,8 @@
         "z": -19
       },
       "roam": 13,
+      "walk": 0.353,
+      "run": 0.996,
       "huntId": "boar-a",
       "huntSpecies": "boar",
       "huntable": true,
@@ -365,6 +393,8 @@
         "z": 55
       },
       "roam": 14,
+      "walk": 0.371,
+      "run": 1.044,
       "huntId": "boar-c",
       "huntSpecies": "boar",
       "huntable": true,
@@ -391,6 +421,8 @@
         "z": 44
       },
       "roam": 12,
+      "walk": 0.634,
+      "run": 2.097,
       "huntId": "stag",
       "huntSpecies": "stag",
       "huntable": true,
@@ -417,6 +449,8 @@
         "z": 30.4
       },
       "roam": 0,
+      "walk": 0.633,
+      "run": 2.092,
       "tame": true,
       "homeYaw": 0,
       "huntId": "deer-mount",
@@ -445,6 +479,8 @@
         "z": 28
       },
       "roam": 16,
+      "walk": 0.622,
+      "run": 0.995,
       "huntId": "deer-a",
       "huntSpecies": "deer",
       "huntable": true,
@@ -471,6 +507,8 @@
         "z": 28
       },
       "roam": 16,
+      "walk": 0.633,
+      "run": 2.092,
       "huntId": "deer-b",
       "huntSpecies": "deer",
       "huntable": true,
@@ -490,69 +528,66 @@
   ],
   "species": {
     "tiger": {
-      "walk": 1.1,
-      "run": 3.8,
       "notice": 13,
       "flee": 6,
       "holdUntil": 0.55,
-      "herd": 0
+      "herd": 0,
+      "callReach": 76
     },
     "lion": {
-      "walk": 1.05,
-      "run": 3.4,
       "notice": 13,
       "flee": 6,
       "holdUntil": 0.55,
-      "herd": 0
+      "herd": 0,
+      "callReach": 82
     },
     "bear": {
-      "walk": 0.8,
-      "run": 2.2,
       "notice": 14,
       "flee": 7,
       "holdUntil": 0.6,
-      "herd": 0
+      "herd": 0,
+      "callReach": 62
     },
     "wolf": {
-      "walk": 1.2,
-      "run": 3.5,
       "notice": 14,
       "flee": 8,
       "holdUntil": 0.65,
-      "herd": 35
+      "herd": 35,
+      "callReach": 75
     },
     "cat": {
-      "walk": 0.55,
-      "run": 1.8,
       "notice": 4.5,
       "flee": 2,
       "holdUntil": 1,
-      "herd": 0
+      "herd": 0,
+      "callReach": 24
     },
     "dog": {
-      "walk": 1,
-      "run": 2.6,
       "notice": 5,
       "flee": 2.8,
       "holdUntil": 1,
-      "herd": 0
+      "herd": 0,
+      "callReach": 46
     },
     "boar": {
-      "walk": 0.75,
-      "run": 2,
       "notice": 12,
       "flee": 6,
       "holdUntil": 1,
-      "herd": 18
+      "herd": 18,
+      "callReach": 44
     },
     "deer": {
-      "walk": 1.15,
-      "run": 3.5,
       "notice": 16,
       "flee": 10,
       "holdUntil": 1,
-      "herd": 24
+      "herd": 24,
+      "callReach": 40
     }
+  },
+  "gestureSeconds": {
+    "Alert": 2,
+    "Call": 4,
+    "Groom": 4
   },
   "behaviour": {
     "firstRest": [

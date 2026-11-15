@@ -11,8 +11,8 @@ import { modelAssetUrl } from './assets/modelUrl';
 import { withModelLoadSlot } from './assets/modelLoadQueue';
 import { downloadAsset } from './assets/download';
 import { matteHide } from './matte';
-import { ANIMAL_AUDIO, ANIMAL_CALL_EVENT, type AnimalCall } from './sound/animalAudio';
-import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
+import { ANIMAL_CALL_EVENT, type AnimalCall } from './sound/animalAudio';
+import { ANIMALS, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
 import { animalNavigationColliders, findAnimalSite, type AnimalSite } from '../core/rules/animalNavigation';
 import { AnimalHunting, type HuntingAnimal } from './animals/hunting/adapter';
 import type { AnimalArrowHit } from './animals/hunting/hit';
@@ -209,8 +209,9 @@ export class AnimalAnimation {
   readonly mixer: THREE.AnimationMixer;
   private actions = new Map<AnimalClip, THREE.AnimationAction>();
   current: AnimalClip = 'Idle';
-  constructor(private scene: THREE.Group, clips: readonly THREE.AnimationClip[], species: AnimalSpecies,
-    private motionSpeeds: MotionSpeeds = { Walk: ANIMAL_SPEEDS[species].walk, Run: ANIMAL_SPEEDS[species].run }) {
+  /** `motionSpeeds` are the ground speeds the model's walk and run were drawn at: a stride is played faster or slower
+   * to match the pace the animal actually moves at, which is the core's. */
+  constructor(private scene: THREE.Group, clips: readonly THREE.AnimationClip[], private motionSpeeds: MotionSpeeds) {
     this.mixer = new THREE.AnimationMixer(scene);
     const bones = new Set<string>(); scene.traverse(object => { if ((object as THREE.Bone).isBone) bones.add(object.name); });
     for (const source of clips) {
@@ -335,7 +336,7 @@ function cloneAnimal(template: GLTF, definition: AnimalDefinition, validated = v
   else retain(fallbackSoles, SOLE_SAMPLES_PER_PAW * 4);
   byMesh.forEach((vertices, mesh) => paws.push({ mesh, vertices }));
   return { scene, bounds: validated.bounds, size: validated.bounds.getSize(new THREE.Vector3()), triangles: validated.triangles,
-    paws, skeletons, animation: new AnimalAnimation(scene, template.animations, definition.species, validated.motionSpeeds) };
+    paws, skeletons, animation: new AnimalAnimation(scene, template.animations, validated.motionSpeeds) };
 }
 
 /** One posable copy of a validated animal with its own skeleton, materials and actions, outside the wildlife module
@@ -449,7 +450,6 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
   // What the animals decide together is the core's; what is seen, shot and heard of them is answered from here.
   const herd = new Wildlife(terrain, colliders, {
     present: mind => hunting.isVisible(mind as AnimalInstance), dead: mind => hunting.isDead(mind as AnimalInstance),
-    callReach: species => ANIMAL_AUDIO.species[species].maxDistance,
   });
   const facingScratch = new THREE.Vector3();
   // Fit every habitat before allocating disposable copies, so a bad placement cannot strand a partial set of GPU resources.
@@ -470,7 +470,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     // The body as the mind needs it: where it stands, how tall it is, its motions, and the way the drawn body faces.
     const mind = new AnimalMind(definition, home, index, {
       position: root.position, height: body.size.y,
-      has: clip => body.animation.has(clip), duration: clip => body.animation.duration(clip), referenceSpeed: clip => body.animation.referenceSpeed(clip),
+      has: clip => body.animation.has(clip),
       transition: clip => body.animation.transition(clip),
       facing: () => { facingScratch.set(0, 0, 1).applyQuaternion(root.quaternion); return Math.atan2(facingScratch.x, facingScratch.z); },
     }, herd);

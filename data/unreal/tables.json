@@ -32,17 +32,9 @@
     {
       "file": "DT_AnimalSpecies.json",
       "rowStruct": "FTervainAnimalSpeciesRow",
-      "note": "How a kind of animal moves and meets the hunter. The row name is the species.",
+      "note": "How a kind of animal meets the hunter and how far it calls. The row name is the species.",
       "rows": 8,
       "members": {
-        "WalkSpeed": {
-          "type": "float",
-          "note": "Walking pace (cm/s)."
-        },
-        "RunSpeed": {
-          "type": "float",
-          "note": "Running pace (cm/s)."
-        },
         "NoticeDistance": {
           "type": "float",
           "note": "It looks up at the hunter within this distance (cm)."
@@ -58,6 +50,10 @@
         "HerdAlarmDistance": {
           "type": "float",
           "note": "An alarm carries to its own kind within this distance (cm); 0 for solitary kinds."
+        },
+        "CallReach": {
+          "type": "float",
+          "note": "It calls only when someone is within this distance, and its call is heard out to it (cm)."
         }
       }
     },
@@ -86,6 +82,14 @@
         "RoamRadius": {
           "type": "float",
           "note": "How far from home it wanders (cm)."
+        },
+        "WalkSpeed": {
+          "type": "float",
+          "note": "Walking pace (cm/s); the stride is played to match. 0 for an animal that never walks."
+        },
+        "RunSpeed": {
+          "type": "float",
+          "note": "Running pace (cm/s); the stride is played to match. 0 for an animal that never walks."
         },
         "bSeated": {
           "type": "bool",

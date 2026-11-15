@@ -1,4 +1,4 @@
-import { ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../content/animals';
+import { ANIMAL_CALL_REACH, ANIMAL_GESTURE_SECONDS, ANIMAL_SENSES, ANIMAL_TEMPERAMENT, type AnimalClip, type AnimalDefinition } from '../content/animals';
 import { WILDLIFE_RETURN_DISTANCE } from '../game/hunting';
 import type { Collider, Colliders } from '../world/colliders';
 import type { V2 } from '../world/layout';
@@ -25,10 +25,6 @@ export interface AnimalBodyFacts {
   readonly height: number;
   /** Whether it has this motion. */
   has(clip: AnimalClip): boolean;
-  /** Seconds this motion runs. */
-  duration(clip: AnimalClip): number;
-  /** The ground speed its walk or run is drawn at (m/s). */
-  referenceSpeed(clip: 'Walk' | 'Run'): number;
   /** It begins another motion. */
   transition(clip: AnimalClip): void;
   /** The way the drawn body faces now (radians): it turns to its heading over a moment, and does not step off before it has. */
@@ -44,8 +40,6 @@ export interface WildlifeFacts {
   present(mind: AnimalMind): boolean;
   /** Shot dead, lying where it fell. */
   dead(mind: AnimalMind): boolean;
-  /** How far a call of this species carries (m). */
-  callReach(species: AnimalSpecies): number;
 }
 
 const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value));
@@ -61,7 +55,6 @@ export class Wildlife {
 
   present(mind: AnimalMind): boolean { return this.facts.present(mind); }
   dead(mind: AnimalMind): boolean { return this.facts.dead(mind); }
-  callReach(species: AnimalSpecies): number { return this.facts.callReach(species); }
 
   /** Everyone an animal walks round: the other animals to be seen, the people, and whoever the focus is. */
   extrasFor(mind: AnimalMind, focus: AnimalPoint): Collider[] {
@@ -235,7 +228,7 @@ export class AnimalMind {
     if (this.alarm) { this.alarm.remaining -= dt; if (this.alarm.remaining <= 0) this.alarm = null; }
     const fleeingFrom: AnimalPoint = this.alarm ? { x: this.alarm.x, y: p.y, z: this.alarm.z } : focus;
     this.stateTime += dt; this.callIn -= dt; this.alertIn = Math.max(0, this.alertIn - dt); this.planIn = Math.max(0, this.planIn - dt);
-    const speeds = ANIMAL_SPEEDS[definition.species];
+    const speeds = ANIMAL_SENSES[definition.species];
     const holding = !definition.tame && !definition.seated && !this.alarm && distance < speeds.flee;
     if (definition.seated) {
       if (distance < speeds.notice && this.alertIn <= 0 && this.state !== 'Alert') { this.enter('Alert'); this.alertIn = BEHAVIOUR.seatedAlert; }
@@ -262,7 +255,8 @@ export class AnimalMind {
         const facing = this.body.facing();
         const facingTurn = Math.atan2(Math.sin(desiredYaw - facing), Math.cos(desiredYaw - facing));
         const turning = Math.abs(turn) > BEHAVIOUR.turnFirst || Math.abs(facingTurn) > BEHAVIOUR.turnFirst;
-        const step = turning ? 0 : Math.min(length, dt * this.body.referenceSpeed(this.state));
+        // Its own pace, whatever the body: whoever draws it plays the stride to match.
+        const step = turning ? 0 : Math.min(length, dt * (this.state === 'Run' ? definition.run : definition.walk));
         const extras = this.herd.extrasFor(this, focus);
         const next = colliders.move(p.x, p.z, dx / Math.max(length, 1e-5) * step, dz / Math.max(length, 1e-5) * step, this.home.radius,
           undefined, { minY: p.y + 0.03, maxY: p.y + this.body.height }, extras);
@@ -280,13 +274,14 @@ export class AnimalMind {
         const yaw = Math.atan2(focus.x - p.x, focus.z - p.z), turn = Math.atan2(Math.sin(yaw - this.yaw), Math.cos(yaw - this.yaw));
         this.yaw += clamp(turn, -dt * BEHAVIOUR.watchTurn, dt * BEHAVIOUR.watchTurn);
       }
-      const gestureDuration = this.state === 'Call' ? Math.max(BEHAVIOUR.callSeconds, this.body.duration('Call')) : this.body.duration(this.state);
-      if (['Call', 'Alert', 'Groom'].includes(this.state) && this.stateTime > gestureDuration + BEHAVIOUR.gestureSlack) {
+      const gesture = this.state === 'Call' || this.state === 'Alert' || this.state === 'Groom' ? this.state : null;
+      const gestureDuration = gesture === 'Call' ? Math.max(BEHAVIOUR.callSeconds, ANIMAL_GESTURE_SECONDS.Call) : gesture ? ANIMAL_GESTURE_SECONDS[gesture] : 0;
+      if (gesture && this.stateTime > gestureDuration + BEHAVIOUR.gestureSlack) {
         // Still alarmed with nowhere to run, it stays on watch rather than grazing beside the hunter (A96 scout).
         if (holding || this.alarm && !definition.tame) { this.stateTime = 0; this.enter('Alert'); } else this.settle();
       }
       this.rest -= dt;
-      if (this.callIn <= 0 && distance < this.herd.callReach(definition.species) && distance > speeds.flee + BEHAVIOUR.callClearance && ['Idle', 'Graze'].includes(this.state)) {
+      if (this.callIn <= 0 && distance < ANIMAL_CALL_REACH[definition.species] && distance > speeds.flee + BEHAVIOUR.callClearance && ['Idle', 'Graze'].includes(this.state)) {
         // Not in its sleep (A96 scout: the cat woke to call whenever its timer ran out at night).
         this.enter('Call'); this.callIn = BEHAVIOUR.call[0] + this.rng() * BEHAVIOUR.call[1];
       } else if (this.rest <= 0 && ['Idle', 'Graze', 'Sleep'].includes(this.state)) {

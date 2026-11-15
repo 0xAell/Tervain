@@ -93,7 +93,7 @@ describe('peaceful animated land wildlife', () => {
   });
 
   it('drives gait phase by actual resolved speed and crossfades real bone actions', () => {
-    const source = animalFixture(), controller = new AnimalAnimation(source.scene, source.animations, 'dog');
+    const source = animalFixture(), controller = new AnimalAnimation(source.scene, source.animations, { Walk: 1, Run: 2.6 });
     controller.transition('Walk'); controller.update(0.4, 1);
     const head = source.scene.getObjectByName('head')!, walked = head.quaternion.clone(); expect(Math.abs(walked.y)).toBeGreaterThan(0.02);
     controller.update(0.4, 0); expect(head.quaternion.angleTo(walked)).toBeCloseTo(0);
@@ -103,7 +103,7 @@ describe('peaceful animated land wildlife', () => {
   });
 
   it('plays the stride backwards when backing up, and counts its hoofbeats either way (A75)', () => {
-    const source = animalFixture(), controller = new AnimalAnimation(source.scene, source.animations, 'dog');
+    const source = animalFixture(), controller = new AnimalAnimation(source.scene, source.animations, { Walk: 1, Run: 2.6 });
     controller.transition('Walk'); controller.update(0.5, 1);
     const forward = controller.gaitPhase()!;
     controller.update(0.2, -1);
@@ -230,8 +230,9 @@ describe('peaceful animated land wildlife', () => {
     // At the eastern edge of its range, the hunter closing in from the home side.
     root.position.set(home.x + boar.roam * 0.92, 0, home.z);
     const hunter = new THREE.Vector3(home.x + boar.roam * 0.92 - 2.5, 0, home.z), input = frame(hunter);
+    // Four seconds at the boar's own pace, which is the core's, not the fixture model's.
     const states = new Set<string>();
-    for (let k = 0; k < 120; k++) { module.update(1 / 60, input); states.add(module.snapshot()[0]!.state); }
+    for (let k = 0; k < 240; k++) { module.update(1 / 60, input); states.add(module.snapshot()[0]!.state); }
     expect(states.has('Run')).toBe(true);
     const end = module.snapshot()[0]!;
     expect(Math.hypot(end.x - hunter.x, end.z - hunter.z)).toBeGreaterThan(2.5);
