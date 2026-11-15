@@ -4,7 +4,7 @@ import { ENEMY_ARCHETYPES } from '../../../src/core/content/enemies';
 import { createInitialState } from '../../../src/core/game/state';
 import { HostileActor, lerpAngle, type HostileContext, type HostileMode, type HostileState } from '../../../src/core/rules/hostileActor';
 import {
-  finishNpcPath, NPC_ALARM_REACH, NPC_WALK_SPEED, npcGoalPosition, ResidentWalker, turnToward, type NpcPlace, type ResidentContext, type ResidentMode, type ResidentStep,
+  fightingFoes, finishNpcPath, NPC_ALARM_REACH, NPC_WALK_SPEED, npcGoalPosition, ResidentWalker, turnToward, type NpcPlace, type ResidentContext, type ResidentMode, type ResidentStep,
 } from '../../../src/core/rules/residentWalk';
 import { RESIDENT } from '../../../src/core/rules/resident';
 import { resolveGoal } from '../../../src/core/rules/schedule';
@@ -189,5 +189,15 @@ describe('a hostile’s fight, on the core alone', () => {
     expect(lerpAngle(0, 1, 0.5)).toBeCloseTo(0.5, 12);
     expect(lerpAngle(3, -3, 0.5)).toBeCloseTo(3 + (2 * Math.PI - 6) / 2, 9);
     expect(lerpAngle(1, 1, 0.3)).toBe(1);
+  });
+});
+
+describe('a fight that wakes sleepers', () => {
+  it('is wherever a living hostile has engaged someone', () => {
+    expect(fightingFoes([
+      { alive: true, engaged: true, x: 1, z: 2 }, { alive: true, engaged: false, x: 3, z: 4 },
+      { alive: false, engaged: true, x: 5, z: 6 }, { alive: true, engaged: true, x: 7, z: 8 },
+    ])).toEqual([{ x: 1, z: 2 }, { x: 7, z: 8 }]);
+    expect(fightingFoes([])).toEqual([]);
   });
 });

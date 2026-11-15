@@ -57,6 +57,13 @@ export interface ResidentStep {
 }
 
 export const NPC_WALK_SPEED = RESIDENT.walkSpeed;
+
+/** Where a fight is going on: at every living hostile that has engaged someone. Sleepers near one wake (`alarms`). */
+export function fightingFoes(foes: Iterable<{ alive: boolean; engaged: boolean; x: number; z: number }>): { x: number; z: number }[] {
+  const at: { x: number; z: number }[] = [];
+  for (const foe of foes) if (foe.alive && foe.engaged) at.push({ x: foe.x, z: foe.z });
+  return at;
+}
 const NPC_RADIUS = RESIDENT.radius;
 const NPC_ACCELERATION = RESIDENT.acceleration;
 const NPC_BRAKING = RESIDENT.braking;

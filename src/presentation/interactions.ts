@@ -2,6 +2,7 @@ import type { App } from '../app';
 import { doorwayAhead, DEER_BODY } from '../core/rules/riding';
 import type { Interactable } from '../core/rules/interaction';
 import { fixedPlace, interactableTable, type InteractableAct, type InteractableNeed, type InteractablePlace } from '../core/rules/interactables';
+import { mayMount } from '../core/rules/session';
 import { worldPickupTargetY } from './worldPickups';
 
 export type { Interactable };
@@ -30,7 +31,8 @@ export function buildInteractables(app: App): Interactable[] {
     const p = app.player;
     switch (need) {
       case 'no_threat_near': return app.noThreatNear();
-      case 'can_mount': return !p.mount && !p.mountMove && p.alive && !p.swimming && at.at === 'mount' && !!app.world.animals?.mount(at.mount);
+      // Offered only while he plays; who may mount is the core's.
+      case 'can_mount': return mayMount({ playing: true, riding: !!p.mount, mounting: !!p.mountMove, alive: p.alive, swimming: p.swimming }) && at.at === 'mount' && !!app.world.animals?.mount(at.mount);
       case 'riding': return !!p.mount;
       case 'riding_at_doorway': return !!p.mount && !p.mountMove && doorwayAhead(p.x + Math.sin(p.yaw) * DEER_BODY.front, p.z + Math.cos(p.yaw) * DEER_BODY.front) !== null;
       case 'resident_in_sight': return at.at === 'resident' && !app.npcs.find((actor) => actor.id === at.npc)!.hidden;
@@ -42,7 +44,7 @@ export function buildInteractables(app: App): Interactable[] {
       case 'hunting_notes': return app.openHuntingNotes();
       case 'restock_arrows': return app.restockArrows();
       case 'sell_game_meat': return app.sellGameMeat();
-      case 'mount': return app.mountDeer();
+      case 'mount': return app.mountDeer(act.mount);
       case 'dismount': return app.dismount();
       case 'observe': return app.observeNpc(app.npcs.find((actor) => actor.id === act.npc)!);
       case 'inspect': return app.inspect(act.point);

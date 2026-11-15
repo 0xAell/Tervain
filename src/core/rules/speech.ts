@@ -379,6 +379,14 @@ export const SCENE_CHECK_SECONDS = 0.5;
 
 /** A passing remark's words stay above the speaker's head at least this long (ms), and this long after the voice ends. */
 export const BUBBLE = { leastMs: 3600, tailMs: 800 } as const;
+
+/**
+ * What a witness to the forced shutter calls out, so the player knows he was seen: the shrine's warden shouts a voiced
+ * line; anyone else only shows the waterkeeper's cry in a bubble, unvoiced.
+ */
+export function trespassOutcry(witness: NpcId): { voiced: true; line: 'tolan.bark.hey' } | { voiced: false; text: 'toast.warden.hey' } {
+  return witness === 'shrine_warden' ? { voiced: true, line: 'tolan.bark.hey' } : { voiced: false, text: 'toast.warden.hey' };
+}
 export function bubbleMs(seconds: number): number {
   return Math.max(BUBBLE.leastMs, seconds * 1000 + BUBBLE.tailMs);
 }

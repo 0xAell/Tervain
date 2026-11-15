@@ -4,7 +4,7 @@ import { AMBIENT_RESIDENTS, type AmbientResident } from '../core/content/ambient
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { createAmbientRig, poseRig, type AmbientStyle, type Look, type Mode, type Rig } from './characters';
 import type { AwaitingFigure } from './residentArrivals';
-import { NIGHT } from '../core/rules/dayNight';
+import { goneInForTheNight } from '../core/rules/dayNight';
 
 /**
  * Silent residents of the inland hamlet. Their positions follow the relocated buildings and hearth;
@@ -113,7 +113,7 @@ export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { peopl
       // still consume the same elapsed time, with bounded steps through gesture transitions.
       const elapsed = Math.min(dt, 0.25);
       people.forEach((p, i) => {
-        p.rig.root.visible = !(p.spec.sleeps && f.nightness > NIGHT.sleepers);
+        p.rig.root.visible = !goneInForTheNight(!!p.spec.sleeps, f.nightness);
         // A person going to bed is no wall for routes: no navigation rebuild at dusk and dawn (A70).
         colliders.setActive(`ambient:${i}`, p.rig.root.visible && p.arrived, false);
         if (!p.rig.root.visible) { p.t += elapsed; return; }

@@ -70,7 +70,10 @@ import { setHighLodBands, setHighLodSpecies } from './presentation/floraPopulati
 import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
 import { handsForCargo, keepsHold } from './core/rules/cargo';
-import { BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, woundedNow } from './core/rules/speech';
+import { BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, trespassOutcry, woundedNow } from './core/rules/speech';
+import { fightingFoes } from './core/rules/residentWalk';
+import { RESIDENT } from './core/rules/resident';
+import { MOUNT_ID } from './core/rules/interactables';
 import { AUTOSAVE_SECONDS, bellGain, bellWait, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH } from './core/rules/journey';
 import {
   archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
@@ -122,7 +125,8 @@ export class App {
   private treeTemplates: MeshyTreeTemplates | undefined;
   /** The stag that grazes across the title meadow: the same template the wildlife uses later, loaded once. */
   private menuDeer: { template: GLTF; definition: AnimalDefinition } | undefined;
-  private static readonly MENU_DEER_ID = '1005232412';
+  /** The title's stag is the saddled deer's model. */
+  private static readonly MENU_DEER_ID = MOUNT_ID;
   private npcAssets: MeshyNpcCatalog | null = null;
   /** The residents' catalog on its way: only the near ones' models before the world opens (stage 2). */
   private npcAssetsLoad: Promise<void> | null = null;
@@ -1827,16 +1831,14 @@ export class App {
     this.panels.push(huntingPanel(this.panelCtx()), { narrow: true });
   }
 
-  /** The saddled deer, the one animal that can be ridden (A70). */
-  static readonly MOUNT_ID = '1005232412';
-
-  mountDeer() {
+  /** Go to the side of the deer the table of interactables names, the saddled one (A70), and swing up. */
+  mountDeer(id: string = MOUNT_ID) {
     if (!mayMount({ playing: this.mode === 'play' && this.overlay === 'none' && !this.worldPaused, riding: !!this.player.mount, mounting: !!this.player.mountMove,
-      alive: this.player.alive })) return;
-    const at = this.world.animals?.mount(App.MOUNT_ID);
+      alive: this.player.alive, swimming: this.player.swimming })) return;
+    const at = this.world.animals?.mount(id);
     if (!at) return;
     // He walks to the deer's side and swings up (A71); the deer is held still meanwhile.
-    if (this.player.beginMount(App.MOUNT_ID, at.seat, at, { colliders: this.world.colliders })) this.audio.pickup();
+    if (this.player.beginMount(id, at.seat, at, { colliders: this.world.colliders })) this.audio.pickup();
   }
 
   /** Step down beside the deer (A71); where that cannot be done he is put down at once. */
@@ -2065,8 +2067,11 @@ export class App {
     this.world.syncStatic(this.game.state, false);
     // A witness cue the player can act on: the observer calls out.
     const w = this.npcs.find((n) => seenBy.includes(n.id));
-    if (w?.id === 'shrine_warden') this.bark(w, 'tolan.bark.hey');
-    else if (w) this.bubbleState.set(w.id, { text: S('toast.warden.hey'), until: performance.now() + BUBBLE.leastMs });
+    if (w) {
+      const outcry = trespassOutcry(w.id);
+      if (outcry.voiced) this.bark(w, outcry.line);
+      else this.bubbleState.set(w.id, { text: S(outcry.text), until: performance.now() + BUBBLE.leastMs });
+    }
   }
 
   readLedger() {
@@ -2365,8 +2370,8 @@ export class App {
       player: { x: this.player.x, z: this.player.z, y: this.player.y },
       reducedMotion: this.settings.reducedMotion,
       onBark: (a, text) => this.mode === 'play' && this.settings.barks && this.bark(a, text),
-      // A fight wakes the sleepers near it (A70).
-      alarms: this.enemies.filter(en => en.alive && en.engaged).map(en => ({ x: en.x, z: en.z })),
+      // A fight wakes the sleepers near it (A70); what counts as one is the core's.
+      alarms: fightingFoes(this.enemies),
     };
   }
 
@@ -2395,7 +2400,7 @@ export class App {
   private residentContact(n: NpcActor): CircleCollider {
     let contact = this.residentContactRecords.get(n);
     if (!contact) {
-      contact = { id: `person:${n.id}`, kind: 'circle', x: n.x, z: n.z, r: .35, active: false };
+      contact = { id: `person:${n.id}`, kind: 'circle', x: n.x, z: n.z, r: RESIDENT.radius, active: false };
       this.residentContactRecords.set(n, contact);
     }
     contact.x = n.x; contact.z = n.z;
