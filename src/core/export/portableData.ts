@@ -30,6 +30,7 @@ import { BEDS, emitterRuleTable, INN, MILL_SOUND, QUARRY_SOUND } from '../rules/
 import { BOW } from '../rules/bow';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../rules/camera';
 import { NIGHT, nightness, SUNRISE_HOUR, SUNSET_HOUR } from '../rules/dayNight';
+import { moonDirection, SKY_KEYS, SKY_LIGHT, sunDirection } from '../rules/sky';
 import { DOORS } from '../rules/doors';
 import {
   ACTION_COST, ACTION_SECONDS, BLADE, DODGE, ENGAGED_REACH, FIRM_FOOTING_SLOPE, FISTS, GRAVITY, GROUND_FOLLOW_DROP, GUARD, HIT_AT, JUMP_SPEED,
@@ -215,6 +216,9 @@ function game(): PortableDocument[] {
   ];
 }
 
+/** A colour as the documents write it. */
+const colour = (value: number) => `#${value.toString(16).padStart(6, '0')}`;
+
 function world(terrain: Terrain): PortableDocument[] {
   const height = (p: { x: number; z: number }) => terrain.heightAt(p.x, p.z);
   const grounded = <T extends { x: number; z: number }>(p: T) => ({ ...p, y: height(p) });
@@ -267,6 +271,15 @@ function world(terrain: Terrain): PortableDocument[] {
       data: {
         count,
         trees: trees.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, age: tree.age ?? null, stand: tree.standId ?? null })),
+      },
+    },
+    {
+      path: 'world/sky.json',
+      about: 'The sky through the day: the colours of the air, of the sun’s light, of the fill from sky and ground and of the haze at keyed hours (sRGB, #rrggbb), with the sun’s and the fill’s strength and the cloud coverage; the balance of the light; and where the sun and the moon stand at every half hour (unit directions). A renderer blends linearly between the two keys an hour lies between. The sun’s arc, daylight and nightness by the hour are rules in core/rules/dayNight.ts and core/rules/sky.ts.',
+      data: {
+        keys: SKY_KEYS.map((key) => ({ hour: key.h, top: colour(key.top), horizon: colour(key.horizon), sun: colour(key.sun), sunStrength: key.sunI, fillSky: colour(key.hemiSky), fillGround: colour(key.hemiGround), fillStrength: key.hemiI, haze: colour(key.fog), cloudCover: key.cover })),
+        light: { ...SKY_LIGHT, moon: colour(SKY_LIGHT.moon) },
+        byHalfHour: Array.from({ length: 48 }, (_, index) => ({ hour: index / 2, sun: sunDirection(index / 2), moon: moonDirection(index / 2), nightness: nightness(index / 2) })),
       },
     },
     {

@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/sky.schema.json",
+  "title": "world/sky.json",
+  "description": "The sky through the day: the colours of the air, of the sun’s light, of the fill from sky and ground and of the haze at keyed hours (sRGB, #rrggbb), with the sun’s and the fill’s strength and the cloud coverage; the balance of the light; and where the sun and the moon stand at every half hour (unit directions). A renderer blends linearly between the two keys an hour lies between. The sun’s arc, daylight and nightness by the hour are rules in core/rules/dayNight.ts and core/rules/sky.ts.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "keys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hour": {
+            "type": "number"
+          },
+          "top": {
+            "type": "string"
+          },
+          "horizon": {
+            "type": "string"
+          },
+          "sun": {
+            "type": "string"
+          },
+          "sunStrength": {
+            "type": "number"
+          },
+          "fillSky": {
+            "type": "string"
+          },
+          "fillGround": {
+            "type": "string"
+          },
+          "fillStrength": {
+            "type": "number"
+          },
+          "haze": {
+            "type": "string"
+          },
+          "cloudCover": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "hour",
+          "top",
+          "horizon",
+          "sun",
+          "sunStrength",
+          "fillSky",
+          "fillGround",
+          "fillStrength",
+          "haze",
+          "cloudCover"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "light": {
+      "type": "object",
+      "properties": {
+        "dayFillLift": {
+          "type": "number"
+        },
+        "daySunScale": {
+          "type": "number"
+        },
+        "lowSunShadow": {
+          "type": "number"
+        },
+        "shadowFadeFrom": {
+          "type": "number"
+        },
+        "shadowFadeOver": {
+          "type": "number"
+        },
+        "lowSunFrom": {
+          "type": "number"
+        },
+        "lowSunTo": {
+          "type": "number"
+        },
+        "moon": {
+          "type": "string"
+        },
+        "moonStrength": {
+          "type": "number"
+        },
+        "fogDensity": {
+          "type": "number"
+        },
+        "fogNightThicken": {
+          "type": "number"
+        },
+        "fogDuskDim": {
+          "type": "number"
+        },
+        "fillWithSkyImage": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "dayFillLift",
+        "daySunScale",
+        "lowSunShadow",
+        "shadowFadeFrom",
+        "shadowFadeOver",
+        "lowSunFrom",
+        "lowSunTo",
+        "moon",
+        "moonStrength",
+        "fogDensity",
+        "fogNightThicken",
+        "fogDuskDim",
+        "fillWithSkyImage"
+      ],
+      "additionalProperties": false
+    },
+    "byHalfHour": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hour": {
+            "type": "number"
+          },
+          "sun": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "additionalProperties": false
+          },
+          "moon": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "additionalProperties": false
+          },
+          "nightness": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "hour",
+          "sun",
+          "moon",
+          "nightness"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "keys",
+    "light",
+    "byHalfHour"
+  ],
+  "additionalProperties": false
+}

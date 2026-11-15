@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mulberry32, smoothstep } from '../core/world/noise';
-import { daylight, nightness, sunArcAngle } from '../core/rules/dayNight';
+import { daylight, nightness } from '../core/rules/dayNight';
+import { moonDirection, SKY_LIGHT, skyKeysAt, sunDirection } from '../core/rules/sky';
 import { SHADER_CLOCK_WRAP } from './grass/wind';
 import { sharedNoise } from './noiseTextures';
 import { RENDER_PX, SKY } from './skyState';
@@ -16,37 +17,6 @@ installSoftSunShadows();
  * cloud. Everything the rest of the scene needs to match the sky (colours, sun and moon directions, night) is
  * written to the shared `SKY` uniforms every frame.
  */
-
-interface Key {
-  h: number;
-  top: number;
-  horizon: number;
-  sun: number;
-  sunI: number;
-  hemiSky: number;
-  hemiGround: number;
-  hemiI: number;
-  fog: number;
-  /** Cloud coverage 0..1. */
-  cover: number;
-}
-
-const KEYS: Key[] = [
-  // A slate-blue diffuse floor keeps the route, roots and dark cloth readable
-  // under crowns without replacing the night sky or introducing artificial lamps.
-  { h: 0, top: 0x070b16, horizon: 0x141b2a, sun: 0x8fa0c8, sunI: 0.0, hemiSky: 0x9aafc8, hemiGround: 0x66758a, hemiI: 1.02, fog: 0x141b2a, cover: 0.55 },
-  { h: 5.2, top: 0x1a2236, horizon: 0x5c5560, sun: 0xd89a68, sunI: 0.1, hemiSky: 0x8e9db5, hemiGround: 0x5d697d, hemiI: 0.9, fog: 0x5c5560, cover: 0.6 },
-  { h: 6.5, top: 0x4f6f96, horizon: 0xc8a682, sun: 0xf0b078, sunI: 1.0, hemiSky: 0x8298b0, hemiGround: 0x4a4230, hemiI: 0.72, fog: 0xb8a58c, cover: 0.62 },
-  // Pale blue air and warm mineral light separate roof/earth masses from cooler
-  // shadow. This is a daylight material relationship, not a sepia or dark filter.
-  { h: 9, top: 0x7794a8, horizon: 0xc1c6c2, sun: 0xffe6c4, sunI: 2.5, hemiSky: 0x8fa8bd, hemiGround: 0x4c4738, hemiI: 0.65, fog: 0xb5bfc0, cover: 0.52 },
-  { h: 13, top: 0x718ea4, horizon: 0xbec8c6, sun: 0xffe9c8, sunI: 2.75, hemiSky: 0x8da8c1, hemiGround: 0x4c4838, hemiI: 0.67, fog: 0xb2bfc3, cover: 0.5 },
-  { h: 17, top: 0x506f98, horizon: 0xc0b49d, sun: 0xffd19a, sunI: 2.3, hemiSky: 0x8b9fb9, hemiGround: 0x494031, hemiI: 0.64, fog: 0xacae9f, cover: 0.59 },
-  { h: 18.8, top: 0x3d4a6c, horizon: 0xd08a5a, sun: 0xff8f52, sunI: 0.9, hemiSky: 0x7a7a94, hemiGround: 0x3e2e28, hemiI: 0.62, fog: 0xb8825e, cover: 0.66 },
-  { h: 20.2, top: 0x161f3a, horizon: 0x5f4a5a, sun: 0xd0784c, sunI: 0.1, hemiSky: 0x8e9db5, hemiGround: 0x5d697d, hemiI: 0.9, fog: 0x4c4152, cover: 0.6 },
-  { h: 22, top: 0x080d1c, horizon: 0x151c2e, sun: 0x8fa0c8, sunI: 0.0, hemiSky: 0x9aafc8, hemiGround: 0x66758a, hemiI: 1.02, fog: 0x151c2e, cover: 0.56 },
-  { h: 24, top: 0x070b16, horizon: 0x141b2a, sun: 0x8fa0c8, sunI: 0.0, hemiSky: 0x9aafc8, hemiGround: 0x66758a, hemiI: 1.02, fog: 0x141b2a, cover: 0.55 },
-];
 
 const ca = new THREE.Color();
 const cb = new THREE.Color();
@@ -236,15 +206,10 @@ void main() {
 /** How far the sun moves before its shadow follows (radians), A71. */
 const SHADOW_DIR_STEP = 0.003;
 
-/**
- * Daylight sky fill in shade (A137): the sky's share of the light grows by day so ground in a house's or a crown's shadow
- * keeps about two fifths of the sunlit ground's brightness, lit blue by the sky, instead of falling near black. The sun
- * gives back a little so the sunlit side keeps its exposure and the shadow keeps its shape.
- */
-export const DAY_FILL_LIFT = 3.5;
-export const DAY_SUN_SCALE = 0.88;
-/** How much of the sun a shadow still holds when the sun is low (long shadows lit by a wide bright sky), A137. */
-export const LOW_SUN_SHADOW = 0.78;
+/** The balance of the light is the core's (SKY_LIGHT); these are its names here. */
+export const DAY_FILL_LIFT = SKY_LIGHT.dayFillLift;
+export const DAY_SUN_SCALE = SKY_LIGHT.daySunScale;
+export const LOW_SUN_SHADOW = SKY_LIGHT.lowSunShadow;
 
 const SNAP_ACROSS = new THREE.Vector3(), SNAP_ALONG = new THREE.Vector3();
 
@@ -353,11 +318,8 @@ export class SkyRig {
 
   /** hour is 0..24. focus is where the shadow frustum is centred. */
   update(hour: number, focus: THREE.Vector3, dt: number, reducedMotion: boolean) {
-    let i = 0;
-    while (i < KEYS.length - 2 && hour >= KEYS[i + 1]!.h) i++;
-    const a = KEYS[i]!;
-    const b = KEYS[i + 1]!;
-    const t = (hour - a.h) / (b.h - a.h);
+    // Which colours, where the sun and moon stand and how the light is balanced are the core's (core/rules/sky.ts).
+    const { a, b, t } = skyKeysAt(hour);
     const top = lerpHex(SKY.top.value, a.top, b.top, t);
     lerpHex(SKY.sunColor.value, a.sun, b.sun, t);
     const sunI = a.sunI + (b.sunI - a.sunI) * t;
@@ -365,28 +327,16 @@ export class SkyRig {
     SKY.cover.value = a.cover + (b.cover - a.cover) * t;
     this.state.top.copy(top);
 
-    // Sun arc: rises east-ish at 6, sets at 19.
     const day = daylight(hour);
-    // By night it goes on round below the horizon, from 19:00 back to 06:00, so the day wraps without a jump (A89 scout:
-    // the arc, not periodic, turned the sun 66 degrees at midnight, and the night clouds' lit side with it).
-    const ang = sunArcAngle(hour);
-    const sunDir = this.state.sunDir.set(Math.cos(ang) * 0.95, Math.max(0.02, Math.sin(ang)) * 0.9 + 0.08, -0.32).normalize();
-    // Low beyond the day's ends, eased in over a few minutes either side rather than switched (A70): a jump at 06:00
-    // and 19:00 stretched the shadows 2.5 times in one frame and lost the disc.
-    const low = Math.max(1 - smoothstep(5.6, 6.0, hour), smoothstep(19.0, 19.4, hour));
-    if (low > 0) sunDir.y = Math.max(0.03, sunDir.y * (1 - 0.6 * low));
-    sunDir.normalize();
+    const sunAt = sunDirection(hour);
+    const sunDir = this.state.sunDir.set(sunAt.x, sunAt.y, sunAt.z);
     SKY.sunDir.value.copy(sunDir);
     this.state.nightness = nightness(hour);
     const nightAmt = this.state.nightness;
     SKY.night.value = nightAmt;
 
-    // The moon crosses the sky between 18:00 and 06:00 on the opposite side of the sun's arc.
-    const mh = (hour + 6) % 24; // 0 at 18:00, 12 at 06:00
-    const mAng = (mh / 12) * Math.PI;
-    // Its lift fades out at the arc's ends, so it sets and rises without a flip (A70).
-    const lift = 0.1 * Math.min(1, Math.sin(Math.min(Math.PI, Math.max(0, mAng))) * 4);
-    const moonDir = this.state.moonDir.set(Math.cos(mAng) * 0.9, Math.sin(mAng) * 0.78 + lift, 0.34).normalize();
+    const moonAt = moonDirection(hour);
+    const moonDir = this.state.moonDir.set(moonAt.x, moonAt.y, moonAt.z);
     SKY.moonDir.value.copy(moonDir);
 
     const br = this.brightness;
@@ -411,16 +361,16 @@ export class SkyRig {
     // The sun keeps casting after dusk: switching it off changed the number of shadowed lights, and every shaded
     // material was compiled again at dusk and dawn, a stall of seconds. Its shadow fades out instead, and the shadow map
     // is not drawn while it casts nothing.
-    const shadow = clampNum((sunI - 0.12) / 0.06, 0, 1);
-    this.sun.shadow.intensity = shadow * (LOW_SUN_SHADOW + (1 - LOW_SUN_SHADOW) * smoothstep(0.12, 0.4, sunDir.y));
+    const shadow = clampNum((sunI - SKY_LIGHT.shadowFadeFrom) / SKY_LIGHT.shadowFadeOver, 0, 1);
+    this.sun.shadow.intensity = shadow * (LOW_SUN_SHADOW + (1 - LOW_SUN_SHADOW) * smoothstep(SKY_LIGHT.lowSunFrom, SKY_LIGHT.lowSunTo, sunDir.y));
     this.sun.shadow.autoUpdate = shadow > 0;
     // A cold night load still has shadow receivers. Create their comparison texture
     // once before pausing updates; an uninitialized shadow map rejects their draws.
     if (this.sun.shadow.map === null) this.sun.shadow.needsUpdate = true;
 
-    this.moon.color.setHex(0x9ab0e8);
+    this.moon.color.setHex(SKY_LIGHT.moon);
     const moonUp = clampNum(moonDir.y * 4, 0, 1);
-    this.moon.intensity = 0.5 * nightAmt * br * moonUp;
+    this.moon.intensity = SKY_LIGHT.moonStrength * nightAmt * br * moonUp;
     this.moon.position.copy(focus).addScaledVector(moonDir, 120);
     this.moon.target.position.copy(focus);
 
@@ -430,7 +380,7 @@ export class SkyRig {
     SKY.brightness.value = br;
     const hemiI = (a.hemiI + (b.hemiI - a.hemiI) * t) * (0.85 + 0.35 * br) * (1 + (br - 1) * nightAmt * 0.8);
     // The generated environment map supplies part of the sky fill once it is running.
-    const target = SKY.ibl.value > 0.5 ? 0.78 : 1;
+    const target = SKY.ibl.value > 0.5 ? SKY_LIGHT.fillWithSkyImage : 1;
     this.hemiScale += (target - this.hemiScale) * (1 - Math.exp(-dt * 3));
     this.hemi.intensity = hemiI * this.hemiScale * (1 + DAY_FILL_LIFT * day * (1 - nightAmt));
     SKY.ambient.value.copy(this.hemi.color).multiplyScalar(hemiI * 0.6 + 0.05);
@@ -443,7 +393,7 @@ export class SkyRig {
     // Cool distance separates warm ground, shaded woodland and the far ridge without shortening the draw window.
     // Keep nearby materials legible; exponential haze grows gradually rather than introducing a visibility cutoff.
     // Night thickens it only a little: doubling it hid the woods beyond 300 m at dusk.
-    this.fog.density = 0.0019 + FOG_NIGHT_THICKEN * nightAmt;
+    this.fog.density = SKY_LIGHT.fogDensity + FOG_NIGHT_THICKEN * nightAmt;
     SKY.horizon.value.copy(this.tmp);
     this.state.horizon.copy(this.tmp);
 
@@ -461,6 +411,6 @@ export class SkyRig {
   }
 }
 
-export const FOG_DUSK_DIM = 0.35;
-export const FOG_NIGHT_THICKEN = 0.0006;
+export const FOG_DUSK_DIM = SKY_LIGHT.fogDuskDim;
+export const FOG_NIGHT_THICKEN = SKY_LIGHT.fogNightThicken;
 const clampNum = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
