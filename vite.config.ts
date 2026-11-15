@@ -38,6 +38,13 @@ function buildStamp() {
 }
 
 /** The tests of the separate Gothic 3 study: a project of their own, outside the game's and the seed's checks. */
+/**
+ * How long one of the game's tests may run before it fails as a timeout (ms), wherever it runs. A dozen scene tests
+ * build rigs, trees and terrain and take two to six seconds on an idle machine. Under vitest's own default of five
+ * seconds they failed as timeouts on a busy machine while CI, which gave them ninety, passed them: the hero's
+ * quarter turn among them (docs/decisions.md, 15 November 2026). Local runs and CI now read this one number.
+ */
+export const GAME_TEST_TIMEOUT = 90_000;
 export const GOTHIC3_STUDY_TESTS = ['tests/gothic3*/**/*.test.ts', 'tests/gothic3*.test.ts'];
 
 // The site is served from https://ael-dev3.github.io/Tervain/ so assets need a repo-relative base.
@@ -78,7 +85,7 @@ export default defineConfig(({ command, mode }) => {
       // Gothic 3 study's. `vitest run --project game` never loads the study, and the study's tests never load the game
       // (tests/tooling/gothic3Study.test.ts holds both to that).
       projects: [
-        { extends: true, test: { name: 'game', include: ['tests/**/*.test.ts'], exclude: GOTHIC3_STUDY_TESTS, setupFiles: ['tests/setup/downloads.ts'] } },
+        { extends: true, test: { name: 'game', include: ['tests/**/*.test.ts'], exclude: GOTHIC3_STUDY_TESTS, setupFiles: ['tests/setup/downloads.ts'], testTimeout: GAME_TEST_TIMEOUT } },
         { extends: true, test: { name: 'gothic3', include: GOTHIC3_STUDY_TESTS } },
       ],
     },

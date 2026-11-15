@@ -79,6 +79,19 @@ describe('turning on the spot with turn clips (A71)', () => {
       }
       return rig;
     };
+    // Where a standing hero's feet are, at each rate: the turn must end with them back there. It does not depend on
+    // how fast he turned, so it is posed once a rate rather than once a turn.
+    const standing = new Map<number, THREE.Vector3[]>();
+    const standAt = (hz: number) => {
+      let feetLocal = standing.get(hz);
+      if (!feetLocal) {
+        const still = createHeroRig(asset);
+        for (let i = 0; i < 3.5 * hz; i++) still.hero.pose(heroPose(), 1 / hz, false);
+        feetLocal = feetOf(still)().map((foot) => still.root.worldToLocal(foot.clone()));
+        standing.set(hz, feetLocal);
+      }
+      return feetLocal;
+    };
     for (const hz of RATES) for (const seconds of [0.15, 0.5, 1.2]) {
       const rig = hero(), feet = feetOf(rig), spin = new Spin(bonesOf(rig.root), hz);
       if (seconds === 0.5) spins[hz] = spin;
@@ -104,11 +117,9 @@ describe('turning on the spot with turn clips (A71)', () => {
       expect(Math.abs(Reflect.get(rig.hero, 'legYaw') as number)).toBeLessThan(1e-3);
       const bones = bindHeroBones(rig.root);
       expect(Math.abs(wrap(yawOf(bones['mixamorig:Hips'].getWorldQuaternion(new THREE.Quaternion())) - Math.PI / 2))).toBeLessThan(0.05);
-      const still = createHeroRig(asset);
-      for (let i = 0; i < 3.5 * hz; i++) still.hero.pose(heroPose(), 1 / hz, false);
-      const stand = feetOf(still)(), now = feet();
+      const stand = standAt(hz), now = feet();
       for (let side = 0; side < 2; side++) {
-        expect(rig.root.worldToLocal(now[side]!.clone()).distanceTo(still.root.worldToLocal(stand[side]!.clone())), `${hz} Hz ${seconds} s home`).toBeLessThan(0.02);
+        expect(rig.root.worldToLocal(now[side]!.clone()).distanceTo(stand[side]!), `${hz} Hz ${seconds} s home`).toBeLessThan(0.02);
       }
     }
     expectNoPop(spins, 16, 'hero turn');
