@@ -18,8 +18,8 @@ import {
 import { PLACE_ORDER } from '../game/journal';
 import { MAP_MARKER_BOUNDS } from '../game/map';
 import {
-  CONTENT_REVISION, DECISION_MAKERS, EVIDENCE_IDS, NPC_IDS, PARTIES, PARTY_NPC, PHASE_ORDER, PRINCIPALS, QUICK_SLOT_COUNT, SAVE_FORMAT_VERSION,
-  WRECK_BLADE_PICKUP,
+  ALLOCATIONS, CONTENT_REVISION, DECISION_MAKERS, EVIDENCE_IDS, GATE_STATES, NPC_IDS, PARTIES, PARTY_NPC, PHASE_ORDER, PRINCIPALS, QUICK_SLOT_COUNT,
+  SAVE_FORMAT_VERSION, WRECK_BLADE_PICKUP,
 } from '../game/types';
 import { ANIMAL_BEHAVIOUR } from '../rules/animalBehaviour';
 import { BOW } from '../rules/bow';
@@ -91,7 +91,7 @@ function game(): PortableDocument[] {
       about: 'The Dry Bell quest’s vocabulary and timings: phases, evidence, parties, residents’ roles, places, save identity.',
       data: {
         saveFormatVersion: SAVE_FORMAT_VERSION, contentRevision: CONTENT_REVISION,
-        phases: PHASE_ORDER, evidence: EVIDENCE_IDS, allocations: ['rillford', 'quarry', 'rotation'], gateStates: ['damaged', 'jammed', 'stabilized'],
+        phases: PHASE_ORDER, evidence: EVIDENCE_IDS, allocations: ALLOCATIONS, gateStates: GATE_STATES,
         parties: PARTIES, partyResident: PARTY_NPC, principals: PRINCIPALS, decisionMakers: DECISION_MAKERS, residents: NPC_IDS,
         places: PLACE_ORDER, firstWeaponPickup: WRECK_BLADE_PICKUP, quickSlots: QUICK_SLOT_COUNT,
         minutes: { reportDelay: REPORT_DELAY_MIN, riteCalm: RITE_CALM_MIN, applyDelay: APPLY_DELAY_MIN },

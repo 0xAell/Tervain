@@ -16,7 +16,8 @@
     "data:export": "node tools/export-data.mjs",
     "data:check": "node tools/export-data.mjs --check",
     "assets:manifest": "node tools/asset-manifest.mjs",
-    "assets:check": "node tools/asset-manifest.mjs --check"
+    "assets:check": "node tools/asset-manifest.mjs --check",
+    "unreal:check": "node tools/export-data.mjs --check && vitest run tests/tools/unrealDrift.test.ts tests/tools/unrealSkeleton.test.ts tests/tools/unrealRulesParity.test.ts tests/tools/unrealSeedBuild.test.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

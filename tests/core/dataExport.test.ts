@@ -21,6 +21,7 @@ const modules: Record<string, () => Promise<unknown>> = {
   '/src/core/export/schema.ts': () => import('../../src/core/export/schema'),
   '/src/core/export/terrainRaster.ts': () => import('../../src/core/export/terrainRaster'),
   '/src/core/export/unrealTables.ts': () => import('../../src/core/export/unrealTables'),
+  '/src/core/export/unrealIds.ts': () => import('../../src/core/export/unrealIds'),
   '/src/core/world/groundLayers.ts': () => import('../../src/core/world/groundLayers'),
   '/src/core/world/terrain.ts': () => import('../../src/core/world/terrain'),
 };

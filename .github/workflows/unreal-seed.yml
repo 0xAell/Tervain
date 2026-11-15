@@ -1,0 +1,38 @@
+name: Unreal seed
+
+# Fails when the engine-agnostic core (src/core) and the Unreal C++ seed (unreal/) stop agreeing. The core is the
+# source. This job checks, without the engine:
+#   - data/ and the two generated headers (row structs, ids) are what the core's export writes today;
+#   - every id the C++ names is an id of the core, under the name the generator gives it, and the other way round;
+#   - each row struct has exactly the members of its exported table, and each tuning struct member is read from a
+#     number that exists in data/game/tuning.json;
+#   - the two rules rewritten in C++ return what the core's rules return, and every source file of the seed compiles
+#     and runs against stand-ins for the engine's headers.
+# The same checks run in the test shards of the main workflow; this job gives a drift its own name on a pull request.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unreal-seed-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-unreal-drift:
+    name: Core and Unreal seed agree
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: The export, the ids, the row structs, the mirrored rules and the build against stand-ins
+        run: npm run unreal:check
