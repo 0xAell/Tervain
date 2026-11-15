@@ -1533,7 +1533,7 @@ files (259.31 seconds); full-suite and build stages did not start. The latest
 configuration check accounts for restored flags and the newly published output.
 Fresh combined validation remains required before publishing this continuation.
 
-Main revision `2f721b1525291936b7ce51cdea5939b6c7d4cb37`, including Claude's PR
+Main revision `2f721b1525291936b7ce51cdea5939b6c7d4cb37`, including PR
 #239, completed both build and Pages deployment in workflow `38102253395`.
 That deployment does not include this local native continuation or prove a
 browser campaign playable through an ending.

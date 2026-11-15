@@ -1112,7 +1112,7 @@ function toggleMap(): void {
 }
 
 function updateInspectorViewport(): { x: number; y: number; w: number; h: number } {
-  // Codex can put a desktop browser in a narrow side panel. Reserve space for
+  // A desktop browser can sit in a narrow side panel. Reserve space for
   // the controls rather than covering the character's face with that panel.
   const dock = inspectorActor ? 315 : 235;
   const viewport = innerWidth < 900

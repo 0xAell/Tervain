@@ -2260,7 +2260,7 @@ interrupted frame and earlier exit allocation. These results do not establish
 native exception dispatch, complete startup, NPC activation or campaign play.
 
 Integrated revision `cf6300de` incorporates main `03e7cb02aa6b5a0064124b879c7359f5101d713b`,
-including Claude's externally merged [PR #187](https://github.com/ael-dev3/Tervain/pull/187).
+including the externally merged [PR #187](https://github.com/ael-dev3/Tervain/pull/187).
 A path comparison proves that integration changed none of the local Gothic
 runtime, source packages, generators or checks. Installation from the updated
 lockfile succeeded. All 67 integrated focused checks and typechecking pass;
@@ -2625,7 +2625,7 @@ files (259.31 seconds); full-suite and build stages did not start. The latest
 configuration check accounts for restored flags and the newly published output.
 Fresh combined validation remains required before publishing this continuation.
 
-Main revision `2f721b1525291936b7ce51cdea5939b6c7d4cb37`, including Claude's PR
+Main revision `2f721b1525291936b7ce51cdea5939b6c7d4cb37`, including PR
 #239, completed both build and Pages deployment in workflow `38102253395`.
 That deployment does not include this local native continuation or prove a
 browser campaign playable through an ending.

@@ -296,7 +296,7 @@ Three.js shadow maps render shadow-casting objects from light views; more shadow
 
 - Keep 50k complete NPC and strict <20k new natural model caps; preserve the custom Pine exception and source proportions.
 - Keep full visible High source trees and resident silhouettes under current decisions; optimize batching/coverage before changing those contracts.
-- Do not use a cancelled/skipped workflow as a budget workaround. Any future push/PR/merge/dispatch must pass the owner's all-run current-UTC Actions preflight.
+- Do not use a cancelled/skipped workflow as a workaround. Any future push/PR/merge/dispatch must pass the owner's all-run current-UTC Actions preflight.
 
 # 21. A staged implementation plan that can be reviewed
 
@@ -737,7 +737,7 @@ Source:Read-only GitHub all-run/attempt history; owner approval policy
 
 Acceptance:Required publication conflict is resolved through policy, never bypassed.
 
-Reference:Owner AGENTS instruction
+Reference:Owner approval policy
 
 # Tervain visual-reference ledger — recording of 5 October 2026
 
@@ -768,7 +768,7 @@ The reference's strongest advantage is coherent composition at human height: wor
 
 ## Evidence and reproduction limits
 
-Use the pictures to reproduce design relationships with original work, not to extract Gothic meshes, textures, logos or animation files into Tervain. This document is local study material. No game edits, version promotion, releases, Actions dispatches, push, PR creation/update or merge are part of this audit. All proposed remote publication remains subject to the coordinating assistant's current Actions budget preflight and the existing CI/hosting block; unknown monthly usage remains unknown.
+Use the pictures to reproduce design relationships with original work, not to extract Gothic meshes, textures, logos or animation files into Tervain. This document is local study material. No game edits, version promotion, releases, Actions dispatches, push, PR creation/update or merge are part of this audit. All proposed remote publication remains subject to the existing CI/hosting block.
 
 ## Detailed environment, construction and human-scale ledger
 
@@ -1137,9 +1137,9 @@ The key completion test is that a regular walk across the current world carries 
 
 The latest local work remains durable. Required checks were unavailable at the historical checkpoint. Hosting was separately unverified in that snapshot. Do not bypass required checks or alter service triggers to obtain a green release.
 
-Before any push, PR creation/update, merge, dispatch/rerun or trigger edit that can start Actions, the coordinating assistant must inspect the current UTC day's full repository run history across every workflow, actor and branch, including queued/in-progress/completed runs and rerun attempts of older runs. Estimate duplicate push/PR events, downstream workflow_run chains, scheduled/GitHub-generated services and likely runner minutes. Unknown monthly usage stays unknown; do not acquire extra billing access merely to resolve it. Coordinate agents against that snapshot and handle exceptions under current owner approval policy. This audit itself requires no remote mutation.
+This audit itself requires no remote mutation.
 
-## Source index for the coordinating report
+## Source index
 
 | Visual domain | Current source | What to change first | What to preserve |
 |---|---|---|---|
