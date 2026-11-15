@@ -78,7 +78,7 @@ numbers are in data either way.
 | **Grade.** An earthy, low-saturation grade and a sharpen pass. | A post-process volume with colour grading. | The look's numbers: `core/content/look.ts`, exported as `data/world/look.json`. The pass that applies them (`presentation/grade.ts`) is the web renderer's own. |
 | **Interface.** DOM panels: HUD, hotbar, inventory, journal, map, settings, title menu. | **UMG** widgets, with Common UI for gamepad focus. | The layout and the text (`ST_Tervain.csv`). The title scene (the vigil, the grove) is a set piece to rebuild or retire. |
 | **Loading.** Staged downloads with a progress screen. | The engine's packaging and loading screens. | Nothing. |
-| **Physics.** Rapier for loose cargo: pushing, lifting, throwing, floating. | **Chaos** rigid bodies; the Water plugin's buoyancy. | The cargo table (`DT_LooseCargo`), masses and float lines. |
+| **Physics.** Rapier for loose cargo: pushing, lifting, throwing, floating. | **Chaos** rigid bodies; the Water plugin's buoyancy; a physics handle for what is carried. | The cargo table (`DT_LooseCargo`), masses and float lines, and the rules of carrying (`core/rules/cargo.ts`: what can be picked up, where it is held, when it is let fall, how it is thrown). The simulation itself (`physics/physics.ts`) is replaced. |
 
 ## Tests
 
@@ -92,8 +92,6 @@ mirrored tests pass on the same numbers.
 The scene layer was read end to end on 15 November 2026, after the lifts above, for anything that still decides how
 the game plays rather than how it looks or sounds. These do. Read them in place until they are lifted:
 
-- **Carrying loose cargo.** What can be picked up, where it is held, when it is dropped and how it is thrown:
-  `physics/physics.ts`.
 - **Reviving a save.** What an old or damaged save is corrected to: `platform/storage.ts`.
 
 What else is there is presentation: meshes, materials and shaders, rigs and poses, effects, the interface, playing

@@ -4,6 +4,7 @@ import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../core/world/layout';
 import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG, type PropSpec } from '../core/world/physicalProps';
 // Loose bodies fall under the same gravity as the wanderer.
 import { GRAVITY } from '../core/rules/hero';
+import { CARGO_STEP, carryForce, carryLift, carryOrigin, carryRank, holdPoint, throwImpulse, throwSpin, withinCarry } from '../core/rules/cargo';
 import { buildingEntry, buildingGround } from '../core/world/buildingEntries';
 import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, PLAYER_FOOT_CLEARANCE } from '../core/world/playerPlacement';
 import type { Terrain } from '../core/world/terrain';
@@ -65,7 +66,7 @@ const shapeRadius = (shape: RAPIER.Shape): number => {
 
 /** Real rigid-body contacts; gameplay terrain/controller remains the authored source of standing heights. */
 export class RealmPhysics {
-  readonly world = new RAPIER.World({ x: 0, y: -17, z: 0 });
+  readonly world = new RAPIER.World({ x: 0, y: -GRAVITY, z: 0 });
   readonly props: Prop[] = [];
   private propHandles = new Set<number>();
   private readonly projectileActorHandles = new Set<number>();
@@ -291,7 +292,7 @@ export class RealmPhysics {
       const rock = this.rockSurfaces.supportAt(x + dx, z + dz, y, ROCK_STEP_HEIGHT) ?? -Infinity;
       const reachable = Math.max(prop, rock);
       const support = grounded && Number.isFinite(reachable) ? reachable : null;
-      if (support !== null && support >= y && support <= y + .8) {
+      if (support !== null && support >= y && support <= y + CARGO_STEP.height) {
         const clearance = this.castContacts(this.characterCollider.shape, capsulePosition({ x: x + dx, y: support + .012, z: z + dz }),
           { x: 0, y: 0, z: 0 }, 0);
         if (!clearance) return { x: x + dx, y: support, z: z + dz };
@@ -302,7 +303,7 @@ export class RealmPhysics {
     const nearRock = this.rocks.some(rock => rock.source.active && rock.source.rockMesh &&
       x + dx + PLAYER_BODY_RADIUS >= rock.source.rockMesh.bounds.minX && x + dx - PLAYER_BODY_RADIUS <= rock.source.rockMesh.bounds.maxX &&
       z + dz + PLAYER_BODY_RADIUS >= rock.source.rockMesh.bounds.minZ && z + dz - PLAYER_BODY_RADIUS <= rock.source.rockMesh.bounds.maxZ);
-    if (grounded) this.controller.enableAutostep(nearRock ? ROCK_STEP_HEIGHT : .8, .25, true); else this.controller.disableAutostep();
+    if (grounded) this.controller.enableAutostep(nearRock ? ROCK_STEP_HEIGHT : CARGO_STEP.height, CARGO_STEP.width, true); else this.controller.disableAutostep();
     this.controller.computeColliderMovement(this.characterCollider, { x: dx, y: 0, z: dz }, undefined, undefined, c => this.propHandles.has(c.handle) || this.rockHandles.has(c.handle));
     const d = this.controller.computedMovement();
     return { x: x + d.x, y: y + d.y, z: z + d.z };
@@ -477,7 +478,7 @@ export class RealmPhysics {
 
   /** Keep the hand-to-object connection in open space, and sweep the whole body toward the spring target. */
   private heldTarget(player: Vec3, prop: Prop): Vec3 | null {
-    const origin = { x: player.x, y: player.y + 1.3, z: player.z }, from = prop.body.translation();
+    const origin = carryOrigin(player), from = prop.body.translation();
     const sight = { x: from.x - origin.x, y: from.y - origin.y, z: from.z - origin.z };
     const distance = Math.hypot(sight.x, sight.y, sight.z);
     if (distance > .02) {
@@ -573,7 +574,7 @@ export class RealmPhysics {
     // step (A103 scout). No gait covers 4 m a frame.
     if (Math.hypot(player.x - this.playerStart.x, player.y - this.playerStart.y, player.z - this.playerStart.z) > 4) this.playerStart = { ...player };
     this.character.setTranslation(capsulePosition(this.playerStart), false);
-    this.holdTarget = { x: player.x + Math.sin(yaw) * 1.85, y: player.y + 1.3 - Math.sin(pitch) * .65, z: player.z + Math.cos(yaw) * 1.85 };
+    this.holdTarget = holdPoint(player, yaw, pitch);
     for (let i = 0; i < count; i++) {
       const t = (i + 1) / count;
       this.character.setNextKinematicTranslation(capsulePosition({ x: this.playerStart.x + (player.x - this.playerStart.x) * t,
@@ -599,12 +600,12 @@ export class RealmPhysics {
         const p = this.held.body.translation(), v = this.held.body.linvel(), m = this.held.spec.mass;
         const d = Math.hypot(p.x - player.x, p.y - player.y, p.z - player.z);
         this.held.body.resetForces(true);
-        const target = d <= 4.5 ? this.heldTarget(player, this.held) : null;
+        // Too far from him, or out of his sight, it is let fall; otherwise it is drawn to where he holds it (core/rules/cargo.ts).
+        const target = withinCarry(d) ? this.heldTarget(player, this.held) : null;
         if (!target) this.release();
         else {
-          const force = (delta: number, velocity: number) => Math.max(-90 * m, Math.min(90 * m, (delta * 65 - velocity * 15) * m));
-          this.held.body.addForce({ x: force(target.x - p.x, v.x), y: force(target.y - p.y, v.y) + m * 17,
-            z: force(target.z - p.z, v.z) }, true);
+          this.held.body.addForce({ x: carryForce(target.x - p.x, v.x, m), y: carryForce(target.y - p.y, v.y, m) + carryLift(m),
+            z: carryForce(target.z - p.z, v.z, m) }, true);
         }
       }
       this.world.step(); this.queriesDirty = false; this.projectileQueryDirty.clear(); this.steps++; this.accumulated -= STEP;
@@ -613,13 +614,13 @@ export class RealmPhysics {
 
   get holding() { return this.held?.spec.name ?? null; }
   candidate(player: Vec3, yaw: number): PropSpec | null {
-    const origin = { x: player.x, y: player.y + 1.3, z: player.z };
+    const origin = carryOrigin(player);
     let best: Prop | null = null, score = Infinity;
     for (const p of this.props) {
       const v = p.body.translation(), dx = v.x - origin.x, dz = v.z - origin.z, distance = Math.hypot(dx, v.y - origin.y, dz);
-      if (distance > 2.8 || Math.abs(v.y - origin.y) > 1.8) continue;
-      const ahead = (dx * Math.sin(yaw) + dz * Math.cos(yaw)) / Math.max(.01, Math.hypot(dx, dz));
-      if (ahead < .35) continue;
+      // Within reach, near his shoulder's height and ahead of him (core/rules/cargo.ts); then nothing in the way.
+      const rank = carryRank(origin, v, yaw);
+      if (rank === null) continue;
       const ray = new RAPIER.Ray(origin, { x: dx / distance, y: (v.y - origin.y) / distance, z: dz / distance });
       const targetHit = p.collider.castRay(ray, distance + .1, true);
       if (targetHit < 0) continue;
@@ -627,7 +628,6 @@ export class RealmPhysics {
         c => !this.propHandles.has(c.handle));
       if (staticHit && staticHit.timeOfImpact < targetHit) continue;
       if (this.props.some(other => other !== p && other.collider.castRay(ray, targetHit, true) >= 0)) continue;
-      const rank = distance + (1 - ahead) * 1.3;
       if (rank < score) { score = rank; best = p; }
     }
     return best?.spec ?? null;
@@ -644,8 +644,8 @@ export class RealmPhysics {
     const p = this.held;
     if (!p) return;
     this.release();
-    p.body.applyImpulse({ x: Math.sin(yaw) * p.spec.mass * 6.5, y: (1.8 - Math.sin(pitch) * 3) * p.spec.mass, z: Math.cos(yaw) * p.spec.mass * 6.5 }, true);
-    p.body.applyTorqueImpulse({ x: p.spec.mass * .12, y: p.spec.mass * .07, z: p.spec.mass * .06 }, true);
+    p.body.applyImpulse(throwImpulse(yaw, pitch, p.spec.mass), true);
+    p.body.applyTorqueImpulse(throwSpin(p.spec.mass), true);
   }
   poses(interpolate = true): PropPose[] {
     const alpha = interpolate ? Math.max(0, Math.min(1, this.accumulated / STEP)) : 1;
