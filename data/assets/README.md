@@ -29,32 +29,45 @@ are dropped.
 ## Which pack replaces what
 
 Every family with the plan `replace` names the pack that takes its place, in `replaceWith`: the first-choice Fab
-listing with its publisher and address, any companion packs it needs (`with`), and, for the trees, the pack to use
-instead on the web target, where Nanite is not available (`webTarget`). Every file of that family carries the pack's
-title in its own `replaceWith`.
+listing with its publisher, address, prices and supported engine versions, the reason for the choice, any companion
+packs it needs (`with`), and, where the first choice needs Nanite or is heavy, the pack to use instead on the web
+target (`webTarget`). Every file of that family carries the pack's title in its own `replaceWith`.
 
 | Family | First choice | With | On the web target |
 | --- | --- | --- | --- |
-| The wanderer; residents and hostiles | Modular Medieval Citizens (Assets3D) | | |
+| The wanderer; residents and hostiles | Modular Medieval NPC V2 - Metahuman (Polyphoria) | | Medieval NPC Pack v1 (Feyloom) |
 | Resident motion | MC Village Life Animation Pack (MoCap Central) | Game Animation Sample, Sword Animset Pro, Swim Animset | |
 | Animals | FOREST ANIMALS PACK (PROTOFACTOR INC) | ANIMAL VARIETY PACK, African Animals, Cats Pack | |
-| Trees and leaf atlases | Megaplants: English Oak, with the Silver Birch, Baltic Pine and Norway Spruce of the same series | DZ Trees - Low Poly Palms; Apple Tree Pack (Mobile/Desktop) | European Beech (Megascans Trees) and its series |
+| Trees and leaf atlases | Megaplants: English Oak (Quixel Megaplants) | DZ Trees - Low Poly Palms; Apple Tree Pack (Mobile/Desktop) | European Beech (Quixel Megascans) |
 | Rock pile and landmark scenery | Nordic Beach Rock Formation (Quixel Megascans) | Nordic Coastal Cliff | |
-| Furniture and household pieces | Medieval Props: Kit | Medieval Fantasy Furniture Pack 01 | |
+| Furniture and household pieces | Medieval Props: Kit (Dragon Motion) | Medieval Fantasy Furniture Pack 01 | |
 | Building surfaces | Medieval Modular Town (With Interiors) (Jemini Studio) | | |
 
 The game's own sound (voices, world sound, animal calls, hunting sounds, music) is kept, not replaced; the `audio`
 brief lists libraries to fill gaps.
 
-These are first choices made from descriptions, not purchases. `fab` in the manifest holds, for each kind of
-replacement (trees, rocks, buildings, surfaces, interiors, characters, animation, animals, audio), a brief of what the
-game needs, its constraints, and the candidate listings the choice was made from. A candidate is a listing found to
-exist, by title, in search results on 14 November 2026; its `verified` field says so. None has been opened on its
-listing page, bought or imported. Before buying, check each on its page for licence tier, supported engine version,
-LODs and price, and change the choice in `tools/asset-manifest/groups.mjs` if a listing does not hold up.
+`fab` in the manifest holds, for each kind of replacement (trees, rocks, buildings, surfaces, interiors, characters,
+animation, animals, audio), a brief of what the game needs, its constraints, and the candidate listings the choice
+was made from.
 
-Fab content is never committed to this repository. The Fab Standard License allows sharing content with collaborators,
-for example in a private repository; this one is public.
+**What was checked.** Every candidate's listing page was opened on 15 November 2026. Its title, publisher, the prices
+of its Personal and Professional licences and the engine versions it lists are recorded as the page gave them
+(`verified: "listing page"`, `checked`), and each note says what the page's technical details state: counts, LODs,
+skeleton, ratings. Where a note mentions another listing of the same series, it says that listing was only seen in
+search results.
+
+**What was not.** Nothing was bought or imported, so the quality of a pack's LODs, how well a listing made for an
+older engine version migrates, and whether a licence fits a commercial release are still to be checked before buying.
+Prices change. The choices are first choices from the pages, with their reasons; change them in
+`tools/asset-manifest/groups.mjs` when a listing does not hold up.
+
+What the pages showed that matters for the choice:
+
+- The characters' first choice is the only modular set that lists current engine versions, and by far the dearest
+  listing here. The cheaper modular set lists versions up to 5.0 only.
+- The Megaplants trees list 5.7 and 5.8 on Windows only, with Nanite and no LODs: a desktop choice.
+- The forest animals and the swim animations list versions up to 5.4 only.
+- The rocks and ground surfaces are single free Megascans assets, not packs.
 
 ## Unreal conventions
 

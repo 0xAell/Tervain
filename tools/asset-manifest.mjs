@@ -37,10 +37,11 @@ function replacement(group) {
   const find = (title) => {
     const found = candidates.find((candidate) => candidate.title === title);
     if (!found) throw new Error(`${group.id}: "${title}" is not a candidate of the Fab category "${group.fab}".`);
-    return { title: found.title, publisher: found.publisher, url: found.url, verified: found.verified };
+    return { title: found.title, publisher: found.publisher, url: found.url, engine: found.engine, price: found.price, verified: found.verified, checked: found.checked };
   };
   if (!group.pack) throw new Error(`${group.id} is to be replaced but names no pack.`);
-  return { ...find(group.pack), with: (group.with ?? []).map(find), webTarget: group.webTarget ? find(group.webTarget) : null };
+  if (!group.packWhy) throw new Error(`${group.id} names a pack but not why.`);
+  return { ...find(group.pack), reason: group.packWhy, with: (group.with ?? []).map(find), webTarget: group.webTarget ? find(group.webTarget) : null };
 }
 
 export function buildManifest(directory = root) {

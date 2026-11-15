@@ -201,31 +201,74 @@
               "required": [
                 "title",
                 "publisher",
-                "verified"
+                "url",
+                "engine",
+                "price",
+                "note",
+                "verified",
+                "checked"
               ],
               "properties": {
                 "title": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 3
                 },
                 "publisher": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 2
                 },
                 "url": {
+                  "type": "string",
+                  "pattern": "^https://www\\.fab\\.com/listings/[0-9a-f-]{36}$"
+                },
+                "engine": {
+                  "description": "The Unreal Engine versions the listing gives, or null when it has no Unreal Engine format.",
                   "type": [
                     "string",
                     "null"
-                  ]
+                  ],
+                  "pattern": "^[45]\\.[0-9]+( to [45]\\.[0-9]+)?$"
                 },
-                "note": {
-                  "type": "string"
+                "price": {
+                  "description": "Prices of the Personal and Professional licences on the day the page was opened; 0 is free.",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "personal",
+                    "professional",
+                    "currency"
+                  ],
+                  "properties": {
+                    "personal": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "professional": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "const": "USD"
+                    }
+                  }
                 },
                 "verified": {
-                  "description": "How the listing was confirmed to exist when the manifest was written.",
+                  "description": "How the listing was confirmed to exist.",
                   "enum": [
                     "listing page",
                     "search result",
                     "not verified"
                   ]
+                },
+                "checked": {
+                  "description": "The day the listing page was opened.",
+                  "type": "string",
+                  "pattern": "^2[0-9]{3}-[0-9]{2}-[0-9]{2}$"
+                },
+                "note": {
+                  "description": "What the listing's page states, and what was only seen in search results.",
+                  "type": "string",
+                  "minLength": 20
                 }
               }
             }
@@ -296,7 +339,7 @@
             ]
           },
           "replaceWith": {
-            "description": "For a group that is to be replaced: the first-choice pack, any companion packs it needs, and the pack to use instead on the web target, where Nanite is not available. Null for every other plan.",
+            "description": "For a group that is to be replaced: the first-choice pack and why, any companion packs it needs, and the pack to use instead on the web target, where Nanite is not available. Null for every other plan.",
             "oneOf": [
               {
                 "type": "null"
@@ -308,7 +351,11 @@
                   "title",
                   "publisher",
                   "url",
+                  "engine",
+                  "price",
                   "verified",
+                  "checked",
+                  "reason",
                   "with",
                   "webTarget"
                 ],
@@ -318,18 +365,61 @@
                     "minLength": 3
                   },
                   "publisher": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 2
                   },
                   "url": {
                     "type": "string",
                     "pattern": "^https://www\\.fab\\.com/listings/[0-9a-f-]{36}$"
                   },
+                  "engine": {
+                    "description": "The Unreal Engine versions the listing gives, or null when it has no Unreal Engine format.",
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^[45]\\.[0-9]+( to [45]\\.[0-9]+)?$"
+                  },
+                  "price": {
+                    "description": "Prices of the Personal and Professional licences on the day the page was opened; 0 is free.",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "personal",
+                      "professional",
+                      "currency"
+                    ],
+                    "properties": {
+                      "personal": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "professional": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "currency": {
+                        "const": "USD"
+                      }
+                    }
+                  },
                   "verified": {
+                    "description": "How the listing was confirmed to exist.",
                     "enum": [
                       "listing page",
                       "search result",
                       "not verified"
                     ]
+                  },
+                  "checked": {
+                    "description": "The day the listing page was opened.",
+                    "type": "string",
+                    "pattern": "^2[0-9]{3}-[0-9]{2}-[0-9]{2}$"
+                  },
+                  "reason": {
+                    "description": "Why this pack is the first choice, from what its page says.",
+                    "type": "string",
+                    "minLength": 40
                   },
                   "with": {
                     "type": "array",
@@ -524,7 +614,10 @@
         "title",
         "publisher",
         "url",
-        "verified"
+        "engine",
+        "price",
+        "verified",
+        "checked"
       ],
       "properties": {
         "title": {
@@ -532,18 +625,56 @@
           "minLength": 3
         },
         "publisher": {
-          "type": "string"
+          "type": "string",
+          "minLength": 2
         },
         "url": {
           "type": "string",
           "pattern": "^https://www\\.fab\\.com/listings/[0-9a-f-]{36}$"
         },
+        "engine": {
+          "description": "The Unreal Engine versions the listing gives, or null when it has no Unreal Engine format.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[45]\\.[0-9]+( to [45]\\.[0-9]+)?$"
+        },
+        "price": {
+          "description": "Prices of the Personal and Professional licences on the day the page was opened; 0 is free.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "personal",
+            "professional",
+            "currency"
+          ],
+          "properties": {
+            "personal": {
+              "type": "number",
+              "minimum": 0
+            },
+            "professional": {
+              "type": "number",
+              "minimum": 0
+            },
+            "currency": {
+              "const": "USD"
+            }
+          }
+        },
         "verified": {
+          "description": "How the listing was confirmed to exist.",
           "enum": [
             "listing page",
             "search result",
             "not verified"
           ]
+        },
+        "checked": {
+          "description": "The day the listing page was opened.",
+          "type": "string",
+          "pattern": "^2[0-9]{3}-[0-9]{2}-[0-9]{2}$"
         }
       }
     }

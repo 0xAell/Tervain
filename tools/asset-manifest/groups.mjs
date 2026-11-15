@@ -38,6 +38,9 @@ const texture = (folder, name) => (path) => {
 const none = () => null;
 const treeName = (base) => pascal(base.replace(/-(near|mid|far)$/, '').replace(/-under-\d+k$/, ''));
 
+const CHARACTERS_WHY = 'The only candidate that is modular, dresses men and women, and lists current engine versions (5.0 to 5.8), so one set can make seventeen residents and the hero. It is by far the dearest. Modular Medieval Citizens is cheaper but lists versions up to 5.0 only and is rated 3.5. For the web target, the five low-poly villagers of Medieval NPC Pack v1 are light enough.';
+const TREES_WHY = 'The exact species of the game’s woods (oak, with birch, pine and spruce in the same series), free. They need Nanite and list 5.7 and 5.8 on Windows only, so the LOD-based Megascans Trees stand in on the web target, with the palm and apple packs for the kinds neither series has.';
+
 /**
  * Groups in matching order: the first whose `match` fits a path owns it. `unreal(path)` names the asset an import of
  * that file would produce, or returns null when nothing is imported from it.
@@ -45,14 +48,16 @@ const treeName = (base) => pascal(base.replace(/-(near|mid|far)$/, '').replace(/
 export const GROUPS = [
   {
     id: 'hero', title: 'The wanderer (hero body and animation)', kind: 'model', role: 'hero', match: /^public\/models\/hero\//,
-    plan: 'replace', fab: 'characters', pack: 'Modular Medieval Citizens',
+    plan: 'replace', fab: 'characters', pack: 'Modular Medieval NPC V2 - Metahuman', webTarget: 'Medieval NPC Pack v1',
+    packWhy: CHARACTERS_WHY,
     why: 'A generated body on a generated rig, with unresolved provenance for two of its sources. A commercial port needs a character with clear terms: a MetaHuman or a modular medieval character from one pack, on the engine’s standard skeleton so animation packs retarget.',
     source: 'Generated with Meshy; see docs/engineering/main-hero.md and the model ledger.',
     unreal: mesh('SkeletalMesh', '/Game/Tervain/Characters/Hero', (base) => `Hero_${pascal(base.replace(/^weathered-wanderer-/, ''))}`),
   },
   {
     id: 'residents', title: 'Residents and hostiles (17 figures)', kind: 'model', role: 'resident', match: /^public\/models\/npcs\/[^/]+\.glb$/,
-    plan: 'replace', fab: 'characters', pack: 'Modular Medieval Citizens',
+    plan: 'replace', fab: 'characters', pack: 'Modular Medieval NPC V2 - Metahuman', webTarget: 'Medieval NPC Pack v1',
+    packWhy: CHARACTERS_WHY,
     why: 'Seventeen separately generated figures of uneven proportion and surface. One modular villager set gives a coherent cast, shared skeleton and LODs.',
     source: 'Generated or downloaded Meshy models, adapted; see docs/engineering/meshy-npcs.md and the model ledger.',
     unreal: mesh('SkeletalMesh', '/Game/Tervain/Characters/Residents', (base) => `Resident_${pascal(base)}`),
@@ -65,6 +70,7 @@ export const GROUPS = [
   {
     id: 'resident-motion', title: 'Resident motion library', kind: 'model', role: 'animation', match: /^public\/models\/npcs\/motion\//,
     plan: 'replace', fab: 'animation', pack: 'MC Village Life Animation Pack', with: ['Game Animation Sample', 'Sword Animset Pro', 'Swim Animset'],
+    packWhy: 'Village work, idling and sitting are most of what residents do, and this set is on the current skeleton and lists engine versions up to 5.8. Locomotion, sword combat and swimming come from the three companions; the swim set lists versions up to 5.4 only.',
     why: 'Generated clips fitted to the generated rigs. Locomotion, work, sitting and combat should come from an animation pack on the standard skeleton.',
     source: 'Meshy animation library output; see docs/engineering/resident-motion-0.0.13.md.',
     licence: { id: 'LicenseRef-meshy-paid-plan-output', status: 'meshy-paid-plan-output' },
@@ -73,39 +79,44 @@ export const GROUPS = [
   {
     id: 'animals', title: 'Animals (19 rigged models)', kind: 'model', role: 'animal', match: /^public\/models\/animals\//,
     plan: 'replace', fab: 'animals', pack: 'FOREST ANIMALS PACK', with: ['ANIMAL VARIETY PACK', 'African Animals', 'Cats Pack'],
+    packWhy: 'It has the deer, wolf, bear, boar and fox of the game’s woods in three levels of detail from one maker. The lion comes from African Animals and the cats from Cats Pack; no tiger and no dog pack was found. It lists engine versions up to 5.4, so migrating it is part of the work.',
     why: 'Community models of mixed quality with in-place clips only. An animal pack supplies matched skeletons, gaits, LODs and often sounds.',
     source: 'Meshy Community downloads, optimised and rigged; see docs/engineering/meshy-animal-assets.json.',
     unreal: mesh('SkeletalMesh', '/Game/Tervain/Animals', (base) => `Animal_${pascal(base)}`),
   },
   {
     id: 'trees-supplied', title: 'Supplied trees (15 kinds, three levels each)', kind: 'model', role: 'tree', match: /^public\/models\/flora\/meshy-012\//,
-    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', with: ['DZ Trees - Low Poly Palms'], webTarget: 'European Beech (Megascans Trees)',
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', with: ['DZ Trees - Low Poly Palms'], webTarget: 'European Beech',
+    packWhy: TREES_WHY,
     why: 'Generated trees with card crowns rebuilt in code. Scanned tree sets bring real bark, leaf and wind data and proper LODs; the planting (data/world/flora.json) carries over.',
     source: 'Meshy Community downloads, rebuilt by tools/build-meshy-trees.py; see docs/engineering/meshy-tree-assets.json.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Flora/Trees', (base) => `Tree_${treeName(base)}`),
   },
   {
     id: 'trees-generated', title: 'Generated trees (hero oak, birch, apple, pear, bush, sentinel, pine)', kind: 'model', role: 'tree', match: /^public\/models\/flora\/hero\//,
-    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', with: ['Apple Tree Pack (Mobile/Desktop)'], webTarget: 'European Beech (Megascans Trees)',
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', with: ['Apple Tree Pack (Mobile/Desktop)'], webTarget: 'European Beech',
+    packWhy: TREES_WHY,
     why: 'The project’s own procedural trees (tools/tree-gen), built for the web build’s triangle budget. They are original and may be kept as a fallback, but a port should use one tree source throughout.',
     source: 'Generated by tools/tree-gen and tools/tree-gen-pine; project-original.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Flora/Trees', (base) => `Tree_${treeName(base)}`),
   },
   {
     id: 'trees-pine', title: 'Solitary pine (three levels)', kind: 'model', role: 'tree', match: /^public\/models\/flora\/solitary-pine/,
-    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech (Megascans Trees)', why: 'As the supplied trees: replaced with the conifers of the chosen tree set.',
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech', packWhy: TREES_WHY, why: 'As the supplied trees: replaced with the conifers of the chosen tree set.',
     source: 'Meshy Community download, adapted; see docs/engineering/solitary-pine.md.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Flora/Trees', (base) => `Tree_${treeName(base)}`),
   },
   {
     id: 'scenery', title: 'Scenery models (rock pile, ancient broadleaf)', kind: 'model', role: 'scenery', match: /^public\/models\/scenery\//,
-    plan: 'replace', fab: 'rocks', pack: 'Nordic Beach Rock Formation', with: ['Nordic Coastal Cliff'], why: 'Two one-off generated models. Rocks and landmark trees come from the scanned rock and tree sets.',
+    plan: 'replace', fab: 'rocks', pack: 'Nordic Beach Rock Formation', with: ['Nordic Coastal Cliff'],
+    packWhy: 'A free scanned formation of the northern coast the game’s strand is modelled on, with the cliff piece for the lighthouse rock. Both are single assets: more pieces of the same Nordic series are needed for variety.', why: 'Two one-off generated models. Rocks and landmark trees come from the scanned rock and tree sets.',
     source: 'Meshy Community downloads, adapted; see docs/engineering/rock-pile-assets.json and broadleaf-assets.json.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Scenery', (base) => pascal(base.replace(/-under-\d+k$/, ''))),
   },
   {
     id: 'furniture', title: 'Furniture and household pieces (29 models)', kind: 'model', role: 'furniture', match: /^public\/models\/furniture\/[^/]+\.glb$/,
     plan: 'replace', fab: 'interiors', pack: 'Medieval Props: Kit', with: ['Medieval Fantasy Furniture Pack 01'],
+    packWhy: 'The widest set in one material language: furniture, kitchen and cellar pieces with collision and two LODs each, listed up to 5.8. The furniture pack adds beds and chests with four LODs.',
     why: 'Generated pieces at inconsistent texel density. A medieval interior pack gives one material language; sizes and placements (data/world/interiors.json) carry over.',
     source: 'Generated with Meshy for the project; see docs/engineering/rooms-0.0.13.md.',
     unreal: mesh('StaticMesh', '/Game/Tervain/Props/Furniture', (base) => `Furniture_${pascal(base)}`),
@@ -123,6 +134,7 @@ export const GROUPS = [
   {
     id: 'building-textures', title: 'Baked building surfaces (12 materials, colour and normal)', kind: 'texture', role: 'building-material', match: /^public\/textures\/buildings\/[^/]+\.jpg$/,
     plan: 'replace', fab: 'buildings', pack: 'Medieval Modular Town (With Interiors)',
+    packWhy: 'The one modular kit found whose buildings can be entered, with collision and LODs and engine versions up to 5.8. Its timber frame is richer than the game’s poor village: use the plain pieces and its interiors.',
     why: 'Procedurally baked plaster, timber, stone and metal for the web build’s merged building geometry. Buildings in a port come as modular kits with their own scanned or authored materials.',
     source: 'Baked by tools/textures/bake-buildings.py; project-original.', licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
     unreal: texture('/Game/Tervain/Architecture/Textures', (base) => `Building_${pascal(base)}`),
@@ -134,7 +146,7 @@ export const GROUPS = [
   },
   {
     id: 'leaf-atlases', title: 'Leaf atlases', kind: 'texture', role: 'foliage-texture', match: /^public\/textures\/leaf\//,
-    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech (Megascans Trees)', why: 'Leaf cards cut for the web build’s crowns from the supplied trees’ textures. Replaced together with the trees.',
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech', packWhy: TREES_WHY, why: 'Leaf cards cut for the web build’s crowns from the supplied trees’ textures. Replaced together with the trees.',
     source: 'Built by tools/leaf-atlas from the supplied tree textures.', licence: { id: 'CC0-1.0', status: 'owner-recollection' },
     unreal: texture('/Game/Tervain/Flora/Textures', (base) => `Leaf_${pascal(base)}`),
   },
@@ -211,40 +223,50 @@ export const NOT_ASSETS = [
   /^public\/gothic3\//, /^assets\/gothic3\//,
 ];
 
-const fab = (id) => `https://www.fab.com/listings/${id}`;
 const WEB_TARGET = 'The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view.';
 
+/** The day every listing below was opened on Fab. */
+const CHECKED = '2026-11-15';
 /**
- * What to look for on Fab for each replacement, and the packs found. A candidate is a listing found to exist, by title,
- * in search results on 14 November 2026; none was opened on its listing page, bought or imported. A group's `pack` is
- * the first choice among its category's candidates, chosen from those descriptions. Check each on its page for licence
- * tier, supported engine version, LODs and price before buying, and never commit Fab content to this public
- * repository: the Fab Standard License allows sharing only with collaborators, for example in a private one.
+ * A Fab listing as its page gave it on CHECKED: title, publisher, the Unreal Engine versions it lists (null when it has
+ * no Unreal Engine format), and the prices of its Personal and Professional licences in US dollars.
+ */
+const listing = (title, publisher, id, engine, personal, professional, note) => ({
+  title, publisher, url: `https://www.fab.com/listings/${id}`, engine, price: { personal, professional, currency: 'USD' }, note, verified: 'listing page', checked: CHECKED,
+});
+
+/**
+ * What to look for on Fab for each replacement, and the packs found. Every candidate's page was opened on CHECKED:
+ * title, publisher, prices and supported engine versions are as the page gave them, and the notes say what its
+ * technical details state. Nothing was bought or imported, so what a page does not state (how good the LODs are, how
+ * well a pack migrates to a newer engine) is still to be checked. A group's `pack` is the first choice among its
+ * category's candidates. Never commit Fab content to this public repository: the Fab Standard License allows sharing
+ * only with collaborators, for example in a private one.
  */
 export const FAB = {
   trees: {
     brief: 'Temperate northern European trees with bark, leaf and wind data and three or more LODs: oak, birch, hazel or other shrubs, Scots pine, fir or spruce, apple and pear, and a few palms for the warm woodland in the east.',
-    constraints: `${WEB_TARGET} Megaplants (English Oak, Silver Birch, Baltic Pine, Norway Spruce) are the exact species but need Nanite Foliage and the Procedural Vegetation Editor, both experimental; the older Megascans Trees packs are LOD-based.`,
+    constraints: `${WEB_TARGET} Megaplants are the exact species but are listed for Unreal Engine 5.7 and 5.8 on Windows only, with Nanite and no LODs, and are edited in the Procedural Vegetation Editor, which Epic marks experimental; the older Megascans Trees are LOD-based.`,
     candidates: [
-      { title: 'European Beech (Megascans Trees)', publisher: 'Quixel Megascans', url: fab('d11cc01d-9422-41b7-950f-416c9ce79caf'), note: 'LOD-based, with European Hornbeam, European Black Alder, Norway Maple and Common Hazel in the same series: a northern broadleaf wood without oak or birch.', verified: 'search result' },
-      { title: 'Megaplants: English Oak', publisher: 'Quixel Megaplants', url: fab('83642c38-7661-4df1-8629-0422e1898d26'), note: 'With Megaplants: Silver Birch, Baltic Pine and Norway Spruce: the right species for a desktop build with Nanite Foliage; not for the web target.', verified: 'search result' },
-      { title: 'Apple Tree Pack (Mobile/Desktop)', publisher: 'not recorded', url: fab('1d83287e-b523-4b10-9e36-d3a452668e42'), note: 'Mobile-targeted apple trees for the orchard; no pear.', verified: 'search result' },
-      { title: 'DZ Trees - Low Poly Palms', publisher: 'not recorded', url: fab('47188c0c-6a96-4060-9877-fc7c6b833d4f'), note: 'Four LODs with Nanite off.', verified: 'search result' },
+      listing('European Beech', 'Quixel Megascans', 'd11cc01d-9422-41b7-950f-416c9ce79caf', '5.1 to 5.6', 0, 0, 'Megascans Trees: 17 meshes with up to nine LODs, impostors and Pivot Painter wind; rated 4.7 by 108. Hornbeam, alder, maple and hazel of the same series were seen in search results, not opened. A northern broadleaf wood without oak or birch.'),
+      listing('Megaplants: English Oak', 'Quixel Megaplants', '83642c38-7661-4df1-8629-0422e1898d26', '5.7 to 5.8', 0, 0, 'Procedural vegetation: 14 skeletal meshes, Nanite yes, LODs no, Windows only. Silver Birch, Baltic Pine and Norway Spruce of the same series were seen in search results, not opened. The right species for a desktop build; not for the web target.'),
+      listing('Apple Tree Pack (Mobile/Desktop)', 'Next Spring', '1d83287e-b523-4b10-9e36-d3a452668e42', '4.26 to 5.8', 3.99, 3.99, '17 meshes at 2,000 to 3,000 vertices for mobile and 6,500 to 7,500 for desktop; no LODs; no ratings yet. No pear.'),
+      listing('DZ Trees - Low Poly Palms', 'DropZone Studios', '47188c0c-6a96-4060-9877-fc7c6b833d4f', '5.1 to 5.8', 59.99, 179.99, 'Made for low-end machines, with LODs; the page says the minimum LODs need adjusting for mobile devices.'),
     ],
   },
   rocks: {
     brief: 'Scanned northern coastal cliffs, beach boulders and rock formations for the strand, the lighthouse rock, the quarry and scattered stones, in a medium or low quality tier.',
-    constraints: `${WEB_TARGET} Megascans 3D assets come in quality tiers; take Mid or Low.`,
+    constraints: `${WEB_TARGET} These are single scanned Megascans assets, free, delivered as FBX and glTF in quality tiers, not packs: take the Mid or Low tier and gather the set piece by piece.`,
     candidates: [
-      { title: 'Nordic Coastal Cliff', publisher: 'Quixel Megascans', url: fab('35d695d8-ac00-4ac5-8bba-1d46e973af68'), note: 'With Huge and Massive Nordic Coastal Cliff.', verified: 'search result' },
-      { title: 'Nordic Beach Rock Formation', publisher: 'Quixel Megascans', url: fab('56575b1b-45b6-4d86-bc8e-15819cae003c'), note: 'With Nordic Beach Boulder and Nordic Beach Rock.', verified: 'search result' },
+      listing('Nordic Coastal Cliff', 'Quixel Megascans', '35d695d8-ac00-4ac5-8bba-1d46e973af68', null, 0, 0, 'One scanned cliff piece, 1.0 × 2.6 × 4.1 m, as FBX and glTF; displacement on the high tier only. Huge and Massive variants were seen in search results, not opened.'),
+      listing('Nordic Beach Rock Formation', 'Quixel Megascans', '56575b1b-45b6-4d86-bc8e-15819cae003c', null, 0, 0, 'One scanned formation, 4.2 × 4.2 × 1.3 m, as FBX and glTF. Nordic Beach Boulder and Rock were seen in search results, not opened.'),
     ],
   },
   buildings: {
     brief: 'One modular kit of plain northern European village buildings that can be entered: timber-frame and rubble-stone walls, plaster, plank, thatch or tile roofs, doors, windows and stairs, with interior walls and floors. The mill, the quarry sheds and the watchtower are assembled from it or dressed around it.',
     constraints: `${WEB_TARGET} The game’s buildings are placed from data/unreal/DT_Buildings.json by footprint, wall height and roof kind: a kit of fixed whole houses will not fit those footprints, a modular one will.`,
     candidates: [
-      { title: 'Medieval Modular Town (With Interiors)', publisher: 'Jemini Studio', url: fab('432fa0f0-bbc4-411a-b5ac-72ad05b4a4c8'), note: 'Modular timber-frame architecture on stone foundations with working interiors and example props; its version 1.1 is for Unreal Engine 5.1 onwards.', verified: 'search result' },
+      listing('Medieval Modular Town (With Interiors)', 'Jemini Studio', '432fa0f0-bbc4-411a-b5ac-72ad05b4a4c8', '4.21 to 5.8', 119.99, 499.99, '393 static meshes with collision and LODs (generated, some custom), 31 materials with 122 instances, and explorable interiors; rated 4.7 by 18.'),
     ],
   },
   surfaces: {
@@ -252,56 +274,56 @@ export const FAB = {
     brief: 'Tiling ground surfaces for the Landscape’s eight layers: forest floor, heath, earth path, gravel, sand and wet sand; and plaster, timber, rubble stone, slate and thatch only if the building kit does not bring its own.',
     constraints: 'A Landscape material on the mobile renderer is limited in texture samplers: plan the eight layers as few shared texture sets. No scanned surface was found for heath, wet sand or a dirt path.',
     candidates: [
-      { title: 'Forest Floor', publisher: 'Quixel Megascans', url: fab('dae56d09-862c-4f77-9e72-a41281c49633'), note: 'With Mossy Forest Floor.', verified: 'search result' },
-      { title: 'Gravel on Soil', publisher: 'Quixel Megascans', url: fab('6fe7b621-ea13-4218-b2e4-ec70ddfda3b4'), note: 'With Ground Gravel.', verified: 'search result' },
-      { title: 'Nordic Beach Rocky Ground', publisher: 'Quixel Megascans', url: fab('4a6cf0ef-005e-4c42-ac12-18526274658c'), note: 'Coast surfaces.', verified: 'search result' },
+      listing('Forest Floor', 'Quixel Megascans', 'dae56d09-862c-4f77-9e72-a41281c49633', null, 0, 0, 'A scanned 2 × 2 m surface as a texture set. Mossy Forest Floor was seen in search results, not opened.'),
+      listing('Gravel on Soil', 'Quixel Megascans', '6fe7b621-ea13-4218-b2e4-ec70ddfda3b4', null, 0, 0, 'A scanned 0.39 × 0.39 m surface as a texture set. Ground Gravel was seen in search results, not opened.'),
+      listing('Nordic Beach Rocky Ground', 'Quixel Megascans', '4a6cf0ef-005e-4c42-ac12-18526274658c', null, 0, 0, 'A scanned ground patch, 2.3 × 2.9 m, as FBX and glTF.'),
     ],
   },
   interiors: {
     brief: 'Plain medieval household furniture and props in one material language: beds and bunks, tables, benches, chairs, shelves, chests, a loom, a workbench, barrels, crates, sacks, pots, a cauldron, bread, candles, and an oven and hearth dressing.',
     constraints: `${WEB_TARGET} Avoid throne-room and high-fantasy pieces; the look is weathered and poor.`,
     candidates: [
-      { title: 'Medieval Banquet', publisher: 'Quixel Megascans', url: fab('d422ac6c-ce50-4273-8d4a-2ac594a3a2b2'), note: 'Scanned tableware and a banquet scene; a narrow range of furniture.', verified: 'search result' },
-      { title: 'Medieval Props: Kit', publisher: 'not recorded', url: fab('c2946e73-7554-43cd-975c-ff993ada714e'), note: 'A large kit with furniture and kitchen sets; pick the plain pieces.', verified: 'search result' },
-      { title: 'Medieval Fantasy Furniture Pack 01', publisher: 'not recorded', url: fab('222da434-25a6-4576-9f1a-1c5e0780df0a'), note: 'Beds, chests, shelves, tables and a bench; no barrels or pots.', verified: 'search result' },
+      listing('Medieval Banquet', 'Quixel Megascans', 'd422ac6c-ce50-4273-8d4a-2ac594a3a2b2', '5.4 to 5.8', 0, 0, '84 scanned meshes with LODs and no collision: tableware and food more than furniture.'),
+      listing('Medieval Props: Kit', 'Dragon Motion', 'c2946e73-7554-43cd-975c-ff993ada714e', '4.22 to 5.8', 44.99, 89.99, '266 unique models in six sets (furniture, kitchen, cellar, books and more) with custom collision and two LODs each, about 3,500 triangles at LOD0. Pick the plain pieces.'),
+      listing('Medieval Fantasy Furniture Pack 01', 'Bartosz Wozny', '222da434-25a6-4576-9f1a-1c5e0780df0a', '4.10 to 5.6', 9.99, 20.99, '31 low-poly furniture models with three material variants and four LODs each.'),
     ],
   },
   characters: {
     brief: 'One modular set of grounded medieval villagers on the engine’s standard skeleton, enough to dress seventeen residents (reeve, steward, foreman, workers, baker, hunter, recorder, warden, caravan master, bandits) and a hero, with LODs; or MetaHumans with medieval clothing for a desktop build.',
     constraints: `${WEB_TARGET} MetaHuman bodies are heavy for the web target. No miller, baker, priest or hero figure was found as such: they come from dressing a modular set.`,
     candidates: [
-      { title: 'Modular Medieval Citizens', publisher: 'Assets3D', url: fab('3c45dc48-1b07-4e3c-8d9f-52d194d89d5c'), note: 'Peasants from modular parts on the Epic skeleton; an old listing, check Unreal 5 support.', verified: 'search result' },
-      { title: 'Medieval NPC Pack v1', publisher: 'Feyloom', url: fab('e6ff5eb2-f24a-4ee9-8004-fe1a80a496ed'), note: 'Five game-ready villagers on the Unreal 5 skeleton.', verified: 'search result' },
-      { title: 'Modular Medieval NPC V2 - Metahuman', publisher: 'Polyphoria', url: fab('4eb02787-c32d-4a10-b36b-bb237cffd738'), note: 'Everyday medieval clothing for MetaHumans; costly, and for desktop.', verified: 'search result' },
+      listing('Modular Medieval Citizens', 'Assets3D', '3c45dc48-1b07-4e3c-8d9f-52d194d89d5c', '4.12 to 5.0', 44.99, 89.99, 'One modular peasant with 13 body parts, colour masks and face blend shapes, rigged to the Epic skeleton, with two LODs. Listed for engine versions up to 5.0 only; rated 3.5 by 10.'),
+      listing('Medieval NPC Pack v1', 'Feyloom', 'e6ff5eb2-f24a-4ee9-8004-fe1a80a496ed', '5.5 to 5.6', 54.99, 109.99, 'Five fixed villagers of 4,200 to 5,400 vertices on the Unreal Engine 5 skeleton with 101 in-place animations; no LODs.'),
+      listing('Modular Medieval NPC V2 - Metahuman', 'Polyphoria', '4eb02787-c32d-4a10-b36b-bb237cffd738', '5.0 to 5.8', 599.99, 1499.99, 'About 130 modular clothing meshes for men and women on the Unreal Engine 5 skeleton, with MetaHuman integration; no animations; rated 4.3 by 8. By far the dearest candidate.'),
     ],
   },
   animation: {
     brief: 'Animation on the standard skeleton for locomotion, work and idling, sitting and lying down, unarmed and sword combat with guard and dodge, the bow, swimming, and mounting and riding.',
-    constraints: 'Epic’s Game Animation Sample is reported as licensed for Unreal Engine products only. No bow set and no deer-riding set was confirmed; a horse rider set is the nearest.',
+    constraints: 'No bow set and no deer-riding set was found; a horse rider set is the nearest. Epic’s Game Animation Sample shows the standard Personal and Professional licences on its page; an earlier report that it is limited to Unreal Engine products was not confirmed there, so read its licence before using it elsewhere.',
     candidates: [
-      { title: 'Game Animation Sample', publisher: 'Epic Games', url: fab('880e319a-a59e-4ed2-b268-b32dac7fa016'), note: 'Motion-matched locomotion and traversal; no combat, swimming, bow or riding.', verified: 'search result' },
-      { title: 'Sword Animset Pro', publisher: 'Kubold', url: fab('12783d2f-2bcf-4f3e-9a4a-d554cc3c579a'), note: 'With Fighting Animset Pro for unarmed combat.', verified: 'search result' },
-      { title: 'MC Village Life Animation Pack', publisher: 'MoCap Central', url: fab('409592b5-f8f8-4be0-b921-e6e9f3cc63dd'), note: 'Daily-life work, idle and sitting motions for villagers.', verified: 'search result' },
-      { title: 'Swim Animset', publisher: 'not recorded', url: fab('a584a2c9-91ea-448f-8476-69f895fda567'), note: 'Swim, float and dive.', verified: 'search result' },
+      listing('Game Animation Sample', 'Epic Games', '880e319a-a59e-4ed2-b268-b32dac7fa016', '5.4 to 5.8', 0, 0, 'A complete project with motion-matched locomotion and traversal; rated 4.7 by 358. No combat, swimming, bow or riding.'),
+      listing('Sword Animset Pro', 'Kubold', '12783d2f-2bcf-4f3e-9a4a-d554cc3c579a', '4.8 to 5.8', 64.99, 64.99, '178 motion-captured sword animations on the Unreal Engine 4 template skeleton, in place and with root motion; retarget them to the newer skeleton. Fighting Animset Pro for unarmed combat was seen in search results, not opened.'),
+      listing('MC Village Life Animation Pack', 'MoCap Central', '409592b5-f8f8-4be0-b921-e6e9f3cc63dd', '5.0 to 5.8', 79.99, 239.99, 'Motion-captured village work, idle and sitting motions on the Unreal Engine 5 mannequin skeleton, in place and with root motion; rated 4.5 by 6.'),
+      listing('Swim Animset', 'Filmstorm', 'a584a2c9-91ea-448f-8476-69f895fda567', '4.26 to 5.4', 40.99, 65.99, 'Freestyle, breaststroke at three speeds, floating idles, turns and diving on the Epic skeleton. Listed up to 5.4 only; rated 3.1 by 7.'),
     ],
   },
   animals: {
     brief: 'Rigged, animated animals with LODs and gaits: deer and stag, wolf, bear, boar, lion and tiger, cat and dog; a saddled deer or a mount that can stand in for it; ideally with their calls.',
-    constraints: `${WEB_TARGET} No standalone realistic animated tiger was found.`,
+    constraints: `${WEB_TARGET} No standalone realistic animated tiger was found, and no dog pack was opened.`,
     candidates: [
-      { title: 'FOREST ANIMALS PACK', publisher: 'PROTOFACTOR INC', url: fab('7097a489-67e6-47f7-a85d-55ad2674277a'), note: 'Bear, boar, stag, fox and wolf with three LODs and 13 to 24 animations each.', verified: 'search result' },
-      { title: 'ANIMAL VARIETY PACK', publisher: 'PROTOFACTOR INC', url: fab('2dd7964c-a601-4264-a53d-465dcae1644c'), note: 'Deer (stag and doe), wolf, fox, pig and crow.', verified: 'search result' },
-      { title: 'African Animals', publisher: 'JUNNICHI SUKO', url: fab('a8e0d184-2d52-44d7-9e35-a1ae4fa45b1d'), note: 'Includes a lion; animation range not confirmed.', verified: 'search result' },
-      { title: 'Cats Pack', publisher: 'RedDeer3D', url: fab('43c831f0-fc9f-499d-8d53-9596047dbb5e'), note: 'Cats with many animations; a Labrador listing covers the dogs.', verified: 'search result' },
+      listing('FOREST ANIMALS PACK', 'PROTOFACTOR INC', '7097a489-67e6-47f7-a85d-55ad2674277a', '4.15 to 5.4', 49.99, 149.99, 'Bear, boar, doe, stag, fox, rabbit and wolf at about 5,000 vertices, each in three levels of detail with 8 to 24 animations; rated 4.4 by 41. Listed up to 5.4 only.'),
+      listing('ANIMAL VARIETY PACK', 'PROTOFACTOR INC', '2dd7964c-a601-4264-a53d-465dcae1644c', '4.15 to 5.5', 0, 0, 'A free assortment from the same maker, 1,200 to 5,700 vertices with 17 to 26 animations each; rated 4.7 by 337. Search results named stag, doe, wolf, fox, pig and crow.'),
+      listing('African Animals', 'JUNNICHI SUKO', 'a8e0d184-2d52-44d7-9e35-a1ae4fa45b1d', '4.26 to 5.8', 119.99, 199.99, '21 animals with 1,318 animations, among them a lion with a groomed mane.'),
+      listing('Cats Pack', 'Radik Bilalov', '43c831f0-fc9f-499d-8d53-9596047dbb5e', '5.1 to 5.7', 59.99, 179.99, 'Twelve cats (four builds in several coats) with 175 animations; models and animations only, no controllers.'),
     ],
   },
   audio: {
     brief: 'Sound libraries to fill gaps in the game’s own set: nature ambience beds (forest, coast, wind, stream), footsteps by surface, medieval village and work foley, weapon and bow foley, and restrained medieval music.',
     constraints: 'The game’s own clips are balanced against each other; replace single weak clips, not the set. Check that a library’s licence covers game distribution.',
     candidates: [
-      { title: 'Wilderness Nature Loops', publisher: 'ESM (Epic Stock Media)', url: fab('1b83c6fa-42f3-4459-9ea7-7c004792e03f'), note: 'Seamless forest, ocean and wind loops.', verified: 'search result' },
-      { title: 'Foley: Footsteps Sound Effects Pack', publisher: 'not recorded', url: fab('fa9e8b89-f316-49e0-98e5-5d6e104d2ae6'), note: 'Footsteps on grass, wood, gravel, sand and stone.', verified: 'search result' },
-      { title: 'Medieval Fantasy Game Music Pack', publisher: 'Skyhammer Sound', url: fab('1c044e57-086d-4d0b-8538-02f54baaf6fc'), note: 'Medieval and renaissance pieces, some diegetic.', verified: 'search result' },
+      listing('Wilderness Nature Loops', 'ESM Team', '1b83c6fa-42f3-4459-9ea7-7c004792e03f', '5.4', 49.99, 49.99, '200 seamless nature loops, 349 minutes, 44.1 kHz 16-bit.'),
+      listing('Foley: Footsteps Sound Effects Pack', 'Ovani Sound', 'fa9e8b89-f316-49e0-98e5-5d6e104d2ae6', '4.0 to 5.4', 19.99, 99.99, '324 footstep samples on several surfaces, shod and barefoot, meant to be played at random.'),
+      listing('Medieval Fantasy Game Music Pack', 'Skyhammer Sound', '1c044e57-086d-4d0b-8538-02f54baaf6fc', '4.26 to 5.6', 24.99, 49.99, '32 tracks, an hour of music: 14 full pieces, 14 loops and 4 diegetic pieces.'),
     ],
   },
 };
