@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Exclusions, streamDistance } from '../../../src/core/world/exclusions';
-import { createFloraPopulation, registerFloraColliders, SPECIES, type FloraTree } from '../../../src/core/world/flora';
+import { createFloraPopulation, FLORA_VARIANTS, registerFloraColliders, SPECIES, type FloraTree } from '../../../src/core/world/flora';
 import { Colliders } from '../../../src/core/world/colliders';
 import { BUILDINGS, ROADS, SPAWN, SPRING_POOL, STRAND, STREAMS, WORLD } from '../../../src/core/world/layout';
 import { Terrain } from '../../../src/core/world/terrain';
@@ -51,6 +51,18 @@ describe('where every tree stands', () => {
       expect(Number.isFinite(tree.x) && Number.isFinite(tree.y) && Number.isFinite(tree.z)).toBe(true);
       expect(tree.s).toBeGreaterThan(0);
     }
+  });
+
+  it('gives every tree one of three model variants, and uses each of them', () => {
+    expect(FLORA_VARIANTS).toBe(3);
+    const used = new Set<number>();
+    for (const tree of population) {
+      expect(Number.isInteger(tree.v)).toBe(true);
+      expect(tree.v).toBeGreaterThanOrEqual(0);
+      expect(tree.v).toBeLessThan(FLORA_VARIANTS);
+      used.add(tree.v);
+    }
+    expect([...used].sort()).toEqual([0, 1, 2]);
   });
 
   it('gives every blocking trunk a stable collision id and registers it as an obstacle', () => {
