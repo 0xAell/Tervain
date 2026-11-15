@@ -1,4 +1,5 @@
 import type { ItemId } from '../../core/game/types';
+import type { GroundSurface } from '../../core/rules/soundscape';
 import type { WorkGesture } from '../npcStyle';
 import type { ClipId } from './clips';
 
@@ -7,7 +8,8 @@ import type { ClipId } from './clips';
  * they can be checked without a browser. Levels are linear gains applied on top of each clip's prepared loudness.
  */
 
-export type SurfaceKind = 'grass' | 'road' | 'stone' | 'water' | 'deck' | 'sand';
+/** What is underfoot: the core decides it (core/rules/soundscape.ts); this file says what it sounds like. */
+export type SurfaceKind = GroundSurface;
 
 export interface Cue {
   clip: ClipId;

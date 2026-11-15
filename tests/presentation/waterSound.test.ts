@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { bedTargets, farSea, type WorldSoundState } from '../../src/presentation/sound/soundscape';
+import { bedTargets, farSea, type WorldSoundState } from '../../src/core/rules/soundscape';
 import { WaterListener, type WaterSoundState } from '../../src/presentation/water/waterSound';
 import { coastX } from '../../src/core/world/coast';
 import { FORD, LIGHTHOUSE } from '../../src/core/world/layout';

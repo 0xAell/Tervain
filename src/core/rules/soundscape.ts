@@ -1,12 +1,8 @@
-import { cliffiness, coastX, shoreDistance } from '../../core/world/coast';
-import { deepwoodCover } from '../../core/world/forest';
-import { forestStandAt } from '../../core/world/forestStands';
-import { ANCHORS, ARRIVAL_WRECK, BUILDINGS, FOREST_RUIN, FORD, INLAND_HAMLET, LIGHTHOUSE, PLACES, RITE_ALTAR, STREAMS, WAGON, type V2 } from '../../core/world/layout';
-import { distToPolyline, roadWeight, type Terrain } from '../../core/world/terrain';
-import type { ClipId } from './clips';
-import type { SurfaceKind } from './foley';
-import type { LoopId } from './worldAudioManifest';
-import type { WaterSoundState } from '../water/waterSound';
+import { cliffiness, coastX, shoreDistance } from '../world/coast';
+import { deepwoodCover } from '../world/forest';
+import { forestStandAt } from '../world/forestStands';
+import { ANCHORS, ARRIVAL_WRECK, BUILDINGS, FOREST_RUIN, FORD, INLAND_HAMLET, LIGHTHOUSE, PLACES, RITE_ALTAR, STREAMS, WAGON, type V2 } from '../world/layout';
+import { distToPolyline, roadWeight, type Terrain } from '../world/terrain';
 
 /**
  * Where the listener is, and what the world sounds like there. Pure functions of position, time and world state:
@@ -25,6 +21,33 @@ import type { WaterSoundState } from '../water/waterSound';
  *
  * Levels are relative; the runtime applies the Ambience volume and smooths every change.
  */
+
+/** The looping layers of the world's sound: beds that surround the listener and point sources placed in the world. */
+export const BEDS = [
+  'sea',   'forest_day',   'forest_night',   'meadow_day',   'village_day',   'village_night',   'cliff_wind',   'interior',
+  'cut',   'brook',   'mill',   'quarry',   'spring',   'marsh',   'fire',   'hall_drone',
+  'surf',   'surf_rocks',   'sea_far',   'lap',   'rapids',   'underwater',
+] as const;
+export type BedId = (typeof BEDS)[number];
+
+/** The single calls placed around the listener. */
+export const EMITTER_CLIPS = ['gull', 'songbird', 'smallbird', 'woodpecker', 'crow', 'owl', 'frog', 'chicken', 'rooster', 'horse', 'chime', 'bubble', 'creak'] as const;
+export type EmitterClip = (typeof EMITTER_CLIPS)[number];
+
+/** What is underfoot, as footsteps hear it. */
+export type GroundSurface = 'grass' | 'road' | 'stone' | 'water' | 'deck' | 'sand';
+
+/** A place the water model found near the listener, with its distance (m). */
+export interface WaterSpot { x: number; z: number; d: number }
+/** What the water near the listener sounds like: where it breaks, where it laps, how far under it the ears are. */
+export interface WaterSound {
+  surf: WaterSpot | null;
+  rocks: WaterSpot | null;
+  calm: WaterSpot | null;
+  rapids: (WaterSpot & { rough: number }) | null;
+  /** How far under the surface the listener's ears are (m); 0 above it. */
+  under: number;
+}
 
 export interface Vec3 {
   x: number;
@@ -74,8 +97,9 @@ export function dawn(hour: number): number {
   return Math.max(0, 1 - Math.abs(hour - 6.2) / 1.8);
 }
 
-export const MILL_WHEEL = { x: -14, z: -8 } as const;
-export const QUARRY_WORK = { x: 92, z: -26 } as const;
+/** Where the turning mill wheel and the working quarry are heard from. */
+export const MILL_SOUND = { x: -14, z: -8 } as const;
+export const QUARRY_SOUND = { x: 92, z: -26 } as const;
 const WETLAND = { x: -14, z: -90 } as const;
 const STRAND_FIRE = ANCHORS.strand_fire ?? { x: -103, z: 16 };
 const SHRINE_HALL = BUILDINGS.find((b) => b.kind === 'shrine') ?? { x: -28, z: -106 };
@@ -128,7 +152,7 @@ export function farSea(l: Vec3): number {
   return Math.min(1, Math.max(within(d, 120, 300) * smooth(25, 90, d), high));
 }
 
-export function bedTargets(l: ListenerState, w: WorldSoundState, water?: WaterSoundState | null): Record<LoopId, BedTarget> {
+export function bedTargets(l: ListenerState, w: WorldSoundState, water?: WaterSound | null): Record<BedId, BedTarget> {
   const day = dayness(w);
   const night = 1 - day;
   const sea = seaProximity(l.x, l.z);
@@ -157,8 +181,8 @@ export function bedTargets(l: ListenerState, w: WorldSoundState, water?: WaterSo
     hall_drone: { gain: 0.42 * within(dist2(SHRINE_HALL, l.x, l.z), 5, 20) * (0.55 + 0.45 * night) },
     brook: stream ? { gain: out(0.9 * stream.flow * within(stream.d, 2, 38)), at: { x: stream.at.x, y: 0, z: stream.at.z } } : { gain: 0 },
     marsh: { gain: out(0.75 * ford * (0.3 + 0.7 * night)), at: { x: fordAt.x, y: 0, z: fordAt.z } },
-    mill: { gain: w.millTurning ? out(0.9 * within(dist2(MILL_WHEEL, l.x, l.z), 5, 60)) : 0, at: { x: MILL_WHEEL.x, y: 1.5, z: MILL_WHEEL.z } },
-    quarry: { gain: w.quarryWorking ? out(0.85 * within(dist2(QUARRY_WORK, l.x, l.z), 14, 140)) : 0, at: { x: QUARRY_WORK.x, y: 2, z: QUARRY_WORK.z } },
+    mill: { gain: w.millTurning ? out(0.9 * within(dist2(MILL_SOUND, l.x, l.z), 5, 60)) : 0, at: { x: MILL_SOUND.x, y: 1.5, z: MILL_SOUND.z } },
+    quarry: { gain: w.quarryWorking ? out(0.85 * within(dist2(QUARRY_SOUND, l.x, l.z), 14, 140)) : 0, at: { x: QUARRY_SOUND.x, y: 2, z: QUARRY_SOUND.z } },
     spring: { gain: out(0.8 * within(dist2(RITE_ALTAR, l.x, l.z), 3, 32)), at: { x: RITE_ALTAR.x, y: 0.5, z: RITE_ALTAR.z } },
     fire: { gain: out(0.85 * within(dist2(STRAND_FIRE, l.x, l.z), 2, 24)), at: { x: STRAND_FIRE.x, y: 0.4, z: STRAND_FIRE.z } },
     surf: water?.surf ? { gain: out(0.85 * within(water.surf.d, 4, 70)), at: { x: water.surf.x, y: 0, z: water.surf.z } } : { gain: 0 },
@@ -174,7 +198,7 @@ export function bedTargets(l: ListenerState, w: WorldSoundState, water?: WaterSo
 
 export interface EmitterEvent {
   rule: string;
-  clip: ClipId;
+  clip: EmitterClip;
   at: Vec3;
   gain: number;
   pitch: number;
@@ -184,7 +208,7 @@ export interface EmitterEvent {
 
 interface EmitterRule {
   id: string;
-  clip: ClipId;
+  clip: EmitterClip;
   /** Calls per second at full density are 1 / mean(every). */
   every: [number, number];
   density: (l: ListenerState, w: WorldSoundState) => number;
@@ -289,6 +313,11 @@ const RULES: EmitterRule[] = [
   },
 ];
 
+/** The calls as a table: what is heard, how often at full density (s), how loud, and how a burst is spaced. */
+export function emitterRuleTable(): { id: string; clip: EmitterClip; every: [number, number]; gain: number; pitch: number; burst: [number, number] | null; gap: [number, number] | null }[] {
+  return RULES.map((r) => ({ id: r.id, clip: r.clip, every: r.every, gain: r.gain, pitch: r.pitch, burst: r.burst ?? null, gap: r.gap ?? null }));
+}
+
 export function emitterRuleIds(): string[] {
   return RULES.map((r) => r.id);
 }
@@ -373,13 +402,13 @@ export function innSong(l: ListenerState, w: WorldSoundState): { gain: number; a
  * A room's floor under (x, z), if any (A89 scout): the shrine hall is flagged, every other room boarded. The ground
  * height already includes a room's floor, so the outdoor rules beneath took every floor for grass or road.
  */
-export function roomFloorSurface(terrain: Partial<Pick<Terrain, 'rooms'>>, x: number, z: number): SurfaceKind | null {
+export function roomFloorSurface(terrain: Partial<Pick<Terrain, 'rooms'>>, x: number, z: number): GroundSurface | null {
   const room = terrain.rooms?.at(x, z);
   return room ? (room.building.kind === 'shrine' ? 'stone' : 'deck') : null;
 }
 
 /** The surface under a resident or an enemy: the player's rules without the physics and stair cases. */
-export function groundSurface(terrain: Pick<Terrain, 'deckAt' | 'carveAt' | 'seaDepth' | 'slopeAt'> & Partial<Pick<Terrain, 'rooms'>>, x: number, z: number): SurfaceKind {
+export function groundSurface(terrain: Pick<Terrain, 'deckAt' | 'carveAt' | 'seaDepth' | 'slopeAt'> & Partial<Pick<Terrain, 'rooms'>>, x: number, z: number): GroundSurface {
   if (terrain.deckAt(x, z)) return 'deck';
   const floor = roomFloorSurface(terrain, x, z);
   if (floor) return floor;

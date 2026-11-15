@@ -9,18 +9,20 @@ import { defaultSettings } from '../../src/platform/settings';
 import { AudioEngine, ambienceMix } from '../../src/presentation/audio';
 import { ANIMAL_AUDIO, ANIMAL_CALL_EVENT, animalCallDetail, type AnimalCall } from '../../src/presentation/sound/animalAudio';
 import { NPC_STYLES } from '../../src/presentation/npcStyle';
-import { allClipIds, clipRef, hasClip, rng, VariantPicker } from '../../src/presentation/sound/clips';
+import { allClipIds, AUDIO_NAMES_AGREE, clipRef, hasClip, rng, VariantPicker } from '../../src/presentation/sound/clips';
+import { MUSIC } from '../../src/core/content/music';
+import { BEDS, EMITTER_CLIPS } from '../../src/core/rules/soundscape';
 import {
   bellCue, consumeCues, EQUIP, hitCue, landCues, MAP_OPEN, PAGE, pickupCues, SATCHEL_CLOSE, SATCHEL_OPEN, stepCue, swingCue, UNEQUIP,
   workSound, worldCues, type Cue, type SurfaceKind, type WorldAction,
 } from '../../src/presentation/sound/foley';
 import {
   moodAt, MusicDirector, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS, threatFrom, type MusicAction, type MusicContext,
-} from '../../src/presentation/sound/musicDirector';
+} from '../../src/core/rules/music';
 import {
   bedTargets, cricketDensity, cricketRate, EmitterScheduler, emitterRuleIds, groundSurface, INN, innEvening, innSong, nearestStream,
   temperatureAt, windTone, type ListenerState, type WorldSoundState,
-} from '../../src/presentation/sound/soundscape';
+} from '../../src/core/rules/soundscape';
 import { SoundWorld, type SoundFrame } from '../../src/presentation/sound/soundWorld';
 import { VOICE_AUDIO } from '../../src/presentation/sound/voiceManifest';
 import { WORLD_AUDIO } from '../../src/presentation/sound/worldAudioManifest';
@@ -138,6 +140,19 @@ function expectCue(cue: Cue, label: string) {
   expect(to - from, `${label}: ${cue.clip} segment`).toBeGreaterThan(cue.from === undefined && cue.to === undefined ? 0.08 : 0.4);
   expect(to, `${label}: ${cue.clip} ends inside its shortest take`).toBeLessThanOrEqual(shortest);
 }
+
+describe('the core’s names and the prepared audio', () => {
+  it('agree: the same beds, the same pieces with the same purpose and length, and a clip for every call', () => {
+    expect(AUDIO_NAMES_AGREE).toEqual([true, true, true]);
+    expect([...BEDS].sort()).toEqual(Object.keys(WORLD_AUDIO.loops).sort());
+    expect(Object.keys(MUSIC)).toEqual(Object.keys(WORLD_AUDIO.music));
+    for (const [id, entry] of Object.entries(WORLD_AUDIO.music)) {
+      const { kind, mood, origin, duration } = entry;
+      expect(MUSIC[id as keyof typeof MUSIC], id).toEqual({ kind, mood, origin, duration, ...('title' in entry ? { title: entry.title } : {}) });
+    }
+    for (const clip of EMITTER_CLIPS) expect(hasClip(clip), clip).toBe(true);
+  });
+});
 
 describe('clips', () => {
   it('never repeats a take back to back and reaches every take', () => {

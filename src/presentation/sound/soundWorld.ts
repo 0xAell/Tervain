@@ -4,10 +4,10 @@ import { npcStyle } from '../npcStyle';
 import { ANIMAL_AUDIO, ANIMAL_CALL_COOLDOWN, ANIMAL_VOICE_LIMIT, type AnimalCall, type AnimalCallFile } from './animalAudio';
 import { type BankName, clipRef, VariantPicker } from './clips';
 import { type Cue, stepCue, workSound, type WorkSound } from './foley';
-import { type MusicAction, MusicDirector, type Threat } from './musicDirector';
+import { type MusicAction, MusicDirector, type Threat } from '../../core/rules/music';
 import {
   bedTargets, cricketDensity, cricketRate, EmitterScheduler, groundSurface, innSong, temperatureAt, type Vec3, type WorldSoundState,
-} from './soundscape';
+} from '../../core/rules/soundscape';
 import { VOICE_AUDIO, type VoiceBank, type VoiceLineId } from './voiceManifest';
 import { WORLD_AUDIO, type LoopId, type MusicId, type SongId } from './worldAudioManifest';
 import type { WaterSoundState } from '../water/waterSound';

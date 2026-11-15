@@ -61,7 +61,7 @@ The [audition page](#audition-page) lets the owner review every take, cue, bed, 
 | Wildlife | Gulls over the sea by day, songbirds and a dawn chorus in the woods, small birds, a woodpecker, crows over open ground and the forest ruin, owls at night, frogs by the water, dogs, hens and a dawn rooster in the villages, a horse at the wagons, creaking timber in the woods and at the wreck | Twelve emitter rules with rates that follow place and hour |
 | Crafted life | Crickets from dusk into the night, chirping faster in warm air (Dolbear's law) and silent in the cold before dawn, each keeping its own voice and spot; the shrine's wind chime, five tubes on the theme's mode, stirring in short bursts; small bubbles rising at the spring | A temperature curve over the day, and two more emitter rules |
 | The inn | From 18:30 to 23:30 music plays inside the inn, heard through its walls with rests between tunes. A lute plays the Wanderer's Air (the theme), the jig Hearthsmoke and the slow air Salt and Rope. Two original songs are sung there: The Drought Bell, a slow ballad for a baritone with lute and fiddle, and Bread and Water, a drinking jig for a woman's voice with the drinkers joining the chorus. A fight drowns it, and the score keeps quiet while it plays | The inn's place and the hour |
-| Score | A piece for the mood of the place (vale, wild, sacred, night), then a quiet interval of 35–80 s, Gothic-style. The first time a mood is heard, its own arrangement of the Tervain theme plays. A low danger loop when an enemy hunts the player, a battle loop in a fight, each fight in one voice (the two generated takes of each loop come in turn). Stings for a newly found place (its region's motif), a step of the story or a skill, a won fight and a fall | [musicDirector.ts](../../src/presentation/sound/musicDirector.ts) |
+| Score | A piece for the mood of the place (vale, wild, sacred, night), then a quiet interval of 35–80 s, Gothic-style. The first time a mood is heard, its own arrangement of the Tervain theme plays. A low danger loop when an enemy hunts the player, a battle loop in a fight, each fight in one voice (the two generated takes of each loop come in turn). Stings for a newly found place (its region's motif), a step of the story or a skill, a won fight and a fall | [musicDirector.ts](../../src/core/rules/music.ts) |
 
 Interface navigation stays silent, as before. Captions remain for the growl, the toll-jumper's shout, the world's moving parts and the bell. Exchanges, scenes and the hero's lines are captioned with the speaker's name when captions are on; a remark shows as a bubble over the speaker.
 
@@ -233,12 +233,12 @@ with them, so, as with the six hunting recordings, their commercial clearance is
 - [worldAudioManifest.ts](../../src/presentation/sound/worldAudioManifest.ts) is generated: sprite offsets, and durations for loops, pieces and inn tunes. Each music entry records whether it was generated or composed.
 - [clips.ts](../../src/presentation/sound/clips.ts) names every clip and picks takes without repeating the last one. A cue may name a take instead, as the peal does.
 - [foley.ts](../../src/presentation/sound/foley.ts) holds the tables from game facts to layered cues (items, surfaces, world actions, the bell, combat, work).
-- [soundscape.ts](../../src/presentation/sound/soundscape.ts) holds pure functions of place, hour and world state:
+- [soundscape.ts](../../src/core/rules/soundscape.ts) holds pure functions of place, hour and world state:
   - bed levels and positions, and the wildlife rules (with bursts);
   - the day's temperature and the cricket rate;
   - the inn's evening;
   - the ground under other feet.
-- [musicDirector.ts](../../src/presentation/sound/musicDirector.ts) decides the score from mood, threat, discoveries and the inn's music, without audio objects.
+- [music.ts](../../src/core/rules/music.ts) decides the score from mood, threat, discoveries and the inn's music, without audio objects.
 - [soundWorld.ts](../../src/presentation/sound/soundWorld.ts) turns those decisions into Web Audio nodes, and plays speech.
 - [voiceManifest.ts](../../src/presentation/sound/voiceManifest.ts) is generated: each voice bank, and where every line sits in it.
 - [speech.ts](../../src/presentation/speech.ts) decides who says what and when ([Voices](#in-the-game)).

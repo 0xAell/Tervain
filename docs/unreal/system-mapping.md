@@ -72,7 +72,7 @@ numbers are in data either way.
 | --- | --- | --- |
 | **Figures and animation.** Rigged models with authored clips, code-driven turns, foot placement and finger poses. | Skeletal meshes on the engine's standard skeleton, **animation blueprints**, blend spaces and montages; foot placement with IK. Motion matching is optional. | Replaced with packs (asset manifest). Timings that gameplay depends on (when a blow lands, how long a dodge lasts) are in the core and must drive the montages, not the other way round. |
 | **Effects.** Leaf bursts, falling leaves, splashes, spray, hearth fire, smoke, dust, motes. | **Niagara**: per Epic, "Unreal Engine's next-generation VFX system". | Rebuilt. |
-| **Sound.** Ambience beds by place, emitters, foley by surface, animal calls, voices, an adaptive score that follows place, time and threat. | Sound waves with attenuation and ambient zones; **MetaSounds** for layered beds and music; a small music director. | The clips are kept (asset manifest). The director's rules are still in `presentation/sound/musicDirector.ts` and `soundscape.ts`. |
+| **Sound.** Ambience beds by place, emitters, foley by surface, animal calls, voices, an adaptive score that follows place, time and threat. | Sound waves with attenuation and ambient zones; **MetaSounds** for layered beds and music; a small music director. | The clips are kept (asset manifest). `core/rules/music.ts` is the director (the mood of a place, the threat of a moment, pacing, stings) over the catalogue in `core/content/music.ts`; `core/rules/soundscape.ts` sets every bed's level and place and times the single calls. Tables in `game/sound.json`; `presentation/sound/` plays what they decide. |
 | **Lighting and shadows.** One sun with a shadow map, lanterns and hearths as a few real lights, an image-based fill. | A directional light with cascaded shadows, point lights for lanterns and hearths. On desktop, Lumen and Virtual Shadow Maps are available; on the web target they are not. | See [the web target](web-target.md). |
 | **Grade.** An earthy, low-saturation grade and a sharpen pass. | A post-process volume with colour grading. | The look's intent; values in `presentation/grade.ts`. |
 | **Interface.** DOM panels: HUD, hotbar, inventory, journal, map, settings, title menu. | **UMG** widgets, with Common UI for gamepad focus. | The layout and the text (`ST_Tervain.csv`). The title scene (the vigil, the grove) is a set piece to rebuild or retire. |
@@ -94,7 +94,6 @@ the [roadmap](roadmap.md):
 - the control flow of the player's action states, the residents' route following and the animals' behaviour
   (`presentation/player.ts`, `actors.ts`, `animals.ts`): their numbers and decisions are in the core, their state
   machines are not;
-- the music director and the soundscape's emitter rules (`presentation/sound/`);
 - rocks, grass habitat and the woodland floor's planting (`presentation/scatterPopulation.ts`, `ground/habitat.ts`,
   `forestFloor.ts`);
 - the sky's colour keyframes (`presentation/sky.ts`) and the grade (`presentation/grade.ts`).

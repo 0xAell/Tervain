@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { groundSurface, innSong } from '../../src/presentation/sound/soundscape';
+import { groundSurface, innSong } from '../../src/core/rules/soundscape';
 import { BUILDINGS } from '../../src/core/world/layout';
 import { Terrain } from '../../src/core/world/terrain';
 
