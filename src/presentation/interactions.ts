@@ -1,176 +1,71 @@
-import { S } from '../core/content/strings';
-import { NPCS } from '../core/content/npcs';
 import type { App } from '../app';
-import { hasFact, phaseIndex } from '../core/game/state';
-import { ARCHIVE_SHUTTER, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, INSPECT_LOCATIONS, LEDGER, PICKUP_LOCATIONS, RESULT_CHECKS, RITE_ALTAR, SHORTCUT, SLUICE, bySpec, frontOf } from '../core/world/layout';
-import type { NpcId } from '../core/game/types';
-import { isWorldPickupItem, WORLD_PICKUP_MODELS } from '../core/content/pickups';
-import { worldPickupTargetY } from './worldPickups';
-import { hunterTableSurfaceY } from './hunterSupplies';
-import { hunterRank, hunterSparesArrows, hunterTradingOpen, restockParams } from '../core/game/hunting';
-import { DEER_BODY, doorwayAhead } from '../core/rules/riding';
+import { doorwayAhead, DEER_BODY } from '../core/rules/riding';
 import type { Interactable } from '../core/rules/interaction';
+import { fixedPlace, interactableTable, type InteractableAct, type InteractableNeed, type InteractablePlace } from '../core/rules/interactables';
+import { worldPickupTargetY } from './worldPickups';
 
 export type { Interactable };
 
-const App_MOUNT = '1005232412';
-const archiveDoorPos = () => frontOf(bySpec('archive'), 0.3);
-
-/** All things the player can act on, as data plus small actions over the game commands. */
+/**
+ * The core's table of interactables (`core/rules/interactables.ts`) as the things the scene offers: each entry gets
+ * its place this frame, the facts of the moment it needs, and the carrying out of its action. What can be acted on,
+ * from how far, in what order and when is all in the table.
+ */
 export function buildInteractables(app: App): Interactable[] {
-  const list: Interactable[] = [];
-  const game = app.game;
-  const st = () => game.state;
-  list.push({
-    id: 'hunter_notes', pos: () => ({ ...hunterStationPoint(HUNTER_TABLE.signX, HUNTER_TABLE.signZ), y: hunterTableSurfaceY(app.world.terrain) + HUNTER_TABLE.signCentreAboveTop }),
-    r: HUNTER_SUPPLY.r, prompt: () => S('prompt.hunter_supplies'), enabled: () => true,
-    ignoreColliders: ['hunter_board', 'hunter_board_post'],
-    act: () => app.openHuntingNotes(), priority: 1,
-  });
-  list.push({
-    id: 'hunter_restock', pos: () => ({ ...HUNTER_SUPPLY, y: hunterTableSurfaceY(app.world.terrain) + .12 }), r: HUNTER_SUPPLY.r,
-    prompt: () => hunterSparesArrows(st()) ? S('prompt.spare_arrows') : S('prompt.restock_arrows', restockParams(st())),
-    // A hide is offered only while the quiver has room for what it buys (A89 scout).
-    enabled: () => hunterTradingOpen(st()) && (((st().inventory.animal_hide ?? 0) > 0 && restockParams(st()).count > 0) || hunterSparesArrows(st())),
-    act: () => app.restockArrows(), priority: -.6,
-  });
-  list.push({
-    id: 'hunter_sell_meat', pos: () => ({ ...hunterStationPoint(.7, .25), y: hunterTableSurfaceY(app.world.terrain) + .12 }), r: 2.2,
-    // Not while a foe is near: the sale is refused then, and the prompt must not offer it (A89 scout).
-    prompt: () => S('prompt.sell_game_meat', { coin: hunterRank(st().huntTally).meat }), enabled: () => hunterTradingOpen(st()) && (st().inventory.raw_meat ?? 0) > 0 && app.noThreatNear(),
-    act: () => app.sellGameMeat(), priority: -.6,
-  });
+  const state = () => app.game.state;
 
-  // The saddled deer at the caravan rest can be ridden (A70).
-  list.push({
-    id: 'mount_deer', pos: () => { const m = app.world.animals?.mount(App_MOUNT); return m ? { x: m.x, y: m.y + m.seat, z: m.z } : { x: 1e9, z: 1e9 }; },
-    r: 2.6, prompt: () => S('prompt.ride'), ignoreColliders: ['animal:' + App_MOUNT],
-    enabled: () => !app.player.mount && !app.player.mountMove && app.player.alive && !app.player.swimming && !!app.world.animals?.mount(App_MOUNT) && app.noThreatNear(),
-    act: () => app.mountDeer(), priority: -0.4,
-  });
-  list.push({
-    id: 'dismount', pos: () => ({ x: app.player.x, y: app.player.y + 1.4, z: app.player.z }), r: 3,
-    prompt: () => S('prompt.dismount'), enabled: () => !!app.player.mount, act: () => app.dismount(), priority: -5,
-  });
-  // A deer does not go indoors (A71): at a doorway the rider is offered to get down instead.
-  list.push({
-    id: 'dismount_door', pos: () => ({ x: app.player.x, y: app.player.y + 1.4, z: app.player.z }), r: 3,
-    prompt: () => S('prompt.dismount_door'), act: () => app.dismount(), priority: -6,
-    enabled: () => {
-      const p = app.player;
-      return !!p.mount && !p.mountMove && doorwayAhead(p.x + Math.sin(p.yaw) * DEER_BODY.front, p.z + Math.cos(p.yaw) * DEER_BODY.front) !== null;
-    },
-  });
+  // The terrain is asked for only by a place that stands on it (the hunter's table), once a world is there.
+  const ground = { heightAt: (x: number, z: number) => app.world.terrain.heightAt(x, z) };
+  const place = (at: InteractablePlace): { x: number; z: number; y?: number } => {
+    const fixed = fixedPlace(at, ground);
+    if (fixed) return fixed;
+    if (at.at === 'pickup') return { x: at.x, z: at.z, y: worldPickupTargetY(app.world?.scenery.pickups[at.pickup]) };
+    if (at.at === 'mount') { const m = app.world.animals?.mount(at.mount); return m ? { x: m.x, y: m.y + m.seat, z: m.z } : { x: 1e9, z: 1e9 }; }
+    if (at.at === 'rider') return { x: app.player.x, y: app.player.y + at.above, z: app.player.z };
+    if (at.at === 'resident') { const npc = app.npcs.find((actor) => actor.id === at.npc)!; return { x: npc.x, y: npc.y + at.above, z: npc.z }; }
+    throw new Error('An interactable with no place.');
+  };
 
-  // People.
-  for (const npc of app.npcs) {
-    const def = NPCS[npc.id as NpcId];
-    list.push({
-      id: `npc:${npc.id}`,
-      pos: () => ({ x: npc.x, y: npc.y + 1.1, z: npc.z }),
-      r: def.interactRadius ?? 2.7,
-      prompt: () => S('prompt.observe', { name: def.name }),
-      enabled: () => !npc.hidden && st().npcs[npc.id].available && app.noThreatNear(),
-      act: () => app.observeNpc(npc),
-      priority: -1,
-    });
-  }
+  const holds = (need: InteractableNeed, at: InteractablePlace): boolean => {
+    const p = app.player;
+    switch (need) {
+      case 'no_threat_near': return app.noThreatNear();
+      case 'can_mount': return !p.mount && !p.mountMove && p.alive && !p.swimming && at.at === 'mount' && !!app.world.animals?.mount(at.mount);
+      case 'riding': return !!p.mount;
+      case 'riding_at_doorway': return !!p.mount && !p.mountMove && doorwayAhead(p.x + Math.sin(p.yaw) * DEER_BODY.front, p.z + Math.cos(p.yaw) * DEER_BODY.front) !== null;
+      case 'resident_in_sight': return at.at === 'resident' && !app.npcs.find((actor) => actor.id === at.npc)!.hidden;
+    }
+  };
 
-  // Observations.
-  for (const p of INSPECT_LOCATIONS) {
-    list.push({
-      id: `inspect:${p.id}`,
-      // Only the observed object's own solid is exempt; nearby walls still obstruct it.
-      ignoreColliders: p.id === 'templar_waymarker' ? ['forest-waymarker:0'] : p.id === 'saltward_kit' ? ['kit_table'] : undefined,
-      pos: () => ({ x: p.x, z: p.z }),
-      r: p.r,
-      prompt: () => S(`prompt.inspect.${p.id}`),
-      // Once an allocation is committed the same spot is where the result is checked; inspecting it again adds nothing.
-      enabled: () => (p.id === 'dry_channel' ? phaseIndex(st().quest.phase) < phaseIndex('committed') : true),
-      act: () => app.inspect(p.id),
-    });
-  }
+  const perform = (act: InteractableAct): void => {
+    switch (act.do) {
+      case 'hunting_notes': return app.openHuntingNotes();
+      case 'restock_arrows': return app.restockArrows();
+      case 'sell_game_meat': return app.sellGameMeat();
+      case 'mount': return app.mountDeer();
+      case 'dismount': return app.dismount();
+      case 'observe': return app.observeNpc(app.npcs.find((actor) => actor.id === act.npc)!);
+      case 'inspect': return app.inspect(act.point);
+      case 'pickup': return app.pickup(act.pickup, act.item, act.qty);
+      case 'pull_lever': return app.pullLever();
+      case 'open_sluice': return app.openSluice();
+      case 'try_archive_door': return app.tryArchiveDoor();
+      case 'force_shutter': return app.forceShutter();
+      case 'read_ledger': return app.readLedger();
+      case 'perform_rite': return app.performRite();
+      case 'check_result': return app.checkResult();
+    }
+  };
 
-  // Things to pick up.
-  for (const pk of PICKUP_LOCATIONS) {
-    list.push({
-      id: `pickup:${pk.id}`,
-      pos: () => ({ x: pk.x, z: pk.z, y: worldPickupTargetY(app.world?.scenery.pickups[pk.id]) }),
-      r: pk.r,
-      prompt: () => isWorldPickupItem(pk.item) ? S('prompt.pickup', { name: S(WORLD_PICKUP_MODELS[pk.item].nameKey) }) : S(`prompt.pickup.${pk.id}`),
-      enabled: () => st().locationChanges[`pickup:${pk.id}`] !== 'taken',
-      act: () => app.pickup(pk.id, pk.item, pk.qty),
-      priority: -0.5,
-    });
-  }
-
-  // The maintenance lever.
-  list.push({
-    id: 'lever',
-    pos: () => SHORTCUT.lever,
-    r: SHORTCUT.lever.r,
-    prompt: () => S('prompt.lever'),
-    enabled: () => st().locationChanges.shortcut !== 'open',
-    act: () => app.pullLever(),
-  });
-
-  // The sluice controls.
-  list.push({
-    id: 'sluice',
-    pos: () => SLUICE.control,
-    r: SLUICE.control.r,
-    prompt: () => S('prompt.sluice'),
-    enabled: () => true,
-    act: () => app.openSluice(),
-  });
-
-  // Archive: door, shutter, ledger.
-  list.push({
-    id: 'archive_door',
-    pos: archiveDoorPos,
-    r: 2.4,
-    prompt: () => S('prompt.archive_door.locked'),
-    enabled: () => st().locationChanges.archive_door !== 'open',
-    act: () => app.tryArchiveDoor(),
-  });
-  list.push({
-    id: 'archive_shutter',
-    pos: () => ARCHIVE_SHUTTER,
-    r: ARCHIVE_SHUTTER.r,
-    prompt: () => S('prompt.archive_shutter'),
-    enabled: () => st().locationChanges.archive_shutter !== 'forced' && st().locationChanges.archive_shutter !== 'sealed',
-    act: () => app.forceShutter(),
-  });
-  list.push({
-    id: 'ledger',
-    pos: () => LEDGER,
-    r: LEDGER.r,
-    prompt: () => S('prompt.ledger'),
-    enabled: () => st().locationChanges.archive_door === 'open' || st().locationChanges.archive_shutter === 'forced',
-    act: () => app.readLedger(),
-  });
-
-  // The spring rite.
-  list.push({
-    id: 'rite',
-    ignoreColliders: ['altar'],
-    pos: () => RITE_ALTAR,
-    r: RITE_ALTAR.r,
-    prompt: () => (hasFact(st(), 'rite_taught') ? S('prompt.rite') : S('prompt.rite.notaught')),
-    enabled: () => true,
-    act: () => app.performRite(),
-  });
-
-  // Seeing the result reach the village.
-  for (const c of RESULT_CHECKS) {
-    list.push({
-      id: c.id,
-      pos: () => ({ x: c.x, z: c.z }),
-      r: c.r,
-      prompt: () => S(c.id === 'check_channel' ? 'prompt.check_channel' : 'prompt.check_mill'),
-      enabled: () => st().quest.phase === 'committed',
-      act: () => app.checkResult(),
-    });
-  }
-  return list;
+  return interactableTable()
+    // A resident who is not in this world (a test's or a partial build's) is not offered.
+    .filter((entry) => entry.place.at !== 'resident' || app.npcs.some((actor) => actor.id === (entry.place as { npc: string }).npc))
+    .map((entry): Interactable => ({
+      id: entry.id, r: entry.reach, priority: entry.priority, ignoreColliders: entry.ignoreColliders,
+      pos: () => place(entry.place),
+      prompt: () => entry.prompt(state()),
+      // The state's rule first, as before: a fact of the moment is asked only for what the state offers.
+      enabled: () => entry.offered(state()) && entry.needs.every((need) => holds(need, entry.place)),
+      act: () => perform(entry.act),
+    }));
 }

@@ -22,6 +22,8 @@ import {
   SAVE_FORMAT_VERSION, WRECK_BLADE_PICKUP,
 } from '../game/types';
 import { ANIMAL_BEHAVIOUR } from '../rules/animalBehaviour';
+import { GROUND_TARGET_HEIGHT, INTERACT_EYE_HEIGHT } from '../rules/interaction';
+import { interactableTable, RESIDENT_REACH_HEIGHT, RIDER_REACH_HEIGHT } from '../rules/interactables';
 import { BOW } from '../rules/bow';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../rules/camera';
 import { NIGHT, nightness, SUNRISE_HOUR, SUNSET_HOUR } from '../rules/dayNight';
@@ -121,6 +123,14 @@ function game(): PortableDocument[] {
       path: 'game/inspections.json',
       about: 'What can be examined in the world: requirements, effects and the notice shown. Positions are in world/layout.json.',
       data: { points: Object.values(INSPECT_POINTS) },
+    },
+    {
+      path: 'game/interactables.json',
+      about: 'Everything the wanderer can act on: where it is, how near he must come, its place in the order of offers (lower first; each whole step outweighs two metres), the solids that are the thing itself, the facts of the moment it needs, and what acting on it does. When the state offers each, and its prompt, are rules in core/rules/interactables.ts.',
+      data: {
+        reachHeights: { resident: RESIDENT_REACH_HEIGHT, rider: RIDER_REACH_HEIGHT, groundPoint: GROUND_TARGET_HEIGHT, eye: INTERACT_EYE_HEIGHT },
+        interactables: interactableTable().map((entry) => ({ id: entry.id, place: entry.place, reach: entry.reach, priority: entry.priority, ignoreColliders: entry.ignoreColliders ?? [], needs: entry.needs, act: entry.act })),
+      },
     },
     {
       path: 'game/voice.json',

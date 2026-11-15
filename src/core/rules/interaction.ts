@@ -15,18 +15,23 @@ export interface Interactable {
   priority?: number;
 }
 
+/** Reach is measured from his eye, this far above his feet, to the target. */
+export const INTERACT_EYE_HEIGHT = 1.4;
+/** A target given only as a place on the ground is taken this far above it. */
+export const GROUND_TARGET_HEIGHT = 1;
+
 /** Reach, facing and actual visibility must all agree before a world action can be offered. */
 export function chooseInteractable(items: readonly Interactable[], player: {x:number;y:number;z:number;yaw:number}, viewYaw: number, terrain: {groundAt(x:number,z:number):number}, colliders: Colliders, dynamicOcclusion?: (from: {x:number;y:number;z:number}, to: {x:number;y:number;z:number}) => boolean): Interactable | null {
   let best: Interactable | null = null;
   let score = Infinity;
-  const eye = {x:player.x,y:player.y+1.4,z:player.z};
+  const eye = {x:player.x,y:player.y+INTERACT_EYE_HEIGHT,z:player.z};
   for (const it of items) {
     if (!it.enabled()) continue;
     const pos = it.pos();
     const dx = pos.x-player.x;
     const dz = pos.z-player.z;
     const d = Math.hypot(dx,dz);
-    const target = {x:pos.x,y:pos.y??terrain.groundAt(pos.x,pos.z)+1,z:pos.z};
+    const target = {x:pos.x,y:pos.y??terrain.groundAt(pos.x,pos.z)+GROUND_TARGET_HEIGHT,z:pos.z};
     if (Math.hypot(d,target.y-eye.y) > it.r) continue;
     const facing = d < 1.4 ? 1 : (dx*Math.sin(player.yaw)+dz*Math.cos(player.yaw))/(d||1);
     const viewing = (dx*Math.sin(viewYaw)+dz*Math.cos(viewYaw))/(d||1);

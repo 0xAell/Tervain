@@ -1,22 +1,13 @@
 import * as THREE from 'three';
 import { mergeStaticParts } from './staticMerge';
-import { HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE as T, hunterStationPoint } from '../core/world/layout';
+import { HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE as T, hunterStationPoint, hunterTableSurfaceY } from '../core/world/layout';
 import type { Terrain } from '../core/world/terrain';
 import type { Colliders } from '../core/world/colliders';
 import { makeTexPair } from './buildingTextures';
 import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
 
-/** Shared horizontal support plane: authored gear rests on the planks, never on the ground beneath them. */
-export function hunterTableSurfaceY(terrain: Pick<Terrain, 'heightAt'>): number {
-  let footing = -Infinity;
-  for (const x of [-T.legX, T.legX]) for (const z of [-T.legZ, T.legZ]) {
-    for (const dx of [-T.legWidth / 2, T.legWidth / 2]) for (const dz of [-T.legWidth / 2, T.legWidth / 2]) {
-      const point = hunterStationPoint(x + dx, z + dz);
-      footing = Math.max(footing, terrain.heightAt(point.x, point.z));
-    }
-  }
-  return footing + T.topAboveFooting;
-}
+// The table's top is where the core says it is (the interactables and the pickups share it).
+export { hunterTableSurfaceY };
 
 /** Closed, braced rustic counter with one readable board mounted behind its front face. */
 export function buildHunterSupplies(terrain: Pick<Terrain, 'heightAt'>, colliders: Colliders): THREE.Group {

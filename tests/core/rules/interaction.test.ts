@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chooseInteractable, type Interactable } from '../../../src/core/rules/interaction';
+import { chooseInteractable, GROUND_TARGET_HEIGHT, INTERACT_EYE_HEIGHT, type Interactable } from '../../../src/core/rules/interaction';
 import { Colliders } from '../../../src/core/world/colliders';
 
 const flat = { groundAt: () => 0 };
@@ -15,6 +15,16 @@ describe('choosing what the player can act on', () => {
     expect(choose([thing('far', 0, 2.5), thing('near', 0, 1.8)])).toBe('near');
     expect(choose([thing('out', 0, 3.2)])).toBeNull();
     expect(choose([thing('wide', 0, 3.2, { r: 4 })])).toBe('wide');
+  });
+
+  it('names the two heights reach is measured between', () => {
+    expect(INTERACT_EYE_HEIGHT).toBe(1.4);
+    expect(GROUND_TARGET_HEIGHT).toBe(1);
+    // A thing on the ground straight ahead is in reach exactly when the slanted distance from eye to target is.
+    const slant = (flat: number) => Math.hypot(flat, GROUND_TARGET_HEIGHT - INTERACT_EYE_HEIGHT);
+    expect(slant(2.97)).toBeLessThan(3); expect(slant(2.98)).toBeGreaterThan(3);
+    expect(choose([thing('in', 0, 2.97)])).toBe('in');
+    expect(choose([thing('out', 0, 2.98)])).toBeNull();
   });
 
   it('measures reach to the target’s height, from the eye at 1.4 m', () => {

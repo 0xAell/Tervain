@@ -36,7 +36,7 @@ residents, 3 silent ones, 3 hostiles, 19 animals, 20 items, 98 dialogue nodes, 2
 | **Riding.** The saddled deer: reins with bounded turn and acceleration, gallop stamina, mounting and dismounting, doorways it will not enter. | `core/rules/riding.ts`. | A mount pawn the character attaches to and possesses or drives; the rules mirrored as functions. | Every number and the rules. |
 | **Camera.** A follow boom that shortens for obstructions and tree crowns, an over-the-shoulder aim view, a room view, a ride view. | `core/rules/camera.ts`, `cameraObstruction.ts`, `cameraCrowns.ts`. | A **spring arm** and camera component (the arm's collision test replaces the hand-made obstruction), with the aim, room and ride offsets blended. Field of view: see [conventions](conventions.md). | Distances, limits and offsets. |
 | **Input.** Keyboard, mouse and gamepad, with rebinding. | Actions in `platform/settings.ts`: move, sprint, jump, interact, skin, grab, throw, attack, heavy, block, dodge, heal, journal, map, inventory, camera, quick save and load, pause, ten quick slots. | **Enhanced Input** (Epic: "Enhanced Input is enabled by default."): an input action per action above, and mapping contexts for on foot, mounted, aiming and the interface. | The action list and default bindings. |
-| **Interaction.** The nearest thing within reach that he faces or looks at, not hidden by scenery, lowest priority first. | `core/rules/interaction.ts`; the list of interactables in `presentation/interactions.ts`. | An interaction component that gathers candidates by overlap and ranks them with the mirrored rule; prompts through the interface. | The ranking rule; the reach and priority of each interactable are still in the scene file. |
+| **Interaction.** The nearest thing within reach that he faces or looks at, not hidden by scenery, lowest priority first. | `core/rules/interaction.ts` (the ranking) and `core/rules/interactables.ts` (the table: place, reach, priority, prompt, when the state offers each, what it does); `data/game/interactables.json`. | An interaction component that gathers candidates by overlap and ranks them with the mirrored rule; prompts through the interface. | The ranking rule and the whole table. The scene only places moving things and carries out the action. |
 
 ### Components or the Gameplay Ability System
 
@@ -91,7 +91,6 @@ mirrored tests pass on the same numbers.
 These hold design decisions that have not yet been lifted into the core. Read them in place; lifting them is listed in
 the [roadmap](roadmap.md):
 
-- the list of interactables with their reach and priority (`presentation/interactions.ts`);
 - the control flow of the player's action states, the residents' route following and the animals' behaviour
   (`presentation/player.ts`, `actors.ts`, `animals.ts`): their numbers and decisions are in the core, their state
   machines are not;
