@@ -63,6 +63,7 @@ numbers are in data either way.
 | --- | --- | --- | --- |
 | **World state and commands.** One persistent state; every meaningful change goes through a command, which emits events for the scene. | `core/game/state.ts`, `commands.ts`, `types.ts`, `game.ts`. | A **game-instance subsystem** holding the state as structs, with the commands as functions and events as delegates. This is the heart of the port and the part with the most tests to mirror (`tests/scenarios`). | The state's shape, every command, every scenario test. |
 | **The quest.** The Dry Bell: evidence, phases, three parties' consent, an allocation, consequences. | `core/game/` and `core/content/`; `data/game/quest.json`, `inspections.json`. | Part of the same subsystem. | Everything. |
+| **A sitting.** What passes while the world runs and is not saved: the clock handed its minutes in halves, the count to the next autosave and whether a new journey may overwrite the last, the pause on a blow, the fall and the waking at the checkpoint, where a loaded wanderer is set down (standing, afloat, or the nearest open ground), places discovered on coming near, getting onto and off the deer, the archive's door, timed work, and which objective is shown. | `core/rules/journey.ts` (the numbers) and `core/rules/session.ts` (when each applies); `src/app.ts` calls them in its loop. | The game mode and player controller call the ported functions; timers as timer handles. | The rules. The order in which the application steps its parts each frame is its own, and a port orders its ticks its own way. |
 | **Saving.** A versioned envelope with a checksum in browser storage; autosave every 90 s. | `platform/storage.ts`; payload `WorldState`. | **Save games**: a `USaveGame` object holding the same state, saved asynchronously. | The payload's fields and the save format version. The envelope is replaced. |
 | **Journal, map, hints, inventory.** Derived views of the state. | `core/game/journal.ts`, `map.ts`, `hints.ts`, `inventory.ts`. | Functions over the ported state, shown by widgets. | The rules. |
 
@@ -91,10 +92,6 @@ mirrored tests pass on the same numbers.
 The scene layer was read end to end on 15 November 2026, after the lifts above, for anything that still decides how
 the game plays rather than how it looks or sounds. These do. Read them in place until they are lifted:
 
-- **The session's rules.** In `src/app.ts`: the order of a step, how the clock is advanced, dying and waking at the
-  checkpoint, when the checkpoint moves, when the game saves itself and whether a new journey may overwrite the last,
-  where a loaded hero is set down safely, hostiles put back at their posts, getting onto and off the deer, the archive's
-  door and who sees a trespass, the rite's and the sluice's timed work, discovering a place, and which hint is shown.
 - **Who speaks when.** Which talk a resident gives next, overheard scenes once a game day, the hero's remarks and their
   pauses: `presentation/speech.ts`. The lines and their conditions are in the core.
 - **Carrying loose cargo.** What can be picked up, where it is held, when it is dropped and how it is thrown:

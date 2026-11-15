@@ -500,6 +500,33 @@
     ]
   },
   "journey": {
+    "sitting": {
+      "clockTickMinutes": 0.5,
+      "afloat": {
+        "depth": 0.9,
+        "over": 0.9,
+        "feetBelow": 1.1,
+        "headroom": 0.2
+      },
+      "safePlaceRings": 10,
+      "entry": {
+        "propSupport": 0.12,
+        "buried": 0.3
+      },
+      "standingBody": {
+        "residentRadius": 0.35,
+        "height": 2.1
+      },
+      "awaitedMountReach": 1,
+      "timedWork": {
+        "rite": 3,
+        "brace": 2.8
+      },
+      "shake": {
+        "surge": 0.6,
+        "jam": 0.4
+      }
+    },
     "autosaveSeconds": 90,
     "hitStop": {
       "heavy": 0.07,

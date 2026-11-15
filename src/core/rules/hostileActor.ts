@@ -137,6 +137,23 @@ export abstract class HostileActor {
     this.bodyStruck(0.5);
   }
 
+  /** Put as the saved journey has them: fallen and gone if defeated, else whole at their post and unaware. */
+  restore(defeated: boolean): void {
+    if (defeated) {
+      this.state = 'dead';
+      this.fade = 0;
+      this.bodyShown(false);
+    } else {
+      this.state = 'idle';
+      this.engaged = false;
+      this.hp = this.maxHp;
+      this.x = this.spawn.x;
+      this.z = this.spawn.z;
+      this.fade = 1;
+      this.bodyShown(true);
+    }
+  }
+
   reset(ctx: { terrain: Terrain }) {
     if (this.state === 'dead') return;
     this.state = 'idle';
