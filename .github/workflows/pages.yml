@@ -80,8 +80,28 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Scenario tests (shard ${{ matrix.shard }} of 4)
-        run: npx vitest run --shard=${{ matrix.shard }}/4 --exclude tests/gothic3-dialogue/engine-io-frame.test.ts --exclude tests/gothic3-dialogue/shared-crt-heap.test.ts --exclude 'tests/gothic3-dialogue/browser-*.test.ts' --testTimeout=90000
+      # The game's tests, which are also the port seed's checks. The separate Gothic 3 study's tests are another
+      # project and run in the jobs below; neither loads the other's code.
+      - name: Game and seed tests (shard ${{ matrix.shard }} of 4)
+        run: npx vitest run --project game --shard=${{ matrix.shard }}/4 --testTimeout=90000
+
+  # The separate Gothic 3 study: its own tests, apart from the game's. Its three heaviest suites run in the jobs that
+  # follow.
+  gothic3-study:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Gothic 3 study tests (shard ${{ matrix.shard }} of 4)
+        run: npx vitest run --project gothic3 --shard=${{ matrix.shard }}/4 --exclude tests/gothic3-dialogue/engine-io-frame.test.ts --exclude tests/gothic3-dialogue/shared-crt-heap.test.ts --exclude 'tests/gothic3-dialogue/browser-*.test.ts' --testTimeout=90000
 
   # This source-backed CRT suite is another single large file, so split it by listed test names before the normal
   # file shards run. Without this, shard 1 carries the whole file and becomes the workflow tail.

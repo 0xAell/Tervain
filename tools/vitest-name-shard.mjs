@@ -33,7 +33,8 @@ for (const line of listed.stdout.split(/\r?\n/)) {
   const marker = ' > ';
   const at = line.indexOf(marker);
   if (at < 0) continue;
-  const listedFile = line.slice(0, at).replaceAll('\\', '/');
+  // With test projects, each listed line begins with the project's name in brackets.
+  const listedFile = line.slice(0, at).replace(/^\[[^\]]+\] /, '').replaceAll('\\', '/');
   if (path.normalize(listedFile) !== path.normalize(file)) continue;
   const name = line.slice(at + marker.length).trim();
   if (name) names.push(name);

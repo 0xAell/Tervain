@@ -12,9 +12,9 @@ import * as THREE from 'three';
  * beneath keeps its upper body, and the feet are held where they were planted by a two-joint reach: a planted foot does
  * not slide while the hips turn over it, a lifted one travels to where it lands.
  *
- * Fades follow the recovered Gothic 3 animation instruction: a phase that begins or ends (`_Begin_` / `_End_`) fades in
- * or out over 0.1 s (the standard animation fade, Game 2069e184); see src/gothic3/animation-instruction.ts. Only that
- * timing is used, no Gothic 3 data.
+ * Fades follow the Gothic 3 animation instruction as the separate study recovered it: a phase that begins or ends
+ * (`_Begin_` / `_End_`) fades in or out over 0.1 s, the standard animation fade. Only that timing is used: no Gothic 3
+ * data and none of the study's code.
  */
 export const TURN_STEP = {
   /** Seconds a full two-step cycle takes at rate 1. */

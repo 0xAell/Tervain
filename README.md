@@ -89,6 +89,8 @@ npm test
 npm run build
 ```
 
+`npm run typecheck:game` and `npm run test:game` check the game alone, without the separate Gothic 3 study.
+
 After changing the core's data or the shipped assets, regenerate the exports (CI checks that they are current):
 
 ```sh
@@ -114,6 +116,12 @@ The [documentation index](docs/README.md) lists everything. Starting points:
 ## Gothic 3 study and reconstruction
 
 A separate project lives in this repository beside Tervain: a study of Gothic 3 and an incomplete TypeScript browser reconstruction of it, used as reference material for Tervain's look and feel. It shares no code with the game and is not part of the Unreal port.
+
+What keeps it separate:
+
+- **Where it lives.** `src/gothic3` and `src/gothic3local` (code), `tools/gothic3` and `scripts/` (its tools), `tests/gothic3*` (its tests), `assets/gothic3` and `public/gothic3` (its records and prepared data), and the two pages `gothic3/` and `gothic3-local/`. Its documents are the `gothic3-*` pages under `docs/engineering` and the dated studies under `docs/art`.
+- **No shared code.** No file of the game imports a file of the study, and none of the study imports the game. Only configuration names both: the site's build, because one site serves them, and the two TypeScript projects that keep them apart. `tests/tooling/gothic3Study.test.ts` fails when that stops being true.
+- **Outside the port seed and its checks.** The core, the exported data, the asset manifest and the Unreal project hold nothing of it. It is compiled and tested as a project of its own: `npm run typecheck:gothic3` and `npm run test:gothic3` are the study's, `npm run typecheck:game` and `npm run test:game` the game's, which are also the seed's. In CI they run in separate jobs. `npm run typecheck` and `npm test` run both.
 
 - The [Gothic 3 / Ardea reconstruction](https://ael-dev3.github.io/Tervain/gothic3/) is a new browser implementation guided by the installed game. The Windows executable is not compiled into the site, and decompiled listings are not treated as original source code. Startup and campaign integration are still incomplete. See its [current scope and controls](docs/engineering/gothic3-browser-port.md).
 - The [local-install study viewer](docs/engineering/gothic3-local.md) reads the visitor's own installed files in their browser and hosts no game data.

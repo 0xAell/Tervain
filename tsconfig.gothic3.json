@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/gothic3", "src/gothic3local", "tests/gothic3-dialogue", "tests/gothic3local", "tests/gothic3-native-memory-admin.test.ts", "src/vite-env.d.ts"]
+}
