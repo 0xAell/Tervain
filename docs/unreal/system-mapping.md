@@ -52,7 +52,7 @@ numbers are in data either way.
 | Web build | Data and rules | Unreal (proposal) | Carries over |
 | --- | --- | --- | --- |
 | **Residents' days.** Each has a schedule of places and activities by hour, overrides by quest state, a home and a bed, indoor work posts. They walk routes, sit on real seats, work with tools, sleep, and wake to a fight. | `core/content/npcs.ts`, `core/rules/schedule.ts`, `resident.ts`, `seat.ts`, `core/world/homes.ts`, and `core/rules/residentWalk.ts`, the resident through the day as one state machine (the way to a place, walking it round whoever is in the way, settling, sitting, bed, the passing remark); `DT_Residents`, `data/game/residents.json`. `presentation/actors.ts` adds the body. | An AI controller per resident running a **StateTree** ("a general-purpose hierarchical state machine that combines the Selectors from behavior trees with States and Transitions from state machines"), choosing its goal with the mirrored schedule rule. Places to work, sit and sleep become **Smart Objects** ("a set of activities in the level that can be used through a reservation system"). | Schedules, anchors, movement numbers, the rule that picks a goal. |
-| **Talk.** Passing remarks, exchanges with the wanderer, overheard scenes, his own remarks; a dialogue graph with conditions and effects kept for a conversation interface. | `core/content/voice.ts`, `dialogue.ts`, `core/game/dialogue.ts`, and `core/rules/speech.ts`, who says what and when: the next exchange a resident has, one speaker at a time, scenes overheard once a game day, the hero's remarks and their pauses; `data/game/voice.json` (with the timings), `dialogue.json`. The scene plays the voices and says how long each recording lasts (`presentation/speech.ts`). | No built-in dialogue system: a small runtime over the imported graph, with conditions and effects evaluated by the ported game state. Lines as sound waves keyed as in `voice.json`. | The graph, the lines, the conditions. |
+| **Talk.** Passing remarks, exchanges with the wanderer, overheard scenes, his own remarks; a dialogue graph with conditions and effects kept for a conversation interface. | `core/content/voice.ts`, `dialogue.ts`, `core/game/dialogue.ts`, and `core/rules/speech.ts`, who says what and when: the next exchange a resident has, one speaker at a time, scenes overheard once a game day, the hero's remarks and their pauses; `data/game/voice.json` (with the timings and how long each recorded line lasts, `core/content/voiceLengths.ts`), `dialogue.json`. The scene plays the voices. | No built-in dialogue system: a small runtime over the imported graph, with conditions and effects evaluated by the ported game state. Lines as sound waves keyed as in `voice.json`. | The graph, the lines, the conditions. |
 | **Hostiles.** Two bandits and a creature: notice, alert, chase, wind-up, strike, recover, stagger, return. | `core/content/enemies.ts`, `core/rules/hostile.ts`, `enemyRoute.ts`, and `core/rules/hostileActor.ts`, the fight as one state machine; `DT_EnemyArchetypes`, `DT_EnemyPosts`. `presentation/actors.ts` adds the body. | A StateTree or behaviour tree per hostile with the same states, deciding with the mirrored functions; perception by the same distance and angle test or the AI perception component. | Archetypes, posts, every number and decision. |
 | **Animals.** Nineteen with homes and ranges: rest, graze, wander, watch, call, flee, break out when cornered; herds carry an alarm; predators hold their ground. | `core/content/animals.ts`, `core/rules/animalBehaviour.ts`, `animalNavigation.ts`, and `core/rules/animalMind.ts`, each animal's behaviour and the herd's shared alarm as one state machine; `DT_Animals`, `DT_AnimalSpecies`. `presentation/animals.ts` adds the body. | A StateTree per animal. Nineteen actors need no crowd system. | Roster, each animal's pace (the scene plays the stride to match it), temperaments, how long a gesture lasts, how far a call carries, behaviour numbers, and the behaviour itself, with tests that run a herd without a model. |
 | **Hunting.** The draw, the arrow's flight and what it meets, hits by zone, wounds, carcasses, skinning, a hunter's trade and ranks, game that returns after days. | `core/game/hunting.ts` (what lasts), `core/rules/bow.ts` (the bow's numbers) and `core/rules/archery.ts` (the shot: the draw, the aim, the flight in air and water, what it meets, which part was struck, where to stand to skin). The scene answers what a ray meets (`presentation/huntingController.ts`). | Ported game state and commands; the flight as a projectile component or the mirrored function; line traces for what a ray meets. | All of it. |
@@ -102,13 +102,20 @@ kit table, the quarry's boulders and the field fences), which rock piles the sho
 again (the walk grids' widths, the heal key's item, the health bar's low mark, the night rule in sound and the heights
 of shapes no mesh measured); and rules it still decided: which animals graze (`GRAZERS`), a resident's time to stand
 (`RESIDENT.standUpSeconds`), the moments the journey saves itself (`autosaveAt`), and what the hero says and which sting
-plays as things happen (`eventRemarks`, `warCry`, `defeatRemark`, `eventSting`, `fightWon`). Nothing known to decide
-play is left in the scene layer.
+plays as things happen (`eventRemarks`, `warCry`, `defeatRemark`, `eventSting`, `fightWon`).
+
+A fourth reading, of the whole scene layer again, found the last small things, and they have been lifted too: how long
+a carcass falls before it may be skinned (`SKINNING.collapseSeconds`), how long each recorded line lasts, which paces
+the exchanges and scenes and is now exported (`VOICE_LINE_SECONDS`), what goes on during a blow's hold and a fall
+(`WHAT_RUNS`), how loose cargo slides and settles (`CARGO_BODY`), the silent residents' looks and heights, the kit
+table's footprint, and three values typed again (the quick-slot count, the arrow's speed, the toll-jumper's size).
+Nothing known to decide play is left in the scene layer.
 
 What stays in the scene layer, and why it is not a rule of the game:
 
 - **The order of a step** (`src/app.ts`, `step()`): which part is stepped before which each frame. It is the
-  application's wiring; an engine has its own tick groups, and a port orders them its own way.
+  application's wiring; an engine has its own tick groups, and a port orders them its own way. What goes on in each
+  moment, while he plays, during a blow's hold, while he lies fallen or while play is paused, is the core's (`WHAT_RUNS`).
 - **What a ray meets**: the scene answers where a line strikes an animal's posed skin, a tree, a wall or loose cargo
   (`presentation/animals/hunting/hit.ts`, `physics/physics.ts`). The core decides what that means.
 - **The camera's smoothing and its way round obstacles** (`presentation/cameraRig.ts`): feel, built on the core's
@@ -118,20 +125,24 @@ What stays in the scene layer, and why it is not a rule of the game:
 - **Where the arrow leaves the bow** (`presentation/playerHunting.ts`): the nocked arrow's place on the posed model.
 - **Where the props stand and what they block** (`presentation/settlement.ts`, `hunterSupplies.ts`,
   `forestLandmarks.ts` and a few more): walls, haystacks, the camp fire, the hunter's board and the waymarkers are
-  placed with the meshes they belong to, and what each blocks is measured from its mesh. That is level content: a port
+  placed with the meshes they belong to, and what each blocks is measured from its mesh or, for a few (the haystacks'
+  and the camp fire's footprints), typed beside it. That is level content: a port
   places these props in its level with collision from their meshes, as it does buildings. The props the core's rules
   lean on stand where its layout puts them (`BENCHES`, `NOTICEBOARD`, `KIT_TABLE`, `QUARRY_BOULDERS`, `fieldFenceRuns`),
   and the core names the ones its rules refer to (`PROP_COLLIDER`: the fences the hero vaults, the board, the kit table
   and the first waymarker the interactables see past), with the field fence's thickness the vault measures from. Tests
   fail if the world does not make every prop so named, or stands one of the core's anywhere else.
-- **Which device does what** (`platform/input.ts`): with the bow in hand a gamepad's right trigger draws instead of
-  running, and the quick save and load keys are read only while he plays. That is input mapping; a port sets its own
-  in its input contexts.
+- **Which device does what** (`platform/input.ts`, `src/app.ts`): while the bow is equipped, drawn or not, a gamepad's
+  right trigger draws instead of running, so on a gamepad he cannot sprint, swim fast or gallop with the bow equipped;
+  and the quick save and load keys are read only while he plays. That is input mapping, and a choice a port makes again
+  in its input contexts; the moves themselves and what they cost are the core's.
 - **A body's measured size**: a resident's, a hostile's and an animal's height, and an animal's width, are measured
   from the drawn figure, which is drawn at the size the core gives (`figureScale`, `banditScale`, `ENEMY_FIGURE`; an
   animal's home is sought with `ANIMAL_HOME_MARGIN` round it); so is how far before a seat a resident's body gets down
-  onto it. The core's rules for routes, beds, seats and homes take the measured body as an input, as they take the
-  ground; a port passes its characters' capsules.
+  onto it, and where a fallen animal's body rests, which the scene measures from its skin over a few frames after its
+  fall (`presentation/animals/hunting/corpse.ts`), on a budget it shares between carcasses. The core's rules for routes,
+  beds, seats, homes and skinning take the measured body as an input, as they take the ground; a port passes its
+  characters' capsules and its physics' resting bodies.
 - **When the page is left** (`src/app.ts`): which browser events count as leaving play (the page hidden or closed) is
   the application's wiring; that leaving play saves, and when, is the core's (`autosaveAt`).
 

@@ -3,6 +3,7 @@ import { HERO_LINES, SCENE_REACH, SCENES, TALKS, VOICE_LINES, type HeroCue, type
 import { createInitialState, evalAll } from '../../../src/core/game/state';
 import type { NpcId } from '../../../src/core/game/types';
 import { OVERHEAR_REACH, WOUNDED_BELOW } from '../../../src/core/rules/journey';
+import { VOICE_LINE_SECONDS } from '../../../src/core/content/voiceLengths';
 import {
   BUBBLE, bubbleMs, CLEARING_FOE, dayPartCue, defeatRemark, eventRemarks, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, SPEECH,
   SpeechDirector, trespassOutcry, UNNOTED_LOSSES, warCry, woundedNow, type SceneResident,
@@ -191,5 +192,15 @@ describe('what the hero says of what happens', () => {
     expect(CLEARING_FOE).toBe('cut_creature');
     expect(defeatRemark(CLEARING_FOE)).toEqual({ cue: 'victory', delay: HERO_CUE_DELAY.victory });
     expect(defeatRemark('ford_bandit_a')).toBeNull();
+  });
+});
+
+describe('how long a line lasts', () => {
+  it('is its recording\u2019s length from the core\u2019s table, and unvoiced lines have none', () => {
+    class Open extends SpeechDirector { lengthOf(line: string) { return this.recorded(line); } }
+    const open = new Open({ say: () => 1, caption: () => {} });
+    expect(Object.keys(VOICE_LINE_SECONDS)).toHaveLength(245);
+    expect(open.lengthOf('hero.arrival')).toBe(VOICE_LINE_SECONDS['hero.arrival']);
+    expect(open.lengthOf('a line nobody recorded')).toBeUndefined();
   });
 });

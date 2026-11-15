@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/voice.schema.json",
   "title": "game/voice.json",
-  "description": "Spoken lines by key, residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks.",
+  "description": "Spoken lines by key, with how long each lasts as recorded (`seconds`; a line without one is shown, not heard, for the unvoiced time `timing` gives), residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks. Exchanges and scenes are booked for their lines’ lengths.",
   "type": "object",
   "properties": {
     "about": {
@@ -81,11 +81,15 @@
           },
           "text": {
             "type": "string"
+          },
+          "seconds": {
+            "type": "number"
           }
         },
         "required": [
           "speaker",
-          "text"
+          "text",
+          "seconds"
         ],
         "additionalProperties": false
       }

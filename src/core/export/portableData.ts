@@ -9,6 +9,7 @@ import { BARKS, NPCS } from '../content/npcs';
 import { WORLD_PICKUP_ITEM_IDS } from '../content/pickups';
 import { EN } from '../content/strings';
 import { HERO_LINES, SCENE_REACH, SCENES, SPEAKER_NAMES, TALKS, VOICE_LINES } from '../content/voice';
+import { VOICE_LINE_SECONDS } from '../content/voiceLengths';
 import { APPLY_DELAY_MIN, CLOCK_RATE, REPORT_DELAY_MIN, REWARD_COIN, RITE_CALM_MIN, TRAINING_COST } from '../game/constants';
 import {
   ANIMAL_IDS, ANIMAL_MODEL_IDS, ANIMAL_SPECIES, animalLoot, ARROW_QUIVER_CAPACITY, ARROW_RESTOCK_AMOUNT, CARCASS_HOURS, HUNTABLE_ANIMAL_IDS,
@@ -28,7 +29,7 @@ import { MUSIC } from '../content/music';
 import { MUSIC_PACING, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS } from '../rules/music';
 import { BEDS, emitterRuleTable, INN, MILL_SOUND, QUARRY_SOUND } from '../rules/soundscape';
 import { BOW } from '../rules/bow';
-import { CARGO_STEP, CARRY } from '../rules/cargo';
+import { CARGO_BODY, CARGO_STEP, CARRY } from '../rules/cargo';
 import { BUBBLE, HERO_CUE_AGAIN, HERO_CUE_DELAY, SCENE_CHECK_SECONDS, SPEECH } from '../rules/speech';
 import { AFLOAT, AWAITED_MOUNT_REACH, CLOCK_TICK_MINUTES, ENTRY, SAFE_PLACE_RINGS, SHAKE, STANDING_BODY, TIMED_WORK } from '../rules/session';
 import { SHOT, SKINNING, SKULL_BAND, SKULLS } from '../rules/archery';
@@ -159,8 +160,8 @@ function game(): PortableDocument[] {
     },
     {
       path: 'game/voice.json',
-      about: 'Spoken lines by key, residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks.',
-      data: { speakers: SPEAKER_NAMES, lines: VOICE_LINES, talks: TALKS, scenes: SCENES, sceneReach: SCENE_REACH, hero: HERO_LINES,
+      about: 'Spoken lines by key, with how long each lasts as recorded (`seconds`; a line without one is shown, not heard, for the unvoiced time `timing` gives), residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks. Exchanges and scenes are booked for their lines’ lengths.',
+      data: { speakers: SPEAKER_NAMES, lines: Object.fromEntries(Object.entries(VOICE_LINES).map(([id, line]) => [id, { ...line, seconds: VOICE_LINE_SECONDS[id] ?? null }])), talks: TALKS, scenes: SCENES, sceneReach: SCENE_REACH, hero: HERO_LINES,
         timing: { ...SPEECH, heroCueDelay: HERO_CUE_DELAY, heroCueAgain: HERO_CUE_AGAIN, sceneCheckSeconds: SCENE_CHECK_SECONDS, bubble: BUBBLE } },
     },
     {
@@ -209,7 +210,7 @@ function game(): PortableDocument[] {
         },
         riding: { ride: RIDE, deerBody: DEER_BODY, mountTimes: MOUNT_TIMES, mountSide: MOUNT_SIDE, camera: RIDE_CAMERA, stamina: MOUNT_STAMINA },
         bow: BOW,
-        cargo: { carry: CARRY, step: CARGO_STEP },
+        cargo: { carry: CARRY, step: CARGO_STEP, body: CARGO_BODY },
         shot: { ...SHOT, skinning: SKINNING, skullBand: SKULL_BAND, skulls: SKULLS },
         clock: {
           gameMinutesPerSecond: CLOCK_RATE, sunrise: SUNRISE_HOUR, sunset: SUNSET_HOUR, night: NIGHT,

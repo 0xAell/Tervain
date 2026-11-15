@@ -20,7 +20,8 @@ export function inventoryItems(state: Pick<WorldState, 'inventory'>, group: Inve
   return ITEM_ORDER.filter((id) => id !== 'coin' && (state.inventory[id] ?? 0) > 0 && (group === 'all' || ITEMS[id].kind === group));
 }
 
-export const QUICK_SLOT_COUNT = 10;
+export { QUICK_SLOT_COUNT } from '../../core/game/types';
+import { QUICK_SLOT_COUNT } from '../../core/game/types';
 export const QUICK_DRAG_TYPE = 'application/x-tervain-quick-item';
 export interface QuickDrag { item: ItemId; from: number | null }
 export function quickSlotLabel(slot: number): string { return String((slot + 1) % QUICK_SLOT_COUNT); }

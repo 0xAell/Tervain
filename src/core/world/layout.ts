@@ -298,8 +298,8 @@ const onBench = ({ x, z, yaw }: { x: number; z: number; yaw: number }, along = 0
 /** The village noticeboard, its face to the square (north); it is read from `readFrom` metres before its face. */
 export const NOTICEBOARD = { x: 5, z: 15.4, readFrom: 2.6 } as const;
 
-/** The table in the village lane that the saltward kit is laid out on, and inspected at. */
-export const KIT_TABLE = { x: 15, z: 20.5 } as const;
+/** The table in the village lane that the saltward kit is laid out on, and inspected at, and what it blocks (m). */
+export const KIT_TABLE = { x: 15, z: 20.5, halfWidth: 0.55, halfDepth: 0.35, height: 0.84 } as const;
 
 /**
  * The quarry's boulders, as they were first scattered from a fixed seed: where each stands, and its width (along x),

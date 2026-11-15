@@ -805,7 +805,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     R.timber.rod(kx + 0.22, ky + 0.77, kz - 0.2, kx + 0.38, ky + 0.77, kz + 0.04, 0.017, 4, TINT.woodDark, { jit: 0.01, amp: 0.01 });
     R.timber.box(0.11, 0.055, 0.065, kx + 0.37, ky + 0.765, kz + 0.05, TINT.woodDark, { ry: 0.48, jit: 0.01, amp: 0.01 });
     R.timber.box(0.06, 1.3, 0.06, kx + 0.4, ky + 0.75, kz, 0xc2b07a, { jit: 0.05 });
-    colliders.box(PROP_COLLIDER.kitTable, kx, kz, 0.55, 0.35, 0, true, { minY: ky, maxY: ky + 0.84 });
+    colliders.box(PROP_COLLIDER.kitTable, kx, kz, KIT_TABLE.halfWidth, KIT_TABLE.halfDepth, 0, true, { minY: ky, maxY: ky + KIT_TABLE.height });
     colliders.circle('kit_staff', kx + 0.4, kz, Math.hypot(0.03, 0.03), true, { minY: ky + 0.75, maxY: ky + 2.05 });
     cart(R, rnd, VILLAGE_HANDCART.x, gy(VILLAGE_HANDCART.x, VILLAGE_HANDCART.z), VILLAGE_HANDCART.z, VILLAGE_HANDCART.yaw);
     sack(R, rnd, -3, gy(-3, 12.5), 12.5, 1);

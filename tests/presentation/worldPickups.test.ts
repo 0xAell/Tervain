@@ -225,6 +225,7 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
   it('stands the props the core places where the core places them: the kit table, the noticeboard, the quarry’s boulders and the field fences', () => {
     const at = (id: string) => colliders.withId(id).map((c) => ({ x: c.x, z: c.z }));
     expect(at(PROP_COLLIDER.kitTable)).toEqual([{ x: KIT_TABLE.x, z: KIT_TABLE.z }]);
+    expect(colliders.withId(PROP_COLLIDER.kitTable)[0]).toMatchObject({ kind: 'box', hw: KIT_TABLE.halfWidth, hd: KIT_TABLE.halfDepth });
     expect(at('noticeboard')).toEqual([{ x: NOTICEBOARD.x, z: NOTICEBOARD.z }]);
     QUARRY_BOULDERS.forEach((boulder, index) => {
       expect(colliders.withId(`face:${index}`)).toEqual([expect.objectContaining({ kind: 'box', x: boulder.x, z: boulder.z, hw: boulder.width / 2, hd: 1.5 })]);

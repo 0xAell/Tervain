@@ -349,6 +349,11 @@ export function woundedFleesFrom(position: { x: number; z: number }, yaw: number
 /* ============================ Skinning ============================ */
 
 export const SKINNING = {
+  /**
+   * A carcass is skinned once it lies still: it falls for this long (s) from the pose it died in, and then the body that
+   * draws it is measured where it rests, which on the web build takes a few frames more on a shared budget.
+   */
+  collapseSeconds: 0.9,
   /** He must stand within this (m) of the stance. */
   stanceSlack: 0.4,
   /** The cut is sighted from this high above his feet to this much above the carcass's chest; that much short of it may be blocked (m). */

@@ -68,6 +68,27 @@ export function savedMount(seated: string | null | undefined, awaited: string | 
 /** How long a blow that lands holds the world still (s). */
 export function hitStopFor(heavy: boolean): number { return heavy ? HIT_STOP.heavy : HIT_STOP.light; }
 
+/** A moment of a sitting, as far as what goes on in it: he plays; a blow holds the moment; he lies fallen; or play is paused. */
+export type Moment = 'play' | 'hitStop' | 'fallen' | 'paused';
+
+/** Which moment it is: fallen whenever he lies fallen, paused while he does not play, held while a hit-stop lasts. */
+export function momentOf(facts: { playing: boolean; fallen: boolean; hitStopped: boolean }): Moment {
+  return facts.fallen ? 'fallen' : !facts.playing ? 'paused' : facts.hitStopped ? 'hitStop' : 'play';
+}
+
+/**
+ * What goes on in each moment. `clock`: the day's clock, the time played and the autosave countdown. `people`: speech
+ * and the residents. `action`: the wanderer, his foes, the animals, arrows and loose cargo, and discovery. `foePace`:
+ * the share of their pace his foes keep. A blow holds the action while the day and its people go on; while he lies
+ * fallen the day stops and only his foes move, at `DEATH.foePace`, until he wakes.
+ */
+export const WHAT_RUNS: Readonly<Record<Moment, { clock: boolean; people: boolean; action: boolean; foePace: number }>> = {
+  play: { clock: true, people: true, action: true, foePace: 1 },
+  hitStop: { clock: true, people: true, action: false, foePace: 0 },
+  fallen: { clock: false, people: false, action: false, foePace: DEATH.foePace },
+  paused: { clock: false, people: false, action: false, foePace: 0 },
+};
+
 /** The fall: what is left of the fallen view (`DEATH.fadeSeconds` at first) after `dt` more seconds. At nothing he rises. */
 export function fallRemaining(remaining: number, dt: number): number {
   return Math.max(0, remaining - dt);

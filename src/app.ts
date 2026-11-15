@@ -16,7 +16,7 @@ import { restockParams } from './core/game/hunting';
 import { INSPECT_POINTS } from './core/content/inspect';
 import { HEAL_KEY_ITEM, ITEMS, itemAction } from './core/content/items';
 import { hourOfDay, createInitialState, formatClock, clockDay } from './core/game/state';
-import { EVIDENCE_IDS, type Allocation, type GameEvent, type ItemId, type NpcId, type PlaceId, type WorldState } from './core/game/types';
+import { EVIDENCE_IDS, QUICK_SLOT_COUNT, type Allocation, type GameEvent, type ItemId, type NpcId, type PlaceId, type WorldState } from './core/game/types';
 import { Input } from './platform/input';
 import { FrameClock, MotionInterpolation, SIM_CATCH_UP, SIM_STEP, cappedFrame } from './platform/frameTiming';
 import { waitForGraphicsReady } from './platform/graphicsReady';
@@ -78,7 +78,7 @@ import { RESIDENT } from './core/rules/resident';
 import { MOUNT_ID } from './core/rules/interactables';
 import { AUTOSAVE_SECONDS, bellGain, bellWait, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH, witnessesOf } from './core/rules/journey';
 import {
-  archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveAt, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
+  archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveAt, autosaveDue, awaitedMountLapsed, momentOf, WHAT_RUNS, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
   journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
   STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING, type AutosaveMoment, type RespawnMoment, type RespawnPoint,
 } from './core/rules/session';
@@ -97,8 +97,8 @@ const PANEL_SCROLL = { dead: 0.2, speed: 900 } as const;
  */
 export function quickSlotPressed(pressedKey: (code: string) => boolean, bindings: Readonly<Record<string, readonly string[]>>): number | null {
   const bound = new Set(Object.values(bindings).flat());
-  for (let slot = 0; slot < 10; slot++) {
-    const key = (slot + 1) % 10;
+  for (let slot = 0; slot < QUICK_SLOT_COUNT; slot++) {
+    const key = (slot + 1) % QUICK_SLOT_COUNT;
     if ([`Digit${key}`, `Numpad${key}`].some((code) => !bound.has(code) && pressedKey(code))) return slot;
   }
   return null;
@@ -1350,8 +1350,9 @@ export class App {
     }
     this.world.playerInArchive = inArchive;
 
-    // Time only passes while the world is running freely.
-    if (playing) {
+    // What goes on in this moment is the core's (WHAT_RUNS): time passes, and the day's people go on, only while he plays.
+    const hitStopped = this.hitStop > 0, runs = WHAT_RUNS[momentOf({ playing, fallen: this.mode === 'dead', hitStopped })];
+    if (runs.clock) {
       this.autosaveTimer -= dt;
       if (autosaveDue(this.autosaveTimer)) {
         this.autosaveTimer = AUTOSAVE_SECONDS;
@@ -1376,23 +1377,22 @@ export class App {
     this.hunting.controls(dt, playing && this.hitStop <= 0);
 
     // Simulation
-    const hitStopped = this.hitStop > 0;
     if (playing && hitStopped) this.hitStop -= dt;
-    if (playing && this.mode === 'play' && !hitStopped) {
+    if (runs.action) {
       this.world.physics.beginCharacter(this.player, dt);
       this.player.update(dt, this.playerContext(true));
       this.recoverFromUnderWorld(dt);
       this.carryRider();
-      this.updateEnemies(dt);
+      this.updateEnemies(dt * runs.foePace);
       this.checkDiscoveries();
     } else if (this.mode === 'dead') {
       this.player.update(dt, this.playerContext(false));
-      this.updateEnemies(dt * DEATH.foePace);
+      this.updateEnemies(dt * runs.foePace);
       this.deathRemaining = fallRemaining(this.deathRemaining, dt);
       if (this.deathRemaining === 0) this.respawn();
     }
     // Reading freezes controller/action timers and patrol routes as well as the world clock.
-    if (playing) {
+    if (runs.people) {
       this.speech.update(dt);
       // Someone in an exchange stops, turns to whom they are talking to and talks with their hands. A passing remark is
       // made on the move: only someone already standing turns to it (A69).
@@ -1420,7 +1420,7 @@ export class App {
       if (woundedNow(health, this.healthFrac, this.player.alive)) this.speech.hero('wounded', { again: HERO_CUE_AGAIN.wounded });
       this.healthFrac = health;
     }
-    if (playing && this.mode === 'play' && !hitStopped) {
+    if (runs.action) {
       this.world.physics.syncActors([...this.world.animals.physicalActors, ...this.standing()]);
       this.world.physics.step(dt, this.player, this.cam.yaw, this.cam.pitch);
     }
@@ -2164,7 +2164,7 @@ export class App {
   }
 
   private activateQuickSlot(slot: number) {
-    if (!this.inventoryActionAllowed() || this.overlay !== 'none' || !Number.isInteger(slot) || slot < 0 || slot >= 10) return;
+    if (!this.inventoryActionAllowed() || this.overlay !== 'none' || !Number.isInteger(slot) || slot < 0 || slot >= QUICK_SLOT_COUNT) return;
     const item = this.game.state.quickSlots[slot];
     if (!item || (this.game.state.inventory[item] ?? 0) <= 0) return;
     this.input.consumePad();

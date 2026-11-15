@@ -887,11 +887,40 @@
             "width"
           ],
           "additionalProperties": false
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "friction": {
+              "type": "number"
+            },
+            "restitution": {
+              "type": "number"
+            },
+            "linearDamping": {
+              "type": "number"
+            },
+            "angularDamping": {
+              "type": "number"
+            },
+            "pusherMass": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "friction",
+            "restitution",
+            "linearDamping",
+            "angularDamping",
+            "pusherMass"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "carry",
-        "step"
+        "step",
+        "body"
       ],
       "additionalProperties": false
     },
@@ -919,6 +948,9 @@
         "skinning": {
           "type": "object",
           "properties": {
+            "collapseSeconds": {
+              "type": "number"
+            },
             "stanceSlack": {
               "type": "number"
             },
@@ -945,6 +977,7 @@
             }
           },
           "required": [
+            "collapseSeconds",
             "stanceSlack",
             "eye",
             "lift",

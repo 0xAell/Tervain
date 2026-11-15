@@ -7,7 +7,7 @@ import { AUTOSAVE_SECONDS, CHECKPOINT_CLEARANCE, DEATH, DROUGHT_BELL, HIT_STOP, 
 import { MOUNT_STAMINA } from '../../../src/core/rules/riding';
 import { RESIDENT } from '../../../src/core/rules/resident';
 import {
-  AFLOAT, archiveClosesBehind, archiveDoorAttempt, archiveOpen, AUTOSAVE_MOMENTS, autosaveAt, autosaveDue, AWAITED_MOUNT_REACH, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
+  AFLOAT, archiveClosesBehind, archiveDoorAttempt, archiveOpen, AUTOSAVE_MOMENTS, autosaveAt, autosaveDue, AWAITED_MOUNT_REACH, momentOf, WHAT_RUNS, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
   ENTRY_RESTORES, fallRemaining, HAND_SAVE_SLOTS, hitStopFor, journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter,
   rideable, riteReady, SAFE_PLACE_RINGS, safePlace, SAVE_SLOTS, savedMount, savingAllowed, SHAKE, STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING,
   type PlacingWorld, type RespawnPoint,
@@ -323,5 +323,23 @@ describe('the moments the journey saves itself', () => {
       expect(autosaveAt(moment, { playing: false, paused: false, begun: true }), moment).toEqual({ save: false, movesWaking: false });
     }
     expect([...AUTOSAVE_MOMENTS]).toEqual(['story', 'interval', 'toTitle', 'pageLeft']);
+  });
+});
+
+describe('what goes on in each moment', () => {
+  it('tells the moment from whether he plays, lies fallen or is held by a blow', () => {
+    expect(momentOf({ playing: true, fallen: false, hitStopped: false })).toBe('play');
+    expect(momentOf({ playing: true, fallen: false, hitStopped: true })).toBe('hitStop');
+    expect(momentOf({ playing: false, fallen: true, hitStopped: false })).toBe('fallen');
+    // Lying fallen wins over a panel opened meanwhile, and a closed game is paused whatever was held.
+    expect(momentOf({ playing: false, fallen: true, hitStopped: true })).toBe('fallen');
+    expect(momentOf({ playing: false, fallen: false, hitStopped: true })).toBe('paused');
+  });
+
+  it('holds the action on a blow while the day and its people go on, and stops the day while he lies fallen, his foes slowed', () => {
+    expect(WHAT_RUNS.play).toEqual({ clock: true, people: true, action: true, foePace: 1 });
+    expect(WHAT_RUNS.hitStop).toEqual({ clock: true, people: true, action: false, foePace: 0 });
+    expect(WHAT_RUNS.fallen).toEqual({ clock: false, people: false, action: false, foePace: DEATH.foePace });
+    expect(WHAT_RUNS.paused).toEqual({ clock: false, people: false, action: false, foePace: 0 });
   });
 });
