@@ -72,10 +72,10 @@ import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
 import { handsForCargo, keepsHold } from './core/rules/cargo';
 import { BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, woundedNow } from './core/rules/speech';
-import { AUTOSAVE_SECONDS, bellGain, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH } from './core/rules/journey';
+import { AUTOSAVE_SECONDS, bellGain, bellWait, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH } from './core/rules/journey';
 import {
   archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, fallRemaining, hitStopFor, journeyBegun,
-  mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, riteReady, safePlace, savedMount, SHAKE, standingBodies, TIMED_WORK, trustedPropTop,
+  mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, riteReady, safePlace, savedMount, SHAKE, STANDING_BODY, standingBodies, TIMED_WORK, trustedPropTop,
   underWorldSeconds,
 } from './core/rules/session';
 import { STAMINA_MAX } from './core/rules/hero';
@@ -2489,7 +2489,7 @@ export class App {
       colliders: this.world.colliders,
       nav: this.world.nav,
       contacts: [...this.world.animals.contacts, ...this.npcs.map(n => this.residentContact(n)), ...enemyContacts,
-        { id: 'player', kind: 'circle', x: p.x, z: p.z, r: .32, active: p.alive, minY: p.y, maxY: p.y + 1.8 }],
+        { id: 'player', kind: 'circle', x: p.x, z: p.z, r: STANDING_BODY.heroRadius, active: p.alive, minY: p.y, maxY: p.y + STANDING_BODY.heroHeight }],
       player: { x: p.x, z: p.z, y: p.y, alive: p.alive, invulnerable: p.invulnerable },
       reducedMotion: this.settings.reducedMotion,
       strikePlayer: (e, dmg, heavy) => p.receiveHit(dmg, heavy, e, this.playerContext(true)),
@@ -2567,7 +2567,7 @@ export class App {
     this.bellClock -= dt;
     if (this.bellClock <= 0) {
       if (v.bellMode === 'drought') this.ringBell(false);
-      this.bellClock = v.bellMode === 'drought' ? DROUGHT_BELL.every : 9999;
+      this.bellClock = bellWait(v.bellMode === 'drought');
     }
   }
 

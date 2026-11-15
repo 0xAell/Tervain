@@ -15,6 +15,7 @@ import type { WorldState } from '../core/game/types';
 import { worldView, type WorldView } from '../core/game/worldView';
 import { buildStaticColliders, type Colliders } from '../core/world/colliders';
 import { ARCHIVE_ROOM, bySpec, SHORTCUT, SLUICE, STREAMS, WORLD } from '../core/world/layout';
+import { archiveBarriers, insideArchive, occupiesArchive } from '../core/world/archive';
 import { NavGrid } from '../core/world/nav';
 import { Terrain, distToPolyline } from '../core/world/terrain';
 import { SkyRig } from './sky';
@@ -481,9 +482,9 @@ export class WorldScene {
     const sc = this.scenery;
     // Colliders that follow state.
     // Never close the room around someone who is inside it; the app resyncs when they step out.
-    const occupied = this.playerInArchive;
-    this.colliders.setActive('archive_door', v.archiveDoor === 'locked' && !occupied);
-    this.colliders.setActive('archive_shutter', v.archiveShutter !== 'forced' && !occupied);
+    const barriers = archiveBarriers(v.archiveDoor, v.archiveShutter, this.playerInArchive);
+    this.colliders.setActive('archive_door', barriers.door);
+    this.colliders.setActive('archive_shutter', barriers.shutter);
     this.colliders.setActive('shortcut_gate', !v.shortcutOpen);
     // Visual targets.
     this.doorT = v.archiveDoor === 'open' ? 1 : 0;
@@ -765,17 +766,14 @@ export class WorldScene {
 
   /** Whether the player is standing inside the archive (roofed) for audio and camera decisions. */
   insideArchive(x: number, z: number): boolean {
-    return Math.abs(x + 46) < 3.6 && Math.abs(z + 102) < 3.1;
+    return insideArchive(x, z);
   }
 
   /** Inside, or with any part of a body of `radius` still in the door's or the shutter's opening. A sealed archive closes
    * only behind someone clear of both: counted out mid-doorway, the closing door pushed him back in, again and again
    * (A101 scout). */
   occupiesArchive(x: number, z: number, radius: number): boolean {
-    if (this.insideArchive(x, z)) return true;
-    const b = bySpec('archive'), t = ARCHIVE_ROOM.wallThickness, dx = Math.abs(x - b.x), dz = Math.abs(z - b.z);
-    return dz > b.d / 2 - t - radius && dz < b.d / 2 + t + radius
-      && dx < (z > b.z ? ARCHIVE_ROOM.doorHalfWidth : ARCHIVE_ROOM.shutterHalfWidth) + radius;
+    return occupiesArchive(x, z, radius);
   }
 
   /** Whether a point is under a roof: in the archive or in any building's room (A66), not above it (A70). */

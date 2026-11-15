@@ -1,6 +1,6 @@
 import { INSPECT_POINTS } from '../content/inspect';
 import { hotbarEligible, isItemId, itemAction, ITEMS } from '../content/items';
-import { APPLY_DELAY_MIN, REPORT_DELAY_MIN, REWARD_COIN, RITE_CALM_MIN, TRAINING_COST } from './constants';
+import { APPLY_DELAY_MIN, REPORT_DELAY_MIN, REWARD_COIN, RITE_CALM_MIN, TRAINING_COST, TRUST_LIMIT } from './constants';
 import { validQuantity, validQuickSlot } from './inventory';
 import {
   ANIMAL_SPECIES, animalLoot, ARROW_QUIVER_CAPACITY, HUNTER_SPARE_ARROWS, HUNTER_SUPPLY_POSITION, hunterRank, hunterSparesArrows, hunterTradingOpen, returnWildlife,
@@ -28,7 +28,7 @@ import {
   type WorldState,
 } from './types';
 
-const clampTrust = (n: number) => Math.max(-5, Math.min(5, n));
+const clampTrust = (n: number) => Math.max(-TRUST_LIMIT, Math.min(TRUST_LIMIT, n));
 
 type Fail = { ok: false; reason: string };
 const fail = (reason: string): Fail => ({ ok: false, reason });

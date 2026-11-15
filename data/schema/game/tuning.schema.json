@@ -1142,11 +1142,23 @@
                 },
                 "height": {
                   "type": "number"
+                },
+                "heroRadius": {
+                  "type": "number"
+                },
+                "heroHeight": {
+                  "type": "number"
+                },
+                "animalMargin": {
+                  "type": "number"
                 }
               },
               "required": [
                 "residentRadius",
-                "height"
+                "height",
+                "heroRadius",
+                "heroHeight",
+                "animalMargin"
               ],
               "additionalProperties": false
             },

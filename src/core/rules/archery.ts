@@ -316,6 +316,11 @@ export function arrowZone(model: string, species: AnimalSpecies, at: { height: n
   return inSkull && face ? 'head' : 'body';
 }
 
+/** A carcass stops an arrow and takes no harm from it: whatever part was struck, nothing is. */
+export function zoneOnBody(zone: 'head' | 'body' | null, dead: boolean): 'head' | 'body' | null {
+  return dead ? null : zone;
+}
+
 /** Where a wounded animal runs from when it has nothing else to run from: a point behind it. */
 export function woundedFleesFrom(position: { x: number; z: number }, yaw: number): { x: number; z: number } {
   return { x: position.x - Math.sin(yaw) * SHOT.woundedFleesBehind, z: position.z - Math.cos(yaw) * SHOT.woundedFleesBehind };

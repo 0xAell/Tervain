@@ -1,6 +1,5 @@
 import { S } from '../../core/content/strings';
-import { PLACE_ORDER } from '../../core/game/journal';
-import { hasFact } from '../../core/game/state';
+import { knownPlaces, PLACE_ORDER, placeClaimed } from '../../core/game/journal';
 import type { MapMarker, PlaceId, WorldState } from '../../core/game/types';
 import { worldView } from '../../core/game/worldView';
 import { PLACES, ROADS, STREAMS } from '../../core/world/layout';
@@ -13,17 +12,6 @@ import { MAP_HABITATS, mapTerrainColor } from './mapTerrain';
 import { MAP_BOUNDS, MAP_H, MAP_W, MAP_PIXELS_PER_METRE as PX, mapHeading, mapX as px, mapZ as pz, placeMapLabel, clampMapView, fullMapView, mapCanvasPoint, mapWorldAt, panMap, zoomMapAt, type MapViewport, type MapLabel } from './mapProjection';
 export { MAP_W, MAP_H } from './mapProjection';
 const { x0: X0, x1: X1, z0: Z0, z1: Z1 } = MAP_BOUNDS;
-
-const CLAIMED: Partial<Record<PlaceId, string>> = {
-  spring_shrine: 'told_shrine',
-  sluice: 'told_sluice',
-  quarry: 'told_quarry',
-  the_cut: 'told_cut',
-  rillford: 'told_rillford',
-  ford: 'told_ford_path',
-  archive: 'told_archive_door',
-};
-
 
 type MapOptions = { state: WorldState; terrain: Terrain; player: { x: number; z: number; yaw: number }; hintPlace: PlaceId | null; guidance: boolean; time: number; reducedMotion?: boolean };
 
@@ -49,7 +37,7 @@ export class MapView {
   private knownPlaceIds: PlaceId[] = [];
 
   private knownPlaces(state: WorldState) {
-    return PLACE_ORDER.filter((id) => state.discovered[id] || (CLAIMED[id] !== undefined && hasFact(state, CLAIMED[id]!)));
+    return knownPlaces(state);
   }
   private centre(x: number, z: number) {
     this.target = clampMapView({ x: px(x), y: pz(z), zoom: Math.max(2, this.target.zoom) });
@@ -165,8 +153,7 @@ export class MapView {
     for (const id of PLACE_ORDER) {
       const p = PLACES[id];
       const discovered = opts.state.discovered[id] === true;
-      const claimedKey = CLAIMED[id];
-      const claimed = !discovered && claimedKey !== undefined && hasFact(opts.state, claimedKey);
+      const claimed = placeClaimed(opts.state, id);
       if (!discovered && !claimed) continue;
       const x = px(p.x);
       const y = pz(p.z);
