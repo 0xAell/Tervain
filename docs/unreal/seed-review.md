@@ -34,8 +34,7 @@ What is there:
 
 What is missing from a ten, and the plan:
 
-- The numbers and decisions of the player's actions are in the core, but the state machine that calls them is still
-  in `src/presentation/player.ts`. The residents', the hostiles' and the animals' have been lifted.
+- The state machines of the player's actions, the residents, the hostiles and the animals have been lifted.
   The table of interactables, the score's director with the soundscape's rules, the placing of stones, grass habitat
   and the woodland floor, and the sky's keys have since been lifted. [System mapping](system-mapping.md#still-in-the-scene-layer) lists them.
 - Plan: lift them one pull request each, smallest first: the interactable table, then the player's action states (the
