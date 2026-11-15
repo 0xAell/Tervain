@@ -80,7 +80,10 @@ describe('the asset manifest', () => {
         expect(pack.url).toBe(candidate!.url);
         expect(pack.url).toMatch(/^https:\/\/www\.fab\.com\/listings\/[0-9a-f-]{36}$/);
         expect(pack.verified).toBe(candidate!.verified);
+        expect(pack.price).toEqual(candidate!.price);
+        expect(pack.engine).toBe(candidate!.engine);
       }
+      expect(group.replaceWith!.reason.length, `${group.id} says why`).toBeGreaterThan(60);
       expect(new Set(packs.map((pack) => pack.title)).size, `${group.id} names each pack once`).toBe(packs.length);
     }
     const packOf = new Map(replaced.map((group) => [group.id, group.replaceWith!.title]));
@@ -90,6 +93,24 @@ describe('the asset manifest', () => {
     }
     // Trees are the one family whose first choice needs Nanite: each names a pack for the web target as well.
     for (const group of replaced.filter((entry) => entry.fab === 'trees')) expect(group.replaceWith!.webTarget, group.id).not.toBeNull();
+  });
+
+  it('records what each Fab listing page said on the day it was opened', () => {
+    const candidates = Object.values(committed.fab).flatMap((entry) => entry.candidates);
+    expect(candidates.length).toBeGreaterThanOrEqual(27);
+    expect(new Set(candidates.map((candidate) => candidate.url)).size, 'each listing once').toBe(candidates.length);
+    for (const candidate of candidates) {
+      expect(candidate.verified, candidate.title).toBe('listing page');
+      expect(candidate.checked, candidate.title).toMatch(/^2026-11-\d\d$/);
+      expect(candidate.publisher, candidate.title).not.toBe('not recorded');
+      expect(candidate.price.professional, candidate.title).toBeGreaterThanOrEqual(candidate.price.personal);
+      expect(candidate.note.length, candidate.title).toBeGreaterThan(30);
+    }
+    // A first choice for a desktop build lists an engine version of the 5.x line, or is a plain scanned asset.
+    for (const group of committed.groups.filter((entry) => entry.plan === 'replace')) {
+      const engine = group.replaceWith!.engine;
+      if (engine !== null) expect(engine, group.id).toMatch(/5\.\d+$/);
+    }
   });
 
   it('adds up', () => {

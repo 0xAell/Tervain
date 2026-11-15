@@ -65,55 +65,97 @@
   "fab": {
     "trees": {
       "brief": "Temperate northern European trees with bark, leaf and wind data and three or more LODs: oak, birch, hazel or other shrubs, Scots pine, fir or spruce, apple and pear, and a few palms for the warm woodland in the east.",
-      "constraints": "The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view. Megaplants (English Oak, Silver Birch, Baltic Pine, Norway Spruce) are the exact species but need Nanite Foliage and the Procedural Vegetation Editor, both experimental; the older Megascans Trees packs are LOD-based.",
+      "constraints": "The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view. Megaplants are the exact species but are listed for Unreal Engine 5.7 and 5.8 on Windows only, with Nanite and no LODs, and are edited in the Procedural Vegetation Editor, which Epic marks experimental; the older Megascans Trees are LOD-based.",
       "candidates": [
         {
-          "title": "European Beech (Megascans Trees)",
+          "title": "European Beech",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
-          "note": "LOD-based, with European Hornbeam, European Black Alder, Norway Maple and Common Hazel in the same series: a northern broadleaf wood without oak or birch.",
-          "verified": "search result"
+          "engine": "5.1 to 5.6",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "Megascans Trees: 17 meshes with up to nine LODs, impostors and Pivot Painter wind; rated 4.7 by 108. Hornbeam, alder, maple and hazel of the same series were seen in search results, not opened. A northern broadleaf wood without oak or birch.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Megaplants: English Oak",
           "publisher": "Quixel Megaplants",
           "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
-          "note": "With Megaplants: Silver Birch, Baltic Pine and Norway Spruce: the right species for a desktop build with Nanite Foliage; not for the web target.",
-          "verified": "search result"
+          "engine": "5.7 to 5.8",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "Procedural vegetation: 14 skeletal meshes, Nanite yes, LODs no, Windows only. Silver Birch, Baltic Pine and Norway Spruce of the same series were seen in search results, not opened. The right species for a desktop build; not for the web target.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Apple Tree Pack (Mobile/Desktop)",
-          "publisher": "not recorded",
+          "publisher": "Next Spring",
           "url": "https://www.fab.com/listings/1d83287e-b523-4b10-9e36-d3a452668e42",
-          "note": "Mobile-targeted apple trees for the orchard; no pear.",
-          "verified": "search result"
+          "engine": "4.26 to 5.8",
+          "price": {
+            "personal": 3.99,
+            "professional": 3.99,
+            "currency": "USD"
+          },
+          "note": "17 meshes at 2,000 to 3,000 vertices for mobile and 6,500 to 7,500 for desktop; no LODs; no ratings yet. No pear.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "DZ Trees - Low Poly Palms",
-          "publisher": "not recorded",
+          "publisher": "DropZone Studios",
           "url": "https://www.fab.com/listings/47188c0c-6a96-4060-9877-fc7c6b833d4f",
-          "note": "Four LODs with Nanite off.",
-          "verified": "search result"
+          "engine": "5.1 to 5.8",
+          "price": {
+            "personal": 59.99,
+            "professional": 179.99,
+            "currency": "USD"
+          },
+          "note": "Made for low-end machines, with LODs; the page says the minimum LODs need adjusting for mobile devices.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     },
     "rocks": {
       "brief": "Scanned northern coastal cliffs, beach boulders and rock formations for the strand, the lighthouse rock, the quarry and scattered stones, in a medium or low quality tier.",
-      "constraints": "The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view. Megascans 3D assets come in quality tiers; take Mid or Low.",
+      "constraints": "The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view. These are single scanned Megascans assets, free, delivered as FBX and glTF in quality tiers, not packs: take the Mid or Low tier and gather the set piece by piece.",
       "candidates": [
         {
           "title": "Nordic Coastal Cliff",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/35d695d8-ac00-4ac5-8bba-1d46e973af68",
-          "note": "With Huge and Massive Nordic Coastal Cliff.",
-          "verified": "search result"
+          "engine": null,
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "One scanned cliff piece, 1.0 × 2.6 × 4.1 m, as FBX and glTF; displacement on the high tier only. Huge and Massive variants were seen in search results, not opened.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Nordic Beach Rock Formation",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/56575b1b-45b6-4d86-bc8e-15819cae003c",
-          "note": "With Nordic Beach Boulder and Nordic Beach Rock.",
-          "verified": "search result"
+          "engine": null,
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "One scanned formation, 4.2 × 4.2 × 1.3 m, as FBX and glTF. Nordic Beach Boulder and Rock were seen in search results, not opened.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     },
@@ -125,8 +167,15 @@
           "title": "Medieval Modular Town (With Interiors)",
           "publisher": "Jemini Studio",
           "url": "https://www.fab.com/listings/432fa0f0-bbc4-411a-b5ac-72ad05b4a4c8",
-          "note": "Modular timber-frame architecture on stone foundations with working interiors and example props; its version 1.1 is for Unreal Engine 5.1 onwards.",
-          "verified": "search result"
+          "engine": "4.21 to 5.8",
+          "price": {
+            "personal": 119.99,
+            "professional": 499.99,
+            "currency": "USD"
+          },
+          "note": "393 static meshes with collision and LODs (generated, some custom), 31 materials with 122 instances, and explorable interiors; rated 4.7 by 18.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     },
@@ -139,22 +188,43 @@
           "title": "Forest Floor",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/dae56d09-862c-4f77-9e72-a41281c49633",
-          "note": "With Mossy Forest Floor.",
-          "verified": "search result"
+          "engine": null,
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "A scanned 2 × 2 m surface as a texture set. Mossy Forest Floor was seen in search results, not opened.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Gravel on Soil",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/6fe7b621-ea13-4218-b2e4-ec70ddfda3b4",
-          "note": "With Ground Gravel.",
-          "verified": "search result"
+          "engine": null,
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "A scanned 0.39 × 0.39 m surface as a texture set. Ground Gravel was seen in search results, not opened.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Nordic Beach Rocky Ground",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/4a6cf0ef-005e-4c42-ac12-18526274658c",
-          "note": "Coast surfaces.",
-          "verified": "search result"
+          "engine": null,
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "A scanned ground patch, 2.3 × 2.9 m, as FBX and glTF.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     },
@@ -166,22 +236,43 @@
           "title": "Medieval Banquet",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/d422ac6c-ce50-4273-8d4a-2ac594a3a2b2",
-          "note": "Scanned tableware and a banquet scene; a narrow range of furniture.",
-          "verified": "search result"
+          "engine": "5.4 to 5.8",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "84 scanned meshes with LODs and no collision: tableware and food more than furniture.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Medieval Props: Kit",
-          "publisher": "not recorded",
+          "publisher": "Dragon Motion",
           "url": "https://www.fab.com/listings/c2946e73-7554-43cd-975c-ff993ada714e",
-          "note": "A large kit with furniture and kitchen sets; pick the plain pieces.",
-          "verified": "search result"
+          "engine": "4.22 to 5.8",
+          "price": {
+            "personal": 44.99,
+            "professional": 89.99,
+            "currency": "USD"
+          },
+          "note": "266 unique models in six sets (furniture, kitchen, cellar, books and more) with custom collision and two LODs each, about 3,500 triangles at LOD0. Pick the plain pieces.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Medieval Fantasy Furniture Pack 01",
-          "publisher": "not recorded",
+          "publisher": "Bartosz Wozny",
           "url": "https://www.fab.com/listings/222da434-25a6-4576-9f1a-1c5e0780df0a",
-          "note": "Beds, chests, shelves, tables and a bench; no barrels or pots.",
-          "verified": "search result"
+          "engine": "4.10 to 5.6",
+          "price": {
+            "personal": 9.99,
+            "professional": 20.99,
+            "currency": "USD"
+          },
+          "note": "31 low-poly furniture models with three material variants and four LODs each.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     },
@@ -193,90 +284,167 @@
           "title": "Modular Medieval Citizens",
           "publisher": "Assets3D",
           "url": "https://www.fab.com/listings/3c45dc48-1b07-4e3c-8d9f-52d194d89d5c",
-          "note": "Peasants from modular parts on the Epic skeleton; an old listing, check Unreal 5 support.",
-          "verified": "search result"
+          "engine": "4.12 to 5.0",
+          "price": {
+            "personal": 44.99,
+            "professional": 89.99,
+            "currency": "USD"
+          },
+          "note": "One modular peasant with 13 body parts, colour masks and face blend shapes, rigged to the Epic skeleton, with two LODs. Listed for engine versions up to 5.0 only; rated 3.5 by 10.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Medieval NPC Pack v1",
           "publisher": "Feyloom",
           "url": "https://www.fab.com/listings/e6ff5eb2-f24a-4ee9-8004-fe1a80a496ed",
-          "note": "Five game-ready villagers on the Unreal 5 skeleton.",
-          "verified": "search result"
+          "engine": "5.5 to 5.6",
+          "price": {
+            "personal": 54.99,
+            "professional": 109.99,
+            "currency": "USD"
+          },
+          "note": "Five fixed villagers of 4,200 to 5,400 vertices on the Unreal Engine 5 skeleton with 101 in-place animations; no LODs.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Modular Medieval NPC V2 - Metahuman",
           "publisher": "Polyphoria",
           "url": "https://www.fab.com/listings/4eb02787-c32d-4a10-b36b-bb237cffd738",
-          "note": "Everyday medieval clothing for MetaHumans; costly, and for desktop.",
-          "verified": "search result"
+          "engine": "5.0 to 5.8",
+          "price": {
+            "personal": 599.99,
+            "professional": 1499.99,
+            "currency": "USD"
+          },
+          "note": "About 130 modular clothing meshes for men and women on the Unreal Engine 5 skeleton, with MetaHuman integration; no animations; rated 4.3 by 8. By far the dearest candidate.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     },
     "animation": {
       "brief": "Animation on the standard skeleton for locomotion, work and idling, sitting and lying down, unarmed and sword combat with guard and dodge, the bow, swimming, and mounting and riding.",
-      "constraints": "Epic’s Game Animation Sample is reported as licensed for Unreal Engine products only. No bow set and no deer-riding set was confirmed; a horse rider set is the nearest.",
+      "constraints": "No bow set and no deer-riding set was found; a horse rider set is the nearest. Epic’s Game Animation Sample shows the standard Personal and Professional licences on its page; an earlier report that it is limited to Unreal Engine products was not confirmed there, so read its licence before using it elsewhere.",
       "candidates": [
         {
           "title": "Game Animation Sample",
           "publisher": "Epic Games",
           "url": "https://www.fab.com/listings/880e319a-a59e-4ed2-b268-b32dac7fa016",
-          "note": "Motion-matched locomotion and traversal; no combat, swimming, bow or riding.",
-          "verified": "search result"
+          "engine": "5.4 to 5.8",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "A complete project with motion-matched locomotion and traversal; rated 4.7 by 358. No combat, swimming, bow or riding.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Sword Animset Pro",
           "publisher": "Kubold",
           "url": "https://www.fab.com/listings/12783d2f-2bcf-4f3e-9a4a-d554cc3c579a",
-          "note": "With Fighting Animset Pro for unarmed combat.",
-          "verified": "search result"
+          "engine": "4.8 to 5.8",
+          "price": {
+            "personal": 64.99,
+            "professional": 64.99,
+            "currency": "USD"
+          },
+          "note": "178 motion-captured sword animations on the Unreal Engine 4 template skeleton, in place and with root motion; retarget them to the newer skeleton. Fighting Animset Pro for unarmed combat was seen in search results, not opened.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "MC Village Life Animation Pack",
           "publisher": "MoCap Central",
           "url": "https://www.fab.com/listings/409592b5-f8f8-4be0-b921-e6e9f3cc63dd",
-          "note": "Daily-life work, idle and sitting motions for villagers.",
-          "verified": "search result"
+          "engine": "5.0 to 5.8",
+          "price": {
+            "personal": 79.99,
+            "professional": 239.99,
+            "currency": "USD"
+          },
+          "note": "Motion-captured village work, idle and sitting motions on the Unreal Engine 5 mannequin skeleton, in place and with root motion; rated 4.5 by 6.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Swim Animset",
-          "publisher": "not recorded",
+          "publisher": "Filmstorm",
           "url": "https://www.fab.com/listings/a584a2c9-91ea-448f-8476-69f895fda567",
-          "note": "Swim, float and dive.",
-          "verified": "search result"
+          "engine": "4.26 to 5.4",
+          "price": {
+            "personal": 40.99,
+            "professional": 65.99,
+            "currency": "USD"
+          },
+          "note": "Freestyle, breaststroke at three speeds, floating idles, turns and diving on the Epic skeleton. Listed up to 5.4 only; rated 3.1 by 7.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     },
     "animals": {
       "brief": "Rigged, animated animals with LODs and gaits: deer and stag, wolf, bear, boar, lion and tiger, cat and dog; a saddled deer or a mount that can stand in for it; ideally with their calls.",
-      "constraints": "The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view. No standalone realistic animated tiger was found.",
+      "constraints": "The Unreal web target uses the mobile renderer, which has no Nanite, Virtual Shadow Maps or Lumen: choose meshes with real LODs and no Nanite requirement. Epic’s mobile guidance is at most 500,000 triangles and 700 draw calls in view. No standalone realistic animated tiger was found, and no dog pack was opened.",
       "candidates": [
         {
           "title": "FOREST ANIMALS PACK",
           "publisher": "PROTOFACTOR INC",
           "url": "https://www.fab.com/listings/7097a489-67e6-47f7-a85d-55ad2674277a",
-          "note": "Bear, boar, stag, fox and wolf with three LODs and 13 to 24 animations each.",
-          "verified": "search result"
+          "engine": "4.15 to 5.4",
+          "price": {
+            "personal": 49.99,
+            "professional": 149.99,
+            "currency": "USD"
+          },
+          "note": "Bear, boar, doe, stag, fox, rabbit and wolf at about 5,000 vertices, each in three levels of detail with 8 to 24 animations; rated 4.4 by 41. Listed up to 5.4 only.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "ANIMAL VARIETY PACK",
           "publisher": "PROTOFACTOR INC",
           "url": "https://www.fab.com/listings/2dd7964c-a601-4264-a53d-465dcae1644c",
-          "note": "Deer (stag and doe), wolf, fox, pig and crow.",
-          "verified": "search result"
+          "engine": "4.15 to 5.5",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "note": "A free assortment from the same maker, 1,200 to 5,700 vertices with 17 to 26 animations each; rated 4.7 by 337. Search results named stag, doe, wolf, fox, pig and crow.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "African Animals",
           "publisher": "JUNNICHI SUKO",
           "url": "https://www.fab.com/listings/a8e0d184-2d52-44d7-9e35-a1ae4fa45b1d",
-          "note": "Includes a lion; animation range not confirmed.",
-          "verified": "search result"
+          "engine": "4.26 to 5.8",
+          "price": {
+            "personal": 119.99,
+            "professional": 199.99,
+            "currency": "USD"
+          },
+          "note": "21 animals with 1,318 animations, among them a lion with a groomed mane.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Cats Pack",
-          "publisher": "RedDeer3D",
+          "publisher": "Radik Bilalov",
           "url": "https://www.fab.com/listings/43c831f0-fc9f-499d-8d53-9596047dbb5e",
-          "note": "Cats with many animations; a Labrador listing covers the dogs.",
-          "verified": "search result"
+          "engine": "5.1 to 5.7",
+          "price": {
+            "personal": 59.99,
+            "professional": 179.99,
+            "currency": "USD"
+          },
+          "note": "Twelve cats (four builds in several coats) with 175 animations; models and animations only, no controllers.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     },
@@ -286,24 +454,45 @@
       "candidates": [
         {
           "title": "Wilderness Nature Loops",
-          "publisher": "ESM (Epic Stock Media)",
+          "publisher": "ESM Team",
           "url": "https://www.fab.com/listings/1b83c6fa-42f3-4459-9ea7-7c004792e03f",
-          "note": "Seamless forest, ocean and wind loops.",
-          "verified": "search result"
+          "engine": "5.4",
+          "price": {
+            "personal": 49.99,
+            "professional": 49.99,
+            "currency": "USD"
+          },
+          "note": "200 seamless nature loops, 349 minutes, 44.1 kHz 16-bit.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Foley: Footsteps Sound Effects Pack",
-          "publisher": "not recorded",
+          "publisher": "Ovani Sound",
           "url": "https://www.fab.com/listings/fa9e8b89-f316-49e0-98e5-5d6e104d2ae6",
-          "note": "Footsteps on grass, wood, gravel, sand and stone.",
-          "verified": "search result"
+          "engine": "4.0 to 5.4",
+          "price": {
+            "personal": 19.99,
+            "professional": 99.99,
+            "currency": "USD"
+          },
+          "note": "324 footstep samples on several surfaces, shod and barefoot, meant to be played at random.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         },
         {
           "title": "Medieval Fantasy Game Music Pack",
           "publisher": "Skyhammer Sound",
           "url": "https://www.fab.com/listings/1c044e57-086d-4d0b-8538-02f54baaf6fc",
-          "note": "Medieval and renaissance pieces, some diegetic.",
-          "verified": "search result"
+          "engine": "4.26 to 5.6",
+          "price": {
+            "personal": 24.99,
+            "professional": 49.99,
+            "currency": "USD"
+          },
+          "note": "32 tracks, an hour of music: 14 full pieces, 14 loops and 4 diegetic pieces.",
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       ]
     }
@@ -318,12 +507,32 @@
       "source": "Generated with Meshy; see docs/engineering/main-hero.md and the model ledger.",
       "fab": "characters",
       "replaceWith": {
-        "title": "Modular Medieval Citizens",
-        "publisher": "Assets3D",
-        "url": "https://www.fab.com/listings/3c45dc48-1b07-4e3c-8d9f-52d194d89d5c",
-        "verified": "search result",
+        "title": "Modular Medieval NPC V2 - Metahuman",
+        "publisher": "Polyphoria",
+        "url": "https://www.fab.com/listings/4eb02787-c32d-4a10-b36b-bb237cffd738",
+        "engine": "5.0 to 5.8",
+        "price": {
+          "personal": 599.99,
+          "professional": 1499.99,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The only candidate that is modular, dresses men and women, and lists current engine versions (5.0 to 5.8), so one set can make seventeen residents and the hero. It is by far the dearest. Modular Medieval Citizens is cheaper but lists versions up to 5.0 only and is rated 3.5. For the web target, the five low-poly villagers of Medieval NPC Pack v1 are light enough.",
         "with": [],
-        "webTarget": null
+        "webTarget": {
+          "title": "Medieval NPC Pack v1",
+          "publisher": "Feyloom",
+          "url": "https://www.fab.com/listings/e6ff5eb2-f24a-4ee9-8004-fe1a80a496ed",
+          "engine": "5.5 to 5.6",
+          "price": {
+            "personal": 54.99,
+            "professional": 109.99,
+            "currency": "USD"
+          },
+          "verified": "listing page",
+          "checked": "2026-11-15"
+        }
       },
       "files": 3,
       "bytes": 18569692
@@ -337,12 +546,32 @@
       "source": "Generated or downloaded Meshy models, adapted; see docs/engineering/meshy-npcs.md and the model ledger.",
       "fab": "characters",
       "replaceWith": {
-        "title": "Modular Medieval Citizens",
-        "publisher": "Assets3D",
-        "url": "https://www.fab.com/listings/3c45dc48-1b07-4e3c-8d9f-52d194d89d5c",
-        "verified": "search result",
+        "title": "Modular Medieval NPC V2 - Metahuman",
+        "publisher": "Polyphoria",
+        "url": "https://www.fab.com/listings/4eb02787-c32d-4a10-b36b-bb237cffd738",
+        "engine": "5.0 to 5.8",
+        "price": {
+          "personal": 599.99,
+          "professional": 1499.99,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The only candidate that is modular, dresses men and women, and lists current engine versions (5.0 to 5.8), so one set can make seventeen residents and the hero. It is by far the dearest. Modular Medieval Citizens is cheaper but lists versions up to 5.0 only and is rated 3.5. For the web target, the five low-poly villagers of Medieval NPC Pack v1 are light enough.",
         "with": [],
-        "webTarget": null
+        "webTarget": {
+          "title": "Medieval NPC Pack v1",
+          "publisher": "Feyloom",
+          "url": "https://www.fab.com/listings/e6ff5eb2-f24a-4ee9-8004-fe1a80a496ed",
+          "engine": "5.5 to 5.6",
+          "price": {
+            "personal": 54.99,
+            "professional": 109.99,
+            "currency": "USD"
+          },
+          "verified": "listing page",
+          "checked": "2026-11-15"
+        }
       },
       "files": 17,
       "bytes": 47867312
@@ -371,25 +600,54 @@
         "title": "MC Village Life Animation Pack",
         "publisher": "MoCap Central",
         "url": "https://www.fab.com/listings/409592b5-f8f8-4be0-b921-e6e9f3cc63dd",
-        "verified": "search result",
+        "engine": "5.0 to 5.8",
+        "price": {
+          "personal": 79.99,
+          "professional": 239.99,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "Village work, idling and sitting are most of what residents do, and this set is on the current skeleton and lists engine versions up to 5.8. Locomotion, sword combat and swimming come from the three companions; the swim set lists versions up to 5.4 only.",
         "with": [
           {
             "title": "Game Animation Sample",
             "publisher": "Epic Games",
             "url": "https://www.fab.com/listings/880e319a-a59e-4ed2-b268-b32dac7fa016",
-            "verified": "search result"
+            "engine": "5.4 to 5.8",
+            "price": {
+              "personal": 0,
+              "professional": 0,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           },
           {
             "title": "Sword Animset Pro",
             "publisher": "Kubold",
             "url": "https://www.fab.com/listings/12783d2f-2bcf-4f3e-9a4a-d554cc3c579a",
-            "verified": "search result"
+            "engine": "4.8 to 5.8",
+            "price": {
+              "personal": 64.99,
+              "professional": 64.99,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           },
           {
             "title": "Swim Animset",
-            "publisher": "not recorded",
+            "publisher": "Filmstorm",
             "url": "https://www.fab.com/listings/a584a2c9-91ea-448f-8476-69f895fda567",
-            "verified": "search result"
+            "engine": "4.26 to 5.4",
+            "price": {
+              "personal": 40.99,
+              "professional": 65.99,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           }
         ],
         "webTarget": null
@@ -409,25 +667,54 @@
         "title": "FOREST ANIMALS PACK",
         "publisher": "PROTOFACTOR INC",
         "url": "https://www.fab.com/listings/7097a489-67e6-47f7-a85d-55ad2674277a",
-        "verified": "search result",
+        "engine": "4.15 to 5.4",
+        "price": {
+          "personal": 49.99,
+          "professional": 149.99,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "It has the deer, wolf, bear, boar and fox of the game’s woods in three levels of detail from one maker. The lion comes from African Animals and the cats from Cats Pack; no tiger and no dog pack was found. It lists engine versions up to 5.4, so migrating it is part of the work.",
         "with": [
           {
             "title": "ANIMAL VARIETY PACK",
             "publisher": "PROTOFACTOR INC",
             "url": "https://www.fab.com/listings/2dd7964c-a601-4264-a53d-465dcae1644c",
-            "verified": "search result"
+            "engine": "4.15 to 5.5",
+            "price": {
+              "personal": 0,
+              "professional": 0,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           },
           {
             "title": "African Animals",
             "publisher": "JUNNICHI SUKO",
             "url": "https://www.fab.com/listings/a8e0d184-2d52-44d7-9e35-a1ae4fa45b1d",
-            "verified": "search result"
+            "engine": "4.26 to 5.8",
+            "price": {
+              "personal": 119.99,
+              "professional": 199.99,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           },
           {
             "title": "Cats Pack",
-            "publisher": "RedDeer3D",
+            "publisher": "Radik Bilalov",
             "url": "https://www.fab.com/listings/43c831f0-fc9f-499d-8d53-9596047dbb5e",
-            "verified": "search result"
+            "engine": "5.1 to 5.7",
+            "price": {
+              "personal": 59.99,
+              "professional": 179.99,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           }
         ],
         "webTarget": null
@@ -447,20 +734,42 @@
         "title": "Megaplants: English Oak",
         "publisher": "Quixel Megaplants",
         "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
-        "verified": "search result",
+        "engine": "5.7 to 5.8",
+        "price": {
+          "personal": 0,
+          "professional": 0,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The exact species of the game’s woods (oak, with birch, pine and spruce in the same series), free. They need Nanite and list 5.7 and 5.8 on Windows only, so the LOD-based Megascans Trees stand in on the web target, with the palm and apple packs for the kinds neither series has.",
         "with": [
           {
             "title": "DZ Trees - Low Poly Palms",
-            "publisher": "not recorded",
+            "publisher": "DropZone Studios",
             "url": "https://www.fab.com/listings/47188c0c-6a96-4060-9877-fc7c6b833d4f",
-            "verified": "search result"
+            "engine": "5.1 to 5.8",
+            "price": {
+              "personal": 59.99,
+              "professional": 179.99,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           }
         ],
         "webTarget": {
-          "title": "European Beech (Megascans Trees)",
+          "title": "European Beech",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
-          "verified": "search result"
+          "engine": "5.1 to 5.6",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       },
       "files": 45,
@@ -478,20 +787,42 @@
         "title": "Megaplants: English Oak",
         "publisher": "Quixel Megaplants",
         "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
-        "verified": "search result",
+        "engine": "5.7 to 5.8",
+        "price": {
+          "personal": 0,
+          "professional": 0,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The exact species of the game’s woods (oak, with birch, pine and spruce in the same series), free. They need Nanite and list 5.7 and 5.8 on Windows only, so the LOD-based Megascans Trees stand in on the web target, with the palm and apple packs for the kinds neither series has.",
         "with": [
           {
             "title": "Apple Tree Pack (Mobile/Desktop)",
-            "publisher": "not recorded",
+            "publisher": "Next Spring",
             "url": "https://www.fab.com/listings/1d83287e-b523-4b10-9e36-d3a452668e42",
-            "verified": "search result"
+            "engine": "4.26 to 5.8",
+            "price": {
+              "personal": 3.99,
+              "professional": 3.99,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           }
         ],
         "webTarget": {
-          "title": "European Beech (Megascans Trees)",
+          "title": "European Beech",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
-          "verified": "search result"
+          "engine": "5.1 to 5.6",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       },
       "files": 36,
@@ -509,13 +840,28 @@
         "title": "Megaplants: English Oak",
         "publisher": "Quixel Megaplants",
         "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
-        "verified": "search result",
+        "engine": "5.7 to 5.8",
+        "price": {
+          "personal": 0,
+          "professional": 0,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The exact species of the game’s woods (oak, with birch, pine and spruce in the same series), free. They need Nanite and list 5.7 and 5.8 on Windows only, so the LOD-based Megascans Trees stand in on the web target, with the palm and apple packs for the kinds neither series has.",
         "with": [],
         "webTarget": {
-          "title": "European Beech (Megascans Trees)",
+          "title": "European Beech",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
-          "verified": "search result"
+          "engine": "5.1 to 5.6",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       },
       "files": 3,
@@ -533,13 +879,28 @@
         "title": "Nordic Beach Rock Formation",
         "publisher": "Quixel Megascans",
         "url": "https://www.fab.com/listings/56575b1b-45b6-4d86-bc8e-15819cae003c",
-        "verified": "search result",
+        "engine": null,
+        "price": {
+          "personal": 0,
+          "professional": 0,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "A free scanned formation of the northern coast the game’s strand is modelled on, with the cliff piece for the lighthouse rock. Both are single assets: more pieces of the same Nordic series are needed for variety.",
         "with": [
           {
             "title": "Nordic Coastal Cliff",
             "publisher": "Quixel Megascans",
             "url": "https://www.fab.com/listings/35d695d8-ac00-4ac5-8bba-1d46e973af68",
-            "verified": "search result"
+            "engine": null,
+            "price": {
+              "personal": 0,
+              "professional": 0,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           }
         ],
         "webTarget": null
@@ -557,15 +918,30 @@
       "fab": "interiors",
       "replaceWith": {
         "title": "Medieval Props: Kit",
-        "publisher": "not recorded",
+        "publisher": "Dragon Motion",
         "url": "https://www.fab.com/listings/c2946e73-7554-43cd-975c-ff993ada714e",
-        "verified": "search result",
+        "engine": "4.22 to 5.8",
+        "price": {
+          "personal": 44.99,
+          "professional": 89.99,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The widest set in one material language: furniture, kitchen and cellar pieces with collision and two LODs each, listed up to 5.8. The furniture pack adds beds and chests with four LODs.",
         "with": [
           {
             "title": "Medieval Fantasy Furniture Pack 01",
-            "publisher": "not recorded",
+            "publisher": "Bartosz Wozny",
             "url": "https://www.fab.com/listings/222da434-25a6-4576-9f1a-1c5e0780df0a",
-            "verified": "search result"
+            "engine": "4.10 to 5.6",
+            "price": {
+              "personal": 9.99,
+              "professional": 20.99,
+              "currency": "USD"
+            },
+            "verified": "listing page",
+            "checked": "2026-11-15"
           }
         ],
         "webTarget": null
@@ -609,7 +985,15 @@
         "title": "Medieval Modular Town (With Interiors)",
         "publisher": "Jemini Studio",
         "url": "https://www.fab.com/listings/432fa0f0-bbc4-411a-b5ac-72ad05b4a4c8",
-        "verified": "search result",
+        "engine": "4.21 to 5.8",
+        "price": {
+          "personal": 119.99,
+          "professional": 499.99,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The one modular kit found whose buildings can be entered, with collision and LODs and engine versions up to 5.8. Its timber frame is richer than the game’s poor village: use the plain pieces and its interiors.",
         "with": [],
         "webTarget": null
       },
@@ -640,13 +1024,28 @@
         "title": "Megaplants: English Oak",
         "publisher": "Quixel Megaplants",
         "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
-        "verified": "search result",
+        "engine": "5.7 to 5.8",
+        "price": {
+          "personal": 0,
+          "professional": 0,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The exact species of the game’s woods (oak, with birch, pine and spruce in the same series), free. They need Nanite and list 5.7 and 5.8 on Windows only, so the LOD-based Megascans Trees stand in on the web target, with the palm and apple packs for the kinds neither series has.",
         "with": [],
         "webTarget": {
-          "title": "European Beech (Megascans Trees)",
+          "title": "European Beech",
           "publisher": "Quixel Megascans",
           "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
-          "verified": "search result"
+          "engine": "5.1 to 5.6",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "verified": "listing page",
+          "checked": "2026-11-15"
         }
       },
       "files": 7,
@@ -27068,7 +27467,7 @@
         "status": "unresolved-meshy-provenance"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Hero",
@@ -27089,7 +27488,7 @@
         "status": "unresolved-meshy-provenance"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Hero",
@@ -27110,7 +27509,7 @@
         "status": "meshy-paid-plan-output"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Hero",
@@ -27131,7 +27530,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27152,7 +27551,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27173,7 +27572,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27194,7 +27593,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27215,7 +27614,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27236,7 +27635,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27257,7 +27656,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27278,7 +27677,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27299,7 +27698,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27334,7 +27733,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27355,7 +27754,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27412,7 +27811,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27433,7 +27832,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27692,7 +28091,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27713,7 +28112,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27734,7 +28133,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
@@ -27755,7 +28154,7 @@
         "status": "meshy-community-cc0"
       },
       "plan": "replace",
-      "replaceWith": "Modular Medieval Citizens",
+      "replaceWith": "Modular Medieval NPC V2 - Metahuman",
       "unreal": {
         "type": "SkeletalMesh",
         "folder": "/Game/Tervain/Characters/Residents",
