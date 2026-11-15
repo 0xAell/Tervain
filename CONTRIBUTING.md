@@ -25,6 +25,15 @@ Use stable identifiers for quest facts and content once implementation begins. D
 - For documentation-only changes, verify links, consistency, and clean diffs without pretending to run a game.
 - Preserve required checks, workflow triggers, and deployment behavior. Passing local checks or pushing a commit does not establish that a release is live; verify the published build separately.
 
+## A public repository
+
+This repository is public, so a pull request must not add anything private to it. CI checks every pull request (*Hygiene / Nothing private in new commits*), and `npm run hygiene:check -- --base origin/main` runs the same check before a push:
+
+- Commit with a GitHub no-reply address as both author and committer: `git config user.email "<id>+<login>@users.noreply.github.com"`.
+- Keep links to working sessions, machine host names, network addresses, paths inside a home or temporary folder, and keys or tokens out of commit messages, pull request titles and descriptions, branch names and committed files.
+
+Only what a pull request adds is checked; history is left as it is. The rules and their examples are in `tools/commit-hygiene.mjs` and `tests/tooling/commitHygiene.test.ts`.
+
 ## Shared work and assets
 
 Keep reusable art sources and provenance discoverable in Warpkeep-Assets when appropriate; keep Tervain's selected runtime inventory and transformations in this repository. Record exact upstream revisions rather than assuming a floating branch stays compatible. Avoid copying generated client bindings, private world exports, accounts, or deployment machinery from Warpkeep into a local RPG.

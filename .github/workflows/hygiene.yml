@@ -1,0 +1,38 @@
+name: Hygiene
+
+# The repository is public. This fails a pull request that would add something private to it:
+#   - a new commit whose author or committer is not a no-reply address;
+#   - a commit message, an added line, or the pull request's title, description or branch name that holds a link to a
+#     working session, a machine's host name, a network address, a path inside a home or temporary folder, or a key.
+# The rules and their examples are in tools/commit-hygiene.mjs and tests/tooling/commitHygiene.test.ts. Only what the
+# pull request adds is checked; history stays as it is.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hygiene-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  commit-hygiene:
+    name: Nothing private in new commits
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # All commits, no file contents: the diff fetches only the files the pull request touches.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: tools
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: New commits, added lines, title, description and branch name
+        run: node tools/commit-hygiene.mjs
