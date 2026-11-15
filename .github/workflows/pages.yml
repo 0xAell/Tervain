@@ -148,3 +148,29 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # The published build itself, once it is live: it must load, draw, take input and log no error. The job waits for the
+  # deployment to be whole and to be this commit, then plays it in a browser on the software renderer.
+  live-smoke:
+    if: github.event_name != 'pull_request'
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Load the live build, start a journey, pause, walk
+        env:
+          CHROME: /usr/bin/google-chrome
+        run: node tools/live-smoke.mjs --url https://ael-dev3.github.io/Tervain/ --revision ${{ github.sha }} --out live-smoke-proof
+      - name: Upload the smoke test's report and screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-smoke-proof
+          path: live-smoke-proof
+          if-no-files-found: warn
