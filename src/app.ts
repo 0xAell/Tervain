@@ -70,6 +70,7 @@ import { installDepthOnlyShadowPass } from './presentation/softShadows';
 import { setHighLodBands, setHighLodSpecies } from './presentation/floraPopulation';
 import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
+import { handsForCargo, keepsHold } from './core/rules/cargo';
 import { BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, woundedNow } from './core/rules/speech';
 import { AUTOSAVE_SECONDS, bellGain, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH } from './core/rules/journey';
 import {
@@ -1946,10 +1947,10 @@ export class App {
 
   private updateInteraction() {
     const p = this.player, physics = this.world.physics;
-    if (p.state !== 'free') { physics.release(); this.hud.setPrompt(null); return; }
+    if (!keepsHold(p.state)) { physics.release(); this.hud.setPrompt(null); return; }
     // Nothing is picked up from the saddle or while getting up or down: a held barrel rode through the deer's back
     // (A100 scout). Interacting (dismounting among it) still works.
-    const saddled = p.mount !== null || p.mountMove !== null;
+    const saddled = !handsForCargo({ riding: p.mount !== null, mounting: p.mountMove !== null });
     if (saddled && physics.holding) physics.release();
     const prop = physics.holding || saddled ? null : physics.candidate(p, this.cam.yaw);
     if (this.input.pressed('grab')) {

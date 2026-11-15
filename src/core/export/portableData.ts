@@ -28,6 +28,7 @@ import { MUSIC } from '../content/music';
 import { MUSIC_PACING, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS } from '../rules/music';
 import { BEDS, emitterRuleTable, INN, MILL_SOUND, QUARRY_SOUND } from '../rules/soundscape';
 import { BOW } from '../rules/bow';
+import { CARGO_STEP, CARRY } from '../rules/cargo';
 import { BUBBLE, HERO_CUE_AGAIN, HERO_CUE_DELAY, SCENE_CHECK_SECONDS, SPEECH } from '../rules/speech';
 import { AFLOAT, AWAITED_MOUNT_REACH, CLOCK_TICK_MINUTES, ENTRY, SAFE_PLACE_RINGS, SHAKE, STANDING_BODY, TIMED_WORK } from '../rules/session';
 import { SHOT, SKINNING, SKULL_BAND, SKULLS } from '../rules/archery';
@@ -204,6 +205,7 @@ function game(): PortableDocument[] {
         },
         riding: { ride: RIDE, deerBody: DEER_BODY, mountTimes: MOUNT_TIMES, mountSide: MOUNT_SIDE, camera: RIDE_CAMERA, stamina: MOUNT_STAMINA },
         bow: BOW,
+        cargo: { carry: CARRY, step: CARGO_STEP },
         shot: { ...SHOT, skinning: SKINNING, skullBand: SKULL_BAND, skulls: SKULLS },
         clock: {
           gameMinutesPerSecond: CLOCK_RATE, sunrise: SUNRISE_HOUR, sunset: SUNSET_HOUR, night: NIGHT,
