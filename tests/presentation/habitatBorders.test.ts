@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Habitat, newSample } from '../../src/presentation/ground/habitat';
+import { Habitat, newSample } from '../../src/core/world/habitat';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';

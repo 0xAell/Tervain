@@ -12,7 +12,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const modules = {
   ...import.meta.glob('../../src/core/rules/*.ts', { eager: true }),
   ...import.meta.glob('../../src/core/content/{animals,enemies,ambientPeople}.ts', { eager: true }),
-  ...import.meta.glob('../../src/core/world/{wind,treeScale,groundContacts,physicalProps,flora,exclusions,groundLayers}.ts', { eager: true }),
+  ...import.meta.glob('../../src/core/world/{wind,treeScale,groundContacts,physicalProps,flora,exclusions,groundLayers,habitat,scatter,forestFloor,detail}.ts', { eager: true }),
   ...import.meta.glob('../../src/core/util/*.ts', { eager: true }),
 } as Record<string, Record<string, unknown>>;
 

@@ -1,3 +1,4 @@
+import type { Detail } from '../core/world/detail';
 import type { CanopyAuditTarget } from '../diagnostics/canopyAudit';
 import type { PlacementAuditTarget } from '../diagnostics/placementAudit';
 import type * as THREE from 'three';
@@ -11,7 +12,8 @@ import type { MeshyNpcCatalog } from './meshynpcs';
 import type { PlantedCrownField } from './plantedCrowns';
 import type { FoliageField } from './foliage/foliageWind';
 
-export type Quality = 'low' | 'medium' | 'high';
+/** The graphics preset, which is also how much decoration is kept (core/world/detail.ts). */
+export type Quality = Detail;
 
 /** Everything a scene module needs to build itself. Modules add colliders and read the terrain; they never touch game state. */
 export interface BuildContext {

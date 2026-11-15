@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import type { AssetNeed } from './assets/library';
-import { Habitat } from './ground/habitat';
+import { Habitat } from '../core/world/habitat';
 import { createGrassField, GRASS_QUALITY, meadowGround, type GrassReserve, type MeadowGround } from './grass/grassField';
 import { GrassTrample, type GrassMover } from './grass/trample';
 import { GrassWind } from './grass/wind';

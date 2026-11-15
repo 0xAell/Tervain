@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { PlantedCrownIndex } from '../../src/presentation/plantedCrowns';
-import { Habitat, newSample } from '../../src/presentation/ground/habitat';
+import { Habitat, newSample } from '../../src/core/world/habitat';
 import { groundSplat } from '../../src/core/world/groundLayers';
 import { buildTerrainMesh } from '../../src/presentation/terrainMesh';
 import { LAYER, type TerrainTextures } from '../../src/presentation/terrainTextures';

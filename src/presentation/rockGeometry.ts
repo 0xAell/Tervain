@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { clamp, fbm, mulberry32, ridged, smoothstep } from '../core/world/noise';
+import { ROCK_SHAPE_COUNT } from '../core/world/scatter';
 import { assertNaturalModelBudget } from './naturalModelBudget';
 
 type V3 = [number, number, number];
 type RGB = [number, number, number];
-export const SCATTER_SHAPES = 6;
+/** One mesh for each shape of stone the core's placement chooses among. */
+export const SCATTER_SHAPES = ROCK_SHAPE_COUNT;
 
 /** A fractured rock: a noisy blob with several plane cuts, strata bands in the colour and lichen on the top faces. */
 function rockGeometry(seed: number, detail: 1 | 2, tone: RGB): THREE.BufferGeometry {

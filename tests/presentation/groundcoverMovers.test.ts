@@ -6,7 +6,7 @@ import { createGrassField } from '../../src/presentation/grass/grassField';
 import { GrassTrample, type GrassMover } from '../../src/presentation/grass/trample';
 import type { BuildContext, FrameContext } from '../../src/presentation/context';
 
-vi.mock('../../src/presentation/ground/habitat', () => ({ Habitat: class {} }));
+vi.mock('../../src/core/world/habitat', () => ({ Habitat: class {} }));
 vi.mock('../../src/presentation/grass/grassField', async original => ({
   ...await original<typeof import('../../src/presentation/grass/grassField')>(), createGrassField: vi.fn(),
 }));

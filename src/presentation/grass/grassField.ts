@@ -3,7 +3,7 @@ import { grassGroundY } from './grassGround';
 import { clamp, mulberry32, smoothstep } from '../../core/world/noise';
 import type { Terrain } from '../../core/world/terrain';
 import type { Quality } from '../context';
-import { hash3, woodlandColonyAt, type Habitat, type HabitatSample, newSample } from '../ground/habitat';
+import { hash3, woodlandColonyAt, type Habitat, type HabitatSample, newSample } from '../../core/world/habitat';
 import { TileLayer, type TileBuffers } from '../ground/tileStream';
 import { GRASS_FAR_RANGE } from '../distanceVisibility';
 import { createGrassClump, visibleGrassBlades, type ClumpSpec } from './bladeGeometry';

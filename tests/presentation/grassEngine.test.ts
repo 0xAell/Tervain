@@ -6,7 +6,7 @@ import { GrassTrample, TRAMPLE_MAX_MOVERS, TRAMPLE_RECOVERY, type GrassMover } f
 import { createGrassMaterial, GRASS_TIP_CAP, type GrassMaterialOptions } from '../../src/presentation/grass/grassMaterial';
 import { displayToSceneLuminance } from '../../src/presentation/grade';
 import { createGrassField, GRASS_CLUMP, GRASS_MAX_SCALE, GRASS_QUALITY } from '../../src/presentation/grass/grassField';
-import { Habitat } from '../../src/presentation/ground/habitat';
+import { Habitat } from '../../src/core/world/habitat';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';
