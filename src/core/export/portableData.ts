@@ -31,6 +31,7 @@ import { BOW } from '../rules/bow';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../rules/camera';
 import { NIGHT, nightness, SUNRISE_HOUR, SUNSET_HOUR } from '../rules/dayNight';
 import { moonDirection, SKY_KEYS, SKY_LIGHT, sunDirection } from '../rules/sky';
+import { LOOK, MENU_LOOK } from '../content/look';
 import { DOORS } from '../rules/doors';
 import {
   ACTION_COST, ACTION_SECONDS, BLADE, DODGE, ENGAGED_REACH, FIRM_FOOTING_SLOPE, FISTS, GRAVITY, GROUND_FOLLOW_DROP, GUARD, HIT_AT, JUMP_SPEED,
@@ -272,6 +273,11 @@ function world(terrain: Terrain): PortableDocument[] {
         count,
         trees: trees.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, age: tree.age ?? null, stand: tree.standId ?? null })),
       },
+    },
+    {
+      path: 'world/look.json',
+      about: 'The look of the final image as numbers, for a post-process volume: exposure before tone mapping, the daylight contrast curve, saturation and its lift by day, vignette, grain, how far greens lean olive and the sky is muted, and the glow on bright parts; and the title’s own look. Night fades the contrast curve and the day’s lift to 1.',
+      data: { world: LOOK, title: MENU_LOOK },
     },
     {
       path: 'world/sky.json',

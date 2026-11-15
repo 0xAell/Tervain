@@ -34,12 +34,13 @@ What is there:
 
 What is missing from a ten, and the plan:
 
-- The state machines of the player's actions, the residents, the hostiles and the animals have been lifted.
-  The table of interactables, the score's director with the soundscape's rules, the placing of stones, grass habitat
-  and the woodland floor, and the sky's keys have since been lifted. [System mapping](system-mapping.md#still-in-the-scene-layer) lists them.
-- Plan: lift them one pull request each, smallest first: the interactable table, then the player's action states (the
-  port's Phase 3 needs it), the residents' route following, the animals, the music director, the placement rules, the
-  sky keyframes. Each lands with its tests and without a change in the budget gate's figures.
+- The seven lifts first planned here are done: the table of interactables, the player's action states, the residents'
+  days, the hostiles, the animals, the score's director with the soundscape's rules, the placing of stones, grass
+  habitat and the woodland floor, and the sky's keys; and the look of the final image after them.
+- A reading of the whole scene layer afterwards found more that decides play: the shot, the session's rules in
+  `src/app.ts`, who speaks when, carrying loose cargo and reviving a save.
+  [System mapping](system-mapping.md#still-in-the-scene-layer) lists them.
+- Plan: lift each in a pull request of its own, with its tests and without a change in the budget gate's figures.
 
 ## 2. Asset manifest
 

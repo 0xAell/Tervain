@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/look.schema.json",
+  "title": "world/look.json",
+  "description": "The look of the final image as numbers, for a post-process volume: exposure before tone mapping, the daylight contrast curve, saturation and its lift by day, vignette, grain, how far greens lean olive and the sky is muted, and the glow on bright parts; and the title’s own look. Night fades the contrast curve and the day’s lift to 1.",
+  "type": "object",
+  "properties": {
+    "about": {
+      "type": "string"
+    },
+    "units": {
+      "type": "string"
+    },
+    "world": {
+      "type": "object",
+      "properties": {
+        "exposure": {
+          "type": "number"
+        },
+        "contrast": {
+          "type": "number"
+        },
+        "saturation": {
+          "type": "number"
+        },
+        "daySaturation": {
+          "type": "number"
+        },
+        "vignette": {
+          "type": "number"
+        },
+        "grain": {
+          "type": "number"
+        },
+        "earth": {
+          "type": "integer"
+        },
+        "bloom": {
+          "type": "object",
+          "properties": {
+            "threshold": {
+              "type": "number"
+            },
+            "strength": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "threshold",
+            "strength"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "exposure",
+        "contrast",
+        "saturation",
+        "daySaturation",
+        "vignette",
+        "grain",
+        "earth",
+        "bloom"
+      ],
+      "additionalProperties": false
+    },
+    "title": {
+      "type": "object",
+      "properties": {
+        "saturation": {
+          "type": "number"
+        },
+        "contrast": {
+          "type": "number"
+        },
+        "vignette": {
+          "type": "number"
+        },
+        "grain": {
+          "type": "number"
+        },
+        "earth": {
+          "type": "integer"
+        },
+        "chromatic": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "saturation",
+        "contrast",
+        "vignette",
+        "grain",
+        "earth",
+        "chromatic"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "about",
+    "units",
+    "world",
+    "title"
+  ],
+  "additionalProperties": false
+}
