@@ -18,6 +18,7 @@
     "assets:manifest": "node tools/asset-manifest.mjs",
     "assets:check": "node tools/asset-manifest.mjs --check",
     "docs:sources": "node tools/check-doc-sources.mjs",
+    "hygiene:check": "node tools/commit-hygiene.mjs",
     "unreal:check": "node tools/export-data.mjs --check && vitest run tests/tools/unrealDrift.test.ts tests/tools/unrealSkeleton.test.ts tests/tools/unrealRulesParity.test.ts tests/tools/unrealSeedBuild.test.ts"
   },
   "devDependencies": {
