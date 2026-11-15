@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { ANIMAL_IDS, ANIMAL_MODEL_IDS, ANIMAL_SPECIES, SKINNING_REACH, isHuntableAnimalId, type AnimalId, type AnimalHuntRecord, type HuntingState } from '../../../core/game/hunting';
 import type { Collider } from '../../../core/world/colliders';
-import { SHOT, skinningStance, woundedFleesFrom } from '../../../core/rules/archery';
+import { SHOT, skinningStance, woundedFleesFrom, zoneOnBody } from '../../../core/rules/archery';
 import type { AnimalDefinition } from '../../../core/content/animals';
 import { AnimalCorpse, type CorpseBody } from './corpse';
 import { AnimalArrowSurface, type AnimalArrowHit } from './hit';
@@ -128,7 +128,7 @@ export class AnimalHunting {
       // Acceleration data is only allocated for models actually reached by an arrow ray.
       resident.surface ??= new AnimalArrowSurface({ id: resident.id, species: animal.definition.species }, animal.scene);
       const hit = resident.surface.trace(origin, this.direction, nearest?.distance ?? maxDistance);
-      if (hit) nearest = { ...hit, id: resident.id, zone: resident.record?.status === 'dead' ? null : hit.zone,
+      if (hit) nearest = { ...hit, id: resident.id, zone: zoneOnBody(hit.zone, resident.record?.status === 'dead'),
         position: { x: animal.root.position.x, y: animal.root.position.y, z: animal.root.position.z }, yaw: animal.yaw };
     }
     return nearest;

@@ -542,7 +542,10 @@
       },
       "standingBody": {
         "residentRadius": 0.35,
-        "height": 2.1
+        "height": 2.1,
+        "heroRadius": 0.32,
+        "heroHeight": 1.8,
+        "animalMargin": 0.07
       },
       "awaitedMountReach": 1,
       "timedWork": {

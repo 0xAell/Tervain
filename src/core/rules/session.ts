@@ -138,7 +138,13 @@ export function recoversFromUnderWorld(seconds: number): boolean {
 }
 
 /** A resident's body is this wide and every standing body this tall, to whatever must go round it (m). */
-export const STANDING_BODY = { residentRadius: RESIDENT.radius, height: 2.1 } as const;
+export const STANDING_BODY = {
+  residentRadius: RESIDENT.radius, height: 2.1,
+  /** To a hostile finding its footing the wanderer is a body this wide and this tall (m). */
+  heroRadius: 0.32, heroHeight: 1.8,
+  /** A living animal's body is its box and this much more each way (m). */
+  animalMargin: 0.07,
+} as const;
 
 /** A body that stands in the way of loose cargo, of the animals and of each other. */
 export interface StandingBody { id: string; x: number; y: number; z: number; radius: number; height: number; active: boolean }

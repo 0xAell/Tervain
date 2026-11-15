@@ -33,7 +33,10 @@ export function noThreatNear(x: number, z: number, foes: Iterable<{ alive: boole
 /** The place he returns to moves with him, but never to within this distance (m) of a living foe or an undefeated post. */
 export const CHECKPOINT_CLEARANCE = 18;
 
-/** Whether `(x, z)` may become the place he returns to. */
+/**
+ * Whether `(x, z)` may become the place he returns to. It is asked when he discovers a place, when the journey saves
+ * itself and when a journey is loaded; a load starts from the strand.
+ */
 export function checkpointAllowed(x: number, z: number, livingFoes: Iterable<{ x: number; z: number }>, undefeatedPosts: Iterable<{ x: number; z: number }>): boolean {
   for (const foe of livingFoes) if (Math.hypot(foe.x - x, foe.z - z) < CHECKPOINT_CLEARANCE) return false;
   for (const post of undefeatedPosts) if (Math.hypot(post.x - x, post.z - z) < CHECKPOINT_CLEARANCE) return false;
@@ -61,6 +64,11 @@ export const WOUNDED_BELOW = 0.3;
 
 /** The drought bell: rung this often (s) while the drought holds, heard out to `reach` (m), strikes this far apart (ms). */
 export const DROUGHT_BELL = { every: 42, reach: 220, strikeGapMs: 1400, allClearGapMs: 600, strikes: 2, allClearStrikes: 3 } as const;
+
+/** Seconds until the bell is next thought of: its interval while the drought holds, and as good as never otherwise (it is asked again when the world changes). */
+export function bellWait(drought: boolean): number {
+  return drought ? DROUGHT_BELL.every : 9999;
+}
 
 /** How loud the bell is `distance` metres away, 0 to 1. */
 export const bellGain = (distance: number): number => Math.max(0, 1 - distance / DROUGHT_BELL.reach);

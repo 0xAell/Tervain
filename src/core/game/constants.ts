@@ -8,3 +8,6 @@ export const TRAINING_COST = 10;
 export const REWARD_COIN = 25;
 /** Game minutes per real second while the world is running freely (a day passes in ~24 real minutes). */
 export const CLOCK_RATE = 1;
+
+/** A resident's trust in the wanderer is kept within this either way. */
+export const TRUST_LIMIT = 5;

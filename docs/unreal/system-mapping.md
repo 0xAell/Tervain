@@ -64,7 +64,7 @@ numbers are in data either way.
 | **World state and commands.** One persistent state; every meaningful change goes through a command, which emits events for the scene. | `core/game/state.ts`, `commands.ts`, `types.ts`, `game.ts`. | A **game-instance subsystem** holding the state as structs, with the commands as functions and events as delegates. This is the heart of the port and the part with the most tests to mirror (`tests/scenarios`). | The state's shape, every command, every scenario test. |
 | **The quest.** The Dry Bell: evidence, phases, three parties' consent, an allocation, consequences. | `core/game/` and `core/content/`; `data/game/quest.json`, `inspections.json`. | Part of the same subsystem. | Everything. |
 | **A sitting.** What passes while the world runs and is not saved: the clock handed its minutes in halves, the count to the next autosave and whether a new journey may overwrite the last, the pause on a blow, the fall and the waking at the checkpoint, where a loaded wanderer is set down (standing, afloat, or the nearest open ground), places discovered on coming near, getting onto and off the deer, the archive's door, timed work, and which objective is shown. | `core/rules/journey.ts` (the numbers) and `core/rules/session.ts` (when each applies); `src/app.ts` calls them in its loop. | The game mode and player controller call the ported functions; timers as timer handles. | The rules. The order in which the application steps its parts each frame is its own, and a port orders its ticks its own way. |
-| **Saving.** A versioned envelope with a checksum in browser storage; autosave every 90 s. | `platform/storage.ts`; payload `WorldState`. | **Save games**: a `USaveGame` object holding the same state, saved asynchronously. | The payload's fields and the save format version. The envelope is replaced. |
+| **Saving.** A versioned envelope with a checksum in browser storage; autosave every 90 s. | `platform/storage.ts` (where a save is kept, its envelope and checksum); payload `WorldState`; `core/game/revive.ts`, what a save is revived as, field by field. | **Save games**: a `USaveGame` object holding the same state, saved asynchronously. | The payload's fields and the save format version. The envelope is replaced. |
 | **Journal, map, hints, inventory.** Derived views of the state. | `core/game/journal.ts`, `map.ts`, `hints.ts`, `inventory.ts`. | Functions over the ported state, shown by widgets. | The rules. |
 
 ## Presentation
@@ -90,9 +90,39 @@ mirrored tests pass on the same numbers.
 ## Still in the scene layer
 
 The scene layer was read end to end on 15 November 2026, after the lifts above, for anything that still decides how
-the game plays rather than how it looks or sounds. These do. Read them in place until they are lifted:
+the game plays rather than how it looks or sounds, and what it found has since been lifted: the shot, a sitting's
+rules, who speaks when, carrying loose cargo and reviving a save.
 
-- **Reviving a save.** What an old or damaged save is corrected to: `platform/storage.ts`.
+A second reading afterwards found more. Each is to be lifted in a pull request of its own:
+
+- **An animal's pace and the length of its gestures** come from its model file (`presentation/animals.ts`), so the
+  core's own speeds, which the data export carries, are not the ones played; and how far an animal's call carries
+  comes from the sound table.
+- **What a shot frightens** (only game that is alive or wounded and not on its way home), the retry of game on its way
+  home and the reach to a carcass (`presentation/animals/hunting/adapter.ts`), and **an arrow stopped by cover between
+  the chest and the bow** (`presentation/huntingController.ts`).
+- **Waking after a fall** (where the hero wakes, what is restored, foes sent back to their posts), **what loading
+  restores**, **when the game may be saved** and **the first bell of a sitting** (`src/app.ts`).
+- **Who may mount** (checked again in the scene, with the mount's id typed in), **which fight wakes sleepers**, **who
+  calls out at a trespass** and **when the hamlet's silent people go in for the night**.
+- **Where the props stand and what they block**: walls, haystacks, the camp fire, the hunter's board and table and the
+  waymarkers are placed by scene modules, and the core's table of interactables names colliders only those modules
+  make.
+- **Values the scene types again** instead of reading them from the core: the hunter's price on his sign, the bandit's
+  model, the sluice panel's notes, the archive's walls before the first step, a resident's width, and a few figures
+  for sound and the camera.
+
+What stays in the scene layer, and why it is not a rule of the game:
+
+- **The order of a step** (`src/app.ts`, `step()`): which part is stepped before which each frame. It is the
+  application's wiring; an engine has its own tick groups, and a port orders them its own way.
+- **What a ray meets**: the scene answers where a line strikes an animal's posed skin, a tree, a wall or loose cargo
+  (`presentation/animals/hunting/hit.ts`, `physics/physics.ts`). The core decides what that means.
+- **The camera's smoothing and its way round obstacles** (`presentation/cameraRig.ts`): feel, built on the core's
+  numbers (`core/rules/camera.ts`), and replaced by a spring arm.
+- **When a model arrives** (`presentation/residentArrivals.ts`): residents and hostiles wait unseen at their places
+  until their models have loaded, a few a frame. That is loading, and an engine loads differently.
+- **Where the arrow leaves the bow** (`presentation/playerHunting.ts`): the nocked arrow's place on the posed model.
 
 What else is there is presentation: meshes, materials and shaders, rigs and poses, effects, the interface, playing
 sound, loading, and reading input devices.

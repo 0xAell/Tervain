@@ -1,3 +1,4 @@
+import { STANDING_BODY } from '../core/rules/session';
 import * as THREE from 'three';
 import { compactAnimalBoneTexture } from './animals/boneTexture';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -578,7 +579,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     setReduceEffects: value => hunting.setReduceEffects(value),
     get contacts(): Collider[] {
       return animals.filter(animal => hunting.isVisible(animal) && animal !== ridden?.animal).map(animal => hunting.corpseContact(animal) ?? ({ id: `animal:${animal.definition.id}`, kind: 'box', x: animal.root.position.x, z: animal.root.position.z,
-        hw: animal.size.x / 2 + 0.07, hd: animal.size.z / 2 + 0.07, yaw: animal.yaw, active: true,
+        hw: animal.size.x / 2 + STANDING_BODY.animalMargin, hd: animal.size.z / 2 + STANDING_BODY.animalMargin, yaw: animal.yaw, active: true,
         minY: animal.root.position.y, maxY: animal.root.position.y + animal.size.y }));
     },
     get physicalActors(): PhysicalActor[] {
