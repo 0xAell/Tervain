@@ -1,6 +1,6 @@
 # Authored turns on the spot (A83, 0.0.13)
 
-The one animation item the handover left open (backlog 6) was authored turn clips. Since A71 a resident turning on the
+The one animation item still open in the backlog (item 6) was authored turn clips. Since A71 a resident turning on the
 spot has stepped with poses taken from their own walk: each leg's mid-stride pose at 60%, eased in and out, with the
 planted foot held and the lifted one carried to where it lands. It reads as a stride marched in place, the foot kicked
 forward rather than stepped round.
