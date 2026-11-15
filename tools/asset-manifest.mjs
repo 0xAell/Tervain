@@ -30,6 +30,19 @@ export function trackedAssetFiles(directory = root) {
 
 const sha256 = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 
+/** The pack a `replace` group names, with its companions, resolved against the candidates of the group's Fab category. */
+function replacement(group) {
+  if (group.plan !== 'replace') return null;
+  const candidates = FAB[group.fab]?.candidates ?? [];
+  const find = (title) => {
+    const found = candidates.find((candidate) => candidate.title === title);
+    if (!found) throw new Error(`${group.id}: "${title}" is not a candidate of the Fab category "${group.fab}".`);
+    return { title: found.title, publisher: found.publisher, url: found.url, verified: found.verified };
+  };
+  if (!group.pack) throw new Error(`${group.id} is to be replaced but names no pack.`);
+  return { ...find(group.pack), with: (group.with ?? []).map(find), webTarget: group.webTarget ? find(group.webTarget) : null };
+}
+
 export function buildManifest(directory = root) {
   const ledger = JSON.parse(fs.readFileSync(path.join(directory, 'public', 'model-licenses.json'), 'utf8'));
   const ledgerByFile = new Map(ledger.assets.map((asset) => [asset.file, asset]));
@@ -47,7 +60,8 @@ export function buildManifest(directory = root) {
     const unreal = group.unreal(file);
     assets.push({
       path: file, group: group.id, kind, bytes: fs.statSync(absolute).size, sha256: sha256(absolute), shipped: file.startsWith('public/'),
-      ...(recorded?.sourceId ? { sourceId: recorded.sourceId } : {}), licence, plan: group.plan, unreal,
+      ...(recorded?.sourceId ? { sourceId: recorded.sourceId } : {}), licence, plan: group.plan,
+      ...(group.plan === 'replace' ? { replaceWith: replacement(group).title } : {}), unreal,
     });
   }
   if (unmatched.length) throw new Error(`Files under the asset roots that no group in tools/asset-manifest/groups.mjs claims:\n  ${unmatched.join('\n  ')}`);
@@ -55,7 +69,7 @@ export function buildManifest(directory = root) {
     const members = assets.filter((asset) => asset.group === group.id);
     return {
       id: group.id, title: group.title, role: group.role, plan: group.plan, why: group.why, source: group.source,
-      fab: group.fab, files: members.length, bytes: members.reduce((sum, asset) => sum + asset.bytes, 0),
+      fab: group.fab, replaceWith: replacement(group), files: members.length, bytes: members.reduce((sum, asset) => sum + asset.bytes, 0),
     };
   }).filter((group) => group.files > 0);
   const total = (filter) => { const members = assets.filter(filter); return { files: members.length, bytes: members.reduce((sum, asset) => sum + asset.bytes, 0) }; };
@@ -63,7 +77,7 @@ export function buildManifest(directory = root) {
     about: 'Every model, texture, image and sound in the repository’s asset folders: size, hash, source, licence, the Unreal asset it would become, and what a port does with it.',
     generatedBy: 'tools/asset-manifest.mjs; the authored groups are in tools/asset-manifest/groups.mjs',
     plans: {
-      replace: 'A coherent pack takes its place; the file stands in for scale and intent.',
+      replace: 'A coherent pack takes its place; the file stands in for scale and intent. `replaceWith` names the pack.',
       keep: 'The game’s own; carries over. Import it from the path given.',
       rework: 'The content carries over but is re-authored for Unreal.',
       drop: 'Only the web build or its tooling needs it.',

@@ -5,47 +5,170 @@
   "description": "Every model, texture, image and sound in the repository's asset folders, with what an Unreal Engine port does with it.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["about", "generatedBy", "plans", "unrealConventions", "totals", "fab", "groups", "assets"],
+  "required": [
+    "about",
+    "generatedBy",
+    "plans",
+    "unrealConventions",
+    "totals",
+    "fab",
+    "groups",
+    "assets"
+  ],
   "properties": {
-    "about": { "type": "string" },
-    "generatedBy": { "type": "string" },
+    "about": {
+      "type": "string"
+    },
+    "generatedBy": {
+      "type": "string"
+    },
     "plans": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["replace", "keep", "rework", "drop"],
-      "properties": { "replace": { "type": "string" }, "keep": { "type": "string" }, "rework": { "type": "string" }, "drop": { "type": "string" } }
+      "required": [
+        "replace",
+        "keep",
+        "rework",
+        "drop"
+      ],
+      "properties": {
+        "replace": {
+          "type": "string"
+        },
+        "keep": {
+          "type": "string"
+        },
+        "rework": {
+          "type": "string"
+        },
+        "drop": {
+          "type": "string"
+        }
+      }
     },
     "unrealConventions": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["units", "up", "handedness", "forward", "import", "contentRoot", "prefixes", "prefixSource", "textureSuffixes", "naming", "lod"],
+      "required": [
+        "units",
+        "up",
+        "handedness",
+        "forward",
+        "import",
+        "contentRoot",
+        "prefixes",
+        "prefixSource",
+        "textureSuffixes",
+        "naming",
+        "lod"
+      ],
       "properties": {
-        "units": { "const": "centimetres" },
-        "up": { "const": "Z" },
-        "handedness": { "const": "left-handed" },
-        "forward": { "const": "+X" },
-        "import": { "type": "string" },
-        "contentRoot": { "type": "string", "pattern": "^/Game/" },
+        "units": {
+          "const": "centimetres"
+        },
+        "up": {
+          "const": "Z"
+        },
+        "handedness": {
+          "const": "left-handed"
+        },
+        "forward": {
+          "const": "+X"
+        },
+        "import": {
+          "type": "string"
+        },
+        "contentRoot": {
+          "type": "string",
+          "pattern": "^/Game/"
+        },
         "prefixes": {
           "type": "object",
-          "additionalProperties": { "$ref": "#/$defs/prefix" },
-          "required": ["StaticMesh", "SkeletalMesh", "Texture", "Material", "MaterialInstance"],
-          "properties": { "StaticMesh": { "$ref": "#/$defs/prefix" }, "SkeletalMesh": { "$ref": "#/$defs/prefix" }, "Texture": { "$ref": "#/$defs/prefix" }, "Material": { "$ref": "#/$defs/prefix" }, "MaterialInstance": { "$ref": "#/$defs/prefix" } }
+          "additionalProperties": {
+            "$ref": "#/$defs/prefix"
+          },
+          "required": [
+            "StaticMesh",
+            "SkeletalMesh",
+            "Texture",
+            "Material",
+            "MaterialInstance"
+          ],
+          "properties": {
+            "StaticMesh": {
+              "$ref": "#/$defs/prefix"
+            },
+            "SkeletalMesh": {
+              "$ref": "#/$defs/prefix"
+            },
+            "Texture": {
+              "$ref": "#/$defs/prefix"
+            },
+            "Material": {
+              "$ref": "#/$defs/prefix"
+            },
+            "MaterialInstance": {
+              "$ref": "#/$defs/prefix"
+            }
+          }
         },
-        "prefixSource": { "type": "string" },
-        "textureSuffixes": { "type": "object", "additionalProperties": { "type": "string", "pattern": "^_[A-Z]+$" } },
-        "naming": { "type": "string" },
-        "lod": { "type": "string" }
+        "prefixSource": {
+          "type": "string"
+        },
+        "textureSuffixes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^_[A-Z]+$"
+          }
+        },
+        "naming": {
+          "type": "string"
+        },
+        "lod": {
+          "type": "string"
+        }
       }
     },
     "totals": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["all", "shipped", "byPlan"],
+      "required": [
+        "all",
+        "shipped",
+        "byPlan"
+      ],
       "properties": {
-        "all": { "$ref": "#/$defs/count" },
-        "shipped": { "$ref": "#/$defs/count" },
-        "byPlan": { "type": "object", "additionalProperties": false, "required": ["replace", "keep", "rework", "drop"], "properties": { "replace": { "$ref": "#/$defs/count" }, "keep": { "$ref": "#/$defs/count" }, "rework": { "$ref": "#/$defs/count" }, "drop": { "$ref": "#/$defs/count" } } }
+        "all": {
+          "$ref": "#/$defs/count"
+        },
+        "shipped": {
+          "$ref": "#/$defs/count"
+        },
+        "byPlan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "replace",
+            "keep",
+            "rework",
+            "drop"
+          ],
+          "properties": {
+            "replace": {
+              "$ref": "#/$defs/count"
+            },
+            "keep": {
+              "$ref": "#/$defs/count"
+            },
+            "rework": {
+              "$ref": "#/$defs/count"
+            },
+            "drop": {
+              "$ref": "#/$defs/count"
+            }
+          }
+        }
       }
     },
     "fab": {
@@ -54,22 +177,56 @@
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["brief", "constraints", "candidates"],
+        "required": [
+          "brief",
+          "constraints",
+          "candidates"
+        ],
         "properties": {
-          "brief": { "type": "string" },
-          "constraints": { "type": "string" },
+          "appliesTo": {
+            "description": "For a category no group of files names: what in the port it answers for.",
+            "type": "string"
+          },
+          "brief": {
+            "type": "string"
+          },
+          "constraints": {
+            "type": "string"
+          },
           "candidates": {
             "type": "array",
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["title", "publisher", "verified"],
+              "required": [
+                "title",
+                "publisher",
+                "verified"
+              ],
               "properties": {
-                "title": { "type": "string" },
-                "publisher": { "type": "string" },
-                "url": { "type": ["string", "null"] },
-                "note": { "type": "string" },
-                "verified": { "description": "How the listing was confirmed to exist when the manifest was written.", "enum": ["listing page", "search result", "not verified"] }
+                "title": {
+                  "type": "string"
+                },
+                "publisher": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "note": {
+                  "type": "string"
+                },
+                "verified": {
+                  "description": "How the listing was confirmed to exist when the manifest was written.",
+                  "enum": [
+                    "listing page",
+                    "search result",
+                    "not verified"
+                  ]
+                }
               }
             }
           }
@@ -82,17 +239,126 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "title", "role", "plan", "why", "source", "fab", "files", "bytes"],
+        "required": [
+          "id",
+          "title",
+          "role",
+          "plan",
+          "why",
+          "source",
+          "fab",
+          "replaceWith",
+          "files",
+          "bytes"
+        ],
         "properties": {
-          "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
-          "title": { "type": "string" },
-          "role": { "enum": ["hero", "resident", "animation", "animal", "tree", "scenery", "furniture", "debug", "building-material", "foliage-texture", "identity", "music", "voice", "sound", "archive"] },
-          "plan": { "$ref": "#/$defs/plan" },
-          "why": { "type": "string", "minLength": 20 },
-          "source": { "type": "string", "minLength": 10 },
-          "fab": { "type": ["string", "null"] },
-          "files": { "type": "integer", "minimum": 1 },
-          "bytes": { "type": "integer", "minimum": 0 }
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "hero",
+              "resident",
+              "animation",
+              "animal",
+              "tree",
+              "scenery",
+              "furniture",
+              "debug",
+              "building-material",
+              "foliage-texture",
+              "identity",
+              "music",
+              "voice",
+              "sound",
+              "archive"
+            ]
+          },
+          "plan": {
+            "$ref": "#/$defs/plan"
+          },
+          "why": {
+            "type": "string",
+            "minLength": 20
+          },
+          "source": {
+            "type": "string",
+            "minLength": 10
+          },
+          "fab": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "replaceWith": {
+            "description": "For a group that is to be replaced: the first-choice pack, any companion packs it needs, and the pack to use instead on the web target, where Nanite is not available. Null for every other plan.",
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "title",
+                  "publisher",
+                  "url",
+                  "verified",
+                  "with",
+                  "webTarget"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 3
+                  },
+                  "publisher": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string",
+                    "pattern": "^https://www\\.fab\\.com/listings/[0-9a-f-]{36}$"
+                  },
+                  "verified": {
+                    "enum": [
+                      "listing page",
+                      "search result",
+                      "not verified"
+                    ]
+                  },
+                  "with": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/pack"
+                    }
+                  },
+                  "webTarget": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "#/$defs/pack"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "files": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          }
         }
       }
     },
@@ -102,35 +368,117 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["path", "group", "kind", "bytes", "sha256", "shipped", "licence", "plan", "unreal"],
+        "required": [
+          "path",
+          "group",
+          "kind",
+          "bytes",
+          "sha256",
+          "shipped",
+          "licence",
+          "plan",
+          "unreal"
+        ],
         "properties": {
-          "path": { "type": "string", "pattern": "^(public|assets)/" },
-          "group": { "type": "string" },
-          "kind": { "enum": ["model", "texture", "image", "audio", "data"] },
-          "bytes": { "type": "integer", "minimum": 1 },
-          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-          "shipped": { "description": "Whether the web build serves the file (it is under public/).", "type": "boolean" },
-          "sourceId": { "description": "The source record in the model ledger (public/model-licenses.json).", "type": "string" },
+          "path": {
+            "type": "string",
+            "pattern": "^(public|assets)/"
+          },
+          "group": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "model",
+              "texture",
+              "image",
+              "audio",
+              "data"
+            ]
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "shipped": {
+            "description": "Whether the web build serves the file (it is under public/).",
+            "type": "boolean"
+          },
+          "sourceId": {
+            "description": "The source record in the model ledger (public/model-licenses.json).",
+            "type": "string"
+          },
           "licence": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "status"],
+            "required": [
+              "id",
+              "status"
+            ],
             "properties": {
-              "id": { "description": "An SPDX identifier, or a LicenseRef- name for terms that have none.", "type": "string", "pattern": "^(CC0-1\\.0|LicenseRef-[A-Za-z0-9.-]+)$" },
-              "status": { "description": "How well the licence is established, in the words of its record.", "type": "string", "minLength": 3 }
+              "id": {
+                "description": "An SPDX identifier, or a LicenseRef- name for terms that have none.",
+                "type": "string",
+                "pattern": "^(CC0-1\\.0|LicenseRef-[A-Za-z0-9.-]+)$"
+              },
+              "status": {
+                "description": "How well the licence is established, in the words of its record.",
+                "type": "string",
+                "minLength": 3
+              }
             }
           },
-          "plan": { "$ref": "#/$defs/plan" },
+          "plan": {
+            "$ref": "#/$defs/plan"
+          },
+          "replaceWith": {
+            "description": "For a file that is to be replaced: the title of its group's first-choice pack.",
+            "type": "string",
+            "minLength": 3
+          },
           "unreal": {
             "description": "The Unreal asset an import of this file produces; null when nothing is imported from it.",
-            "type": ["object", "null"],
+            "type": [
+              "object",
+              "null"
+            ],
             "additionalProperties": false,
-            "required": ["type", "folder", "name", "lod"],
+            "required": [
+              "type",
+              "folder",
+              "name",
+              "lod"
+            ],
             "properties": {
-              "type": { "enum": ["StaticMesh", "SkeletalMesh", "Texture", "AnimationSequence", "SoundWave"] },
-              "folder": { "type": "string", "pattern": "^/Game/Tervain/" },
-              "name": { "type": "string", "pattern": "^(SM|SK|T|AS|SW)_[A-Za-z0-9_]+$" },
-              "lod": { "type": ["integer", "null"], "minimum": 0, "maximum": 7 }
+              "type": {
+                "enum": [
+                  "StaticMesh",
+                  "SkeletalMesh",
+                  "Texture",
+                  "AnimationSequence",
+                  "SoundWave"
+                ]
+              },
+              "folder": {
+                "type": "string",
+                "pattern": "^/Game/Tervain/"
+              },
+              "name": {
+                "type": "string",
+                "pattern": "^(SM|SK|T|AS|SW)_[A-Za-z0-9_]+$"
+              },
+              "lod": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 7
+              }
             }
           }
         }
@@ -138,8 +486,66 @@
     }
   },
   "$defs": {
-    "plan": { "enum": ["replace", "keep", "rework", "drop"] },
-    "prefix": { "type": "string", "pattern": "^[A-Z]+_$" },
-    "count": { "type": "object", "additionalProperties": false, "required": ["files", "bytes"], "properties": { "files": { "type": "integer", "minimum": 0 }, "bytes": { "type": "integer", "minimum": 0 } } }
+    "plan": {
+      "enum": [
+        "replace",
+        "keep",
+        "rework",
+        "drop"
+      ]
+    },
+    "prefix": {
+      "type": "string",
+      "pattern": "^[A-Z]+_$"
+    },
+    "count": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "files",
+        "bytes"
+      ],
+      "properties": {
+        "files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "pack": {
+      "description": "A Fab listing named as a replacement: one of the candidates of the group's Fab category.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "publisher",
+        "url",
+        "verified"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "publisher": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https://www\\.fab\\.com/listings/[0-9a-f-]{36}$"
+        },
+        "verified": {
+          "enum": [
+            "listing page",
+            "search result",
+            "not verified"
+          ]
+        }
+      }
+    }
   }
 }

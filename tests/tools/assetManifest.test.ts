@@ -60,9 +60,36 @@ describe('the asset manifest', () => {
       expect(brief!.constraints.length).toBeGreaterThan(20);
     }
     for (const [category, entry] of Object.entries(committed.fab)) {
-      expect(committed.groups.some((group) => group.fab === category), `${category} is used by a group`).toBe(true);
+      // A category answers for a family of files, or says what else in the port it is for.
+      expect(committed.groups.some((group) => group.fab === category) || (entry.appliesTo ?? '').length > 20, `${category} is used by a group`).toBe(true);
       for (const candidate of entry.candidates) expect(candidate.title.length).toBeGreaterThan(3);
     }
+  });
+
+  it('names the Fab pack that replaces every family and every file that is to be replaced', () => {
+    const replaced = committed.groups.filter((group) => group.plan === 'replace');
+    expect(replaced.length).toBeGreaterThanOrEqual(10);
+    for (const group of committed.groups) {
+      if (group.plan !== 'replace') { expect(group.replaceWith, group.id).toBeNull(); continue; }
+      const candidates = committed.fab[group.fab!]!.candidates;
+      const packs = [group.replaceWith!, ...group.replaceWith!.with, ...(group.replaceWith!.webTarget ? [group.replaceWith!.webTarget] : [])];
+      for (const pack of packs) {
+        // Each named pack is one of its category's candidates, with its listing and how it was confirmed.
+        const candidate = candidates.find((entry) => entry.title === pack.title);
+        expect(candidate, `${group.id}: ${pack.title}`).toBeDefined();
+        expect(pack.url).toBe(candidate!.url);
+        expect(pack.url).toMatch(/^https:\/\/www\.fab\.com\/listings\/[0-9a-f-]{36}$/);
+        expect(pack.verified).toBe(candidate!.verified);
+      }
+      expect(new Set(packs.map((pack) => pack.title)).size, `${group.id} names each pack once`).toBe(packs.length);
+    }
+    const packOf = new Map(replaced.map((group) => [group.id, group.replaceWith!.title]));
+    for (const asset of committed.assets) {
+      if (asset.plan === 'replace') expect(asset.replaceWith, asset.path).toBe(packOf.get(asset.group));
+      else expect(asset.replaceWith, asset.path).toBeUndefined();
+    }
+    // Trees are the one family whose first choice needs Nanite: each names a pack for the web target as well.
+    for (const group of replaced.filter((entry) => entry.fab === 'trees')) expect(group.replaceWith!.webTarget, group.id).not.toBeNull();
   });
 
   it('adds up', () => {
