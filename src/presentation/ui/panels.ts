@@ -9,6 +9,7 @@ import { worldView } from '../../core/game/worldView';
 import type { Allocation, Cond, ItemId, WorldState } from '../../core/game/types';
 import { type Input } from '../../platform/input';
 import { ACTIONS, codeLabel, assignSlot, cancelsCapture, findConflict, resetToDefaults, saveSettings, type Action, type Settings } from '../../platform/settings';
+import { HAND_SAVE_SLOTS } from '../../core/rules/session';
 import { SLOT_IDS, type LoadResult, type SaveStore, type SlotId } from '../../platform/storage';
 import { clear, focusableElements, focusFirst, h, moveFocus, visibleControl } from './dom';
 import { BUILD_LABEL, GAME_VERSION } from '../../version';
@@ -617,7 +618,7 @@ export function slotsPanel(ctx: PanelCtx, mode: 'save' | 'load'): HTMLElement {
       }
     }
   };
-  const rows = SLOT_IDS.filter((s) => mode === 'load' || (s !== 'auto' && s !== 'quick')).map((slot) => {
+  const rows = (mode === 'load' ? SLOT_IDS : HAND_SAVE_SLOTS).map((slot) => {
     const res = ctx.saves.load(slot);
     const l = slotLabel(res, slot);
     const summary = h('div', {});

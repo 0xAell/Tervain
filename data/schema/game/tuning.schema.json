@@ -1292,6 +1292,9 @@
         "droughtBell": {
           "type": "object",
           "properties": {
+            "first": {
+              "type": "integer"
+            },
             "every": {
               "type": "integer"
             },
@@ -1312,6 +1315,7 @@
             }
           },
           "required": [
+            "first",
             "every",
             "reach",
             "strikeGapMs",

@@ -3,12 +3,14 @@ import { CLOCK_RATE, RITE_CALM_MIN } from '../../../src/core/game/constants';
 import { createInitialState } from '../../../src/core/game/state';
 import type { WorldState } from '../../../src/core/game/types';
 import { STAMINA_MAX } from '../../../src/core/rules/hero';
-import { AUTOSAVE_SECONDS, DEATH, HIT_STOP, UNDER_WORLD } from '../../../src/core/rules/journey';
+import { AUTOSAVE_SECONDS, CHECKPOINT_CLEARANCE, DEATH, DROUGHT_BELL, HIT_STOP, UNDER_WORLD } from '../../../src/core/rules/journey';
+import { MOUNT_STAMINA } from '../../../src/core/rules/riding';
 import { RESIDENT } from '../../../src/core/rules/resident';
 import {
   AFLOAT, archiveClosesBehind, archiveDoorAttempt, archiveOpen, autosaveDue, AWAITED_MOUNT_REACH, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
-  fallRemaining, hitStopFor, journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, riteReady, SAFE_PLACE_RINGS, safePlace, savedMount,
-  SHAKE, STANDING_BODY, standingBodies, TIMED_WORK, trustedPropTop, underWorldSeconds, type PlacingWorld,
+  ENTRY_RESTORES, fallRemaining, HAND_SAVE_SLOTS, hitStopFor, journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter,
+  riteReady, SAFE_PLACE_RINGS, safePlace, SAVE_SLOTS, savedMount, savingAllowed, SHAKE, STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING,
+  type PlacingWorld, type RespawnPoint,
 } from '../../../src/core/rules/session';
 import { PLACES, SPAWN } from '../../../src/core/world/layout';
 
@@ -80,6 +82,55 @@ describe('a blow and a fall', () => {
     expect(fallRemaining(0.01, 1)).toBe(0); // never below nothing
     expect(DEATH.heal).toBeGreaterThan(0);
     expect(STAMINA_MAX).toBe(100);
+  });
+});
+
+describe('the place he returns to, waking and entering', () => {
+  const strand = strandRespawn(() => 2);
+  const here: RespawnPoint = { x: 40, y: 5, z: -20, yaw: 1 };
+  it('starts on the strand, on the ground', () => {
+    expect(strand).toEqual({ x: SPAWN.x, y: 2, z: SPAWN.z, yaw: SPAWN.yaw });
+  });
+
+  it('follows him at each moment it is asked, unless a living foe or an undefeated post is too near', () => {
+    const before: RespawnPoint = { x: 0, y: 0, z: 0, yaw: 0 };
+    for (const moment of ['place', 'eventAutosave'] as const) {
+      expect(respawnAfter(before, moment, here, strand, [], []), moment).toEqual(here);
+      expect(respawnAfter(before, moment, here, strand, [{ x: here.x + CHECKPOINT_CLEARANCE - 1, z: here.z }], []), moment).toBe(before);
+      expect(respawnAfter(before, moment, here, strand, [], [{ x: here.x, z: here.z + 1 }]), moment).toBe(before);
+    }
+    // Entering a journey starts again from the strand: refused, it is the strand, not the last life's place.
+    expect(respawnAfter(before, 'entry', here, strand, [], [])).toEqual(here);
+    expect(respawnAfter(before, 'entry', here, strand, [{ x: here.x, z: here.z }], [])).toBe(strand);
+    expect(respawnAfter(before, 'place', { ...here, x: here.x + CHECKPOINT_CLEARANCE + 1 }, strand, [{ x: here.x, z: here.z }], [])).toEqual({ ...here, x: here.x + CHECKPOINT_CLEARANCE + 1 });
+  });
+
+  it('wakes him with health restored, all his stamina, the foes back at their posts and a whole autosave interval', () => {
+    expect(WAKING).toEqual({ heal: DEATH.heal, stamina: STAMINA_MAX, foesToPosts: true, autosaveSeconds: AUTOSAVE_SECONDS });
+  });
+
+  it('enters a journey, new or loaded, rested and with the deer’s wind whole, a whole autosave interval away', () => {
+    expect(ENTRY_RESTORES).toEqual({ stamina: STAMINA_MAX, exhausted: false, mountStamina: MOUNT_STAMINA.max, mountSpent: false, autosaveSeconds: AUTOSAVE_SECONDS });
+  });
+
+  it('thinks of the drought bell first a little into a sitting, sooner than its interval', () => {
+    expect(DROUGHT_BELL.first).toBeGreaterThan(0);
+    expect(DROUGHT_BELL.first).toBeLessThan(DROUGHT_BELL.every);
+  });
+});
+
+describe('saving', () => {
+  it('is possible only while he plays, with the world running and built', () => {
+    expect(savingAllowed({ playing: true, paused: false })).toBe(true);
+    expect(savingAllowed({ playing: true, paused: false, worldReady: true })).toBe(true);
+    expect(savingAllowed({ playing: false, paused: false }), 'fallen or in a menu').toBe(false);
+    expect(savingAllowed({ playing: true, paused: true })).toBe(false);
+    expect(savingAllowed({ playing: true, paused: false, worldReady: false }), 'between worlds').toBe(false);
+  });
+
+  it('writes the three hand slots by hand; the auto and quick slots are the game’s and the quick key’s, and all load', () => {
+    expect(SAVE_SLOTS).toEqual(['auto', 'quick', 'slot-1', 'slot-2', 'slot-3']);
+    expect(HAND_SAVE_SLOTS).toEqual(SAVE_SLOTS.filter((slot) => slot !== 'auto' && slot !== 'quick'));
   });
 });
 

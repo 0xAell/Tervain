@@ -24,7 +24,6 @@ import { prepareSceneTextures } from './platform/prepareSceneTextures';
 import { codeLabel, loadSettings } from './platform/settings';
 import { BrowserStore, SaveStore, type SlotId } from './platform/storage';
 import { ENEMY_SPAWNS, PLACES, SPAWN, type V2 } from './core/world/layout';
-import { MOUNT_STAMINA } from './core/rules/riding';
 import { coastX } from './core/world/coast';
 import { PLAYER_BODY_RADIUS } from './core/world/playerPlacement';
 import { EnemyActor, NpcActor, type ActorContext, type EnemyContext } from './presentation/actors';
@@ -72,11 +71,11 @@ import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
 import { handsForCargo, keepsHold } from './core/rules/cargo';
 import { BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, woundedNow } from './core/rules/speech';
-import { AUTOSAVE_SECONDS, bellGain, bellWait, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH } from './core/rules/journey';
+import { AUTOSAVE_SECONDS, bellGain, bellWait, couldWitness, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH } from './core/rules/journey';
 import {
-  archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, fallRemaining, hitStopFor, journeyBegun,
-  mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, riteReady, safePlace, savedMount, SHAKE, STANDING_BODY, standingBodies, TIMED_WORK, trustedPropTop,
-  underWorldSeconds,
+  archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveDue, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
+  journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
+  STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING, type RespawnMoment, type RespawnPoint,
 } from './core/rules/session';
 import { STAMINA_MAX } from './core/rules/hero';
 import { CAMERA } from './core/rules/camera';
@@ -173,8 +172,9 @@ export class App {
   private clockAcc = 0;
   private worldDirty = true;
   private inventoryNotesChanged = false;
-  private bellClock = 4;
-  private checkpoint: { x: number; y?: number; z: number; yaw: number } = { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw };
+  private bellClock: number = DROUGHT_BELL.first;
+  /** Where a fall brings him back; when it moves is the core's (respawnAfter). */
+  private checkpoint: RespawnPoint = { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw };
   private hitStop = 0;
   private deathRemaining = 0;
   private qualityReload: Promise<void> | null = null;
@@ -1074,10 +1074,10 @@ export class App {
     this.placePlayerForEntry(fromLoad);
     this.clockAcc = 0;
     this.hitStop = this.deathRemaining = 0;
-    this.bellClock = 3;
+    this.bellClock = DROUGHT_BELL.first;
     // A fresh session waits a full interval: the last session's leftover countdown would otherwise autosave a just-loaded
     // older slot over the newer auto slot within a second (A71).
-    this.autosaveTimer = AUTOSAVE_SECONDS;
+    this.autosaveTimer = ENTRY_RESTORES.autosaveSeconds;
     if (fromLoad?.recovered) this.hud.toast(S(`menu.recovered.${fromLoad.recovered}`));
     if (this.settings.reducedMotion) this.hud.setVignette(0);
     this.canvas.focus?.({ preventScroll: true });
@@ -1117,14 +1117,13 @@ export class App {
     this.player.group.visible = true;
     this.cam.pitch = 0.3;
     // A load is a fresh start for the body too: rested, the deer's wind whole (A95 scout: exhaustion carried over).
-    this.player.stamina = STAMINA_MAX;
-    this.player.exhausted = false;
-    this.player.mountStamina = MOUNT_STAMINA.max;
-    this.player.mountSpent = false;
+    this.player.stamina = ENTRY_RESTORES.stamina;
+    this.player.exhausted = ENTRY_RESTORES.exhausted;
+    this.player.mountStamina = ENTRY_RESTORES.mountStamina;
+    this.player.mountSpent = ENTRY_RESTORES.mountSpent;
     // Where a fall brings him back follows the checkpoint rule (A95 scout): a save made beside a foe's post made that post
     // his respawn point, a death loop. Away from any, the loaded place serves; otherwise the strand.
-    this.checkpoint = { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw, y: this.world.terrain.groundAt(SPAWN.x, SPAWN.z) };
-    this.markCheckpoint();
+    this.markCheckpoint('entry');
     // Who is in the archive is read from where the load put him, not kept from before it (A95 scout: a false "sealed" toast).
     const occupied = this.world.occupiesArchive(this.player.x, this.player.z, PLAYER_BODY_RADIUS);
     // Set down somewhere safer than the saved spot: the door follows him there too.
@@ -2252,7 +2251,7 @@ export class App {
           // The archive's shelves are remarked on once it stands open, not from outside its locked door (A89 scout).
           if (placeRemarked(e.id, this.archiveOpen())) this.speech.hero(`place.${e.id}` as HeroCue, { delay: HERO_CUE_DELAY.place });
           // Discovering somewhere new moves the respawn point there.
-          this.markCheckpoint();
+          this.markCheckpoint('place');
           break;
         case 'shortcut':
           this.speech.hero('shortcut', { delay: HERO_CUE_DELAY.shortcut });
@@ -2288,7 +2287,7 @@ export class App {
   }
 
   saveTo(slot: SlotId): PanelSaveResult {
-    if (this.worldPaused || this.mode !== 'play' || !this.world || this.worldDisposed) {
+    if (!savingAllowed({ playing: this.mode === 'play', paused: this.worldPaused, worldReady: !!this.world && !this.worldDisposed })) {
       return { ok: false, message: S('menu.saveUnavailable') };
     }
     this.stamp();
@@ -2298,22 +2297,22 @@ export class App {
     return r;
   }
 
-  /** The respawn point follows the player, but never to where a living enemy would meet him again (A70). */
-  private markCheckpoint() {
+  /** The respawn point follows the player, but never to where a living enemy would meet him again (A70); the rule is the core's. */
+  private markCheckpoint(moment: RespawnMoment) {
     const p = this.player;
     // Not near a living foe, nor beside a foe's post, whether or not its model has arrived yet (A87 scout): one not yet
     // here is not among the enemies, and it comes back to its post as the player respawns there.
     const defeated = this.game.state.defeated;
-    if (!checkpointAllowed(p.x, p.z, this.enemies.filter(e => e.alive), ENEMY_SPAWNS.filter(spawn => !defeated[spawn.id]))) return;
-    this.checkpoint = { x: p.x, y: p.y, z: p.z, yaw: p.yaw };
+    this.checkpoint = respawnAfter(this.checkpoint, moment, { x: p.x, y: p.y, z: p.z, yaw: p.yaw }, strandRespawn((x, z) => this.world.terrain.groundAt(x, z)),
+      this.enemies.filter(e => e.alive), ENEMY_SPAWNS.filter(spawn => !defeated[spawn.id]));
   }
 
   private autosave(reason: string) {
-    if (this.mode !== 'play' || this.worldPaused) return;
+    if (!savingAllowed({ playing: this.mode === 'play', paused: this.worldPaused })) return;
     this.stamp();
     const r = this.saves.save('auto', this.game.state);
     if (r.ok) {
-      this.markCheckpoint();
+      this.markCheckpoint('eventAutosave');
       this.hud.toast(S('menu.saved', { slot: S('menu.slot.auto') }));
     } else this.hud.toast(S('menu.savefailed', { reason: r.message }), 'bad');
     void reason;
@@ -2327,7 +2326,8 @@ export class App {
   private autosaveQuiet() {
     // Backgrounding can happen while the old graphics/physics world has been
     // disposed and its replacement is still loading. Never snapshot that gap.
-    if (this.mode !== 'play' || this.worldPaused || !this.hasProgress()) return;
+    // The timed autosave does not move the respawn point (respawnAfter).
+    if (!savingAllowed({ playing: this.mode === 'play', paused: this.worldPaused }) || !this.hasProgress()) return;
     this.stamp();
     this.saves.save('auto', this.game.state);
   }
@@ -2534,18 +2534,19 @@ export class App {
 
   private respawn() {
     if (this.mode !== 'dead') return;
-    this.game.dispatch({ t: 'healPlayer', amount: DEATH.heal });
+    // What waking restores is the core's (WAKING).
+    this.game.dispatch({ t: 'healPlayer', amount: WAKING.heal });
     const cp = this.safePosition(this.checkpoint.x, this.checkpoint.z, this.checkpoint.y);
     // Stamina first: setPosition derives the exhausted flag from it, and a hero who fell spent rises fresh (A100 scout).
-    this.player.stamina = STAMINA_MAX;
+    this.player.stamina = WAKING.stamina;
     this.player.setPosition(cp.x, cp.z, this.checkpoint.yaw, this.world.terrain, cp.y, cp.afloat === true);
-    for (const e of this.enemies) e.reset(this.world);
+    if (WAKING.foesToPosts) for (const e of this.enemies) e.reset(this.world);
     this.hud.showFade(false);
     this.mode = 'play';
     this.cam.yaw = this.checkpoint.yaw;
     this.cam.reset();
     this.hitStop = 0;
-    this.autosaveTimer = AUTOSAVE_SECONDS; // the countdown restarts with the life, as it does with a load (A71)
+    this.autosaveTimer = WAKING.autosaveSeconds; // the countdown restarts with the life, as it does with a load (A71)
     this.input.reset();
     this.speech.hero('respawn', { delay: HERO_CUE_DELAY.respawn, again: HERO_CUE_AGAIN.respawn });
     // Escape or leaving the window during the fall could not pause a dead player; it pauses now, rather than the world
