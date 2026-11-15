@@ -1,0 +1,25 @@
+{
+  "about": "The look of the final image as numbers, for a post-process volume: exposure before tone mapping, the daylight contrast curve, saturation and its lift by day, vignette, grain, how far greens lean olive and the sky is muted, and the glow on bright parts; and the title’s own look. Night fades the contrast curve and the day’s lift to 1.",
+  "units": "metres, seconds, radians; x east, z south, y up",
+  "world": {
+    "exposure": 1.22,
+    "contrast": 1.13,
+    "saturation": 0.88,
+    "daySaturation": 1.08,
+    "vignette": 0.18,
+    "grain": 0.012,
+    "earth": 1,
+    "bloom": {
+      "threshold": 0.85,
+      "strength": 0.24
+    }
+  },
+  "title": {
+    "saturation": 0.9,
+    "contrast": 1.07,
+    "vignette": 0.3,
+    "grain": 0.03,
+    "earth": 1,
+    "chromatic": 0.0012
+  }
+}

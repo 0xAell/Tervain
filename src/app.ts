@@ -35,6 +35,7 @@ import { windTone } from './core/rules/soundscape';
 import { CameraRig } from './presentation/cameraRig';
 import { NearFade, heroNearCoverage } from './presentation/nearFade';
 import { Grade, WORLD_EXPOSURE } from './presentation/grade';
+import { MENU_LOOK } from './core/content/look';
 import { buildInteractables, type Interactable } from './presentation/interactions';
 import { chooseInteractable } from './core/rules/interaction';
 import { Player } from './presentation/player';
@@ -1496,7 +1497,7 @@ export class App {
       this.menuScene.prepareFrame(this.renderer, this.lastFrameDt, this.settings.reducedMotion);
       this.renderer.toneMappingExposure = 1.05 * this.settings.brightness;
       if (!this.worldLook) this.worldLook = this.grade.getLook();
-      this.grade.setLook({ ...App.MENU_LOOK, night: 0 });
+      this.grade.setLook({ ...MENU_LOOK, night: 0 });
       this.grade.render(this.menuScene.scene, this.menuScene.camera, this.settings.reducedMotion ? 0 : this.lastFrameDt);
       return;
     }
@@ -1531,7 +1532,6 @@ export class App {
   }
 
   /** The menu's picture is rougher than play: an old painted backdrop, grainy and darkened at the edges. */
-  private static readonly MENU_LOOK = { saturation: 0.9, contrast: 1.07, vignette: 0.3, grain: 0.03, earth: 1, chromatic: 0.0012 };
   private worldLook: ReturnType<Grade['getLook']> | null = null;
 
   private get menuBackgroundActive() {

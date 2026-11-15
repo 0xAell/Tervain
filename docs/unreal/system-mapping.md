@@ -74,7 +74,7 @@ numbers are in data either way.
 | **Effects.** Leaf bursts, falling leaves, splashes, spray, hearth fire, smoke, dust, motes. | **Niagara**: per Epic, "Unreal Engine's next-generation VFX system". | Rebuilt. |
 | **Sound.** Ambience beds by place, emitters, foley by surface, animal calls, voices, an adaptive score that follows place, time and threat. | Sound waves with attenuation and ambient zones; **MetaSounds** for layered beds and music; a small music director. | The clips are kept (asset manifest). `core/rules/music.ts` is the director (the mood of a place, the threat of a moment, pacing, stings) over the catalogue in `core/content/music.ts`; `core/rules/soundscape.ts` sets every bed's level and place and times the single calls. Tables in `game/sound.json`; `presentation/sound/` plays what they decide. |
 | **Lighting and shadows.** One sun with a shadow map, lanterns and hearths as a few real lights, an image-based fill. | A directional light with cascaded shadows, point lights for lanterns and hearths. On desktop, Lumen and Virtual Shadow Maps are available; on the web target they are not. | See [the web target](web-target.md). |
-| **Grade.** An earthy, low-saturation grade and a sharpen pass. | A post-process volume with colour grading. | The look's intent; values in `presentation/grade.ts`. |
+| **Grade.** An earthy, low-saturation grade and a sharpen pass. | A post-process volume with colour grading. | The look's numbers: `core/content/look.ts`, exported as `data/world/look.json`. The pass that applies them (`presentation/grade.ts`) is the web renderer's own. |
 | **Interface.** DOM panels: HUD, hotbar, inventory, journal, map, settings, title menu. | **UMG** widgets, with Common UI for gamepad focus. | The layout and the text (`ST_Tervain.csv`). The title scene (the vigil, the grove) is a set piece to rebuild or retire. |
 | **Loading.** Staged downloads with a progress screen. | The engine's packaging and loading screens. | Nothing. |
 | **Physics.** Rapier for loose cargo: pushing, lifting, throwing, floating. | **Chaos** rigid bodies; the Water plugin's buoyancy. | The cargo table (`DT_LooseCargo`), masses and float lines. |
@@ -88,7 +88,22 @@ mirrored tests pass on the same numbers.
 
 ## Still in the scene layer
 
-These hold design decisions that have not yet been lifted into the core. Read them in place; lifting them is listed in
-the [roadmap](roadmap.md):
+The scene layer was read end to end on 15 November 2026, after the lifts above, for anything that still decides how
+the game plays rather than how it looks or sounds. These do. Read them in place until they are lifted:
 
-- the grade (`presentation/grade.ts`).
+- **The shot.** When the bow may be drawn, what the arrow's ray and flight meet, the arrow's flight itself (gravity,
+  water, range), which part of an animal was hit, and where the hunter must stand to skin a carcass:
+  `presentation/huntingController.ts`, `huntingArrow.ts`, `animals/hunting/hit.ts` and `adapter.ts`. The numbers and
+  the lasting rules are in the core (`core/rules/bow.ts`, `core/game/hunting.ts`).
+- **The session's rules.** In `src/app.ts`: the order of a step, how the clock is advanced, dying and waking at the
+  checkpoint, when the checkpoint moves, when the game saves itself and whether a new journey may overwrite the last,
+  where a loaded hero is set down safely, hostiles put back at their posts, getting onto and off the deer, the archive's
+  door and who sees a trespass, the rite's and the sluice's timed work, discovering a place, and which hint is shown.
+- **Who speaks when.** Which talk a resident gives next, overheard scenes once a game day, the hero's remarks and their
+  pauses: `presentation/speech.ts`. The lines and their conditions are in the core.
+- **Carrying loose cargo.** What can be picked up, where it is held, when it is dropped and how it is thrown:
+  `physics/physics.ts`.
+- **Reviving a save.** What an old or damaged save is corrected to: `platform/storage.ts`.
+
+What else is there is presentation: meshes, materials and shaders, rigs and poses, effects, the interface, playing
+sound, loading, and reading input devices.

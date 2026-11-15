@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { WaterRenderPass, type WaterRenderInputs, type WaterUnder } from './waterRenderPass';
 import { detachWaterOptics } from './waterOptics';
 import { FOLIAGE_MSAA } from './foliage/foliageMaterial';
+import { LOOK } from '../core/content/look';
 
 /**
  * The final image. The scene is drawn into a half-float target (multisampled where the quality allows), then one
@@ -9,7 +10,7 @@ import { FOLIAGE_MSAA } from './foliage/foliageMaterial';
  * muted, while reds and golds keep their colour), hard contrast with cool shadows and warm lights, a vignette and film
  * grain to take the digital polish off. A modest bloom (bright pass and a two-tap blur at quarter resolution, added
  * before tone mapping) lets the sun on the sea, lit windows, torches and the lighthouse lamp glow the way the reference
- * does; it is skipped on the low preset. No depth of field.
+ * does; it is skipped on the low preset. No depth of field. The look's numbers are the core's (core/content/look.ts).
  */
 
 const VERT = /* glsl */ `
@@ -155,7 +156,7 @@ void main() {
   // Saturation, then the contrast curve.
   l = dot(c, vec3(0.2126, 0.7152, 0.0722));
   // A137: a little more colour by day keeps sunlit grass warm against the lifted shade.
-  c = mix(vec3(l), c, uSaturation * mix(1.08, 1.0, clamp(uNight, 0.0, 1.0)));
+  c = mix(vec3(l), c, uSaturation * mix(${LOOK.daySaturation.toFixed(2)}, 1.0, clamp(uNight, 0.0, 1.0)));
   // Daylight can carry the stronger S-curve. Fade its black subtraction at night so
   // moonlit cloth, nearby roots and the road retain their painted dark values.
   float sceneContrast = mix(uContrast, 1.0, clamp(uNight, 0.0, 1.0));
@@ -178,9 +179,9 @@ export interface GradeOptions {
 const GRAIN_CLOCK_WRAP = 4096;
 
 /** The world's tone-mapping exposure (Three's ACES filmic), set on the renderer for every world frame. */
-export const WORLD_EXPOSURE = 1.22;
+export const WORLD_EXPOSURE = LOOK.exposure;
 /** Strength of the daylight contrast curve in the final pass (night fades it to 1). */
-export const DAY_CONTRAST = 1.13;
+export const DAY_CONTRAST = LOOK.contrast;
 
 /**
  * The scene light (linear luminance, before tone mapping) a grey pixel needs to reach `display` (0..1) on screen by
@@ -213,7 +214,7 @@ export class Grade {
   enabled = true;
   /** Off on the low preset: it costs three small passes. */
   bloom = true;
-  private bloomStrength = 0.24;
+  private bloomStrength = LOOK.bloom.strength;
 
   constructor(private renderer: THREE.WebGLRenderer, opts: GradeOptions) {
     // Half-float targets need a WebGL2 colour-buffer extension; without one fall back to 8 bits (sun highlights clip, nothing else breaks).
@@ -226,13 +227,13 @@ export class Grade {
       uniforms: {
         tScene: { value: this.target.texture },
         tBloom: { value: null as THREE.Texture | null },
-        uBloom: { value: 0.24 },
+        uBloom: { value: LOOK.bloom.strength },
         uTime: { value: 0 },
-        uSaturation: { value: 0.88 },
+        uSaturation: { value: LOOK.saturation },
         uContrast: { value: DAY_CONTRAST },
-        uVignette: { value: 0.18 },
-        uGrain: { value: 0.012 },
-        uEarth: { value: 1 },
+        uVignette: { value: LOOK.vignette },
+        uGrain: { value: LOOK.grain },
+        uEarth: { value: LOOK.earth },
         uNight: { value: 0 },
         uChromatic: { value: 0 },
         uSharpen: { value: 0 },
@@ -267,7 +268,7 @@ export class Grade {
     this.material.uniforms.tBloom!.value = this.bloomA.texture;
     const pass = (frag: string, uniforms: Record<string, THREE.IUniform>) =>
       new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: frag, depthTest: false, depthWrite: false, toneMapped: false });
-    this.brightMat = pass(BRIGHT_FRAG, { tScene: { value: this.target.texture }, uTexel: { value: new THREE.Vector2(1, 1) }, uThreshold: { value: 0.85 } });
+    this.brightMat = pass(BRIGHT_FRAG, { tScene: { value: this.target.texture }, uTexel: { value: new THREE.Vector2(1, 1) }, uThreshold: { value: LOOK.bloom.threshold } });
     this.blurMat = pass(BLUR_FRAG, { tScene: { value: this.bloomA.texture }, uTexel: { value: new THREE.Vector2(1, 1) }, uDir: { value: new THREE.Vector2(1, 0) } });
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3));
