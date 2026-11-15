@@ -59,6 +59,8 @@ The tools of the first teaser in [tools/teaser/](../../tools/teaser/), sharing o
 
 **Edit** ([assemble.mjs](../../tools/teaser/assemble.mjs)). The shots are cut together with the captions over them and encoded once: two-pass H.264 to the size budget (`--budget` makes a smaller copy for phones), AAC sound and fast start. It also pulls the poster frame from the reveal, and refuses to encode while a quoted comment is marked unconfirmed. It writes to the gitignored `outputs/teaser/`; the published copy and its poster are placed in [docs/media/teaser/](../media/teaser/) by hand.
 
+**README banner** (added 15 November 2026). The picture at the top of the [README](../../README.md) is one more frame of the finished file: the strand at 12.55 s, between two subtitles, cropped to its middle band and scaled to 1600 × 680 ([tervain-teaser-presentable-strand.jpg](../media/teaser/tervain-teaser-presentable-strand.jpg), beside the poster). Nothing was filmed or rendered again for it.
+
 To rebuild (about 30 minutes; roughly 2 GB of intermediates goes to `../tervain-teaser-output`, or to `TERVAIN_TEASER_OUT`), serve a build and run the tools. The narration is already recorded; `voice.mjs` only needs the ElevenLabs key in the environment when a line changes.
 
 ```bash
