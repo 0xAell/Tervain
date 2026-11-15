@@ -101,6 +101,15 @@ export function browserCleanup(proc, profile, release = () => {}) {
   };
 }
 
+/**
+ * The software renderer, and no GPU watchdog with it. The browser ends its GPU process when that process does not
+ * answer for some seconds, which on a real GPU means a hung driver. A software renderer can simply take that long
+ * over the game's first view; the process is then killed, the page loses its graphics context and the load fails
+ * ("The graphics context was lost while preparing the view"). With the watchdog off the frame is allowed to finish.
+ */
+export const NO_GPU_WATCHDOG = '--disable-gpu-watchdog';
+export const SOFTWARE_RENDERER_FLAGS = ['--enable-unsafe-swiftshader', '--use-gl=angle', '--use-angle=swiftshader', '--disable-dev-shm-usage', NO_GPU_WATCHDOG];
+
 export async function openPage(url = process.env.TERVAIN_URL ?? 'http://127.0.0.1:5173/', { w = 1280, h = 720, dpr = 1, init = null, flags = [], headed = false, requestTimeoutMs = Number(process.env.CDP_TIMEOUT_MS ?? 120000) } = {}) {
   if (!Number.isFinite(dpr) || dpr <= 0 || dpr > 4) throw new Error('Invalid device pixel ratio');
   if (!Number.isFinite(requestTimeoutMs) || requestTimeoutMs <= 0) throw new Error('Invalid CDP request timeout');
@@ -110,7 +119,7 @@ export async function openPage(url = process.env.TERVAIN_URL ?? 'http://127.0.0.
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'tervain-cdp-'));
   // Headed runs draw on the machine's own GPU (benchmarks on real hardware); headless ones fall back to software.
   const browserArgs = [
-    ...(headed ? [] : ['--headless=new']), '--no-sandbox', '--hide-scrollbars', '--ignore-gpu-blocklist', ...(headed ? [] : ['--enable-unsafe-swiftshader', '--use-gl=angle', '--use-angle=swiftshader', '--disable-dev-shm-usage']),
+    ...(headed ? [] : ['--headless=new']), '--no-sandbox', '--hide-scrollbars', '--ignore-gpu-blocklist', ...(headed ? [] : SOFTWARE_RENDERER_FLAGS),
     `--window-size=${w},${h}`, ...flags, '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank',
   ];
   if (process.platform === 'win32' && headed) browserArgs.splice(4, 0, '--use-angle=d3d11');

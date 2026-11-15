@@ -57,6 +57,14 @@ export class LoadFailure extends Error {
 
 const MODULE_FAILURE = /dynamically imported module|module script|Failed to load module|error loading dynamically/i;
 
+/** What a known failure means for whoever runs the gate; null for a failure that needs no explaining. */
+export function explainFailure(state, consoleLines = []) {
+  const said = `${state?.text ?? ''} ${consoleLines.join(' ')}`;
+  if (/graphics context was lost|CONTEXT_LOST_WEBGL/i.test(said)) return 'the browser\'s GPU process stopped while the page was drawing. On a software renderer that is the GPU watchdog ending a frame that took too long; the gate starts its own browser without it, so check how this browser was started';
+  if (/Preparing graphics timed out/i.test(said)) return 'the first view was not drawn within the game\'s own limit of a minute. On a software renderer that means the machine is too busy or too slow for the gate';
+  return null;
+}
+
 /** Why a page that is not ready will not become ready, or null while it may still be loading. */
 export function loadFailure(state) {
   if (!state) return null;
@@ -72,6 +80,8 @@ export function loadFailure(state) {
 export function describeState(state, consoleLines = []) {
   const lines = [];
   if (!state) return ['the page could not be read'];
+  const meaning = explainFailure(state, consoleLines);
+  if (meaning) lines.push(`what this means: ${meaning}`);
   lines.push(state.booted ? `loading screen: ${state.text || '(empty)'}` : 'the page\'s script had not started');
   for (const bad of state.bad ?? []) lines.push(`request: ${bad}`);
   for (const resource of state.resources ?? []) lines.push(`did not load: ${resource}`);

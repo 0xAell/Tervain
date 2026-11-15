@@ -11,7 +11,7 @@ it('rejects changed or unavailable live baselines while preserving cost and head
       if(existsSync('tools/'+name))writeFileSync(join(dir,name),readFileSync('tools/'+name));
     }
     writeFileSync(join(dir,'live-deploy.mjs'),`export async function waitForSettledDeploy(){return{ok:true,revision:'1111111',files:7,waitedMs:0,problems:[]};}`);
-    writeFileSync(join(dir,'cdp.mjs'),`let liveProbe=0;
+    writeFileSync(join(dir,'cdp.mjs'),`export const NO_GPU_WATCHDOG='--disable-gpu-watchdog';let liveProbe=0;
 export async function openPage(url) {
  const scenario=process.env.BUDGET_BASELINE_TEST,candidate=url.includes('candidate'),second=!candidate&&++liveProbe===2;
  let revision=candidate?'3333333':'1111111';

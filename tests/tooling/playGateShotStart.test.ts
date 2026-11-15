@@ -18,9 +18,10 @@ function run(failure = '') {
     writeFileSync(join(fixture, 'cdp.mjs'), `
       import fs from 'node:fs';
       const all = [];
-      export async function openPage(url) {
+      export const NO_GPU_WATCHDOG = '--disable-gpu-watchdog';
+      export async function openPage(url, options = {}) {
         const head = url.includes('/head/'), fail = process.env.GATE_FIXTURE_FAIL;
-        const trace = { titlePolls: 0, mouseEvents: 0, waitMs: 0, samples: 0 };
+        const trace = { titlePolls: 0, mouseEvents: 0, waitMs: 0, samples: 0, flags: options.flags ?? [] };
         all.push(trace);
         // The first live load fails for 'load-failed-once'; every live load fails for 'load-failed'.
         const failedLoad = !head && (fail === 'load-failed' || (fail === 'load-failed-once' && all.length === 1));
@@ -49,7 +50,7 @@ function run(failure = '') {
       '--budget-url', 'https://gate.invalid/live/', '--head', 'abcdef012345'],
     { encoding: 'utf8', timeout: 10000, env: { ...process.env, GATE_FIXTURE_FAIL: failure, GATE_FIXTURE_TRACE: traceFile } });
     // No trace is written when no page was opened at all.
-    const trace = existsSync(traceFile) ? JSON.parse(readFileSync(traceFile, 'utf8')) as { titlePolls: number; mouseEvents: number; waitMs: number; samples: number }[] : [];
+    const trace = existsSync(traceFile) ? JSON.parse(readFileSync(traceFile, 'utf8')) as { titlePolls: number; mouseEvents: number; waitMs: number; samples: number; flags: string[] }[] : [];
     return { result, trace };
   } finally { rmSync(fixture, { recursive: true, force: true }); }
 }
@@ -61,6 +62,8 @@ it('probes an already-started shot world without waiting for or clicking its hid
   expect(trace.reduce((n, p) => n + p.samples, 0)).toBe(12);
   expect(result.stderr).toBe('');
   expect(trace).toHaveLength(3); // Two live probes and the candidate remain required.
+  // Every probe's browser is started without the GPU watchdog: a software renderer's first view can outlast it.
+  for (const probe of trace) expect(probe.flags).toEqual(['--disable-gpu-watchdog']);
   expect(trace.reduce((n, p) => n + p.titlePolls, 0)).toBe(0);
   expect(trace.reduce((n, p) => n + p.mouseEvents, 0)).toBe(0);
   expect(trace.reduce((n, p) => n + p.waitMs, 0)).toBe(63000); // Same settle delays; completed frames replace the four wall-clock reads.
