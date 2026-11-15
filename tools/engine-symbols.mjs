@@ -10,6 +10,8 @@
  * headers (tests/tools/unreal-standin/). The register lists every engine name the seed and the stand-ins use, the
  * page of Epic's public documentation it was checked against (for a rule of the C++ language itself, the C++20 working
  * draft), the passage that supports it, and what could not be checked. The first check here keeps that list complete: a new engine name in the seed fails it until it is entered.
+ * A name Epic's pages do not settle may also carry a corroboration: a file of a public project built against Unreal
+ * Engine 5 that uses the name as the seed does, with the line quoted. It does not change the name's status.
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -91,6 +93,11 @@ export function registerProblems(register, directory = root) {
     if (!(entry.note?.length > 5)) problems.push(`${at} has no note`);
     if (!entry.usedIn?.length) problems.push(`${at} names no file that uses it`);
     for (const file of entry.usedIn ?? []) if (!files.has(file)) problems.push(`${at} is said to be used in ${file}, which is not a file of the seed or the stand-ins`);
+    if (entry.corroboration !== undefined) {
+      const { title, url, passage } = entry.corroboration ?? {};
+      if (entry.status === 'verified') problems.push(`${at} is verified and needs no corroboration`);
+      if (!(title?.length > 5) || !/^https:\/\//.test(url ?? '') || !(passage?.length >= 20 && passage.length <= 300)) problems.push(`${at} has a corroboration without a title, an address and a quoted line of 20 to 300 characters`);
+    }
     if (entry.status === 'unverified') { if (entry.source || entry.passage) problems.push(`${at} is unverified but cites a source`); continue; }
     if (entry.kind === 'language' ? !DRAFT.test(entry.source?.url ?? '') : !entry.source?.url?.startsWith(EPIC)) problems.push(entry.kind === 'language' ? `${at} cites no section of the C++20 working draft` : `${at} cites no page of Epic's documentation`);
     if (!(entry.passage?.length >= 20 && entry.passage.length <= 300)) problems.push(`${at} quotes no passage of 20 to 300 characters`);
@@ -107,6 +114,8 @@ const KIND_TITLE = { type: 'Types', function: 'Functions', macro: 'Macros', spec
 export function page(register) {
   const { summary } = register, open = register.symbols.filter((entry) => entry.status !== 'verified');
   const link = (entry) => (entry.source ? `[${cell(entry.source.title.split(' | ')[0])}](${entry.source.url})` : 'none found');
+  const corroborated = (entry) => (entry.corroboration ? ` Corroborated: [${cell(entry.corroboration.title)}](${entry.corroboration.url}) has \`${cell(entry.corroboration.passage)}\`.` : '');
+  const backed = register.symbols.filter((entry) => entry.corroboration).length;
   const lines = [
     '# Engine names the Unreal seed assumes',
     '',
@@ -125,11 +134,11 @@ export function page(register) {
     '',
     '## What the public record does not settle',
     '',
-    'These are for the first build in the engine to settle. Each row says what is missing.',
+    `These are for the first build in the engine to settle. Each row says what is missing.${backed ? ` ${backed} of them are corroborated: a public project built against Unreal Engine 5 uses the name as the seed does. That is evidence, not Epic's word, and leaves each status as it is.` : ''}`,
     '',
     '| Name | Status | Page | What is assumed, and what is missing |',
     '| --- | --- | --- | --- |',
-    ...open.map((entry) => `| \`${cell(entry.symbol)}\` | ${entry.status} | ${link(entry)} | ${cell(entry.assumes)} ${cell(entry.note)} |`),
+    ...open.map((entry) => `| \`${cell(entry.symbol)}\` | ${entry.status} | ${link(entry)} | ${cell(entry.assumes)} ${cell(entry.note)}${corroborated(entry)} |`),
     '',
     '## Every name',
     '',
@@ -142,20 +151,30 @@ export function page(register) {
   return `${lines.join('\n').trimEnd()}\n`;
 }
 
-/** Open every cited page and look for each passage. `load(url)` gives the page's HTML. */
-export async function onlineProblems(register, load) {
+/** An HTML page that never closes arrived cut short (Epic's largest reference pages are several megabytes). A plain file has no such end. */
+const cutShort = (body) => /^\s*(<!doctype html|<html)/i.test(body) && !/<\/html>\s*$/i.test(body);
+
+/** Open every cited page and look for each passage. `load(url)` gives the page's HTML, or a plain file's text. */
+export async function onlineProblems(register, load, attempts = 3) {
   const problems = [], pages = new Map(), again = new Set();
   const open = async (url) => {
-    try { pages.set(url, pageText(await load(url))); } catch (error) { pages.set(url, null); problems.push(`${url} could not be read: ${error.message}`); }
+    try {
+      let body = await load(url);
+      for (let attempt = 1; attempt < attempts && cutShort(body); attempt++) body = await load(url);
+      if (cutShort(body)) { pages.set(url, null); problems.push(`${url} arrived cut short ${attempts} times (${body.length} characters): its passages were not looked for`); return; }
+      pages.set(url, pageText(body));
+    } catch (error) { pages.set(url, null); problems.push(`${url} could not be read: ${error.message}`); }
   };
-  for (const entry of register.symbols) {
-    if (!entry.source) continue;
-    const { url } = entry.source;
+  const look = async (symbol, url, passage, what) => {
     if (!pages.has(url)) await open(url);
     // A long page can arrive cut short: before a passage is called missing, the page is opened once more.
-    if (pages.get(url) !== null && !pages.get(url).includes(entry.passage) && !again.has(url)) { again.add(url); await open(url); }
+    if (pages.get(url) !== null && !pages.get(url).includes(passage) && !again.has(url)) { again.add(url); await open(url); }
     const text = pages.get(url);
-    if (text !== null && !text.includes(entry.passage)) problems.push(`"${entry.symbol}": the passage is not on ${url}`);
+    if (text !== null && !text.includes(passage)) problems.push(`"${symbol}": the ${what} is not on ${url}`);
+  };
+  for (const entry of register.symbols) {
+    if (entry.source) await look(entry.symbol, entry.source.url, entry.passage, 'passage');
+    if (entry.corroboration) await look(entry.symbol, entry.corroboration.url, entry.corroboration.passage, 'corroborating line');
   }
   return { problems, pages: pages.size, read: [...pages.values()].filter((text) => text !== null).length };
 }

@@ -65,6 +65,21 @@ describe('the register of engine names the Unreal seed assumes', () => {
     expect(STATUSES).toEqual(Object.keys(register.statuses));
   });
 
+  it('records a corroboration beside a status, never in place of one', () => {
+    const backed = register.symbols.filter((entry) => entry.corroboration);
+    expect(backed.map((entry) => [entry.symbol, entry.status])).toEqual([
+      ['IMPLEMENT_PRIMARY_GAME_MODULE', 'contradicted'], ['BuildSettingsVersion.Latest', 'partly'], ['EngineIncludeOrderVersion.Latest', 'unverified'],
+    ]);
+    for (const entry of backed) expect(entry.corroboration!.url, entry.symbol).toMatch(/^https:\/\/raw\.githubusercontent\.com\/carla-simulator\/carla\/ue5-dev\//);
+    const onVerified = copy();
+    onVerified.symbols.find((entry) => entry.status === 'verified')!.corroboration = backed[0]!.corroboration;
+    expect(registerProblems(onVerified, root).join('\n')).toMatch(/is verified and needs no corroboration/);
+    const unquoted = copy();
+    unquoted.symbols.find((entry) => entry.corroboration)!.corroboration!.passage = 'short';
+    expect(registerProblems(unquoted, root).join('\n')).toMatch(/has a corroboration without a title, an address and a quoted line/);
+    expect(page(register)).toContain(`${backed.length} of them are corroborated`);
+  });
+
   it('has a page that is exactly what the register gives', () => {
     expect(readFileSync(resolve(root, PAGE), 'utf8')).toBe(page(register));
     const text = page(register);
@@ -88,5 +103,20 @@ describe('the register of engine names the Unreal seed assumes', () => {
     expect(bad.problems.join('\n')).toMatch(/the passage is not on https:\/\/dev\.epicgames\.com/);
     const down = await onlineProblems({ ...small, symbols: small.symbols.slice(0, 1) }, async () => { throw new Error('status 503'); });
     expect(down.problems.join('\n')).toMatch(/could not be read: status 503/);
+    // A page that starts as HTML and never closes is fetched again; one that never arrives whole is reported as such, and
+    // its passages are not called missing.
+    const whole = wrap(small.symbols[0]!.passage!);
+    let tries = 0;
+    expect((await onlineProblems({ ...small, symbols: small.symbols.slice(0, 1) }, async () => (tries++ < 2 ? whole.slice(0, -20) : whole))).problems).toEqual([]);
+    expect(tries).toBe(3);
+    const truncated = await onlineProblems({ ...small, symbols: small.symbols.slice(0, 1) }, async () => whole.slice(0, -20));
+    expect(truncated.problems.join('\n')).toMatch(/arrived cut short 3 times/);
+    expect(truncated.problems.join('\n')).not.toMatch(/the passage is not on/);
+    // A corroborating line is looked for in its file as a passage is on its page.
+    const backed = { ...small, symbols: register.symbols.filter((entry) => entry.corroboration).slice(0, 1) };
+    const lines = (entry: (typeof backed.symbols)[number]) => [entry.passage, entry.corroboration!.passage].filter(Boolean).join(' and ');
+    expect((await onlineProblems(backed, async () => wrap(lines(backed.symbols[0]!)))).problems).toEqual([]);
+    const missingLine = await onlineProblems(backed, async (url) => wrap(url === backed.symbols[0]!.corroboration!.url ? 'another module' : lines(backed.symbols[0]!)));
+    expect(missingLine.problems.join('\n')).toMatch(/the corroborating line is not on https:\/\/raw\.githubusercontent\.com/);
   });
 });

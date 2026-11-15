@@ -31,7 +31,7 @@ or quotation that has no source and is not marked as a plan.
 - [The web target](web-target.md): what Unreal Engine 5.9's WebAssembly target is, what the mobile renderer it uses
   supports, and what that means for this game.
 - [Roadmap](roadmap.md): the port in phases, each with what must be true before the next.
-- [Review of the seed](seed-review.md): a scored review of what this repository gives a port, dated 15 November 2026,
+- [Review of the seed](seed-review.md): a scored review of what this repository gives a port, dated 16 November 2026,
   with the evidence for each score and what is missing from a ten.
 
 ## What carries over and what does not
