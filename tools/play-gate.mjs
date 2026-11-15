@@ -27,6 +27,8 @@ import path from 'node:path';
 import { openPage } from './cdp.mjs';
 import { textureUploadBytes } from './webgl-upload-bytes.mjs';
 import { recordBudgetFrames } from './budget-frame-samples.mjs';
+import { LoadFailure, PROBE_INIT, waitUntilReady } from './budget-probe.mjs';
+import { waitForSettledDeploy } from './live-deploy.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1]?.startsWith('--') || all[i + 1] === undefined ? 'true' : all[i + 1]]] : acc), []));
 const URL_ = args.url ?? 'https://ael-dev3.github.io/Tervain/';
@@ -39,14 +41,20 @@ const VIDEO = args.video !== 'false';
 // draws and triangles not above live, no console errors or crashes, and the served revision equal to `--head`. Texture taps,
 // shader cost and JS frame CPU are not visible to the page: each PR posts its own cost table, and the gate says so. Wall-clock
 // pacing (over-25 ms share, p95) is printed as advisory only, next to the A/A noise band, and never decides the result.
+//
+// Loading the live build is the part that used to fail by chance ("Budget scene did not become ready" after ten minutes,
+// with no cause). Two things make it certain now. Before each live probe the gate waits until the live deployment is
+// whole (tools/live-deploy.mjs): the page, every script it can import and version.json from one build, three looks in a
+// row. And a probe no longer waits out a load the page itself shows as failed (tools/budget-probe.mjs): it stops at once,
+// prints what the page said, and the live probe is made once more after the deployment has been checked again. A page
+// that is merely slow still fails after ten minutes, with what it was showing.
 if (args['budget-url']) {
-  const probe = async (url) => {
-    const page = await openPage(url + '?shot=1&quality=high&settle=1&hud=0', { w: 1440, h: 900, headed: true });
+  const probe = async (url, label) => {
+    const page = await openPage(url + '?shot=1&quality=high&settle=1&hud=0', { w: 1440, h: 900, headed: true, init: PROBE_INIT });
     try {
       await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 2, mobile: false });
       // The shot query starts gameplay automatically; there is no title screen to wait for or click.
-      for (let i = 0; i < 2400 && !(await page.eval('const T = window.tervain; return T.mode === "play" && !!T.world && T.loadingEl.classList.contains("off")').catch(() => false)); i++) await page.wait(250);
-      if (!(await page.eval('const T = window.tervain; return T?.mode === "play" && !!T.world && T.loadingEl.classList.contains("off")').catch(() => false))) throw new Error('Budget scene did not become ready');
+      await waitUntilReady(page, { label });
       await page.wait(15000);
       await page.eval(`window.__budgetFrames = (${recordBudgetFrames.toString()})(window.tervain); const T = window.tervain; T.hud.show(false); T.debugTime?.(11); T.player.setPosition(-33.4, 55, 0, T.world.terrain); T.cam.yaw = 0; T.cam.manual = null; return 1`);
       await page.wait(6000);
@@ -62,14 +70,29 @@ if (args['budget-url']) {
     } finally { await page.close?.(); }
   };
   // Live is probed twice: its own run-to-run spread (a dynamic draw can appear in one run and not the next) is the band the candidate is compared against.
-  const liveA = await probe(args['budget-url']), liveB = await probe(args['budget-url']);
+  const probeLive = async (label) => {
+    for (let attempt = 1; ; attempt++) {
+      const settled = await waitForSettledDeploy(args['budget-url'], { log: (line) => console.error(line) });
+      if (!settled.ok) {
+        console.error(`Budget gate: FAIL: The live deployment was not whole after ${Math.round(settled.waitedMs / 60000)} minutes: ${settled.problems.join('; ')}`);
+        process.exit(1);
+      }
+      if (settled.waitedMs > 60_000) console.error(`Waited ${Math.round(settled.waitedMs / 1000)} s for the live deployment to be whole (revision ${settled.revision}).`);
+      try { return await probe(args['budget-url'], label); } catch (error) {
+        // Only a load the page itself reported as failed is tried again, once; a slow page or any other fault is not.
+        if (!(error instanceof LoadFailure) || attempt === 2) throw error;
+        console.error(`${error.message}\nThe live page reported a failed load. Checking the deployment and loading it once more.`);
+      }
+    }
+  };
+  const liveA = await probeLive('live, first probe'), liveB = await probeLive('live, second probe');
   // A deployment between probes is not a same-build spread; its old budget cannot approve a new baseline.
   if (typeof liveA.revision !== 'string' || !/^[0-9a-f]{7,40}$/i.test(liveA.revision) || liveA.revision !== liveB.revision) {
     console.error(`Budget gate: FAIL: Live budget revision changed or is unavailable (${liveA.revision ?? 'missing'} -> ${liveB.revision ?? 'missing'}). Retry against a single published revision.`);
     process.exit(1);
   }
   const live = { ...liveA, calls: Math.max(liveA.calls, liveB.calls), triangles: Math.max(liveA.triangles, liveB.triangles), errors: [...liveA.errors, ...liveB.errors] };
-  const candidate = await probe(URL_);
+  const candidate = await probe(URL_, 'candidate');
   const headOk = !args.head || (candidate.revision !== null && args.head.startsWith(candidate.revision));
   // --tri-allowance: an owner-approved triangle exception over live (0 by default), recorded in the PR.
   const triAllowance = Number(args['tri-allowance'] ?? 0);
