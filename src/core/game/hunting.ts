@@ -81,6 +81,8 @@ export const WILDLIFE_RETURN_HOURS: Record<AnimalSpecies, number> = {
   deer: 20, stag: 30, boar: 26, wolf: 36, bear: 72, lion: 72, tiger: 72, cat: Infinity, dog: Infinity,
 };
 export const CARCASS_HOURS = 30, WOUND_HOURS = 6, WILDLIFE_RETURN_DISTANCE = 70;
+/** Game due back whose whole range lies too near the hunter for it to come back unseen tries again this often (s). */
+export const WILDLIFE_RETRY_SECONDS = 1;
 
 /** The hunter's standing grows with the game he takes (A70): Rowan pays more, trades more arrows, and skinning quickens. */
 export const HUNTER_RANKS = [

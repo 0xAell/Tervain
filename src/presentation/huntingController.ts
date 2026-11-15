@@ -12,7 +12,7 @@ import type { Hud } from './ui/hud';
 import { HuntingArrows, HUNTING_ARROW_GRAVITY, type ArrowImpact, type ArrowShot } from './huntingArrow';
 import type { AnimalArrowHit } from './animals/hunting/hit';
 import { arrowLaunchDirection, BOW } from '../core/rules/bow';
-import { arrowMeets, BowHand, bowAvailable, SHOT, shotTarget, skinningRefusal } from '../core/rules/archery';
+import { arrowMeets, BowHand, bowAvailable, coverAtBow, shotTarget, skinningRefusal } from '../core/rules/archery';
 
 interface HuntingHost {
   game: Game; input: Input; player: Player; world: WorldScene; cam: CameraRig;
@@ -124,7 +124,7 @@ export class HuntingController {
     this.shotOrigins.set(shot.id, muzzle.origin.clone());
     while (this.shotOrigins.size > 32) this.shotOrigins.delete(this.shotOrigins.keys().next().value!);
     // The visible bow cannot put an arrow through cover between the player and the arrow tip.
-    const cover = world.physics.traceProjectile({ x: player.x, y: player.y + SHOT.chest, z: player.z }, muzzle.origin);
+    const cover = coverAtBow(player, muzzle.origin, (from, to) => world.physics.traceProjectile(from, to));
     if (cover) {
       this.impact(shot, { point: new THREE.Vector3().copy(cover.point), treeId: cover.treeId });
       // Resolve that obstruction on the first swept step too, then remove the flight exactly once.

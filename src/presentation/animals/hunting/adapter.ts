@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { ANIMAL_IDS, ANIMAL_MODEL_IDS, ANIMAL_SPECIES, SKINNING_REACH, isHuntableAnimalId, type AnimalId, type AnimalHuntRecord, type HuntingState } from '../../../core/game/hunting';
+import { ANIMAL_IDS, ANIMAL_MODEL_IDS, ANIMAL_SPECIES, SKINNING_REACH, WILDLIFE_RETRY_SECONDS, isHuntableAnimalId, type AnimalId, type AnimalHuntRecord, type HuntingState } from '../../../core/game/hunting';
 import type { Collider } from '../../../core/world/colliders';
-import { SHOT, skinningStance, woundedFleesFrom, zoneOnBody } from '../../../core/rules/archery';
+import { SHOT, nearestCarcass, skinningStance, takesFright, woundedFleesFrom, zoneOnBody } from '../../../core/rules/archery';
 import type { AnimalDefinition } from '../../../core/content/animals';
 import { AnimalCorpse, type CorpseBody } from './corpse';
 import { AnimalArrowSurface, type AnimalArrowHit } from './hit';
@@ -55,7 +55,7 @@ export class AnimalHunting {
       if (restore || !record && previous || corpse.isDead && (record?.status === 'injured' || moved)) {
         this.effects.clearCarcass(id); corpse.reset();
         resident.returning = this.restore(animal, !restore && !record && !!previous) === false;
-        resident.retryIn = 1;
+        resident.retryIn = WILDLIFE_RETRY_SECONDS;
       }
       resident.record = record ? { ...record, position: { ...record.position } } : null;
       animal.root.visible = record?.status !== 'skinned' && !resident.returning;
@@ -99,7 +99,7 @@ export class AnimalHunting {
         resident.retryIn -= dt;
         if (resident.retryIn <= 0) {
           resident.returning = this.restore(resident.animal, true) === false;
-          resident.retryIn = 1;
+          resident.retryIn = WILDLIFE_RETRY_SECONDS;
           resident.animal.root.visible = !resident.returning;
         }
       }
@@ -141,19 +141,17 @@ export class AnimalHunting {
   }
   alertShot(position: { x: number; z: number }, radius: number = SHOT.alarm) {
     if (!this.running || this.disposed) return;
-    for (const resident of this.residents) if (isHuntableAnimalId(resident.id) && !resident.returning && (!resident.record || resident.record.status === 'injured')
-      && Math.hypot(resident.animal.root.position.x - position.x, resident.animal.root.position.z - position.z) <= radius) this.frighten(resident.animal, position);
+    for (const resident of this.residents) {
+      const witness = { huntable: isHuntableAnimalId(resident.id), returning: resident.returning, status: resident.record?.status };
+      if (takesFright(witness, Math.hypot(resident.animal.root.position.x - position.x, resident.animal.root.position.z - position.z), radius)) this.frighten(resident.animal, position);
+    }
   }
   nearestCarcass(player: { x: number; z: number }, maxDistance: number = SKINNING_REACH) {
     if (this.disposed) return null;
-    let nearest: { id: AnimalId; species: typeof ANIMAL_SPECIES[AnimalId]; position: { x: number; y: number; z: number }; yaw: number; distance: number } | null = null;
-    for (const resident of this.residents) {
-      const record = resident.record;
-      if (record?.status !== 'dead') continue;
-      const distance = Math.hypot(record.position.x - player.x, record.position.z - player.z);
-      if (distance <= maxDistance && (!nearest || distance < nearest.distance)) nearest = { id: resident.id, species: ANIMAL_SPECIES[resident.id], position: { ...record.position }, yaw: record.yaw, distance };
-    }
-    return nearest;
+    const found = nearestCarcass(this.residents, player, maxDistance);
+    if (!found) return null;
+    const { candidate: resident, distance } = found, record = resident.record!;
+    return { id: resident.id, species: ANIMAL_SPECIES[resident.id], position: { ...record.position }, yaw: record.yaw, distance };
   }
   skinningFrame(id: AnimalId, player: { x: number; z: number }) {
     const resident = this.residents.find(resident => resident.id === id);
