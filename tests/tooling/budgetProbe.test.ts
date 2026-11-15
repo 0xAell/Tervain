@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeState, LoadFailure, loadFailure, PROBE_INIT, PROBE_STATE, waitUntilReady, type ProbeState } from '../../tools/budget-probe.mjs';
+import { describeState, explainFailure, LoadFailure, loadFailure, PROBE_INIT, PROBE_STATE, waitUntilReady, type ProbeState } from '../../tools/budget-probe.mjs';
 
 const state = (over: Partial<ProbeState> = {}): ProbeState => ({ booted: true, ready: false, failed: false, text: 'Preparing the view 3 of 79', bad: [], resources: [], rejections: [], ...over });
 
@@ -67,6 +67,28 @@ describe('waiting for the budget scene', () => {
     expect(describeState(null)).toEqual(['the page could not be read']);
     const gone = await waitUntilReady(page([null]), { polls: 1 }).catch((caught: unknown) => caught);
     expect((gone as Error).message).toContain('the page could not be read');
+  });
+});
+
+describe('a failure the gate can explain', () => {
+  const LOST = 'Your journey could not begin. The woodland could not be prepared. Try again to begin your journey. The graphics context was lost while preparing the view. Try again Back';
+
+  it('says what a lost graphics context means, from the card or from the console', async () => {
+    expect(explainFailure(state({ failed: true, text: LOST }))).toContain('GPU watchdog');
+    expect(explainFailure(state(), ['[log] WebGL: CONTEXT_LOST_WEBGL: loseContext: context lost'])).toContain('GPU process stopped');
+    const error = await waitUntilReady(page([state({ failed: true, text: LOST })], ['[error] Graphics rebuild failed Error: The graphics context was lost while preparing the view.']), { label: 'candidate' }).catch((caught: unknown) => caught);
+    expect(error).toBeInstanceOf(LoadFailure);
+    const lines = (error as Error).message.split('\n').map((line) => line.trim());
+    expect(lines[0]).toBe(`Budget scene did not become ready (candidate): the loading screen reports a failed load: ${LOST}`);
+    expect(lines[1]).toMatch(/^what this means: the browser's GPU process stopped while the page was drawing\./);
+    expect(lines).toContain('console: [error] Graphics rebuild failed Error: The graphics context was lost while preparing the view.');
+  });
+
+  it('says what the game\'s own graphics limit means, and nothing for other failures', () => {
+    expect(explainFailure(state({ failed: true, text: 'Preparing graphics timed out. Please retry.' }))).toContain('too busy or too slow');
+    expect(explainFailure(state({ failed: true, text: 'Resident fisher could not load (HTTP 404).' }))).toBeNull();
+    expect(explainFailure(null)).toBeNull();
+    expect(describeState(state({ text: 'Preparing the view 3 of 79' }))).toEqual(['loading screen: Preparing the view 3 of 79']);
   });
 });
 

@@ -24,7 +24,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { openPage } from './cdp.mjs';
+import { NO_GPU_WATCHDOG, openPage } from './cdp.mjs';
 import { textureUploadBytes } from './webgl-upload-bytes.mjs';
 import { recordBudgetFrames } from './budget-frame-samples.mjs';
 import { LoadFailure, PROBE_INIT, waitUntilReady } from './budget-probe.mjs';
@@ -42,15 +42,20 @@ const VIDEO = args.video !== 'false';
 // shader cost and JS frame CPU are not visible to the page: each PR posts its own cost table, and the gate says so. Wall-clock
 // pacing (over-25 ms share, p95) is printed as advisory only, next to the A/A noise band, and never decides the result.
 //
-// Loading the live build is the part that used to fail by chance ("Budget scene did not become ready" after ten minutes,
-// with no cause). Two things make it certain now. Before each live probe the gate waits until the live deployment is
-// whole (tools/live-deploy.mjs): the page, every script it can import and version.json from one build, three looks in a
-// row. And a probe no longer waits out a load the page itself shows as failed (tools/budget-probe.mjs): it stops at once,
-// prints what the page said, and the live probe is made once more after the deployment has been checked again. A page
-// that is merely slow still fails after ten minutes, with what it was showing.
+// Loading a build is the part that used to fail by chance ("Budget scene did not become ready" after ten minutes, with
+// no cause). The cause, caught on 15 November 2026: where the gate runs on a software renderer, the game's first view
+// can keep the browser's GPU process busy for longer than its watchdog allows. The watchdog then kills the process, the
+// page loses its graphics context and shows its failure card, and the old gate polled that dead page for ten minutes.
+// So the gate's browser runs without the GPU watchdog (NO_GPU_WATCHDOG): draw calls and triangles are counted, not
+// timed, and a frame that never completes still fails the wait for four completed frames below.
+// Two more things keep a failed load from being a silent one. A probe stops as soon as the page itself shows that its
+// load has failed (tools/budget-probe.mjs) and prints what the page said; a live probe is then made once more. And
+// before each live probe the gate waits until the live deployment is whole (tools/live-deploy.mjs), so a deploy that
+// is still being published is waited for, not measured. A page that is merely slow still fails after ten minutes,
+// with what it was showing.
 if (args['budget-url']) {
   const probe = async (url, label) => {
-    const page = await openPage(url + '?shot=1&quality=high&settle=1&hud=0', { w: 1440, h: 900, headed: true, init: PROBE_INIT });
+    const page = await openPage(url + '?shot=1&quality=high&settle=1&hud=0', { w: 1440, h: 900, headed: true, init: PROBE_INIT, flags: [NO_GPU_WATCHDOG] });
     try {
       await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 2, mobile: false });
       // The shot query starts gameplay automatically; there is no title screen to wait for or click.

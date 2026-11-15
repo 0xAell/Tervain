@@ -1,5 +1,7 @@
 export function browserCleanup(proc: import('node:child_process').ChildProcess, profile: string, release?: () => void): () => Promise<void>;
 export function ownedDebugPort(contents: string): number | null;
+export const NO_GPU_WATCHDOG: string;
+export const SOFTWARE_RENDERER_FLAGS: string[];
 export function cdpRequests(write: (message: { id: number; method: string; params: unknown }) => void, timeoutMs?: number): {
   nextId(): number;
   send(method: string, params?: unknown): Promise<any>;

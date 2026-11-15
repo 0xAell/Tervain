@@ -10,7 +10,8 @@ it('CLI uses completed-frame maxima and still rejects budget, console and revisi
     for (const name of ['play-gate.mjs', 'budget-frame-samples.mjs', 'webgl-upload-bytes.mjs', 'budget-probe.mjs']) writeFileSync(join(dir, name), readFileSync(`tools/${name}`));
     // The live deployment is not what this test is about: it is reported whole at once.
     writeFileSync(join(dir, 'live-deploy.mjs'), `export async function waitForSettledDeploy() { return { ok: true, unreachable: false, revision: '1234567', files: 1, waitedMs: 0, problems: [] }; }`);
-    writeFileSync(join(dir, 'cdp.mjs'), `export async function openPage(url) {
+    writeFileSync(join(dir, 'cdp.mjs'), `export const NO_GPU_WATCHDOG = '--disable-gpu-watchdog';
+    export async function openPage(url) {
       const candidate = url.includes('candidate'), failure = process.env.BUDGET_TEST_FAILURE;
       let frame = 0;
       const T = { mode:'play', world:{terrain:{}}, loadingEl:{classList:{contains:()=>true}},
