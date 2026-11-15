@@ -56,8 +56,8 @@ passes in 24 minutes; the measurements are written down with the machine they we
 2. The camera: boom, limits, aim view, room view, with the field of view converted.
 3. Stamina and combat on plain components, calling the mirrored rules; then the bow.
 4. Riding.
-5. Mirror each ported rule's unit tests as automation tests. Lift the player's action state machine out of
-   `src/presentation/player.ts` into the core first if it helps, so there is one description to port.
+5. Mirror each ported rule's unit tests as automation tests. The player's action state machine is one description
+   to port: `src/core/rules/wanderer.ts`, with its tests in `tests/core/rules/wanderer.test.ts`.
 
 **Holds when:** the mirrored tests pass on the same numbers as `tests/core`; a playtest of the same route feels the
 same in both builds for walking, running, a fight with each hostile, a hunt and a ride. Decide here between components
