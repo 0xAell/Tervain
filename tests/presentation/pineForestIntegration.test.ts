@@ -9,7 +9,6 @@ import { createPineForest, isPineSpecies, type PineTemplates } from '../../src/p
 import { Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';
 import { Exclusions } from '../../src/presentation/vegetation';
-import { AssetLibrary } from '../../src/presentation/assets/library';
 import { defaultSettings } from '../../src/platform/settings';
 import type { FrameContext } from '../../src/presentation/context';
 import { worldView } from '../../src/core/game/worldView';
@@ -59,7 +58,7 @@ beforeAll(async () => {
 describe('historical source-Pine component render substitution without the Meshy catalog', () => {
   it('selects the requested root LOD and keeps omitted far wood visible as a coverage deficit', () => {
     vi.stubGlobal('location', { search: '' });
-    const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality: 'low', settings: { ...defaultSettings(), quality: 'low' }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+    const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality: 'low', settings: { ...defaultSettings(), quality: 'low' }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
     try {
       const records = (targets: ReturnType<NonNullable<typeof forest.placementAuditTargets>>) => targets.map(t => ({ label: t.label, geometry: t.geometry.uuid, matrix: t.matrix.elements }));
       expect(records(forest.placementAuditTargets!())).toEqual(records(forest.placementAuditTargets!(0)));
@@ -77,7 +76,7 @@ describe('historical source-Pine component render substitution without the Meshy
     let firstTransforms: unknown;
     for (const quality of ['low', 'medium', 'high'] as const) {
       const colliders = new Colliders();
-      const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+      const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
       const canonicalTrees = population.filter(tree => tree.collisionId && tree.radius > 0);
       expect(forest.physicalWood.map(tree => tree.id)).toEqual(canonicalTrees.map(tree => tree.collisionId));
       expect(forest.physicalWood).toHaveLength(canonical.all.length);
@@ -114,7 +113,7 @@ describe('historical source-Pine component render substitution without the Meshy
     it(`replaces every conifer and retains canonical obstacles on ${quality} LOD${lod}`, () => {
       vi.stubGlobal('location', { search: `?lod=${lod}` });
       const colliders = new Colliders();
-      const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+      const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
       expect(colliders.all).toEqual(canonical.all);
       // This component explicitly omits the new catalog and retains its historical
       // all-conifer substitution. A51 changes accepted habitat claims and density;
@@ -165,7 +164,7 @@ describe('historical source-Pine component render substitution without the Meshy
   it('crossfades actual source instances continuously on short camera steps without changing their forms or roots', () => {
     vi.stubGlobal('location', { search: '' });
     const quality = 'medium', colliders = new Colliders();
-    const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+    const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
     const tree = selectFloraPopulation(population, quality).trees.find(tree => tree.sp === 'pine')!;
     const camera = new THREE.OrthographicCamera(-800, 800, 800, -800, 0.1, 1800);
     const frame: FrameContext = { camera, quality, time: 1, focus: camera.position.clone(), nightness: 0, sunDir: new THREE.Vector3(1, 1, 1), reducedMotion: false, hour: 11, view: worldView(createInitialState()) };
@@ -200,8 +199,7 @@ describe('historical source-Pine component render substitution without the Meshy
     vi.stubGlobal('location', { search: '' });
     const quality = 'high';
     const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality,
-      settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(),
-      sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+      settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
     const tree = population.find(t => t.sp === 'pine')!;
     const camera = new THREE.PerspectiveCamera(58, 1.6, .1, 1400);
     camera.position.set(tree.x, tree.y + 2, tree.z + 30);
@@ -222,8 +220,7 @@ describe('historical source-Pine component render substitution without the Meshy
     vi.stubGlobal('location', { search: '' });
     const quality = 'high';
     const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality,
-      settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(),
-      sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+      settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
     const tree = population.find(t => t.sp === 'pine')!;
     const camera = new THREE.PerspectiveCamera(58, 1.6, .1, 1400);
     camera.position.set(tree.x, tree.y + 2, tree.z + 30);
@@ -303,7 +300,7 @@ describe('historical source-Pine component render substitution without the Meshy
   it('casts off-screen trees in the sun volume from shadow-only meshes, never drawn in colour, and tracks a moving sun with an idle camera', () => {
     vi.stubGlobal('location', { search: '' });
     const quality = 'high', colliders = new Colliders();
-    const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+    const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
     const tree = selectFloraPopulation(population, quality).trees.find(tree => tree.sp === 'pine')!;
     const camera = new THREE.PerspectiveCamera(58, 1, 0.1, 1400);
     camera.position.set(tree.x, tree.y + 12, tree.z + 80); camera.lookAt(tree.x, tree.y + 12, tree.z + 200); camera.updateMatrixWorld();
@@ -372,7 +369,7 @@ describe('historical source-Pine component render substitution without the Meshy
   it('animates detached leaves with an idle camera while the actual tree matrices stay still, and freezes in Reduced Motion', () => {
     vi.stubGlobal('location', { search: '' });
     const quality = 'medium', colliders = new Colliders();
-    const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+    const forest = buildFlora({ terrain, excl, colliders, quality, settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
     const camera = new THREE.PerspectiveCamera(58, 1, 0.1, 1400);
     camera.position.set(-200, 3, 12); camera.lookAt(-180, 5, 12); camera.updateMatrixWorld();
     const frame: FrameContext = { camera, quality, time: 1, focus: new THREE.Vector3(-200, terrain.heightAt(-200, 12), 12), nightness: 0, sunDir: new THREE.Vector3(1, 1, 1), reducedMotion: false, hour: 11, view: worldView(createInitialState()) };
@@ -400,8 +397,7 @@ it('retains every far-LOD pine in audit coverage when its delivered card has no 
   vi.stubGlobal('location', { search: '' });
   const quality = 'low';
   const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality,
-    settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(),
-    sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+    settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
   try {
     const near = forest.canopyAuditTargets!(0), far = forest.canopyAuditTargets!(2);
     expect(far).toHaveLength(forest.counts.trees);
@@ -417,8 +413,7 @@ it('keeps fixed tree color-batch local matrices cached while parent transforms s
   vi.stubGlobal('location', { search: '' });
   const quality = 'low';
   const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality,
-    settings: { ...defaultSettings(), quality }, library: AssetLibrary.empty(),
-    sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+    settings: { ...defaultSettings(), quality }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
   const spies: ReturnType<typeof vi.spyOn>[] = [];
   try {
     const parts = forest.group.children.filter(p => (p as THREE.InstancedMesh).isInstancedMesh && /:([012]):(wood|foliage)$/.test(p.name)) as THREE.InstancedMesh[];

@@ -3,21 +3,21 @@
   "reviewedAt": "2026-10-06",
   "auditedModelRevision": "dbb4e8e296e1f4aa5adca5e4b01d83ad98ea828b",
   "summary": {
-    "publicModelFiles": 155,
-    "publicModelBytes": 188165956,
+    "publicModelFiles": 154,
+    "publicModelBytes": 183338756,
     "archivedWarpkeepFiles": 209,
     "archivedWarpkeepBytes": 23676804,
-    "hashesMatchedExistingSourceRecords": 364,
+    "hashesMatchedExistingSourceRecords": 363,
     "modelsWithEmbeddedCcDeclaration": 0,
-    "licenseClassification": "Meshy sources are classified by recorded evidence (A73, correcting A72; A75 applies the owner's answer). 20 sources the project generated through its own Meshy API calls, with task ids recorded (the 17 furniture pieces, the 17 resident rigs, the resident motion library and the wanderer’s Meshy 7.1 body), are paid-plan Customer Output (Meshy terms, Last Updated 19 September 2026, section 3.2). 52 supplied sources are classified as Meshy Community downloads, 3D models under CC0 1.0 (section 3.3(a)), on the owner's answer of 2026-10-09 that they are probably all Community downloads: provenance basis “owner recollection, not individually verified”, creators and listing URLs not recorded. 2 supplied sources stay unresolved because repository records contradict that recollection (wanderer-historical, wanderer-animated). No commercial-clearance certificate is asserted. The animated hero’s Mixamo-named skeleton/animation content matches Meshy rigging and its animation library by public evidence and follows that source’s unresolved Meshy provenance; the Warpkeep archive has its own per-set records.",
+    "licenseClassification": "Meshy sources are classified by recorded evidence (A73, correcting A72; A75 applies the owner's answer). 32 sources the project generated through its own Meshy API calls, with task ids recorded (the 29 furniture pieces, the 17 resident rigs, the resident motion library and the wanderer’s Meshy 7.1 body), are paid-plan Customer Output (Meshy terms, Last Updated 19 September 2026, section 3.2). 51 supplied sources are classified as Meshy Community downloads, 3D models under CC0 1.0 (section 3.3(a)), on the owner's answer of 2026-10-09 that they are probably all Community downloads: provenance basis “owner recollection, not individually verified”, creators and listing URLs not recorded. 2 supplied sources stay unresolved because repository records contradict that recollection (wanderer-historical, wanderer-animated). No commercial-clearance certificate is asserted. The animated hero’s Mixamo-named skeleton/animation content matches Meshy rigging and its animation library by public evidence and follows that source’s unresolved Meshy provenance; the Warpkeep archive has its own per-set records.",
     "meshyProvenance": {
       "owner-generated-meshy-pro": {
-        "sources": 20,
-        "publicModelFiles": 19
+        "sources": 32,
+        "publicModelFiles": 31
       },
       "meshy-community-download": {
-        "sources": 52,
-        "publicModelFiles": 86
+        "sources": 51,
+        "publicModelFiles": 85
       },
       "unresolved": {
         "sources": 2,
@@ -1016,35 +1016,6 @@
       },
       "credit": "Owner-supplied Meshy character; source-derived Tervain geometry, textures and rig.",
       "changes": "Blender reduction, facial/hand geometry repairs, UV baking, material remix and original Tervain biped rig; role derivatives have separately recorded hashes.",
-      "rightsBoundary": "Classified as downloaded from the Meshy Community: the 3D model is CC0 1.0 (section 3.3(a)). Where the provenance basis is the owner's recollection, the classification is not individually verified. Any other Community content used with it is CC BY-NC 4.0 (section 3.3(b)). CC0 does not clear trademark, publicity or third-party input rights.",
-      "provenance": {
-        "classification": "meshy-community-download",
-        "evidence": "Ael, 9 October 2026: the supplied Meshy sources are probably all Meshy Community downloads under CC0. Provenance basis: owner recollection, not individually verified. No listing URL, creator name or author metadata is recorded for this source, and no repository record contradicts the recollection.",
-        "provenanceBasis": "owner recollection, not individually verified",
-        "creator": "creator not recorded",
-        "listingUrl": null
-      }
-    },
-    "ancient-guardian": {
-      "filename": "Meshy_AI_Ancient_Guardian_1004193348_texture.glb",
-      "sha256": "53b103d7cbaa7ddedfe9cdbd2a5fae45d0caf82ad8ee2a8c3087fae9c6b3198d",
-      "sourceRecord": "https://github.com/ael-dev3/Tervain/blob/main/docs/engineering/broadleaf-assets.json",
-      "sourceAssetUrl": null,
-      "recordedSupplier": "Ael",
-      "creator": "creator not recorded",
-      "generationService": "Meshy",
-      "license": {
-        "spdx": "CC0-1.0",
-        "version": "1.0",
-        "evidenceStatus": "meshy-community-cc0",
-        "creator": "creator not recorded",
-        "listingUrl": null,
-        "terms": "Meshy terms of use (https://www.meshy.ai/terms-of-use), Last Updated 2026-09-19, section 3.3(a): Customer Output posted on the Meshy Community, including 3D models, is CC0 1.0. Any other Community content used with it (such as an uploaded image) is CC BY-NC 4.0 under section 3.3(b), which requires attribution and allows no commercial use.",
-        "attribution": "CC0 requires no attribution; the creator is credited anyway where known, and Meshy Community creators are thanked generally in the credits.",
-        "provenanceBasis": "owner recollection, not individually verified"
-      },
-      "credit": "Owner-supplied Meshy natural asset; prepared for Tervain.",
-      "changes": "Source-preserving wood/crown preparation, projected source textures and original small-leaf additions.",
       "rightsBoundary": "Classified as downloaded from the Meshy Community: the 3D model is CC0 1.0 (section 3.3(a)). Where the provenance basis is the owner's recollection, the classification is not individually verified. Any other Community content used with it is CC BY-NC 4.0 (section 3.3(b)). CC0 does not clear trademark, publicity or third-party input rights.",
       "provenance": {
         "classification": "meshy-community-download",
@@ -10112,23 +10083,6 @@
       "modified": true
     },
     {
-      "file": "public/models/scenery/ancient-guardian-broadleaf-under-20k.glb",
-      "bytes": 4827200,
-      "sha256": "ffaa0d0857fe28baca75416875db4ef8dd834650204cee819738e745c7326406",
-      "embeddedCopyright": null,
-      "embeddedCcDeclaration": false,
-      "externalDependencies": [],
-      "scope": "original-game-model-catalog",
-      "sourceId": "ancient-guardian",
-      "license": {
-        "spdx": "CC0-1.0",
-        "version": "1.0",
-        "evidenceStatus": "meshy-community-cc0",
-        "provenanceBasis": "owner recollection, not individually verified"
-      },
-      "modified": true
-    },
-    {
       "file": "public/models/scenery/weathered-rock-pile-under-20k.glb",
       "bytes": 1202464,
       "sha256": "fd885874c8a4ca49a75b4f75e0e4405362c4709c100a3c994f9a1dbcf2f4ce52",
@@ -10157,7 +10111,7 @@
   },
   "resolutionRequired": [
     "Confirm the origin of the 2 unresolved supplied Meshy sources (toConfirm), whose records contradict the owner's recollection: project-generated under Meshy Pro, or downloaded from the Meshy Community with creator and listing URL.",
-    "The 52 Community classifications rest on the owner's recollection, not individually verified (toVerify); a listing URL and creator for each would verify them.",
+    "The 51 Community classifications rest on the owner's recollection, not individually verified (toVerify); a listing URL and creator for each would verify them.",
     "For any Community download, check whether any non-model Community content (such as an image) was used; that content is CC BY-NC 4.0, attribution required and non-commercial.",
     "Confirm who generated the animated hero source, and under which Meshy plan (its skeleton and clips match Meshy rigging and its animation library by public evidence).",
     "Preserve actual image-input and animation rights separately; a model-service plan does not clear third-party inputs.",
@@ -10452,11 +10406,6 @@
     {
       "sourceId": "npc-1004193023",
       "filename": "Meshy_AI_Warrior_Stance_Avatar_1004193023_texture.glb",
-      "verify": "Classified a Meshy Community download (CC0 1.0) on the owner's recollection; a listing URL and creator would verify it."
-    },
-    {
-      "sourceId": "ancient-guardian",
-      "filename": "Meshy_AI_Ancient_Guardian_1004193348_texture.glb",
       "verify": "Classified a Meshy Community download (CC0 1.0) on the owner's recollection; a listing URL and creator would verify it."
     },
     {

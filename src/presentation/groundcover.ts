@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import type { BuildContext, FrameContext, SceneModule } from './context';
-import type { AssetNeed } from './assets/library';
 import { Habitat } from '../core/world/habitat';
 import { createGrassField, GRASS_QUALITY, meadowGround, type GrassReserve, type MeadowGround } from './grass/grassField';
 import { GrassTrample, type GrassMover } from './grass/trample';
@@ -8,9 +7,6 @@ import { GrassWind } from './grass/wind';
 import { REALM_WIND } from '../core/world/wind';
 
 export { REALM_WIND } from '../core/world/wind';
-
-/** Assets this module wants loaded before the world is built. */
-export const NEEDS: AssetNeed[] = [];
 
 export interface Groundcover extends SceneModule {
   readonly wind: GrassWind;

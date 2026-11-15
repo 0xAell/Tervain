@@ -7,7 +7,7 @@ vi.mock('three/examples/jsm/loaders/GLTFLoader.js', () => ({ GLTFLoader: class {
 
 function model(kind: number): GLTF {
   const scene = new THREE.Group();
-  for (let i = 0; i < (kind === 1 ? 2 : kind === 3 ? 3 : 1); i++) {
+  for (let i = 0; i < (kind === 1 ? 2 : 1); i++) {
     scene.add(new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshStandardMaterial({ alphaTest: i ? 0.4 : 0 })));
   }
   return { scene, animations: [] } as unknown as GLTF;
@@ -19,7 +19,7 @@ function bytes(kind: number): ArrayBuffer {
   return buffer;
 }
 function kindOf(url: URL): number {
-  return url.pathname.includes('/hero/') ? 0 : url.pathname.includes('/flora/') ? 1 : url.pathname.includes('rock-pile') ? 2 : 3;
+  return url.pathname.includes('/hero/') ? 0 : url.pathname.includes('/flora/') ? 1 : 2;
 }
 
 beforeEach(() => {
@@ -36,11 +36,11 @@ describe('shared required-model loading budget', () => {
       active++; peak = Math.max(peak, active);
       return new Promise(resolve => decoding.push(() => { active--; resolve(model(new DataView(buffer).getUint8(12))); }));
     });
-    const [{ loadMainHero }, { loadSolitaryPine }, { loadSourceRockPile }, { loadSourceBroadleaf }] = await Promise.all([
-      import('../../src/presentation/mainHero'), import('../../src/presentation/solitaryPine'),
-      import('../../src/presentation/sourceRockPile'), import('../../src/presentation/sourceBroadleaf'),
+    const [{ loadMainHero }, { loadSolitaryPine }, { loadSourceRockPile }] = await Promise.all([
+      import('../../src/presentation/mainHero'), import('../../src/presentation/solitaryPine'), import('../../src/presentation/sourceRockPile'),
     ]);
-    const first = [loadMainHero(), loadSolitaryPine(), loadSourceRockPile(), loadSourceBroadleaf()];
+    // Five files: the wanderer, the pine's three levels and the rock pile. Four may be in hand at once.
+    const first = [loadMainHero(), loadSolitaryPine(), loadSourceRockPile()];
     await vi.waitFor(() => expect(decoding).toHaveLength(4));
     // HTTP bodies have completed. Slots remain occupied until their images and
     // geometry finish decoding, so scenery cannot create extra memory pressure.
@@ -48,13 +48,12 @@ describe('shared required-model loading budget', () => {
     decoding.splice(0, 1)[0]!();
     await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(5));
     expect(active).toBe(4);
-    decoding.splice(0, 1)[0]!();
-    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(6));
+    await vi.waitFor(() => expect(decoding).toHaveLength(4));
     decoding.splice(0).forEach(finish => finish());
     await Promise.all(first);
     expect(peak).toBe(4); expect(active).toBe(0);
-    await Promise.all([loadMainHero(), loadSolitaryPine(), loadSourceRockPile(), loadSourceBroadleaf()]);
-    expect(fetcher).toHaveBeenCalledTimes(6); expect(parse).toHaveBeenCalledTimes(6);
+    await Promise.all([loadMainHero(), loadSolitaryPine(), loadSourceRockPile()]);
+    expect(fetcher).toHaveBeenCalledTimes(5); expect(parse).toHaveBeenCalledTimes(5);
   });
 
   it('starts the stall allowance of a queued model when its download starts, and retries a dropped download in its own slot', async () => {

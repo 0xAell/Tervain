@@ -127,7 +127,3 @@ Each of these shortens a later phase and can be done on the web build alone:
   marks `replaceBeforeShip`: the hero's two sources of unsettled origin and the title theme. Each names its pack, so
   nothing waits on the questions themselves.
 - Keep `data/` in step: CI already fails when it is not.
-- Finish the tidy-up of the scene layer. Two pieces are built and tested but unused: the prepared Ancient Guardian
-  broadleaf (`src/presentation/sourceBroadleaf.ts`; no scene places it) and the Warpkeep asset library hook
-  (`src/presentation/assets/library.ts`; its lists of needs are empty). Each is tied into the model ledger and the
-  load-budget tests, so removing or using them is a change of its own.

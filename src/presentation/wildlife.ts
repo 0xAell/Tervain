@@ -5,12 +5,8 @@ import { mulberry32 } from '../core/world/noise';
 import { groundOf } from './buildings';
 import { chimneyOf } from '../core/world/interiors';
 import type { BuildContext, FrameContext, SceneModule } from './context';
-import type { AssetNeed } from './assets/library';
 import { RENDER_PX, SKY } from './skyState';
 import { SHADER_CLOCK_WRAP } from './grass/wind';
-
-/** Assets this module wants loaded before the world is built. */
-export const NEEDS: AssetNeed[] = [];
 
 /**
  * Ambient life: gulls wheeling over the strand and the lighthouse, and chimney smoke over the settled buildings. Both are

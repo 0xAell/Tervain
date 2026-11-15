@@ -41,12 +41,12 @@
   },
   "totals": {
     "all": {
-      "files": 1671,
-      "bytes": 449849897
+      "files": 1670,
+      "bytes": 445022697
     },
     "shipped": {
-      "files": 873,
-      "bytes": 314945025
+      "files": 872,
+      "bytes": 310117825
     },
     "replaceBeforeShip": {
       "files": 5,
@@ -54,8 +54,8 @@
     },
     "byPlan": {
       "replace": {
-        "files": 190,
-        "bytes": 217525978
+        "files": 189,
+        "bytes": 212698778
       },
       "keep": {
         "files": 595,
@@ -890,11 +890,11 @@
     },
     {
       "id": "scenery",
-      "title": "Scenery models (rock pile, ancient broadleaf)",
+      "title": "Scenery model (rock pile)",
       "role": "scenery",
       "plan": "replace",
-      "why": "Two one-off generated models. Rocks and landmark trees come from the scanned rock and tree sets.",
-      "source": "Meshy Community downloads, adapted; see docs/engineering/rock-pile-assets.json and broadleaf-assets.json.",
+      "why": "A one-off generated model. Rocks come from the scanned rock sets.",
+      "source": "A Meshy Community download, adapted; see docs/engineering/rock-pile-assets.json.",
       "fab": "rocks",
       "replaceWith": {
         "title": "Nordic Beach Rock Formation",
@@ -927,8 +927,8 @@
         "webTarget": null
       },
       "replaceBeforeShip": null,
-      "files": 2,
-      "bytes": 6029664
+      "files": 1,
+      "bytes": 1202464
     },
     {
       "id": "furniture",
@@ -28227,27 +28227,6 @@
         "folder": "/Game/Tervain/Characters/Residents",
         "name": "SK_Resident_VillageBaker",
         "lod": null
-      }
-    },
-    {
-      "path": "public/models/scenery/ancient-guardian-broadleaf-under-20k.glb",
-      "group": "scenery",
-      "kind": "model",
-      "bytes": 4827200,
-      "sha256": "ffaa0d0857fe28baca75416875db4ef8dd834650204cee819738e745c7326406",
-      "shipped": true,
-      "sourceId": "ancient-guardian",
-      "licence": {
-        "id": "CC0-1.0",
-        "status": "meshy-community-cc0"
-      },
-      "plan": "replace",
-      "replaceWith": "Nordic Beach Rock Formation",
-      "unreal": {
-        "type": "StaticMesh",
-        "folder": "/Game/Tervain/Scenery",
-        "name": "SM_AncientGuardianBroadleaf",
-        "lod": 0
       }
     },
     {

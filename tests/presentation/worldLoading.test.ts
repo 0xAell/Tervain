@@ -4,7 +4,6 @@ import { WorldScene, type WorldBuildProgress } from '../../src/presentation/worl
 import { createInitialState } from '../../src/core/game/state';
 import { defaultSettings } from '../../src/platform/settings';
 import { Colliders } from '../../src/core/world/colliders';
-import type { AssetLibrary } from '../../src/presentation/assets/library';
 import type { SceneModule } from '../../src/presentation/context';
 import { disposeSceneResources } from '../../src/presentation/disposeScene';
 import { PINE_FILES } from '../../src/presentation/solitaryPine';
@@ -131,7 +130,6 @@ vi.mock('../../src/core/world/groundContacts', () => ({ createGroundContactField
 vi.mock('../../src/presentation/physicalProps', () => ({ buildPhysicalProps: () => owner('physical supplies') }));
 vi.mock('../../src/presentation/riteResponse', () => ({ buildRiteResponse: () => owner('rite') }));
 
-function library() { return { preload: vi.fn(async () => {}) } as unknown as AssetLibrary; }
 function deferred() {
   let resolve!: () => void;
   const promise = new Promise<void>(yes => { resolve = yes; });
@@ -156,7 +154,7 @@ describe('world load and activation boundary', () => {
   it('reports monotonic completed GLB counts across interleaved families, including every tree LOD', async () => {
     const gate = deferred(), started = deferred(); controls.modelGate = gate.promise; controls.modelsStarted = started.resolve;
     const phases: WorldBuildProgress[] = [], legacy = vi.fn();
-    const pending = WorldScene.create(createInitialState(), defaultSettings(), library(), legacy, undefined, { yieldNow: async () => {}, onPhase: p => phases.push(p) });
+    const pending = WorldScene.create(createInitialState(), defaultSettings(), legacy, undefined, { yieldNow: async () => {}, onPhase: p => phases.push(p) });
     await started.promise;
     const expectedTotal = PINE_FILES.length + HERO_PINE_FILES.length + 1 + activeMeshyTreeIds().length * MESHY_TREE_LODS.length + ANIMALS.length + 1;
     expect(phases.at(-1)).toMatchObject({ phase: 'models', completed: 0, total: expectedTotal });
@@ -186,7 +184,7 @@ describe('world load and activation boundary', () => {
   it('opens without the furniture when it is deferred and furnishes the rooms once the pieces arrive (backlog 4)', async () => {
     const gate = deferred(); controls.furnitureGate = gate.promise;
     const phases: WorldBuildProgress[] = [];
-    const world = await WorldScene.create(createInitialState(), defaultSettings(), library(), undefined, undefined, {
+    const world = await WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, {
       yieldNow: async () => {}, deferFurniture: true, onPhase: p => phases.push(p),
     });
     try {
@@ -214,7 +212,7 @@ describe('world load and activation boundary', () => {
     const state = createInitialState(); state.locationChanges.shortcut = 'open';
     const phases: WorldBuildProgress[] = [], reachedNavigation = deferred();
     let completed = false;
-    const pending = WorldScene.create(state, defaultSettings(), library(), undefined, undefined, {
+    const pending = WorldScene.create(state, defaultSettings(), undefined, undefined, {
       yieldNow: async () => {}, onPhase: p => { phases.push(p); if (p.phase === 'navigation') reachedNavigation.resolve(); },
     }).then(world => { completed = true; return world; });
     await reachedNavigation.promise;
@@ -245,7 +243,7 @@ describe('world load and activation boundary', () => {
   it('cleans every completed owner and attached geometry when cancellation arrives before activation', async () => {
     const controller = new AbortController(), reason = new DOMException('Replaced build', 'AbortError');
     const geometryDisposal = vi.spyOn(THREE.BufferGeometry.prototype, 'dispose');
-    await expect(WorldScene.create(createInitialState(), defaultSettings(), library(), undefined, undefined, {
+    await expect(WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, {
       yieldNow: async () => {}, signal: controller.signal,
       onPhase: p => { if (p.phase === 'navigation') controller.abort(reason); },
     })).rejects.toBe(reason);
@@ -258,7 +256,7 @@ describe('world load and activation boundary', () => {
 
   it('cleans earlier modules and private textures when a later ground construction stage fails', async () => {
     const failure = new Error('Ground allocation failed'); controls.groundFailure = failure;
-    await expect(WorldScene.create(createInitialState(), defaultSettings(), library(), undefined, undefined, { yieldNow: async () => {} })).rejects.toBe(failure);
+    await expect(WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, { yieldNow: async () => {} })).rejects.toBe(failure);
     expect(controls.owners.some(resource => resource.name === 'physics')).toBe(false);
     for (const resource of controls.owners) expect(resource.dispose).toHaveBeenCalledOnce();
     expect(WorldScene.prototype.syncStatic).not.toHaveBeenCalled();
@@ -267,7 +265,7 @@ describe('world load and activation boundary', () => {
   it('continues cleanup after one private module hook throws, retaining the original construction failure', async () => {
     const failure = new Error('Loading screen detached'), privateFailure = new Error('Forest private cleanup failed');
     const geometries = vi.spyOn(THREE.BufferGeometry.prototype, 'dispose');
-    await expect(WorldScene.create(createInitialState(), defaultSettings(), library(), undefined, undefined, {
+    await expect(WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, {
       yieldNow: async () => {}, onPhase: p => {
         if (p.phase === 'physics') {
           vi.mocked(controls.owners.find(resource => resource.name === 'forest')!.dispose).mockImplementation(() => { throw privateFailure; });
@@ -281,12 +279,12 @@ describe('world load and activation boundary', () => {
 
   it('releases the completed scene if final readiness reporting fails, and owned disposal is idempotent on success', async () => {
     const failure = new Error('Loading screen detached');
-    await expect(WorldScene.create(createInitialState(), defaultSettings(), library(), undefined, undefined, {
+    await expect(WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, {
       yieldNow: async () => {}, onPhase: p => { if (p.phase === 'finishing' && p.completed === 1) throw failure; },
     })).rejects.toBe(failure);
     for (const resource of controls.owners) if (resource.name !== 'ground tiles') expect(resource.dispose).toHaveBeenCalledOnce();
     controls.owners = [];
-    const world = await WorldScene.create(createInitialState(), defaultSettings(), library(), undefined, undefined, { yieldNow: async () => {} });
+    const world = await WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, { yieldNow: async () => {} });
     world.dispose(); world.dispose();
     for (const resource of controls.owners) if (resource.name !== 'ground tiles') expect(resource.dispose).toHaveBeenCalledOnce();
     disposeSceneResources(world.scene, () => world.dispose());

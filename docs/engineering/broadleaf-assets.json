@@ -1,4 +1,5 @@
 {
+  "retired": "The model this record describes, its loader and its packaging tools were removed from the repository on 15 November 2026: no scene had placed it since decision A51. The record stays for the releases that shipped the model, beginning with 0.0.11. The runtime path below no longer exists.",
   "source": {
     "filename": "Meshy_AI_Ancient_Guardian_1004193348_texture.glb",
     "sha256": "53b103d7cbaa7ddedfe9cdbd2a5fae45d0caf82ad8ee2a8c3087fae9c6b3198d",

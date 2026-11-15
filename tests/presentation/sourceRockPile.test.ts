@@ -5,7 +5,6 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { buildSourceRockPiles } from '../../src/presentation/sourceRockPile';
 import { assertNaturalModelBudget } from '../../src/presentation/naturalModelBudget';
-import { AssetLibrary } from '../../src/presentation/assets/library';
 import { defaultSettings } from '../../src/platform/settings';
 import { Terrain } from '../../src/core/world/terrain';
 import { buildStaticColliders } from '../../src/core/world/colliders';
@@ -29,7 +28,7 @@ function fixture(quality: 'low' | 'medium' | 'high' = 'high') {
   terrain.registerRockSurfaces(colliders.rockMeshes);
   const previousContacts = [...colliders.rockMeshes], previousIds = colliders.all.map(c => c.id);
   const module = buildSourceRockPiles({ terrain, colliders, excl, quality, settings: { ...defaultSettings(), quality },
-    library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, template);
+    sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, template);
   return { terrain, colliders, excl, module, previousContacts, previousIds };
 }
 

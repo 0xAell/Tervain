@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { modelAssetUrl } from '../../src/presentation/assets/modelUrl';
-import { warpkeepModelUrl } from '../../src/presentation/assets/library';
 import { mainHeroUrl } from '../../src/presentation/mainHero';
 import { meshyTreeUrl } from '../../src/presentation/meshyTrees';
 import { meshyNpcUrl } from '../../src/presentation/meshynpcs';
 import { solitaryPineUrl } from '../../src/presentation/solitaryPine';
-import { broadleafUrl } from '../../src/presentation/sourceBroadleaf';
 import { rockPileUrl } from '../../src/presentation/sourceRockPile';
 import { ANIMALS, animalModelUrl } from '../../src/presentation/animals';
 
@@ -20,9 +18,7 @@ describe('original model delivery', () => {
       meshyTreeUrl('oak-elder', 'near', base, page),
       meshyNpcUrl('manifest.json', base, page),
       solitaryPineUrl('solitary-pine-under-10k.glb', base, page),
-      broadleafUrl(base, page),
       rockPileUrl(base, page),
-      warpkeepModelUrl('manifest.json', base, page),
       animalModelUrl(ANIMALS[0]!, base, page),
     ];
     expect(urls.map((url) => url.href)).toEqual([
@@ -30,16 +26,14 @@ describe('original model delivery', () => {
       'https://example.test/games/tervain/models/flora/meshy-012/oak-elder-near.glb',
       'https://example.test/games/tervain/models/npcs/manifest.json',
       'https://example.test/games/tervain/models/flora/solitary-pine-under-10k.glb',
-      'https://example.test/games/tervain/models/scenery/ancient-guardian-broadleaf-under-20k.glb',
       'https://example.test/games/tervain/models/scenery/weathered-rock-pile-under-20k.glb',
-      'https://example.test/games/tervain/models/warpkeep/manifest.json',
       'https://example.test/games/tervain/models/animals/tiger-1005232739.glb',
     ]);
     expect(modelAssetUrl('hero/hero.glb', '/', 'http://localhost:5173/', '').href).toBe('http://localhost:5173/models/hero/hero.glb');
   });
 
   it('pins both manifests and models to one full commit regardless of the served page', () => {
-    for (const file of ['npcs/manifest.json', 'npcs/mara.glb', 'warpkeep/high/tree.glb', 'flora/meshy-012/oak-elder-near.glb', 'hero/hero.glb', 'animals/tiger-1005232739.glb']) {
+    for (const file of ['npcs/manifest.json', 'npcs/mara.glb', 'flora/meshy-012/oak-elder-near.glb', 'hero/hero.glb', 'animals/tiger-1005232739.glb']) {
       expect(modelAssetUrl(file, './', 'https://example.test/Tervain/index.html', HOSTED).href).toBe(`${HOSTED}${file}`);
       expect(modelAssetUrl(file, '/', 'http://localhost:4173/', HOSTED).href).toBe(`${HOSTED}${file}`);
     }

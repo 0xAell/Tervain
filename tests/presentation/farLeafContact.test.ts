@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import { buildFlora } from '../../src/presentation/flora';
 import { woodAnchor } from '../../src/presentation/canopy';
 import type { PineTemplates } from '../../src/presentation/solitaryPine';
-import { AssetLibrary } from '../../src/presentation/assets/library';
 import { Terrain } from '../../src/core/world/terrain';
 import { Colliders } from '../../src/core/world/colliders';
 import { Exclusions } from '../../src/presentation/vegetation';
@@ -22,7 +21,7 @@ it('keeps opaque leaf contact when the forest hands over to a far model with woo
   const templates = [0, 1, 2].map(() => ({ scene })) as unknown as PineTemplates;
   const terrain = new Terrain(), before = leaves.getAttribute('position').array.slice();
   const forest = buildFlora({ terrain, excl: new Exclusions(terrain), colliders: new Colliders(), quality: 'low',
-    settings: { ...defaultSettings(), quality: 'low' }, library: AssetLibrary.empty(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
+    settings: { ...defaultSettings(), quality: 'low' }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
   try {
     const target = forest.canopyAuditTargets!(2).find(t => t.species === 'pine' && t.wood && t.leaves)!;
     expect(target).toBeDefined();
