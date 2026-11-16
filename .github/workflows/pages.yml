@@ -16,10 +16,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Every job has a time limit several times its usual length (most take one to four minutes). On 16 November 2026 a
+  # checkout hung for 23 minutes until a later push cancelled the run; without a limit a hung job holds its run for six
+  # hours. tests/tooling/jobTimeouts.test.ts holds every job in every workflow to having one.
+  #
   # The site is published from the build alone, so a merge reaches the live link in minutes. Every change to main came
   # through a pull request whose tests ran here first; the tests still run on main below, alongside the publish.
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -69,6 +74,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -90,6 +96,7 @@ jobs:
   # follow.
   gothic3-study:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -108,6 +115,7 @@ jobs:
   # file shards run. Without this, shard 1 carries the whole file and becomes the workflow tail.
   test-shared-crt-heap:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
@@ -128,6 +136,7 @@ jobs:
   # cores, so they run one at a time in their own job.
   test-engine-browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -142,6 +151,7 @@ jobs:
   # hosted job carries the full original-engine execution tail.
   test-engine-io:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -163,6 +173,7 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
