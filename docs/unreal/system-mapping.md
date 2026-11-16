@@ -91,13 +91,22 @@ mirrored tests pass on the same numbers.
 
 The scene layer was read end to end on 15 November 2026, after the lifts above, for anything that still decides how
 the game plays rather than how it looks or sounds, and what it found has since been lifted: the shot, a sitting's
-rules, who speaks when, carrying loose cargo and reviving a save.
+rules, who speaks when, carrying loose cargo and reviving a save. A second reading found more, and that has been
+lifted too: an animal's pace, how long its gestures last and how far its call carries; what a shot frightens and
+what cover stops; waking after a fall, entering a journey and saving; who may mount, which fight wakes sleepers and
+who calls out at a trespass; and values the scene had typed again instead of reading them from the core.
 
-A second reading afterwards found more. Each is to be lifted in a pull request of its own:
+A third reading found more. Each is to be lifted, or its data exported, in a pull request of its own:
 
-- **Where the props stand and what they block**: walls, haystacks, the camp fire, the hunter's board and table and the
-  waymarkers are placed by scene modules, and the core's table of interactables names colliders only those modules
-  make.
+- **The forest that is played**: the planting rule is the core's, but the web build feeds it the footprints of its
+  drawn tree models, so it keeps fewer trees than the core's export lists (`presentation/flora.ts`).
+- **Who saw a trespass**: whether a witness's line of sight is clear is decided in `src/app.ts`.
+- **Body sizes**: a resident's and a hostile's height, and an animal's width, are taken from their models where the
+  core's rules use them for routes, beds and homes.
+- **Props at copied coordinates**: benches, the kit table and the noticeboard stand at positions typed again from the
+  core's layout; and a few small values (the walk grid's widths, the heal key's item, a copy of the night rule in
+  sound, the physics module's fallback heights, which animals graze, a resident's time to stand, the moments of a
+  sitting that save) are typed or decided where the core already has them.
 
 What stays in the scene layer, and why it is not a rule of the game:
 
@@ -110,6 +119,17 @@ What stays in the scene layer, and why it is not a rule of the game:
 - **When a model arrives** (`presentation/residentArrivals.ts`): residents and hostiles wait unseen at their places
   until their models have loaded, a few a frame. That is loading, and an engine loads differently.
 - **Where the arrow leaves the bow** (`presentation/playerHunting.ts`): the nocked arrow's place on the posed model.
+- **Where the props stand and what they block** (`presentation/settlement.ts`, `hunterSupplies.ts`,
+  `forestLandmarks.ts` and a few more): walls, haystacks, the camp fire, the quarry's faces, the hunter's board and the
+  waymarkers are placed with the meshes they belong to, and what each blocks is measured from its mesh. That is level
+  content: a port places these props in its level with collision from their meshes, as it does buildings. The core
+  names the ones its rules refer to (`PROP_COLLIDER`: the fences the hero vaults, the board, the kit table and the
+  first waymarker the interactables see past), and the field fence's thickness the vault measures from; a test fails
+  if the world does not make every prop so named.
+- **Which device does what** (`platform/input.ts`): with the bow in hand a gamepad's right trigger draws instead of
+  running, and the quick save and load keys are read only while he plays. That is input mapping; a port sets its own
+  in its input contexts.
+- **A resident's height as others' obstacle** (`src/app.ts`): the drawn figure's height; their width is the core's.
 
 What else is there is presentation: meshes, materials and shaders, rigs and poses, effects, the interface, playing
 sound, loading, and reading input devices.

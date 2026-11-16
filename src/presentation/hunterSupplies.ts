@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { mergeStaticParts } from './staticMerge';
 import { HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE as T, hunterStationPoint, hunterTableSurfaceY } from '../core/world/layout';
 import type { Terrain } from '../core/world/terrain';
-import type { Colliders } from '../core/world/colliders';
+import { PROP_COLLIDER, type Colliders } from '../core/world/colliders';
 import { makeTexPair } from './buildingTextures';
 import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
 import { HUNTER_RANKS } from '../core/game/hunting';
@@ -181,9 +181,9 @@ export function buildHunterSupplies(terrain: Pick<Terrain, 'heightAt'>, collider
   const postUpper = T.signCentreAboveTop + T.signHeight / 2 - .04;
   const postHeight = postUpper - postBottom;
   solid('hunter-sign-post', .11, postHeight, .11, T.signX, (postBottom + postUpper) / 2, T.signZ - .1);
-  collider('hunter_board_post', .11, postHeight, .11, T.signX, (postBottom + postUpper) / 2, T.signZ - .1);
+  collider(PROP_COLLIDER.hunterBoardPost, .11, postHeight, .11, T.signX, (postBottom + postUpper) / 2, T.signZ - .1);
   solid('hunter-sign-board', T.signWidth, T.signHeight, T.signDepth, T.signX, T.signCentreAboveTop, T.signZ);
-  collider('hunter_board', T.signWidth, T.signHeight, T.signDepth, T.signX, T.signCentreAboveTop, T.signZ);
+  collider(PROP_COLLIDER.hunterBoard, T.signWidth, T.signHeight, T.signDepth, T.signX, T.signCentreAboveTop, T.signZ);
   // Mounting blocks bridge the post-to-board gap behind the face; the post cannot cut through the lettering.
   for (const y of [T.signCentreAboveTop - .18, T.signCentreAboveTop + .18]) {
     solid(`hunter-sign-mount-${y}`, .18, .065, .065, T.signX, y, T.signZ - .066);

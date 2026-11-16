@@ -5,7 +5,7 @@ import { createInitialState } from '../../../src/core/game/state';
 import type { WorldState } from '../../../src/core/game/types';
 import { chooseInteractable, type Interactable } from '../../../src/core/rules/interaction';
 import { fixedPlace, interactableTable, MOUNT_ID, RESIDENT_REACH_HEIGHT, RIDER_REACH_HEIGHT, type InteractableEntry } from '../../../src/core/rules/interactables';
-import { Colliders } from '../../../src/core/world/colliders';
+import { Colliders, FIELD_FENCE_HALF_THICKNESS, PROP_COLLIDER } from '../../../src/core/world/colliders';
 import { ARCHIVE_SHUTTER, HUNTER_SUPPLY, HUNTER_TABLE, hunterTableSurfaceY, INSPECT_LOCATIONS, LEDGER, PICKUP_LOCATIONS, RESULT_CHECKS, RITE_ALTAR, SHORTCUT, SLUICE } from '../../../src/core/world/layout';
 
 // What the wanderer can act on is a table in the core: reach, priority, prompt, when the state offers it, what it
@@ -52,10 +52,12 @@ describe('the table of interactables', () => {
   });
 
   it('says which solids are the thing itself', () => {
-    expect(entry('hunter_notes').ignoreColliders).toEqual(['hunter_board', 'hunter_board_post']);
+    expect(entry('hunter_notes').ignoreColliders).toEqual([PROP_COLLIDER.hunterBoard, PROP_COLLIDER.hunterBoardPost]);
+    expect(PROP_COLLIDER.hunterBoard).toBe('hunter_board');
+    expect(FIELD_FENCE_HALF_THICKNESS).toBeGreaterThan(0);
     expect(entry('mount_deer').ignoreColliders).toEqual([`animal:${MOUNT_ID}`]);
-    expect(entry('inspect:templar_waymarker').ignoreColliders).toEqual(['forest-waymarker:0']);
-    expect(entry('inspect:saltward_kit').ignoreColliders).toEqual(['kit_table']);
+    expect(entry('inspect:templar_waymarker').ignoreColliders).toEqual([PROP_COLLIDER.waymarker(0)]);
+    expect(entry('inspect:saltward_kit').ignoreColliders).toEqual([PROP_COLLIDER.kitTable]);
     expect(entry('rite').ignoreColliders).toEqual(['altar']);
     expect(table.filter((item) => item.ignoreColliders).map((item) => item.id)).toEqual(['hunter_notes', 'mount_deer', 'inspect:templar_waymarker', 'inspect:saltward_kit', 'rite']);
   });

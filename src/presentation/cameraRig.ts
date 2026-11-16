@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { BoxCollider, Collider, Colliders } from '../core/world/colliders';
+import { PROP_COLLIDER, type BoxCollider, type Collider, type Colliders } from '../core/world/colliders';
 import type { Terrain } from '../core/world/terrain';
 import { BUILDINGS, LIGHTHOUSE } from '../core/world/layout';
 import { CAMERA_CLEARANCE, cameraColliderEntry } from '../core/rules/cameraObstruction';
@@ -170,7 +170,7 @@ export class CameraRig {
     this.followPivot.copy(this.smoothTarget);
     // A rail fence is seen through (A125): its wall above the rails keeps the hero off them, not the camera, which pulled
     // in to a metre from his back whenever it swung across one.
-    const candidates = colliders.nearCamera(px, pz, boomDistance + aimOffset + CAMERA_CLEARANCE + MAX_RECOIL).filter((c) => c.id !== 'fence');
+    const candidates = colliders.nearCamera(px, pz, boomDistance + aimOffset + CAMERA_CLEARANCE + MAX_RECOIL).filter((c) => c.id !== PROP_COLLIDER.fence);
     this.waterTerrain = terrain;
     this.waterColliders = candidates;
     // B12: in a room (decided by the hero's footprint, with hysteresis) the boom drops under the ceiling, eased, instead

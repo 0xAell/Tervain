@@ -1,5 +1,5 @@
 import RAPIER from '@dimforge/rapier3d-compat';
-import { FENCE_WALL_LIFT, type Collider as WorldCollider, type Colliders } from '../core/world/colliders';
+import { FENCE_WALL_LIFT, PROP_COLLIDER, type Collider as WorldCollider, type Colliders } from '../core/world/colliders';
 import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../core/world/layout';
 import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG, type PropSpec } from '../core/world/physicalProps';
 // Loose bodies fall under the same gravity as the wanderer.
@@ -130,7 +130,7 @@ export class RealmPhysics {
       const collider = this.world.createCollider(desc.setTranslation(source.x, (low + high) / 2, source.z).setFriction(.8).setEnabled(source.active));
       this.fixed.push({ source, collider, enabled: source.active });
       // The invisible fence lift prevents stepping onto rails; it is not a surface for arrows.
-      if (source.id === 'fence' && source.kind === 'box' && source.minY !== undefined && source.maxY !== undefined && high - low > FENCE_WALL_LIFT) {
+      if (source.id === PROP_COLLIDER.fence && source.kind === 'box' && source.minY !== undefined && source.maxY !== undefined && high - low > FENCE_WALL_LIFT) {
         const cs = Math.abs(Math.cos(source.yaw)), sn = Math.abs(Math.sin(source.yaw));
         const ex = cs * source.hw + sn * source.hd, ez = sn * source.hw + cs * source.hd;
         this.projectileFences.set(collider.handle, { collider, minY: low, maxY: high - FENCE_WALL_LIFT,

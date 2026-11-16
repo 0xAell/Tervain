@@ -1,4 +1,4 @@
-import { Colliders, FENCE_WALL_LIFT, type CircleCollider, type Collider } from '../world/colliders';
+import { Colliders, FENCE_WALL_LIFT, PROP_COLLIDER, type CircleCollider, type Collider } from '../world/colliders';
 import { cliffiness, shoreDistance } from '../world/coast';
 import { LIGHTHOUSE, SEA_LEVEL, WORLD } from '../world/layout';
 import { lighthouseSurfacesAt, lighthouseTreadTop } from '../world/lighthouse';
@@ -743,7 +743,7 @@ export class Wanderer {
   private fenceVault(ctx: WandererContext, approach?: { x: number; z: number }): Wanderer['vault'] {
     const fx = approach?.x ?? Math.sin(this.yaw), fz = approach?.z ?? Math.cos(this.yaw);
     let people: Collider[] | undefined;
-    for (const c of ctx.colliders.withId('fence')) {
+    for (const c of ctx.colliders.withId(PROP_COLLIDER.fence)) {
       if (c.kind !== 'box' || !c.active) continue;
       const cos = Math.cos(c.yaw), sin = Math.sin(c.yaw);
       const lx = (this.x - c.x) * cos - (this.z - c.z) * sin, lz = (this.x - c.x) * sin + (this.z - c.z) * cos;

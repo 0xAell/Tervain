@@ -19,7 +19,7 @@ import { buildScenery, type SceneryHandles } from '../../src/presentation/settle
 import { Exclusions } from '../../src/presentation/vegetation';
 import { WorldScene } from '../../src/presentation/world';
 import { pickupGeometry, pickupPlacement, setPickupVisible } from '../../src/presentation/worldPickups';
-import { buildStaticColliders, Colliders } from '../../src/core/world/colliders';
+import { buildStaticColliders, Colliders, PROP_COLLIDER } from '../../src/core/world/colliders';
 import { ANCHORS, ARRIVAL_ROUTE, FOREST_WAYMARKERS, HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, PICKUP_LOCATIONS, SPAWN } from '../../src/core/world/layout';
 import { NavGrid } from '../../src/core/world/nav';
 import { distToPolyline, Terrain } from '../../src/core/world/terrain';
@@ -211,6 +211,12 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
     scenery?.dispose();
     if (station) disposeHunterSupplies(station);
     vi.unstubAllGlobals();
+  });
+
+  it('makes every prop the rules refer to by name: the hunter’s board and its post, the kit table, the first waymarker, the field fences', () => {
+    for (const id of [PROP_COLLIDER.hunterBoard, PROP_COLLIDER.hunterBoardPost, PROP_COLLIDER.kitTable, PROP_COLLIDER.waymarker(0), PROP_COLLIDER.fence]) {
+      expect(colliders.withId(id).length, id).toBeGreaterThan(0);
+    }
   });
 
   it('builds a solid grounded counter, behind-face sign mounting, and a clear reachable supplier stance', () => {
