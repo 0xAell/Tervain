@@ -1936,7 +1936,12 @@
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-modules-in-unreal-engine"
       },
       "passage": "IMPLEMENT_PRIMARY_GAME_MODULE( <ModuleName>, \"<GameName>\" );",
-      "note": "The only Epic page found that shows the macro gives it two arguments, the module name and the game name, with no implementation class. That page reads as dated (its Build.cs sample takes TargetInfo and it speaks of an OutExtraModuleNames array), and the newer module pages show IMPLEMENT_MODULE(FDefaultModuleImpl, ModuleTest) with the class first; the API reference documents FDefaultGameModuleImpl, the class the seed passes first, as the \"Default minimal module class for gameplay modules\". So the three-argument form may well be the current one, but no page fetched shows it and the API reference does not document macros. Check against Modules/ModuleManager.h in the engine at the first build. The requirement itself (\"At least one module in your game must be registered using IMPLEMENT_PRIMARY_GAME_MODULE\") is confirmed."
+      "note": "The only Epic page found that shows the macro gives it two arguments, the module name and the game name, with no implementation class. That page reads as dated (its Build.cs sample takes TargetInfo and it speaks of an OutExtraModuleNames array), and the newer module pages show IMPLEMENT_MODULE(FDefaultModuleImpl, ModuleTest) with the class first; the API reference documents FDefaultGameModuleImpl, the class the seed passes first, as the \"Default minimal module class for gameplay modules\". So the three-argument form may well be the current one, but no page fetched shows it and the API reference does not document macros. Check against Modules/ModuleManager.h in the engine at the first build. The requirement itself (\"At least one module in your game must be registered using IMPLEMENT_PRIMARY_GAME_MODULE\") is confirmed.",
+      "corroboration": {
+        "title": "CARLA's game module, on its ue5-dev branch (the Unreal Engine 5.5 version of CARLA, per its README)",
+        "url": "https://raw.githubusercontent.com/carla-simulator/carla/ue5-dev/Unreal/CarlaUnreal/Source/CarlaUnreal/CarlaUnreal.cpp",
+        "passage": "IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, CarlaUnreal, \"CarlaUnreal\" );"
+      }
     },
     {
       "symbol": "Modules/ModuleManager.h",
@@ -3027,7 +3032,12 @@
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
       },
       "passage": "Specify DefaultSettingsVersion.Latest to always use defaults for the current engine version, at the risk of introducing build errors while upgrading.",
-      "note": "The property's type is given as BuildSettingsVersion, and the 5.7 release notes write a value of it: \"DefaultBuildSettings = BuildSettingsVersion.V6\". The target reference names Latest only as DefaultSettingsVersion.Latest, so the spelling BuildSettingsVersion.Latest is not shown anywhere. The same sentence documents the trade-off of Latest: build errors may appear when the engine version changes."
+      "note": "The property's type is given as BuildSettingsVersion, and the 5.7 release notes write a value of it: \"DefaultBuildSettings = BuildSettingsVersion.V6\". The target reference names Latest only as DefaultSettingsVersion.Latest, so the spelling BuildSettingsVersion.Latest is not shown anywhere. The same sentence documents the trade-off of Latest: build errors may appear when the engine version changes.",
+      "corroboration": {
+        "title": "CARLA's game target, on its ue5-dev branch (the Unreal Engine 5.5 version of CARLA, per its README)",
+        "url": "https://raw.githubusercontent.com/carla-simulator/carla/ue5-dev/Unreal/CarlaUnreal/Source/CarlaUnreal.Target.cs",
+        "passage": "DefaultBuildSettings = BuildSettingsVersion.Latest;"
+      }
     },
     {
       "symbol": "IncludeOrderVersion",
@@ -3056,7 +3066,12 @@
       "status": "unverified",
       "source": null,
       "passage": null,
-      "note": "The target and module references name the type only (\"IncludeOrderVersion (EngineIncludeOrderVersion): What version of include order to use when compiling this target\"); no page fetched, the 5.5 to 5.8 release notes included, lists its values."
+      "note": "The target and module references name the type only (\"IncludeOrderVersion (EngineIncludeOrderVersion): What version of include order to use when compiling this target\"); no page fetched, the 5.5 to 5.8 release notes included, lists its values.",
+      "corroboration": {
+        "title": "CARLA's game target, on its ue5-dev branch (the Unreal Engine 5.5 version of CARLA, per its README)",
+        "url": "https://raw.githubusercontent.com/carla-simulator/carla/ue5-dev/Unreal/CarlaUnreal/Source/CarlaUnreal.Target.cs",
+        "passage": "IncludeOrderVersion = EngineIncludeOrderVersion.Latest;"
+      }
     },
     {
       "symbol": "ExtraModuleNames",
