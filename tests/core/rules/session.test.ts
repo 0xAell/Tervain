@@ -3,11 +3,13 @@ import { CLOCK_RATE, RITE_CALM_MIN } from '../../../src/core/game/constants';
 import { createInitialState } from '../../../src/core/game/state';
 import type { WorldState } from '../../../src/core/game/types';
 import { STAMINA_MAX } from '../../../src/core/rules/hero';
-import { AUTOSAVE_SECONDS, CHECKPOINT_CLEARANCE, DEATH, DROUGHT_BELL, HIT_STOP, UNDER_WORLD } from '../../../src/core/rules/journey';
+import { AUTOSAVE_SECONDS, CHECKPOINT_CLEARANCE, DEATH, DROUGHT_BELL, HIT_STOP, UNDER_WORLD, WITNESS_REACH } from '../../../src/core/rules/journey';
+import { ENEMY_ARCHETYPES } from '../../../src/core/content/enemies';
+import { NPCS } from '../../../src/core/content/npcs';
 import { MOUNT_STAMINA } from '../../../src/core/rules/riding';
 import { RESIDENT } from '../../../src/core/rules/resident';
 import {
-  AFLOAT, archiveClosesBehind, archiveDoorAttempt, archiveOpen, AUTOSAVE_MOMENTS, autosaveAt, autosaveDue, AWAITED_MOUNT_REACH, momentOf, WHAT_RUNS, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
+  AFLOAT, archiveClosesBehind, arrivesInView, ARRIVES_IN_VIEW_WITHIN, archiveDoorAttempt, archiveOpen, AUTOSAVE_MOMENTS, autosaveAt, autosaveDue, AWAITED_MOUNT_REACH, momentOf, WHAT_RUNS, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
   ENTRY_RESTORES, fallRemaining, HAND_SAVE_SLOTS, hitStopFor, journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter,
   rideable, riteReady, SAFE_PLACE_RINGS, safePlace, SAVE_SLOTS, savedMount, savingAllowed, SHAKE, STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING,
   type PlacingWorld, type RespawnPoint,
@@ -118,6 +120,19 @@ describe('the place he returns to, waking and entering', () => {
   it('thinks of the drought bell first a little into a sitting, sooner than its interval', () => {
     expect(DROUGHT_BELL.first).toBeGreaterThan(0);
     expect(DROUGHT_BELL.first).toBeLessThan(DROUGHT_BELL.every);
+  });
+});
+
+describe('figures on their way', () => {
+  it('arrive in view once the wanderer is within twice the furthest any figure acts on him', () => {
+    const furthest = Math.max(WITNESS_REACH, ...Object.values(ENEMY_ARCHETYPES).map((kind) => kind.notice), ...Object.values(NPCS).map((def) => def.approachGreeting?.radius ?? 0));
+    expect(furthest).toBe(WITNESS_REACH);
+    expect(ARRIVES_IN_VIEW_WITHIN).toBe(2 * furthest);
+    // A toll-jumper that would notice him, a keeper who would see a trespass: both are here before they matter.
+    expect(arrivesInView(ENEMY_ARCHETYPES.bandit.notice)).toBe(true);
+    expect(arrivesInView(WITNESS_REACH)).toBe(true);
+    expect(arrivesInView(ARRIVES_IN_VIEW_WITHIN)).toBe(true);
+    expect(arrivesInView(ARRIVES_IN_VIEW_WITHIN + 0.01), 'further off, the change waits until nobody sees it').toBe(false);
   });
 });
 
