@@ -95,7 +95,7 @@ export class CameraRig {
     this.shakeT = 0;
     this.aiming = false;
     this.aimBlend = this.draw = this.kick = 0;
-    this.camera.fov = 60;
+    this.camera.fov = CAMERA.fov;
     this.camera.updateProjectionMatrix();
   }
   mode: 'follow' | 'title' | 'bench' = 'follow';
@@ -415,7 +415,7 @@ export class CameraRig {
       this.camera.rotateX(this.kick * this.kick * 0.022);
       this.kick = Math.max(0, this.kick - Math.max(0, dt) * 5);
     }
-    const fov = this.aiming ? 48 - 4 * this.draw : 60;
+    const fov = this.aiming ? AIM_VIEW.fov - AIM_VIEW.drawFov * this.draw : CAMERA.fov;
     if (this.camera.fov !== fov) {
       this.camera.fov += (fov - this.camera.fov) * k;
       if (Math.abs(this.camera.fov - fov) < 0.01) this.camera.fov = fov;

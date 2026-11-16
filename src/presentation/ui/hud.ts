@@ -4,6 +4,7 @@ import { icon } from './icons';
 import { resourceFraction } from './uiModel';
 import type { ItemId } from '../../core/game/types';
 import { QuickSlotBar } from './hotbar';
+import { STAMINA_MAX } from '../../core/rules/hero';
 
 function setText(el: HTMLElement, text: string) {
   if (el.textContent !== text) el.textContent = text;
@@ -206,7 +207,7 @@ export class Hud {
 
   update(d: HudData) {
     const health = resourceFraction(d.health, d.maxHealth);
-    const stamina = resourceFraction(d.stamina, 100);
+    const stamina = resourceFraction(d.stamina, STAMINA_MAX);
     const maximum = Number.isFinite(d.maxHealth) ? Math.max(0, d.maxHealth) : 0;
     setStyle(this.healthFill, 'width', `${health * 100}%`);
     setStyle(this.staminaFill, 'width', `${stamina * 100}%`);

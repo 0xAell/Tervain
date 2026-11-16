@@ -8,6 +8,9 @@ describe('the follow camera', () => {
     expect(CAMERA.distance).toBeLessThanOrEqual(CAMERA.maxDistance);
     expect(CAMERA.pitch).toBeGreaterThan(CAMERA.minPitch);
     expect(CAMERA.pitch).toBeLessThan(CAMERA.maxPitch);
+    // Entering a journey it looks down on him a touch less than the view is built with.
+    expect(CAMERA.entryPitch).toBeGreaterThan(CAMERA.minPitch);
+    expect(CAMERA.entryPitch).toBeLessThan(CAMERA.pitch);
   });
 
   it('can look well up at the lighthouse and the crowns, and nearly straight down', () => {
@@ -18,6 +21,9 @@ describe('the follow camera', () => {
   it('draws in over his shoulder to aim, closer than any free zoom', () => {
     expect(AIM_VIEW.boom).toBeLessThan(CAMERA.minDistance);
     expect(AIM_VIEW.right).toBeGreaterThan(0);
+    // ...with a tighter view, tighter still at full draw.
+    expect(AIM_VIEW.fov).toBeLessThan(CAMERA.fov);
+    expect(AIM_VIEW.fov - AIM_VIEW.drawFov).toBeGreaterThan(0);
   });
 
   it('enters a room sooner than it leaves it, so a doorway does not flicker', () => {

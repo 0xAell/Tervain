@@ -98,9 +98,6 @@ A second reading afterwards found more. Each is to be lifted in a pull request o
 - **Where the props stand and what they block**: walls, haystacks, the camp fire, the hunter's board and table and the
   waymarkers are placed by scene modules, and the core's table of interactables names colliders only those modules
   make.
-- **Values the scene types again** instead of reading them from the core: the hunter's price on his sign, the bandit's
-  model, the sluice panel's notes, the archive's walls before the first step, a resident's width, and a few figures
-  for sound and the camera.
 
 What stays in the scene layer, and why it is not a rule of the game:
 

@@ -379,8 +379,10 @@ export class WorldScene {
       await checkpoint('physics', 'Physical contacts');
       // Initialize saved collision state before physics and navigation, avoiding a duplicate first-frame rebuild.
       const view = worldView(state);
-      colliders.setActive('archive_door', view.archiveDoor === 'locked');
-      colliders.setActive('archive_shutter', view.archiveShutter !== 'forced');
+      // Before anyone is placed; set again, with whoever stands in the archive, once he is.
+      const barriers = archiveBarriers(view.archiveDoor, view.archiveShutter, false);
+      colliders.setActive('archive_door', barriers.door);
+      colliders.setActive('archive_shutter', barriers.shutter);
       colliders.setActive('shortcut_gate', !view.shortcutOpen);
       const physics = own(new RealmPhysics(terrain, colliders, undefined, forest.physicalWood));
       // Loose barrels and crates float on the same water that is drawn and heard.

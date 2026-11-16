@@ -24,13 +24,12 @@ import { prepareSceneTextures } from './platform/prepareSceneTextures';
 import { codeLabel, loadSettings } from './platform/settings';
 import { BrowserStore, SaveStore, type SlotId } from './platform/storage';
 import { ENEMY_SPAWNS, PLACES, SPAWN, type V2 } from './core/world/layout';
-import { coastX } from './core/world/coast';
 import { PLAYER_BODY_RADIUS } from './core/world/playerPlacement';
 import { EnemyActor, NpcActor, type ActorContext, type EnemyContext } from './presentation/actors';
 import { AudioEngine } from './presentation/audio';
 import { SpeechDirector } from './presentation/speech';
 import { threatFrom } from './core/rules/music';
-import { windTone } from './core/rules/soundscape';
+import { seaBedNearness, windTone } from './core/rules/soundscape';
 import { CameraRig } from './presentation/cameraRig';
 import { NearFade, heroNearCoverage } from './presentation/nearFade';
 import { Grade, WORLD_EXPOSURE } from './presentation/grade';
@@ -82,6 +81,7 @@ import {
 } from './core/rules/session';
 import { STAMINA_MAX } from './core/rules/hero';
 import { CAMERA } from './core/rules/camera';
+import { ENEMY_VARIANT } from './core/content/enemies';
 
 /** How far round the line from the camera to the wanderer leaves give way (A84), metres. */
 const FOLIAGE_FOCUS_RADIUS = 1.3;
@@ -488,7 +488,7 @@ export class App {
           adopt: (catalog, rig) => npc.adoptRig(rig ?? catalog.create(role, height)), make: (catalog) => catalog.createSteps(role, height) });
       }
       for (const spawn of ENEMY_SPAWNS) {
-        const variant = spawn.id === 'ford_bandit_b' ? 1 : 0;
+        const variant = ENEMY_VARIANT[spawn.id] ?? 0;
         const role = `enemy:${spawn.id}`, scale = 1.04 + variant * 0.05, arrived = spawn.kind === 'thornback' || cast.has(role);
         const rig = spawn.kind === 'thornback' ? undefined : arrived ? cast.create(role, scale, 'blade') : cast.standIn(role, scale, 'blade');
         // A bandit still waiting for their model is out of every fight until it is here (stage 2).
@@ -1119,7 +1119,7 @@ export class App {
     this.cam.yaw = start.yaw;
     this.cam.reset();
     this.player.group.visible = true;
-    this.cam.pitch = 0.3;
+    this.cam.pitch = CAMERA.entryPitch;
     // A load is a fresh start for the body too: rested, the deer's wind whole (A95 scout: exhaustion carried over).
     this.player.stamina = ENTRY_RESTORES.stamina;
     this.player.exhausted = ENTRY_RESTORES.exhausted;
@@ -1329,7 +1329,7 @@ export class App {
       // heath shows rolling up the slope reaches the lens.
       const gust = this.menuScene.windAtLens;
       this.audio.update(dt, { nightness: 0.3, waterProximity: 0, seaProximity: 0.32, flow: 0,
-        millNear: 0, millTurning: false, windAmount: 0.3 + 0.7 * gust, windTone: 360 + 180 * gust, quarryNear: 0,
+        millTurning: false, windAmount: 0.3 + 0.7 * gust, windTone: 360 + 180 * gust,
         quarryWorking: false, time: this.audioClock, underRoof: false });
       this.audio.updateWorld(dt, null);
       return;
@@ -2596,22 +2596,18 @@ export class App {
   private audioUpdate(dt: number, camPos: THREE.Vector3, hour: number) {
     const v = this.world.view;
     const w = this.world.waterProximity(camPos.x, camPos.z);
-    const millD = Math.hypot(camPos.x + 14, camPos.z + 8);
-    const quarryD = Math.hypot(camPos.x - 92, camPos.z + 26);
     const indoors = this.world.underRoof(camPos.x, camPos.y, camPos.z);
     this.audio.update(dt, {
       nightness: this.world.sky.state.nightness,
       waterProximity: w,
       flow: v.flow.main,
-      millNear: Math.max(0, 1 - millD / 40),
       millTurning: v.millTurning,
       // Higher ground is windier; each gust that crosses the grass and the crowns is heard as it passes.
       windAmount: Math.min(1, (0.3 + camPos.y / 60) * (0.62 + 0.7 * Math.min(1, this.world.grassWind.pushAt(camPos.x, camPos.z) / (REALM_WIND.steady + REALM_WIND.gust)))),
-      quarryNear: Math.max(0, 1 - quarryD / 60),
       quarryWorking: v.quarryState === 'working' || v.quarryState === 'night_shift',
       time: this.audioClock,
       underRoof: indoors,
-      seaProximity: Math.exp(-Math.max(0, camPos.x - coastX(camPos.z)) / 95),
+      seaProximity: seaBedNearness(camPos.x, camPos.z),
       windTone: windTone(camPos.x, camPos.z),
     });
     const forward = this.cam.camera.getWorldDirection(this.listenerForward);
