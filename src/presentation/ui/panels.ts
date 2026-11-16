@@ -55,7 +55,6 @@ interface Frame {
   narrow: boolean;
   returnFocus: HTMLElement | null;
   onClose?: () => void;
-  refresh?: () => HTMLElement;
 }
 
 /** Holds a stack of modal panels so Settings can open from Pause and return to it. */
@@ -82,9 +81,9 @@ export class PanelHost {
     return this.stack.length;
   }
 
-  push(content: HTMLElement, opts: { narrow?: boolean; onClose?: () => void; refresh?: () => HTMLElement } = {}) {
+  push(content: HTMLElement, opts: { narrow?: boolean; onClose?: () => void } = {}) {
     const wasEmpty = this.stack.length === 0;
-    this.stack.push({ content, narrow: !!opts.narrow, returnFocus: document.activeElement as HTMLElement | null, onClose: opts.onClose, refresh: opts.refresh });
+    this.stack.push({ content, narrow: !!opts.narrow, returnFocus: document.activeElement as HTMLElement | null, onClose: opts.onClose });
     this.render();
     if (wasEmpty) this.onOpen?.();
   }
@@ -95,14 +94,6 @@ export class PanelHost {
     top.content = content;
     if (opts.narrow !== undefined) top.narrow = opts.narrow;
     this.render();
-  }
-
-  refreshTop() {
-    const top = this.stack[this.stack.length - 1];
-    if (top?.refresh) {
-      top.content = top.refresh();
-      this.render(false);
-    }
   }
 
   back() {

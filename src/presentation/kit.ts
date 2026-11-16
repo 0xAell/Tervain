@@ -109,10 +109,6 @@ export class Kit {
     this.parts.push(g);
   }
 
-  addGeo(g: THREE.BufferGeometry) {
-    this.parts.push(g);
-  }
-
   /** Box with its base at y. */
   box(w: number, h: number, d: number, x: number, y: number, z: number, color: number, ry = 0, rx = 0, rz = 0, variation = 1) {
     this.add(this.prims.box, color, x, y + h / 2, z, ry, rx, rz, w, h, d, variation);
@@ -129,10 +125,6 @@ export class Kit {
 
   cone(r: number, h: number, seg: number, x: number, y: number, z: number, color: number, ry = 0) {
     this.add(new THREE.ConeGeometry(r, h, seg), color, x, y + h / 2, z, ry);
-  }
-
-  ico(r: number, x: number, y: number, z: number, color: number, detail = 1, sx = 1, sy = 1, sz = 1, ry = 0) {
-    this.add(new THREE.IcosahedronGeometry(r, detail), color, x, y, z, ry, 0, 0, sx, sy, sz);
   }
 
   /** Triangular gable prism whose ridge runs along local x. Width spans z. */
@@ -156,12 +148,6 @@ export class Kit {
     g.setIndex(idx);
     g.computeVertexNormals();
     this.add(g, color, x, y, z, ry);
-  }
-
-  pyramid(w: number, d: number, rise: number, x: number, y: number, z: number, color: number, ry = 0) {
-    const g = new THREE.ConeGeometry(0.5, 1, 4, 1);
-    g.rotateY(Math.PI / 4);
-    this.add(g, color, x, y + rise / 2, z, ry, 0, 0, w * 1.414, rise, d * 1.414);
   }
 
   glow(w: number, h: number, d: number, x: number, y: number, z: number, ry = 0) {

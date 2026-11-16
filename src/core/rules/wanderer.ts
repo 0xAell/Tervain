@@ -187,7 +187,6 @@ export class Wanderer {
   private poseYaw = 0;
   channel: { label: string; t: number; dur: number; done: () => void; kind?: 'skinning'; cancelled?: () => void } | null = null;
   shake = 0;
-  inWater = false;
   /** Swimming in water too deep to stand in; the depth of water at the feet (m, 0 on dry ground). */
   swimming = false;
   waterDepth = 0;
@@ -561,7 +560,6 @@ export class Wanderer {
     this.exhausted = this.stamina <= 0.01;
     this.drawn = false;
     this.calm = 0;
-    this.inWater = false;
     this.swimming = false;
     this.waterDepth = 0;
     this.soaked = this.wakeClock = this.strokeClock = 0;
@@ -1059,7 +1057,6 @@ export class Wanderer {
     this.iframes = Math.max(0, this.iframes - dt);
     this.shake = Math.max(0, this.shake - dt * 1.6);
     this.staminaPause = Math.max(0, this.staminaPause - dt);
-    this.inWater = false;
     // Water: how deep it stands here, and whether that is deep enough to swim.
     this.updateSwimming(ctx.water?.sample(this.x, this.z) ?? null, ctx);
 
@@ -1322,7 +1319,6 @@ export class Wanderer {
 
     // Footsteps and surface.
     this.surface = this.surfaceAt(ctx);
-    this.inWater = this.surface === 'water' || this.swimming;
     if (!this.stridesFromBody && !this.mount && !moving && this.grounded && this.lastMoveSpeed > 0.8 && (this.state === 'free')) {
       this.stepDist += this.lastMoveSpeed * dt;
       const stride = sprinting ? HERO_RUN_CYCLE / 2 : HERO_WALK_CYCLE / 2;

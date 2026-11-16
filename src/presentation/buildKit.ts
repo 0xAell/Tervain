@@ -375,11 +375,6 @@ export class Batch {
     }
   }
 
-  /** Box centred on x,y,z. */
-  boxC(w: number, h: number, d: number, x: number, y: number, z: number, c: Col, o: BoxOpts = {}) {
-    this.box(w, h, d, x, y - h / 2, z, c, o);
-  }
-
   /**
    * Surface of revolution about the local y axis through x,y,z. `profile` is a flat list of radius, height
    * pairs from bottom to top. Smooth shading follows the profile; `flat` gives hard facets.
