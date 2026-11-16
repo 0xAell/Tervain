@@ -40,7 +40,7 @@ import { LOOK, MENU_LOOK } from '../content/look';
 import { DOORS } from '../rules/doors';
 import {
   ACTION_COST, ACTION_SECONDS, BLADE, DODGE, ENGAGED_REACH, FIRM_FOOTING_SLOPE, FISTS, GRAVITY, GROUND_FOLLOW_DROP, GUARD, HIT_AT, JUMP_SPEED,
-  MOVE_RESPONSE, PERFECT_BLOCK_WINDOW, SHEATHE_AFTER, STAMINA, STEP_HEIGHT, SWIM_DEPTH, SWIM_EXIT, SWIM_FLOAT, SWIM_SPEED, SWIM_SPRINT, VAULT,
+  MOVE_RESPONSE, PERFECT_BLOCK_WINDOW, SHEATHE_AFTER, STAMINA, STEP_HEIGHT, SWIM_DEPTH, SWIM_EXIT, SWIM_FLOAT, SWIM_SPEED, SWIM_SPRINT, VAULT, WADE,
 } from '../rules/hero';
 import { HERO_GUARD_SPEED, HERO_RUN_CYCLE, HERO_RUN_SPEED, HERO_RUN_THRESHOLD, HERO_WALK_CYCLE, HERO_WALK_SPEED } from '../rules/heroLocomotion';
 import { HOSTILE } from '../rules/hostile';
@@ -206,7 +206,7 @@ function game(): PortableDocument[] {
           arms: { fists: FISTS, blade: BLADE }, sheatheAfter: SHEATHE_AFTER, engagedReach: ENGAGED_REACH, guard: GUARD,
           dodge: DODGE, jumpSpeed: JUMP_SPEED, gravity: GRAVITY, stepHeight: STEP_HEIGHT, groundFollowDrop: GROUND_FOLLOW_DROP,
           firmFootingSlope: FIRM_FOOTING_SLOPE, moveResponse: MOVE_RESPONSE, vault: VAULT,
-          swim: { depth: SWIM_DEPTH, exit: SWIM_EXIT, float: SWIM_FLOAT, speed: SWIM_SPEED, sprint: SWIM_SPRINT },
+          swim: { depth: SWIM_DEPTH, exit: SWIM_EXIT, float: SWIM_FLOAT, speed: SWIM_SPEED, sprint: SWIM_SPRINT }, wade: WADE,
         },
         riding: { ride: RIDE, deerBody: DEER_BODY, mountTimes: MOUNT_TIMES, mountSide: MOUNT_SIDE, camera: RIDE_CAMERA, stamina: MOUNT_STAMINA },
         bow: BOW,
