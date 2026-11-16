@@ -91,7 +91,7 @@ export class HuntingArrows {
   get lodgedCount(): number { return this.lodged.length; }
   get floatingCount(): number { return this.floating.length; }
 
-  launch(origin: THREE.Vector3, direction: THREE.Vector3, speed = 38): ArrowShot | null {
+  launch(origin: THREE.Vector3, direction: THREE.Vector3, speed: number = BOW.arrowSpeed): ArrowShot | null {
     if (this.disposed) return null;
     const flight = this.flights.launch(origin, direction, speed, (old) => this.remove((old as ArrowShot).mesh));
     if (!flight) return null;

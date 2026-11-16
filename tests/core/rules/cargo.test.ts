@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  CARGO_STEP, CARRY, carryForce, carryLift, carryOrigin, carryRank, handsForCargo, holdPoint, keepsHold, throwImpulse, throwSpin, withinCarry,
+  CARGO_STEP, CARRY, carryForce, carryLift, carryOrigin, carryRank, handsForCargo, holdPoint, keepsHold, throwImpulse, throwSpin, withinCarry, CARGO_BODY,
 } from '../../../src/core/rules/cargo';
 import { GRAVITY, STEP_HEIGHT } from '../../../src/core/rules/hero';
 
@@ -66,5 +66,14 @@ describe('carrying loose cargo', () => {
   it('can be stepped onto as high as anything else', () => {
     expect(CARGO_STEP.height).toBe(STEP_HEIGHT);
     expect(CARGO_STEP.width).toBeGreaterThan(0);
+  });
+});
+
+describe('how loose cargo moves', () => {
+  it('slides, bounces and settles by the core\u2019s numbers, pushed by the wanderer\u2019s weight', () => {
+    expect(CARGO_BODY).toEqual({ friction: 0.72, restitution: 0.08, linearDamping: 0.12, angularDamping: 0.35, pusherMass: 80 });
+    // A shove's bounce is small beside its grip, and turning dies away faster than travel.
+    expect(CARGO_BODY.restitution).toBeLessThan(CARGO_BODY.friction / 4);
+    expect(CARGO_BODY.angularDamping).toBeGreaterThan(CARGO_BODY.linearDamping);
   });
 });

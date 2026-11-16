@@ -1663,7 +1663,10 @@
     },
     "kitTable": {
       "x": 15,
-      "z": 20.5
+      "z": 20.5,
+      "halfWidth": 0.55,
+      "halfDepth": 0.35,
+      "height": 0.84
     },
     "quarryBoulders": [
       {

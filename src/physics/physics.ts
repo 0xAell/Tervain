@@ -4,7 +4,7 @@ import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../core/world/layout';
 import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG, type PropSpec } from '../core/world/physicalProps';
 // Loose bodies fall under the same gravity as the wanderer.
 import { GRAVITY } from '../core/rules/hero';
-import { CARGO_STEP, carryForce, carryLift, carryOrigin, carryRank, holdPoint, throwImpulse, throwSpin, withinCarry } from '../core/rules/cargo';
+import { CARGO_BODY, CARGO_STEP, carryForce, carryLift, carryOrigin, carryRank, holdPoint, throwImpulse, throwSpin, withinCarry } from '../core/rules/cargo';
 import { buildingEntry, buildingGround } from '../core/world/buildingEntries';
 import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, PLAYER_FOOT_CLEARANCE } from '../core/world/playerPlacement';
 import type { Terrain } from '../core/world/terrain';
@@ -189,10 +189,10 @@ export class RealmPhysics {
     for (const spec of specs) {
       const body = this.world.createRigidBody(RAPIER.RigidBodyDesc.dynamic()
         .setTranslation(spec.x, terrain.groundAt(spec.x, spec.z) + spec.height / 2 + .025, spec.z)
-        .setRotation(yawRotation(spec.yaw)).setLinearDamping(.12).setAngularDamping(.35).setCcdEnabled(true));
+        .setRotation(yawRotation(spec.yaw)).setLinearDamping(CARGO_BODY.linearDamping).setAngularDamping(CARGO_BODY.angularDamping).setCcdEnabled(true));
       const desc = spec.kind === 'barrel' ? RAPIER.ColliderDesc.cylinder(spec.height / 2, spec.width / 2)
         : RAPIER.ColliderDesc.cuboid(spec.width / 2, spec.height / 2, spec.depth / 2);
-      const collider = this.world.createCollider(desc.setMass(spec.mass).setFriction(.72).setRestitution(.08), body);
+      const collider = this.world.createCollider(desc.setMass(spec.mass).setFriction(CARGO_BODY.friction).setRestitution(CARGO_BODY.restitution), body);
       const prop = { spec, body, collider, previous: this.poseOf(spec.id, body), wet: 0 };
       this.props.push(prop); this.propHandles.add(collider.handle);
     }
@@ -200,7 +200,7 @@ export class RealmPhysics {
     this.characterCollider = this.world.createCollider(RAPIER.ColliderDesc.capsule(CAPSULE_CENTER - PLAYER_BODY_RADIUS, PLAYER_BODY_RADIUS).setFriction(.25), this.character);
     this.controller = this.world.createCharacterController(.012);
     // Asking where he can go pushes nothing; `push` applies a step once the game has taken it (A106).
-    this.controller.setApplyImpulsesToDynamicBodies(false); this.controller.setCharacterMass(80);
+    this.controller.setApplyImpulsesToDynamicBodies(false); this.controller.setCharacterMass(CARGO_BODY.pusherMass);
     this.controller.enableAutostep(.8, .25, true);
     this.controller.setSlideEnabled(true);
     this.controller.setMaxSlopeClimbAngle(ROCK_CLIMB_ANGLE);

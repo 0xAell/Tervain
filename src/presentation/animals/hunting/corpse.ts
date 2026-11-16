@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { SKINNING } from '../../../core/rules/archery';
 
 interface BonePose { bone: THREE.Bone; position: THREE.Vector3; rotation: THREE.Quaternion; scale: THREE.Vector3 }
 interface Support { mesh: THREE.SkinnedMesh; vertex: number; x: number }
@@ -79,7 +80,7 @@ export class AnimalCorpse {
     const ground = terrain.heightAt(position.x, position.z), settled = this.settled;
     if (this.ready && settled && settled.terrain === terrain && settled.x === position.x && settled.z === position.z && settled.yaw === yaw
       && settled.ground === ground && settled.normal.every((value, i) => value === this.normal[i])) return 0;
-    death.elapsed = Math.min(1, death.elapsed + Math.max(0, dt) / .9);
+    death.elapsed = Math.min(1, death.elapsed + Math.max(0, dt) / SKINNING.collapseSeconds);
     const phase = death.elapsed * death.elapsed * (3 - 2 * death.elapsed);
     for (const pose of death.poses) {
       pose.bone.position.lerpVectors(pose.position, pose.endPosition, phase); pose.bone.scale.lerpVectors(pose.scale, pose.endScale, phase);

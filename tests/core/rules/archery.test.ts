@@ -367,3 +367,9 @@ describe('skinning', () => {
     expect(skinningRefusal({ ...can(), hunter: { ...can().hunter, grounded: false } }, false)).toBe('hunting.skin_need_footing');
   });
 });
+
+describe('a carcass settling', () => {
+  it('falls for under a second before the body that draws it is measured where it rests', () => {
+    expect(SKINNING.collapseSeconds).toBe(0.9);
+  });
+});

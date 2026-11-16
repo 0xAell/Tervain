@@ -35,6 +35,13 @@ export const CARRY = {
 /** Cargo he walks onto: he steps up as high as onto anything else (m), over an edge at least this wide (m). */
 export const CARGO_STEP = { height: STEP_HEIGHT, width: 0.25 } as const;
 
+/**
+ * How loose cargo moves once it is shoved, dropped or thrown: its sliding friction and bounce, the damping of its motion
+ * and of its turning (per second), and the weight of the wanderer as what pushes it (kg). These decide where a barrel
+ * or a crate comes to rest; an engine's own simulation starts from them.
+ */
+export const CARGO_BODY = { friction: 0.72, restitution: 0.08, linearDamping: 0.12, angularDamping: 0.35, pusherMass: 80 } as const;
+
 interface Point { x: number; y: number; z: number }
 
 /** Where he reaches from. */

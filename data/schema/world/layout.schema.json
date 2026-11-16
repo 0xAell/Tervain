@@ -1317,11 +1317,23 @@
             },
             "z": {
               "type": "number"
+            },
+            "halfWidth": {
+              "type": "number"
+            },
+            "halfDepth": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
             }
           },
           "required": [
             "x",
-            "z"
+            "z",
+            "halfWidth",
+            "halfDepth",
+            "height"
           ],
           "additionalProperties": false
         },

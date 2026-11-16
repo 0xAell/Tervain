@@ -212,6 +212,13 @@
     "step": {
       "height": 0.8,
       "width": 0.25
+    },
+    "body": {
+      "friction": 0.72,
+      "restitution": 0.08,
+      "linearDamping": 0.12,
+      "angularDamping": 0.35,
+      "pusherMass": 80
     }
   },
   "shot": {
@@ -222,6 +229,7 @@
     "step": 0.008333,
     "woundedFleesBehind": 2,
     "skinning": {
+      "collapseSeconds": 0.9,
       "stanceSlack": 0.4,
       "eye": 0.95,
       "lift": 0.04,

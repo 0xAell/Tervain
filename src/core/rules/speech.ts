@@ -1,4 +1,5 @@
 import { BARKS } from '../content/npcs';
+import { VOICE_LINE_SECONDS } from '../content/voiceLengths';
 import { HERO_LINES, SCENE_REACH, SCENES, TALKS, VOICE_LINES, inHours, shown, type HeroCue, type Scene, type Speaker } from '../content/voice';
 import { evalAll } from '../game/state';
 import type { EncounterId, GameEvent, ItemId, NpcId, PlaceId, WorldState } from '../game/types';
@@ -99,8 +100,8 @@ export class SpeechDirector {
 
   constructor(private readonly hooks: SpeechHooks) {}
 
-  /** How long a line's recording lasts (s), if it has one. Whoever holds the recordings says. */
-  protected recorded(_line: string): number | undefined { return undefined; }
+  /** How long a line's recording lasts (s), if it has one: the core's table of the recordings (content/voiceLengths.ts). */
+  protected recorded(line: string): number | undefined { return VOICE_LINE_SECONDS[line]; }
 
   /** Seconds until this speaker has finished what they are saying (0 when quiet). */
   busyFor(speaker: Speaker): number {
