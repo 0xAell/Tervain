@@ -130,6 +130,12 @@ describe('saving', () => {
     expect(savingAllowed({ playing: true, paused: false, worldReady: false }), 'between worlds').toBe(false);
   });
 
+  it('never happens in a capture, whose staged journey would write over the player’s own saves', () => {
+    expect(savingAllowed({ playing: true, paused: false, worldReady: true, capture: true })).toBe(false);
+    expect(savingAllowed({ playing: true, paused: false, worldReady: true, capture: false })).toBe(true);
+    for (const moment of AUTOSAVE_MOMENTS) expect(autosaveAt(moment, { playing: true, paused: false, begun: true, capture: true }), moment).toEqual({ save: false, movesWaking: false });
+  });
+
   it('writes the three hand slots by hand; the auto and quick slots are the game’s and the quick key’s, and all load', () => {
     expect(SAVE_SLOTS).toEqual(['auto', 'quick', 'slot-1', 'slot-2', 'slot-3']);
     expect(HAND_SAVE_SLOTS).toEqual(SAVE_SLOTS.filter((slot) => slot !== 'auto' && slot !== 'quick'));

@@ -189,9 +189,13 @@ export const SAVE_SLOTS = ['auto', 'quick', 'slot-1', 'slot-2', 'slot-3'] as con
 export type SaveSlot = (typeof SAVE_SLOTS)[number];
 export const HAND_SAVE_SLOTS: readonly SaveSlot[] = ['slot-1', 'slot-2', 'slot-3'];
 
-/** The journey is saved, by hand, by the quick key or by itself, only while he plays: not while he lies fallen, not paused, not between worlds. */
-export function savingAllowed(facts: { playing: boolean; paused: boolean; worldReady?: boolean }): boolean {
-  return facts.playing && !facts.paused && facts.worldReady !== false;
+/**
+ * The journey is saved, by hand, by the quick key or by itself, only while he plays: not while he lies fallen, not
+ * paused, not between worlds. A capture (a run started by a tool to take pictures or measure) never saves: its journey
+ * is staged, and it would write over the player's own saves on that machine.
+ */
+export function savingAllowed(facts: { playing: boolean; paused: boolean; worldReady?: boolean; capture?: boolean }): boolean {
+  return facts.playing && !facts.paused && facts.worldReady !== false && facts.capture !== true;
 }
 
 /**
@@ -208,7 +212,7 @@ export type AutosaveMoment = (typeof AUTOSAVE_MOMENTS)[number];
  * journey has begun (`journeyBegun`), so a new run that has done nothing yet keeps an earlier save, and leave where he
  * wakes alone.
  */
-export function autosaveAt(moment: AutosaveMoment, facts: { playing: boolean; paused: boolean; begun: boolean }): { save: boolean; movesWaking: boolean } {
+export function autosaveAt(moment: AutosaveMoment, facts: { playing: boolean; paused: boolean; begun: boolean; capture?: boolean }): { save: boolean; movesWaking: boolean } {
   const allowed = savingAllowed(facts);
   return moment === 'story' ? { save: allowed, movesWaking: allowed } : { save: allowed && facts.begun, movesWaking: false };
 }
