@@ -98,9 +98,6 @@ who calls out at a trespass; and values the scene had typed again instead of rea
 
 A third reading found more. Each is to be lifted, or its data exported, in a pull request of its own:
 
-- **Who saw a trespass**: whether a witness's line of sight is clear is decided in `src/app.ts`.
-- **Body sizes**: a resident's and a hostile's height, and an animal's width, are taken from their models where the
-  core's rules use them for routes, beds and homes.
 - **Props at copied coordinates**: benches, the kit table and the noticeboard stand at positions typed again from the
   core's layout; and a few small values (the walk grid's widths, the heal key's item, a copy of the night rule in
   sound, the physics module's fallback heights, which animals graze, a resident's time to stand, the moments of a
@@ -127,7 +124,10 @@ What stays in the scene layer, and why it is not a rule of the game:
 - **Which device does what** (`platform/input.ts`): with the bow in hand a gamepad's right trigger draws instead of
   running, and the quick save and load keys are read only while he plays. That is input mapping; a port sets its own
   in its input contexts.
-- **A resident's height as others' obstacle** (`src/app.ts`): the drawn figure's height; their width is the core's.
+- **A body's measured size**: a resident's, a hostile's and an animal's height, and an animal's width, are measured
+  from the drawn figure, which is drawn at the size the core gives (`figureScale`, `banditScale`, `ENEMY_FIGURE`; an
+  animal's home is sought with `ANIMAL_HOME_MARGIN` round it). The core's rules for routes, beds and homes take the
+  measured body as an input, as they take the ground; a port passes its characters' capsules.
 
 What else is there is presentation: meshes, materials and shaders, rigs and poses, effects, the interface, playing
 sound, loading, and reading input devices.

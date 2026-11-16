@@ -33,3 +33,9 @@ export const ENEMY_IDLE_YAW = 1.2;
 export const ENEMY_POST_YAW: Partial<Record<EncounterId, number>> = { ford_bandit_b: 4.0 };
 /** Which of the two bandit figures stands at each post. */
 export const ENEMY_VARIANT: Partial<Record<EncounterId, number>> = { ford_bandit_b: 1 };
+
+/** A bandit's figure is drawn this much larger than its model, and each variant this much more; the Thornback stands this tall (m). */
+export const ENEMY_FIGURE = { banditScale: 1.04, perVariant: 0.05, thornbackHeight: 1.4 } as const;
+
+/** How much larger a bandit of `variant` is drawn than its model; its height as a body is the drawn figure's. */
+export const banditScale = (variant: number): number => ENEMY_FIGURE.banditScale + variant * ENEMY_FIGURE.perVariant;

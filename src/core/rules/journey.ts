@@ -1,4 +1,5 @@
 import type { NpcId } from '../game/types';
+import type { Colliders } from '../world/colliders';
 
 /**
  * Rules of the journey as a whole: when it is saved, what happens when the wanderer falls, where he comes back, what
@@ -51,9 +52,25 @@ export const UNDER_WORLD = { depth: 1.2, seconds: 0.35 } as const;
 export const WITNESSES: readonly NpcId[] = ['shrine_warden', 'spring_steward'];
 export const WITNESS_REACH = 15;
 
-/** Whether this resident, `distance` from the act, could have seen it; line of sight is the caller's to check. */
+/** Whether this resident, `distance` from the act, could have seen it, before line of sight (witnessesOf asks that too). */
 export function couldWitness(id: NpcId, distance: number, present: boolean, asleep: boolean, available: boolean): boolean {
   return present && !asleep && available && WITNESSES.includes(id) && distance <= WITNESS_REACH;
+}
+
+/** A resident as a possible witness. */
+export interface WitnessFacts { id: NpcId; x: number; z: number; present: boolean; asleep: boolean; available: boolean }
+
+/**
+ * Who saw an act at (x, z): those who could witness it (couldWitness) with nothing that stands in the way between them
+ * and it, judged on the ground plan: any active obstacle on the line hides the act, whatever its height.
+ */
+export function witnessesOf(x: number, z: number, residents: Iterable<WitnessFacts>, colliders: Pick<Colliders, 'segmentBlocked'>): NpcId[] {
+  const seen: NpcId[] = [];
+  for (const n of residents) {
+    if (!couldWitness(n.id, Math.hypot(n.x - x, n.z - z), n.present, n.asleep, n.available)) continue;
+    if (!colliders.segmentBlocked(n.x, n.z, x, z, new Set<string>())) seen.push(n.id);
+  }
+  return seen;
 }
 
 /** Two residents' talk is overheard from within this distance of the midpoint between them (m). */

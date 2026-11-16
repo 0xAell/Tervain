@@ -76,6 +76,9 @@ export const ANIMAL_SENSES: Record<AnimalSpecies, { notice: number; flee: number
   deer: { notice: 16, flee: 10 },
 };
 
+/** An animal's home is sought for its drawn footprint and this much more each way (m). */
+export const ANIMAL_HOME_MARGIN = 0.14;
+
 /** How long an animal holds a gesture before it moves on (s). The supplied models' clips run exactly this long, and a port's montages keep it. */
 export const ANIMAL_GESTURE_SECONDS: Readonly<Record<'Alert' | 'Call' | 'Groom', number>> = { Alert: 2, Call: 4, Groom: 4 };
 
