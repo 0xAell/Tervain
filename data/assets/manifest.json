@@ -17,7 +17,7 @@
     "up": "Z",
     "handedness": "left-handed",
     "forward": "+X",
-    "import": "glTF sources are metres, Y up, right-handed; Unreal’s glTF import converts them (positions ×100, Y and Z exchanged)",
+    "import": "glTF sources are metres, Y up, right-handed; Unreal’s glTF import is expected to convert them (positions ×100, Y and Z exchanged), which no page read states: check it on the first import",
     "contentRoot": "/Game/Tervain",
     "prefixes": {
       "StaticMesh": "SM_",
@@ -33,11 +33,12 @@
       "albedo": "_D",
       "color": "_D",
       "normal": "_N",
-      "data": "_ORM"
+      "data": "_M",
+      "orm": "_ORM"
     },
     "prefixSource": "SM_, SK_, T_, M_, MI_, AS_ and DT_ are from Epic’s recommended asset naming conventions; SW_ for sound waves and the texture suffixes are this project’s, as Epic’s page lists none",
     "naming": "Epic’s pattern [AssetTypePrefix]_[AssetName]_[Descriptor]_[OptionalVariantLetterOrNumber], here as [Prefix]_[Family]_[Name] in PascalCase, one asset per name",
-    "lod": "The near, middle and far files of one tree or figure are LOD0, LOD1 and LOD2 of one mesh, never three assets. Imported LOD meshes are named <Asset>_LOD0, _LOD1, _LOD2."
+    "lod": "The near, middle and far files of one tree are LOD0, LOD1 and LOD2 of one mesh, never three assets. A file that is a model’s only level is its LOD0. Imported LOD meshes are named <Asset>_LOD0, _LOD1, _LOD2."
   },
   "totals": {
     "all": {
@@ -54,8 +55,8 @@
     },
     "byPlan": {
       "replace": {
-        "files": 189,
-        "bytes": 212698778
+        "files": 188,
+        "bytes": 212685989
       },
       "keep": {
         "files": 595,
@@ -66,8 +67,8 @@
         "bytes": 0
       },
       "drop": {
-        "files": 886,
-        "bytes": 123501914
+        "files": 887,
+        "bytes": 123514703
       }
     }
   },
@@ -1040,12 +1041,25 @@
       "bytes": 4688
     },
     {
-      "id": "leaf-atlases",
-      "title": "Leaf atlases",
+      "id": "leaf-atlas-manifest",
+      "title": "Leaf atlas manifest",
+      "role": "foliage-texture",
+      "plan": "drop",
+      "why": "Sizes, hashes and the cell layout for the web build’s leaf loader.",
+      "source": "Written by tools/leaf-atlas/build.mjs.",
+      "fab": null,
+      "replaceWith": null,
+      "replaceBeforeShip": null,
+      "files": 1,
+      "bytes": 12789
+    },
+    {
+      "id": "leaf-atlas-fir",
+      "title": "Fir leaf atlas",
       "role": "foliage-texture",
       "plan": "replace",
-      "why": "Leaf cards cut for the web build’s crowns from the supplied trees’ textures. Replaced together with the trees.",
-      "source": "Built by tools/leaf-atlas from the supplied tree textures.",
+      "why": "The supplied fir’s needle sheet redrawn needle by needle in its own layout, inside its alpha mask and from its colour, for the web build’s fir crowns. Replaced together with the trees.",
+      "source": "Built by tools/leaf-atlas from the needle sheet of the supplied fir model (public/models/flora/meshy-012/fir-spire-near.glb), whose licence it carries.",
       "fab": "trees",
       "replaceWith": {
         "title": "Megaplants: English Oak",
@@ -1076,8 +1090,48 @@
         }
       },
       "replaceBeforeShip": null,
-      "files": 7,
-      "bytes": 8650619
+      "files": 2,
+      "bytes": 3900576
+    },
+    {
+      "id": "leaf-atlases",
+      "title": "Leaf atlases",
+      "role": "foliage-texture",
+      "plan": "replace",
+      "why": "Leaf cards drawn in code for the web build’s broadleaf and conifer crowns. Replaced together with the trees.",
+      "source": "Drawn by tools/leaf-atlas (broadleaf.mjs, conifer.mjs) from no source image; project-original.",
+      "fab": "trees",
+      "replaceWith": {
+        "title": "Megaplants: English Oak",
+        "publisher": "Quixel Megaplants",
+        "url": "https://www.fab.com/listings/83642c38-7661-4df1-8629-0422e1898d26",
+        "engine": "5.7 to 5.8",
+        "price": {
+          "personal": 0,
+          "professional": 0,
+          "currency": "USD"
+        },
+        "verified": "listing page",
+        "checked": "2026-11-15",
+        "reason": "The exact species of the game’s woods (oak, with birch, pine and spruce in the same series), free. They need Nanite and list 5.7 and 5.8 on Windows only, so the LOD-based Megascans Trees stand in on the web target, with the palm and apple packs for the kinds neither series has.",
+        "with": [],
+        "webTarget": {
+          "title": "European Beech",
+          "publisher": "Quixel Megascans",
+          "url": "https://www.fab.com/listings/d11cc01d-9422-41b7-950f-416c9ce79caf",
+          "engine": "5.1 to 5.6",
+          "price": {
+            "personal": 0,
+            "professional": 0,
+            "currency": "USD"
+          },
+          "verified": "listing page",
+          "checked": "2026-11-15"
+        }
+      },
+      "replaceBeforeShip": null,
+      "files": 4,
+      "bytes": 4737254
     },
     {
       "id": "emblem",
@@ -28752,8 +28806,8 @@
       "sha256": "56f88cccffcb8fdc5bf00973f7113880f217da88cd1d5342c38f5acbf0899fa8",
       "shipped": true,
       "licence": {
-        "id": "CC0-1.0",
-        "status": "owner-recollection"
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
       },
       "plan": "replace",
       "replaceWith": "Megaplants: English Oak",
@@ -28772,15 +28826,15 @@
       "sha256": "ff4f95eb6d99007ab5a2e0e8e1203420cf97c5862bb9035aaa59a754343fee34",
       "shipped": true,
       "licence": {
-        "id": "CC0-1.0",
-        "status": "owner-recollection"
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
       },
       "plan": "replace",
       "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
-        "name": "T_Leaf_Broadleaf_ORM",
+        "name": "T_Leaf_Broadleaf_M",
         "lod": null
       }
     },
@@ -28792,8 +28846,8 @@
       "sha256": "c6b92eda9a9f1f98fd8902186dcb4416dacb4c0dd19f4e3f5365b9252e97aaf2",
       "shipped": true,
       "licence": {
-        "id": "CC0-1.0",
-        "status": "owner-recollection"
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
       },
       "plan": "replace",
       "replaceWith": "Megaplants: English Oak",
@@ -28812,28 +28866,28 @@
       "sha256": "59f758cc8e065a7373d837a749391a717c86d79ed06c5c5b1c07429fd84c3dbb",
       "shipped": true,
       "licence": {
-        "id": "CC0-1.0",
-        "status": "owner-recollection"
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
       },
       "plan": "replace",
       "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
-        "name": "T_Leaf_Conifer_ORM",
+        "name": "T_Leaf_Conifer_M",
         "lod": null
       }
     },
     {
       "path": "public/textures/leaf/fir-color.webp",
-      "group": "leaf-atlases",
+      "group": "leaf-atlas-fir",
       "kind": "texture",
       "bytes": 1056284,
       "sha256": "34575e89397403c70b4c4dd43e03cdcef493f4660f5186986625b33704dd8cf4",
       "shipped": true,
       "licence": {
         "id": "CC0-1.0",
-        "status": "owner-recollection"
+        "status": "meshy-community-cc0"
       },
       "plan": "replace",
       "replaceWith": "Megaplants: English Oak",
@@ -28846,43 +28900,37 @@
     },
     {
       "path": "public/textures/leaf/fir-data.webp",
-      "group": "leaf-atlases",
+      "group": "leaf-atlas-fir",
       "kind": "texture",
       "bytes": 2844292,
       "sha256": "7ebe9a27cd93c64728ff83da7dc051520f15ae40c11628e15c6c30186f028fc8",
       "shipped": true,
       "licence": {
         "id": "CC0-1.0",
-        "status": "owner-recollection"
+        "status": "meshy-community-cc0"
       },
       "plan": "replace",
       "replaceWith": "Megaplants: English Oak",
       "unreal": {
         "type": "Texture",
         "folder": "/Game/Tervain/Flora/Textures",
-        "name": "T_Leaf_Fir_ORM",
+        "name": "T_Leaf_Fir_M",
         "lod": null
       }
     },
     {
       "path": "public/textures/leaf/manifest.json",
-      "group": "leaf-atlases",
+      "group": "leaf-atlas-manifest",
       "kind": "data",
       "bytes": 12789,
       "sha256": "b75010c56faafb3fa971c94846bf9b45dc547bf567d4248490a1ef52aded8f43",
       "shipped": true,
       "licence": {
-        "id": "CC0-1.0",
-        "status": "owner-recollection"
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
       },
-      "plan": "replace",
-      "replaceWith": "Megaplants: English Oak",
-      "unreal": {
-        "type": "Texture",
-        "folder": "/Game/Tervain/Flora/Textures",
-        "name": "T_Leaf_Manifest",
-        "lod": null
-      }
+      "plan": "drop",
+      "unreal": null
     }
   ]
 }

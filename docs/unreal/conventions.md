@@ -96,7 +96,7 @@ as `[Prefix]_[Family]_[Name]` in PascalCase under `/Game/Tervain`.
 | Niagara system, emitter | `FXS_`, `FXE_` | Epic |
 | Enum, structure (Blueprint assets) | `E_`, `F_` | Epic |
 | Sound wave | `SW_` | this project (Epic's page lists none for sounds) |
-| Texture suffixes: base colour, normal, packed occlusion-roughness-metallic | `_D`, `_N`, `_ORM` | this project (Epic gives the descriptor slot but no list) |
+| Texture suffixes: base colour, normal, packed mask, packed occlusion-roughness-metallic | `_D`, `_N`, `_M`, `_ORM` | this project (Epic gives the descriptor slot but no list) |
 
 C++ types follow the engine's own prefixes: `F` for structs, `E` for enums, `U` and `A` for object and actor classes,
 `b` for booleans. Everything of this project is prefixed `Tervain`: `FTervainItemRow`, `ETervainActivity`,
@@ -109,7 +109,8 @@ Suggested folders under `/Game/Tervain`: `Architecture`, `Animals`, `Audio` (`Vo
 ## Levels of detail
 
 The web build ships three files per tree (near, middle, far). In Unreal they are `LOD0`, `LOD1` and `LOD2` of **one**
-static mesh, never three assets; the manifest records the level for each file. Models bought to replace them bring
+static mesh, never three assets; the manifest records the level for each file, and a file that is a model's only level
+is its `LOD0`. Imported LOD meshes are named `<Asset>_LOD0`, `_LOD1` and `_LOD2`. Models bought to replace them bring
 their own LODs.
 
 The web target uses the mobile renderer, which has no Nanite (see [the web target](web-target.md)). Anything meant to

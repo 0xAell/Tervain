@@ -25,8 +25,12 @@ export const UNREAL_PREFIX = {
   DataTable: 'DT_', SoundWave: 'SW_',
 };
 
-/** Texture-name suffixes by what the texture holds. Epic's page gives the pattern but no suffix list; these are this project's. */
-export const TEXTURE_SUFFIX = { albedo: '_D', color: '_D', normal: '_N', data: '_ORM' };
+/**
+ * Texture-name suffixes by what the texture holds. Epic's page gives the pattern but no suffix list; these are this
+ * project's. A leaf atlas's `-data` image is a packed mask (red alpha, green thickness, blue underside gain), so `_M`;
+ * `_ORM` is kept for packed occlusion, roughness and metallic, which no file here holds yet.
+ */
+export const TEXTURE_SUFFIX = { albedo: '_D', color: '_D', normal: '_N', data: '_M', orm: '_ORM' };
 
 /** PascalCase from any file name: every run of letters and digits becomes a capitalised part. */
 const pascal = (text) => text.split(/[^A-Za-z0-9]+/).filter(Boolean).map((part) => part[0].toUpperCase() + part.slice(1)).join('');
@@ -150,9 +154,23 @@ export const GROUPS = [
     licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' }, unreal: none,
   },
   {
+    id: 'leaf-atlas-manifest', title: 'Leaf atlas manifest', kind: 'data', role: 'foliage-texture', match: /^public\/textures\/leaf\/manifest\.json$/,
+    plan: 'drop', fab: null, why: 'Sizes, hashes and the cell layout for the web build’s leaf loader.', source: 'Written by tools/leaf-atlas/build.mjs.',
+    licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' }, unreal: none,
+  },
+  {
+    id: 'leaf-atlas-fir', title: 'Fir leaf atlas', kind: 'texture', role: 'foliage-texture', match: /^public\/textures\/leaf\/fir-/,
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech', packWhy: TREES_WHY,
+    why: 'The supplied fir’s needle sheet redrawn needle by needle in its own layout, inside its alpha mask and from its colour, for the web build’s fir crowns. Replaced together with the trees.',
+    source: 'Built by tools/leaf-atlas from the needle sheet of the supplied fir model (public/models/flora/meshy-012/fir-spire-near.glb), whose licence it carries.',
+    licence: { id: 'CC0-1.0', status: 'meshy-community-cc0' },
+    unreal: texture('/Game/Tervain/Flora/Textures', (base) => `Leaf_${pascal(base)}`),
+  },
+  {
     id: 'leaf-atlases', title: 'Leaf atlases', kind: 'texture', role: 'foliage-texture', match: /^public\/textures\/leaf\//,
-    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech', packWhy: TREES_WHY, why: 'Leaf cards cut for the web build’s crowns from the supplied trees’ textures. Replaced together with the trees.',
-    source: 'Built by tools/leaf-atlas from the supplied tree textures.', licence: { id: 'CC0-1.0', status: 'owner-recollection' },
+    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech', packWhy: TREES_WHY,
+    why: 'Leaf cards drawn in code for the web build’s broadleaf and conifer crowns. Replaced together with the trees.',
+    source: 'Drawn by tools/leaf-atlas (broadleaf.mjs, conifer.mjs) from no source image; project-original.', licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
     unreal: texture('/Game/Tervain/Flora/Textures', (base) => `Leaf_${pascal(base)}`),
   },
   {

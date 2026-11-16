@@ -100,11 +100,11 @@ export function buildManifest(directory = root) {
       decided: BEFORE_SHIP_DECIDED, by: 'the project owner',
     },
     unrealConventions: {
-      units: 'centimetres', up: 'Z', handedness: 'left-handed', forward: '+X', import: 'glTF sources are metres, Y up, right-handed; Unreal’s glTF import converts them (positions ×100, Y and Z exchanged)',
+      units: 'centimetres', up: 'Z', handedness: 'left-handed', forward: '+X', import: 'glTF sources are metres, Y up, right-handed; Unreal’s glTF import is expected to convert them (positions ×100, Y and Z exchanged), which no page read states: check it on the first import',
       contentRoot: '/Game/Tervain', prefixes: UNREAL_PREFIX, textureSuffixes: TEXTURE_SUFFIX,
       prefixSource: 'SM_, SK_, T_, M_, MI_, AS_ and DT_ are from Epic’s recommended asset naming conventions; SW_ for sound waves and the texture suffixes are this project’s, as Epic’s page lists none',
       naming: 'Epic’s pattern [AssetTypePrefix]_[AssetName]_[Descriptor]_[OptionalVariantLetterOrNumber], here as [Prefix]_[Family]_[Name] in PascalCase, one asset per name',
-      lod: 'The near, middle and far files of one tree or figure are LOD0, LOD1 and LOD2 of one mesh, never three assets. Imported LOD meshes are named <Asset>_LOD0, _LOD1, _LOD2.',
+      lod: 'The near, middle and far files of one tree are LOD0, LOD1 and LOD2 of one mesh, never three assets. A file that is a model’s only level is its LOD0. Imported LOD meshes are named <Asset>_LOD0, _LOD1, _LOD2.',
     },
     totals: { all: total(() => true), shipped: total((asset) => asset.shipped), replaceBeforeShip: total((asset) => asset.replaceBeforeShip === true), byPlan: Object.fromEntries(['replace', 'keep', 'rework', 'drop'].map((plan) => [plan, total((asset) => asset.plan === plan)])) },
     fab: FAB,
