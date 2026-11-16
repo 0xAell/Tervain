@@ -7,7 +7,7 @@ score says so. It replaces the review of 15 November, which scored 8, 9, 9, 8 an
 
 | Requirement | Score | In one line |
 | --- | --- | --- |
-| [Engine-agnostic core](#1-engine-agnostic-core) | 10 / 10 | Every rule of the game is in the core, with a boundary CI enforces. After four readings of the scene layer, nothing known to decide play is left there. |
+| [Engine-agnostic core](#1-engine-agnostic-core) | 10 / 10 | Every rule of the game is in the core, with a boundary CI enforces. After five readings of the scene layer, the last an adversarial one checked by a clean-checkout audit, nothing known to decide play is left there. |
 | [Asset manifest](#2-asset-manifest) | 10 / 10 | Every file has a source, a licence, a size and a plan, and every one to be replaced names its pack. Files with an open question are replaced before anything ships. |
 | [Unreal mapping documents](#3-unreal-mapping-documents) | 10 / 10 | Every quotation is checked against its page and every number against the data. The one page no tool can read is cited, never quoted. |
 | [C++ skeleton](#4-c-skeleton) | 9 / 10 | It compiles, links and runs against stand-ins, cannot drift from the core unnoticed, and every engine name it assumes is entered with its evidence. It has never been built by the engine: that build is the ceiling. |
@@ -19,7 +19,7 @@ score says so. It replaces the review of 15 November, which scored 8, 9, 9, 8 an
 
 What is there:
 
-- [`src/core`](../../src/core/README.md): 109 files holding the game's state and commands, its content tables, its
+- [`src/core`](../../src/core/README.md): 110 files holding the game's state and commands, its content tables, its
   rules and its world, with no import outside the folder. [`tests/core/boundary.test.ts`](../../tests/core/boundary.test.ts)
   reads every import and fails on one that leaves, and `npm run typecheck` compiles the core a second time on its own
   against the ECMAScript library alone (`tsconfig.core.json`), so a use of the DOM or of Node does not compile.
@@ -31,12 +31,19 @@ What is there:
   `npm run data:check` fails in CI when `data/` is not what the core writes today. The export carries what is played, not only what is authored: the forest as the web build
   plants it, the stones and the rock piles laid round it, the props the rules lean on, and how long each spoken line
   lasts.
-- The scene layer was read end to end four times for anything that still decides how the game plays. Each reading's
-  findings were lifted in pull requests of their own, without a change in the budget gate's figures; the last reading
-  found no rule of the quest, combat, saving or interaction left, and its few small findings were lifted too.
+- The scene layer was read end to end five times for anything that still decides how the game plays, and each
+  reading's findings were lifted in pull requests of their own. The fifth, on 16 November 2026, read the scene and
+  rendering layer of `main` after [#832](https://github.com/ael-dev3/Tervain/pull/832) as an adversary would, with a clean-checkout audit of the same commit, and found
+  what the earlier four had passed over: the
+  camera's view deciding whether a figure was there at all (a toll-jumper walked up to in view never fought), the F3
+  panel's cheats shipping to every player, a capture able to save over a player's journey, a second rule for what runs
+  while play is held, the water clock's halt under reduced motion written down nowhere, a collider that followed a
+  figure's visibility rather than the core's rule, values typed again, a check made twice and six unused pieces of
+  code. All of it is lifted ([#835](https://github.com/ael-dev3/Tervain/pull/835), [#836](https://github.com/ael-dev3/Tervain/pull/836), [#837](https://github.com/ael-dev3/Tervain/pull/837)).
   [System mapping](system-mapping.md#still-in-the-scene-layer) names what stays in the scene layer and why none of it is
-  a rule of the game: the order of a step, what a ray meets, the camera's smoothing, when a model arrives, where the arrow
-  leaves the bow, where props stand, which device does what, a body's measured size and when the page is left.
+  a rule of the game: the order of a step, what a ray meets, the camera's smoothing, how a model loads, where the arrow
+  leaves the bow, where props stand, which device does what, a body's measured size, when the page is left and what the
+  tools reach.
 - Pull requests: [#775](https://github.com/ael-dev3/Tervain/pull/775),
   [#776](https://github.com/ael-dev3/Tervain/pull/776), [#777](https://github.com/ael-dev3/Tervain/pull/777),
   [#778](https://github.com/ael-dev3/Tervain/pull/778), [#784](https://github.com/ael-dev3/Tervain/pull/784),
@@ -52,7 +59,7 @@ What is there:
   [#825](https://github.com/ael-dev3/Tervain/pull/825), [#826](https://github.com/ael-dev3/Tervain/pull/826),
   [#827](https://github.com/ael-dev3/Tervain/pull/827), [#828](https://github.com/ael-dev3/Tervain/pull/828),
   [#829](https://github.com/ael-dev3/Tervain/pull/829), [#830](https://github.com/ael-dev3/Tervain/pull/830),
-  [#831](https://github.com/ael-dev3/Tervain/pull/831).
+  [#831](https://github.com/ael-dev3/Tervain/pull/831), [#835](https://github.com/ael-dev3/Tervain/pull/835), [#836](https://github.com/ael-dev3/Tervain/pull/836), [#837](https://github.com/ael-dev3/Tervain/pull/837).
 
 What is missing from a ten: nothing the repository can do. Porting the rules to C++ is the port's work, phase by phase
 in the [roadmap](roadmap.md); the seed mirrors two of them as a worked example.
@@ -64,8 +71,11 @@ in the [roadmap](roadmap.md); the seed mirrors two of them as a worked example.
 What is there:
 
 - [`data/assets/manifest.json`](../../data/assets/README.md): all 1,670 model, texture and sound files with source,
-  licence, size, the Unreal asset each would become, and a plan: 189 to replace, 595 to keep, 886 to drop. Everything
-  marked for replacement names a first-choice pack on Fab and the alternatives.
+  licence, size, the Unreal asset each would become, and a plan: 188 to replace, 595 to keep, 887 to drop. Everything
+  marked for replacement names a first-choice pack on Fab and the alternatives. Each asset's name says what it holds
+  and each family's source says how its files were made: the leaf atlases' masks are no longer named as packed
+  occlusion-roughness-metallic, only the fir's atlas, redrawn from a supplied model, carries that model's licence, and
+  no loader manifest becomes an asset ([#834](https://github.com/ael-dev3/Tervain/pull/834)).
 - The manifest is generated (`npm run assets:manifest`), has a schema, and `npm run assets:check` fails in CI when it
   no longer matches the files on disk.
 - The 27 Fab listings it names were read on their own pages: price, licence tier, engine versions, publisher
@@ -75,7 +85,7 @@ What is there:
   each with a named pack, and the generator refuses a manifest that keeps such a file
   ([#801](https://github.com/ael-dev3/Tervain/pull/801)).
 - Pull requests: [#779](https://github.com/ael-dev3/Tervain/pull/779), [#786](https://github.com/ael-dev3/Tervain/pull/786),
-  [#789](https://github.com/ael-dev3/Tervain/pull/789), [#801](https://github.com/ael-dev3/Tervain/pull/801).
+  [#789](https://github.com/ael-dev3/Tervain/pull/789), [#801](https://github.com/ael-dev3/Tervain/pull/801), [#834](https://github.com/ael-dev3/Tervain/pull/834).
 
 What a ten does not cover: whether each pack's levels of detail suit the mobile renderer can only be seen in the engine,
 in the port's Phase 5 before a pack replaces a stand-in; and the listings, read once, are to be read again before
@@ -100,8 +110,13 @@ What is there:
 - The one source no tool here can read, Epic's post on Unreal Engine 6, answers every automated reader with a security
   check, a headless browser included. The documents take nothing from it: they link it, say it could not be read, and
   quote only what users of Epic's forum report of it, from a thread read on its page.
+- On 16 November 2026 every document under `docs/unreal`, with the seed's and the data's READMEs, was read against the
+  code as it stands, and what had gone stale or said more than its evidence was corrected: what the seed's build is,
+  which documents the checks cover, the ids header's groups, the glTF import's axes (an assumption, now marked so), the
+  quick slots, the source build the preview asks for, and four of the preview's known issues now quoted from registered
+  passages ([#833](https://github.com/ael-dev3/Tervain/pull/833)).
 - Pull requests: [#780](https://github.com/ael-dev3/Tervain/pull/780), [#794](https://github.com/ael-dev3/Tervain/pull/794),
-  [#814](https://github.com/ael-dev3/Tervain/pull/814).
+  [#814](https://github.com/ael-dev3/Tervain/pull/814), [#833](https://github.com/ael-dev3/Tervain/pull/833).
 
 What a ten does not cover: Unreal Engine 5.9 is a preview, and what is written about its web target can change at
 release; `npm run docs:sources` is to be run again then, and the web target page corrected.
@@ -151,7 +166,11 @@ What is there:
   ([#782](https://github.com/ael-dev3/Tervain/pull/782), [#783](https://github.com/ael-dev3/Tervain/pull/783)). The two
   pieces of scene code that were built and tested but unused, the prepared broadleaf and the asset library hook, went
   with the records and tests that named them ([#805](https://github.com/ael-dev3/Tervain/pull/805)). No exported name in
-  the game's source is left that nothing else in the repository refers to.
+  the game's source is left that nothing else in the repository refers to, and the six unused members and values the
+  fifth reading found inside the scene code went too ([#837](https://github.com/ael-dev3/Tervain/pull/837)).
+- The teaser is intact: its film and poster under `docs/media/teaser` are the same files, to the byte, as before this
+  rework began, and the film decodes from end to end as its record describes it (44.9 s, 1920 × 1080 at 60 frames a
+  second, H.264 with AAC sound).
 - Private material removed from the tree: personal paths, account wording, tool and working-branch names, in the game's
   documents and in the separate Gothic 3 study ([#785](https://github.com/ael-dev3/Tervain/pull/785),
   [#787](https://github.com/ael-dev3/Tervain/pull/787), [#788](https://github.com/ael-dev3/Tervain/pull/788)).
@@ -168,7 +187,7 @@ What is there:
 
 - **The play gate.** Every pull request above passed it: on its head, the game drew no more draw calls and triangles than
   the live build and logged no console error. From [#800](https://github.com/ael-dev3/Tervain/pull/800) on, every lift
-  left the figures where they were: 284 draw calls and 2,915,743 triangles. Its chance failures had one cause, found
+  left the figures where they were, through [#837](https://github.com/ael-dev3/Tervain/pull/837): 284 draw calls and 2,915,743 triangles. Its chance failures had one cause, found
   on 15 November 2026: on a software renderer the game's first view can outlast the browser's GPU watchdog, which kills
   the GPU process. The gate now starts its browser without the watchdog
   ([#791](https://github.com/ael-dev3/Tervain/pull/791), [#793](https://github.com/ael-dev3/Tervain/pull/793);
@@ -180,10 +199,14 @@ What is there:
   ([#806](https://github.com/ael-dev3/Tervain/pull/806)). The hero-turn test's one failure was a timeout, not a pose:
   locally a test had five seconds, in CI ninety, and the machine was busy. The game's tests now have one limit wherever
   they run ([#808](https://github.com/ael-dev3/Tervain/pull/808)).
-- **A clean checkout.** A fresh clone of `main` after [#831](https://github.com/ael-dev3/Tervain/pull/831) (82,543
-  files), installed from the lockfile, typechecks, passes the data, manifest and Unreal checks, builds, and passes the
-  whole test suite of both projects: 554 files, 5,455 tests. `npm audit` finds no vulnerability, development tools
-  included.
+- **A clean checkout.** A fresh clone of `main` after [#837](https://github.com/ael-dev3/Tervain/pull/837) (82,546 files), installed from the lockfile,
+  typechecks, passes the data, manifest and Unreal checks, builds, and passes the whole test suite of both projects:
+  556 files, 5,461 tests. `npm audit` finds no vulnerability, development tools included. The same audit of `main`
+  after [#832](https://github.com/ael-dev3/Tervain/pull/832), before the fifth reading, had passed too (554 files, 5,456 tests).
+- **No dead code.** Of the 2,482 names the game's source exports, none is left that nothing refers to (409 are used
+  only in their own file). The compiler's checks for unused locals and parameters, on in `tsconfig.json`, find none.
+  A scan for class fields that are written and never read found seven candidates, and none is dead: four are counters
+  read as they count, and three are read by the subclasses that draw the figures.
 - **The published build.** After every deploy, CI plays the live build: it must load, draw, pause and resume, walk and
   log no error (`npm run smoke:live`, [#797](https://github.com/ael-dev3/Tervain/pull/797)). The deploy and that check
   passed after every merge from [#797](https://github.com/ael-dev3/Tervain/pull/797) on.

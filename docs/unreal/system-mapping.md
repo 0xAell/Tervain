@@ -109,7 +109,18 @@ a carcass falls before it may be skinned (`SKINNING.collapseSeconds`), how long 
 the exchanges and scenes and is now exported (`VOICE_LINE_SECONDS`), what goes on during a blow's hold and a fall
 (`WHAT_RUNS`), how loose cargo slides and settles (`CARGO_BODY`), the silent residents' looks and heights, the kit
 table's footprint, and three values typed again (the quick-slot count, the arrow's speed, the toll-jumper's size).
-Nothing known to decide play is left in the scene layer.
+
+A fifth reading, on 16 November 2026, read the scene and rendering layer as an adversary would, alongside a
+clean-checkout audit of the same commit, and found what the earlier ones had passed over; all of it has been lifted. The camera's view decided whether a
+figure was there at all: a model changed over only out of view, and a figure on its way does nothing, so a toll-jumper
+walked up to in view never fought (`arrivesInView`). The F3 panel offered every player teleporting and the quest's
+shortcuts, and a capture could save over a player's journey (`testControlsOffered`, `savingAllowed`). The app decided a
+second time what runs while play is held (now `WHAT_RUNS` again); the water clock's halt under reduced motion, which
+stills the swell he swims in, was a choice no one had written down (now said and tested in the core); the silent
+residents' collider followed their visibility rather than the core's rule; the physics binding typed the step's height
+and width again; and the app checked a threat that the interactable already rules out. Six unused pieces of code went
+with them. Nothing known to decide play is left in
+the scene layer.
 
 What stays in the scene layer, and why it is not a rule of the game:
 
