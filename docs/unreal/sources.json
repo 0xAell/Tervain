@@ -1,6 +1,6 @@
 {
   "about": "Where the statements about Unreal Engine and Fab in docs/unreal come from. Each source says whether it was read on its own page or only seen in a search result; each passage is text of that source and names the documents that quote or rely on it (\"says\" is the document's wording where it is not a quotation). Table rows are rows of the source page with the cells the documents repeat. `node tools/check-doc-sources.mjs` fetches every page that was read and looks for each passage and row; tests/tooling/docSources.test.ts holds the register and the documents together.",
-  "checked": "2026-11-15",
+  "checked": "2026-11-16",
   "documents": [
     "README.md",
     "conventions.md",
@@ -725,10 +725,42 @@
     },
     {
       "source": "forum-5-9-preview",
-      "text": "work best on iOS 27",
+      "text": "UE-412148 - iOS: 5.9 Preview 1 web builds work best on iOS 27",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "The first preview's web builds \"work best on iOS 27\" (UE-412148)"
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "UE-411308, UE-411939 - Opening the packaged index.html from disk (file://)",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "Known issues UE-411308 and UE-411939"
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "Expect longer cook times and occasional performance issues as development continues.",
       "in": [
         "web-target.md"
       ]
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "Workaround: Reduce content usage",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "The workaround given: \"Reduce content usage\""
+    },
+    {
+      "source": "forum-5-9-preview",
+      "text": "Workaround: Use a source build on Mac/Linux to target the Wasm platform.",
+      "in": [
+        "web-target.md"
+      ],
+      "says": "\"Use a source build on Mac/Linux to target the Wasm platform\""
     },
     {
       "source": "third-party-web-tests",

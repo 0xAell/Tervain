@@ -1,6 +1,6 @@
 {
   "about": "Every engine name the Unreal seed (unreal/) and the stand-ins its tests compile it against (tests/tools/unreal-standin/) assume, each checked against Epic's public documentation, or, for a rule of the C++ language itself, against the C++20 working draft. The seed has never been built by the engine; this register says how far the public record supports each assumption, and what only a build can settle.",
-  "checked": "2026-11-15",
+  "checked": "2026-11-16",
   "reference": "Epic's documentation at dev.epicgames.com: the guides of the current version, and the C++ API reference of Unreal Engine 5.8, or of 5.5 and 5.7 where the 5.8 page leaves a detail out. The seed targets Unreal Engine 5.9, whose API reference was not published when this was checked. The reference prints signatures without default arguments, does not document macros, and drops a trailing const in its class tables. Epic's engine source is not public, so no header was read. Where an assumption is a rule of the C++ language rather than of the engine, it is checked against the C++20 working draft (N4861, in the cplusplus/draft repository on GitHub), the standard Epic's coding standard says the engine builds with.",
   "statuses": {
     "verified": "The quoted passage, on the page named, states or shows what is assumed: the name and, for a function, its parameters or the behaviour relied on.",

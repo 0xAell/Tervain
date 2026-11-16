@@ -6,7 +6,7 @@ Every engine name the Unreal seed (unreal/) and the stand-ins its tests compile 
 
 **How it was checked.** Epic's documentation at dev.epicgames.com: the guides of the current version, and the C++ API reference of Unreal Engine 5.8, or of 5.5 and 5.7 where the 5.8 page leaves a detail out. The seed targets Unreal Engine 5.9, whose API reference was not published when this was checked. The reference prints signatures without default arguments, does not document macros, and drops a trailing const in its class tables. Epic's engine source is not public, so no header was read. Where an assumption is a rule of the C++ language rather than of the engine, it is checked against the C++20 working draft (N4861, in the cplusplus/draft repository on GitHub), the standard Epic's coding standard says the engine builds with.
 
-Checked on 2026-11-15. The register, [engine-symbols.json](engine-symbols.json), holds for each name the files that use it, what is assumed, the page and the quoted passage. `npm run unreal:symbols` fails when the seed or a stand-in uses an engine name that is not entered; with `--online` it opens every page again and looks for each passage.
+Checked on 2026-11-16. The register, [engine-symbols.json](engine-symbols.json), holds for each name the files that use it, what is assumed, the page and the quoted passage. `npm run unreal:symbols` fails when the seed or a stand-in uses an engine name that is not entered; with `--online` it opens every page again and looks for each passage.
 
 | Status | Names | Meaning |
 | --- | ---: | --- |

@@ -15,7 +15,7 @@ import type { Terrain } from '../world/terrain';
  * members cannot drift apart. Positions are converted to Unreal's units and axes here, once.
  */
 
-/** Core metres (x east, y up, z south) to Unreal centimetres (X east, Y south, Z up): a left-handed frame, as glTF import gives. */
+/** Core metres (x east, y up, z south) to Unreal centimetres (X east, Y south, Z up): a left-handed frame, meant to match a glTF import (docs/unreal/conventions.md). */
 export const toUnreal = (x: number, y: number, z: number) => ({ X: round(x * 100), Y: round(z * 100), Z: round(y * 100) });
 /** A core yaw (radians, 0 faces +z, front = (sin, cos)) as an Unreal yaw in degrees for an asset whose forward is +X. */
 export const yawToUnreal = (yaw: number) => { const d = 90 - yaw * 180 / Math.PI; return round(((d + 180) % 360 + 360) % 360 - 180); };

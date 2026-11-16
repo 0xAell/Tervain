@@ -22,7 +22,7 @@ from Fab (`.gitignore` here ignores `Content/`).
 | `Source/Tervain.Target.cs`, `Source/TervainEditor.Target.cs` | Game and editor build targets. |
 | `Source/Tervain/Tervain.Build.cs` | The module's dependencies: Core, CoreUObject, Engine, DeveloperSettings, Json. |
 | `Source/Tervain/Public/Data/TervainRows.h` | **Generated.** One row struct per DataTable under `data/unreal/`, with the enums and nested structs they use. Written by `npm run data:export` from `src/core/export/unrealTables.ts`; do not edit it. |
-| `Source/Tervain/Public/Data/TervainIds.h` | **Generated.** The core's ids as constants: items, residents, hostiles and their posts, animal species, places, buildings, and the quest's phases, evidence, allocations, gate states and parties, with the save format version and content revision. Written by the same export from `src/core/export/unrealIds.ts`; do not edit it. Name an id through it (`FName(TervainIds::Item::Bread)`) so that an id the core renames stops the build instead of failing to find a row. |
+| `Source/Tervain/Public/Data/TervainIds.h` | **Generated.** The core's ids as constants: items, residents, hostiles and their posts, animal species, places, buildings, and the quest's phases, evidence, allocations, gate states, parties, principals and decision makers, with four single values: the save format version, the content revision, the number of quick slots and the pickup that gives the first weapon. Written by the same export from `src/core/export/unrealIds.ts`; do not edit it. Name an id through it (`FName(TervainIds::Item::Bread)`) so that an id the core renames stops the build instead of failing to find a row. |
 | `Source/Tervain/Public/TervainUnits.h` | Conversions between the core's units (metres, radians, x east, y up, z south) and Unreal's (centimetres, degrees, X east, Y south, Z up). |
 | `Source/Tervain/Public/TervainSettings.h` | Project settings: where the exported data folder is, and which DataTable asset holds each table. |
 | `Source/Tervain/Public/TervainDataSubsystem.h` | A game-instance subsystem that reads `data/game/tuning.json` and finds rows in the imported tables. |
@@ -63,8 +63,8 @@ agreeing, and the CI job *Unreal seed* (`.github/workflows/unreal-seed.yml`) run
 - **Generated files.** `data/`, `TervainRows.h` and `TervainIds.h` are exactly what the core's export writes today
   (`npm run data:export` rewrites them; `tests/core/dataExport.test.ts` makes the same comparison in the test run).
 - **Ids.** `tests/tools/unrealDrift.test.ts` takes the ids from the core's own modules and compares them with
-  `TervainIds.h`: every group, every id, the constant's name, the order, the save format version and the content
-  revision. It compiles the header and compares the values the C++ holds. Entity groups must equal the row names of
+  `TervainIds.h`: every group, every id, the constant's name, the order, and the four single values (the save format
+  version, the content revision, the number of quick slots and the first weapon's pickup). It compiles the header and compares the values the C++ holds. Entity groups must equal the row names of
   the table they point at. The test also alters copies of the header (an id renamed, removed, added, reordered, a
   stale version) and requires each to be reported.
 - **Tables.** `tests/tools/unrealSkeleton.test.ts` checks that every row has exactly its struct's members with values
@@ -83,8 +83,8 @@ can. Both use an ordinary C++ compiler and small stand-ins for the engine names 
 (`tests/tools/unreal-standin`):
 
 - `tests/tools/unrealSeedBuild.test.ts` compiles **every source file of the module** with warnings as errors, links
-  them, and runs the result against the repository's exported data. The data subsystem must read each of the 179
-  numbers in `data/game/tuning.json` to the value in the file, give the default for a path that names no number, and
+  them, and runs the result against the repository's exported data. The data subsystem must read every number in
+  `data/game/tuning.json` to the value in the file, give the default for a path that names no number, and
   log a warning when the data folder is not where the settings point. The settings must find `data/` beside the
   project, and a row must be found by name in the table the settings name. Every generated row struct is made.
 - `tests/tools/unrealRulesParity.test.ts` runs the two mirrored rules and the unit conversions on a few thousand

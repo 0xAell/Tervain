@@ -16,7 +16,9 @@ TypeScript: an Unreal Engine project in particular (see `data/unreal`).
 | `schema/` | A JSON Schema (draft 2020-12) for every document in `game/` and `world/`. | |
 | `unreal/` | The flat tables again, shaped for Unreal's importers, with positions already in Unreal's units. | Centimetres, degrees; X east, Y south, Z up. |
 
-Every JSON document starts with `about` (what it holds) and `units`. Numbers are rounded to six decimals. A value that
+Every JSON document in `game/` and `world/` starts with `about` (what it holds) and `units`. The DataTables in
+`unreal/` are bare arrays of rows, as Unreal's importer reads them, and `unreal/conventions.json` and
+`unreal/tables.json` state their units in their text. Numbers are rounded to six decimals. A value that
 JSON cannot hold (an animal kind that never returns to its range) is `null`.
 
 ## The terrain rasters

@@ -27,10 +27,10 @@ on the page on 15 November 2026), quoted:
 | Point | What it says |
 | --- | --- |
 | Renderer | It "uses the mobile renderer". |
-| Project | It "currently requires a source build and C++ project". A Blueprint-only project will not do. |
+| Project | It "currently requires a source build and C++ project". A Blueprint-only project will not do. The same post's known issues speak of "Launcher-built C++ web games" and give "Use a source build on Mac/Linux to target the Wasm platform" as a workaround, and the third-party test below packaged with the Windows Launcher's engine. Plan on a C++ project, and on a source build at least on Mac and Linux; whether the Windows Launcher's engine is enough is for the first build to settle. |
 | Browser | "Chrome offering the best experience". Chrome is the only desktop browser named. |
-| Maturity | Parts of the web renderer are "prototypes we plan to refactor before the full 5.9 release ships". Expect longer cook times and performance problems. |
-| Memory | Known issue UE-411671: the game crashes above 2 GB of WebAssembly memory. The workaround given is to reduce content. |
+| Maturity | Parts of the web renderer are "prototypes we plan to refactor before the full 5.9 release ships". "Expect longer cook times and occasional performance issues as development continues." |
+| Memory | Known issue UE-411671: the game crashes above 2 GB of WebAssembly memory. The workaround given: "Reduce content usage". |
 | Saved data | Known issue UE-412003: save games and settings are lost on reload in C++ web games built with the Launcher's engine, with a workaround in the page arguments. |
 | Opening from disk | Known issues UE-411308 and UE-411939: "Opening the packaged index.html from disk (file://) shows a cross-origin isolation error or a hosting card instead of starting the game." |
 | Other known issues | "Bink video isn't supported on the web" (UE-411672). Projects made with the web-ready project template "can't join a server" because "the web build has no IpNetDriver" (UE-412027). "The premade builds on Mac and Linux are missing part of the Wasm (Web) support files." The first preview's web builds "work best on iOS 27" (UE-412148). |
@@ -146,7 +146,8 @@ Epic set out its plans for Unreal Engine 6 in a post, [The Road to UE 6](https:/
 in June 2026. The post could not be read from where this was written (its site answers automated readers with a
 challenge page), so this page takes no dates or plans from it. Users on Epic's forum quote it, in a thread read on the
 page: "We're moving the gameplay programming model to Verse" and "while we aren't currently planning another official
-UE5 release after 5.8". That is a report of the post, not the post. Whether the web target continues in Unreal Engine 6
+UE5 release after 5.8". That is a report of the post, not the post, and Epic's own announcement of the 5.9 preview,
+quoted above, speaks of "the full 5.9 release": this page follows Epic's announcement. Whether the web target continues in Unreal Engine 6
 is not stated anywhere read.
 
 For this port it argues for what the repository already does: keep the game's rules small, tested and separate from

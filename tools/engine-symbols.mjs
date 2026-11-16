@@ -156,7 +156,7 @@ const cutShort = (body) => /^\s*(<!doctype html|<html)/i.test(body) && !/<\/html
 
 /** Open every cited page and look for each passage. `load(url)` gives the page's HTML, or a plain file's text. */
 export async function onlineProblems(register, load, attempts = 3) {
-  const problems = [], pages = new Map(), again = new Set();
+  const problems = [], pages = new Map(), opened = new Map();
   const open = async (url) => {
     try {
       let body = await load(url);
@@ -166,9 +166,10 @@ export async function onlineProblems(register, load, attempts = 3) {
     } catch (error) { pages.set(url, null); problems.push(`${url} could not be read: ${error.message}`); }
   };
   const look = async (symbol, url, passage, what) => {
-    if (!pages.has(url)) await open(url);
-    // A long page can arrive cut short: before a passage is called missing, the page is opened once more.
-    if (pages.get(url) !== null && !pages.get(url).includes(passage) && !again.has(url)) { again.add(url); await open(url); }
+    if (!pages.has(url)) { opened.set(url, 1); await open(url); }
+    // A long page can arrive cut short, or closed but without its tables: before a passage is called missing, the page
+    // is opened again, up to `attempts` times in all.
+    while (pages.get(url) !== null && !pages.get(url).includes(passage) && opened.get(url) < attempts) { opened.set(url, opened.get(url) + 1); await open(url); }
     const text = pages.get(url);
     if (text !== null && !text.includes(passage)) problems.push(`"${symbol}": the ${what} is not on ${url}`);
   };

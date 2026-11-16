@@ -89,7 +89,7 @@ What is there:
 
 - [System mapping](system-mapping.md), [conventions](conventions.md), [the web target](web-target.md) and the
   [roadmap](roadmap.md), with an [index](README.md) that says what carries over.
-- [`sources.json`](sources.json) registers 29 sources and the 83 passages and 22 table rows taken from them.
+- [`sources.json`](sources.json) registers 29 sources and the 87 passages and 22 table rows taken from them.
   `npm run docs:sources` reads 28 of those sources on their own pages and finds every passage and row, including the
   whole mobile renderer table and the known issues of the 5.9 preview
   ([#794](https://github.com/ael-dev3/Tervain/pull/794), [#814](https://github.com/ael-dev3/Tervain/pull/814)).
@@ -129,7 +129,8 @@ What is there:
   unreal:symbols -- --online` opened all 91 cited pages and files on 16 November 2026 and found every passage
   ([#813](https://github.com/ael-dev3/Tervain/pull/813), [#832](https://github.com/ael-dev3/Tervain/pull/832)).
 - Pull requests: [#781](https://github.com/ael-dev3/Tervain/pull/781), [#790](https://github.com/ael-dev3/Tervain/pull/790),
-  [#792](https://github.com/ael-dev3/Tervain/pull/792), [#813](https://github.com/ael-dev3/Tervain/pull/813).
+  [#792](https://github.com/ael-dev3/Tervain/pull/792), [#813](https://github.com/ael-dev3/Tervain/pull/813),
+  [#832](https://github.com/ael-dev3/Tervain/pull/832).
 
 What is missing from a ten, and the plan:
 

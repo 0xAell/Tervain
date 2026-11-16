@@ -22,10 +22,14 @@ positive Y is to the right and positive Z is up. Distance defaults to centimetre
 The conversions, used by the export for everything under `data/unreal` and provided in C++ by
 `unreal/Source/Tervain/Public/TervainUnits.h`:
 
-- **Position:** Unreal `(X, Y, Z)` = core `(x, z, y) × 100`. This is the same exchange of the up and south axes that
-  an import of a glTF model makes, so imported models and imported positions agree.
+- **Position:** Unreal `(X, Y, Z)` = core `(x, z, y) × 100`. It is meant to be the same exchange of the up and south
+  axes that an import of a glTF model makes, so that imported models and imported positions agree. No page read for
+  this document says how Unreal's glTF import maps the axes, and the yaw for glTF meshes below rests on the same
+  assumption: on the first import, place one building from `DT_Buildings.json` and check that its model lines up.
 - **Yaw, for an asset authored facing Unreal's forward (`+X`):** `UnrealYaw = 90 − coreYaw × 180/π`.
 - **Yaw, for a mesh imported from glTF**, whose front (`+z`) arrives as `+Y`: `UnrealYaw = −coreYaw × 180/π`.
+- **Which the tables use:** every yaw in `data/unreal` is in the first form. A mesh imported from glTF takes the second
+  form, which is the table's yaw less a quarter turn.
 - **Scale:** uniform scales carry over unchanged.
 
 None of the pages read for this document names a default north. Here east is `+X` and south is `+Y`, so north is `−Y`. Set a
@@ -46,8 +50,9 @@ All of it is under [`data/`](../../data/README.md). None of these imports has be
 inherit from `FTableRowBase` to be recognized by the importer", and the import key "uses Name for `.JSON`". The row
 structs are in `unreal/Source/Tervain/Public/Data/TervainRows.h`, generated from the same definitions as the files;
 `data/unreal/tables.json` pairs each file with its struct. The row names C++ may need to spell out (items, residents,
-hostiles, places, buildings) and the quest's vocabulary are constants in
-`unreal/Source/Tervain/Public/Data/TervainIds.h`, written by the same export; `npm run unreal:check` fails when
+kinds of hostile and their posts, animal species, places, buildings), the quest's vocabulary and four single values
+(the save format version, the content revision, the number of quick slots and the first weapon's pickup) are constants
+in `unreal/Source/Tervain/Public/Data/TervainIds.h`, written by the same export; `npm run unreal:check` fails when
 either header and the core disagree.
 
 **Strings.** `data/unreal/ST_Tervain.csv` is a string table. **Epic:** "The CSV format used for string tables has two
