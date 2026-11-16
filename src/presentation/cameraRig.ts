@@ -69,7 +69,6 @@ export class CameraRig {
   /** The boom length and pivot height actually used by the last follow, for checks. */
   lastBoom = 0;
   lastPivotLift = 0;
-  private titleAngle = 0;
   private initialized = false;
   private lastFollowYaw = Number.NaN;
   private waterSide: 'above' | 'under' | null = null;
@@ -98,7 +97,7 @@ export class CameraRig {
     this.camera.fov = CAMERA.fov;
     this.camera.updateProjectionMatrix();
   }
-  mode: 'follow' | 'title' | 'bench' = 'follow';
+  mode: 'follow' | 'bench' = 'follow';
   benchPath: { p: THREE.Vector3; look: THREE.Vector3 }[] = [];
   benchT = 0;
   /** Seconds the benchmark route spends on each segment (6; `?bench=quick` 0.5, for a software-rendered check). */
@@ -459,23 +458,6 @@ export class CameraRig {
     if (y < floor + r) return false;
     const lowered = { x: p.x, y, z: p.z };
     return this.waterColliders.every(c => cameraColliderEntry(p, lowered, c, terrain.groundAt(c.x, c.z), obstacleHeight(c)) === null);
-  }
-
-  /**
-   * The title view: a slow drift above the Grey Strand, looking along the beach to the lighthouse on Lantern Point with the sea
-   * to the right. Static under reduced motion.
-   */
-  title(dt: number, terrain: Terrain, reducedMotion: boolean) {
-    if (!reducedMotion) this.titleAngle += dt * 0.05;
-    const t = this.titleAngle;
-    const x = -262 + Math.sin(t * 0.9) * 7;
-    const z = 2 + Math.cos(t * 0.7) * 5;
-    const y = terrain.heightAt(x, z) + 4.6 + Math.sin(t * 0.6) * 0.7;
-    this.camera.position.set(x, y, z);
-    const lx = -322 + Math.sin(t * 0.5) * 5;
-    const lz = 98;
-    this.camera.lookAt(lx, terrain.heightAt(-322, 98) + 11 + Math.sin(t * 0.8) * 1.2, lz);
-    this.smoothTarget.set(-290, terrain.heightAt(-290, 50), 50);
   }
 
   /** A fixed camera route for repeatable frame-time measurements. */

@@ -196,7 +196,7 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
   group.name = 'flora';
   const pine = createPineForest(pineTemplates);
   const meshy = meshyTemplates ? createMeshyForest(meshyTemplates) : null;
-  // ?heropine=1 (default off): species 'pine' draws the generated hero pines; placement, colliders and seating keep reading the live pine's footprint.
+  // Species 'pine' draws the generated hero pines (on by default, HERO_PINE_DEFAULT; ?heropine=0 turns them off); placement, colliders and seating keep reading the live pine's footprint.
   const heroTemplates = heroPineEnabled() ? heroPineTemplates() : null;
   const hero = heroTemplates ? createHeroPineForest(heroTemplates) : null;
   const heroVariants = new Set<TreeVariant>();

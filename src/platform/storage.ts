@@ -219,19 +219,6 @@ export class SaveStore {
     return cur;
   }
 
-  summary(slot: SlotId): SaveSummary | null {
-    const r = this.load(slot);
-    return r.ok ? r.summary : null;
-  }
-
-  list(): { slot: SlotId; result: LoadResult }[] {
-    return SLOT_IDS.map((slot) => ({ slot, result: this.load(slot) }));
-  }
-
-  hasAny(): boolean {
-    return SLOT_IDS.some((s) => this.load(s).ok);
-  }
-
   /** The save "Continue" loads (the core's continueFrom: the most recently written readable slot). */
   latest(): { slot: SlotId; state: WorldState; summary: SaveSummary } | null {
     const readable = SLOT_IDS.flatMap((slot) => { const r = this.load(slot); return r.ok ? [{ slot, savedAt: r.summary.savedAt, state: r.state, summary: r.summary }] : []; });

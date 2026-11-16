@@ -532,8 +532,8 @@ export function sluicePanel(ctx: PanelCtx): HTMLElement {
       const block = commitPreconditions(s, a);
       const reasons: string[] = [];
       if (a === 'rotation') for (const b of rotationBlockers(s)) reasons.push(S(`sluice.alloc.rotation.need.${b}`));
+      // The core's preconditions say why it cannot be chosen, `already_committed` among them.
       const disabled = !!block;
-      const committedAlready = s.quest.phase === 'committed' || s.quest.phase === 'settled';
       cards.append(
         h(
           'div',
@@ -544,7 +544,7 @@ export function sluicePanel(ctx: PanelCtx): HTMLElement {
           h('p', { class: 'kind' }, S(`sluice.alloc.${a}.kind`)),
           reasons.map((r) => h('p', { class: 'need' }, `${S('hud.requires')} ${r}`)),
           a === 'rotation' && !reasons.length && PARTIES.every((p) => s.npcs[PARTY_NPC[p]].available) ? null : a === 'rotation' && PARTIES.some((p) => !s.npcs[PARTY_NPC[p]].available) ? h('p', { class: 'need' }, S('sluice.alloc.caretaker')) : null,
-          h('div', { class: 'row', style: { marginTop: '6px' } }, h('button', { class: 'btn primary', disabled: disabled || committedAlready, 'data-nav': true, onClick: () => (disabled || committedAlready ? null : showCommitConfirm(ctx, a)) }, S(`sluice.alloc.${a}`))),
+          h('div', { class: 'row', style: { marginTop: '6px' } }, h('button', { class: 'btn primary', disabled, 'data-nav': true, onClick: () => (disabled ? null : showCommitConfirm(ctx, a)) }, S(`sluice.alloc.${a}`))),
         ),
       );
     }

@@ -763,7 +763,6 @@ export class WorldScene {
     this.riteResponse.update(dt, reduced, night);
     // Ledger glows faintly while the archive is accessible; the archive lamp is emissive via lantern lights.
     this.scenery.ledger.rotation.y = Math.sin(this.time * 0.8) * 0.05;
-    void WORLD;
   }
 
   /** Spin the control wheel while the gate is being worked. */

@@ -9,7 +9,8 @@ describe('loose cargo drawn in step (A94 scout)', () => {
     const props = buildPhysicalProps(physics, 'low') as ReturnType<typeof buildPhysicalProps> & { movers?: () => unknown[] };
     props.update();
     expect(poses).toHaveBeenCalled();
-    for (const call of poses.mock.calls) expect((call as unknown[])[0]).toBe(false);
+    // The pose is the one after the last step: there is no blend to ask for.
+    for (const call of poses.mock.calls) expect(call).toEqual([]);
     expect(props.movers?.()).toEqual([]);
   });
 });

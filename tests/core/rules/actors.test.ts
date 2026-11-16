@@ -123,7 +123,7 @@ describe('a hostile’s fight, on the core alone', () => {
   const spawn = ENEMY_SPAWNS.find((entry) => entry.kind === 'bandit')!, archetype = ENEMY_ARCHETYPES.bandit;
   const fight = (player: { x: number; z: number }, over: Partial<HostileContext> = {}) => {
     const blows: [number, boolean][] = [], growls: string[] = [];
-    const ctx: HostileContext = { terrain, colliders, nav, player: { x: player.x, z: player.z, y: terrain.groundAt(player.x, player.z), alive: true, invulnerable: false }, reducedMotion: false, time: 0,
+    const ctx: HostileContext = { terrain, colliders, nav, player: { x: player.x, z: player.z, y: terrain.groundAt(player.x, player.z), alive: true, invulnerable: false }, reducedMotion: false,
       strikePlayer: (_hostile, damage, heavy) => { blows.push([damage, heavy]); }, onGrowl: (hostile) => { growls.push(hostile.id); }, ...over };
     return { ctx, blows, growls };
   };

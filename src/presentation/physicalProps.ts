@@ -28,7 +28,7 @@ export function buildPhysicalProps(physics: RealmPhysics, quality: 'low' | 'medi
   const update = () => {
     // Stepped once per fixed simulation step, the current pose is the one to show: the accumulator's blend (alpha 0 right
     // after each step) drew every barrel a whole step behind. The app draws them between steps with everything else (A94).
-    for (const pose of physics.poses(false)) {
+    for (const pose of physics.poses()) {
       const mesh = meshes.get(pose.id)!;
       mesh.position.set(pose.position.x, pose.position.y, pose.position.z);
       mesh.quaternion.set(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w);

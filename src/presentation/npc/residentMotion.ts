@@ -631,8 +631,9 @@ export class ResidentMotion {
   get leading(): string { return this.current; }
 
   /**
-   * Seconds from beginning to get up off a seat until the resident stands on their feet: the moment the clip's hips come
-   * back to their standing height. The actor waits this long before walking away (A69).
+   * Seconds from beginning to get up off a seat until the resident stands on their feet, measured from the clip: the
+   * moment its hips come back to their standing height. The actor waits the core's RESIDENT.standUpSeconds before walking
+   * away (A69); a test holds that value to this measure.
    */
   get standUpSeconds(): number {
     const track = this.clips.get(MOTION_CLIPS.sitUp)?.clip.tracks.find(t => t.name === 'Hips.position');
