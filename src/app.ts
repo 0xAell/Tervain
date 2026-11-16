@@ -80,7 +80,7 @@ import { MOUNT_ID } from './core/rules/interactables';
 import { AUTOSAVE_SECONDS, bellGain, bellWait, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH, witnessesOf } from './core/rules/journey';
 import {
   archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveAt, autosaveDue, awaitedMountLapsed, momentOf, WHAT_RUNS, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
-  journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
+  journeyBegun, arrivesInView, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
   STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING, type AutosaveMoment, type RespawnMoment, type RespawnPoint,
 } from './core/rules/session';
 import { STAMINA_MAX } from './core/rules/hero';
@@ -1320,7 +1320,8 @@ export class App {
       const scene = this.world.scene;
       const world = this.world;
       this.arrivals.warm ??= (rig) => this.warmShaders(rig.root, scene, true, world);
-      this.arrivals.update(this.npcAssets, (p) => this.inView(p));
+      // Near enough to matter, a figure arrives even in view (the core's arrivesInView): better seen to appear than missing.
+      this.arrivals.update(this.npcAssets, (p) => this.inView(p), (p) => arrivesInView(Math.hypot(p.x - this.player.x, p.z - this.player.z)));
     }
 
     if (this.menuBackgroundActive) {

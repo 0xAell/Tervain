@@ -121,7 +121,10 @@ What stays in the scene layer, and why it is not a rule of the game:
 - **The camera's smoothing and its way round obstacles** (`presentation/cameraRig.ts`): feel, built on the core's
   numbers (`core/rules/camera.ts`), and replaced by a spring arm.
 - **When a model arrives** (`presentation/residentArrivals.ts`): residents and hostiles wait unseen at their places
-  until their models have loaded, a few a frame. That is loading, and an engine loads differently.
+  until their models have loaded, a few a frame, and change over where nobody sees it. That is loading, and an engine
+  loads differently. What decides play is the core's: a figure on its way does nothing, and one the wanderer comes
+  near enough to matter to arrives even in view (`arrivesInView`, twice the furthest any figure acts on him), so the
+  camera's view never decides whether a foe or a witness is there.
 - **Where the arrow leaves the bow** (`presentation/playerHunting.ts`): the nocked arrow's place on the posed model.
 - **Where the props stand and what they block** (`presentation/settlement.ts`, `hunterSupplies.ts`,
   `forestLandmarks.ts` and a few more): walls, haystacks, the camp fire, the hunter's board and the waymarkers are

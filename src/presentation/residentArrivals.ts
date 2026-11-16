@@ -12,7 +12,8 @@ import { disposeSceneResources } from './disposeScene';
 /**
  * Residents after entry (stage 2 of backlog 4). Only the people near where the journey starts are downloaded before the
  * world opens; everyone else holds their place with a stand-in that has nothing to draw and cannot be met, and takes their
- * own model once it is here and the player is not looking at them.
+ * own model once it is here and the player is not looking at them, or, when he comes near enough for them to matter, at
+ * once (the core's arrivesInView).
  */
 
 /** How far from the entry point a figure's model is still fetched before the world opens. */
@@ -92,23 +93,24 @@ export class ResidentArrivals {
   }
 
   /**
-   * Once the catalog holds their models, those out of view (or unseen where they are) take them; at most `perFrame` a
-   * frame, so the skinning and surface set-up of a whole cast is not paid in one frame. A figure that can build its rig
-   * in steps (A78) is built one at a time, ARRIVAL_BUDGET_MS a frame, and changes over only out of sight. Returns how
-   * many arrived.
+   * Once the catalog holds their models, those out of view (or unseen where they are) take them, and so do those `near`
+   * enough to matter even in view; at most `perFrame` a frame, so the skinning and surface set-up of a whole cast is not
+   * paid in one frame. A figure that can build its rig in steps (A78) is built one at a time, ARRIVAL_BUDGET_MS a frame,
+   * and changes over only out of sight or near. Returns how many arrived.
    */
-  update(catalog: MeshyNpcCatalog | null, inView: (p: { x: number; y: number; z: number }) => boolean, perFrame = 2): number {
+  update(catalog: MeshyNpcCatalog | null, inView: (p: { x: number; y: number; z: number }) => boolean,
+    near: (p: { x: number; y: number; z: number }) => boolean = () => false, perFrame = 2): number {
     if (!catalog) return 0;
     this.preparationMs = 0;
-    const hidden = (figure: AwaitingFigure) => !!figure.unseen?.() || !inView(figure.position());
-    let arrived = this.handOver(catalog, hidden, perFrame);
-    if (this.building) arrived += this.advance(catalog, hidden);
+    const mayChange = (figure: AwaitingFigure) => !!figure.unseen?.() || !inView(figure.position()) || near(figure.position());
+    let arrived = this.handOver(catalog, mayChange, perFrame);
+    if (this.building) arrived += this.advance(catalog, mayChange);
     if (!this.waiting.length) return arrived;
     this.waiting = this.waiting.filter((figure) => {
       // A rig waiting for shaders has spent frame work even though it has not been adopted. Do not let the next
       // figure restart the budget: fast cached builds could queue the whole cast's preparation in one frame.
       if (arrived >= perFrame || this.preparationMs >= ARRIVAL_BUDGET_MS || !catalog.has(figure.role)) return true;
-      if (!hidden(figure)) return true;
+      if (!mayChange(figure)) return true;
       if (figure.make) {
         if (this.building) return true;
         try {
@@ -117,7 +119,7 @@ export class ResidentArrivals {
           console.warn(`resident ${figure.role} could not take its model; keeping its stand-in`, error);
           return false;
         }
-        arrived += this.advance(catalog, hidden);
+        arrived += this.advance(catalog, mayChange);
         return false;
       }
       // (A73) One figure whose model fails to set up is dropped (keeping its stand-in), not retried every frame.
@@ -133,10 +135,10 @@ export class ResidentArrivals {
   }
 
   /** Hand the finished rigs to their figures, those out of sight and prepared, at most `perFrame`. */
-  private handOver(catalog: MeshyNpcCatalog, hidden: (figure: AwaitingFigure) => boolean, perFrame: number): number {
+  private handOver(catalog: MeshyNpcCatalog, mayChange: (figure: AwaitingFigure) => boolean, perFrame: number): number {
     let arrived = 0;
     this.finished = this.finished.filter((done) => {
-      if (arrived >= perFrame || !done.ready || !hidden(done.figure)) return true;
+      if (arrived >= perFrame || !done.ready || !mayChange(done.figure)) return true;
       try {
         done.figure.adopt(catalog, done.rig);
         arrived++;
@@ -150,7 +152,7 @@ export class ResidentArrivals {
   }
 
   /** Build the current figure's rig for this frame's budget; once done it waits among the finished to change over. */
-  private advance(catalog: MeshyNpcCatalog, hidden: (figure: AwaitingFigure) => boolean): number {
+  private advance(catalog: MeshyNpcCatalog, mayChange: (figure: AwaitingFigure) => boolean): number {
     const building = this.building!;
     const started = this.now(), budget = Math.max(0, ARRIVAL_BUDGET_MS - this.preparationMs);
     try {
@@ -172,7 +174,7 @@ export class ResidentArrivals {
           }
           this.finished.push(done);
           this.building = null;
-          return this.handOver(catalog, hidden, 1);
+          return this.handOver(catalog, mayChange, 1);
         }
       }
       return 0;

@@ -1,3 +1,5 @@
+import { ENEMY_ARCHETYPES } from '../content/enemies';
+import { NPCS } from '../content/npcs';
 import { huntingHint } from '../game/hunting';
 import { hasFact, itemCount } from '../game/state';
 import type { PlaceId, WorldState } from '../game/types';
@@ -7,7 +9,7 @@ import type { NavGrid } from '../world/nav';
 import { canPlayerStandAt, PLAYER_BODY_RADIUS, supportedPlayerHeight } from '../world/playerPlacement';
 import type { Terrain } from '../world/terrain';
 import { STAMINA_MAX } from './hero';
-import { AUTOSAVE_SECONDS, checkpointAllowed, DEATH, HIT_STOP, UNDER_WORLD } from './journey';
+import { AUTOSAVE_SECONDS, checkpointAllowed, DEATH, HIT_STOP, UNDER_WORLD, WITNESS_REACH } from './journey';
 import { MOUNT_STAMINA } from './riding';
 import { RESIDENT } from './resident';
 
@@ -181,6 +183,26 @@ export function respawnAfter(current: RespawnPoint, moment: RespawnMoment, here:
  * autosave.
  */
 export const WAKING = { heal: DEATH.heal, stamina: STAMINA_MAX, foesToPosts: true, autosaveSeconds: AUTOSAVE_SECONDS } as const;
+
+/* ============================ Figures on their way ============================ */
+
+/**
+ * A figure whose model is still on its way holds its place and does nothing: it cannot be met, witness, fight or block.
+ * It takes its model out of sight, so that nobody sees the change, but not once the wanderer is near enough for it to
+ * matter: within twice the furthest any figure acts on him (a hostile's notice, a keeper's witness reach, a resident's
+ * greeting) it arrives in view too, since a figure appearing is better than one missing where the game needs it. The
+ * margin covers the frames a model takes to be made ready while he closes.
+ */
+export const ARRIVES_IN_VIEW_WITHIN = 2 * Math.max(
+  WITNESS_REACH,
+  ...Object.values(ENEMY_ARCHETYPES).map((kind) => kind.notice),
+  ...Object.values(NPCS).map((def) => def.approachGreeting?.radius ?? 0),
+);
+
+/** Whether a figure `distance` from the wanderer takes its model even where he can see the change (ARRIVES_IN_VIEW_WITHIN). */
+export function arrivesInView(distance: number): boolean {
+  return distance <= ARRIVES_IN_VIEW_WITHIN;
+}
 
 /* ============================ Saving ============================ */
 
