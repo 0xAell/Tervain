@@ -663,9 +663,10 @@ export class AudioEngine {
   }
 
   /** A spoken line (src/core/content/voice.ts): it plays when the world's sound is running, and its length is returned either way. */
-  say(line: string, at?: Vec3 | (() => Vec3)): number | null {
+  say(line: string, at?: Vec3 | (() => Vec3)): number | null | undefined {
     const voiced = (VOICE_AUDIO.lines as Record<string, readonly [string, number, number, string]>)[line];
-    if (!voiced) return 0;
+    // No recording: the speech director paces the line by the time its words take to read.
+    if (!voiced) return undefined;
     // While the world's sound runs, a line whose voice is still loading waits (null); otherwise it is shown silently.
     if (this.ready && this.soundWorld && !this.soundWorld.speak(line as VoiceLineId, { at }) && !this.soundWorld.voiceReady(line as VoiceLineId)) return null;
     return voiced[2];

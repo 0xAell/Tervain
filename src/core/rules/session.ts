@@ -222,7 +222,17 @@ export function savingAllowed(facts: { playing: boolean; paused: boolean; worldR
 }
 
 /**
- * The moments the journey saves itself to the auto slot, which Continue loads: the story's own (`story`, an `autosave`
+ * Which save Continue loads: the most recently written of all the slots' (the auto slot's, the quick key's or one
+ * written by hand), or none when no slot holds a save that can be read.
+ */
+export function continueFrom<S extends string>(saves: readonly { slot: S; savedAt: number }[]): S | null {
+  let best: { slot: S; savedAt: number } | null = null;
+  for (const save of saves) if (!best || save.savedAt > best.savedAt) best = save;
+  return best?.slot ?? null;
+}
+
+/**
+ * The moments the journey saves itself to the auto slot: the story's own (`story`, an `autosave`
  * event), every `AUTOSAVE_SECONDS` of play (`interval`), and whenever play is left, for the title (`toTitle`) or by the
  * page being hidden or closed (`pageLeft`).
  */
