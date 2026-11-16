@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from './assets/gltfLoader';
-import { coastX } from '../core/world/coast';
+import { coastalRockPiles, type RockPile } from '../core/world/rockPiles';
 import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
 import type { BuildContext, SceneModule } from './context';
 import { assertNaturalModelBudget } from './naturalModelBudget';
@@ -52,37 +52,24 @@ export function loadSourceRockPile(progress?: ModelLoadProgress): Promise<GLTF> 
   return observeModelLoad(pending, progress);
 }
 
-/** Small authored coastal accents. Every preset uses the same accepted placements. */
-const CANDIDATES = [
-  { z: -123, shoreOffset: 11, s: 1.2, yaw: 0.35 },
-  { z: -84, shoreOffset: 10, s: 1.0, yaw: 1.85 },
-  { z: -45, shoreOffset: 8, s: 0.9, yaw: 3.1 },
-  { z: -8, shoreOffset: 8, s: 1.15, yaw: 4.65 },
-  { z: 75, shoreOffset: 13, s: 1.1, yaw: 5.45 },
-  { z: 139, shoreOffset: 15, s: 1.4, yaw: 2.4 },
-] as const;
+export interface RockPilePlacement extends RockPile { y: number }
 
-export interface RockPilePlacement { id: string; x: number; y: number; z: number; s: number; yaw: number; radius: number }
+/** How far the model reaches from its centre across the ground (m): the core keeps this as `ROCK_PILE_REACH`. */
+export function rockPileReach(geometry: THREE.BufferGeometry): number {
+  const p = geometry.getAttribute('position');
+  let reach = 0;
+  for (let i = 0; i < p.count; i++) reach = Math.max(reach, Math.hypot(p.getX(i), p.getZ(i)));
+  return reach;
+}
 
+/** The core's rock piles (core/world/rockPiles.ts), each seated on the ground by its own base. */
 export function sourceRockPilePlacements(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'excl'>,
   geometry: THREE.BufferGeometry): RockPilePlacement[] {
   if (!geometry.boundingBox) geometry.computeBoundingBox();
-  const bounds = geometry.boundingBox!, p = geometry.getAttribute('position');
-  let radius = 0;
-  for (let i = 0; i < p.count; i++) radius = Math.max(radius, Math.hypot(p.getX(i), p.getZ(i)));
+  const bounds = geometry.boundingBox!;
   const basalPlane = bounds.min.y + (bounds.max.y - bounds.min.y) * 0.12;
-  const accepted: RockPilePlacement[] = [];
-  for (const [index, candidate] of CANDIDATES.entries()) {
-    const x = coastX(candidate.z) + candidate.shoreOffset, z = candidate.z;
-    const pad = radius * candidate.s;
-    // Never alter a route/interaction/tree merely to make this optional accent fit.
-    if (ctx.excl.blocked(x, z, pad + 0.5) || ctx.colliders.blocked(x, z, pad + 0.4) || ctx.terrain.heightAt(x, z) < 0.1
-      || ctx.terrain.slopeAt(x, z) > 0.5 || accepted.some(rock => Math.hypot(rock.x - x, rock.z - z) < rock.radius + pad + 0.4)) continue;
-    const placement = { id: `source-rock-pile:${index}`, x, z, s: candidate.s, yaw: candidate.yaw, radius: pad, y: 0 };
-    placement.y = groundedNaturalGeometryY(ctx.terrain, placement, geometry, basalPlane, 0.055);
-    accepted.push(placement);
-  }
-  return accepted;
+  return coastalRockPiles(ctx.terrain, ctx.excl, ctx.colliders)
+    .map((rock) => ({ ...rock, y: groundedNaturalGeometryY(ctx.terrain, rock, geometry, basalPlane, 0.055) }));
 }
 
 function physicalContact(geometry: THREE.BufferGeometry, placement: RockPilePlacement, matrix: THREE.Matrix4): PhysicalRockGeometry {

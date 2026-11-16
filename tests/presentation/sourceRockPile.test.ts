@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { buildSourceRockPiles } from '../../src/presentation/sourceRockPile';
+import { buildSourceRockPiles, rockPileReach } from '../../src/presentation/sourceRockPile';
 import { assertNaturalModelBudget } from '../../src/presentation/naturalModelBudget';
 import { defaultSettings } from '../../src/platform/settings';
 import { Terrain } from '../../src/core/world/terrain';
@@ -11,6 +11,10 @@ import { buildStaticColliders } from '../../src/core/world/colliders';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { createFloraPopulation, registerFloraColliders } from '../../src/presentation/floraPopulation';
 import { createScatterPopulation, registerScatterColliders } from '../../src/presentation/scatterPopulation';
+import { buildForestLandmarks } from '../../src/presentation/forestLandmarks';
+import { registerFloraColliders as registerPlantedColliders } from '../../src/core/world/flora';
+import { PLANTED_FOREST } from '../../src/core/world/plantedForest';
+import { ROCK_PILE_REACH } from '../../src/core/world/rockPiles';
 import { rockPileBinary, rockPileTemplate } from './rockPileFixture';
 import { bufferViewBytes } from './glbBufferView';
 
@@ -135,6 +139,41 @@ describe('owner rock pile derivative', () => {
         expect(f.colliders.all.find(collider => collider.id === mesh.name)?.rockMesh).toBe(contact);
       }
     } finally { f.module.dispose!(); }
+  });
+
+  it('reaches as far across the ground as the core says the rock pile reaches', () => {
+    const f = fixture();
+    try {
+      const geometry = (f.module.group.children[0] as THREE.Mesh).geometry;
+      expect(rockPileReach(geometry)).toBeCloseTo(ROCK_PILE_REACH, 4);
+      for (const placement of f.module.placements) expect(placement.radius).toBeCloseTo(ROCK_PILE_REACH * placement.s, 12);
+    } finally { f.module.dispose!(); }
+  });
+
+  it('lays, among everything the world has built before it, exactly the piles the core exports', () => {
+    // As WorldScene.build orders it: the core's colliders, the woodland landmarks, the planted forest, the loose stone.
+    vi.stubGlobal('document', { createElement: () => {
+      const canvas = { width: 0, height: 0, getContext: () => new Proxy({ canvas } as Record<string | symbol, unknown>, {
+        get: (target, key) => key in target ? target[key] : () => ({ addColorStop() {} }), set: () => true }) };
+      return canvas;
+    } });
+    const terrain = new Terrain(), excl = new Exclusions(terrain), colliders = buildStaticColliders(terrain);
+    const landmarks = buildForestLandmarks(terrain, colliders, 'high');
+    registerPlantedColliders(PLANTED_FOREST.map((tree, index) => ({ ...tree, tint: 1, decorationRank: 0, collisionId: tree.radius > 0 ? `tree:${index}` : null })),
+      colliders, (tree) => tree.radius, (tree) => PLANTED_FOREST[Number(tree.collisionId!.slice(5))]!.navigationRadius);
+    const trunks = colliders.all.flatMap(c => c.kind === 'circle' && c.id.startsWith('tree:') ? [{ x: c.x, z: c.z, radius: c.r }] : []);
+    registerScatterColliders(createScatterPopulation(terrain, excl, trunks), colliders);
+    terrain.registerRockSurfaces(colliders.rockMeshes);
+    const module = buildSourceRockPiles({ terrain, colliders, excl, quality: 'high', settings: { ...defaultSettings(), quality: 'high' },
+      sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, template);
+    try {
+      const exported = JSON.parse(readFileSync(new URL('../../data/world/placement.json', import.meta.url), 'utf8')).rockPiles.kept as { id: string; x: number; z: number; radius: number }[];
+      expect(module.placements.map(p => p.id)).toEqual(exported.map(p => p.id));
+      module.placements.forEach((placement, index) => {
+        expect(placement.x).toBeCloseTo(exported[index]!.x, 5); expect(placement.z).toBe(exported[index]!.z);
+        expect(placement.radius).toBeCloseTo(exported[index]!.radius, 5);
+      });
+    } finally { module.dispose!(); landmarks.dispose(); vi.unstubAllGlobals(); }
   });
 
   it('owns one private geometry/material and releases them once without disposing the cached source', () => {

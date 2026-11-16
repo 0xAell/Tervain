@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/placement.schema.json",
   "title": "world/placement.json",
-  "description": "What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone) and the shore’s driftwood and scrub. `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s resting height is left to its own shape: `groundY` is the ground under its centre.",
+  "description": "What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone), the shore’s driftwood and scrub, and the weathered rock piles the shore keeps (solid, climbable rock; `radius` is the circle each blocks). `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s or a rock pile’s resting height is left to its own shape: `groundY` is the ground under its centre.",
   "type": "object",
   "properties": {
     "about": {
@@ -234,6 +234,87 @@
         ],
         "additionalProperties": false
       }
+    },
+    "rockPiles": {
+      "type": "object",
+      "properties": {
+        "reach": {
+          "type": "number"
+        },
+        "clearance": {
+          "type": "object",
+          "properties": {
+            "exclusions": {
+              "type": "number"
+            },
+            "colliders": {
+              "type": "number"
+            },
+            "apart": {
+              "type": "number"
+            },
+            "aboveSea": {
+              "type": "number"
+            },
+            "slope": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "exclusions",
+            "colliders",
+            "apart",
+            "aboveSea",
+            "slope"
+          ],
+          "additionalProperties": false
+        },
+        "kept": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "x": {
+                "type": "number"
+              },
+              "z": {
+                "type": "integer"
+              },
+              "s": {
+                "type": "number"
+              },
+              "yaw": {
+                "type": "number"
+              },
+              "radius": {
+                "type": "number"
+              },
+              "groundY": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "x",
+              "z",
+              "s",
+              "yaw",
+              "radius",
+              "groundY"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "reach",
+        "clearance",
+        "kept"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -244,7 +325,8 @@
     "stoneShapes",
     "woodlandFloor",
     "stones",
-    "shore"
+    "shore",
+    "rockPiles"
   ],
   "additionalProperties": false
 }

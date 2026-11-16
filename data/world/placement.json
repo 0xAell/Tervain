@@ -1,5 +1,5 @@
 {
-  "about": "What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone) and the shore’s driftwood and scrub. `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s resting height is left to its own shape: `groundY` is the ground under its centre.",
+  "about": "What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone), the shore’s driftwood and scrub, and the weathered rock piles the shore keeps (solid, climbable rock; `radius` is the circle each blocks). `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s or a rock pile’s resting height is left to its own shape: `groundY` is the ground under its centre.",
   "units": "metres, seconds, radians; x east, z south, y up",
   "detailKeep": {
     "stones": {
@@ -19888,5 +19888,35 @@
       "scale": 1.33045,
       "rank": 0.929782
     }
-  ]
+  ],
+  "rockPiles": {
+    "reach": 1.0186,
+    "clearance": {
+      "exclusions": 0.5,
+      "colliders": 0.4,
+      "apart": 0.4,
+      "aboveSea": 0.1,
+      "slope": 0.5
+    },
+    "kept": [
+      {
+        "id": "source-rock-pile:1",
+        "x": -309.808553,
+        "z": -84,
+        "s": 1,
+        "yaw": 1.85,
+        "radius": 1.0186,
+        "groundY": 3.350162
+      },
+      {
+        "id": "source-rock-pile:2",
+        "x": -287.635711,
+        "z": -45,
+        "s": 0.9,
+        "yaw": 3.1,
+        "radius": 0.91674,
+        "groundY": 0.599874
+      }
+    ]
+  }
 }

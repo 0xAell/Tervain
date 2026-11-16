@@ -604,6 +604,28 @@
           },
           "crop": {
             "type": "string"
+          },
+          "fence": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "z": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "z"
+                ],
+                "additionalProperties": false
+              }
+            }
           }
         },
         "required": [
@@ -613,10 +635,14 @@
           "w",
           "d",
           "yaw",
-          "crop"
+          "crop",
+          "fence"
         ],
         "additionalProperties": false
       }
+    },
+    "fieldFenceMargin": {
+      "type": "number"
     },
     "palisade": {
       "type": "object",
@@ -1239,6 +1265,96 @@
             "pots"
           ],
           "additionalProperties": false
+        },
+        "benches": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "integer"
+              },
+              "z": {
+                "type": "number"
+              },
+              "yaw": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "z",
+              "yaw"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "noticeboard": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "number"
+            },
+            "readFrom": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z",
+            "readFrom"
+          ],
+          "additionalProperties": false
+        },
+        "kitTable": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "integer"
+            },
+            "z": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "z"
+          ],
+          "additionalProperties": false
+        },
+        "quarryBoulders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "z": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              },
+              "depth": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "z",
+              "width",
+              "height",
+              "depth"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "required": [
@@ -1256,7 +1372,11 @@
         "waymarkers",
         "hunterCamp",
         "hunterSupply",
-        "hamletProps"
+        "hamletProps",
+        "benches",
+        "noticeboard",
+        "kitTable",
+        "quarryBoulders"
       ],
       "additionalProperties": false
     },
@@ -1986,6 +2106,7 @@
     "anchors",
     "buildings",
     "fields",
+    "fieldFenceMargin",
     "palisade",
     "lanterns",
     "landmarks",
