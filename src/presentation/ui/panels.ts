@@ -48,7 +48,6 @@ export interface PanelCtx {
   actions: PanelActions;
   host: PanelHost;
   toast(text: string, kind?: '' | 'evidence' | 'good' | 'bad'): void;
-  playerNear: { sluice: boolean };
 }
 
 interface Frame {

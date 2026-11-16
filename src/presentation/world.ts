@@ -156,7 +156,6 @@ export class WorldScene {
   private lanternPool = new LanternLightPool(3);
   private wheelSpin = 0;
   private bellSwing = 0;
-  private bellTimer = 0;
   private gateOpen = 0;
   private leverT = 0;
   private doorT = 0;
@@ -751,7 +750,6 @@ export class WorldScene {
     // Bell swing: decays after each ring.
     this.bellSwing = Math.max(0, this.bellSwing - dt * 0.35);
     this.scenery.bell.rotation.z = Math.sin(this.time * 4.2) * 0.55 * this.bellSwing;
-    this.bellTimer += dt;
     this.applyDynamic(dt);
 
     // Quarry dust and the local response of the rite's bowl, water and altar.

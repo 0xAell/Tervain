@@ -105,10 +105,12 @@ export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { peopl
       // still consume the same elapsed time, with bounded steps through gesture transitions.
       const elapsed = Math.min(dt, 0.25);
       people.forEach((p, i) => {
-        p.rig.root.visible = !goneInForTheNight(!!p.spec.sleeps, f.nightness);
-        // A person going to bed is no wall for routes: no navigation rebuild at dusk and dawn (A70).
-        colliders.setActive(`ambient:${i}`, p.rig.root.visible && p.arrived, false);
-        if (!p.rig.root.visible) { p.t += elapsed; return; }
+        // Whether they are out is the core's (goneInForTheNight); one gone to bed, or still on the way, blocks nobody, and
+        // a person going to bed is no wall for routes: no navigation rebuild at dusk and dawn (A70).
+        const out = !goneInForTheNight(!!p.spec.sleeps, f.nightness);
+        p.rig.root.visible = out;
+        colliders.setActive(`ambient:${i}`, out && p.arrived, false);
+        if (!out) { p.t += elapsed; return; }
         // The shadow camera culls actual rig bounds, never a separate distance cutoff.
         let remaining = elapsed;
         while (remaining > 1e-8) {

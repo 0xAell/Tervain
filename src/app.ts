@@ -218,7 +218,6 @@ export class App {
   private wasNight: boolean | null = null;
   private vignetteLevel = 0;
   private wantPlayLock = false;
-  captionsEnabled = true;
   private hunting = new HuntingController(this, () => this.mode === 'play' && this.overlay === 'none' && !this.worldPaused && document.visibilityState !== 'hidden');
 
   constructor(private canvas: HTMLCanvasElement, private uiRoot: HTMLElement) {}
@@ -1438,11 +1437,10 @@ export class App {
 
     // Camera follow
     if (this.cam.mode === 'follow' && !this.bench.active) {
-      const sitting = 0;
       this.cam.mounted = this.riding;
       // The camera keeps out of tree crowns (A82); asked of whichever world is current.
       this.cam.crowns ??= (x, z, r) => this.world?.crownsNear?.(x, z, r) ?? [];
-      this.cam.follow(dt, this.player.x, this.player.y, this.player.z, this.world.terrain, this.world.colliders, this.settings.reducedMotion, this.player.shake, CAMERA.pivotHeight + sitting);
+      this.cam.follow(dt, this.player.x, this.player.y, this.player.z, this.world.terrain, this.world.colliders, this.settings.reducedMotion, this.player.shake, CAMERA.pivotHeight);
       this.cam.clearWater((x, z) => this.world.water.world.surfaceAt(x, z), this.player.swimming);
       // Playtest 7: pulled in against a tree, the lens must never sit inside his arm or shoulder; he dithers out first.
       const coverage = this.cam.bodyVisible ? (this.cam.manual ? 1 : heroNearCoverage(this.cam.camera.position, this.player)) : 0;
@@ -1451,9 +1449,10 @@ export class App {
 
     // World presentation
     this.world.animals.setPeople(this.standing());
-    // Interactions can open a panel or kill the player after the frame's initial play flag.
-    const worldActive = playing && !hitStopped && this.mode === 'play' && this.overlay === 'none'
-      && !this.worldPaused && document.visibilityState !== 'hidden';
+    // Interactions can open a panel or end his life after the frame began: what runs is asked of the core again
+    // (WHAT_RUNS), and a hidden page runs nothing.
+    const stillPlaying = playing && this.mode === 'play' && this.overlay === 'none' && !this.worldPaused;
+    const worldActive = WHAT_RUNS[momentOf({ playing: stillPlaying, fallen: this.mode === 'dead', hitStopped })].action && document.visibilityState !== 'hidden';
     // Residents and bandits walk through the grass as well as the hero; the world adds its animals and cargo.
     this.world.setGrassMovers([
       ...this.npcs.filter((n) => n.solid && this.game.state.npcs[n.id].available).map((n) => ({ x: n.x, z: n.z, radius: 0.5, weight: 0.6 })),
@@ -1736,7 +1735,6 @@ export class App {
       input: this.input,
       host: this.panels,
       toast: (t, k) => this.hud.toast(t, k),
-      playerNear: { sluice: false },
       actions: this.panelActions(),
     };
   }
@@ -1916,7 +1914,8 @@ export class App {
   }
 
   sellGameMeat() {
-    if (this.mode !== 'play' || this.overlay !== 'none' || this.worldPaused || !this.noThreatNear()) return;
+    // The core's interactable offers this only with no threat near (`no_threat_near`).
+    if (this.mode !== 'play' || this.overlay !== 'none' || this.worldPaused) return;
     this.game.setPlayerTransform(this.player.x, this.player.y, this.player.z, this.player.yaw);
     const result = this.game.dispatch({ t: 'sellGameMeat' });
     if (!result.ok) this.hud.toast(S(`hunting.${result.reason}`), 'bad');
@@ -2254,7 +2253,7 @@ export class App {
           this.hud.toast(S(e.method === 'shortcut' ? 'toast.shortcut.rescued' : 'toast.rescued'), 'good');
           break;
         case 'autosave':
-          this.autosave(e.reason);
+          this.autosave();
           break;
         default:
           break;
@@ -2293,7 +2292,7 @@ export class App {
       this.enemies.filter(e => e.alive), ENEMY_SPAWNS.filter(spawn => !defeated[spawn.id]));
   }
 
-  private autosave(reason: string) {
+  private autosave() {
     const at = autosaveAt('story', { playing: this.mode === 'play', paused: this.worldPaused, begun: true, capture: this.capturing });
     if (!at.save) return;
     this.stamp();
@@ -2302,7 +2301,6 @@ export class App {
       if (at.movesWaking) this.markCheckpoint('eventAutosave');
       this.hud.toast(S('menu.saved', { slot: S('menu.slot.auto') }));
     } else this.hud.toast(S('menu.savefailed', { reason: r.message }), 'bad');
-    void reason;
   }
 
   /** A brand-new run that has done nothing yet must not replace an earlier autosave. */

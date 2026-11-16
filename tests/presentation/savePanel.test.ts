@@ -71,7 +71,7 @@ function session() {
   const actions = Reflect.apply(Reflect.get(App.prototype, 'panelActions'), app, []) as PanelActions;
   const ctx: PanelCtx = {
     game, saves, actions, host: host as unknown as PanelHost,
-    settings: defaultSettings(), input: {} as PanelCtx['input'], toast: vi.fn(), playerNear: { sluice: false },
+    settings: defaultSettings(), input: {} as PanelCtx['input'], toast: vi.fn(),
   };
   return { app, ctx, memory, saves, game, snapshot, hud, host, setTime: (time: number) => { savedAt = time; } };
 }
