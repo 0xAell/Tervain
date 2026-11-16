@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/terrain.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/world/terrain.schema.json",
   "title": "world/terrain.json",
   "description": "How the terrain rasters map onto the world, and landmarks to check an import against.",
   "type": "object",

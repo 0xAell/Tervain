@@ -228,7 +228,7 @@ world activation and campaign completion remain outstanding.
    the [checkpoint history](gothic3-rebuilding-process.md).
 6. **Publish and continue toward an ending.** Review existing Actions runs and
    workflow triggers, then publish the reviewed revision through the repository's
-   Pages workflow to [`/gothic3/`](https://ael-dev3.github.io/Tervain/gothic3/).
+   Pages workflow to [`/gothic3/`](https://0xaell.github.io/Tervain/gothic3/).
    Completion requires ordinary gameplay through a campaign ending, including
    progression and save/reload across the connected systems.
 
@@ -500,8 +500,8 @@ individual source and review receipts.
 
 | Task | Entry point | Required input |
 | --- | --- | --- |
-| Run the reconstruction | [`/gothic3/`](https://ael-dev3.github.io/Tervain/gothic3/) or the [local build](#run-the-committed-browser-build) | Committed browser assets; no installation picker |
-| Compare a scene with your own installed files | [`/gothic3-local/`](https://ael-dev3.github.io/Tervain/gothic3-local/), documented in the [local viewer guide](gothic3-local.md) | Your Gothic 3 installation, read by the browser |
+| Run the reconstruction | [`/gothic3/`](https://0xaell.github.io/Tervain/gothic3/) or the [local build](#run-the-committed-browser-build) | Committed browser assets; no installation picker |
+| Compare a scene with your own installed files | [`/gothic3-local/`](https://0xaell.github.io/Tervain/gothic3-local/), documented in the [local viewer guide](gothic3-local.md) | Your Gothic 3 installation, read by the browser |
 | Reproduce an asset or native-source checkpoint | [`tools/gothic3/`](../../tools/gothic3/README.md) and the matching [checkpoint receipt](gothic3-rebuilding-process.md) | The extracted offline study and that checkpoint's tool revision |
 | Extend gameplay | [`src/gothic3/`](../../src/gothic3/), starting with the [feature workflow](#how-to-rebuild-one-feature) | Verified records, native behavior evidence and the live session services needed by the feature |
 

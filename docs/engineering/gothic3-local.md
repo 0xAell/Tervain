@@ -1,7 +1,7 @@
 # Gothic 3 from your own install (`/gothic3-local/`)
 
 A study viewer for comparing Tervain with Gothic 3: Ardea and its coast, drawn in the browser from the visitor's own
-installed copy of the game. Hosted at <https://ael-dev3.github.io/Tervain/gothic3-local/>.
+installed copy of the game. Hosted at <https://0xaell.github.io/Tervain/gothic3-local/>.
 
 It is separate from the [`/gothic3/` reconstruction](gothic3-browser-port.md), which it does not change or use.
 

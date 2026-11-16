@@ -2,7 +2,7 @@
 /**
  * Live smoke test: the published build loads, draws, takes input and logs no error.
  *
- *   node tools/live-smoke.mjs [--url https://ael-dev3.github.io/Tervain/] [--revision <commit>] [--quality low] [--out <dir>]
+ *   node tools/live-smoke.mjs [--url https://0xaell.github.io/Tervain/] [--revision <commit>] [--quality low] [--out <dir>]
  *
  * 1. With --revision, waits until the live deployment is whole and is that commit, so the test can run straight
  *    after a deploy and never checks the build before it.
@@ -130,7 +130,7 @@ export async function smoke(page, { expectVersion = null, outDir = null, log = (
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = Object.fromEntries(process.argv.slice(2).flatMap((arg, i, all) => (arg.startsWith('--') ? [[arg.slice(2), all[i + 1]]] : [])));
-  const base = new URL(args.url ?? 'https://ael-dev3.github.io/Tervain/');
+  const base = new URL(args.url ?? 'https://0xaell.github.io/Tervain/');
   if (!base.pathname.endsWith('/')) base.pathname += '/';
   const local = /^(localhost|127\.|\[::1\])/.test(base.hostname);
   let version = null;

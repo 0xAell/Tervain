@@ -18,7 +18,7 @@ For models, see the [3D asset credits and license ledger](docs/engineering/model
 
 Tervain is a **browser prototype** in the `0.0.x` stage (`package.json` holds the version; the title screen shows it and F3 shows the source revision). It is the test bed where the world, the rules and the feel of the game are worked out, and it stays in that stage until its [quality gate](docs/production/versioning.md) is met. The destination is a desktop release built in Unreal Engine; this repository is arranged so that the game's data and rules carry over ([porting to Unreal Engine](#porting-to-unreal-engine)). A desktop package and Steam integration are not yet available.
 
-**[Launch Tervain](https://ael-dev3.github.io/Tervain/)** — Published from `main` through the normal GitHub Pages workflow. Use a desktop WebGL browser; save data is stored in that browser. The title shows the version and F3 shows the source revision.
+**[Launch Tervain](https://0xaell.github.io/Tervain/)** — Published from `main` through the normal GitHub Pages workflow. Use a desktop WebGL browser; save data is stored in that browser. The title shows the version and F3 shows the source revision.
 
 The prototype includes:
 
@@ -124,7 +124,7 @@ What keeps it separate:
 - **No shared code.** No file of the game imports a file of the study, and none of the study imports the game. Only configuration names both: the site's build, because one site serves them, and the two TypeScript projects that keep them apart. `tests/tooling/gothic3Study.test.ts` fails when that stops being true.
 - **Outside the port seed and its checks.** The core, the exported data, the asset manifest and the Unreal project hold nothing of it. It is compiled and tested as a project of its own: `npm run typecheck:gothic3` and `npm run test:gothic3` are the study's, `npm run typecheck:game` and `npm run test:game` the game's, which are also the seed's. In CI they run in separate jobs. `npm run typecheck` and `npm test` run both.
 
-- The [Gothic 3 / Ardea reconstruction](https://ael-dev3.github.io/Tervain/gothic3/) is a new browser implementation guided by the installed game. The Windows executable is not compiled into the site, and decompiled listings are not treated as original source code. Startup and campaign integration are still incomplete. See its [current scope and controls](docs/engineering/gothic3-browser-port.md).
+- The [Gothic 3 / Ardea reconstruction](https://0xaell.github.io/Tervain/gothic3/) is a new browser implementation guided by the installed game. The Windows executable is not compiled into the site, and decompiled listings are not treated as original source code. Startup and campaign integration are still incomplete. See its [current scope and controls](docs/engineering/gothic3-browser-port.md).
 - The [local-install study viewer](docs/engineering/gothic3-local.md) reads the visitor's own installed files in their browser and hosts no game data.
 - How the rebuilding works: [concise process guide](docs/engineering/gothic3-reconstruction-method.md), [overview](docs/engineering/gothic3-rebuild-overview.md), [detailed guide](docs/engineering/gothic3-rebuild-guide.md), [step-by-step workflow and repository map](docs/engineering/gothic3-rebuild-workflow.md), [technical checkpoint history](docs/engineering/gothic3-rebuilding-process.md).
 - The [illustrated Gothic 3 video and Tervain visual audit](docs/art/studies/gothic3-video-2026-10-05/README.md) is a dated study with comparisons and selected motion evidence.

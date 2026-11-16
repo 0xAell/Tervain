@@ -292,7 +292,7 @@ remote changes. Reuse applicable evidence and avoid duplicate runs. The current
 a reviewed merge to `main` builds and deploys the site. A successful deployment
 and a successful gameplay check are separate receipts.
 
-The hosted route is [Gothic 3 reconstruction](https://ael-dev3.github.io/Tervain/gothic3/).
+The hosted route is [Gothic 3 reconstruction](https://0xaell.github.io/Tervain/gothic3/).
 Record its deployed revision and supported behavior. Continue through remaining
 startup, world and campaign dependencies until the completion criteria above
 are demonstrated.

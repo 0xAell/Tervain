@@ -8,7 +8,7 @@ import { rockPileUrl } from '../../src/presentation/sourceRockPile';
 import { ANIMALS, animalModelUrl } from '../../src/presentation/animals';
 
 const SHA = '0123456789abcdef0123456789abcdef01234567';
-const HOSTED = `https://raw.githubusercontent.com/ael-dev3/Tervain/${SHA}/public/models/`;
+const HOSTED = `https://raw.githubusercontent.com/0xAell/Tervain/${SHA}/public/models/`;
 
 describe('original model delivery', () => {
   it('keeps every model loader local under a served subdirectory', () => {

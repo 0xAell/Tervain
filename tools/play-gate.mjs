@@ -2,7 +2,7 @@
 /**
  * The play gate: plays the hosted build the way a player does and fails on what a player would see.
  *
- *   node tools/play-gate.mjs [--url https://ael-dev3.github.io/Tervain/] [--profile desktop|mac|all]
+ *   node tools/play-gate.mjs [--url https://0xaell.github.io/Tervain/] [--profile desktop|mac|all]
  *                            [--against main|head|<sha>|none] [--tag name] [--out dir] [--video false]
  *
  * 1. The served build's version.json must name the commit it is checked against (main by default), and the page
@@ -31,7 +31,7 @@ import { LoadFailure, PROBE_INIT, waitUntilReady } from './budget-probe.mjs';
 import { waitForSettledDeploy } from './live-deploy.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1]?.startsWith('--') || all[i + 1] === undefined ? 'true' : all[i + 1]]] : acc), []));
-const URL_ = args.url ?? 'https://ael-dev3.github.io/Tervain/';
+const URL_ = args.url ?? 'https://0xaell.github.io/Tervain/';
 const AGAINST = args.against ?? 'main';
 const TAG = args.tag ?? new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 const OUT = path.resolve(args.out ?? 'play-gate-runs');

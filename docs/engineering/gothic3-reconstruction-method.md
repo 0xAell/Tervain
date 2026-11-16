@@ -114,7 +114,7 @@ binaries available; machine-specific research paths are not portable inputs.
 ## Current browser milestone and remaining work
 
 The hosted application is available at
-[the Gothic 3 route](https://ael-dev3.github.io/Tervain/gothic3/).
+[the Gothic 3 route](https://0xaell.github.io/Tervain/gothic3/).
 An observed Ardea session loaded recovered scene objects and characters, allowed
 entry into the scene, displayed the running `Xardas_FindXardas` quest, saved
 position, world clock and quest journal, and restored them after reloading.

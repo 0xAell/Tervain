@@ -66,5 +66,5 @@ export function inferSchema(value: unknown): Schema {
 
 /** The schema document for one data file. */
 export function documentSchema(path: string, about: string, data: unknown): Schema {
-  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `https://ael-dev3.github.io/Tervain/data/schema/${path.replace(/\.json$/, '.schema.json')}`, title: path, description: about, ...inferSchema(data) };
+  return { $schema: 'https://json-schema.org/draft/2020-12/schema', $id: `https://0xaell.github.io/Tervain/data/schema/${path.replace(/\.json$/, '.schema.json')}`, title: path, description: about, ...inferSchema(data) };
 }

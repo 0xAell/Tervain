@@ -5,7 +5,7 @@ const args = Object.fromEntries(process.argv.slice(2).flatMap((a, i, all) => a.s
 const out = args.out ?? 'placement-audit.json';
 // A failed rerun must never leave a previous successful receipt available to a gate.
 fs.rmSync(out, { force: true });
-const url = new URL(args.url ?? 'https://ael-dev3.github.io/Tervain/');
+const url = new URL(args.url ?? 'https://0xaell.github.io/Tervain/');
 if (args.quality) {
   if (!['low', 'medium', 'high'].includes(args.quality)) throw new Error('Invalid audit quality');
   url.searchParams.set('quality', args.quality);

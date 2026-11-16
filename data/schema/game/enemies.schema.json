@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/enemies.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/game/enemies.schema.json",
   "title": "game/enemies.json",
   "description": "Hostile archetypes, their posts, and the numbers of an encounter.",
   "type": "object",

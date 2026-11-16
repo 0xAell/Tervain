@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/sound.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/game/sound.schema.json",
   "title": "game/sound.json",
   "description": "The in-world score and the world’s sound, as the rules see them: the pieces of the score with their purpose, origin and length in seconds; which pieces answer each mood, threat and place; the score’s pacing in seconds and metres; the looping beds of the soundscape; and the single calls placed around the listener, with how often each comes at full density. Where each bed is heard, and how dense each call is by place and hour, are rules in core/rules/soundscape.ts; the mood of a place and the threat of a moment are rules in core/rules/music.ts.",
   "type": "object",

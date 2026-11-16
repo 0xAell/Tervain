@@ -47,7 +47,7 @@ function buildStamp() {
 export const GAME_TEST_TIMEOUT = 90_000;
 export const GOTHIC3_STUDY_TESTS = ['tests/gothic3*/**/*.test.ts', 'tests/gothic3*.test.ts'];
 
-// The site is served from https://ael-dev3.github.io/Tervain/ so assets need a repo-relative base.
+// The site is served from https://0xaell.github.io/Tervain/ so assets need a repo-relative base.
 export default defineConfig(({ command, mode }) => {
   const modelBase = productionModelAssetBase(command, mode, process.env);
   return {

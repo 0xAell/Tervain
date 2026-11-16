@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/animals.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/game/animals.schema.json",
   "title": "game/animals.json",
   "description": "The nineteen animals with their paces, each kind’s senses, temperament and call, how long a gesture lasts, their behaviour, and the hunting rules.",
   "type": "object",

@@ -25,7 +25,7 @@ import path from 'node:path';
 import { openPage } from './cdp.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1]?.startsWith('--') || all[i + 1] === undefined ? 'true' : all[i + 1]]] : acc), []));
-const URL_ = args.url ?? 'https://ael-dev3.github.io/Tervain/';
+const URL_ = args.url ?? 'https://0xaell.github.io/Tervain/';
 const TAG = args.tag ?? `vg-${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}`;
 const OUT = path.join(path.resolve(args.out ?? 'visual-gate-runs'), TAG);
 const PROFILE = { mac: { w: 1440, h: 900, dpr: 2 }, desktop: { w: 1280, h: 720, dpr: 1 } }[args.profile ?? 'mac'];

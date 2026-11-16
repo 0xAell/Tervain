@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/items.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/game/items.schema.json",
   "title": "game/items.json",
   "description": "Every item: display string keys, kind, what using it does, and the order of the inventory panel.",
   "type": "object",
