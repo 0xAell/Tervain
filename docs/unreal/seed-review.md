@@ -7,11 +7,11 @@ score says so. It replaces the review of 15 November, which scored 8, 9, 9, 8 an
 
 | Requirement | Score | In one line |
 | --- | --- | --- |
-| [Engine-agnostic core](#1-engine-agnostic-core) | 10 / 10 | Every rule of the game is in the core, with a boundary CI enforces. After five readings of the scene layer, the last an adversarial one checked by a clean-checkout audit, nothing known to decide play is left there. |
+| [Engine-agnostic core](#1-engine-agnostic-core) | 10 / 10 | Every rule of the game is in the core, with a boundary CI enforces. After six readings of the scene layer, the last two adversarial and each run beside a clean-checkout audit of the commit it read, nothing known to decide play is left there. |
 | [Asset manifest](#2-asset-manifest) | 10 / 10 | Every file has a source, a licence, a size and a plan, and every one to be replaced names its pack. Files with an open question are replaced before anything ships. |
 | [Unreal mapping documents](#3-unreal-mapping-documents) | 10 / 10 | Every quotation is checked against its page and every number against the data. The one page no tool can read is cited, never quoted. |
 | [C++ skeleton](#4-c-skeleton) | 9 / 10 | It compiles, links and runs against stand-ins, cannot drift from the core unnoticed, and every engine name it assumes is entered with its evidence. It has never been built by the engine: that build is the ceiling. |
-| [Cleanup](#5-cleanup) | 10 / 10 | The tree is clean of private material and stays so by a CI check. No exported name in the game's source is unreferenced. |
+| [Cleanup](#5-cleanup) | 10 / 10 | The tree is clean of private material and stays so by a CI check. No exported name, member or field of the game's source is left that nothing reads. |
 
 ## 1. Engine-agnostic core
 
@@ -31,7 +31,7 @@ What is there:
   `npm run data:check` fails in CI when `data/` is not what the core writes today. The export carries what is played, not only what is authored: the forest as the web build
   plants it, the stones and the rock piles laid round it, the props the rules lean on, and how long each spoken line
   lasts.
-- The scene layer was read end to end five times for anything that still decides how the game plays, and each
+- The scene layer was read end to end six times for anything that still decides how the game plays, and each
   reading's findings were lifted in pull requests of their own. The fifth, on 16 November 2026, read the scene and
   rendering layer of `main` after [#832](https://github.com/ael-dev3/Tervain/pull/832) as an adversary would, with a clean-checkout audit of the same commit, and found
   what the earlier four had passed over: the
@@ -40,6 +40,15 @@ What is there:
   while play is held, the water clock's halt under reduced motion written down nowhere, a collider that followed a
   figure's visibility rather than the core's rule, values typed again, a check made twice and six unused pieces of
   code. All of it is lifted ([#835](https://github.com/ael-dev3/Tervain/pull/835), [#836](https://github.com/ael-dev3/Tervain/pull/836), [#837](https://github.com/ael-dev3/Tervain/pull/837)).
+  A sixth reading, the same day, read `main` after [#839](https://github.com/ael-dev3/Tervain/pull/839) the same way, beside a clean-checkout audit of that commit
+  (82,546 files; typecheck, the data, manifest and Unreal checks and the build pass; 556 test files and 5,462 tests
+  pass; `npm audit` finds nothing, development tools included), and found what the fifth had missed: a change of
+  graphics quality put every hostile back at its post with its health whole, a way out of any fight ([#840](https://github.com/ael-dev3/Tervain/pull/840)); held
+  play holding different things behind different panels, and the benchmark running the world unattended ([#841](https://github.com/ael-dev3/Tervain/pull/841));
+  the physics typing the doorstep and archive stones and the surfaces' friction a second time ([#842](https://github.com/ael-dev3/Tervain/pull/842)); four small
+  rules outside the core: when a resident stops to talk, which save Continue loads, whether the bow may loose, and an
+  unrecorded line's length ([#843](https://github.com/ael-dev3/Tervain/pull/843)); and code nothing read that the export scan could not see ([#844](https://github.com/ael-dev3/Tervain/pull/844)). All of it
+  is lifted.
   [System mapping](system-mapping.md#still-in-the-scene-layer) names what stays in the scene layer and why none of it is
   a rule of the game: the order of a step, what a ray meets, the camera's smoothing, how a model loads, where the arrow
   leaves the bow, where props stand, which device does what, a body's measured size, when the page is left and what the
@@ -59,7 +68,8 @@ What is there:
   [#825](https://github.com/ael-dev3/Tervain/pull/825), [#826](https://github.com/ael-dev3/Tervain/pull/826),
   [#827](https://github.com/ael-dev3/Tervain/pull/827), [#828](https://github.com/ael-dev3/Tervain/pull/828),
   [#829](https://github.com/ael-dev3/Tervain/pull/829), [#830](https://github.com/ael-dev3/Tervain/pull/830),
-  [#831](https://github.com/ael-dev3/Tervain/pull/831), [#835](https://github.com/ael-dev3/Tervain/pull/835), [#836](https://github.com/ael-dev3/Tervain/pull/836), [#837](https://github.com/ael-dev3/Tervain/pull/837).
+  [#831](https://github.com/ael-dev3/Tervain/pull/831), [#835](https://github.com/ael-dev3/Tervain/pull/835), [#836](https://github.com/ael-dev3/Tervain/pull/836), [#837](https://github.com/ael-dev3/Tervain/pull/837),
+  [#840](https://github.com/ael-dev3/Tervain/pull/840), [#841](https://github.com/ael-dev3/Tervain/pull/841), [#842](https://github.com/ael-dev3/Tervain/pull/842), [#843](https://github.com/ael-dev3/Tervain/pull/843), [#844](https://github.com/ael-dev3/Tervain/pull/844).
 
 What is missing from a ten: nothing the repository can do. Porting the rules to C++ is the port's work, phase by phase
 in the [roadmap](roadmap.md); the seed mirrors two of them as a worked example.
@@ -166,8 +176,11 @@ What is there:
   ([#782](https://github.com/ael-dev3/Tervain/pull/782), [#783](https://github.com/ael-dev3/Tervain/pull/783)). The two
   pieces of scene code that were built and tested but unused, the prepared broadleaf and the asset library hook, went
   with the records and tests that named them ([#805](https://github.com/ael-dev3/Tervain/pull/805)). No exported name in
-  the game's source is left that nothing else in the repository refers to, and the six unused members and values the
-  fifth reading found inside the scene code went too ([#837](https://github.com/ael-dev3/Tervain/pull/837)).
+  the game's source is left that nothing else in the repository refers to. What the later readings found unused inside
+  the code went too: six members and values the fifth found ([#837](https://github.com/ael-dev3/Tervain/pull/837)); a camera view never used, a pose
+  blend no caller asked for, save-store methods with no caller and a context field written and never read, found by the
+  sixth ([#844](https://github.com/ael-dev3/Tervain/pull/844)); and nine methods nothing called and a field nothing read, found by scanning every class
+  member and field ([#845](https://github.com/ael-dev3/Tervain/pull/845)).
 - The teaser is intact: its film and poster under `docs/media/teaser` are the same files, to the byte, as before this
   rework began, and the film decodes from end to end as its record describes it (44.9 s, 1920 × 1080 at 60 frames a
   second, H.264 with AAC sound).
@@ -187,7 +200,7 @@ What is there:
 
 - **The play gate.** Every pull request above passed it: on its head, the game drew no more draw calls and triangles than
   the live build and logged no console error. From [#800](https://github.com/ael-dev3/Tervain/pull/800) on, every lift
-  left the figures where they were, through [#837](https://github.com/ael-dev3/Tervain/pull/837): 284 draw calls and 2,915,743 triangles. Its chance failures had one cause, found
+  left the figures where they were, through [#845](https://github.com/ael-dev3/Tervain/pull/845): 284 draw calls and 2,915,743 triangles. Its chance failures had one cause, found
   on 15 November 2026: on a software renderer the game's first view can outlast the browser's GPU watchdog, which kills
   the GPU process. The gate now starts its browser without the watchdog
   ([#791](https://github.com/ael-dev3/Tervain/pull/791), [#793](https://github.com/ael-dev3/Tervain/pull/793);
@@ -203,10 +216,12 @@ What is there:
   typechecks, passes the data, manifest and Unreal checks, builds, and passes the whole test suite of both projects:
   556 files, 5,461 tests. `npm audit` finds no vulnerability, development tools included. The same audit of `main`
   after [#832](https://github.com/ael-dev3/Tervain/pull/832), before the fifth reading, had passed too (554 files, 5,456 tests).
-- **No dead code.** Of the 2,482 names the game's source exports, none is left that nothing refers to (409 are used
+- **No dead code.** Of the 2,490 names the game's source exports, none is left that nothing refers to (408 are used
   only in their own file). The compiler's checks for unused locals and parameters, on in `tsconfig.json`, find none.
-  A scan for class fields that are written and never read found seven candidates, and none is dead: four are counters
-  read as they count, and three are read by the subclasses that draw the figures.
+  Read with the bundler's own parser, none of the game's 1,161 class methods, getters and setters is named anywhere
+  but in its own declaration, and none of its 1,362 class fields is written and never read. The same scan of `main`
+  after [#844](https://github.com/ael-dev3/Tervain/pull/844) found nine such methods and one such field, and they went in [#845](https://github.com/ael-dev3/Tervain/pull/845). The scan counts a field
+  filled with `??=` as read, and a counter whose new value is used as read as it counts.
 - **The published build.** After every deploy, CI plays the live build: it must load, draw, pause and resume, walk and
   log no error (`npm run smoke:live`, [#797](https://github.com/ael-dev3/Tervain/pull/797)). The deploy and that check
   passed after every merge from [#797](https://github.com/ael-dev3/Tervain/pull/797) on.

@@ -119,8 +119,17 @@ second time what runs while play is held (now `WHAT_RUNS` again); the water cloc
 stills the swell he swims in, was a choice no one had written down (now said and tested in the core); the silent
 residents' collider followed their visibility rather than the core's rule; the physics binding typed the step's height
 and width again; and the app checked a threat that the interactable already rules out. Six unused pieces of code went
-with them. Nothing known to decide play is left in
-the scene layer.
+with them.
+
+A sixth reading, the same day and the same way, beside a clean-checkout audit of the commit it read, found what the
+fifth had missed, and all of it has been lifted. A change of graphics quality rebuilt every hostile whole at its post
+(`HostileMoment`: a rebuild keeps each fight). Held play held different things behind different panels: the water ran
+behind the journal but not the pause menu (it now runs with `WHAT_RUNS.clock`), a skinning was cancelled where the
+rite was held (both are held), and the benchmark ran the world unattended (a test control). The physics typed the
+doorstep and archive stones and the surfaces' friction again (`buildingTreads`, `archiveSupports`, `SURFACE_FRICTION`).
+When a resident stops to talk (`stopsToTalk`), which save Continue loads (`continueFrom`), whether the bow may loose at
+the moment it would (`bowAvailable` asked again) and how long an unrecorded line lasts were decided outside the core.
+Nothing known to decide play is left in the scene layer.
 
 What stays in the scene layer, and why it is not a rule of the game:
 
