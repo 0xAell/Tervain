@@ -28,7 +28,8 @@ export const UNREAL_PREFIX = {
 /**
  * Texture-name suffixes by what the texture holds. Epic's page gives the pattern but no suffix list; these are this
  * project's. A leaf atlas's `-data` image is a packed mask (red alpha, green thickness, blue underside gain), so `_M`;
- * `_ORM` is kept for packed occlusion, roughness and metallic, which no file here holds yet.
+ * `_ORM` is kept for packed occlusion, roughness and metallic, which no file here holds yet. An interface image is none
+ * of a material's maps and takes no suffix.
  */
 export const TEXTURE_SUFFIX = { albedo: '_D', color: '_D', normal: '_N', data: '_M', orm: '_ORM' };
 

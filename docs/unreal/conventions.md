@@ -98,6 +98,9 @@ as `[Prefix]_[Family]_[Name]` in PascalCase under `/Game/Tervain`.
 | Sound wave | `SW_` | this project (Epic's page lists none for sounds) |
 | Texture suffixes: base colour, normal, packed mask, packed occlusion-roughness-metallic | `_D`, `_N`, `_M`, `_ORM` | this project (Epic gives the descriptor slot but no list) |
 
+A texture's suffix says which of a material's maps it is. An interface image is none of them and takes none: the
+title's emblem is `T_UI_HegemonyEmblem`.
+
 C++ types follow the engine's own prefixes: `F` for structs, `E` for enums, `U` and `A` for object and actor classes,
 `b` for booleans. Everything of this project is prefixed `Tervain`: `FTervainItemRow`, `ETervainActivity`,
 `UTervainDataSubsystem`.
