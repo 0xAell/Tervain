@@ -3,7 +3,10 @@
 A scored review of the five things this repository was reworked to provide for an Unreal Engine port, written by the
 same hand that did the work, with the evidence for each score and what is missing from a ten. The scores are for the
 state of `main` on the day above. Nothing here has been run in Unreal Engine; where that is what a ten needs, the
-score says so. It replaces the review of 15 November, which scored 8, 9, 9, 8 and 9.
+score says so. It replaces the review of 15 November, which scored 8, 9, 9, 8 and 9. A seventh reading, the same day,
+read the documents a newcomer opens first and the notices, against the port the repository is for, rather than the
+code alone. It found stale documents the earlier readings had not opened, so the Cleanup score given that morning was
+too high; with them corrected it stands at ten ([what it found](#5-cleanup)).
 
 | Requirement | Score | In one line |
 | --- | --- | --- |
@@ -11,7 +14,7 @@ score says so. It replaces the review of 15 November, which scored 8, 9, 9, 8 an
 | [Asset manifest](#2-asset-manifest) | 10 / 10 | Every file has a source, a licence, a size and a plan, and every one to be replaced names its pack. Files with an open question are replaced before anything ships. |
 | [Unreal mapping documents](#3-unreal-mapping-documents) | 10 / 10 | Every quotation is checked against its page and every number against the data. The one page no tool can read is cited, never quoted. |
 | [C++ skeleton](#4-c-skeleton) | 9 / 10 | It compiles, links and runs against stand-ins, cannot drift from the core unnoticed, and every engine name it assumes is entered with its evidence. It has never been built by the engine: that build is the ceiling. |
-| [Cleanup](#5-cleanup) | 10 / 10 | The tree is clean of private material and stays so by a CI check. No exported name, member or field of the game's source is left that nothing reads. |
+| [Cleanup](#5-cleanup) | 10 / 10 | The tree is clean of private material and stays so by a CI check. No exported name, member or field of the game's source is left that nothing reads, and no living document still treats the engine as open. |
 
 ## 1. Engine-agnostic core
 
@@ -187,6 +190,21 @@ What is there:
 - Private material removed from the tree: personal paths, account wording, tool and working-branch names, in the game's
   documents and in the separate Gothic 3 study ([#785](https://github.com/ael-dev3/Tervain/pull/785),
   [#787](https://github.com/ael-dev3/Tervain/pull/787), [#788](https://github.com/ael-dev3/Tervain/pull/788)).
+- A seventh reading, of the documents a newcomer reads first and of the notices, found what the readings of the code
+  had not opened, and all of it is corrected ([#851](https://github.com/0xAell/Tervain/pull/851)). The
+  [decision register](../decisions.md) did not record the port at all: it still proposed Three.js as the runtime (P04)
+  and asked which engine should ship (O04); the port is now its accepted decision A169. The
+  [architecture](../engineering/architecture.md) still treated the engine as open, with Electron as the desktop shell
+  and a table of modules written at `0.0.5` whose names had drifted; it now describes the layers as they stand. The
+  [play gate's page](../engineering/play-gate.md) set out its required check twice and did not describe the budget gate
+  every pull request is held to. `NOTICE`, the licence's scope and the two notices the site carries named two Warpkeep
+  adaptations removed in `0.0.13`;
+  [`tests/tooling/softwareNotices.test.ts`](../../tests/tooling/softwareNotices.test.ts) now holds all four to the
+  headers of the source files. And a headed browser in a fresh profile stopped at its first-run page, which kept the play
+  gate from starting on a machine that had not run it before (`--no-first-run` in `tools/cdp.mjs`). The same reading
+  ran the online checks again: every quotation of the porting documents (109 passages and rows on 28 pages) and the
+  passage of every engine name (91 pages) was found; and the teaser's film and poster are still the bytes they were
+  before the rework, the film decoding from end to end.
 - It stays clean: the CI job *Hygiene* fails a pull request whose commits, added lines, title, description or branch
   name carry a mailbox identity, a session link, a host name, a network address, a home or temporary path, or a key
   ([#795](https://github.com/ael-dev3/Tervain/pull/795)).
@@ -224,4 +242,8 @@ What is there:
   filled with `??=` as read, and a counter whose new value is used as read as it counts.
 - **The published build.** After every deploy, CI plays the live build: it must load, draw, pause and resume, walk and
   log no error (`npm run smoke:live`, [#797](https://github.com/ael-dev3/Tervain/pull/797)). The deploy and that check
-  passed after every merge from [#797](https://github.com/ael-dev3/Tervain/pull/797) on.
+  passed after every merge from [#797](https://github.com/ael-dev3/Tervain/pull/797) to
+  [#847](https://github.com/0xAell/Tervain/pull/847). After [#850](https://github.com/0xAell/Tervain/pull/850) the
+  check failed: the account's rename had moved the hosted build to https://0xaell.github.io/Tervain/, and the check
+  still loaded the old address. [#849](https://github.com/0xAell/Tervain/pull/849) moved it, and the deploy and the
+  check passed at the new address after its merge.

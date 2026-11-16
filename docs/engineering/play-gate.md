@@ -9,23 +9,28 @@ passes on the live build.
 
 ## A required check
 
-Hosted runners have no GPU, so the gate runs on a machine that has one. For a pull request, build and preview its
-head, run `npm run play-gate -- --url http://127.0.0.1:4173/ --against head`, and paste the summary into the pull
-request (description or a comment). A passing run ends with `play-gate: PASS <commit>`. The **Play gate** workflow
-looks for that line for the current head commit and sets the `play-gate` status, which branch protection on `main`
-requires. Every new push to the pull request needs a new run. After the merge, run the gate on the live build
-(`npm run play-gate`) once the deploy lands.
+Every pull request needs a `play-gate: PASS <head commit>` line, pasted into its description or a comment. The
+**Play gate** workflow looks for that line for the current head commit and sets the `play-gate` status, which branch
+protection on `main` requires. Every new push to the pull request needs a new run. Build and preview the head first
+(`npm run build`, then `npm run preview`, which serves it at `http://127.0.0.1:4173/`); either of two runs gives the line
+when it passes:
 
-## A required check
+- **The budget gate**, the rule every pull request has been held to since 18 October 2026
+  ([the rule and why](../perf/LATEST.md#the-play-gates-rule-from-2026-10-18)):
 
-Hosted runners have no GPU, so the gate runs on a machine that has one. For a pull request, build and preview its
-head, run `npm run play-gate -- --url http://127.0.0.1:4173/ --against head`, and paste the summary into the pull
-request (description or a comment). A passing run ends with `play-gate: PASS <commit>`. The **Play gate** workflow
-looks for that line for the current head commit and sets the `play-gate` status, which branch protection on `main`
-requires. Every new push to the pull request needs a new run. After the merge, run the gate on the live build
-(`npm run play-gate`) once the deploy lands.
+      npm run play-gate -- --budget-url https://0xaell.github.io/Tervain/ --url http://127.0.0.1:4173/ --head <head commit>
 
-Run it on an otherwise idle machine with a visible Chrome window: other work running alongside skews frame times.
+  It loads the live build twice and the head once at the same spot, and passes when the head's draw calls and
+  triangles are not above live's, neither logs a console error, and the page serves the head's revision. It counts
+  rather than times, so a machine without a GPU can run it on a software renderer: start it under a virtual display
+  (`xvfb-run -a npm run play-gate -- ...`), and behind a proxy with `NODE_USE_ENV_PROXY=1`, so that it reaches the
+  live build.
+- **The clip run**, on a machine with a GPU: `npm run play-gate -- --url http://127.0.0.1:4173/ --against head`. It
+  plays the head with real input, as described below.
+
+After the merge, CI's `live-smoke` job plays the published build, and `npm run play-gate` runs the clip run on the
+live build once the deploy lands. Run it on an otherwise idle machine with a visible Chrome window: other work running
+alongside skews frame times.
 
 ## What it does
 

@@ -118,8 +118,10 @@ export async function openPage(url = process.env.TERVAIN_URL ?? 'http://127.0.0.
   let port = null;
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'tervain-cdp-'));
   // Headed runs draw on the machine's own GPU (benchmarks on real hardware); headless ones fall back to software.
+  // Every run has a fresh profile, so a headed browser would open on its first-run page and, there, never start its
+  // debugging port: `--no-first-run` skips that page.
   const browserArgs = [
-    ...(headed ? [] : ['--headless=new']), '--no-sandbox', '--hide-scrollbars', '--ignore-gpu-blocklist', ...(headed ? [] : SOFTWARE_RENDERER_FLAGS),
+    ...(headed ? [] : ['--headless=new']), '--no-sandbox', '--no-first-run', '--hide-scrollbars', '--ignore-gpu-blocklist', ...(headed ? [] : SOFTWARE_RENDERER_FLAGS),
     `--window-size=${w},${h}`, ...flags, '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank',
   ];
   if (process.platform === 'win32' && headed) browserArgs.splice(4, 0, '--use-angle=d3d11');

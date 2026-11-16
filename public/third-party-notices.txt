@@ -35,8 +35,7 @@ Source: https://github.com/ael-dev3/Warpkeep
 Revision: 786c0b2be6f2d2e7eb2de02ef3b6826c8907fc32
 
 Tervain rewrites and modifies software in src/presentation/environment.ts,
-src/presentation/vegetation.ts, src/presentation/ground/grass.ts,
-src/presentation/ground/patchMaterial.ts, and src/presentation/ground/tileStream.ts.
+src/presentation/vegetation.ts, and src/presentation/ground/tileStream.ts.
 Their source headers identify the original Warpkeep paths and describe changes.
 The complete Apache License, Version 2.0 follows this retained upstream notice.
 The license text is copied unmodified from Warpkeep's LICENSE at that revision.
