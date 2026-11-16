@@ -219,6 +219,12 @@ What is there:
   ran the online checks again: every quotation of the porting documents (109 passages and rows on 28 pages) and the
   passage of every engine name (91 pages) was found; and the teaser's film and poster are still the bytes they were
   before the rework, the film decoding from end to end.
+- No pull request is left open, as the decision register's A59 asks. The 270 still open from the automated series of
+  13 to 21 October 2026 were closed as superseded by the owner's decision, each with its measured reason: 199 no longer
+  merged after the rework, and the 71 that still merged would have brought back repro tools and perf records the
+  cleanup had removed. Their branches are kept. Three older ones were carried instead: the development server's
+  security fix and a hole in the budget gate ([#852](https://github.com/0xAell/Tervain/pull/852)), and 0.0.49's tree
+  fix ([#854](https://github.com/0xAell/Tervain/pull/854)).
 - It stays clean: the CI job *Hygiene* fails a pull request whose commits, added lines, title, description or branch
   name carry a mailbox identity, a session link, a host name, a network address, a home or temporary path, or a key
   ([#795](https://github.com/0xAell/Tervain/pull/795)).
@@ -232,7 +238,7 @@ What is there:
 
 - **The play gate.** Every pull request above passed it: on its head, the game drew no more draw calls and triangles than
   the live build and logged no console error. From [#800](https://github.com/0xAell/Tervain/pull/800) on, every lift
-  left the figures where they were, through [#845](https://github.com/0xAell/Tervain/pull/845): 284 draw calls and 2,915,743 triangles. Its chance failures had one cause, found
+  left the figures where they were, through [#854](https://github.com/0xAell/Tervain/pull/854): 284 draw calls and 2,915,743 triangles. Its chance failures had one cause, found
   on 15 November 2026: on a software renderer the game's first view can outlast the browser's GPU watchdog, which kills
   the GPU process. The gate now starts its browser without the watchdog
   ([#791](https://github.com/0xAell/Tervain/pull/791), [#793](https://github.com/0xAell/Tervain/pull/793);
@@ -248,6 +254,9 @@ What is there:
   typechecks, passes the data, manifest and Unreal checks, builds, and passes the whole test suite of both projects:
   556 files, 5,461 tests. `npm audit` finds no vulnerability, development tools included. The same audit of `main`
   after [#832](https://github.com/0xAell/Tervain/pull/832), before the fifth reading, had passed too (554 files, 5,456 tests).
+  At the end of the day, `main` after [#854](https://github.com/0xAell/Tervain/pull/854) typechecks, passes the data, manifest
+  and Unreal checks and the game's and seed's suite (429 files, 3,460 tests), and `npm audit` finds no vulnerability at
+  any level, development tools included.
 - **No dead code.** Of the 2,490 names the game's source exports, none is left that nothing refers to (408 are used
   only in their own file). The compiler's checks for unused locals and parameters, on in `tsconfig.json`, find none.
   Read with the bundler's own parser, none of the game's 1,161 class methods, getters and setters is named anywhere
