@@ -1,5 +1,5 @@
 import RAPIER from '@dimforge/rapier3d-compat';
-import { FENCE_WALL_LIFT, PROP_COLLIDER, type Collider as WorldCollider, type Colliders } from '../core/world/colliders';
+import { authoredBounds, FENCE_WALL_LIFT, PROP_COLLIDER, type Collider as WorldCollider, type Colliders } from '../core/world/colliders';
 import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../core/world/layout';
 import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG, type PropSpec } from '../core/world/physicalProps';
 // Loose bodies fall under the same gravity as the wanderer.
@@ -118,11 +118,10 @@ export class RealmPhysics {
         this.fixed.push({ source, collider, enabled: source.active }); this.rocks.push({ source, collider }); this.rockHandles.add(collider.handle);
         continue;
       }
-      const base = terrain.heightAt(source.x, source.z);
-      const building = source.id.startsWith('b:') ? BUILDINGS.find(b => `b:${b.id}` === source.id) : undefined;
-      const fallbackHeight = building ? building.h + Math.min(building.w, building.d) * .65 + .5
-        : source.id.startsWith('ambient:') ? 2.1 : 4;
-      const low = source.minY ?? base - .4, high = source.maxY ?? base + fallbackHeight;
+      // The core bounds every authored shape and the scene measures its own; a shape that came without bounds stands as
+      // the core's authored height says.
+      const authored = source.minY === undefined || source.maxY === undefined ? authoredBounds(source, terrain) : null;
+      const low = source.minY ?? authored!.minY, high = source.maxY ?? authored!.maxY;
       if (high <= low) continue;
       const desc = source.kind === 'box'
         ? RAPIER.ColliderDesc.cuboid(source.hw, (high - low) / 2, source.hd).setRotation(yawRotation(source.yaw))

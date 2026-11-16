@@ -14,7 +14,7 @@ import { Game } from './core/game/game';
 import { nextHint } from './core/game/hints';
 import { restockParams } from './core/game/hunting';
 import { INSPECT_POINTS } from './core/content/inspect';
-import { ITEMS, itemAction } from './core/content/items';
+import { HEAL_KEY_ITEM, ITEMS, itemAction } from './core/content/items';
 import { hourOfDay, createInitialState, formatClock, clockDay } from './core/game/state';
 import { EVIDENCE_IDS, type Allocation, type GameEvent, type ItemId, type NpcId, type PlaceId, type WorldState } from './core/game/types';
 import { Input } from './platform/input';
@@ -1565,7 +1565,7 @@ export class App {
     if (this.overlay === 'none') {
       if (inp.pressed('quicksave')) this.saveTo('quick');
       if (inp.pressed('quickload')) this.loadSlot('quick');
-      if (inp.pressed('heal')) this.usePoultice();
+      if (inp.pressed('heal')) this.useHealKeyItem();
       const slot = quickSlotPressed((code) => inp.pressedKey(code), this.settings.bindings);
       if (slot !== null) this.activateQuickSlot(slot);
     }
@@ -2192,7 +2192,7 @@ export class App {
     else if (result.reason === 'missing_item') this.hud.toast(item === 'poultice' ? S('toast.nopoultice') : `${S(ITEMS[item].nameKey)} is no longer carried.`);
   }
 
-  usePoultice() { this.useInventoryItem('poultice'); }
+  useHealKeyItem() { this.useInventoryItem(HEAL_KEY_ITEM); }
 
   /* =============================== game events =============================== */
 

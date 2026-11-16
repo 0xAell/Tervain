@@ -1,5 +1,6 @@
 import { ITEM_ORDER, ITEMS } from '../../core/content/items';
 import type { ItemId, WorldState } from '../../core/game/types';
+import { WOUNDED_BELOW } from '../../core/rules/journey';
 
 /** Clamp unreliable/empty resource input before it reaches CSS or an accessible progress value. */
 export function resourceFraction(value: number, maximum: number): number {
@@ -9,6 +10,11 @@ export function resourceFraction(value: number, maximum: number): number {
 
 export const INVENTORY_GROUPS = ['all', 'weapon', 'tool', 'quest', 'consumable', 'clothing', 'material'] as const;
 export type InventoryGroup = typeof INVENTORY_GROUPS[number];
+/** Whether the health bar shows low: from the share at which the core counts him wounded (his breath gives out, his heart is heard). */
+export function healthLow(fraction: number): boolean {
+  return fraction < WOUNDED_BELOW;
+}
+
 export function inventoryItems(state: Pick<WorldState, 'inventory'>, group: InventoryGroup = 'all'): ItemId[] {
   // Coins have their own purse readout rather than pretending to be usable equipment.
   return ITEM_ORDER.filter((id) => id !== 'coin' && (state.inventory[id] ?? 0) > 0 && (group === 'all' || ITEMS[id].kind === group));

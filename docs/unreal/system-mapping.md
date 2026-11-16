@@ -98,11 +98,10 @@ who calls out at a trespass; and values the scene had typed again instead of rea
 
 A third reading found more, and most of it has been lifted or exported: the forest as the web build plants it, who
 sees a trespass, the sizes figures are drawn at, the props the core's rules lean on (the benches, the noticeboard, the
-kit table, the quarry's boulders and the field fences) and which rock piles the shore keeps. What it found besides is
-to be lifted in a pull request of its own:
+kit table, the quarry's boulders and the field fences), which rock piles the shore keeps, and values the scene had typed
+again: the walk grids' widths, the heal key's item, the health bar's low mark, the night rule in sound and the heights
+of shapes no mesh measured. What it found besides is to be lifted in a pull request of its own:
 
-- **Small values typed again**: the walk grid's widths, the heal key's item, the health bar's low mark, a copy of the
-  night rule in sound and the physics module's fallback heights are typed or decided where the core already has them.
 - **Rules still decided in the scene**: which animals graze, a resident's time to stand, the moments that save besides
   the core's, and which events earn a remark or a sting.
 

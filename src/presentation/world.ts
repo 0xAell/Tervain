@@ -16,7 +16,8 @@ import { worldView, type WorldView } from '../core/game/worldView';
 import { buildStaticColliders, type Colliders } from '../core/world/colliders';
 import { ARCHIVE_ROOM, bySpec, SHORTCUT, SLUICE, STREAMS, WORLD } from '../core/world/layout';
 import { archiveBarriers, insideArchive, occupiesArchive } from '../core/world/archive';
-import { NavGrid } from '../core/world/nav';
+import { NavGrid, WALK_GRID_RADIUS } from '../core/world/nav';
+import { widerRouteRadii } from '../core/rules/enemyRoute';
 import { Terrain, distToPolyline } from '../core/world/terrain';
 import { SkyRig } from './sky';
 import { buildTerrainTilesAsync } from './terrainMesh';
@@ -389,13 +390,15 @@ export class WorldScene {
       physics.setWater(water.world);
       addModule('physical supplies', buildPhysicalProps(physics, settings.quality));
       await checkpoint('physics', 'Physical contacts', 1, 1);
-      const navigationTotal = terrain.nz * 2;
+      const wider = widerRouteRadii(), navigationTotal = terrain.nz * (1 + wider.length);
       await checkpoint('navigation', 'Walking routes', 0, navigationTotal);
-      const nav = await NavGrid.create(terrain, colliders, .55, {
+      const nav = await NavGrid.create(terrain, colliders, WALK_GRID_RADIUS, {
         ...options, onProgress: completed => phase('navigation', 'Walking routes', completed, navigationTotal),
       });
-      // Build the Thornback's wider lanes during loading, rather than on its first pursuit frame.
-      await nav.forRadiusAsync(.85, { ...options, onProgress: completed => phase('navigation', 'Large creature routes', terrain.nz + completed, navigationTotal) });
+      // Build the large creatures' wider lanes during loading, rather than on a first pursuit frame.
+      for (const [index, radius] of wider.entries()) {
+        await nav.forRadiusAsync(radius, { ...options, onProgress: completed => phase('navigation', 'Large creature routes', terrain.nz * (1 + index) + completed, navigationTotal) });
+      }
       await checkpoint('navigation', 'Walking routes', navigationTotal, navigationTotal);
       await checkpoint('finishing', 'Preparing the scene');
 

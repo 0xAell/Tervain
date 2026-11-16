@@ -52,7 +52,7 @@ vi.mock('../../src/core/world/terrain', () => ({ Terrain: class {
 vi.mock('../../src/core/world/colliders', async importOriginal => ({
   ...await importOriginal<typeof import('../../src/core/world/colliders')>(), buildStaticColliders: () => controls.colliders,
 }));
-vi.mock('../../src/core/world/nav', () => ({ NavGrid: class {
+vi.mock('../../src/core/world/nav', async importOriginal => ({ ...await importOriginal<typeof import('../../src/core/world/nav')>(), NavGrid: class {
   static async create(terrain: { nz: number }, _colliders: unknown, _radius: number, options: { onProgress?: (completed: number, total: number) => void }) {
     if (controls.navigationGate) await controls.navigationGate;
     options.onProgress?.(terrain.nz, terrain.nz);

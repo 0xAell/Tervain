@@ -712,17 +712,28 @@ export function buildStaticColliders(terrain?: Pick<Terrain, 'heightAt'>): Colli
   // Older authored shapes also get real vertical limits in the gameplay world; legacy callers remain compatible.
   if (terrain) for (const shape of c.all) {
     if (shape.minY !== undefined && shape.maxY !== undefined) continue;
-    const b = shape.id.startsWith('b:') ? BUILDINGS.find((building) => `b:${building.id}` === shape.id) : undefined;
-    const base = terrain.heightAt(shape.x, shape.z);
-    const height = b ? b.h + Math.min(b.w, b.d) * 0.65 + 0.5
-      : shape.id.startsWith('archive_') ? shape.id === 'archive_door' ? ARCHIVE_ROOM.doorHeight + 0.2 : shape.id === 'archive_shutter' ? ARCHIVE_ROOM.shutterTop : 6.1
-      : shape.id === 'bell_tower' ? 8.5 : shape.id === 'watchtower' ? 6.3
-      : shape.id === 'palisade' ? 3 : shape.id.endsWith('_rail_n') || shape.id.endsWith('_rail_s') ? 1.35
-      : shape.id === 'well' ? 1.15 : shape.id === 'altar' ? 1.0
-      : shape.id.startsWith('stack_') ? 2.5 : shape.id === 'crates_a' ? 1.6
-      : shape.id === 'shortcut_gate' ? 2.4 : shape.id.startsWith('sluice_post') ? 3 : 2.2;
-    shape.minY = base - 0.4;
-    shape.maxY = base + height;
+    Object.assign(shape, authoredBounds(shape, terrain));
   }
   return c;
+}
+
+/** How tall a building's solid stands above its ground (m): its walls and the bulk of its roof. */
+export const buildingSolidHeight = (b: Pick<BuildingSpec, 'h' | 'w' | 'd'>): number => b.h + Math.min(b.w, b.d) * 0.65 + 0.5;
+
+/** How tall a shape stands above its ground when no mesh measured it (m), by what it is; 2.2 m for anything else. */
+export function authoredHeight(id: string): number {
+  const b = id.startsWith('b:') ? BUILDINGS.find((building) => `b:${building.id}` === id) : undefined;
+  return b ? buildingSolidHeight(b)
+    : id.startsWith('archive_') ? id === 'archive_door' ? ARCHIVE_ROOM.doorHeight + 0.2 : id === 'archive_shutter' ? ARCHIVE_ROOM.shutterTop : 6.1
+    : id === 'bell_tower' ? 8.5 : id === 'watchtower' ? 6.3
+    : id === 'palisade' ? 3 : id.endsWith('_rail_n') || id.endsWith('_rail_s') ? 1.35
+    : id === 'well' ? 1.15 : id === 'altar' ? 1.0
+    : id.startsWith('stack_') ? 2.5 : id === 'crates_a' ? 1.6
+    : id === 'shortcut_gate' ? 2.4 : id.startsWith('sluice_post') ? 3 : 2.2;
+}
+
+/** The vertical bounds of a shape no mesh measured: from 0.4 m under its ground to its authored height above it. */
+export function authoredBounds(shape: Pick<Collider, 'id' | 'x' | 'z'>, terrain: Pick<Terrain, 'heightAt'>): { minY: number; maxY: number } {
+  const base = terrain.heightAt(shape.x, shape.z);
+  return { minY: base - 0.4, maxY: base + authoredHeight(shape.id) };
 }

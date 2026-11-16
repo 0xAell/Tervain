@@ -1,7 +1,17 @@
+import { ENEMY_ARCHETYPES } from '../content/enemies';
 import type { Colliders } from '../world/colliders';
 import type { V2 } from '../world/layout';
-import type { NavGrid } from '../world/nav';
+import { WALK_GRID_RADIUS, type NavGrid } from '../world/nav';
 import type { Terrain } from '../world/terrain';
+
+/**
+ * The wider walk grids the hostiles route on, one for each body wider than a person's, narrowest first (m): a route is
+ * sought on the grid of the hostile's own radius, and these are built while the world loads, not on a first chase.
+ */
+export function widerRouteRadii(): number[] {
+  const radii = new Set(Object.values(ENEMY_ARCHETYPES).map((archetype) => archetype.radius).filter((radius) => radius > WALK_GRID_RADIUS));
+  return [...radii].sort((a, b) => a - b);
+}
 
 type RouteWorld = { terrain: Terrain; colliders: Colliders; nav?: NavGrid };
 

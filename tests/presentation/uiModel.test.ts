@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../src/core/game/state';
-import { decodeQuickDrag, directionalCell, inventoryItems, quickSlotFromCode, quickSlotLabel, resourceFraction, type FocusRect } from '../../src/presentation/ui/uiModel';
+import { decodeQuickDrag, directionalCell, healthLow, inventoryItems, quickSlotFromCode, quickSlotLabel, resourceFraction, type FocusRect } from '../../src/presentation/ui/uiModel';
+import { WOUNDED_BELOW } from '../../src/core/rules/journey';
 import { MAP_H, MAP_W, mapHeading, mapX, mapZ, placeMapLabel } from '../../src/presentation/ui/mapProjection';
 
 const cells: FocusRect[] = Array.from({ length: 7 }, (_, i) => ({ left: i % 3 * 100, top: Math.floor(i / 3) * 90, width: 80, height: 70 }));
@@ -86,5 +87,14 @@ describe('north-up world map', () => {
       expect(label.x + label.width).toBeLessThanOrEqual(MAP_W);
       expect(label.y + label.height).toBeLessThanOrEqual(MAP_H);
     }
+  });
+});
+
+describe('the health bar', () => {
+  it('shows low exactly while the core counts the wanderer wounded', () => {
+    expect(healthLow(WOUNDED_BELOW - 0.001)).toBe(true);
+    expect(healthLow(WOUNDED_BELOW)).toBe(false);
+    expect(healthLow(0)).toBe(true);
+    expect(healthLow(1)).toBe(false);
   });
 });

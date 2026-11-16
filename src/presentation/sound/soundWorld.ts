@@ -11,7 +11,7 @@ import {
 import { VOICE_AUDIO, type VoiceBank, type VoiceLineId } from './voiceManifest';
 import { WORLD_AUDIO, type LoopId, type MusicId, type SongId } from './worldAudioManifest';
 import type { WaterSoundState } from '../water/waterSound';
-import { NIGHT } from '../../core/rules/dayNight';
+import { goneInForTheNight, NIGHT } from '../../core/rules/dayNight';
 import { AMBIENT_RESIDENTS } from '../../core/content/ambientPeople';
 import { WOUNDED_BELOW } from '../../core/rules/journey';
 
@@ -1038,7 +1038,7 @@ export class SoundWorld {
     }
     for (const p of AMBIENT_PEOPLE_SOUND) {
       const d = Math.hypot(p.x - l.x, p.z - l.z);
-      if (d > 30 || (p.sleeps && frame.world.nightness > NIGHT.sleepers)) continue;
+      if (d > 30 || goneInForTheNight(p.sleeps, frame.world.nightness)) continue;
       const s = this.clockFor(p.id, p.x, p.z);
       const at = { x: p.x, y: 1, z: p.z };
       this.workTick(s, p.work, dt, at);
