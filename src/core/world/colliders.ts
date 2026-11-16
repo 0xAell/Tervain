@@ -223,10 +223,6 @@ export class Colliders {
     if (changed && routes) this.version++;
   }
 
-  isActive(id: string): boolean {
-    return this.byId.get(id)?.some((c) => c.active) ?? false;
-  }
-
   /** Colliders whose grid cells overlap the disc around (x, z). */
   near(x: number, z: number, r: number): Collider[] {
     const out: Collider[] = [];

@@ -1,6 +1,6 @@
 import { applyEffects, execute } from './commands';
 import { NPC_OBSERVATIONS } from '../content/arrival';
-import { getNode, pickEntryNode, visibleChoices } from './dialogue';
+import { getNode, visibleChoices } from './dialogue';
 import { cloneState, createInitialState, evalAll } from './state';
 import type { Command, CommandResult, GameEvent, NpcId, WorldState } from './types';
 
@@ -73,10 +73,6 @@ export class Game {
   }
 
   /* ---------- Dialogue ---------- */
-
-  entryNode(npc: NpcId): string | null {
-    return pickEntryNode(this.state, npc);
-  }
 
   /** Show a node: applies its authored enter effects atomically. */
   showNode(nodeId: string): { ok: boolean } {

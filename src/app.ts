@@ -1822,7 +1822,7 @@ export class App {
   openSluice() {
     this.panelKind = 'sluice';
     this.audio.interact();
-    this.panels.push(sluicePanel(this.panelCtx()), { refresh: () => sluicePanel(this.panelCtx()) });
+    this.panels.push(sluicePanel(this.panelCtx()));
   }
 
   openNotice() {
