@@ -139,8 +139,6 @@ export class MotionInterpolation {
     }
     this.applied = [];
   }
-
-  clear() { this.restore(); this.motions.clear(); this.lastStep = -1; }
 }
 
 /**

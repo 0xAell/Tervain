@@ -185,7 +185,6 @@ export function codeLabel(code: string | null | undefined): string {
   return map[code] ?? code;
 }
 
-/** Find another action already using this code (for conflict feedback while rebinding). */
 /** Writes `code` into one slot of `action`, dropping it from the action's other slot so a binding never reads "W / W"
  * and silently loses the key that slot held (A71). */
 export function assignSlot(b: Bindings, action: Action, idx: number, code: string): void {
@@ -206,6 +205,7 @@ export function resetToDefaults(st: Settings): boolean {
   return st.quality !== quality;
 }
 
+/** Find another action already using this code (for conflict feedback while rebinding). */
 export function findConflict(b: Bindings, action: Action, code: string): Action | null {
   for (const a of ACTIONS) {
     if (a !== action && b[a].includes(code)) return a;

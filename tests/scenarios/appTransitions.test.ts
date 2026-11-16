@@ -978,10 +978,10 @@ describe('shell corrections (A70)', () => {
     const inside = { ...nextWorld(), occupiesArchive: () => true, playerInArchive: false };
     vi.spyOn(WorldScene, 'create').mockResolvedValue(inside as unknown as WorldScene);
     let seen: boolean | null = null;
-    const sync = Reflect.get(app, 'syncWorldFromState') as (restore?: boolean) => void;
-    Reflect.set(app, 'syncWorldFromState', function (this: object, restore?: boolean) {
-      if (restore) seen = (Reflect.get(app, 'world') as unknown as { playerInArchive: boolean }).playerInArchive;
-      return sync.call(this, restore);
+    const sync = Reflect.get(app, 'syncWorldFromState') as (...args: unknown[]) => void;
+    Reflect.set(app, 'syncWorldFromState', function (this: object, ...args: unknown[]) {
+      seen = (Reflect.get(app, 'world') as unknown as { playerInArchive: boolean }).playerInArchive;
+      return sync.call(this, ...args);
     });
     app.settings.quality = app.settings.quality === 'low' ? 'high' : 'low';
     call('applySettings', true);

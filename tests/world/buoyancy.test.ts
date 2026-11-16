@@ -38,7 +38,7 @@ describe('loose cargo afloat', () => {
       expect(wet.barrel).toBeLessThan(FLOAT_LINE.barrel + 0.12);
       expect(wet.crate).toBeGreaterThan(FLOAT_LINE.crate - 0.12);
       expect(wet.crate).toBeLessThan(FLOAT_LINE.crate + 0.12);
-      for (const pose of p.poses(false)) expect(pose.position.y).toBeGreaterThan(-1);
+      for (const pose of p.poses()) expect(pose.position.y).toBeGreaterThan(-1);
     } finally { p.dispose(); }
   });
 
@@ -47,7 +47,7 @@ describe('loose cargo afloat', () => {
     try {
       p.props[0]!.body.setTranslation({ x: 0, y: 0.2, z: 0 }, true);
       tick(p, 4);
-      expect(p.poses(false)[0]!.position.y).toBeLessThan(-2.4);
+      expect(p.poses()[0]!.position.y).toBeLessThan(-2.4);
       expect(p.wetness().barrel).toBe(0);
     } finally { p.dispose(); }
   });
@@ -89,7 +89,7 @@ describe('loose cargo afloat', () => {
       expect(p.wetness().barrel).toBeGreaterThan(0.2);
       p.setWater(null);
       tick(p, 3);
-      expect(p.poses(false)[0]!.position.y).toBeLessThan(-2.4);
+      expect(p.poses()[0]!.position.y).toBeLessThan(-2.4);
     } finally { p.dispose(); }
   });
 
@@ -104,7 +104,7 @@ describe('loose cargo afloat', () => {
       p.restore([{ id: barrel.id, position: { x: 10, y: 2, z: 0 }, rotation: { x: 0, y: 0, z: 0, w: 1 } }]);
       tick(p, 2);
       expect(p.wetness().barrel).toBe(0);
-      expect(p.poses(false)[0]!.position.y).toBeLessThan(-2.4);
+      expect(p.poses()[0]!.position.y).toBeLessThan(-2.4);
     } finally { p.dispose(); }
   });
 });

@@ -117,7 +117,6 @@ export class App {
   renderer!: THREE.WebGLRenderer;
   grade!: Grade;
   private lastFrameDt = 1 / 60;
-  /** Whether this step is the frame's last, which draws the picture and the HUD (a slow frame is caught up in several). */
   world!: WorldScene;
   private menuScene!: MenuScene;
   private menuVisitActive = false;
@@ -528,7 +527,7 @@ export class App {
       // A new world must know who is in the archive before its door and shutter close: one rebuilt with the player inside
       // a reported archive locked them in (A93 scout).
       this.world.playerInArchive = this.archiveWasOccupied = this.world.occupiesArchive(this.player.x, this.player.z, PLAYER_BODY_RADIUS);
-      this.syncWorldFromState(true);
+      this.syncWorldFromState();
       // Settle any provisional hero/procedural-tool sheets; imported NPC surfaces are already baked and loaded.
       await sheetsSettled();
       this.rebuildPropPoses = null;
@@ -1099,7 +1098,7 @@ export class App {
     // The archive's door and shutter are set for where he arrives, not where he stood before the load (A101 scout: a load
     // into a sealed archive from outside closed them round him; the reverse left them open).
     this.world.playerInArchive = this.world.occupiesArchive(arrival.x, arrival.z, PLAYER_BODY_RADIUS);
-    this.syncWorldFromState(true, arrival);
+    this.syncWorldFromState(arrival);
     const safe = this.safePosition(p.x, p.z, p.y);
     const start = fresh ? { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw } : { x: safe.x, z: safe.z, yaw: p.yaw };
     this.pendingMount = !fresh && typeof p.mount === 'string' ? { id: p.mount, x: start.x, z: start.z } : null;
@@ -1171,11 +1170,11 @@ export class App {
   }
 
   /** `hunter` is where he will stand: on a load, the saved spot rather than wherever he stood before it (A101 scout). */
-  private syncWorldFromState(snap: boolean, hunter: { x: number; z: number } = this.player) {
+  private syncWorldFromState(hunter: { x: number; z: number } = this.player) {
     // The actors are set from the state: their sounds must not hear that as something happening (A89 scout).
-    if (snap) this.audio?.forgetActors?.();
+    this.audio?.forgetActors?.();
     this.player.syncEquipment(this.game);
-    this.world.syncStatic(this.game.state, snap);
+    this.world.syncStatic(this.game.state, true);
     this.world.animals?.syncHunting(this.game.state.hunting, true, { x: hunter.x, z: hunter.z });
     const ctx = this.actorContext();
     for (const n of this.npcs) n.snapToGoal(ctx);
@@ -2486,7 +2485,6 @@ export class App {
         if (cry.cry === 'growl') this.audio.growl(at); else this.audio.shout(at);
         if (cry.remark) this.speech.hero(cry.remark.cue, { delay: cry.remark.delay });
       },
-      time: this.world.time,
     };
     for (let i = 0; i < this.enemies.length; i++) {
       const e = this.enemies[i]!;

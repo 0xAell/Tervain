@@ -51,7 +51,6 @@ export interface HostileContext {
   /** Called at the moment a strike would land. Returns true if it connected (for effects). */
   strikePlayer(hostile: HostileActor, damage: number, heavy: boolean): void;
   onGrowl(hostile: HostileActor): void;
-  time: number;
 }
 
 export abstract class HostileActor {

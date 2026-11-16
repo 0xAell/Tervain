@@ -23,11 +23,10 @@ export interface ProjectileContact {
   actorId?: string;
 }
 export { PHYSICAL_PROPS, type PropSpec };
-export interface PropPose extends PhysicalObjectPose { sleeping: boolean }
 export interface PropMotion extends Vec3 {
   id: string; kind: PropSpec['kind']; vx: number; vy: number; vz: number; held: boolean; wet: number;
 }
-interface Prop { spec: PropSpec; body: RAPIER.RigidBody; collider: RAPIER.Collider; previous: PropPose; wet: number }
+interface Prop { spec: PropSpec; body: RAPIER.RigidBody; collider: RAPIER.Collider; wet: number }
 
 /** The water a floating body needs to know about: where it stands and how it moves (WaterWorld provides it). */
 export interface WaterField {
@@ -88,7 +87,7 @@ export class RealmPhysics {
   private holdTarget: Vec3 = { x: 0, y: 0, z: 0 };
   private steps = 0;
   private alive = true;
-  private initial: PropPose[] = [];
+  private initial: PhysicalObjectPose[] = [];
   private queriesDirty = false;
   private projectileQueryDirty = new Set<RAPIER.Collider>();
   private water: WaterField | null = null;
@@ -188,7 +187,7 @@ export class RealmPhysics {
       const desc = spec.kind === 'barrel' ? RAPIER.ColliderDesc.cylinder(spec.height / 2, spec.width / 2)
         : RAPIER.ColliderDesc.cuboid(spec.width / 2, spec.height / 2, spec.depth / 2);
       const collider = this.world.createCollider(desc.setMass(spec.mass).setFriction(CARGO_BODY.friction).setRestitution(CARGO_BODY.restitution), body);
-      const prop = { spec, body, collider, previous: this.poseOf(spec.id, body), wet: 0 };
+      const prop = { spec, body, collider, wet: 0 };
       this.props.push(prop); this.propHandles.add(collider.handle);
     }
     this.character = this.world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0, -100, 0));
@@ -466,9 +465,6 @@ export class RealmPhysics {
     } } : null;
   }
 
-  private poseOf(id: string, body: RAPIER.RigidBody): PropPose {
-    return { id, position: { ...body.translation() }, rotation: { ...body.rotation() }, sleeping: body.isSleeping() };
-  }
 
   /** Keep the hand-to-object connection in open space, and sweep the whole body toward the spring target. */
   private heldTarget(player: Vec3, prop: Prop): Vec3 | null {
@@ -552,7 +548,7 @@ export class RealmPhysics {
     prop.wet = wet;
   }
 
-  /** How much of each loose body is under water (0 dry .. 1 sunk), for tests and the developer panel. */
+  /** How much of each loose body is under water (0 dry .. 1 sunk), for tests. */
   wetness(): Record<string, number> {
     return Object.fromEntries(this.props.map((p) => [p.spec.id, +p.wet.toFixed(3)]));
   }
@@ -578,11 +574,6 @@ export class RealmPhysics {
         y: actor.from.y + (actor.target.y - actor.from.y) * t,
         z: actor.from.z + (actor.target.z - actor.from.z) * t,
       });
-      for (const p of this.props) {
-        const position = p.body.translation(), rotation = p.body.rotation();
-        Object.assign(p.previous.position, position); Object.assign(p.previous.rotation, rotation);
-        p.previous.sleeping = p.body.isSleeping();
-      }
       if (this.water) {
         // A re-solved stream may have risen around a barrel at rest; wake what stands in water once.
         const wake = this.water.revision !== this.waterRevision;
@@ -641,22 +632,11 @@ export class RealmPhysics {
     p.body.applyImpulse(throwImpulse(yaw, pitch, p.spec.mass), true);
     p.body.applyTorqueImpulse(throwSpin(p.spec.mass), true);
   }
-  poses(interpolate = true): PropPose[] {
-    const alpha = interpolate ? Math.max(0, Math.min(1, this.accumulated / STEP)) : 1;
-    return this.props.map(p => {
-      const position = p.body.translation(), rotation = p.body.rotation();
-      // Shortest-path normalized quaternion blend also smooths tumbling at high display refresh rates.
-      const a = p.previous.rotation, b = rotation;
-      const sign = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w < 0 ? -1 : 1;
-      const q = { x: a.x + (sign * b.x - a.x) * alpha, y: a.y + (sign * b.y - a.y) * alpha,
-        z: a.z + (sign * b.z - a.z) * alpha, w: a.w + (sign * b.w - a.w) * alpha };
-      const norm = Math.hypot(q.x, q.y, q.z, q.w) || 1;
-      q.x /= norm; q.y /= norm; q.z /= norm; q.w /= norm;
-      return { id: p.spec.id, sleeping: p.body.isSleeping(), position: { x: p.previous.position.x + (position.x - p.previous.position.x) * alpha,
-        y: p.previous.position.y + (position.y - p.previous.position.y) * alpha, z: p.previous.position.z + (position.z - p.previous.position.z) * alpha }, rotation: q };
-    });
+  /** Every prop where it stands after the last step: the pose to draw, and the one a save keeps. */
+  poses(): PhysicalObjectPose[] {
+    return this.props.map(p => ({ id: p.spec.id, position: { ...p.body.translation() }, rotation: { ...p.body.rotation() } }));
   }
-  snapshot() { return this.poses(false); }
+  snapshot() { return this.poses(); }
   /** Default calls return a snapshot; a caller-owned buffer explicitly opts into reuse. Sleeping bodies are still. */
   motions(out: PropMotion[] = []): PropMotion[] {
     for (let i = 0; i < this.props.length; i++) {
@@ -683,7 +663,7 @@ export class RealmPhysics {
       p.body.resetForces(true); p.body.resetTorques(true);
       p.body.setTranslation(pose.position, true);
       p.body.setRotation({ x: pose.rotation.x / norm, y: pose.rotation.y / norm, z: pose.rotation.z / norm, w: pose.rotation.w / norm }, true);
-      p.body.setLinvel({ x: 0, y: 0, z: 0 }, true); p.body.setAngvel({ x: 0, y: 0, z: 0 }, true); p.previous = this.poseOf(p.spec.id, p.body);
+      p.body.setLinvel({ x: 0, y: 0, z: 0 }, true); p.body.setAngvel({ x: 0, y: 0, z: 0 }, true);
       p.wet = 0;
     }
     this.world.propagateModifiedBodyPositionsToColliders();

@@ -88,7 +88,8 @@ describe('manual save panel feedback and selection', () => {
     setTime(updated);
     button.click();
 
-    expect(saves.summary('slot-2')?.savedAt).toBe(updated);
+    const written = saves.load('slot-2');
+    expect(written.ok && written.summary.savedAt).toBe(updated);
     expect(keyed(panel, 'save-slot-2')).toBe(button);
     expect(document.activeElement).toBe(button);
     expect(status(panel)).toBe(result);
