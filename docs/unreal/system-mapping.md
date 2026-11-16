@@ -96,14 +96,14 @@ lifted too: an animal's pace, how long its gestures last and how far its call ca
 what cover stops; waking after a fall, entering a journey and saving; who may mount, which fight wakes sleepers and
 who calls out at a trespass; and values the scene had typed again instead of reading them from the core.
 
-A third reading found more, and most of it has been lifted or exported: the forest as the web build plants it, who
+A third reading found more, and all of it has been lifted or exported: the forest as the web build plants it, who
 sees a trespass, the sizes figures are drawn at, the props the core's rules lean on (the benches, the noticeboard, the
-kit table, the quarry's boulders and the field fences), which rock piles the shore keeps, and values the scene had typed
-again: the walk grids' widths, the heal key's item, the health bar's low mark, the night rule in sound and the heights
-of shapes no mesh measured. What it found besides is to be lifted in a pull request of its own:
-
-- **Rules still decided in the scene**: which animals graze, a resident's time to stand, the moments that save besides
-  the core's, and which events earn a remark or a sting.
+kit table, the quarry's boulders and the field fences), which rock piles the shore keeps; values the scene had typed
+again (the walk grids' widths, the heal key's item, the health bar's low mark, the night rule in sound and the heights
+of shapes no mesh measured); and rules it still decided: which animals graze (`GRAZERS`), a resident's time to stand
+(`RESIDENT.standUpSeconds`), the moments the journey saves itself (`autosaveAt`), and what the hero says and which sting
+plays as things happen (`eventRemarks`, `warCry`, `defeatRemark`, `eventSting`, `fightWon`). Nothing known to decide
+play is left in the scene layer.
 
 What stays in the scene layer, and why it is not a rule of the game:
 
@@ -129,8 +129,11 @@ What stays in the scene layer, and why it is not a rule of the game:
   in its input contexts.
 - **A body's measured size**: a resident's, a hostile's and an animal's height, and an animal's width, are measured
   from the drawn figure, which is drawn at the size the core gives (`figureScale`, `banditScale`, `ENEMY_FIGURE`; an
-  animal's home is sought with `ANIMAL_HOME_MARGIN` round it). The core's rules for routes, beds and homes take the
-  measured body as an input, as they take the ground; a port passes its characters' capsules.
+  animal's home is sought with `ANIMAL_HOME_MARGIN` round it); so is how far before a seat a resident's body gets down
+  onto it. The core's rules for routes, beds, seats and homes take the measured body as an input, as they take the
+  ground; a port passes its characters' capsules.
+- **When the page is left** (`src/app.ts`): which browser events count as leaving play (the page hidden or closed) is
+  the application's wiring; that leaving play saves, and when, is the core's (`autosaveAt`).
 
 What else is there is presentation: meshes, materials and shaders, rigs and poses, effects, the interface, playing
 sound, loading, and reading input devices.

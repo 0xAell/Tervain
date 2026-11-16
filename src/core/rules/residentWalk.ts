@@ -240,8 +240,6 @@ export abstract class ResidentWalker {
   protected abstract get height(): number;
   /** How far in front of a seat of this height they get down onto it from, on their feet (m); 0 to sit down where the seat is. */
   protected seatApproach(_seat: number): number { return 0; }
-  /** Seconds their body takes to get to its feet from a seat. */
-  protected get standUpSeconds(): number { return 0; }
   /** Whether they turn on the spot with steps of their own, rather than by walking the turn round. */
   protected get stepsInPlace(): boolean { return false; }
   /** The body is to be seen, or not. */
@@ -515,8 +513,8 @@ export abstract class ResidentWalker {
     if (changed || this.unavailable) {
       const wasResting = this.goal.activity === 'rest';
       let appeared = false;
-      // Getting up from a seat takes its clip's own time to stand: they walk off on their feet, not mid-rise (A69).
-      if (this.mode === 'sit' || this.goal.activity === 'sit' && this.talking || this.lying) this.standDelay = Math.max(.85, this.standUpSeconds);
+      // Getting up from a seat takes the time to stand: they walk off on their feet, not mid-rise (A69).
+      if (this.mode === 'sit' || this.goal.activity === 'sit' && this.talking || this.lying) this.standDelay = RESIDENT.standUpSeconds;
       this.goal = goal;
       if (goal.activity === 'rest') this.berthOf(ctx);
       this.destination = this.placeFor(goal, ctx);

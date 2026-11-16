@@ -6,6 +6,7 @@ import { NpcActor, npcGoalPosition, type ActorContext } from '../../src/presenta
 import { poseRig, type Rig } from '../../src/presentation/characters';
 import { Colliders, type Collider } from '../../src/core/world/colliders';
 import { ANCHORS } from '../../src/core/world/layout';
+import { RESIDENT } from '../../src/core/rules/resident';
 import type { NavGrid } from '../../src/core/world/nav';
 import type { Terrain } from '../../src/core/world/terrain';
 
@@ -52,7 +53,8 @@ describe('peaceful resident motion', () => {
     const { npc, ctx, tick } = harness();
     const wallX = npc.x - 2.5;
     ctx.colliders.box('closed gate', wallX, 30.5, .015, 5, 0, true, { minY: 0, maxY: 2 });
-    ctx.hour = 7; npc.update(2, ctx); tick(3);
+    // Up from where they rested, in the core's time to stand, they walk to the gate.
+    ctx.hour = 7; npc.update(2, ctx); tick(3 + RESIDENT.standUpSeconds);
     expect(npc.x).toBeGreaterThan(wallX + .35);
     expect(npc.mode).toBe('idle');
     const gait = Reflect.get(npc, 'anim'); tick(1);
@@ -162,7 +164,7 @@ describe('peaceful resident motion', () => {
     const { npc, ctx } = harness(NPCS.ash_recorder); ctx.hour = 12; npc.snapToGoal(ctx);
     const before = { ...Reflect.get(npc, 'destination') as { x: number; z: number; seatBack?: number } };
     expect(before.seatBack).toBeUndefined();
-    const model = { ...rig(), resident: { seatApproach: () => .45, standUpSeconds: 1 } } as unknown as Rig;
+    const model = { ...rig(), resident: { seatApproach: () => .45 } } as unknown as Rig;
     npc.adoptRig(model);
     npc.update(1 / 60, ctx);
     const after = Reflect.get(npc, 'destination') as { x: number; z: number; seatBack?: number };
@@ -191,9 +193,10 @@ describe('peaceful resident motion', () => {
     ctx.hour = 11; npc.snapToGoal(ctx); npc.update(1 / 60, ctx);
     expect(npc.mode).toBe('sit');
     const start = { x: npc.x, z: npc.z };
-    ctx.hour = 13; tick(.75);
+    // They stay where they sat while they get to their feet, the core's time to stand, and then walk off.
+    ctx.hour = 13; tick(RESIDENT.standUpSeconds - .1);
     expect({ x: npc.x, z: npc.z }).toEqual(start);
-    tick(2);
+    tick(1.5);
     expect(Math.hypot(npc.x - start.x, npc.z - start.z)).toBeGreaterThan(.1);
   });
 

@@ -173,6 +173,25 @@ export function savingAllowed(facts: { playing: boolean; paused: boolean; worldR
   return facts.playing && !facts.paused && facts.worldReady !== false;
 }
 
+/**
+ * The moments the journey saves itself to the auto slot, which Continue loads: the story's own (`story`, an `autosave`
+ * event), every `AUTOSAVE_SECONDS` of play (`interval`), and whenever play is left, for the title (`toTitle`) or by the
+ * page being hidden or closed (`pageLeft`).
+ */
+export const AUTOSAVE_MOMENTS = ['story', 'interval', 'toTitle', 'pageLeft'] as const;
+export type AutosaveMoment = (typeof AUTOSAVE_MOMENTS)[number];
+
+/**
+ * Whether the journey saves itself at this moment, and whether that also moves where he wakes after a fall. The story's
+ * moments save whenever saving is allowed and move where he wakes (`respawnAfter`); the quiet ones save only once the
+ * journey has begun (`journeyBegun`), so a new run that has done nothing yet keeps an earlier save, and leave where he
+ * wakes alone.
+ */
+export function autosaveAt(moment: AutosaveMoment, facts: { playing: boolean; paused: boolean; begun: boolean }): { save: boolean; movesWaking: boolean } {
+  const allowed = savingAllowed(facts);
+  return moment === 'story' ? { save: allowed, movesWaking: allowed } : { save: allowed && facts.begun, movesWaking: false };
+}
+
 /** Fallen through the ground: beneath it by `UNDER_WORLD.depth`, and neither swimming, in the archive nor in the saddle. */
 export function belowTheWorld(facts: { y: number; ground: number; swimming: boolean; inArchive: boolean; riding: boolean }): boolean {
   return !facts.swimming && !facts.inArchive && !facts.riding && facts.y < facts.ground - UNDER_WORLD.depth;

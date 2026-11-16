@@ -1,4 +1,4 @@
-import { ANIMAL_CALL_REACH, ANIMAL_GESTURE_SECONDS, ANIMAL_SENSES, ANIMAL_TEMPERAMENT, type AnimalClip, type AnimalDefinition } from '../content/animals';
+import { ANIMAL_CALL_REACH, ANIMAL_GESTURE_SECONDS, ANIMAL_SENSES, ANIMAL_TEMPERAMENT, requiredAnimalClips, type AnimalClip, type AnimalDefinition } from '../content/animals';
 import { WILDLIFE_RETURN_DISTANCE } from '../game/hunting';
 import type { Collider, Colliders } from '../world/colliders';
 import type { V2 } from '../world/layout';
@@ -23,8 +23,6 @@ export interface AnimalBodyFacts {
   readonly position: AnimalPoint;
   /** How tall it stands (m). */
   readonly height: number;
-  /** Whether it has this motion. */
-  has(clip: AnimalClip): boolean;
   /** It begins another motion. */
   transition(clip: AnimalClip): void;
   /** The way the drawn body faces now (radians): it turns to its heading over a moment, and does not step off before it has. */
@@ -102,13 +100,16 @@ export class AnimalMind {
   alarm: { x: number; z: number; remaining: number } | null = null;
   readonly initialYaw: number;
   readonly rng: () => number;
+  /** What it can do: the motions the core gives its kind (content/animals.ts `requiredAnimalClips`), not what a model carries. */
+  readonly motions: ReadonlySet<AnimalClip>;
 
   /** `index` is its place among the animals: it staggers their first calls and seeds its own chances. */
   constructor(readonly definition: AnimalDefinition, readonly home: AnimalSite, index: number, readonly body: AnimalBodyFacts, readonly herd: Wildlife) {
     const rng = mulberry32(Number(definition.id.slice(-7)) + index * 271), randomYaw = rng() * Math.PI * 2;
     this.rng = rng;
     this.yaw = this.initialYaw = definition.homeYaw ?? randomYaw;
-    this.state = body.has('Graze') ? 'Graze' : 'Idle'; body.transition(this.state);
+    this.motions = new Set(requiredAnimalClips(definition));
+    this.state = this.motions.has('Graze') ? 'Graze' : 'Idle'; body.transition(this.state);
     this.rest = BEHAVIOUR.firstRest[0] + rng() * BEHAVIOUR.firstRest[1];
     this.callIn = BEHAVIOUR.firstCall.base + index * BEHAVIOUR.firstCall.stagger + rng() * BEHAVIOUR.firstCall.span;
     herd.minds.push(this);
@@ -124,7 +125,7 @@ export class AnimalMind {
   settle(): void {
     this.path = []; this.rest = BEHAVIOUR.rest[0] + this.rng() * BEHAVIOUR.rest[1];
     const state = this.definition.seated ? (this.rng() < BEHAVIOUR.seatedGroomShare ? 'Groom' : 'Idle')
-      : this.body.has('Graze') && this.rng() < BEHAVIOUR.grazeShare ? 'Graze' : 'Idle';
+      : this.motions.has('Graze') && this.rng() < BEHAVIOUR.grazeShare ? 'Graze' : 'Idle';
     this.enter(state);
   }
 
@@ -241,7 +242,7 @@ export class AnimalMind {
       this.path = []; this.enter('Alert'); this.alertIn = BEHAVIOUR.alert[0] + this.rng() * BEHAVIOUR.alert[1];
     } else if (!definition.tame && distance < speeds.flee && this.state !== 'Alert' && this.state !== 'Call') {
       // A predator inside its flee distance but standing its ground watches the hunter, and now and then warns him off.
-      this.path = []; this.enter(this.rng() < BEHAVIOUR.warnShare && this.body.has('Call') ? 'Call' : 'Alert');
+      this.path = []; this.enter(this.rng() < BEHAVIOUR.warnShare && this.motions.has('Call') ? 'Call' : 'Alert');
     }
     const callNow = this.state === 'Call' && !this.callSent && this.stateTime >= BEHAVIOUR.callAt;
     let speed = 0;

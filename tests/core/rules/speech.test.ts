@@ -4,8 +4,8 @@ import { createInitialState, evalAll } from '../../../src/core/game/state';
 import type { NpcId } from '../../../src/core/game/types';
 import { OVERHEAR_REACH, WOUNDED_BELOW } from '../../../src/core/rules/journey';
 import {
-  BUBBLE, bubbleMs, dayPartCue, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, SPEECH, SpeechDirector, trespassOutcry, woundedNow,
-  type SceneResident,
+  BUBBLE, bubbleMs, CLEARING_FOE, dayPartCue, defeatRemark, eventRemarks, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, SPEECH,
+  SpeechDirector, trespassOutcry, UNNOTED_LOSSES, warCry, woundedNow, type SceneResident,
 } from '../../../src/core/rules/speech';
 
 // Who says what and when is decided in the core: these run the director with nothing to play a sound or draw a word.
@@ -150,5 +150,46 @@ describe('a trespass seen', () => {
   it('makes the warden shout his voiced line, and anyone else show the cry in a bubble', () => {
     expect(trespassOutcry('shrine_warden')).toEqual({ voiced: true, line: 'tolan.bark.hey' });
     expect(trespassOutcry('spring_steward')).toEqual({ voiced: false, text: 'toast.warden.hey' });
+  });
+});
+
+describe('what the hero says of what happens', () => {
+  const shut = { archiveOpen: false }, open = { archiveOpen: true };
+  it('remarks on the story\u2019s turns, each after its own delay, and lets the rest pass', () => {
+    expect(eventRemarks({ t: 'phase', phase: 'settled' }, shut)).toEqual([{ cue: 'settled', delay: HERO_CUE_DELAY.settled }]);
+    expect(eventRemarks({ t: 'phase', phase: 'committed' }, shut)).toEqual([]);
+    expect(eventRemarks({ t: 'shortcut' }, shut)).toEqual([{ cue: 'shortcut', delay: HERO_CUE_DELAY.shortcut }]);
+    expect(eventRemarks({ t: 'rite' }, shut)).toEqual([{ cue: 'rite', delay: HERO_CUE_DELAY.rite }]);
+    expect(eventRemarks({ t: 'gate', gate: 'jammed' }, shut)).toEqual([{ cue: 'gate.jammed', delay: HERO_CUE_DELAY.gate }]);
+    expect(eventRemarks({ t: 'gate', gate: 'stabilized' }, shut)).toEqual([{ cue: 'gate.stabilized', delay: HERO_CUE_DELAY.gate }]);
+    expect(eventRemarks({ t: 'worker_rescued', method: 'shortcut' }, shut)).toEqual([{ cue: 'rescued', delay: HERO_CUE_DELAY.rescued }]);
+    expect(eventRemarks({ t: 'skill', id: 'steady_guard' }, shut)).toEqual([]);
+  });
+
+  it('names each thing a reward brings, and a find but not a loss', () => {
+    expect(eventRemarks({ t: 'grant', id: 'reward', items: { coin: 20, poultice: 1 } }, shut).map((r) => r.cue)).toEqual(['item.coin', 'item.poultice']);
+    expect(eventRemarks({ t: 'item', id: 'rusted_sword', delta: 1 }, shut)).toEqual([{ cue: itemCue('rusted_sword'), delay: HERO_CUE_DELAY.item }]);
+    expect(eventRemarks({ t: 'item', id: 'arrow', delta: -1 }, shut)).toEqual([]);
+  });
+
+  it('remarks on a place found, and on the archive only once it stands open', () => {
+    expect(eventRemarks({ t: 'place', id: 'ford' }, shut)).toEqual([{ cue: 'place.ford', delay: HERO_CUE_DELAY.place }]);
+    expect(eventRemarks({ t: 'place', id: 'archive' }, shut)).toEqual([]);
+    expect(eventRemarks({ t: 'place', id: 'archive' }, open)).toEqual([{ cue: 'place.archive', delay: HERO_CUE_DELAY.place }]);
+  });
+
+  it('gives up the brace, the reed and arrows without a note', () => {
+    expect([...UNNOTED_LOSSES].sort()).toEqual(['arrow', 'sluice_brace', 'votive_reed']);
+  });
+
+  it('hears the Thornback growl and names the beast; a toll-jumper only shouts', () => {
+    expect(warCry('thornback')).toEqual({ cry: 'growl', remark: { cue: 'beast', delay: HERO_CUE_DELAY.beast } });
+    expect(warCry('bandit')).toEqual({ cry: 'shout', remark: null });
+  });
+
+  it('marks the fall of the cut\u2019s creature as a victory, and no other', () => {
+    expect(CLEARING_FOE).toBe('cut_creature');
+    expect(defeatRemark(CLEARING_FOE)).toEqual({ cue: 'victory', delay: HERO_CUE_DELAY.victory });
+    expect(defeatRemark('ford_bandit_a')).toBeNull();
   });
 });

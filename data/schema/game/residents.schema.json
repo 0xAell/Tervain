@@ -394,6 +394,9 @@
         "arriveNear": {
           "type": "number"
         },
+        "standUpSeconds": {
+          "type": "number"
+        },
         "lieSeconds": {
           "type": "number"
         },
@@ -432,6 +435,7 @@
         "settled",
         "arriveExact",
         "arriveNear",
+        "standUpSeconds",
         "lieSeconds",
         "sitBeforeLying",
         "alarmReach",

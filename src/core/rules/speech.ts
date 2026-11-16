@@ -1,7 +1,8 @@
 import { BARKS } from '../content/npcs';
 import { HERO_LINES, SCENE_REACH, SCENES, TALKS, VOICE_LINES, inHours, shown, type HeroCue, type Scene, type Speaker } from '../content/voice';
 import { evalAll } from '../game/state';
-import type { ItemId, NpcId, PlaceId, WorldState } from '../game/types';
+import type { EncounterId, GameEvent, ItemId, NpcId, PlaceId, WorldState } from '../game/types';
+import type { EnemySpawn } from '../world/layout';
 import { OVERHEAR_REACH, WOUNDED_BELOW } from './journey';
 
 /**
@@ -409,6 +410,45 @@ export function itemCue(id: ItemId): HeroCue {
 /** A place is remarked on when it is discovered, but the archive's shelves only once it stands open. */
 export function placeRemarked(place: PlaceId, archiveStandsOpen: boolean): boolean {
   return place !== 'archive' || archiveStandsOpen;
+}
+
+/** A remark the hero is to make, after its delay (s). */
+export interface HeroRemark { cue: HeroCue; delay: number }
+
+/**
+ * What the hero says of something the story has just done: the valley settled, a reward or a find (each thing in it),
+ * a place found (the archive only once it stands open), the shortcut and the rite, the gate braced or jammed, the
+ * worker brought out. Everything else passes without a word from him.
+ */
+export function eventRemarks(event: GameEvent, facts: { archiveOpen: boolean }): HeroRemark[] {
+  const d = HERO_CUE_DELAY;
+  switch (event.t) {
+    case 'phase': return event.phase === 'settled' ? [{ cue: 'settled', delay: d.settled }] : [];
+    case 'grant': return (Object.keys(event.items) as ItemId[]).map((id) => ({ cue: `item.${id}` as HeroCue, delay: d.item }));
+    case 'item': return event.delta > 0 ? [{ cue: itemCue(event.id), delay: d.item }] : [];
+    case 'place': return placeRemarked(event.id, facts.archiveOpen) ? [{ cue: `place.${event.id}` as HeroCue, delay: d.place }] : [];
+    case 'shortcut': return [{ cue: 'shortcut', delay: d.shortcut }];
+    case 'rite': return [{ cue: 'rite', delay: d.rite }];
+    case 'gate': return event.gate === 'stabilized' || event.gate === 'jammed' ? [{ cue: `gate.${event.gate}`, delay: d.gate }] : [];
+    case 'worker_rescued': return [{ cue: 'rescued', delay: d.rescued }];
+    default: return [];
+  }
+}
+
+/** Things he gives up without a note: the brace he fits and the reed he offers, which the story marks, and arrows, spent by the dozen. */
+export const UNNOTED_LOSSES: readonly ItemId[] = ['sluice_brace', 'votive_reed', 'arrow'];
+
+/** A hostile's cry as it closes, and what he says to it: the Thornback growls and he names the beast; a toll-jumper shouts. */
+export function warCry(kind: EnemySpawn['kind']): { cry: 'growl' | 'shout'; remark: HeroRemark | null } {
+  return kind === 'thornback' ? { cry: 'growl', remark: { cue: 'beast', delay: HERO_CUE_DELAY.beast } } : { cry: 'shout', remark: null };
+}
+
+/** The foe whose fall clears the cut: he marks it as a victory, and the valley hears the cut is cleared. */
+export const CLEARING_FOE: EncounterId = 'cut_creature';
+
+/** What he says as a foe falls: a victory over the cut's creature, nothing over another. */
+export function defeatRemark(id: EncounterId): HeroRemark | null {
+  return id === CLEARING_FOE ? { cue: 'victory', delay: HERO_CUE_DELAY.victory } : null;
 }
 
 /** A resident as a scene needs to know them. */

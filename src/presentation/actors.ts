@@ -68,7 +68,6 @@ export class NpcActor extends ResidentWalker {
   /* What walking needs to know of the body (core/rules/residentWalk.ts). */
   protected get height(): number { return this.rig.height; }
   protected override seatApproach(seat: number): number { return this.rig.resident?.seatApproach(seat) ?? 0; }
-  protected override get standUpSeconds(): number { return this.rig.resident?.standUpSeconds ?? 0; }
   protected override get stepsInPlace(): boolean { return this.rig.resident?.stepsInPlace === true; }
   protected override bodyShown(visible: boolean): void { this.rig.root.visible = visible; }
   protected override bodyPlaced(): void { this.placeRig(); }

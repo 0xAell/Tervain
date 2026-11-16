@@ -95,8 +95,14 @@ export const ANIMAL_TEMPERAMENT: Record<AnimalSpecies, { holdUntil: number; herd
   boar: { holdUntil: 1, herd: 18 }, deer: { holdUntil: 1, herd: 24 },
 };
 
-export function requiredAnimalClips(definition: AnimalDefinition): readonly AnimalClip[] {
+/** The kinds that graze when they settle; the others stand idle. */
+export const GRAZERS: readonly AnimalSpecies[] = ['deer', 'boar'];
+
+/**
+ * The motions an animal has: what its mind may do, and what its model must carry (the scene refuses a model without
+ * every one). A seated animal grooms and sleeps; a grazer grazes.
+ */
+export function requiredAnimalClips(definition: Pick<AnimalDefinition, 'species' | 'seated'>): readonly AnimalClip[] {
   if (definition.seated) return ['Idle', 'Alert', 'Call', 'Groom', 'Sleep'];
-  return definition.species === 'deer' || definition.species === 'boar'
-    ? ['Idle', 'Walk', 'Run', 'Alert', 'Call', 'Graze'] : ['Idle', 'Walk', 'Run', 'Alert', 'Call'];
+  return GRAZERS.includes(definition.species) ? ['Idle', 'Walk', 'Run', 'Alert', 'Call', 'Graze'] : ['Idle', 'Walk', 'Run', 'Alert', 'Call'];
 }
