@@ -115,7 +115,11 @@ export class WaterWorld {
     return SPRING_BASIN.level - 0.3 * (1 - clamp(this.flows.spring, 0, 1));
   }
 
-  /** Ease toward the quest's flows; advance the water clock unless motion is reduced. */
+  /**
+   * Ease toward the quest's flows; advance the water clock unless motion is reduced. Reduced motion stills the sea for
+   * play as well as for the eye, deliberately: the swell he swims and wades in is the one drawn, so a moving sea under a
+   * still picture would lift him against nothing. Flows still ease and channels still re-solve.
+   */
   update(dt: number, targets: WaterFlows, reducedMotion = false) {
     const delta = Number.isFinite(dt) ? Math.max(0, dt) : 0;
     const retain = Math.exp(-delta * FLOW_EASE);

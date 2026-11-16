@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { NPCS } from '../../src/core/content/npcs';
 import { createInitialState } from '../../src/core/game/state';
+import { arrivesInView } from '../../src/core/rules/session';
 import { EnemyActor, NpcActor } from '../../src/presentation/actors';
 import { buildAmbient } from '../../src/presentation/ambient';
 import { createStandInRig, type Rig } from '../../src/presentation/characters';
@@ -118,6 +119,16 @@ describe('arrivals', () => {
     expect(seen.adopt).toHaveBeenCalledOnce();
     arrivals.clear();
     expect(arrivals.count).toBe(0);
+  });
+
+  it('hands a model over in view to a figure near enough to matter, and keeps the others waiting', () => {
+    const arrivals = new ResidentArrivals(), close = figure('enemy:road_toll_jumper', 10), far = figure('named:village_baker', 40);
+    arrivals.add(close); arrivals.add(far);
+    const everywhere = () => true, near = (p: { x: number }) => arrivesInView(p.x);
+    expect(arrivals.update(catalog(['enemy:road_toll_jumper', 'named:village_baker']), everywhere, near)).toBe(1);
+    expect(close.adopt).toHaveBeenCalledOnce();
+    expect(far.adopt).not.toHaveBeenCalled();
+    expect(arrivals.count).toBe(1);
   });
 
   it('drops a figure whose model fails to set up, warns, and still hands the others theirs', () => {

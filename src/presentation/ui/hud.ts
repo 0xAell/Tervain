@@ -1,9 +1,10 @@
 import { S } from '../../core/content/strings';
 import { h, clear } from './dom';
 import { icon } from './icons';
-import { resourceFraction } from './uiModel';
+import { healthLow, resourceFraction } from './uiModel';
 import type { ItemId } from '../../core/game/types';
 import { QuickSlotBar } from './hotbar';
+import { STAMINA_MAX } from '../../core/rules/hero';
 
 function setText(el: HTMLElement, text: string) {
   if (el.textContent !== text) el.textContent = text;
@@ -206,7 +207,7 @@ export class Hud {
 
   update(d: HudData) {
     const health = resourceFraction(d.health, d.maxHealth);
-    const stamina = resourceFraction(d.stamina, 100);
+    const stamina = resourceFraction(d.stamina, STAMINA_MAX);
     const maximum = Number.isFinite(d.maxHealth) ? Math.max(0, d.maxHealth) : 0;
     setStyle(this.healthFill, 'width', `${health * 100}%`);
     setStyle(this.staminaFill, 'width', `${stamina * 100}%`);
@@ -215,7 +216,7 @@ export class Hud {
     setAttribute(this.healthBar, 'aria-valuemax', String(maximum));
     setAttribute(this.healthBar, 'aria-valuenow', String(Math.round(health * maximum)));
     setAttribute(this.staminaBar, 'aria-valuenow', String(Math.round(stamina * 100)));
-    setClass(this.healthBar, 'low', health <= 0.25);
+    setClass(this.healthBar, 'low', healthLow(health));
     setClass(this.staminaBar, 'exhausted', d.exhausted);
     setText(this.staminaLabel, d.exhausted ? S('hud.exhausted') : S('hud.stamina'));
     setText(this.coinEl, `${S('hud.coin')}: ${d.coin}`);

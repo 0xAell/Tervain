@@ -4,6 +4,7 @@ import { S } from '../content/strings';
 import { ANIMAL_MODEL_IDS, hunterRank, hunterSparesArrows, hunterTradingOpen, restockParams } from '../game/hunting';
 import { hasFact, phaseIndex } from '../game/state';
 import type { ItemId, NpcId, WorldState } from '../game/types';
+import { PROP_COLLIDER } from '../world/colliders';
 import {
   ARCHIVE_SHUTTER, bySpec, frontOf, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, hunterTableSurfaceY, INSPECT_LOCATIONS, LEDGER, PICKUP_LOCATIONS,
   RESULT_CHECKS, RITE_ALTAR, SHORTCUT, SLUICE,
@@ -93,7 +94,7 @@ export function interactableTable(): InteractableEntry[] {
   // The hunter's camp: his notes on the board, arrows for hides, coin for meat.
   list.push({
     id: 'hunter_notes', place: { at: 'hunter_table', ...sign, above: HUNTER_TABLE.signCentreAboveTop }, reach: HUNTER_SUPPLY.r, priority: 1,
-    ignoreColliders: ['hunter_board', 'hunter_board_post'],
+    ignoreColliders: [PROP_COLLIDER.hunterBoard, PROP_COLLIDER.hunterBoardPost],
     prompt: () => S('prompt.hunter_supplies'), offered: always, needs: NONE, act: { do: 'hunting_notes' },
   });
   list.push({
@@ -141,7 +142,7 @@ export function interactableTable(): InteractableEntry[] {
     list.push({
       id: `inspect:${p.id}`, place: { at: 'point', x: p.x, z: p.z }, reach: p.r, priority: 0,
       // Only the observed object's own solid is exempt; nearby walls still obstruct it.
-      ignoreColliders: p.id === 'templar_waymarker' ? ['forest-waymarker:0'] : p.id === 'saltward_kit' ? ['kit_table'] : undefined,
+      ignoreColliders: p.id === 'templar_waymarker' ? [PROP_COLLIDER.waymarker(0)] : p.id === 'saltward_kit' ? [PROP_COLLIDER.kitTable] : undefined,
       prompt: () => S(`prompt.inspect.${p.id}`),
       // Once an allocation is committed the same spot is where the result is checked; inspecting it again adds nothing.
       offered: (s) => (p.id === 'dry_channel' ? phaseIndex(s.quest.phase) < phaseIndex('committed') : true),

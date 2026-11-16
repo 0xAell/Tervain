@@ -1,5 +1,5 @@
 import { MUSIC, type MusicEntry, type MusicId, type MusicOrigin } from '../content/music';
-import type { PlaceId } from '../game/types';
+import type { GameEvent, PlaceId } from '../game/types';
 import { FOREST_REGION, PLACES } from '../world/layout';
 import { villageCover } from './soundscape';
 
@@ -97,6 +97,22 @@ export function threatFrom(enemies: readonly { x: number; z: number; alive: bool
  * The score's pacing, in seconds. A piece is followed by a long quiet; the first piece of a session waits a little; a
  * piece for another mood gives way only when the new mood has held; a fight's music holds a moment after its end.
  */
+/**
+ * The sting a happening earns: a step of the story, a skill learned or a worker brought out the quest's; a place found
+ * its own. The valley settling has the bell instead, and everything else no sting.
+ */
+export function eventSting(event: GameEvent): { kind: 'quest' } | { kind: 'discover'; place: PlaceId } | null {
+  if (event.t === 'phase') return event.phase === 'settled' ? null : { kind: 'quest' };
+  if (event.t === 'skill' || event.t === 'worker_rescued') return { kind: 'quest' };
+  if (event.t === 'place') return { kind: 'discover', place: event.id };
+  return null;
+}
+
+/** The fight is won, and its sting plays, when a foe falls and no other is still alive and on him. */
+export function fightWon<F extends { alive: boolean; engaged: boolean }>(fallen: F, foes: readonly F[]): boolean {
+  return !foes.some((foe) => foe !== fallen && foe.alive && foe.engaged);
+}
+
 export const MUSIC_PACING = {
   quietAfterPiece: [35, 80], firstWait: [8, 18], moodSettle: 8, combatHold: 4, alertHold: 1.5,
   /** After the inn's tune, the score waits at least this long before a piece. */

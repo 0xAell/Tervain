@@ -3,6 +3,7 @@ import { NPC_IDS } from '../../../src/core/game/types';
 import {
   AUTOSAVE_SECONDS, bellGain, CHECKPOINT_CLEARANCE, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, HIT_STOP, noThreatNear, THREAT_REACH,
   OVERHEAR_REACH, SPEECH_SOON_REACH, UNDER_WORLD, WITNESS_REACH, WITNESSES, WOUNDED_BELOW,
+  witnessesOf,
 } from '../../../src/core/rules/journey';
 
 const foe = (x: number, z: number, more: Partial<{ alive: boolean; engaged: boolean }> = {}) => ({ x, z, alive: true, engaged: true, ...more });
@@ -79,5 +80,17 @@ describe('talk in earshot', () => {
     expect(SPEECH_SOON_REACH).toBeGreaterThan(OVERHEAR_REACH);
     // Whoever can witness a deed stands within earshot of talk at the same spot.
     expect(OVERHEAR_REACH).toBeGreaterThanOrEqual(WITNESS_REACH);
+  });
+});
+
+describe('who sees a trespass', () => {
+  const warden = { id: 'shrine_warden' as const, x: 0, z: 0, present: true, asleep: false, available: true };
+  const clear = { segmentBlocked: () => false }, walled = { segmentBlocked: () => true };
+  it('is a keeper awake, about and near, with nothing on the line between them and the act', () => {
+    expect(witnessesOf(5, 0, [warden], clear)).toEqual(['shrine_warden']);
+    expect(witnessesOf(5, 0, [warden], walled), 'a wall between').toEqual([]);
+    expect(witnessesOf(5, 0, [{ ...warden, asleep: true }], clear)).toEqual([]);
+    expect(witnessesOf(WITNESS_REACH + 1, 0, [warden], clear), 'too far').toEqual([]);
+    expect(witnessesOf(5, 0, [{ ...warden, id: 'trail_hunter' as const }], clear), 'not a keeper').toEqual([]);
   });
 });

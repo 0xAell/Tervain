@@ -91,8 +91,13 @@ What the pages showed that matters for the choice:
 `unrealConventions` in the manifest states them, and every `unreal` entry follows them:
 
 - Units are centimetres; Z is up; the frame is left-handed; an asset's forward is `+X`. The glTF sources are metres,
-  Y up and right-handed.
+  Y up and right-handed. That Unreal's glTF import multiplies positions by 100 and exchanges Y and Z is expected, not
+  read on any page: check it on the first import.
 - Names are `[Prefix]_[Family]_[Name]` in PascalCase under `/Game/Tervain`. `SM_` (static mesh), `SK_` (skeletal mesh),
   `T_` (texture), `M_`, `MI_`, `AS_` (animation sequence) and `DT_` are Epic's recommended prefixes. `SW_` for sound
-  waves and the texture suffixes `_D`, `_N` and `_ORM` are this project's, since Epic's page lists none.
-- The near, middle and far files of one tree are `LOD0`, `LOD1` and `LOD2` of one static mesh, not three assets.
+  waves and the texture suffixes are this project's, since Epic's page lists none: `_D` base colour, `_N` normal, `_M`
+  a packed mask (a leaf atlas's `-data` image: red alpha, green thickness, blue underside gain) and `_ORM` packed
+  occlusion, roughness and metallic.
+- The near, middle and far files of one tree are `LOD0`, `LOD1` and `LOD2` of one static mesh, not three assets, and
+  a file that is a model's only level is its `LOD0`. Imported LOD meshes are named `<Asset>_LOD0`, `_LOD1`, `_LOD2`.
+- The web build's loader manifests (sizes, hashes, layouts) are its own: every one is dropped and none becomes an asset.

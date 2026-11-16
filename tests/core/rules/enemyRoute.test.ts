@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { EnemyRoute } from '../../../src/core/rules/enemyRoute';
+import { ENEMY_ARCHETYPES } from '../../../src/core/content/enemies';
+import { EnemyRoute, widerRouteRadii } from '../../../src/core/rules/enemyRoute';
 import type { Colliders } from '../../../src/core/world/colliders';
 import type { V2 } from '../../../src/core/world/layout';
-import type { NavGrid } from '../../../src/core/world/nav';
+import { WALK_GRID_RADIUS, type NavGrid } from '../../../src/core/world/nav';
 import type { Terrain } from '../../../src/core/world/terrain';
 
 /** Flat open ground with one wall across x = 5 (for |z| < 3), and a navigation grid that knows the way round it. */
@@ -92,5 +93,13 @@ describe('a hostile’s route to its target', () => {
     route.reset();
     route.waypoint(from, to, 1 / 60, ctx, 0.35, 2);
     expect(searches()).toBe(2);
+  });
+});
+
+describe('the walk grids the hostiles route on', () => {
+  it('builds one wider grid for each body wider than a person\u2019s: the Thornback\u2019s, and not the toll-jumper\u2019s', () => {
+    expect(widerRouteRadii()).toEqual([ENEMY_ARCHETYPES.thornback.radius]);
+    expect(ENEMY_ARCHETYPES.bandit.radius).toBeLessThanOrEqual(WALK_GRID_RADIUS);
+    for (const radius of widerRouteRadii()) expect(radius).toBeGreaterThan(WALK_GRID_RADIUS);
   });
 });

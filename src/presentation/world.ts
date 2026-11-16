@@ -15,7 +15,9 @@ import type { WorldState } from '../core/game/types';
 import { worldView, type WorldView } from '../core/game/worldView';
 import { buildStaticColliders, type Colliders } from '../core/world/colliders';
 import { ARCHIVE_ROOM, bySpec, SHORTCUT, SLUICE, STREAMS, WORLD } from '../core/world/layout';
-import { NavGrid } from '../core/world/nav';
+import { archiveBarriers, insideArchive, occupiesArchive } from '../core/world/archive';
+import { NavGrid, WALK_GRID_RADIUS } from '../core/world/nav';
+import { widerRouteRadii } from '../core/rules/enemyRoute';
 import { Terrain, distToPolyline } from '../core/world/terrain';
 import { SkyRig } from './sky';
 import { buildTerrainTilesAsync } from './terrainMesh';
@@ -154,7 +156,6 @@ export class WorldScene {
   private lanternPool = new LanternLightPool(3);
   private wheelSpin = 0;
   private bellSwing = 0;
-  private bellTimer = 0;
   private gateOpen = 0;
   private leverT = 0;
   private doorT = 0;
@@ -378,21 +379,25 @@ export class WorldScene {
       await checkpoint('physics', 'Physical contacts');
       // Initialize saved collision state before physics and navigation, avoiding a duplicate first-frame rebuild.
       const view = worldView(state);
-      colliders.setActive('archive_door', view.archiveDoor === 'locked');
-      colliders.setActive('archive_shutter', view.archiveShutter !== 'forced');
+      // Before anyone is placed; set again, with whoever stands in the archive, once he is.
+      const barriers = archiveBarriers(view.archiveDoor, view.archiveShutter, false);
+      colliders.setActive('archive_door', barriers.door);
+      colliders.setActive('archive_shutter', barriers.shutter);
       colliders.setActive('shortcut_gate', !view.shortcutOpen);
       const physics = own(new RealmPhysics(terrain, colliders, undefined, forest.physicalWood));
       // Loose barrels and crates float on the same water that is drawn and heard.
       physics.setWater(water.world);
       addModule('physical supplies', buildPhysicalProps(physics, settings.quality));
       await checkpoint('physics', 'Physical contacts', 1, 1);
-      const navigationTotal = terrain.nz * 2;
+      const wider = widerRouteRadii(), navigationTotal = terrain.nz * (1 + wider.length);
       await checkpoint('navigation', 'Walking routes', 0, navigationTotal);
-      const nav = await NavGrid.create(terrain, colliders, .55, {
+      const nav = await NavGrid.create(terrain, colliders, WALK_GRID_RADIUS, {
         ...options, onProgress: completed => phase('navigation', 'Walking routes', completed, navigationTotal),
       });
-      // Build the Thornback's wider lanes during loading, rather than on its first pursuit frame.
-      await nav.forRadiusAsync(.85, { ...options, onProgress: completed => phase('navigation', 'Large creature routes', terrain.nz + completed, navigationTotal) });
+      // Build the large creatures' wider lanes during loading, rather than on a first pursuit frame.
+      for (const [index, radius] of wider.entries()) {
+        await nav.forRadiusAsync(radius, { ...options, onProgress: completed => phase('navigation', 'Large creature routes', terrain.nz * (1 + index) + completed, navigationTotal) });
+      }
       await checkpoint('navigation', 'Walking routes', navigationTotal, navigationTotal);
       await checkpoint('finishing', 'Preparing the scene');
 
@@ -481,9 +486,9 @@ export class WorldScene {
     const sc = this.scenery;
     // Colliders that follow state.
     // Never close the room around someone who is inside it; the app resyncs when they step out.
-    const occupied = this.playerInArchive;
-    this.colliders.setActive('archive_door', v.archiveDoor === 'locked' && !occupied);
-    this.colliders.setActive('archive_shutter', v.archiveShutter !== 'forced' && !occupied);
+    const barriers = archiveBarriers(v.archiveDoor, v.archiveShutter, this.playerInArchive);
+    this.colliders.setActive('archive_door', barriers.door);
+    this.colliders.setActive('archive_shutter', barriers.shutter);
     this.colliders.setActive('shortcut_gate', !v.shortcutOpen);
     // Visual targets.
     this.doorT = v.archiveDoor === 'open' ? 1 : 0;
@@ -677,7 +682,11 @@ export class WorldScene {
   }
 
   /** Move the whole scene forward: sky, water, foliage, animated props. */
-  update(dt: number, state: WorldState, focus: THREE.Vector3, settings: Settings, hour: number, camera: THREE.Camera, wildlifeActive = true) {
+  /**
+   * `wildlifeActive`: the moment's action runs (the core's WHAT_RUNS). `clockRuns`: its clock runs, and with it the water,
+   * whose swell is the surface he swims in, so it stands still behind every panel as it does behind the pause menu.
+   */
+  update(dt: number, state: WorldState, focus: THREE.Vector3, settings: Settings, hour: number, camera: THREE.Camera, wildlifeActive = true, clockRuns = true) {
     this.time += dt;
     this.view = worldView(state);
     const v = this.view;
@@ -709,7 +718,7 @@ export class WorldScene {
     this.scenery.setNight(night);
     this.scenery.update(dt, this.time, night, reduced);
     for (const s of this.physics.drainSplashes()) this.water.splash(s.x, s.y, s.z, s.energy);
-    this.water.update(dt, v.flow, camera, focus, reduced, settings.reduceEffects);
+    this.water.update(clockRuns ? dt : 0, v.flow, camera, focus, reduced, settings.reduceEffects);
     let shadowFrustum: THREE.Frustum | null = null;
     if (settings.quality !== 'low' && this.sky.sunShadows) {
       // Scene modules cull before the renderer updates light matrices. Use the real snapped
@@ -745,7 +754,6 @@ export class WorldScene {
     // Bell swing: decays after each ring.
     this.bellSwing = Math.max(0, this.bellSwing - dt * 0.35);
     this.scenery.bell.rotation.z = Math.sin(this.time * 4.2) * 0.55 * this.bellSwing;
-    this.bellTimer += dt;
     this.applyDynamic(dt);
 
     // Quarry dust and the local response of the rite's bowl, water and altar.
@@ -755,7 +763,6 @@ export class WorldScene {
     this.riteResponse.update(dt, reduced, night);
     // Ledger glows faintly while the archive is accessible; the archive lamp is emissive via lantern lights.
     this.scenery.ledger.rotation.y = Math.sin(this.time * 0.8) * 0.05;
-    void WORLD;
   }
 
   /** Spin the control wheel while the gate is being worked. */
@@ -765,17 +772,14 @@ export class WorldScene {
 
   /** Whether the player is standing inside the archive (roofed) for audio and camera decisions. */
   insideArchive(x: number, z: number): boolean {
-    return Math.abs(x + 46) < 3.6 && Math.abs(z + 102) < 3.1;
+    return insideArchive(x, z);
   }
 
   /** Inside, or with any part of a body of `radius` still in the door's or the shutter's opening. A sealed archive closes
    * only behind someone clear of both: counted out mid-doorway, the closing door pushed him back in, again and again
    * (A101 scout). */
   occupiesArchive(x: number, z: number, radius: number): boolean {
-    if (this.insideArchive(x, z)) return true;
-    const b = bySpec('archive'), t = ARCHIVE_ROOM.wallThickness, dx = Math.abs(x - b.x), dz = Math.abs(z - b.z);
-    return dz > b.d / 2 - t - radius && dz < b.d / 2 + t + radius
-      && dx < (z > b.z ? ARCHIVE_ROOM.doorHalfWidth : ARCHIVE_ROOM.shutterHalfWidth) + radius;
+    return occupiesArchive(x, z, radius);
   }
 
   /** Whether a point is under a roof: in the archive or in any building's room (A66), not above it (A70). */

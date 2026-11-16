@@ -302,13 +302,6 @@ export class SkyRig {
     this.group.add(this.sun, this.sun.target, this.moon, this.moon.target, this.hemi);
   }
 
-  setShadowSize(size: number) {
-    if (this.sun.shadow.mapSize.x === size) return;
-    this.sun.shadow.mapSize.set(size, size);
-    this.sun.shadow.map?.dispose();
-    (this.sun.shadow as unknown as { map: unknown }).map = null;
-  }
-
   dispose() {
     this.dome.geometry.dispose();
     (this.dome.material as THREE.Material).dispose();

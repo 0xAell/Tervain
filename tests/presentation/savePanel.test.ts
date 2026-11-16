@@ -71,7 +71,7 @@ function session() {
   const actions = Reflect.apply(Reflect.get(App.prototype, 'panelActions'), app, []) as PanelActions;
   const ctx: PanelCtx = {
     game, saves, actions, host: host as unknown as PanelHost,
-    settings: defaultSettings(), input: {} as PanelCtx['input'], toast: vi.fn(), playerNear: { sluice: false },
+    settings: defaultSettings(), input: {} as PanelCtx['input'], toast: vi.fn(),
   };
   return { app, ctx, memory, saves, game, snapshot, hud, host, setTime: (time: number) => { savedAt = time; } };
 }
@@ -88,7 +88,8 @@ describe('manual save panel feedback and selection', () => {
     setTime(updated);
     button.click();
 
-    expect(saves.summary('slot-2')?.savedAt).toBe(updated);
+    const written = saves.load('slot-2');
+    expect(written.ok && written.summary.savedAt).toBe(updated);
     expect(keyed(panel, 'save-slot-2')).toBe(button);
     expect(document.activeElement).toBe(button);
     expect(status(panel)).toBe(result);

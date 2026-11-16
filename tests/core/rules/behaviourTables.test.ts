@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { ANIMALS, ANIMAL_SPEEDS } from '../../../src/core/content/animals';
+import { ANIMALS, ANIMAL_SENSES } from '../../../src/core/content/animals';
 import { NPCS } from '../../../src/core/content/npcs';
 import { ANIMAL_BEHAVIOUR } from '../../../src/core/rules/animalBehaviour';
 import { arrivalRadius, RESIDENT } from '../../../src/core/rules/resident';
+import { RIDE } from '../../../src/core/rules/riding';
 
 describe('how the animals behave', () => {
   it('rests for a few seconds between moves and calls well under twice a minute', () => {
@@ -36,13 +37,14 @@ describe('how the animals behave', () => {
   it('turns to its path faster than it turns to watch, and walks under a rider below a gallop', () => {
     expect(ANIMAL_BEHAVIOUR.turn).toBeGreaterThan(ANIMAL_BEHAVIOUR.watchTurn);
     expect(ANIMAL_BEHAVIOUR.rideWalk).toBeLessThan(ANIMAL_BEHAVIOUR.rideRun);
-    const deer = ANIMAL_SPEEDS.deer;
-    expect(ANIMAL_BEHAVIOUR.rideRun).toBeGreaterThan(deer.walk);
-    expect(ANIMAL_BEHAVIOUR.rideRun).toBeLessThan(deer.run);
+    // Ridden at the riding walk it walks, at the riding gallop it runs.
+    expect(ANIMAL_BEHAVIOUR.rideWalk).toBeLessThan(RIDE.walk);
+    expect(ANIMAL_BEHAVIOUR.rideRun).toBeGreaterThan(RIDE.walk);
+    expect(ANIMAL_BEHAVIOUR.rideRun).toBeLessThan(RIDE.run);
   });
 
   it('leads the mount home only from beyond the farthest notice distance', () => {
-    const farthest = Math.max(...Object.values(ANIMAL_SPEEDS).map((pace) => pace.notice));
+    const farthest = Math.max(...Object.values(ANIMAL_SENSES).map((senses) => senses.notice));
     expect(ANIMAL_BEHAVIOUR.ledHomeBeyond).toBeGreaterThan(farthest * 3);
   });
 });

@@ -10,6 +10,8 @@
       "Z": 157.515
     },
     "RoamRadius": 1900,
+    "WalkSpeed": 41.7,
+    "RunSpeed": 165,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -26,6 +28,8 @@
       "Z": 278.009
     },
     "RoamRadius": 1900,
+    "WalkSpeed": 41.9,
+    "RunSpeed": 169.1,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -42,6 +46,8 @@
       "Z": 887.451
     },
     "RoamRadius": 1700,
+    "WalkSpeed": 52,
+    "RunSpeed": 147.5,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -58,6 +64,8 @@
       "Z": 545.892
     },
     "RoamRadius": 1700,
+    "WalkSpeed": 51.1,
+    "RunSpeed": 145.2,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -74,6 +82,8 @@
       "Z": 130.585
     },
     "RoamRadius": 1600,
+    "WalkSpeed": 39.4,
+    "RunSpeed": 119.9,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -90,6 +100,8 @@
       "Z": 645.797
     },
     "RoamRadius": 1600,
+    "WalkSpeed": 38.5,
+    "RunSpeed": 118.2,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -106,6 +118,8 @@
       "Z": 136.062
     },
     "RoamRadius": 1600,
+    "WalkSpeed": 39.7,
+    "RunSpeed": 120.5,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -122,6 +136,8 @@
       "Z": 121.106
     },
     "RoamRadius": 700,
+    "WalkSpeed": 15.6,
+    "RunSpeed": 48.7,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -138,6 +154,8 @@
       "Z": 145.453
     },
     "RoamRadius": 0,
+    "WalkSpeed": 0,
+    "RunSpeed": 0,
     "bSeated": true,
     "bTame": false,
     "HomeYaw": 0,
@@ -154,6 +172,8 @@
       "Z": 104.014
     },
     "RoamRadius": 700,
+    "WalkSpeed": 14,
+    "RunSpeed": 45.9,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -170,6 +190,8 @@
       "Z": 81.178
     },
     "RoamRadius": 900,
+    "WalkSpeed": 33.4,
+    "RunSpeed": 101.8,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -186,6 +208,8 @@
       "Z": 105.191
     },
     "RoamRadius": 900,
+    "WalkSpeed": 32.4,
+    "RunSpeed": 100,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -202,6 +226,8 @@
       "Z": 463.378
     },
     "RoamRadius": 1300,
+    "WalkSpeed": 37.1,
+    "RunSpeed": 104.5,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -218,6 +244,8 @@
       "Z": 104.47
     },
     "RoamRadius": 1300,
+    "WalkSpeed": 35.3,
+    "RunSpeed": 99.6,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -234,6 +262,8 @@
       "Z": 1384.651
     },
     "RoamRadius": 1400,
+    "WalkSpeed": 37.1,
+    "RunSpeed": 104.4,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -250,6 +280,8 @@
       "Z": 214.183
     },
     "RoamRadius": 1200,
+    "WalkSpeed": 63.4,
+    "RunSpeed": 209.7,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -266,6 +298,8 @@
       "Z": 107.053
     },
     "RoamRadius": 0,
+    "WalkSpeed": 63.3,
+    "RunSpeed": 209.2,
     "bSeated": false,
     "bTame": true,
     "HomeYaw": 90,
@@ -282,6 +316,8 @@
       "Z": 663.109
     },
     "RoamRadius": 1600,
+    "WalkSpeed": 62.2,
+    "RunSpeed": 99.5,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
@@ -298,6 +334,8 @@
       "Z": 459.534
     },
     "RoamRadius": 1600,
+    "WalkSpeed": 63.3,
+    "RunSpeed": 209.2,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,

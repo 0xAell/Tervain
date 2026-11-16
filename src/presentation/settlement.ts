@@ -1,19 +1,23 @@
 import { buildFenceRun } from './fenceContacts';
 import * as THREE from 'three';
-import { addCartColliders, type Colliders, type VerticalBounds } from '../core/world/colliders';
+import { addCartColliders, PROP_COLLIDER, type Colliders, type VerticalBounds } from '../core/world/colliders';
 import {
   ANCHORS,
   ARRIVAL_WRECK,
   ARCHIVE_ROOM,
   BELL_TOWER,
+  BENCHES,
   BORDER_SIGN,
   BUILDINGS,
   DECKS,
   FIELDS,
   HAMLET_PROPS,
+  KIT_TABLE,
   LEDGER,
+  NOTICEBOARD,
   PALISADE,
   PICKUP_LOCATIONS,
+  QUARRY_BOULDERS,
   RITE_ALTAR,
   SHORTCUT,
   SLUICE,
@@ -22,6 +26,7 @@ import {
   WELL,
   WELL_CONSTRUCTION,
   bySpec,
+  fieldFenceRuns,
 } from '../core/world/layout';
 import { mulberry32 } from '../core/world/noise';
 import type { Terrain } from '../core/world/terrain';
@@ -442,8 +447,8 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
   {
     const R = region('village');
     const rnd: Rnd = mulberry32(5502);
-    const nx = 5;
-    const nz = 15.4;
+    const nx = NOTICEBOARD.x;
+    const nz = NOTICEBOARD.z;
     const y0 = gy(nx, nz);
     const bounds = physicalBounds(R);
     R.timber.box(0.17, 2.7, 0.17, nx - 1.25, y0 - 0.1, nz, jitterTone(TINT.woodDark, rnd), { grain: 'y', rz: 0.02 });
@@ -626,15 +631,14 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
   {
     const R = region('quarry');
     const rnd: Rnd = mulberry32(31);
-    for (let i = 0; i < 14; i++) {
-      const bx = 100 + rnd() * 12;
-      const bz = -36 + rnd() * 22;
-      const bw = 3 + rnd() * 3.5;
-      const bh = 1.6 + rnd() * 2.6;
-      const y = gy(bx, bz);
+    for (const [i, boulder] of QUARRY_BOULDERS.entries()) {
+      // The boulders were first scattered from this stream, five draws each; those stay spent, so that every stone keeps
+      // the shape and grain it has always had.
+      for (let draw = 0; draw < 5; draw++) rnd();
+      const y = gy(boulder.x, boulder.z);
       const bounds = physicalBounds(R);
-      fieldstone(R, rnd, bx, y - 0.6, bz, bw * 0.55, bh * 0.75, (2 + rnd() * 2.5) * 0.55);
-      colliders.box(`face:${i}`, bx, bz, bw / 2, 1.5, 0, true, bounds());
+      fieldstone(R, rnd, boulder.x, y - 0.6, boulder.z, boulder.width * 0.55, boulder.height * 0.75, boulder.depth * 0.55);
+      colliders.box(`face:${i}`, boulder.x, boulder.z, boulder.width / 2, 1.5, 0, true, bounds());
     }
     dustEmitters.push(new THREE.Vector3(99, gy(99, -29) + 1.2, -29), new THREE.Vector3(100, gy(100, -22) + 1, -22));
     const stacks: [number, number, number, number, number][] = [[92, -16, 2.2, 1.4, 0.3], [84, -32, 2.6, 1.6, -0.2], [98, -26, 1.6, 1.6, 0.6]];
@@ -758,16 +762,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     const R = region('village');
     const rnd: Rnd = mulberry32(6400);
     const fenceRun = (pts: [number, number][]) => buildFenceRun(R, rnd, pts, gy, colliders);
-    for (const f of FIELDS) {
-      const c = Math.cos(f.yaw);
-      const s = Math.sin(f.yaw);
-      const corner = (lx: number, lz: number): [number, number] => [f.x + lx * c + lz * s, f.z - lx * s + lz * c];
-      const hw = f.w / 2 + 0.8;
-      const hd = f.d / 2 + 0.8;
-      fenceRun([corner(-hw, -hd), corner(hw, -hd)]);
-      fenceRun([corner(-hw, hd), corner(hw, hd)]);
-      fenceRun([corner(-hw, -hd), corner(-hw, hd)]);
-    }
+    for (const field of FIELDS) for (const [from, to] of fieldFenceRuns(field)) fenceRun([[from.x, from.z], [to.x, to.z]]);
     for (const [x, z] of [[-24, 56], [16, 72], [46, 68]] as const) {
       const y = gy(x, z);
       R.thatch.lathe([1.2, 0, 1.3, 0.6, 1.1, 1.3, 0.8, 1.7, 0.4, 2.1, 0.05, 2.35], 9, x, y - 0.05, z, jitterTone(TINT.thatch, rnd, 0.12), { jit: 0.1, amp: 0.16 });
@@ -796,24 +791,24 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
   {
     const R = region('village');
     const rnd: Rnd = mulberry32(6600);
-    for (const [x, z, yaw] of [[-9, 35.6, 0], [44, 32.4, 1.0], [10, 17, 0.2]] as const) benchSet(R, rnd, x, gy(x, z), z, yaw, gy);
+    for (const bench of Object.values(BENCHES)) benchSet(R, rnd, bench.x, gy(bench.x, bench.z), bench.z, bench.yaw, gy);
     // The town's loose barrels now belong to the same physical work-supply system.
-    const ky = gy(15, 20.5);
+    const { x: kx, z: kz } = KIT_TABLE;
+    const ky = gy(kx, kz);
     // Existing tool station: trestles, a folded repair cloth, a gauge and a mallet share one coherent work site.
     // These details fit the retained kit_table bounds, rather than adding stray obstacles to the lane.
     rnd(); // Preserve the downstream decorative RNG after the former table tint.
-    workTable(R, 1.0, 0.6, 0.75, 15, ky, 20.5);
-    R.cloth.box(0.34, 0.035, 0.25, 14.76, ky + 0.75, 20.45, TINT.cloth, { ry: 0.08, jit: 0.02, amp: 0.02 });
-    R.timber.box(0.37, 0.032, 0.045, 15.09, ky + 0.75, 20.66, TINT.woodPale, { ry: -0.14, grain: 'x', jit: 0.015, amp: 0.015 });
-    R.metal.box(0.5, 0.06, 0.16, 15, ky + 0.78, 20.5, 0x8a7a3a, { jit: 0.1 });
-    R.timber.rod(15.22, ky + 0.77, 20.30, 15.38, ky + 0.77, 20.54, 0.017, 4, TINT.woodDark, { jit: 0.01, amp: 0.01 });
-    R.timber.box(0.11, 0.055, 0.065, 15.37, ky + 0.765, 20.55, TINT.woodDark, { ry: 0.48, jit: 0.01, amp: 0.01 });
-    R.timber.box(0.06, 1.3, 0.06, 15.4, ky + 0.75, 20.5, 0xc2b07a, { jit: 0.05 });
-    colliders.box('kit_table', 15, 20.5, 0.55, 0.35, 0, true, { minY: ky, maxY: ky + 0.84 });
-    colliders.circle('kit_staff', 15.4, 20.5, Math.hypot(0.03, 0.03), true, { minY: ky + 0.75, maxY: ky + 2.05 });
+    workTable(R, 1.0, 0.6, 0.75, kx, ky, kz);
+    R.cloth.box(0.34, 0.035, 0.25, kx - 0.24, ky + 0.75, kz - 0.05, TINT.cloth, { ry: 0.08, jit: 0.02, amp: 0.02 });
+    R.timber.box(0.37, 0.032, 0.045, kx + 0.09, ky + 0.75, kz + 0.16, TINT.woodPale, { ry: -0.14, grain: 'x', jit: 0.015, amp: 0.015 });
+    R.metal.box(0.5, 0.06, 0.16, kx, ky + 0.78, kz, 0x8a7a3a, { jit: 0.1 });
+    R.timber.rod(kx + 0.22, ky + 0.77, kz - 0.2, kx + 0.38, ky + 0.77, kz + 0.04, 0.017, 4, TINT.woodDark, { jit: 0.01, amp: 0.01 });
+    R.timber.box(0.11, 0.055, 0.065, kx + 0.37, ky + 0.765, kz + 0.05, TINT.woodDark, { ry: 0.48, jit: 0.01, amp: 0.01 });
+    R.timber.box(0.06, 1.3, 0.06, kx + 0.4, ky + 0.75, kz, 0xc2b07a, { jit: 0.05 });
+    colliders.box(PROP_COLLIDER.kitTable, kx, kz, KIT_TABLE.halfWidth, KIT_TABLE.halfDepth, 0, true, { minY: ky, maxY: ky + KIT_TABLE.height });
+    colliders.circle('kit_staff', kx + 0.4, kz, Math.hypot(0.03, 0.03), true, { minY: ky + 0.75, maxY: ky + 2.05 });
     cart(R, rnd, VILLAGE_HANDCART.x, gy(VILLAGE_HANDCART.x, VILLAGE_HANDCART.z), VILLAGE_HANDCART.z, VILLAGE_HANDCART.yaw);
     sack(R, rnd, -3, gy(-3, 12.5), 12.5, 1);
-    for (const [x, z] of [[-14.4, -3], [-136.5, 31.5]] as const) void x, void z;
   }
 
   /* ---------------- Schedule board (rotation) and contract guard post ---------------- */

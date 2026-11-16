@@ -30,10 +30,10 @@ function setup(kind: EnemySpawn['kind'] = 'bandit') {
     player: { x: 0, y: 0, z: 20, alive: true, invulnerable: false }, reducedMotion: false,
     terrain: { groundAt: () => 0, walkable }, colliders: { resolve,
       move: (ax: number, az: number, dx: number, dz: number) => resolve(ax + dx, az + dz), segmentBlocked: () => false },
-    strikePlayer: vi.fn(() => true), onGrowl: vi.fn(), time: 0,
+    strikePlayer: vi.fn(() => true), onGrowl: vi.fn(),
   } as unknown as EnemyContext;
   const tick = (dt = 1 / 60): Pose => {
-    ctx.time += dt; enemy.update(dt, ctx);
+    enemy.update(dt, ctx);
     return vi.mocked(poseRig).mock.calls.at(-1)![1];
   };
   return { enemy, ctx, resolve, walkable, tick };

@@ -37,7 +37,8 @@ const CLAIM_FACTS = [
 
 export const PLACE_ORDER: PlaceId[] = ['shore', 'lantern_point', 'deepwood', 'overlook', 'rillford', 'ford', 'spring_shrine', 'sluice', 'quarry', 'the_cut', 'archive'];
 
-const CLAIMED_PLACE_FACTS: Partial<Record<PlaceId, string>> = {
+/** The places he can be told of before he has been there, and the fact that says he was. */
+export const CLAIMED_PLACE_FACTS: Partial<Record<PlaceId, string>> = {
   spring_shrine: 'told_shrine',
   sluice: 'told_sluice',
   quarry: 'told_quarry',
@@ -46,6 +47,17 @@ const CLAIMED_PLACE_FACTS: Partial<Record<PlaceId, string>> = {
   ford: 'told_ford_path',
   archive: 'told_archive_door',
 };
+
+/** The places the map shows: those he has been to, and those he has been told of. */
+export function knownPlaces(s: WorldState): PlaceId[] {
+  return PLACE_ORDER.filter((id) => s.discovered[id] || placeClaimed(s, id));
+}
+
+/** Whether he has been told of a place he has not yet been to. */
+export function placeClaimed(s: WorldState, id: PlaceId): boolean {
+  const fact = CLAIMED_PLACE_FACTS[id];
+  return !s.discovered[id] && fact !== undefined && hasFact(s, fact);
+}
 
 function evidenceColumn(via: string): 'observed' | 'reported' {
   return via === 'testimony' ? 'reported' : 'observed';

@@ -115,11 +115,6 @@ export class Mesher {
     return [this.p[i * 3]!, this.p[i * 3 + 1]!, this.p[i * 3 + 2]!];
   }
 
-  /** Change the local attributes of a vertex already written (for primitives that learn them afterwards). */
-  setAttr(i: number, k: number, value: number) {
-    this.pa[i * PA + k] = value;
-  }
-
   data(): MesherData {
     return {
       pos: new Float32Array(this.p),

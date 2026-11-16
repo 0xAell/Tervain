@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { LOOK } from '../../src/core/content/look';
 import { DAY_CONTRAST, displayToSceneLuminance, WORLD_EXPOSURE } from '../../src/presentation/grade';
 
 // The day transfer for a grey pixel, written forwards: Three's ACES filmic fit (its input and output matrices keep grey)
@@ -26,5 +28,17 @@ describe('grade transfer', () => {
     }
     // The 0.0.32 cap value, read as scene light (where the grass writes it), lands above 230 of 255.
     expect(sceneToDisplay(0.62) * 255).toBeGreaterThan(230);
+  });
+
+  it('takes its numbers from the core’s look, and writes none of them itself', () => {
+    expect([WORLD_EXPOSURE, DAY_CONTRAST]).toEqual([LOOK.exposure, LOOK.contrast]);
+    const source = readFileSync('src/presentation/grade.ts', 'utf8');
+    for (const name of ['exposure', 'contrast', 'saturation', 'daySaturation', 'vignette', 'grain', 'earth', 'bloom.threshold', 'bloom.strength']) {
+      expect(source, name).toContain(`LOOK.${name}`);
+    }
+    // The uniforms that carry the look are set from it, not from a literal.
+    for (const uniform of ['uBloom', 'uSaturation', 'uContrast', 'uVignette', 'uGrain', 'uEarth', 'uThreshold']) {
+      expect(source, uniform).not.toMatch(new RegExp(`${uniform}: \\{ value: [0-9.]+ \\}`));
+    }
   });
 });

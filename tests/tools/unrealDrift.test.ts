@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
-import { ANIMAL_SPEEDS } from '../../src/core/content/animals';
+import { ANIMAL_SENSES } from '../../src/core/content/animals';
 import { ENEMY_ARCHETYPES } from '../../src/core/content/enemies';
 import { ITEMS } from '../../src/core/content/items';
 import { NPCS } from '../../src/core/content/npcs';
@@ -34,7 +34,7 @@ const CORE: Record<string, readonly string[]> = {
   Resident: Object.keys(NPCS),
   EnemyArchetype: Object.keys(ENEMY_ARCHETYPES),
   EnemyPost: ENEMY_SPAWNS.map((spawn) => spawn.id),
-  AnimalSpecies: Object.keys(ANIMAL_SPEEDS),
+  AnimalSpecies: Object.keys(ANIMAL_SENSES),
   Place: Object.keys(PLACES),
   Building: BUILDINGS.map((building) => building.id),
   QuestPhase: PHASE_ORDER,
@@ -121,10 +121,10 @@ describe('the ids the Unreal seed names and the core', () => {
     const found = declared(header);
     const driver = [
       '#include "Data/TervainIds.h"', '#include <cstdio>', '',
-      'template <unsigned long Count> static void Print(const char* Group, const TCHAR* const (&Ids)[Count]) { for (const TCHAR* Id : Ids) std::printf("%s %s\\n", Group, Id); }', '',
+      'template <unsigned long Count> static void Print(const char* Group, const TCHAR* const (&Ids)[Count]) { for (const TCHAR* Id : Ids) std::printf("%s %ls\\n", Group, Id); }', '',
       'int main()', '{',
       ...Object.keys(found.groups).map((group) => `\tPrint("${group}", TervainIds::${group}::All);`),
-      ...Object.entries(found.constants).map(([name, value]) => `\tstd::printf("${name} ${typeof value === 'number' ? '%d' : '%s'}\\n", TervainIds::${name});`),
+      ...Object.entries(found.constants).map(([name, value]) => `\tstd::printf("${name} ${typeof value === 'number' ? '%d' : '%ls'}\\n", TervainIds::${name});`),
       '\treturn 0;', '}', '',
     ].join('\n');
     writeFileSync(join(work, 'ids.cpp'), driver);

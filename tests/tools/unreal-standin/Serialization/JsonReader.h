@@ -1,7 +1,11 @@
 // Stand-in for the JSON reader: it holds the text to read.
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Containers/UnrealString.h"
+#include "Templates/SharedPointer.h"
+
+#include <memory>
+#include <string>
 
 template <class CharType = TCHAR> class TJsonReader
 {

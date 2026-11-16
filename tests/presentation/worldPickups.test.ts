@@ -19,8 +19,11 @@ import { buildScenery, type SceneryHandles } from '../../src/presentation/settle
 import { Exclusions } from '../../src/presentation/vegetation';
 import { WorldScene } from '../../src/presentation/world';
 import { pickupGeometry, pickupPlacement, setPickupVisible } from '../../src/presentation/worldPickups';
-import { buildStaticColliders, Colliders } from '../../src/core/world/colliders';
-import { ANCHORS, ARRIVAL_ROUTE, FOREST_WAYMARKERS, HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, PICKUP_LOCATIONS, SPAWN } from '../../src/core/world/layout';
+import { buildStaticColliders, Colliders, PROP_COLLIDER } from '../../src/core/world/colliders';
+import {
+  ANCHORS, ARRIVAL_ROUTE, FIELDS, fieldFenceRuns, FOREST_WAYMARKERS, HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, KIT_TABLE, NOTICEBOARD, PICKUP_LOCATIONS,
+  QUARRY_BOULDERS, SPAWN,
+} from '../../src/core/world/layout';
 import { NavGrid } from '../../src/core/world/nav';
 import { distToPolyline, Terrain } from '../../src/core/world/terrain';
 import { Player } from '../../src/presentation/player';
@@ -211,6 +214,28 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
     scenery?.dispose();
     if (station) disposeHunterSupplies(station);
     vi.unstubAllGlobals();
+  });
+
+  it('makes every prop the rules refer to by name: the hunter’s board and its post, the kit table, the first waymarker, the field fences', () => {
+    for (const id of [PROP_COLLIDER.hunterBoard, PROP_COLLIDER.hunterBoardPost, PROP_COLLIDER.kitTable, PROP_COLLIDER.waymarker(0), PROP_COLLIDER.fence]) {
+      expect(colliders.withId(id).length, id).toBeGreaterThan(0);
+    }
+  });
+
+  it('stands the props the core places where the core places them: the kit table, the noticeboard, the quarry’s boulders and the field fences', () => {
+    const at = (id: string) => colliders.withId(id).map((c) => ({ x: c.x, z: c.z }));
+    expect(at(PROP_COLLIDER.kitTable)).toEqual([{ x: KIT_TABLE.x, z: KIT_TABLE.z }]);
+    expect(colliders.withId(PROP_COLLIDER.kitTable)[0]).toMatchObject({ kind: 'box', hw: KIT_TABLE.halfWidth, hd: KIT_TABLE.halfDepth });
+    expect(at('noticeboard')).toEqual([{ x: NOTICEBOARD.x, z: NOTICEBOARD.z }]);
+    QUARRY_BOULDERS.forEach((boulder, index) => {
+      expect(colliders.withId(`face:${index}`)).toEqual([expect.objectContaining({ kind: 'box', x: boulder.x, z: boulder.z, hw: boulder.width / 2, hd: 1.5 })]);
+    });
+    const fences = colliders.withId(PROP_COLLIDER.fence);
+    const runs = FIELDS.flatMap((field) => fieldFenceRuns(field));
+    expect(fences).toHaveLength(runs.length);
+    runs.forEach(([from, to], index) => {
+      expect(fences[index]!.x).toBeCloseTo((from.x + to.x) / 2, 9); expect(fences[index]!.z).toBeCloseTo((from.z + to.z) / 2, 9);
+    });
   });
 
   it('builds a solid grounded counter, behind-face sign mounting, and a clear reachable supplier stance', () => {

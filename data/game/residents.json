@@ -645,7 +645,16 @@
         ]
       ],
       "sleeps": true,
-      "radius": 0.45
+      "radius": 0.45,
+      "look": {
+        "skin": 12159078,
+        "primary": 4868668,
+        "secondary": 3025444,
+        "hair": 6973024,
+        "height": 1,
+        "girth": 1.08,
+        "accessory": "pack"
+      }
     },
     {
       "id": "fireside",
@@ -668,7 +677,16 @@
       ],
       "seated": true,
       "sleeps": true,
-      "radius": 0.4
+      "radius": 0.4,
+      "look": {
+        "skin": 13081202,
+        "primary": 5917242,
+        "secondary": 6974034,
+        "hair": 3811866,
+        "height": 1,
+        "girth": 0.9,
+        "accessory": "shawl"
+      }
     },
     {
       "id": "keeper",
@@ -690,7 +708,17 @@
         ]
       ],
       "sleeps": false,
-      "radius": 0.45
+      "radius": 0.45,
+      "look": {
+        "skin": 11567196,
+        "primary": 4079688,
+        "secondary": 2631210,
+        "hair": 9078912,
+        "height": 1.03,
+        "girth": 1,
+        "accessory": "coat",
+        "accent": 6969914
+      }
     }
   ],
   "barks": [
@@ -1142,6 +1170,7 @@
     "settled": 0.3,
     "arriveExact": 0.06,
     "arriveNear": 0.15,
+    "standUpSeconds": 2.4667,
     "lieSeconds": 1.8,
     "sitBeforeLying": 1.2,
     "alarmReach": 40,

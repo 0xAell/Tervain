@@ -4,7 +4,8 @@ import { AMBIENT_RESIDENTS, type AmbientResident } from '../core/content/ambient
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { createAmbientRig, poseRig, type AmbientStyle, type Look, type Mode, type Rig } from './characters';
 import type { AwaitingFigure } from './residentArrivals';
-import { NIGHT } from '../core/rules/dayNight';
+import { goneInForTheNight } from '../core/rules/dayNight';
+import { figureScale } from '../core/content/npcs';
 
 /**
  * Silent residents of the inland hamlet. Their positions follow the relocated buildings and hearth;
@@ -12,25 +13,16 @@ import { NIGHT } from '../core/rules/dayNight';
  */
 
 /** A hamlet resident's mark and routine (the core's) with the figure that stands there. */
-type Spec = AmbientResident & { look: Look; style: AmbientStyle };
+type Spec = AmbientResident & { style: AmbientStyle };
 
-/** How each of the hamlet's residents looks, by id; who they are and where they stand is in the core. */
-const FIGURES: Record<AmbientResident['id'], { look: Look; style: Omit<AmbientStyle, 'id'> }> = {
-  fisher: {
-    look: { skin: 0xb98866, primary: 0x4a4a3c, secondary: 0x2e2a24, hair: 0x6a6660, height: 1.0, girth: 1.08, accessory: 'pack' },
-    style: { build: 'man', cut: 'short', beard: 'full', age: 0.62, faceSeed: 12011 },
-  },
-  fireside: {
-    look: { skin: 0xc79a72, primary: 0x5a4a3a, secondary: 0x6a6a52, hair: 0x3a2a1a, height: 1.0, girth: 0.9, accessory: 'shawl' },
-    style: { build: 'woman', cut: 'bun', beard: 'none', age: 0.45, faceSeed: 12107 },
-  },
-  keeper: {
-    look: { skin: 0xb0805c, primary: 0x3e4048, secondary: 0x28262a, hair: 0x8a8880, height: 1.03, girth: 1.0, accessory: 'coat', accent: 0x6a5a3a },
-    style: { build: 'man', cut: 'short', beard: 'full', age: 0.8, faceSeed: 12203 },
-  },
+/** How each of the hamlet's residents is drawn, by id: who they are, where they stand and how they look is in the core. */
+const STYLES: Record<AmbientResident['id'], Omit<AmbientStyle, 'id'>> = {
+  fisher: { build: 'man', cut: 'short', beard: 'full', age: 0.62, faceSeed: 12011 },
+  fireside: { build: 'woman', cut: 'bun', beard: 'none', age: 0.45, faceSeed: 12107 },
+  keeper: { build: 'man', cut: 'short', beard: 'full', age: 0.8, faceSeed: 12203 },
 };
 
-const SPECS: Spec[] = AMBIENT_RESIDENTS.map((resident) => ({ ...resident, look: FIGURES[resident.id].look, style: { id: resident.id, ...FIGURES[resident.id].style } as AmbientStyle }));
+const SPECS: Spec[] = AMBIENT_RESIDENTS.map((resident) => ({ ...resident, style: { id: resident.id, ...STYLES[resident.id] } as AmbientStyle }));
 
 /** Who the hamlet's people are (for the people lineup and the sheet export). */
 export const AMBIENT_PEOPLE: readonly { look: Look; style: AmbientStyle }[] = SPECS.map((s) => ({ look: s.look, style: s.style }));
@@ -69,7 +61,7 @@ export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { peopl
   const people: Resident[] = [];
   const awaiting: AwaitingFigure[] = [];
   SPECS.forEach((spec, i) => {
-    const role = `ambient:${spec.style.id}`, height = spec.look.height * (spec.style.build === 'woman' ? 0.94 : 1);
+    const role = `ambient:${spec.style.id}`, height = figureScale(spec.look.height, spec.style.build === 'woman');
     // A model still on its way leaves a stand-in with nothing to draw and no body to bump into (stage 2).
     const arrived = !ctx.npcAssets || ctx.npcAssets.has(role);
     const rig = !ctx.npcAssets ? createAmbientRig(spec.look, spec.style) : arrived ? ctx.npcAssets.create(role, height) : ctx.npcAssets.standIn(role, height);
@@ -113,10 +105,12 @@ export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { peopl
       // still consume the same elapsed time, with bounded steps through gesture transitions.
       const elapsed = Math.min(dt, 0.25);
       people.forEach((p, i) => {
-        p.rig.root.visible = !(p.spec.sleeps && f.nightness > NIGHT.sleepers);
-        // A person going to bed is no wall for routes: no navigation rebuild at dusk and dawn (A70).
-        colliders.setActive(`ambient:${i}`, p.rig.root.visible && p.arrived, false);
-        if (!p.rig.root.visible) { p.t += elapsed; return; }
+        // Whether they are out is the core's (goneInForTheNight); one gone to bed, or still on the way, blocks nobody, and
+        // a person going to bed is no wall for routes: no navigation rebuild at dusk and dawn (A70).
+        const out = !goneInForTheNight(!!p.spec.sleeps, f.nightness);
+        p.rig.root.visible = out;
+        colliders.setActive(`ambient:${i}`, out && p.arrived, false);
+        if (!out) { p.t += elapsed; return; }
         // The shadow camera culls actual rig bounds, never a separate distance cutoff.
         let remaining = elapsed;
         while (remaining > 1e-8) {

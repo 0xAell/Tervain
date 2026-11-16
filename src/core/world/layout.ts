@@ -281,12 +281,47 @@ const a = (p: V2, yaw = 0, seat?: number): Anchor => (seat === undefined ? { x: 
 /** Top of the village's plank benches (presentation/props.ts `benchSet`: a 0.09 m plank laid at 0.46 m). */
 export const BENCH_SEAT_HEIGHT = 0.55;
 
+/** The village's plank benches, where each stands and the way it lies: residents sit on the inn's and the ford camp's. */
+export const BENCHES = {
+  inn: { x: -9, z: 35.6, yaw: 0 },
+  ford: { x: 44, z: 32.4, yaw: 1.0 },
+  square: { x: 10, z: 17, yaw: 0.2 },
+} as const;
+
 /**
- * A place on a bench at (x, z) laid along `yaw`: the sitter faces along the bench's +z, the hip joint a few centimetres
+ * A place on a bench, `along` it from its middle: the sitter faces along the bench's +z, the hip joint a few centimetres
  * forward of the plank's centre so the seat of the trousers or skirt rests on the plank and the thighs pass its edge.
  */
-const onBench = (x: number, z: number, yaw: number, along = 0): Anchor =>
+const onBench = ({ x, z, yaw }: { x: number; z: number; yaw: number }, along = 0): Anchor =>
   a({ x: x + Math.cos(yaw) * along + Math.sin(yaw) * 0.04, z: z - Math.sin(yaw) * along + Math.cos(yaw) * 0.04 }, yaw, BENCH_SEAT_HEIGHT);
+
+/** The village noticeboard, its face to the square (north); it is read from `readFrom` metres before its face. */
+export const NOTICEBOARD = { x: 5, z: 15.4, readFrom: 2.6 } as const;
+
+/** The table in the village lane that the saltward kit is laid out on, and inspected at, and what it blocks (m). */
+export const KIT_TABLE = { x: 15, z: 20.5, halfWidth: 0.55, halfDepth: 0.35, height: 0.84 } as const;
+
+/**
+ * The quarry's boulders, as they were first scattered from a fixed seed: where each stands, and its width (along x),
+ * height and depth (m). Each blocks a box as wide as the boulder and 3 m deep; the crew's work post at the face
+ * (ANCHORS.quarry_face) stands before the fourth.
+ */
+export const QUARRY_BOULDERS: readonly { x: number; z: number; width: number; height: number; depth: number }[] = [
+  { x: 108.0671, z: -17.6092, width: 5.6238, height: 1.7272, depth: 3.0418 },
+  { x: 103.8451, z: -19.9348, width: 5.0044, height: 2.6968, depth: 3.798 },
+  { x: 110.5566, z: -17.6697, width: 5.7032, height: 3.6899, depth: 4.3925 },
+  { x: 108.4383, z: -29.8651, width: 3.9713, height: 3.3516, depth: 3.6235 },
+  { x: 104.6036, z: -27.7722, width: 3.2386, height: 3.7712, depth: 2.0201 },
+  { x: 107.8656, z: -18.0219, width: 4.8834, height: 2.6029, depth: 2.3747 },
+  { x: 109.5992, z: -27.0228, width: 6.0463, height: 3.6687, depth: 4.3029 },
+  { x: 104.5597, z: -18.1889, width: 3.3818, height: 4.0093, depth: 2.3993 },
+  { x: 105.7768, z: -28.7083, width: 3.416, height: 3.1663, depth: 3.1611 },
+  { x: 110.5007, z: -25.7778, width: 4.5882, height: 3.6832, depth: 3.4584 },
+  { x: 100.3538, z: -28.6838, width: 5.1352, height: 2.7257, depth: 3.0167 },
+  { x: 105.4678, z: -27.4432, width: 6.2981, height: 3.2012, depth: 3.1758 },
+  { x: 102.4759, z: -17.5751, width: 4.726, height: 3.447, depth: 3.0144 },
+  { x: 107.9882, z: -22.4303, width: 3.7847, height: 3.8912, depth: 3.935 },
+];
 
 /** A place outside a building's door, looking out from it: at their door a resident faces the lane, not the wall. */
 const atDoor = (id: string, out: number, side = 0): Anchor => a(frontOf(bySpec(id), out, side), bySpec(id).yaw);
@@ -302,13 +337,13 @@ export const ANCHORS: Record<string, Anchor> = {
   // Beside his wagon inside the stockade, watching the gate and the track in from the road (A69: it faced the stockade).
   overlook_wagon: a({ x: -93, z: 22 }, 2.87),
   village_square: a({ x: 3, z: 9 }, 0),
-  noticeboard: a({ x: 5, z: 12.9 }, Math.PI),
+  noticeboard: a({ x: NOTICEBOARD.x, z: NOTICEBOARD.z - 2.5 }, Math.PI),
   village_well: a({ x: -6, z: 21.8 }, 0),
   dry_channel: a({ x: -10, z: 8 }, -1.6),
   reeve_door: atDoor('reeve_house', 1.4),
   bakery_door: atDoor('bakery', 1.4),
   mill_door: atDoor('mill', 1.4),
-  inn_bench: onBench(-9, 35.6, 0, -0.35),
+  inn_bench: onBench(BENCHES.inn, -0.35),
   shrine_altar: a({ x: -14, z: -95.6 }, 3.1),
   shrine_steps: a({ x: -18, z: -95 }, 0),
   wetland_edge: a({ x: -15, z: -86 }, -2.2),
@@ -324,7 +359,7 @@ export const ANCHORS: Record<string, Anchor> = {
   quarry_face: a({ x: 109.08, z: -32.67 }, 5.858),
   crew_bunks: atDoor('crew_bunks', 1.4),
   cut_ledge: a({ x: 122, z: -72 }, 3.1),
-  ford_camp: onBench(44, 32.4, 1.0, 0.3),
+  ford_camp: onBench(BENCHES.ford, 0.3),
   strand_fire: a({ x: -103, z: 16 }, 0),
   lantern_door: a({ x: -318, z: 113 }, 0),
 };
@@ -365,9 +400,9 @@ export const INSPECT_LOCATIONS: WorldPoint[] = [
   { id: 'quarry_seep', x: 74, z: -30, r: 4 },
   { id: 'sluice_crack', x: 5.6, z: -57.4, r: 3.4 },
   { id: 'inspection_log', x: 2.6, z: -57.0, r: 2.6 },
-  { id: 'noticeboard', x: 5, z: 12.8, r: 3.0 },
+  { id: 'noticeboard', x: NOTICEBOARD.x, z: NOTICEBOARD.z - NOTICEBOARD.readFrom, r: 3.0 },
   { id: 'wetland_fish', x: -14, z: -90, r: 3.5 },
-  { id: 'saltward_kit', x: 15, z: 20.5, r: 2.4 },
+  { id: 'saltward_kit', x: KIT_TABLE.x, z: KIT_TABLE.z, r: 2.4 },
 ];
 
 /** Hunting gear is found just off the early woodland trail; hides buy replacement arrows here. */
@@ -573,6 +608,21 @@ export const FIELDS: FieldSpec[] = [
   { id: 'field_east', x: 36, z: 58, w: 26, d: 18, yaw: -0.1, crop: 'greens' },
   { id: 'field_west', x: -42, z: 50, w: 18, d: 26, yaw: 0.05, crop: 'fallow' },
 ];
+
+/** How far outside its field a field's fence runs (m). */
+export const FIELD_FENCE_MARGIN = 0.8;
+
+/**
+ * Where a field's fence runs, as straight runs from end to end: along both of its sides across its own z and along the
+ * side at its own -x, each `FIELD_FENCE_MARGIN` outside it. The side at its own +x is left open. The fence blocks and
+ * can be vaulted (colliders.ts `PROP_COLLIDER.fence`).
+ */
+export function fieldFenceRuns(field: Pick<FieldSpec, 'x' | 'z' | 'w' | 'd' | 'yaw'>): [V2, V2][] {
+  const c = Math.cos(field.yaw), s = Math.sin(field.yaw);
+  const corner = (lx: number, lz: number): V2 => ({ x: field.x + lx * c + lz * s, z: field.z - lx * s + lz * c });
+  const hw = field.w / 2 + FIELD_FENCE_MARGIN, hd = field.d / 2 + FIELD_FENCE_MARGIN;
+  return [[corner(-hw, -hd), corner(hw, -hd)], [corner(-hw, hd), corner(hw, hd)], [corner(-hw, -hd), corner(-hw, hd)]];
+}
 
 /** Orchard rows (fruit trees) west of the village. */
 export const ORCHARD = { x: -50, z: 20, w: 30, d: 30 };

@@ -25,6 +25,7 @@ import type { HeroAnimationController } from './hero/animation';
 import type { ResidentMotion } from './npc/residentMotion';
 import type { ResidentFingers } from './npc/residentFingers';
 import type { WorkSite } from './npc/workSites';
+import { banditScale, ENEMY_FIGURE } from '../core/content/enemies';
 
 /**
  * People and creatures. People are built the way Gothic 3 builds its actors (docs/art/gothic3-reference.md#people): one
@@ -709,7 +710,7 @@ export function createStandInRig(height: number, grip: Grip = 'none'): Rig {
 }
 
 export function createBanditRig(variant: number): Rig {
-  const look: Look = { skin: 0xb98866, primary: variant ? 0x4a3a34 : 0x3f4a3a, secondary: 0x2a2a2a, hair: 0x2a2018, height: 1.04 + variant * 0.05, girth: 1.08, accessory: 'hood' };
+  const look: Look = { skin: 0xb98866, primary: variant ? 0x4a3a34 : 0x3f4a3a, secondary: 0x2a2a2a, hair: 0x2a2018, height: banditScale(variant), girth: 1.08, accessory: 'hood' };
   return createPersonRig({
     build: 'man',
     height: look.height,
@@ -878,7 +879,7 @@ export function createThornback(): Rig {
     sheathed: null,
     grip: 'none',
     sash: null,
-    height: 1.4,
+    height: ENEMY_FIGURE.thornbackHeight,
     hipY: 0.8,
     cur,
     materials: [hideM, boneM],

@@ -169,8 +169,13 @@ export const SWIM_FLOAT = 1.25;
 /** Breaststroke and a hard crawl (m/s); the hard pace spends stamina. */
 export const SWIM_SPEED = 1.45;
 export const SWIM_SPRINT = 2.3;
+/**
+ * Wading: water slows the legs from `from` metres deep, easing over `span` metres more to `slowest` of the walking pace
+ * at the waist, where the wade ends and the swim takes over (`SWIM_EXIT`).
+ */
+export const WADE = { from: 0.1, span: 1.05, slowest: 0.5 };
 /** Walking pace kept in water `depth` metres deep: legs push water from the shins up, and a waist-deep wade halves it. */
 export function wadeFactor(depth: number): number {
-  const t = Math.min(1, Math.max(0, (depth - 0.1) / 1.05));
-  return 1 - 0.5 * t * t * (3 - 2 * t);
+  const t = Math.min(1, Math.max(0, (depth - WADE.from) / WADE.span));
+  return 1 - (1 - WADE.slowest) * t * t * (3 - 2 * t);
 }

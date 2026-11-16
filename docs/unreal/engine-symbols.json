@@ -1,0 +1,3414 @@
+{
+  "about": "Every engine name the Unreal seed (unreal/) and the stand-ins its tests compile it against (tests/tools/unreal-standin/) assume, each checked against Epic's public documentation, or, for a rule of the C++ language itself, against the C++20 working draft. The seed has never been built by the engine; this register says how far the public record supports each assumption, and what only a build can settle.",
+  "checked": "2026-11-16",
+  "reference": "Epic's documentation at dev.epicgames.com: the guides of the current version, and the C++ API reference of Unreal Engine 5.8, or of 5.5 and 5.7 where the 5.8 page leaves a detail out. The seed targets Unreal Engine 5.9, whose API reference was not published when this was checked. The reference prints signatures without default arguments, does not document macros, and drops a trailing const in its class tables. Epic's engine source is not public, so no header was read. Where an assumption is a rule of the C++ language rather than of the engine, it is checked against the C++20 working draft (N4861, in the cplusplus/draft repository on GitHub), the standard Epic's coding standard says the engine builds with.",
+  "statuses": {
+    "verified": "The quoted passage, on the page named, states or shows what is assumed: the name and, for a function, its parameters or the behaviour relied on.",
+    "partly": "The name is documented but something the seed or a stand-in relies on is not: a default argument, a value's spelling, an include that brings a name in.",
+    "unverified": "No public page was found that shows it.",
+    "contradicted": "A public page says otherwise."
+  },
+  "summary": {
+    "symbols": 196,
+    "verified": 188,
+    "partly": 6,
+    "unverified": 1,
+    "contradicted": 1
+  },
+  "symbols": [
+    {
+      "symbol": "uint8",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "An unsigned 8-bit integer type; the underlying type of every UENUM in the seed.",
+      "status": "verified",
+      "source": {
+        "title": "Epic C++ Coding Standard for Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/epic-cplusplus-coding-standard-for-unreal-engine"
+      },
+      "passage": "uint8 for unsigned bytes (1 byte).",
+      "note": "States the type and its size. The UE 5.8 API reference (Core module page) also lists the typedef uint8 = FPlatformTypes::uint8 in HAL/Platform.h."
+    },
+    {
+      "symbol": "int32",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/Array.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "A signed 32-bit integer type.",
+      "status": "verified",
+      "source": {
+        "title": "Epic C++ Coding Standard for Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/epic-cplusplus-coding-standard-for-unreal-engine"
+      },
+      "passage": "int32 for signed ints (4 bytes).",
+      "note": "States the type and its size. The UE 5.8 API reference lists it as \"A 32-bit signed integer.\" in HAL/Platform.h."
+    },
+    {
+      "symbol": "uint32",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "An unsigned 32-bit integer type: the type of the read flags LoadFileToString takes.",
+      "status": "verified",
+      "source": {
+        "title": "Epic C++ Coding Standard for Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/epic-cplusplus-coding-standard-for-unreal-engine"
+      },
+      "passage": "uint32 for unsigned ints (4 bytes).",
+      "note": "The seed names it once, to pass the read flag (see EFileRead)."
+    },
+    {
+      "symbol": "TCHAR",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/StringView.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "tests/tools/unreal-standin/UObject/NameTypes.h",
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h"
+      ],
+      "assumes": "The character type of TEXT() literals, of FString characters and of const TCHAR* parameters, and a wide one: the stand-in makes it wchar_t, so a narrow string passed where TCHARs are wanted does not compile.",
+      "status": "verified",
+      "source": {
+        "title": "Character Encoding in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/character-encoding-in-unreal-engine"
+      },
+      "passage": "All strings in UE are stored in memory in UTF-16 format as FStrings or TCHAR arrays.",
+      "note": "The API reference gives TCHAR as \"Either ANSICHAR or WIDECHAR, depending on whether the platform supports wide characters or the requirements of the licensee\" (Core module page), and the coding standard says never to assume its size. The seed does not: it handles text only through TEXT, FString and FName. On the Linux machines that run the stand-in build, wchar_t is 32 bits rather than 16; what the stand-in checks is that narrow and wide strings are not mixed."
+    },
+    {
+      "symbol": "TEXT",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "TEXT(\"...\") wraps a string literal so that it is a TCHAR literal.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "For most uses, Unreal relies on the TCHAR type for characters. The TEXT() macro is available to denote TCHAR literals.",
+      "note": "States what the macro is for. The coding standard page adds \"Always use the TEXT() macro around string literals.\""
+    },
+    {
+      "symbol": "TEXT literal as inline constexpr const TCHAR*",
+      "kind": "language",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A TEXT(\"...\") literal can initialise a namespace-scope `inline constexpr const TCHAR*` constant and an array of them: TEXT gives a string literal (entry TEXT), a string literal is an object with static storage duration, and the address of such an object may be the value of a constant expression.",
+      "status": "verified",
+      "source": {
+        "title": "C++20 working draft N4861, [expr.const] (cplusplus/draft, source/expressions.tex)",
+        "url": "https://raw.githubusercontent.com/cplusplus/draft/n4861/source/expressions.tex"
+      },
+      "passage": "if the value is of pointer type, it contains the address of an object with static storage duration",
+      "note": "A rule of the language, not of the engine, so it is checked against the C++20 working draft: Epic's coding standard says \"Unreal Engine compiles with a language version of C++20 by default and requires a minimum version of C++20 to build.\" The other half is [lex.string] (source/lex.tex of the same draft): evaluating a string literal \"results in a string literal object with static storage duration, initialized from the given characters as specified above\". The stand-in build compiles TervainIds.h in this form as C++20."
+    },
+    {
+      "symbol": "USTRUCT",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "USTRUCT(...) goes above a struct definition whose first line is GENERATED_BODY().",
+      "status": "verified",
+      "source": {
+        "title": "Structs in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/structs-in-unreal-engine"
+      },
+      "passage": "To define your C++ struct, put the USTRUCT macro above the struct's definition. Include the GENERATED_BODY() macro as the first line of the definition.",
+      "note": "States the placement of both macros exactly as the seed uses them."
+    },
+    {
+      "symbol": "UCLASS",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "UCLASS(specifiers, meta=(...)) goes above a class declaration that contains GENERATED_BODY().",
+      "status": "verified",
+      "source": {
+        "title": "Gameplay Classes in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-classes-in-unreal-engine"
+      },
+      "passage": "UCLASS([specifier, specifier, ...], [meta(key=value, key=value, ...)]) class ClassName : public ParentName { GENERATED_BODY() }",
+      "note": "Shows the declaration syntax. Note the documented form writes meta(key=value); the seed writes meta = (DisplayName = \"Tervain\"), the form the API reference shows for engine classes (see the entry for the DisplayName metadata)."
+    },
+    {
+      "symbol": "UENUM",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "UENUM(...) goes above an `enum class Name : uint8` declaration.",
+      "status": "verified",
+      "source": {
+        "title": "Metadata Specifiers in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/metadata-specifiers-in-unreal-engine"
+      },
+      "passage": "UENUM() enum class EMyEnum : uint8 {",
+      "note": "Shows the macro above an enum class with uint8 as the underlying type, the form every enum in the seed uses."
+    },
+    {
+      "symbol": "UPROPERTY",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "UPROPERTY(specifiers, meta=(...)) goes above a member variable.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "UPROPERTY([specifier, specifier, ...], [meta(key=value, key=value, ...)]) Type VariableName;",
+      "note": "Shows the declaration syntax."
+    },
+    {
+      "symbol": "UFUNCTION",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "UFUNCTION(specifiers) goes above a member function declaration, which may be const and may give default values to trailing parameters.",
+      "status": "verified",
+      "source": {
+        "title": "UFunctions in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/ufunctions-in-unreal-engine"
+      },
+      "passage": "UFUNCTION([specifier1=setting1, specifier2, ...], [meta(key1=\"value1\", key2, ...)]) ReturnType FunctionName([Parameter1, Parameter2, ..., ParameterN1=DefaultValueN1, ParameterN2=DefaultValueN2]) [const];",
+      "note": "Shows the syntax, including default parameter values and const, both of which GetTuningNumber uses. Whether a UFUNCTION may be defined inline in the header (HasTuning) and whether a parameter may be named Default are not addressed."
+    },
+    {
+      "symbol": "GENERATED_BODY",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/TervainDataSubsystem.generated.h",
+        "tests/tools/unreal-standin/TervainHeroRules.generated.h",
+        "tests/tools/unreal-standin/TervainRows.generated.h",
+        "tests/tools/unreal-standin/TervainSettings.generated.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "GENERATED_BODY() takes no arguments and is required in every UCLASS and USTRUCT.",
+      "status": "verified",
+      "source": {
+        "title": "Objects in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/objects-in-unreal-engine"
+      },
+      "passage": "The GENERATED_BODY macro takes no arguments, but sets up the class to support the infrastructure required by the engine. It is required for all UCLASS and USTRUCT .",
+      "note": "States both points. The stand-in redefines the macro per generated header; what the real macro expands to is not documented."
+    },
+    {
+      "symbol": "<Header>.generated.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/TervainDataSubsystem.generated.h",
+        "tests/tools/unreal-standin/TervainHeroRules.generated.h",
+        "tests/tools/unreal-standin/TervainRows.generated.h",
+        "tests/tools/unreal-standin/TervainSettings.generated.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "Each header with reflected types includes \"<HeaderName>.generated.h\", and that include is the last one in the file.",
+      "status": "verified",
+      "source": {
+        "title": "Objects in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/objects-in-unreal-engine"
+      },
+      "passage": "This line is expected to be the the last #include directive in the file.",
+      "note": "The sentence refers to #include \"MyObject.generated.h\". All four seed headers place the generated include last."
+    },
+    {
+      "symbol": "Super",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/TervainDataSubsystem.generated.h",
+        "tests/tools/unreal-standin/TervainSettings.generated.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "Inside a UCLASS, Super names the parent class, so Super::Initialize(Collection) calls the base implementation.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine CPP Quick Start | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-cpp-quick-start"
+      },
+      "passage": "void AFloatingActor::BeginPlay() { Super::BeginPlay(); }",
+      "note": "Shows Super used to call the parent implementation in a reflected class. That GENERATED_BODY is what declares Super (as the stand-in models it) is not stated on any page fetched."
+    },
+    {
+      "symbol": "TERVAIN_API",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Tervain.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "The build defines <MODULENAME>_API for a module; it marks classes, structs and functions as exported and may expand to nothing.",
+      "status": "verified",
+      "source": {
+        "title": "Module API Specifiers in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/module-api-specifiers-in-unreal-engine"
+      },
+      "passage": "If you mark a function in the Engine module as ENGINE_API , then any module that imports Engine can access that function directly.",
+      "note": "The naming rule is shown by example only (ENGINE_API for module Engine here; MYPROJECT_API for project MyProject on the Objects page). The same page says the macro is \"empty, when compiling in monolithic mode\", which is what the stand-in defines."
+    },
+    {
+      "symbol": "FMath",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "A struct of static math helper functions.",
+      "status": "verified",
+      "source": {
+        "title": "FMath | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMath?application_version=5.8"
+      },
+      "passage": "Structure for all math helper functions, inherits from platform math to pick up platform-specific implementations",
+      "note": "Declared in Math/UnrealMathUtility.h, which the seed's files that use it include."
+    },
+    {
+      "symbol": "FMath::Max",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "tests/tools/unreal-standin/parity.cpp",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp"
+      ],
+      "assumes": "static T Max(T A, T B) returns the larger of two values of one type; the seed calls it with two floats.",
+      "status": "verified",
+      "source": {
+        "title": "Max | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Max?application_version=5.8"
+      },
+      "passage": "static T Max ( T A, T B ) Returns higher value in a generic way",
+      "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from (the FMath page says it \"inherits from platform math\"). The reference also lists a mixed-type overload, which the seed does not need."
+    },
+    {
+      "symbol": "FMath::Min",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp"
+      ],
+      "assumes": "static T Min(T A, T B) returns the smaller of two values of one type; the seed calls it with two floats.",
+      "status": "verified",
+      "source": {
+        "title": "Min | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Min?application_version=5.8"
+      },
+      "passage": "static T Min ( T A, T B ) Returns lower value in a generic way",
+      "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from."
+    },
+    {
+      "symbol": "FMath::RoundToInt32",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp"
+      ],
+      "assumes": "static int32 RoundToInt32(float F) rounds to the nearest integer and rounds up when the fraction is .5; the stand-in implements floor(F + 0.5).",
+      "status": "verified",
+      "source": {
+        "title": "RoundToInt32 | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/RoundToInt32?application_version=5.8"
+      },
+      "passage": "static int32 RoundToInt32 ( float F ) Converts a float to the nearest integer. Rounds up when the fraction is .5",
+      "note": "The seed used to call RoundToInt(float), whose page carries no remark on rounding; it now calls the function whose rounding is documented. The function is FGenericPlatformMath's, which FMath inherits through the platform's math class (the FMath page shows the hierarchy for one platform)."
+    },
+    {
+      "symbol": "FMath::RadiansToDegrees",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "A static function taking radians as float and returning degrees as float.",
+      "status": "verified",
+      "source": {
+        "title": "RadiansToDegrees | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMath/RadiansToDegrees?application_version=5.8"
+      },
+      "passage": "static float RadiansToDegrees ( float const & RadVal )",
+      "note": "The page also gives the template form with the description \"Converts radians to degrees.\" The parameter is passed by const reference rather than by value as in the stand-in, which makes no difference to the seed's calls."
+    },
+    {
+      "symbol": "FMath::DegreesToRadians",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "A static function taking degrees as float and returning radians as float.",
+      "status": "verified",
+      "source": {
+        "title": "FMath | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMath?application_version=5.8"
+      },
+      "passage": "DegreesToRadians ( T const& DegVal ) Converts degrees to radians. Math/UnrealMathUtility.h static double DegreesToRadians ( double const& DegVal ) Math/UnrealMathUtility.h static float DegreesToRadians ( float const& DegVal )",
+      "note": "Shows the float overload and the description."
+    },
+    {
+      "symbol": "FVector",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Vector.h",
+        "tests/tools/unreal-standin/parity.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "FVector is a double-precision 3-D vector since Unreal Engine 5.",
+      "status": "verified",
+      "source": {
+        "title": "Core | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core?application_version=5.8"
+      },
+      "passage": "FVector UE::Math::TVector < double > Forward declaration of concrete types",
+      "note": "The typedef table of the Core module gives FVector as TVector<double> (Math/MathFwd.h). The Large World Coordinates conversion guide lists FVector as the default double variant with FVector3f and FVector3d beside it."
+    },
+    {
+      "symbol": "FVector::FVector(X, Y, Z)",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Vector.h",
+        "tests/tools/unreal-standin/parity.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "A constructor taking the three components.",
+      "status": "verified",
+      "source": {
+        "title": "TVector | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TVector?application_version=5.8"
+      },
+      "passage": "TVector ( T InX, T InY, T InZ ) Constructor using initial values for each component.",
+      "note": "T is double for FVector, so the seed's double arguments match exactly."
+    },
+    {
+      "symbol": "FVector default constructor",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Vector.h",
+        "tests/tools/unreal-standin/parity.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "FVector() leaves X, Y and Z unset.",
+      "status": "verified",
+      "source": {
+        "title": "TVector | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TVector?application_version=5.8"
+      },
+      "passage": "TVector () Default constructor (no initialization).",
+      "note": "The stand-in used to zero the components, which the engine does not; it now leaves them unset. The seed never reads a default-constructed vector: every FVector member is written `= FVector::ZeroVector`, and TervainUnits.h always uses the three-argument constructor."
+    },
+    {
+      "symbol": "FVector::X, Y, Z",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "Public members X, Y and Z hold the components.",
+      "status": "verified",
+      "source": {
+        "title": "TVector | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TVector?application_version=5.8"
+      },
+      "passage": "X T Vector's X component. Math/Vector.h XYZ T Math/Vector.h Y T Vector's Y component. Math/Vector.h Z T Vector's Z component.",
+      "note": "Lists the three public members."
+    },
+    {
+      "symbol": "FVector::ZeroVector",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Vector.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+      ],
+      "assumes": "A static constant vector (0,0,0).",
+      "status": "verified",
+      "source": {
+        "title": "TVector | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TVector?application_version=5.8"
+      },
+      "passage": "ZeroVector const TVector < T > A zero vector (0,0,0)",
+      "note": "Listed among the constants of TVector."
+    },
+    {
+      "symbol": "FRotator3f",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Rotator.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "The single-precision rotator type, whose static axis functions take and return float.",
+      "status": "verified",
+      "source": {
+        "title": "Core | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core?application_version=5.8"
+      },
+      "passage": "FRotator3f UE::Math::TRotator < float > Math/Rotator.h",
+      "note": "The typedef table of the Core module gives FRotator3f as TRotator<float>."
+    },
+    {
+      "symbol": "FRotator3f::ClampAxis",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Rotator.h"
+      ],
+      "assumes": "static float ClampAxis(float Angle) returns the angle in the range [0, 360).",
+      "status": "verified",
+      "source": {
+        "title": "TRotator | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TRotator?application_version=5.8"
+      },
+      "passage": "static T ClampAxis ( T Angle ) Clamps an angle to the range of [0, 360).",
+      "note": "Signature and range as assumed. Called only inside the stand-in (by NormalizeAxis); the seed calls NormalizeAxis."
+    },
+    {
+      "symbol": "FRotator3f::NormalizeAxis",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Rotator.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "static float NormalizeAxis(float Angle) returns the angle in the range (-180, 180].",
+      "status": "verified",
+      "source": {
+        "title": "TRotator | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TRotator?application_version=5.8"
+      },
+      "passage": "static T NormalizeAxis ( T Angle ) Clamps an angle to the range of (-180, 180].",
+      "note": "Signature and range as assumed."
+    },
+    {
+      "symbol": "TArray",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/Array.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+      ],
+      "assumes": "A dynamically sized array template; TArray<FString> and TArray<a USTRUCT> are used.",
+      "status": "verified",
+      "source": {
+        "title": "TArray | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TArray?application_version=5.8"
+      },
+      "passage": "Templated dynamic array A dynamically sized array of typed elements.",
+      "note": "Declared in Containers/Array.h. That a TArray of a USTRUCT may be a UPROPERTY (FTervainResidentRow::Schedule) is not shown on the pages fetched."
+    },
+    {
+      "symbol": "TArray::Num",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/Array.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "Num() const returns the number of elements as int32.",
+      "status": "verified",
+      "source": {
+        "title": "TArray::Num | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TArray/Num?application_version=5.8"
+      },
+      "passage": "SizeType Num() const Copy full snippet SizeType Num() const Number of elements in array.",
+      "note": "The return type is written SizeType; that it is int32 for the default allocator is not stated on this page. The Array Containers guide compares it with an int32 index, as the seed does."
+    },
+    {
+      "symbol": "TArray::operator[]",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "Indexing with an integer returns a reference to the element, const or not.",
+      "status": "verified",
+      "source": {
+        "title": "operator[] | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TArray/op_subscript?application_version=5.8"
+      },
+      "passage": "ElementType & operator[] ( SizeType Index ) Array bracket operator. Returns reference to element at given index.",
+      "note": "A const overload is listed as well."
+    },
+    {
+      "symbol": "TArray::Add",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/Array.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/seed.cpp"
+      ],
+      "assumes": "Add(const T&) appends an item and returns its index.",
+      "status": "verified",
+      "source": {
+        "title": "Add | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TArray/Add?application_version=5.8"
+      },
+      "passage": "SizeType Add ( const ElementType & Item ) Copy full snippet SizeType Add ( const ElementType & Item ) Index to the new item",
+      "note": "Used only inside the stand-in (by ParseIntoArray); the seed never calls Add."
+    },
+    {
+      "symbol": "FString",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/StringView.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A dynamically sized string class.",
+      "status": "verified",
+      "source": {
+        "title": "FString | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FString?application_version=5.8"
+      },
+      "passage": "A dynamically sizeable string.",
+      "note": "In UE 5.8 the reference gives the class's file as Containers/UnrealString.h.inl, a part of Containers/UnrealString.h, which the seed includes (see that header's entry)."
+    },
+    {
+      "symbol": "FString::FString(const TCHAR*)",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/StringView.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "An FString can be constructed from a null-terminated TCHAR string.",
+      "status": "verified",
+      "source": {
+        "title": "FString | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FString?application_version=5.8"
+      },
+      "passage": "FString ( const WIDECHAR* Str ) FString ( const ANSICHAR* Str ) Construct from null-terminated C string or nullptr",
+      "note": "Constructors exist for each character type, which covers TCHAR whichever it is. The default constructor FString () is listed too."
+    },
+    {
+      "symbol": "FString implicit conversion from a TEXT literal",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/StringView.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A TEXT(\"...\") literal converts implicitly to FString: `FString DataDirectory = TEXT(\"../data\");` and passing TEXT(\"...\") where const FString& is expected.",
+      "status": "verified",
+      "source": {
+        "title": "Array Containers in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/array-containers-in-unreal-engine"
+      },
+      "passage": "TArray<FString> StrArr; StrArr.Add (TEXT(\"Hello\")); StrArr.Emplace(TEXT(\"World\"));",
+      "note": "Shows a TEXT literal passed where an FString element is expected, which needs the implicit conversion. The API reference does not say whether the constructor is explicit."
+    },
+    {
+      "symbol": "FString::operator*",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "*String gives a const TCHAR* to the characters, usable as a %s argument of UE_LOG and as a const TCHAR* parameter.",
+      "status": "verified",
+      "source": {
+        "title": "FString | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FString?application_version=5.8"
+      },
+      "passage": "const ElementType * operator*() Get pointer to the string",
+      "note": "The return type is written const ElementType*; that ElementType is TCHAR for FString is shown by use in the FString guide (UE_LOG ... %s ... *TestHUDString), not by the reference."
+    },
+    {
+      "symbol": "FString::IsEmpty",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/UnrealString.h"
+      ],
+      "assumes": "IsEmpty() tells whether the string has no characters.",
+      "status": "verified",
+      "source": {
+        "title": "FString | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FString?application_version=5.8"
+      },
+      "passage": "bool IsEmpty() Test whether this string is empty",
+      "note": "Defined by the stand-in but not used by the seed's own files. The class table of the reference does not show the const qualifier."
+    },
+    {
+      "symbol": "FString::ParseIntoArray",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "int32 ParseIntoArray(TArray<FString>& OutArray, const TCHAR* Delimiter, bool InCullEmpty) const splits at the delimiter, drops empty pieces when the flag is true, and returns the count.",
+      "status": "verified",
+      "source": {
+        "title": "ParseIntoArray | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FString/ParseIntoArray?application_version=5.8"
+      },
+      "passage": "int32 ParseIntoArray ( TArray < FString > & OutArray, const ElementType * pchDelim, bool bInCullEmpty ) const Copy full snippet",
+      "note": "The same page documents the return value (\"The number of elements in OutArray\") and the flag (\"If true, empty strings are not added to the array\"). The delimiter type is written const ElementType*."
+    },
+    {
+      "symbol": "FStringView",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/StringView.h",
+        "tests/tools/unreal-standin/Dom/JsonObject.h"
+      ],
+      "assumes": "A view of characters that an FString and a character literal convert to implicitly.",
+      "status": "verified",
+      "source": {
+        "title": "TStringView | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TStringView?application_version=5.8"
+      },
+      "passage": "A string view is implicitly constructible from null-terminated strings, from contiguous ranges of characters such as FString and TStringBuilder, and from literals such as TEXTVIEW(\".",
+      "note": "Used by the stand-in of FJsonObject, whose accessors take a view; the seed passes an FString."
+    },
+    {
+      "symbol": "FName",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/UObject/NameTypes.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A name type used for row names, anchors and the settings category.",
+      "status": "verified",
+      "source": {
+        "title": "FName | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FName?application_version=5.8"
+      },
+      "passage": "Public name, available to the world. Names are stored as a combination of an index into a table of unique strings and an instance number.",
+      "note": "Declared in UObject/NameTypes.h."
+    },
+    {
+      "symbol": "FName::FName(const TCHAR*)",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/UObject/NameTypes.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "An FName can be constructed from a TEXT(\"...\") literal or a const TCHAR*.",
+      "status": "verified",
+      "source": {
+        "title": "FName in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/fname-in-unreal-engine"
+      },
+      "passage": "FName TestHUDName = FName(TEXT(\"ThisIsMyTestFName\"));",
+      "note": "The UE 5.8 reference lists FName ( const WIDECHAR* Name ) \"Create an FName\" and an ANSICHAR overload."
+    },
+    {
+      "symbol": "FName::FName()",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/UObject/NameTypes.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A default-constructed FName is the empty name.",
+      "status": "verified",
+      "source": {
+        "title": "FName | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FName?application_version=5.8"
+      },
+      "passage": "constexpr FName () Default constructor, initialized to None",
+      "note": "The engine calls the empty name None; the stand-in holds an empty string."
+    },
+    {
+      "symbol": "FName comparison (operator==, row lookup)",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/UObject/NameTypes.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "FNames compare, and rows are looked up by FName, without regard to case.",
+      "status": "verified",
+      "source": {
+        "title": "FName | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FName?application_version=5.8"
+      },
+      "passage": "Names are case-insensitive, but case-preserving (when WITH_CASE_PRESERVING_NAME is 1)",
+      "note": "The stand-in used to compare case-sensitively; it now folds case in operator== and in the DataTable's row lookup, and the stand-in build checks that the row \"bread\" answers to \"Bread\". No operator== is listed on the FName page; the rule is stated for the type."
+    },
+    {
+      "symbol": "TSharedPtr",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Dom/JsonObject.h",
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "tests/tools/unreal-standin/Templates/SharedPointer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "A reference-counted shared pointer template that may be null; a default-constructed one is empty.",
+      "status": "verified",
+      "source": {
+        "title": "Shared Pointers in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/shared-pointers-in-unreal-engine"
+      },
+      "passage": "// Create an empty shared pointer TSharedPtr<FMyObjectType> EmptyPointer;",
+      "note": "Shows that default construction gives an empty pointer. The API reference describes the class as \"a non-intrusive reference-counted authoritative object pointer\" in Templates/SharedPointer.h."
+    },
+    {
+      "symbol": "TSharedPtr::IsValid",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Templates/SharedPointer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "IsValid() const tells whether the pointer refers to an object.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedPtr::IsValid | Unreal Engine 5.5 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/Templates/TSharedPtr/IsValid?application_version=5.5"
+      },
+      "passage": "const bool IsValid() const Copy full snippet const bool IsValid() const Remarks Checks to see if this shared pointer is actually pointing to an object",
+      "note": "Quoted from the UE 5.5 reference because it shows the const qualifier, which HasTuning() const needs. The UE 5.8 class page lists the same function and remark but its table omits trailing const on every member."
+    },
+    {
+      "symbol": "TSharedPtr::Reset",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Templates/SharedPointer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "Reset() releases the reference and leaves the pointer null.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedPtr::Reset | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TSharedPtr/Reset?application_version=5.8"
+      },
+      "passage": "Resets this shared pointer, removing a reference to the object.",
+      "note": "Signature on the same page: void Reset()."
+    },
+    {
+      "symbol": "TSharedPtr::Get",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Templates/SharedPointer.h"
+      ],
+      "assumes": "Get() returns the raw pointer, or nullptr.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedPtr | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TSharedPtr?application_version=5.8"
+      },
+      "passage": "ObjectType * Get() Returns the object referenced by this pointer, or nullptr if no object is reference",
+      "note": "Defined by the stand-in but not used by the seed's own files."
+    },
+    {
+      "symbol": "TSharedPtr::operator->",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "The arrow operator gives access to the pointed-to object.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedPtr | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TSharedPtr?application_version=5.8"
+      },
+      "passage": "ObjectType * operator->() Arrow operator returns a pointer to the object this shared pointer references",
+      "note": "Used as Object->TryGetNumberField(...)."
+    },
+    {
+      "symbol": "TSharedPtr::operator*",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h"
+      ],
+      "assumes": "The dereference operator returns a reference to the object.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedPtr | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TSharedPtr?application_version=5.8"
+      },
+      "passage": "operator*() Dereference operator returns a reference to the object this shared pointer points to",
+      "note": "Defined by the stand-in but not used by the seed's own files (`*Child` in the seed dereferences a raw pointer to a TSharedPtr)."
+    },
+    {
+      "symbol": "TSharedRef",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "tests/tools/unreal-standin/Templates/SharedPointer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "A shared reference that is never null.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedRef | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TSharedRef?application_version=5.8"
+      },
+      "passage": "TSharedRef is a non-nullable, non-intrusive reference-counted authoritative object reference.",
+      "note": "Matches the stand-in comment \"A TSharedRef is never null\"."
+    },
+    {
+      "symbol": "TSharedRef::operator->",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h"
+      ],
+      "assumes": "The arrow operator gives access to the referenced object.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedRef | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TSharedRef?application_version=5.8"
+      },
+      "passage": "ObjectType * operator->() Arrow operator returns a pointer to this shared reference's object",
+      "note": "Used only inside the stand-in (Reader->Text); the seed passes the reference on without dereferencing it."
+    },
+    {
+      "symbol": "TSharedRef::operator*",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h"
+      ],
+      "assumes": "The dereference operator returns a reference to the object.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedRef | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TSharedRef?application_version=5.8"
+      },
+      "passage": "ObjectType & operator*() Dereference operator returns a reference to the object this shared pointer points to",
+      "note": "Defined by the stand-in but not used by the seed's own files."
+    },
+    {
+      "symbol": "UObject",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/Subsystems/GameInstanceSubsystem.h",
+        "tests/tools/unreal-standin/Templates/Casts.h",
+        "tests/tools/unreal-standin/UObject/Object.h",
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "tests/tools/unreal-standin/UObject/UObjectGlobals.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "The base class of every reflected object class.",
+      "status": "verified",
+      "source": {
+        "title": "UObject | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/UObject?application_version=5.8"
+      },
+      "passage": "The base class of all UE objects.",
+      "note": "Declared in UObject/Object.h (module CoreUObject)."
+    },
+    {
+      "symbol": "GetDefault<T>()",
+      "kind": "function",
+      "usedIn": [
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "template<class T> const T* GetDefault() returns the default object of a class, here the settings object.",
+      "status": "verified",
+      "source": {
+        "title": "GetDefault | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/GetDefault?application_version=5.8"
+      },
+      "passage": "template<class T> const T * GetDefault() Copy full snippet template<class T> const T * GetDefault()",
+      "note": "Described as \"Get default object of a class.\" Declared in UObject/UObjectGlobals.h, which the seed includes where it calls it."
+    },
+    {
+      "symbol": "Cast<T>()",
+      "kind": "function",
+      "usedIn": [
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "Cast<To>(From* Object) returns the object as To*, or null when it is not one.",
+      "status": "verified",
+      "source": {
+        "title": "Cast | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/Cast?application_version=5.8"
+      },
+      "passage": "template<typename To, typename From> TCopyQualifiersFromTo_T< From, To > * Cast ( From * Src )",
+      "note": "Described as \"Dynamically cast an object type-safely.\" The null result for a wrong type is shown by use in the Unreal Object Handling guide, not stated in the reference. Declared in Templates/Casts.h, which the seed includes where it calls it."
+    },
+    {
+      "symbol": "FSoftObjectPath",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A struct holding a string reference to an asset that can be loaded on demand; usable as a config UPROPERTY.",
+      "status": "verified",
+      "source": {
+        "title": "FSoftObjectPath | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/FSoftObjectPath?application_version=5.8"
+      },
+      "passage": "A struct that contains a string reference to an object, either a package, a top level asset or a subobject. This can be used to make soft references to assets that are loaded on demand.",
+      "note": "Declared in UObject/SoftObjectPath.h (module CoreUObject), which the seed's headers that name it include."
+    },
+    {
+      "symbol": "FSoftObjectPath::FSoftObjectPath(const TCHAR*)",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A path can be constructed from a TEXT(\"/Game/....Asset\") string.",
+      "status": "verified",
+      "source": {
+        "title": "FSoftObjectPath | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/FSoftObjectPath?application_version=5.8"
+      },
+      "passage": "FSoftObjectPath ( const WIDECHAR* Path ) UObject/SoftObjectPath.h FSoftObjectPath ( const FString & Path ) Construct from a path string. Non-explicit for backwards compatibility.",
+      "note": "Used by the stand-in tests only; the seed leaves its paths default-constructed and filled from configuration."
+    },
+    {
+      "symbol": "FSoftObjectPath::IsNull",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "bool IsNull() const is true for a path that was never set.",
+      "status": "verified",
+      "source": {
+        "title": "FSoftObjectPath::IsNull | Unreal Engine 5.5 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/UObject/FSoftObjectPath/IsNull?application_version=5.5"
+      },
+      "passage": "bool IsNull() const Copy full snippet bool IsNull() const Remarks Checks to see if this is initialized to null",
+      "note": "Quoted from the UE 5.5 reference because it shows the const qualifier (LoadTable takes a const reference). The UE 5.8 class page lists \"bool IsNull() Checks to see if this is initialized to null\"."
+    },
+    {
+      "symbol": "FSoftObjectPath::TryLoad",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "UObject* TryLoad(FUObjectSerializeContext* InLoadContext, ELoadFlags LoadFlags) const, called as TryLoad(nullptr, LOAD_None): loads the asset if need be and returns it, or null when the path is null or the asset fails to load.",
+      "status": "verified",
+      "source": {
+        "title": "FSoftObjectPath | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/FSoftObjectPath?application_version=5.8"
+      },
+      "passage": "UObject * TryLoad ( FUObjectSerializeContext * InLoadContext, ELoadFlags LoadFlags ) const Attempts to load the asset, this will call LoadObject which can be very slow",
+      "note": "The 5.8 class page gives this signature, and the seed passes both arguments, so no default value is relied on. The 5.5 member page (one parameter then) describes the context as \"Optional load context when called from nested load callstack\" and the result as \"Loaded UObject, or nullptr if the reference is null or the asset fails to load\". The page warns that this is a slow synchronous load; the seed calls it when it looks a row up (FindItem, FindResident)."
+    },
+    {
+      "symbol": "FUObjectSerializeContext",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h"
+      ],
+      "assumes": "The type of TryLoad's first parameter, taken by pointer; null may be passed. The seed passes null and never names the type; the stand-in only declares it.",
+      "status": "verified",
+      "source": {
+        "title": "FSoftObjectPath::TryLoad | Unreal Engine 5.5 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/UObject/FSoftObjectPath/TryLoad?application_version=5.5"
+      },
+      "passage": "Parameters Name Description InLoadContext Optional load context when called from nested load callstack",
+      "note": "The 5.8 class page gives the parameter as \"FUObjectSerializeContext * InLoadContext\"; its description is on the 5.5 member page quoted. The seed does not load from inside another load, so it passes null."
+    },
+    {
+      "symbol": "ELoadFlags, LOAD_None",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/ObjectMacros.h",
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "ELoadFlags, declared in UObject/ObjectMacros.h, has the value LOAD_None (0), which can be named unqualified; TryLoad takes it as its LoadFlags.",
+      "status": "verified",
+      "source": {
+        "title": "ELoadFlags | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/ELoadFlags?application_version=5.8"
+      },
+      "passage": "Syntax enum ELoadFlags { LOAD_None = 0x00000000, LOAD_Async = 0x00000001, LOAD_NoWarn = 0x00000002,",
+      "note": "Epic's page on referencing assets names the value unqualified in its own example: \"GridTexture = LoadObject<UTexture2D>(NULL, TEXT(\"/Engine/EngineMaterials/DefaultWhiteGrid.DefaultWhiteGrid\"), NULL, LOAD_None, NULL);\". The page above calls the values \"Flags for loading objects, used by LoadObject() and related functions and passed as a uint32\"."
+    },
+    {
+      "symbol": "FTableRowBase",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+      ],
+      "assumes": "The base struct every DataTable row struct inherits from; it has a virtual destructor.",
+      "status": "verified",
+      "source": {
+        "title": "FTableRowBase | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/FTableRowBase?application_version=5.8"
+      },
+      "passage": "Base class for all table row structs to inherit from.",
+      "note": "The page also lists \"virtual ~FTableRowBase()\". The Data Driven Gameplay guide says row structs \"must inherit from FTableRowBase to be recognized by the importer\"."
+    },
+    {
+      "symbol": "DataTable row struct pattern",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A row struct is declared `USTRUCT(BlueprintType) struct F... : public FTableRowBase` with a generated body.",
+      "status": "verified",
+      "source": {
+        "title": "Data Driven Gameplay Elements in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/data-driven-gameplay-elements-in-unreal-engine"
+      },
+      "passage": "USTRUCT(BlueprintType) struct FLevelUpData : public FTableRowBase { GENERATED_USTRUCT_BODY()",
+      "note": "The guide's sample uses the older GENERATED_USTRUCT_BODY(); the seed uses GENERATED_BODY(), which the Structs page prescribes."
+    },
+    {
+      "symbol": "UDataTable",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "The DataTable asset class, derived from UObject.",
+      "status": "verified",
+      "source": {
+        "title": "UDataTable | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/UDataTable?application_version=5.8"
+      },
+      "passage": "class UDataTable : public UObject",
+      "note": "Described as \"Imported spreadsheet table.\""
+    },
+    {
+      "symbol": "UDataTable::FindRow",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "template<class T> T* FindRow(FName RowName, const TCHAR* ContextString, bool bWarnIfRowMissing) const, callable on a const UDataTable*.",
+      "status": "verified",
+      "source": {
+        "title": "FindRow | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/UDataTable/FindRow?application_version=5.8"
+      },
+      "passage": "template<class T> T * FindRow ( FName RowName, const TCHAR * ContextString, bool bWarnIfRowMissing ) const",
+      "note": "Exact match of name, parameter list, return type and const. The page describes it as \"Function to find the row of a table given its name.\"; that a missing row or a row of another struct type gives null, as the stand-in models, is not stated."
+    },
+    {
+      "symbol": "Engine/DataTable.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "UDataTable and FTableRowBase are declared in \"Engine/DataTable.h\" of module Engine.",
+      "status": "verified",
+      "source": {
+        "title": "UDataTable | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/UDataTable?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Engine/Classes/Engine/DataTable.h Include Path #include \"Engine/DataTable.h\"",
+      "note": "The FTableRowBase page gives the same header."
+    },
+    {
+      "symbol": "UDeveloperSettings",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/TervainSettings.generated.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A UObject base class for settings objects that the editor finds and shows without registration code.",
+      "status": "verified",
+      "source": {
+        "title": "UDeveloperSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/DeveloperSettings/UDeveloperSettings?application_version=5.8"
+      },
+      "passage": "The base class of any auto discovered settings object.",
+      "note": "The page gives the syntax \"class UDeveloperSettings : public UObject\"."
+    },
+    {
+      "symbol": "UDeveloperSettings::GetCategoryName",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "virtual FName GetCategoryName() const, overridden by the seed to return \"Game\" so that the settings appear under Project Settings > Game.",
+      "status": "verified",
+      "source": {
+        "title": "UDeveloperSettings::GetCategoryName | Unreal Engine 5.5 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/DeveloperSettings/Engine/UDeveloperSettings/GetCategoryName?application_version=5.5"
+      },
+      "passage": "virtual FName GetCategoryName() const Copy full snippet virtual FName GetCategoryName() const Remarks Gets the category for the settings, some high level grouping like, Editor, Engine, Game...etc.",
+      "note": "Quoted from the UE 5.5 reference because it shows the const qualifier, which the seed's override must match. The UE 5.8 class page lists \"virtual FName GetCategoryName()\" with the same remark, and GetContainerName \"either Project or Editor\". \"Game\" is named as an example category."
+    },
+    {
+      "symbol": "Engine/DeveloperSettings.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "UDeveloperSettings is declared in \"Engine/DeveloperSettings.h\", which belongs to module DeveloperSettings.",
+      "status": "verified",
+      "source": {
+        "title": "UDeveloperSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/DeveloperSettings/UDeveloperSettings?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/DeveloperSettings/Public/Engine/DeveloperSettings.h Include Path #include \"Engine/DeveloperSettings.h\"",
+      "note": "Confirms both the include path and that the header is in the DeveloperSettings module, which Tervain.Build.cs lists."
+    },
+    {
+      "symbol": "FSubsystemCollectionBase",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Subsystems/GameInstanceSubsystem.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "The collection type passed by reference to USubsystem::Initialize.",
+      "status": "verified",
+      "source": {
+        "title": "FSubsystemCollectionBase | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/FSubsystemCollectionBase?application_version=5.8"
+      },
+      "passage": "Syntax class FSubsystemCollectionBase",
+      "note": "Declared in Subsystems/SubsystemCollection.h; the seed uses it by reference only, through Subsystems/GameInstanceSubsystem.h."
+    },
+    {
+      "symbol": "USubsystem",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Subsystems/GameInstanceSubsystem.h"
+      ],
+      "assumes": "The UObject base class of all subsystems.",
+      "status": "verified",
+      "source": {
+        "title": "USubsystem | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/USubsystem?application_version=5.8"
+      },
+      "passage": "class USubsystem : public UObject",
+      "note": "Declared in Subsystems/Subsystem.h."
+    },
+    {
+      "symbol": "USubsystem::Initialize",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Subsystems/GameInstanceSubsystem.h",
+        "tests/tools/unreal-standin/seed.cpp"
+      ],
+      "assumes": "virtual void Initialize(FSubsystemCollectionBase& Collection), overridden in a UGameInstanceSubsystem subclass.",
+      "status": "verified",
+      "source": {
+        "title": "Programming Subsystems in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/programming-subsystems-in-unreal-engine"
+      },
+      "passage": "class UMyGamesStatsSubsystem : public UGameInstanceSubsystem { GENERATED_BODY() public: // Begin USubsystem virtual void Initialize(FSubsystemCollectionBase& Collection) override;",
+      "note": "The UE 5.9 guide shows exactly the override the seed declares. The UE 5.7 and 5.5 references give \"virtual void Initialize ( FSubsystemCollectionBase & Collection )\" with the remark \"Implement this for initialization of instances of the system\". The UE 5.8 reference page for USubsystem lists no functions at all, which looks like a gap in that page rather than a change."
+    },
+    {
+      "symbol": "UGameInstanceSubsystem",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Subsystems/GameInstanceSubsystem.h",
+        "tests/tools/unreal-standin/TervainDataSubsystem.generated.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "A USubsystem subclass that the engine creates once per game instance.",
+      "status": "verified",
+      "source": {
+        "title": "UGameInstanceSubsystem | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/UGameInstanceSubsystem?application_version=5.8"
+      },
+      "passage": "UGameInstanceSubsystem Base class for auto instanced and initialized systems that share the lifetime of the game instance",
+      "note": "Syntax on the same page: class UGameInstanceSubsystem : public USubsystem."
+    },
+    {
+      "symbol": "Subsystems/GameInstanceSubsystem.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Subsystems/GameInstanceSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "UGameInstanceSubsystem is declared in \"Subsystems/GameInstanceSubsystem.h\" of module Engine.",
+      "status": "verified",
+      "source": {
+        "title": "UGameInstanceSubsystem | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/UGameInstanceSubsystem?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Engine/Public/Subsystems/GameInstanceSubsystem.h Include Path #include \"Subsystems/GameInstanceSubsystem.h\"",
+      "note": "Confirms the include path and the module."
+    },
+    {
+      "symbol": "FJsonObject",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Dom/JsonObject.h",
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "A class holding the fields of a JSON object; it can be forward-declared as `class FJsonObject;`.",
+      "status": "verified",
+      "source": {
+        "title": "FJsonObject | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/FJsonObject?application_version=5.8"
+      },
+      "passage": "Syntax class FJsonObject : public UE::JSON::Private::FJsonObjectSharedStringStorage",
+      "note": "It is a class, so the forward declaration in TervainDataSubsystem.h is of the right kind. Described as \"a structure holding an unordered set of name/value pairs\"."
+    },
+    {
+      "symbol": "FJsonObject::TryGetNumberField",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Dom/JsonObject.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "bool TryGetNumberField(FStringView FieldName, double& OutNumber) const; false when the field is missing or is not a number.",
+      "status": "verified",
+      "source": {
+        "title": "TryGetNumberField | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/FJsonObject/TryGetNumberField?application_version=5.8"
+      },
+      "passage": "bool TryGetNumberField ( FStringView FieldName, double & OutNumber ) const",
+      "note": "The stand-in used to take const FString&; it now takes FStringView as the engine does. The seed passes an FString, which converts to a view (see FStringView). The engine also has overloads for the integer types and float; the seed's double selects the one quoted."
+    },
+    {
+      "symbol": "FJsonObject::TryGetObjectField",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Dom/JsonObject.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "bool TryGetObjectField(FStringView FieldName, const TSharedPtr<FJsonObject>*& OutObject) const; false when the field is missing or is not an object.",
+      "status": "verified",
+      "source": {
+        "title": "FJsonObject | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/FJsonObject?application_version=5.8"
+      },
+      "passage": "bool TryGetObjectField ( FStringView FieldName, const TSharedPtr < FJsonObject >*& OutObject ) const Try to get the field named FieldName as an object, or return false if it's another type",
+      "note": "The stand-in used to take const FString&; it now takes FStringView as the engine does."
+    },
+    {
+      "symbol": "Dom/JsonObject.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Dom/JsonObject.h",
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "FJsonObject is declared in \"Dom/JsonObject.h\" of module Json.",
+      "status": "verified",
+      "source": {
+        "title": "FJsonObject | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/FJsonObject?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Json/Public/Dom/JsonObject.h Include Path #include \"Dom/JsonObject.h\"",
+      "note": "Confirms the include path and the module."
+    },
+    {
+      "symbol": "TJsonReader",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "A class template over the character type that reads JSON text.",
+      "status": "verified",
+      "source": {
+        "title": "TJsonReader | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/TJsonReader?application_version=5.8"
+      },
+      "passage": "Syntax template<class CharType> class TJsonReader",
+      "note": "Name and template parameter confirmed; see the next entry for the empty argument list."
+    },
+    {
+      "symbol": "TJsonReaderFactory",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "A class template with static functions that create readers.",
+      "status": "verified",
+      "source": {
+        "title": "TJsonReaderFactory | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/TJsonReaderFactory?application_version=5.8"
+      },
+      "passage": "Name TJsonReaderFactory Type class Header File /Engine/Source/Runtime/Json/Public/Serialization/JsonReader.h",
+      "note": "Confirms the name, kind and header."
+    },
+    {
+      "symbol": "TJsonReader<TCHAR> / TJsonReaderFactory<TCHAR>",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "Both are templates over a character type, which the seed names: TJsonReader<TCHAR>, TJsonReaderFactory<TCHAR>.",
+      "status": "verified",
+      "source": {
+        "title": "TJsonReaderFactory | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/TJsonReaderFactory?application_version=5.8"
+      },
+      "passage": "Syntax template<class CharType> class TJsonReaderFactory",
+      "note": "The seed used to write TJsonReader<> and TJsonReaderFactory<>, relying on a default template argument the reference does not print. It now names the character type."
+    },
+    {
+      "symbol": "TJsonReaderFactory::Create",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "static TSharedRef<TJsonReader<CharType>> Create(const FString& JsonString).",
+      "status": "verified",
+      "source": {
+        "title": "Create | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/TJsonReaderFactory/Create?application_version=5.8"
+      },
+      "passage": "static TSharedRef < TJsonReader < TElementType_T< StringType > > > Create ( const StringType & JsonString )",
+      "note": "In UE 5.8 the parameter is const StringType&, where the class defines StringType as TString<CharType>; that this is FString for TCHAR is not stated on the page. The UE 5.5 reference prints the function directly as \"TSharedRef < TJsonReader < TCHAR > > Create ( const FString & JsonString )\"."
+    },
+    {
+      "symbol": "FJsonSerializer",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "A type with static Deserialize functions, declared in Serialization/JsonSerializer.h.",
+      "status": "verified",
+      "source": {
+        "title": "Json | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json?application_version=5.8"
+      },
+      "passage": "FJsonSerializer TJsonSerializer < FJsonSerializerPolicy_JsonObject > Serialization/JsonSerializer.h",
+      "note": "In UE 5.8 FJsonSerializer is a typedef of a class template, not a class as the stand-in declares it (UE 5.5 documents it as a class). The seed only calls a static member through the name, so this does not matter, but a forward declaration `class FJsonSerializer;` would not compile."
+    },
+    {
+      "symbol": "FJsonSerializer::Deserialize",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "template<class CharType> static bool Deserialize(const TSharedRef<TJsonReader<CharType>>& Reader, TSharedPtr<FJsonObject>& OutObject, EFlags InOptions), called with EFlags::None. The seed treats a false result or an object that is not valid as a failure, so it relies on no more than the signature.",
+      "status": "verified",
+      "source": {
+        "title": "Deserialize | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/TJsonSerializer/Deserialize?application_version=5.8"
+      },
+      "passage": "static bool Deserialize ( const TSharedRef < TJsonReader < CharType > >& Reader, typename Policy::FMapOfValues& OutMap, EFlags InOptions )",
+      "note": "The 5.8 page gives three overloads; for FJsonSerializer the policy's FMapOfValues is TSharedPtr<FJsonObject>, and the 5.5 page writes this overload out as \"bool Deserialize ( const TSharedRef < TJsonReader < CharType > >& Reader, TSharedPtr < FJsonObject >& OutObject, EFlags InOptions )\". The seed passes all three arguments, so no default value is relied on. Neither page says what happens to the out object on failure; the seed checks both the result and IsValid(), then resets."
+    },
+    {
+      "symbol": "FJsonSerializer::EFlags, EFlags::None",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "TJsonSerializer, of which FJsonSerializer is an instance, declares the enum EFlags with the value None (0), the InOptions of Deserialize; the seed writes FJsonSerializer::EFlags::None.",
+      "status": "verified",
+      "source": {
+        "title": "EFlags | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/TJsonSerializer/EFlags?application_version=5.8"
+      },
+      "passage": "Syntax enum EFlags { None = 0, StoreNumbersAsStrings = 1, }",
+      "note": "The page sits under TJsonSerializer and gives Serialization/JsonSerializer.h; the Json module page gives FJsonSerializer as \"TJsonSerializer < FJsonSerializerPolicy_JsonObject >\", so the nested name is reached through it. Written qualified, the value compiles whether the enum is scoped or not: the reference prints both kinds as `enum` (see EFileRead)."
+    },
+    {
+      "symbol": "Serialization/JsonReader.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "TJsonReader and TJsonReaderFactory are declared in \"Serialization/JsonReader.h\" of module Json.",
+      "status": "verified",
+      "source": {
+        "title": "TJsonReader | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/TJsonReader?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Json/Public/Serialization/JsonReader.h Include Path #include \"Serialization/JsonReader.h\"",
+      "note": "Confirms the include path and the module."
+    },
+    {
+      "symbol": "Serialization/JsonSerializer.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Serialization/JsonSerializer.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "FJsonSerializer is declared in \"Serialization/JsonSerializer.h\" of module Json.",
+      "status": "verified",
+      "source": {
+        "title": "FJsonSerializerPolicy_JsonObject | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json/FJsonSerializerPolicy_JsonObject?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Json/Public/Serialization/JsonSerializer.h Include Path #include \"Serialization/JsonSerializer.h\"",
+      "note": "Quoted from the page of the policy struct FJsonSerializer is built on; the Json module page gives the same include path for the FJsonSerializer typedef."
+    },
+    {
+      "symbol": "FPaths",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp"
+      ],
+      "assumes": "A class of static path helper functions.",
+      "status": "verified",
+      "source": {
+        "title": "FPaths | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FPaths?application_version=5.8"
+      },
+      "passage": "Path helpers for retrieving game dir, engine dir, etc.",
+      "note": "Declared in Misc/Paths.h."
+    },
+    {
+      "symbol": "FPaths::ProjectDir",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp"
+      ],
+      "assumes": "static FString ProjectDir() returns the directory of the current project.",
+      "status": "verified",
+      "source": {
+        "title": "FPaths::ProjectDir | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FPaths/ProjectDir?application_version=5.8"
+      },
+      "passage": "Returns the base directory of the current project by looking at FApp::GetProjectName().",
+      "note": "Signature on the same page: static FString ProjectDir()."
+    },
+    {
+      "symbol": "FPaths::ProjectDir (the folder of the .uproject)",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp"
+      ],
+      "assumes": "ProjectDir() is the folder that holds Tervain.uproject, so the default data directory ../data is the repository's data folder. The stand-in returns it with a trailing slash; the seed relies on neither that nor whether it is absolute, because it passes the result through FPaths::Combine and ConvertRelativePathToFull.",
+      "status": "partly",
+      "source": {
+        "title": "FPaths::ProjectDir | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FPaths/ProjectDir?application_version=5.8"
+      },
+      "passage": "Returns the base directory of the current project by looking at FApp::GetProjectName().",
+      "note": "The reference says the base directory of the current project, \"usually a subdirectory of the installation root directory\", and Epic's page on managing game code draws each project folder holding its Binaries, Config and .uproject file. That ProjectDir() returns that folder is the plain reading but is not stated. If it does not, the seed logs where it looked for the tuning file and asks for the data directory to be set in Project Settings."
+    },
+    {
+      "symbol": "FPaths::IsRelative",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp"
+      ],
+      "assumes": "static bool IsRelative(const FString& Path) tells whether a path is relative.",
+      "status": "verified",
+      "source": {
+        "title": "FPaths | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FPaths?application_version=5.8"
+      },
+      "passage": "static bool IsRelative ( const FString & InPath ) Returns true if this path is relative to another path",
+      "note": "Signature as assumed. The exact rule (leading slash, drive letter) the stand-in implements is not documented."
+    },
+    {
+      "symbol": "FPaths::Combine",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp"
+      ],
+      "assumes": "A static variadic function that joins path parts (FString or const TCHAR*) into one FString.",
+      "status": "verified",
+      "source": {
+        "title": "FPaths | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FPaths?application_version=5.8"
+      },
+      "passage": "static FString Combine ( PathTypes&&... InPaths )",
+      "note": "Variadic and returning FString as assumed; the Core module page notes its arguments \"implicitly convert (if necessary) to FString\". How separators are inserted, and what happens when a later part begins with \"..\", is not documented."
+    },
+    {
+      "symbol": "FPaths::ConvertRelativePathToFull",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp"
+      ],
+      "assumes": "static FString ConvertRelativePathToFull(const FString& Path) turns a relative path into a full one.",
+      "status": "verified",
+      "source": {
+        "title": "ConvertRelativePathToFull | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FPaths/ConvertRelativePathToFull?application_version=5.8"
+      },
+      "passage": "static FString ConvertRelativePathToFull ( const FString & InPath ) Converts a relative path name to a fully qualified name relative to the process BaseDir().",
+      "note": "Signature as assumed. That the result has \".\" and \"..\" parts removed, as the stand-in models, is not stated here (the reference attaches that to another function, which \"eliminates relative pathing\")."
+    },
+    {
+      "symbol": "FPaths::ConvertRelativePathToFull (base of a relative path)",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp"
+      ],
+      "assumes": "The engine resolves a relative path against the process's base directory.",
+      "status": "verified",
+      "source": {
+        "title": "ConvertRelativePathToFull | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FPaths/ConvertRelativePathToFull?application_version=5.8"
+      },
+      "passage": "Converts a relative path name to a fully qualified name relative to the process BaseDir().",
+      "note": "The stand-in's comment used to say the working directory; it now says what the page says. The stand-in itself leaves a relative path relative, which the seed never gives it: it converts ProjectDir() joined with the data directory."
+    },
+    {
+      "symbol": "Misc/Paths.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp"
+      ],
+      "assumes": "FPaths is declared in \"Misc/Paths.h\" of module Core.",
+      "status": "verified",
+      "source": {
+        "title": "FPaths | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FPaths?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Core/Public/Misc/Paths.h Include Path #include \"Misc/Paths.h\"",
+      "note": "Confirms the include path and the module."
+    },
+    {
+      "symbol": "FFileHelper",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "A struct of static file helper functions.",
+      "status": "verified",
+      "source": {
+        "title": "FFileHelper | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FFileHelper?application_version=5.8"
+      },
+      "passage": "Name FFileHelper Type struct Header File /Engine/Source/Runtime/Core/Public/Misc/FileHelper.h",
+      "note": "It is a struct in the engine (the stand-in writes class), which makes no difference to static calls."
+    },
+    {
+      "symbol": "FFileHelper::LoadFileToString",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "static bool LoadFileToString(FString& Result, const TCHAR* Filename, EHashOptions VerifyFlags, uint32 ReadFlags), called with EHashOptions::None and no read flag; the seed takes a false result as a file it could not read.",
+      "status": "verified",
+      "source": {
+        "title": "LoadFileToString | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FFileHelper/LoadFileToString?application_version=5.8"
+      },
+      "passage": "static bool LoadFileToString ( FString & Result, const TCHAR * Filename, EHashOptions VerifyFlags, uint32 ReadFlags )",
+      "note": "The 5.8 page gives this overload: \"Load a text file to an FString. Supports all combination of ANSI/Unicode files and platforms.\" The seed passes all four arguments, so no default value is relied on. The page does not describe ReadFlags (see EFileRead). Were the result true for a file that could not be read, the empty text would fail the JSON parse next, which the seed also reports."
+    },
+    {
+      "symbol": "FFileHelper::EHashOptions, EHashOptions::None",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "FFileHelper declares the enum EHashOptions with the value None (0), the VerifyFlags of LoadFileToString; the seed writes FFileHelper::EHashOptions::None, which compiles whether the enum is scoped or not.",
+      "status": "verified",
+      "source": {
+        "title": "EHashOptions | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FFileHelper/EHashOptions?application_version=5.8"
+      },
+      "passage": "Syntax enum EHashOptions { None =0, EnableVerify =1<<0, ErrorMissingHash =1<<1, }",
+      "note": "The page sits under FFileHelper and gives Misc/FileHelper.h. LoadFileToString's page says of VerifyFlags: \"Flags controlling the hash verification behavior ( see EHashOptions )\"."
+    },
+    {
+      "symbol": "EFileRead, FILEREAD_None",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/HAL/FileManager.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "FILEREAD_None is the value 0 of EFileRead, the read flags of HAL/FileManager.h. The seed passes it as LoadFileToString's uint32 ReadFlags, written static_cast<uint32>(EFileRead::FILEREAD_None), which compiles whether EFileRead is a scoped enum or not.",
+      "status": "verified",
+      "source": {
+        "title": "EFileRead | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/EFileRead?application_version=5.8"
+      },
+      "passage": "Syntax enum EFileRead { FILEREAD_None = 0x00, FILEREAD_NoFail = 0x01, FILEREAD_Silent = 0x02, FILEREAD_AllowWrite = 0x04, }",
+      "note": "The LoadFileToString page does not describe ReadFlags. In the same header IFileManager::Copy takes \"EFileRead ReadFlags\" and CreateFileReader takes \"uint32 ReadFlags\", and LoadFileToArray hands its flags on as \"Flags to pass to IFileManager::CreateFileReader\"; with the value 0 no flag is set either way. The reference prints every enum as `enum`, scoped or not: EAutomationTestFlags, which the 5.5 release notes made \"an enum class of pure flags\", is printed \"enum EAutomationTestFlags\". Hence the qualified, cast form."
+    },
+    {
+      "symbol": "HAL/FileManager.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/HAL/FileManager.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "#include \"HAL/FileManager.h\" declares EFileRead.",
+      "status": "verified",
+      "source": {
+        "title": "EFileRead | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/EFileRead?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Core/Public/HAL/FileManager.h Include Path #include \"HAL/FileManager.h\"",
+      "note": "Module Core."
+    },
+    {
+      "symbol": "Misc/FileHelper.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "FFileHelper is declared in \"Misc/FileHelper.h\" of module Core.",
+      "status": "verified",
+      "source": {
+        "title": "FFileHelper | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FFileHelper?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Core/Public/Misc/FileHelper.h Include Path #include \"Misc/FileHelper.h\"",
+      "note": "Confirms the include path and the module."
+    },
+    {
+      "symbol": "DECLARE_LOG_CATEGORY_EXTERN",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "unreal/Source/Tervain/Public/Tervain.h"
+      ],
+      "assumes": "DECLARE_LOG_CATEGORY_EXTERN(CategoryName, DefaultVerbosity, CompileTimeVerbosity) declares a log category in a header.",
+      "status": "verified",
+      "source": {
+        "title": "Logging in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/logging-in-unreal-engine"
+      },
+      "passage": "DECLARE_LOG_CATEGORY_EXTERN(<LOG_CATEGORY>, <VERBOSITY_LEVEL>, All);",
+      "note": "Three arguments with All as the third, as in the seed (LogTervain, Log, All), which writes the line exactly so, without the module's API macro: the category is used only inside the Tervain module. The page says to put it in the header below the includes."
+    },
+    {
+      "symbol": "DEFINE_LOG_CATEGORY",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "unreal/Source/Tervain/Private/Tervain.cpp"
+      ],
+      "assumes": "DEFINE_LOG_CATEGORY(CategoryName) defines the category in one .cpp file.",
+      "status": "verified",
+      "source": {
+        "title": "Logging in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/logging-in-unreal-engine"
+      },
+      "passage": "In the relevant C++ file, add the following just below the include directives: C++ DEFINE_LOG_CATEGORY(<LOG_CATEGORY>);",
+      "note": "As the seed does in Tervain.cpp."
+    },
+    {
+      "symbol": "UE_LOG",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "UE_LOG(CategoryName, Verbosity, TEXT(\"format\"), args...) logs a printf-style formatted line.",
+      "status": "verified",
+      "source": {
+        "title": "Logging in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/logging-in-unreal-engine"
+      },
+      "passage": "UE_LOG is a macro that logs a formatted message into the log file. For example: C++ UE_LOG(LogTemp, Warning, TEXT(\"Hello World\"));",
+      "note": "Shows the argument order. The stand-in formats with snprintf on narrow characters, which is a simplification."
+    },
+    {
+      "symbol": "UE_LOG with %s and *FString",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "A %s in the format takes a const TCHAR*, given as *String.",
+      "status": "verified",
+      "source": {
+        "title": "FString in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/fstring-in-unreal-engine"
+      },
+      "passage": "UE_LOG uses printf markup for parameterization. UE_LOG(LogClass, Log, TEXT(\"This is a testing statement. %s\"), *TestHUDString);",
+      "note": "The same use as the seed's `*File` arguments."
+    },
+    {
+      "symbol": "Log verbosities Log, Warning, Error, All",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "unreal/Source/Tervain/Public/Tervain.h"
+      ],
+      "assumes": "Log, Warning and Error are verbosity levels and All is valid as the compile-time verbosity.",
+      "status": "verified",
+      "source": {
+        "title": "ELogVerbosity::Type | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/ELogVerbosity__Type?application_version=5.8"
+      },
+      "passage": "enum Type { NoLogging = 0, Fatal, Error, Warning, Display, Log, Verbose, VeryVerbose, All = VeryVerbose,",
+      "note": "All four names are values of ELogVerbosity::Type."
+    },
+    {
+      "symbol": "Logging/LogMacros.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "unreal/Source/Tervain/Public/Tervain.h"
+      ],
+      "assumes": "The logging macros are available after including \"Logging/LogMacros.h\" (module Core).",
+      "status": "partly",
+      "source": {
+        "title": "FMsg | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMsg?application_version=5.8"
+      },
+      "passage": "Name FMsg Type struct Header File /Engine/Source/Runtime/Core/Public/Logging/LogMacros.h Include Path #include \"Logging/LogMacros.h\"",
+      "note": "The header holds FMsg, whose struct \"contains functions for messaging with tools or debug logs\" (Logf among them), and the Core module page lists the include path. The API reference does not document macros, so that UE_LOG, DECLARE_LOG_CATEGORY_EXTERN and DEFINE_LOG_CATEGORY come from this header is not shown, and the logging guide names no header for them."
+    },
+    {
+      "symbol": "FDefaultGameModuleImpl",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/Modules/ModuleManager.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/Tervain.cpp"
+      ],
+      "assumes": "The default module implementation class for a game module.",
+      "status": "verified",
+      "source": {
+        "title": "FDefaultGameModuleImpl | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FDefaultGameModuleImpl?application_version=5.8"
+      },
+      "passage": "Default minimal module class for gameplay modules. Does nothing at startup and shutdown.",
+      "note": "Declared in Modules/ModuleManager.h; syntax \"class FDefaultGameModuleImpl : public FDefaultModuleImpl\"."
+    },
+    {
+      "symbol": "IMPLEMENT_PRIMARY_GAME_MODULE",
+      "kind": "macro",
+      "usedIn": [
+        "tests/tools/unreal-standin/Modules/ModuleManager.h",
+        "unreal/Source/Tervain/Private/Tervain.cpp"
+      ],
+      "assumes": "IMPLEMENT_PRIMARY_GAME_MODULE(ModuleImplClass, ModuleName, GameName) takes three arguments: the seed writes (FDefaultGameModuleImpl, Tervain, \"Tervain\").",
+      "status": "contradicted",
+      "source": {
+        "title": "Gameplay Modules in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/gameplay-modules-in-unreal-engine"
+      },
+      "passage": "IMPLEMENT_PRIMARY_GAME_MODULE( <ModuleName>, \"<GameName>\" );",
+      "note": "The only Epic page found that shows the macro gives it two arguments, the module name and the game name, with no implementation class. That page reads as dated (its Build.cs sample takes TargetInfo and it speaks of an OutExtraModuleNames array), and the newer module pages show IMPLEMENT_MODULE(FDefaultModuleImpl, ModuleTest) with the class first; the API reference documents FDefaultGameModuleImpl, the class the seed passes first, as the \"Default minimal module class for gameplay modules\". So the three-argument form may well be the current one, but no page fetched shows it and the API reference does not document macros. Check against Modules/ModuleManager.h in the engine at the first build. The requirement itself (\"At least one module in your game must be registered using IMPLEMENT_PRIMARY_GAME_MODULE\") is confirmed.",
+      "corroboration": {
+        "title": "CARLA's game module, on its ue5-dev branch (the Unreal Engine 5.5 version of CARLA, per its README)",
+        "url": "https://raw.githubusercontent.com/carla-simulator/carla/ue5-dev/Unreal/CarlaUnreal/Source/CarlaUnreal/CarlaUnreal.cpp",
+        "passage": "IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, CarlaUnreal, \"CarlaUnreal\" );"
+      }
+    },
+    {
+      "symbol": "Modules/ModuleManager.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Modules/ModuleManager.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/Tervain.cpp"
+      ],
+      "assumes": "The module implementation macros and FDefaultGameModuleImpl come from \"Modules/ModuleManager.h\" (module Core).",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Modules | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-modules"
+      },
+      "passage": "#include \"Modules/ModuleManager.h\" IMPLEMENT_MODULE(FDefaultModuleImpl, ModuleTest);",
+      "note": "Shows the include in front of a module implementation macro; the API reference gives the same header for FDefaultGameModuleImpl."
+    },
+    {
+      "symbol": "CoreMinimal.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/Array.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "tests/tools/unreal-standin/Math/Rotator.h",
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "tests/tools/unreal-standin/Math/Vector.h",
+        "tests/tools/unreal-standin/Modules/ModuleManager.h",
+        "tests/tools/unreal-standin/Templates/SharedPointer.h",
+        "tests/tools/unreal-standin/UObject/NameTypes.h",
+        "tests/tools/unreal-standin/UObject/Object.h",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Tervain.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "Every seed header includes \"CoreMinimal.h\" first, before any other engine header and the generated header.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine CPP Quick Start | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-cpp-quick-start"
+      },
+      "passage": "#pragma once #include \"CoreMinimal.h\" #include \"GameFramework/Actor.h\" #include \"FloatingActor.generated.h\"",
+      "note": "Shows the include order the seed uses. What CoreMinimal.h itself declares is not listed on any page fetched (next entry)."
+    },
+    {
+      "symbol": "Primitive types and TEXT from CoreMinimal.h",
+      "kind": "header",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Tervain.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "Including CoreMinimal.h is enough for int32, uint8, uint32, TCHAR and TEXT; every other engine name the seed uses comes from its own header.",
+      "status": "partly",
+      "source": {
+        "title": "Include What You Use (IWYU) for Unreal Engine Programming | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/include-what-you-use-iwyu-for-unreal-engine-programming"
+      },
+      "passage": "There is a Core Types header file ( CoreTypes.h ) containing a set of ubiquitous types from UE's Core programming environment.",
+      "note": "The page says CoreTypes.h holds the typedefs for primitive types and is included first by most engine headers, and the Core module page speaks of \"the core types included in CoreMinimal.h\" (TIsUECoreType) without listing them. That CoreMinimal.h includes CoreTypes.h is not stated on any page fetched. The same IWYU page gives the rule the seed follows: every file includes the header of everything it uses."
+    },
+    {
+      "symbol": "Containers/Array.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/Array.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+      ],
+      "assumes": "#include \"Containers/Array.h\" declares TArray.",
+      "status": "verified",
+      "source": {
+        "title": "TArray | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TArray?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Core/Public/Containers/Array.h Include Path #include \"Containers/Array.h\"",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "Containers/UnrealString.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/StringView.h",
+        "tests/tools/unreal-standin/Containers/UnrealString.h",
+        "tests/tools/unreal-standin/Misc/FileHelper.h",
+        "tests/tools/unreal-standin/Misc/Paths.h",
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "#include \"Containers/UnrealString.h\" declares FString.",
+      "status": "partly",
+      "source": {
+        "title": "Core | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core?application_version=5.8"
+      },
+      "passage": "FString BytesToHex ( const uint8* Bytes, int32 NumBytes ) Convert bytes to uppercase hex string Containers/UnrealString.h",
+      "note": "The Core module page lists functions that return and take FString under this include path. The FString page itself (5.7 and 5.8) gives the class's file as Containers/UnrealString.h.inl, a part of this header by its name; that including Containers/UnrealString.h declares FString is the long-standing form but is not stated."
+    },
+    {
+      "symbol": "Containers/StringView.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Containers/StringView.h",
+        "tests/tools/unreal-standin/Dom/JsonObject.h"
+      ],
+      "assumes": "#include \"Containers/StringView.h\" declares FStringView.",
+      "status": "verified",
+      "source": {
+        "title": "TStringView | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TStringView?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Core/Public/Containers/StringView.h Include Path #include \"Containers/StringView.h\"",
+      "note": "Included by the stand-in of FJsonObject only; the seed does not name FStringView."
+    },
+    {
+      "symbol": "Math/UnrealMathUtility.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "#include \"Math/UnrealMathUtility.h\" declares FMath.",
+      "status": "verified",
+      "source": {
+        "title": "FMath | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMath?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Core/Public/Math/UnrealMathUtility.h Include Path #include \"Math/UnrealMathUtility.h\"",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "Math/Vector.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Vector.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "#include \"Math/Vector.h\" declares FVector.",
+      "status": "verified",
+      "source": {
+        "title": "TVector | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TVector?application_version=5.8"
+      },
+      "passage": "Source /Engine/Source/Runtime/Core/Public/Math/Vector.h Syntax template<typename T> struct TVector",
+      "note": "The page gives Math/MathFwd.h as the include path of the forward declaration and Math/Vector.h as the file that defines the struct, which is what a file that uses FVector's members needs."
+    },
+    {
+      "symbol": "Math/Rotator.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/Rotator.h",
+        "unreal/Source/Tervain/Public/TervainUnits.h"
+      ],
+      "assumes": "#include \"Math/Rotator.h\" declares FRotator3f.",
+      "status": "verified",
+      "source": {
+        "title": "TRotator | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TRotator?application_version=5.8"
+      },
+      "passage": "Source /Engine/Source/Runtime/Core/Public/Math/Rotator.h Syntax template<typename T> struct TRotator",
+      "note": "As for Math/Vector.h: the forward declaration is in Math/MathFwd.h and this file defines the struct."
+    },
+    {
+      "symbol": "Templates/Casts.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Templates/Casts.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "#include \"Templates/Casts.h\" declares Cast.",
+      "status": "verified",
+      "source": {
+        "title": "Cast | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/Cast?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/CoreUObject/Public/Templates/Casts.h Include Path #include \"Templates/Casts.h\"",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "Templates/SharedPointer.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Dom/JsonObject.h",
+        "tests/tools/unreal-standin/Serialization/JsonReader.h",
+        "tests/tools/unreal-standin/Templates/SharedPointer.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "#include \"Templates/SharedPointer.h\" declares TSharedPtr and TSharedRef.",
+      "status": "verified",
+      "source": {
+        "title": "TSharedPtr | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TSharedPtr?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Core/Public/Templates/SharedPointer.h Include Path #include \"Templates/SharedPointer.h\"",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UObject/NameTypes.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/UObject/NameTypes.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "#include \"UObject/NameTypes.h\" declares FName.",
+      "status": "verified",
+      "source": {
+        "title": "FName | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FName?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Core/Public/UObject/NameTypes.h Include Path #include \"UObject/NameTypes.h\"",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UObject/Object.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/Engine/DataTable.h",
+        "tests/tools/unreal-standin/Engine/DeveloperSettings.h",
+        "tests/tools/unreal-standin/Subsystems/GameInstanceSubsystem.h",
+        "tests/tools/unreal-standin/Templates/Casts.h",
+        "tests/tools/unreal-standin/UObject/Object.h",
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "tests/tools/unreal-standin/UObject/UObjectGlobals.h"
+      ],
+      "assumes": "#include \"UObject/Object.h\" declares UObject.",
+      "status": "verified",
+      "source": {
+        "title": "UObject | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/UObject?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/CoreUObject/Public/UObject/Object.h Include Path #include \"UObject/Object.h\"",
+      "note": "Included by the stand-ins of the object classes only."
+    },
+    {
+      "symbol": "UObject/SoftObjectPath.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "#include \"UObject/SoftObjectPath.h\" declares FSoftObjectPath.",
+      "status": "verified",
+      "source": {
+        "title": "FSoftObjectPath | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/FSoftObjectPath?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/CoreUObject/Public/UObject/SoftObjectPath.h Include Path #include \"UObject/SoftObjectPath.h\"",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UObject/UObjectGlobals.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/UObjectGlobals.h",
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "#include \"UObject/UObjectGlobals.h\" declares GetDefault.",
+      "status": "verified",
+      "source": {
+        "title": "GetDefault | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/GetDefault?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/CoreUObject/Public/UObject/UObjectGlobals.h Include Path #include \"UObject/UObjectGlobals.h\"",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UObject/ObjectMacros.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/ObjectMacros.h",
+        "tests/tools/unreal-standin/UObject/SoftObjectPath.h",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
+      ],
+      "assumes": "#include \"UObject/ObjectMacros.h\" declares ELoadFlags.",
+      "status": "verified",
+      "source": {
+        "title": "ELoadFlags | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject/ELoadFlags?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/CoreUObject/Public/UObject/ObjectMacros.h Include Path #include \"UObject/ObjectMacros.h\"",
+      "note": "Module CoreUObject."
+    },
+    {
+      "symbol": "UCLASS(Config = Game)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "Config=Game on a class stores its config properties in the Game configuration file.",
+      "status": "verified",
+      "source": {
+        "title": "Class Specifiers | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/class-specifiers"
+      },
+      "passage": "Config=ConfigName Indicates that this class is allowed to store data in a configuration file ( .ini ).",
+      "note": "The Configuration Files guide shows the same value: UCLASS(config=Game)."
+    },
+    {
+      "symbol": "UCLASS(DefaultConfig)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "DefaultConfig is a class specifier, used together with Config=Game on a settings class so that values are saved to the Default*.ini file.",
+      "status": "verified",
+      "source": {
+        "title": "UAssetManagerSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/UAssetManagerSettings?application_version=5.8"
+      },
+      "passage": "UCLASS (Config=Game, defaultconfig, Meta=(DisplayName=\"Asset Manager\"), MinimalAPI) class UAssetManagerSettings : public UDeveloperSettings",
+      "note": "An engine UDeveloperSettings subclass declared with exactly the seed's combination. What the specifier means is not described on any page fetched (the Class Specifiers page does not list it), so its effect is taken from use, not from a definition."
+    },
+    {
+      "symbol": "UCLASS(meta = (DisplayName = \"...\"))",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "The DisplayName metadata on a settings class sets the name shown for its section.",
+      "status": "verified",
+      "source": {
+        "title": "UDeveloperSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/DeveloperSettings/UDeveloperSettings?application_version=5.8"
+      },
+      "passage": "virtual FText GetSectionText() Gets the section text, uses the classes DisplayName by default.",
+      "note": "States that the section text comes from the class DisplayName. The syntax meta=(DisplayName=\"...\") on a UCLASS is shown by the engine class quoted in the DefaultConfig entry."
+    },
+    {
+      "symbol": "UCLASS()",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "UCLASS() with no specifiers is valid on a UGameInstanceSubsystem subclass.",
+      "status": "verified",
+      "source": {
+        "title": "Programming Subsystems in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/programming-subsystems-in-unreal-engine"
+      },
+      "passage": "UCLASS() class UMyGamesStatsSubsystem : public UGameInstanceSubsystem { GENERATED_BODY()",
+      "note": "The guide's own subsystem is declared this way."
+    },
+    {
+      "symbol": "UPROPERTY(Config)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "Config makes a property load from and save to the class's .ini file.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "Config This property will be made configurable. The current value can be saved to the .ini file associated with the class and will be loaded when created.",
+      "note": "The same entry adds \"Cannot be given a value in default properties. Implies BlueprintReadOnly.\" The seed gives DataDirectory a C++ default member initialiser (TEXT(\"../data\")); whether that counts as \"a value in default properties\" is not clear from the page."
+    },
+    {
+      "symbol": "UPROPERTY(EditAnywhere)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "EditAnywhere lets the property be edited in property windows.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "EditAnywhere Indicates that this property can be edited by property windows, on archetypes and instances.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UPROPERTY(BlueprintReadOnly)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "BlueprintReadOnly exposes the property to Blueprints for reading.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "BlueprintReadOnly This property can be read by Blueprints, but not modified.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UPROPERTY(BlueprintReadWrite)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "BlueprintReadWrite exposes the property to Blueprints for reading and writing.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "BlueprintReadWrite This property can be read or written from a Blueprint.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UPROPERTY(Category = \"A|B\")",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "Category names the group a property is shown under, and \"Data|Tables\" is a nested category.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "Specifies the category of the property when displayed in Blueprint editing tools. Define nested categories using the | operator.",
+      "note": "Covers both the plain form (Category = \"Tervain\") and the nested form."
+    },
+    {
+      "symbol": "UPROPERTY(meta = (AllowedClasses = \"/Script/Engine.DataTable\"))",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "AllowedClasses on an FSoftObjectPath property limits the asset picker to the classes it names.",
+      "status": "verified",
+      "source": {
+        "title": "Metadata Specifiers in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/metadata-specifiers-in-unreal-engine"
+      },
+      "passage": "AllowedClasses=\"Class1, Class2, ..\" Used for FSoftObjectPath properties. Comma delimited list that indicates the Class type(s) of assets to be displayed in the Asset picker.",
+      "note": "As assumed. How the class is written is the next entry."
+    },
+    {
+      "symbol": "AllowedClasses given as a class path (\"/Script/Engine.DataTable\")",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "The class AllowedClasses names may be written as its path, /Script/<Module>.<Class>: /Script/Engine.DataTable for UDataTable.",
+      "status": "verified",
+      "source": {
+        "title": "UGameMapsSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/EngineSettings/UGameMapsSettings?application_version=5.8"
+      },
+      "passage": "EditorStartupMap FSoftObjectPath If set, this map will be loaded when the Editor starts up. GameMapsSettings.h Config EditAnywhere Category=DefaultMaps Meta=(AllowedClasses=\"/Script/Engine.World\")",
+      "note": "The engine's own map settings give their FSoftObjectPath properties the path of the World class in this form. UDataTable is a class of module Engine (Engine/DataTable.h), so its path follows the same pattern, which the config section [/Script/Tervain.TervainSettings] also uses; /Script/Engine.DataTable itself is not printed on any page fetched."
+    },
+    {
+      "symbol": "USTRUCT(BlueprintType)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "BlueprintType exposes a struct as a type usable for Blueprint variables.",
+      "status": "verified",
+      "source": {
+        "title": "Structs in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/structs-in-unreal-engine"
+      },
+      "passage": "BlueprintType Exposes this struct as a type that can be used for variables in Blueprints.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UENUM(BlueprintType)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "BlueprintType exposes an enum to Blueprints.",
+      "status": "partly",
+      "source": {
+        "title": "Structs in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/structs-in-unreal-engine"
+      },
+      "passage": "BlueprintType Exposes this struct as a type that can be used for variables in Blueprints.",
+      "note": "BlueprintType is documented for structs (quoted) and for classes (\"Exposes this class as a type that can be used for variables in Blueprints\", Class Specifiers). No page fetched lists it as an enum specifier or shows UENUM(BlueprintType): the API reference pages for enums do not print their UENUM line, and Epic's guide examples write UENUM() or UENUM(Meta = (Bitflags)). The seed's enums need it only to show in Blueprints; the C++ and the data tables do not depend on it."
+    },
+    {
+      "symbol": "UFUNCTION(BlueprintPure)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "BlueprintPure exposes a function to Blueprints as a node without execution pins that does not change the object.",
+      "status": "verified",
+      "source": {
+        "title": "UFunctions in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/ufunctions-in-unreal-engine"
+      },
+      "passage": "BlueprintPure The function does not affect the owning object in any way and can be executed in a Blueprint or Level Blueprint graph.",
+      "note": "All four reflected functions of the subsystem are const, consistent with this."
+    },
+    {
+      "symbol": "UFUNCTION(Category = \"A|B\")",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "Category names the group a function is shown under, and \"Tervain|Data\" is a nested category.",
+      "status": "verified",
+      "source": {
+        "title": "UFunctions in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/ufunctions-in-unreal-engine"
+      },
+      "passage": "Specifies the category of the function when displayed in Blueprint editing tools. Define nested categories using the | operator.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UPROPERTY members of type int32",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "An int32 can be a UPROPERTY member.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "Integers The convention for integral data types is \"int\" or \"uint\" followed by the size in bits.",
+      "note": "From the page's Core Data Types; its table lists \"int32 32-bit signed\"."
+    },
+    {
+      "symbol": "UPROPERTY members of type float",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "A float can be a UPROPERTY member.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "Floating Point Types Unreal uses the standard C++ floating point types, float, and double.",
+      "note": "From the page's Core Data Types."
+    },
+    {
+      "symbol": "UPROPERTY members of type bool",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+      ],
+      "assumes": "A bool can be a UPROPERTY member.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "Boolean Types Boolean types can be represented either with the C++ bool keyword or as a bitfield.",
+      "note": "From the page's Core Data Types; the seed uses the bool keyword."
+    },
+    {
+      "symbol": "UPROPERTY members of type FString and FName",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "An FString and an FName can be UPROPERTY members.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "Strings Unreal Engine supports three core types of strings. FString is a classic \"dynamic array of chars\" string type. FName is a reference to an immutable case-insensitive string in a global string table.",
+      "note": "From the page's Core Data Types."
+    },
+    {
+      "symbol": "UPROPERTY members of type FVector",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+      ],
+      "assumes": "An FVector can be an editable UPROPERTY member.",
+      "status": "verified",
+      "source": {
+        "title": "USceneComponent | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/USceneComponent?application_version=5.8"
+      },
+      "passage": "RelativeLocation FVector Location of the component relative to its parent Components/SceneComponent.h EditAnywhere BlueprintReadOnly",
+      "note": "An engine property of type FVector with the specifiers the seed's rows use."
+    },
+    {
+      "symbol": "UPROPERTY members of an enum class type",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+      ],
+      "assumes": "A member whose type is an enum class with UENUM can be a UPROPERTY.",
+      "status": "verified",
+      "source": {
+        "title": "Epic C++ Coding Standard for Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/epic-cplusplus-coding-standard-for-unreal-engine"
+      },
+      "passage": "Enums are supported as UPROPERTYs , and replace the old TEnumAsByte<> workaround. Enum properties can also be any size, not just bytes",
+      "note": "The seed's enums are enum class with uint8 underneath, as the same page asks of enums exposed to Blueprints."
+    },
+    {
+      "symbol": "UPROPERTY members of type FSoftObjectPath",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "An FSoftObjectPath can be a config UPROPERTY edited in Project Settings.",
+      "status": "verified",
+      "source": {
+        "title": "UGameMapsSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/EngineSettings/UGameMapsSettings?application_version=5.8"
+      },
+      "passage": "GameDefaultMap FSoftObjectPath The map that will be loaded by default when no other map is loaded. GameMapsSettings.h Config EditAnywhere Category=DefaultMaps",
+      "note": "An engine settings property of this type with the specifiers the seed's settings use (Config, EditAnywhere, Category)."
+    },
+    {
+      "symbol": "UPROPERTY members of type TArray of a USTRUCT",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+      ],
+      "assumes": "A TArray of a USTRUCT can be a UPROPERTY member.",
+      "status": "verified",
+      "source": {
+        "title": "UGameMapsSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/EngineSettings/UGameMapsSettings?application_version=5.8"
+      },
+      "passage": "GameModeClassAliases TArray < FGameModeName > List of GameModes to load when game= is specified in the URL (e.g. \"DM\" could be an alias for \"MyProject.MyGameModeMP_DM\")",
+      "note": "An engine settings property that is an array of a struct (Config, EditAnywhere). The seed's resident rows hold an array of schedule entries, a USTRUCT of its own."
+    },
+    {
+      "symbol": "Name prefixes U, F, E and b",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "unreal/README.md",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "Classes derived from UObject start with U, structs with F, enums with E and booleans with b; the header tool expects the class prefixes.",
+      "status": "verified",
+      "source": {
+        "title": "Epic C++ Coding Standard for Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/epic-cplusplus-coding-standard-for-unreal-engine"
+      },
+      "passage": "Classes that inherit from UObject are prefixed by U.",
+      "note": "The same page gives \"Enums are prefixed by E.\", \"Boolean variables must be prefixed by b.\" and \"Most other classes are prefixed by F\". The seed follows all four. That the header tool rejects a wrong prefix is not stated on the pages fetched."
+    },
+    {
+      "symbol": "UnrealBuildTool (namespace)",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/Tervain/Tervain.Build.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "Build and target rules files begin with `using UnrealBuildTool;`.",
+      "status": "verified",
+      "source": {
+        "title": "Module Properties in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/module-properties-in-unreal-engine"
+      },
+      "passage": "using UnrealBuildTool; using System.Collections.Generic; public class MyModule : ModuleRules",
+      "note": "As in all three rules files of the seed."
+    },
+    {
+      "symbol": "ModuleRules",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "A module's Build.cs declares a class named after the module that derives from ModuleRules.",
+      "status": "verified",
+      "source": {
+        "title": "Module Properties in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/module-properties-in-unreal-engine"
+      },
+      "passage": "public class MyModule : ModuleRules { public MyModule(ReadOnlyTargetRules Target) : base(Target)",
+      "note": "As in Tervain.Build.cs."
+    },
+    {
+      "symbol": "ReadOnlyTargetRules",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "The ModuleRules constructor takes (ReadOnlyTargetRules Target) and passes it to base(Target).",
+      "status": "verified",
+      "source": {
+        "title": "How To Make a Gameplay Module in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-make-a-gameplay-module-in-unreal-engine"
+      },
+      "passage": "public ModuleTest(ReadOnlyTargetRules Target) : base(Target)",
+      "note": "As in Tervain.Build.cs. (The older Gameplay Modules page still shows a TargetInfo parameter; the current pages agree with the seed.)"
+    },
+    {
+      "symbol": "[ModuleName].Build.cs",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "The rules file is named <ModuleName>.Build.cs and sits in the module's root folder.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Modules | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-modules"
+      },
+      "passage": "Create a [ModuleName].Build.cs file inside your module's root directory and use it to define dependencies with other modules.",
+      "note": "Tervain.Build.cs is in Source/Tervain/."
+    },
+    {
+      "symbol": "Module folders Public and Private",
+      "kind": "build-setting",
+      "usedIn": [
+        "tests/tools/unreal-standin/Modules/ModuleManager.h"
+      ],
+      "assumes": "A module keeps its public headers in Public/ and its other code in Private/.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Modules | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-modules"
+      },
+      "passage": "its C++ code should be contained in Private and Public folders.",
+      "note": "The seed uses subfolders (Public/Data, Public/Rules, Private/Rules), included as \"Data/TervainRows.h\" and \"Rules/TervainHeroRules.h\"; that includes are resolved relative to Public/ is not spelled out on the pages fetched."
+    },
+    {
+      "symbol": "PCHUsage",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "PCHUsage is a ModuleRules property of type PCHUsageMode.",
+      "status": "verified",
+      "source": {
+        "title": "Module Properties in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/module-properties-in-unreal-engine"
+      },
+      "passage": "PCHUsage (PCHUsageMode): Precompiled header usage for this module",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "PCHUsageMode.UseExplicitOrSharedPCHs",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "UseExplicitOrSharedPCHs is a value of PCHUsageMode.",
+      "status": "verified",
+      "source": {
+        "title": "Include What You Use (IWYU) for Unreal Engine Programming | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/include-what-you-use-iwyu-for-unreal-engine-programming"
+      },
+      "passage": "verify that PCHUsage is set to PCHUsageMode.UseExplicitOrSharedPCHs",
+      "note": "The page presents this setting as the include-what-you-use convention, which means each file must include what it uses (see the CoreMinimal.h entries)."
+    },
+    {
+      "symbol": "PublicDependencyModuleNames",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "A list of module names the module's public headers depend on.",
+      "status": "verified",
+      "source": {
+        "title": "Module Properties in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/module-properties-in-unreal-engine"
+      },
+      "passage": "PublicDependencyModuleNames (List<String>): List of public dependency module names (no path needed) (automatically does the private/public include).",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "PrivateDependencyModuleNames",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "A list of module names only the module's private code depends on.",
+      "status": "verified",
+      "source": {
+        "title": "Module Properties in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/module-properties-in-unreal-engine"
+      },
+      "passage": "PrivateDependencyModuleNames (List<String>): List of private dependency module names.",
+      "note": "The seed lists Json here; TervainDataSubsystem.h only forward-declares FJsonObject, and uses TSharedPtr<FJsonObject> as a member, so no Json header is needed by the public header."
+    },
+    {
+      "symbol": "Core (module)",
+      "kind": "module",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "An engine module named \"Core\".",
+      "status": "verified",
+      "source": {
+        "title": "How To Make a Gameplay Module in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-make-a-gameplay-module-in-unreal-engine"
+      },
+      "passage": "PublicDependencyModuleNames.AddRange(new string[] { \"Core\", \"CoreUObject\", \"Engine\", \"InputCore\", \"ModuleTest\" });",
+      "note": "The API reference has a page for the Runtime module Core (Core.Build.cs)."
+    },
+    {
+      "symbol": "CoreUObject (module)",
+      "kind": "module",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "An engine module named \"CoreUObject\".",
+      "status": "verified",
+      "source": {
+        "title": "CoreUObject | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject?application_version=5.8"
+      },
+      "passage": "Name CoreUObject Type Runtime Location /Engine/Source/Runtime/CoreUObject/ Module Build Rules CoreUObject.Build.cs",
+      "note": "Also listed as a dependency in the gameplay module guide."
+    },
+    {
+      "symbol": "Engine (module)",
+      "kind": "module",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/Math/Vector.h",
+        "unreal/Config/DefaultEngine.ini",
+        "unreal/Config/DefaultGame.ini",
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h",
+        "unreal/Source/Tervain/Tervain.Build.cs",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "An engine module named \"Engine\", which holds UDataTable and the subsystem classes.",
+      "status": "verified",
+      "source": {
+        "title": "UDataTable | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Engine/UDataTable?application_version=5.8"
+      },
+      "passage": "Header File /Engine/Source/Runtime/Engine/Classes/Engine/DataTable.h",
+      "note": "The header path places UDataTable in Runtime/Engine; the gameplay module guide lists \"Engine\" as a dependency name."
+    },
+    {
+      "symbol": "DeveloperSettings (module)",
+      "kind": "module",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/TervainSettings.h",
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "An engine module named \"DeveloperSettings\", which holds UDeveloperSettings.",
+      "status": "verified",
+      "source": {
+        "title": "DeveloperSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/DeveloperSettings?application_version=5.8"
+      },
+      "passage": "Name DeveloperSettings Type Runtime Location /Engine/Source/Runtime/DeveloperSettings/ Module Build Rules DeveloperSettings.Build.cs",
+      "note": "A Runtime module, so it is available to a game target."
+    },
+    {
+      "symbol": "Json (module)",
+      "kind": "module",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Source/Tervain/Tervain.Build.cs"
+      ],
+      "assumes": "An engine module named \"Json\", which holds FJsonObject, the reader and the serializer.",
+      "status": "verified",
+      "source": {
+        "title": "Json | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Json?application_version=5.8"
+      },
+      "passage": "Name Json Type Runtime Location /Engine/Source/Runtime/Json/ Module Build Rules Json.Build.cs",
+      "note": "A Runtime module, so it is available to a game target."
+    },
+    {
+      "symbol": "TargetRules",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "A target file declares a class deriving from TargetRules.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "public class MyProjectTarget : TargetRules { public MyProjectTarget(TargetInfo Target) : base(Target) { Type = TargetType.Game;",
+      "note": "The sample matches the seed's Tervain.Target.cs line for line up to this point."
+    },
+    {
+      "symbol": "TargetInfo",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "The TargetRules constructor takes (TargetInfo Target) and passes it to base(Target).",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "public MyProjectTarget(TargetInfo Target) : base(Target)",
+      "note": "As in both target files."
+    },
+    {
+      "symbol": "Target class and file names",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/Tervain/Tervain.Build.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "The class in Tervain.Target.cs is TervainTarget and the class in TervainEditor.Target.cs is TervainEditorTarget.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "The name of the class must match the name of the file it is declared in followed by 'Target'",
+      "note": "Both seed files follow the rule."
+    },
+    {
+      "symbol": "Target files in Source/",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/Tervain/Tervain.Build.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "The two .Target.cs files sit directly in the project's Source folder.",
+      "status": "verified",
+      "source": {
+        "title": "How To Make a Gameplay Module in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-make-a-gameplay-module-in-unreal-engine"
+      },
+      "passage": "MyProject Source MyProject.Target.cs MyProjectEditor.Target.cs MyProject (Primary game module folder) Private Public MyProject.Build.cs",
+      "note": "The directory listing shows a game and an editor target file in Source/ beside the module folder, as in the seed."
+    },
+    {
+      "symbol": "Type",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "Type is a TargetRules property of type TargetType.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "Type (TargetType): The type of target.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "TargetType.Game",
+      "kind": "build-setting",
+      "usedIn": [
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain.Target.cs"
+      ],
+      "assumes": "Game is a TargetType value for a standalone game target.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "Game : A standalone game which requires cooked data to run.",
+      "note": "The sample target sets Type = TargetType.Game."
+    },
+    {
+      "symbol": "TargetType.Editor",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "Editor is a TargetType value for the editor target.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "Editor : A target which extends the Unreal Editor.",
+      "note": "The page also writes it as TargetType.Editor in the description of bCompileAgainstEditor."
+    },
+    {
+      "symbol": "DefaultBuildSettings",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "DefaultBuildSettings is a TargetRules property of type BuildSettingsVersion.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "DefaultBuildSettings (BuildSettingsVersion): Specifies the engine version to maintain backwards-compatible default build settings with",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "BuildSettingsVersion.Latest",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "Latest is a value of the enum BuildSettingsVersion.",
+      "status": "partly",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "Specify DefaultSettingsVersion.Latest to always use defaults for the current engine version, at the risk of introducing build errors while upgrading.",
+      "note": "The property's type is given as BuildSettingsVersion, and the 5.7 release notes write a value of it: \"DefaultBuildSettings = BuildSettingsVersion.V6\". The target reference names Latest only as DefaultSettingsVersion.Latest, so the spelling BuildSettingsVersion.Latest is not shown anywhere. The same sentence documents the trade-off of Latest: build errors may appear when the engine version changes.",
+      "corroboration": {
+        "title": "CARLA's game target, on its ue5-dev branch (the Unreal Engine 5.5 version of CARLA, per its README)",
+        "url": "https://raw.githubusercontent.com/carla-simulator/carla/ue5-dev/Unreal/CarlaUnreal/Source/CarlaUnreal.Target.cs",
+        "passage": "DefaultBuildSettings = BuildSettingsVersion.Latest;"
+      }
+    },
+    {
+      "symbol": "IncludeOrderVersion",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "IncludeOrderVersion is a TargetRules property of type EngineIncludeOrderVersion.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "IncludeOrderVersion (EngineIncludeOrderVersion): What version of include order to use when compiling this target.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "EngineIncludeOrderVersion.Latest",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "Latest is a value of the enum EngineIncludeOrderVersion.",
+      "status": "unverified",
+      "source": null,
+      "passage": null,
+      "note": "The target and module references name the type only (\"IncludeOrderVersion (EngineIncludeOrderVersion): What version of include order to use when compiling this target\"); no page fetched, the 5.5 to 5.8 release notes included, lists its values.",
+      "corroboration": {
+        "title": "CARLA's game target, on its ue5-dev branch (the Unreal Engine 5.5 version of CARLA, per its README)",
+        "url": "https://raw.githubusercontent.com/carla-simulator/carla/ue5-dev/Unreal/CarlaUnreal/Source/CarlaUnreal.Target.cs",
+        "passage": "IncludeOrderVersion = EngineIncludeOrderVersion.Latest;"
+      }
+    },
+    {
+      "symbol": "ExtraModuleNames",
+      "kind": "build-setting",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs"
+      ],
+      "assumes": "ExtraModuleNames is a list of module names to build into the target; the seed adds \"Tervain\".",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Build Tool Target Reference | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-build-tool-target-reference"
+      },
+      "passage": "ExtraModuleNames (List<String>): List of additional modules to be compiled into the target.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "FileVersion",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "The .uproject has \"FileVersion\": 3.",
+      "status": "verified",
+      "source": {
+        "title": "Managing Game Code in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/managing-game-code-in-unreal-engine"
+      },
+      "passage": "{ \"FileVersion\": 3, \"EngineAssociation\": \"{5FFE8984-EA6F-49EC-859E-6CB8C10FE54D}\", \"Category\": \"\", \"Description\": \"\", \"Modules\": [ ... ], \"Plugins\": [ ... ], \"TargetPlatforms\": [ ... ] }",
+      "note": "Epic's own example of a .uproject file, with the same field and value."
+    },
+    {
+      "symbol": "EngineAssociation",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "\"EngineAssociation\": \"5.9\" names the installed engine version the project opens with.",
+      "status": "verified",
+      "source": {
+        "title": "Managing Game Code in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/managing-game-code-in-unreal-engine"
+      },
+      "passage": "the EngineAssociation field in its .uproject file is set to the version number of the launcher engine that was used to create it.",
+      "note": "Confirms the field and that a launcher version number is a valid value (for a source build it is a GUID, as the seed's README says). The guide pages fetched are titled \"Unreal Engine 5.9 Documentation\", so 5.9 is a documented version; whether the launcher writes it exactly as \"5.9\" was not checked."
+    },
+    {
+      "symbol": "Category (uproject)",
+      "kind": "project-field",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
+        "unreal/Source/Tervain/Public/TervainSettings.h",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "The .uproject has a \"Category\" string field, empty here.",
+      "status": "verified",
+      "source": {
+        "title": "Managing Game Code in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/managing-game-code-in-unreal-engine"
+      },
+      "passage": "\"Category\": \"\", \"Description\": \"\", \"Modules\": [ ... ], \"Plugins\": [ ... ]",
+      "note": "Present with an empty value in Epic's example."
+    },
+    {
+      "symbol": "Description (uproject)",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/Config/DefaultGame.ini",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "The .uproject has a \"Description\" string field.",
+      "status": "verified",
+      "source": {
+        "title": "Managing Game Code in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/managing-game-code-in-unreal-engine"
+      },
+      "passage": "\"Category\": \"\", \"Description\": \"\", \"Modules\": [ ... ], \"Plugins\": [ ... ]",
+      "note": "Present in Epic's example; the seed fills it with text."
+    },
+    {
+      "symbol": "Modules (uproject)",
+      "kind": "project-field",
+      "usedIn": [
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/Tervain.cpp",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "The .uproject lists its code modules in a \"Modules\" array of objects.",
+      "status": "verified",
+      "source": {
+        "title": "How To Make a Gameplay Module in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-make-a-gameplay-module-in-unreal-engine"
+      },
+      "passage": "\"Modules\": [ { \"Name\": \"MyProject\", \"Type\": \"Runtime\", \"LoadingPhase\": \"Default\" }, { \"Name\": \"ModuleTest\", \"Type\": \"Runtime\" } ]",
+      "note": "Shown as part of MyProject.uproject."
+    },
+    {
+      "symbol": "Modules[].Name",
+      "kind": "project-field",
+      "usedIn": [
+        "tests/tools/unreal-standin/Logging/LogMacros.h"
+      ],
+      "assumes": "Each module entry has a \"Name\" equal to the module's name.",
+      "status": "verified",
+      "source": {
+        "title": "How To Make a Gameplay Module in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-make-a-gameplay-module-in-unreal-engine"
+      },
+      "passage": "{ \"Name\": \"MyProject\", \"Type\": \"Runtime\", \"LoadingPhase\": \"Default\" }",
+      "note": "Same shape as the seed's single entry."
+    },
+    {
+      "symbol": "Modules[].Type = \"Runtime\"",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/Source/Tervain.Target.cs",
+        "unreal/Source/TervainEditor.Target.cs",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "A gameplay module has \"Type\": \"Runtime\".",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Modules | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-modules"
+      },
+      "passage": "Most gameplay modules will simply list their Name , while their Type will be set to Runtime .",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "Modules[].LoadingPhase = \"Default\"",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "\"LoadingPhase\": \"Default\" is valid and is the default.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Modules | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-modules"
+      },
+      "passage": "If their LoadingPhase is not defined it will be set to Default .",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "Plugins (uproject)",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/.gitignore",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "The .uproject has a \"Plugins\" array, empty here.",
+      "status": "verified",
+      "source": {
+        "title": "Managing Game Code in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/managing-game-code-in-unreal-engine"
+      },
+      "passage": "\"Modules\": [ ... ], \"Plugins\": [ ... ], \"TargetPlatforms\": [ ... ] }",
+      "note": "Present in Epic's example. Whether an empty array is accepted is not stated, though nothing suggests otherwise."
+    },
+    {
+      "symbol": "Config/DefaultGame.ini",
+      "kind": "config-key",
+      "usedIn": [
+        "unreal/Config/DefaultGame.ini"
+      ],
+      "assumes": "Project values for classes with Config=Game go in Config/DefaultGame.ini.",
+      "status": "verified",
+      "source": {
+        "title": "Configuration Files in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/configuration-files-in-unreal-engine"
+      },
+      "passage": "the following configuration can be set within DefaultGame.ini in the project directory: [/Script/MyGameModule.MyConfigActor] MyConfigVariable=3",
+      "note": "The sentence is about a class in the Game category, as UTervainSettings is."
+    },
+    {
+      "symbol": "Config/DefaultEngine.ini",
+      "kind": "config-key",
+      "usedIn": [
+        "unreal/Config/DefaultEngine.ini"
+      ],
+      "assumes": "DefaultEngine.ini is a recognised project configuration file; the seed's holds comments only.",
+      "status": "verified",
+      "source": {
+        "title": "Configuration Files in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/configuration-files-in-unreal-engine"
+      },
+      "passage": "[Core.Log] ; This section can be used in DefaultEngine.ini to override the display level for different log categories",
+      "note": "Names the file. A file with no section at all, as in the seed, is not discussed."
+    },
+    {
+      "symbol": "; comment lines in .ini files",
+      "kind": "config-key",
+      "usedIn": [
+        "unreal/Config/DefaultEngine.ini"
+      ],
+      "assumes": "A line starting with a semicolon is a comment.",
+      "status": "verified",
+      "source": {
+        "title": "Configuration Files in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/configuration-files-in-unreal-engine"
+      },
+      "passage": "Prepend a semicolon ( ; ) to any line to create a comment in your configuration file.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "[/Script/Tervain.TervainSettings]",
+      "kind": "config-key",
+      "usedIn": [
+        "unreal/Config/DefaultGame.ini"
+      ],
+      "assumes": "The section for class UTervainSettings of module Tervain is [/Script/Tervain.TervainSettings], without the U prefix.",
+      "status": "verified",
+      "source": {
+        "title": "Configuration Files in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/configuration-files-in-unreal-engine"
+      },
+      "passage": "Section headings for configurable objects contained in modules use the syntax: [/Script/ModuleName.ClassName]",
+      "note": "The page's example pairs [/Script/MyGameModule.MyConfigActor] with class AMyConfigActor, which shows that the type prefix is dropped."
+    },
+    {
+      "symbol": "DataDirectory (config key)",
+      "kind": "config-key",
+      "usedIn": [
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Config/DefaultGame.ini",
+        "unreal/Source/Tervain/Private/TervainSettings.cpp",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A key in the section has the name of the UPROPERTY(Config) member it sets.",
+      "status": "verified",
+      "source": {
+        "title": "Configuration Files in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/configuration-files-in-unreal-engine"
+      },
+      "passage": "UCLASS(config=Game) class AMyConfigActor : public UObject { GENERATED_BODY() UPROPERTY(Config) int32 MyConfigVariable; }",
+      "note": "The example sets MyConfigVariable=3 for this member, the same relation as DataDirectory=../data for UTervainSettings::DataDirectory."
+    },
+    {
+      "symbol": "[/Script/EngineSettings.GeneralProjectSettings]",
+      "kind": "config-key",
+      "usedIn": [
+        "unreal/Config/DefaultGame.ini"
+      ],
+      "assumes": "The project name and description belong to class UGeneralProjectSettings of module EngineSettings, stored in the Game configuration.",
+      "status": "verified",
+      "source": {
+        "title": "UGeneralProjectSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/EngineSettings/UGeneralProjectSettings?application_version=5.8"
+      },
+      "passage": "UCLASS (Config=Game, defaultconfig, MinimalAPI) class UGeneralProjectSettings : public UObject",
+      "note": "The page is under API/Runtime/EngineSettings, so class, module and config file are confirmed. The section string itself is not printed anywhere; it follows from the [/Script/ModuleName.ClassName] rule."
+    },
+    {
+      "symbol": "ProjectName (config key)",
+      "kind": "config-key",
+      "usedIn": [
+        "unreal/Config/DefaultGame.ini"
+      ],
+      "assumes": "ProjectName is a config property of UGeneralProjectSettings.",
+      "status": "verified",
+      "source": {
+        "title": "UGeneralProjectSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/EngineSettings/UGeneralProjectSettings?application_version=5.8"
+      },
+      "passage": "ProjectName FString The project's non-localized name. GeneralProjectSettings.h Config EditAnywhere Category=About",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "Description (config key)",
+      "kind": "config-key",
+      "usedIn": [
+        "unreal/Config/DefaultGame.ini",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "Description is a config property of UGeneralProjectSettings.",
+      "status": "verified",
+      "source": {
+        "title": "UGeneralProjectSettings | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/EngineSettings/UGeneralProjectSettings?application_version=5.8"
+      },
+      "passage": "Description FString The project's description text. GeneralProjectSettings.h Config EditAnywhere Category=About",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "Project folders Config, Content, Source",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
+        "unreal/Source/Tervain/Public/TervainSettings.h"
+      ],
+      "assumes": "A project keeps configuration in Config/, assets in Content/ and code in Source/.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Directory Structure | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-directory-structure"
+      },
+      "passage": "Config - Configuration files for setting values that control engine behavior.",
+      "note": "The same list has \"Content - Holds content for the engine or game, including asset packages and maps.\" and \"Source - Contains all of the source files for engine or game\"."
+    },
+    {
+      "symbol": "Plugins folder",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/.gitignore",
+        "unreal/Tervain.uproject"
+      ],
+      "assumes": "A project may have a Plugins/ folder whose plugins have their own Binaries and Intermediate folders.",
+      "status": "verified",
+      "source": {
+        "title": "Plugins in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/plugins-in-unreal-engine"
+      },
+      "passage": "Plugins with code will have a Binaries folder that contains compiled code for that Plugin, and temporary build product files will be stored in a separate Intermediate folder under the Plugin's directory.",
+      "note": "The same page gives the search path for a project's plugins as \"[Project Root Directory]/Plugins/[Plugin Name]/\", which is where the .gitignore patterns look."
+    },
+    {
+      "symbol": "Generated folders Binaries, DerivedDataCache, Intermediate, Saved",
+      "kind": "project-field",
+      "usedIn": [
+        "unreal/README.md",
+        "unreal/Source/Tervain/Public/Data/TervainIds.h",
+        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+      ],
+      "assumes": "These folders hold build products and local state, so the seed ignores them.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine Directory Structure | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-directory-structure"
+      },
+      "passage": "Intermediate - Contains temporary files generated during building the engine or game.",
+      "note": "The same list describes Binaries (\"executable files or other files created during compiling\"), DerivedDataCache and Saved."
+    }
+  ]
+}

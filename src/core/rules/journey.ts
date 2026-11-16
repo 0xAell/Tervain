@@ -1,4 +1,5 @@
 import type { NpcId } from '../game/types';
+import type { Colliders } from '../world/colliders';
 
 /**
  * Rules of the journey as a whole: when it is saved, what happens when the wanderer falls, where he comes back, what
@@ -33,7 +34,11 @@ export function noThreatNear(x: number, z: number, foes: Iterable<{ alive: boole
 /** The place he returns to moves with him, but never to within this distance (m) of a living foe or an undefeated post. */
 export const CHECKPOINT_CLEARANCE = 18;
 
-/** Whether `(x, z)` may become the place he returns to. */
+/**
+ * Whether `(x, z)` may become the place he returns to. It is asked at the moments respawnAfter lists (session.ts):
+ * entering a journey, which starts again from the strand, discovering a place, and the journey saving itself because
+ * something happened. The timed autosave does not ask it.
+ */
 export function checkpointAllowed(x: number, z: number, livingFoes: Iterable<{ x: number; z: number }>, undefeatedPosts: Iterable<{ x: number; z: number }>): boolean {
   for (const foe of livingFoes) if (Math.hypot(foe.x - x, foe.z - z) < CHECKPOINT_CLEARANCE) return false;
   for (const post of undefeatedPosts) if (Math.hypot(post.x - x, post.z - z) < CHECKPOINT_CLEARANCE) return false;
@@ -47,9 +52,25 @@ export const UNDER_WORLD = { depth: 1.2, seconds: 0.35 } as const;
 export const WITNESSES: readonly NpcId[] = ['shrine_warden', 'spring_steward'];
 export const WITNESS_REACH = 15;
 
-/** Whether this resident, `distance` from the act, could have seen it; line of sight is the caller's to check. */
+/** Whether this resident, `distance` from the act, could have seen it, before line of sight (witnessesOf asks that too). */
 export function couldWitness(id: NpcId, distance: number, present: boolean, asleep: boolean, available: boolean): boolean {
   return present && !asleep && available && WITNESSES.includes(id) && distance <= WITNESS_REACH;
+}
+
+/** A resident as a possible witness. */
+export interface WitnessFacts { id: NpcId; x: number; z: number; present: boolean; asleep: boolean; available: boolean }
+
+/**
+ * Who saw an act at (x, z): those who could witness it (couldWitness) with nothing that stands in the way between them
+ * and it, judged on the ground plan: any active obstacle on the line hides the act, whatever its height.
+ */
+export function witnessesOf(x: number, z: number, residents: Iterable<WitnessFacts>, colliders: Pick<Colliders, 'segmentBlocked'>): NpcId[] {
+  const seen: NpcId[] = [];
+  for (const n of residents) {
+    if (!couldWitness(n.id, Math.hypot(n.x - x, n.z - z), n.present, n.asleep, n.available)) continue;
+    if (!colliders.segmentBlocked(n.x, n.z, x, z, new Set<string>())) seen.push(n.id);
+  }
+  return seen;
 }
 
 /** Two residents' talk is overheard from within this distance of the midpoint between them (m). */
@@ -59,8 +80,13 @@ export const SPEECH_SOON_REACH = 30;
 /** Below this share of his health the wanderer's breath gives out. */
 export const WOUNDED_BELOW = 0.3;
 
-/** The drought bell: rung this often (s) while the drought holds, heard out to `reach` (m), strikes this far apart (ms). */
-export const DROUGHT_BELL = { every: 42, reach: 220, strikeGapMs: 1400, allClearGapMs: 600, strikes: 2, allClearStrikes: 3 } as const;
+/** The drought bell: thought of first this long into a sitting (s), then rung this often (s) while the drought holds, heard out to `reach` (m), strikes this far apart (ms). */
+export const DROUGHT_BELL = { first: 3, every: 42, reach: 220, strikeGapMs: 1400, allClearGapMs: 600, strikes: 2, allClearStrikes: 3 } as const;
+
+/** Seconds until the bell is next thought of: its interval while the drought holds, and as good as never otherwise (it is asked again when the world changes). */
+export function bellWait(drought: boolean): number {
+  return drought ? DROUGHT_BELL.every : 9999;
+}
 
 /** How loud the bell is `distance` metres away, 0 to 1. */
 export const bellGain = (distance: number): number => Math.max(0, 1 - distance / DROUGHT_BELL.reach);

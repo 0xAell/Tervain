@@ -6,6 +6,8 @@ Status: **owner-established hold on the `0.0.x` line; proposed quality evidence 
 
 `package.json` is the version source. The running title screen, debug/benchmark reports, and save build stamp use the same injected package version. Do not maintain separate hand-edited runtime version strings. Save schema compatibility remains controlled by `SAVE_FORMAT_VERSION`; the stable content identifier is separate, and changing the visible build number does not itself invalidate an existing save.
 
+A GitHub release is tagged at notable milestones, not at every version: adding a [release record](releases) for a version tags the latest commit of `main` whose checks passed (the *Release* workflow), as a pre-release while the `0.0.x` hold lasts. [`v0.0.48`](releases/0.0.48.md), on 16 November 2026, is the first since `v0.0.5`.
+
 The browser app is the only current game build target. `npm run dev`, `npm run build`, and `npm run preview` use the same version; the Pages workflow builds the guarded `dist/` artifact, and publishes `main` to GitHub Pages. There is no desktop package or separate release artifact to version yet.
 
 ## Proposed evidence for 0.1.0

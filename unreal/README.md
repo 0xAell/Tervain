@@ -22,7 +22,7 @@ from Fab (`.gitignore` here ignores `Content/`).
 | `Source/Tervain.Target.cs`, `Source/TervainEditor.Target.cs` | Game and editor build targets. |
 | `Source/Tervain/Tervain.Build.cs` | The module's dependencies: Core, CoreUObject, Engine, DeveloperSettings, Json. |
 | `Source/Tervain/Public/Data/TervainRows.h` | **Generated.** One row struct per DataTable under `data/unreal/`, with the enums and nested structs they use. Written by `npm run data:export` from `src/core/export/unrealTables.ts`; do not edit it. |
-| `Source/Tervain/Public/Data/TervainIds.h` | **Generated.** The core's ids as constants: items, residents, hostiles and their posts, animal species, places, buildings, and the quest's phases, evidence, allocations, gate states and parties, with the save format version and content revision. Written by the same export from `src/core/export/unrealIds.ts`; do not edit it. Name an id through it (`FName(TervainIds::Item::Bread)`) so that an id the core renames stops the build instead of failing to find a row. |
+| `Source/Tervain/Public/Data/TervainIds.h` | **Generated.** The core's ids as constants: items, residents, hostiles and their posts, animal species, places, buildings, and the quest's phases, evidence, allocations, gate states, parties, principals and decision makers, with four single values: the save format version, the content revision, the number of quick slots and the pickup that gives the first weapon. Written by the same export from `src/core/export/unrealIds.ts`; do not edit it. Name an id through it (`FName(TervainIds::Item::Bread)`) so that an id the core renames stops the build instead of failing to find a row. |
 | `Source/Tervain/Public/TervainUnits.h` | Conversions between the core's units (metres, radians, x east, y up, z south) and Unreal's (centimetres, degrees, X east, Y south, Z up). |
 | `Source/Tervain/Public/TervainSettings.h` | Project settings: where the exported data folder is, and which DataTable asset holds each table. |
 | `Source/Tervain/Public/TervainDataSubsystem.h` | A game-instance subsystem that reads `data/game/tuning.json` and finds rows in the imported tables. |
@@ -63,8 +63,8 @@ agreeing, and the CI job *Unreal seed* (`.github/workflows/unreal-seed.yml`) run
 - **Generated files.** `data/`, `TervainRows.h` and `TervainIds.h` are exactly what the core's export writes today
   (`npm run data:export` rewrites them; `tests/core/dataExport.test.ts` makes the same comparison in the test run).
 - **Ids.** `tests/tools/unrealDrift.test.ts` takes the ids from the core's own modules and compares them with
-  `TervainIds.h`: every group, every id, the constant's name, the order, the save format version and the content
-  revision. It compiles the header and compares the values the C++ holds. Entity groups must equal the row names of
+  `TervainIds.h`: every group, every id, the constant's name, the order, and the four single values (the save format
+  version, the content revision, the number of quick slots and the first weapon's pickup). It compiles the header and compares the values the C++ holds. Entity groups must equal the row names of
   the table they point at. The test also alters copies of the header (an id renamed, removed, added, reordered, a
   stale version) and requires each to be reported.
 - **Tables.** `tests/tools/unrealSkeleton.test.ts` checks that every row has exactly its struct's members with values
@@ -83,17 +83,45 @@ can. Both use an ordinary C++ compiler and small stand-ins for the engine names 
 (`tests/tools/unreal-standin`):
 
 - `tests/tools/unrealSeedBuild.test.ts` compiles **every source file of the module** with warnings as errors, links
-  them, and runs the result against the repository's exported data. The data subsystem must read each of the 179
-  numbers in `data/game/tuning.json` to the value in the file, give the default for a path that names no number, and
+  them, and runs the result against the repository's exported data. The data subsystem must read every number in
+  `data/game/tuning.json` to the value in the file, give the default for a path that names no number, and
   log a warning when the data folder is not where the settings point. The settings must find `data/` beside the
   project, and a row must be found by name in the table the settings name. Every generated row struct is made.
 - `tests/tools/unrealRulesParity.test.ts` runs the two mirrored rules and the unit conversions on a few thousand
   cases and compares every result with the TypeScript rule it mirrors.
 
 That shows the seed's C++ is well-formed and consistent with itself, and that its logic gives the right answers on
-the real data. It does **not** show that the project builds in Unreal Engine. The stand-ins were written from the
-engine's public API as it was understood here, not from the engine's headers, and they were not checked against
-Epic's API reference. The reflection markup (`UCLASS`, `USTRUCT`, `UPROPERTY`, the `.generated.h` headers), the build
-files (`.Build.cs`, `.Target.cs`) and the `.uproject` are read only by the engine's own tools. The first build on a
-machine with the engine is still the first real test, and a wrong signature or a missing include can still turn up
-there.
+the real data. It does **not** show that the project builds in Unreal Engine.
+
+### How far the engine's public record supports it
+
+Epic's engine source is not public, so the stand-ins could not be written from the engine's headers. Instead, every
+engine name the seed and the stand-ins use is entered in a register,
+[`docs/unreal/engine-symbols.json`](../docs/unreal/engine-symbols.json), with the page of Epic's documentation it was
+checked against and the passage that supports it (for the one rule of the C++ language it relies on, the C++20 working
+draft, the standard Epic says the engine builds with). [The page made from it](../docs/unreal/engine-symbols.md) lists
+them all, and first the ones the public record does not settle.
+
+- Of 196 names, 188 are confirmed by a quoted passage, 6 are documented in part, one could not be found, and one, the
+  game module macro, is shown with a different argument list on the only page that shows it, a page that reads as
+  dated. Each of the eight says what is missing; none can be settled from public pages, only by a build.
+- The check corrected the stand-ins in four places where they did not behave as the engine is documented to (a JSON
+  field name is a string view, names compare without regard to case, a default-constructed vector is not zeroed, and
+  a relative path is resolved against the process's base directory), and the seed in five (it calls the rounding
+  function whose rounding is documented, names the JSON reader's character type, includes the documented header of
+  every engine name it uses instead of relying on what another header brings in, passes every argument of the file,
+  JSON and asset loading calls because the reference prints no default values, and declares its log category in the
+  form Epic's logging guide gives).
+- The stand-ins' character type is wide, as Epic documents TCHAR, so a narrow string passed where the engine wants
+  TCHARs does not compile here.
+- The stand-ins are stricter than the engine about includes: `CoreMinimal.h` gives only the primitive types and the
+  reflection markup, so a source file that forgets a header does not compile here.
+- `npm run unreal:symbols` fails when the seed or a stand-in uses an engine name that is not entered, and
+  `npm run unreal:symbols -- --online` opens every cited page again and looks for each passage. `npm run unreal:check`
+  includes the first.
+
+What this cannot reach: the reflection markup (`UCLASS`, `USTRUCT`, `UPROPERTY`, the `.generated.h` headers), the
+build files (`.Build.cs`, `.Target.cs`) and the `.uproject` are read only by the engine's own tools; the reference
+documents no macros; and the seed targets Unreal Engine 5.9, whose API reference was
+not published when this was checked, so the 5.8 reference was read. The first build on a machine with the engine is
+still the first real test.

@@ -47,11 +47,16 @@ vi.mock('../../src/presentation/actors', () => ({
     }
   },
   EnemyActor: class {
+    id: string;
     rig = { root: new THREE.Group() };
-    constructor() {
+    resumed: unknown[] = [];
+    constructor(spawn: { id: string }) {
+      this.id = spawn.id;
       this.rig.root.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial()));
       stagedActors.roots.push(this.rig.root);
     }
+    moment() { return { id: this.id, body: this.rig.root.uuid }; }
+    resume(moment: unknown) { this.resumed.push(moment); }
   },
 }));
 vi.mock('../../src/presentation/menuScene', () => ({
@@ -450,7 +455,7 @@ describe('actual application world transitions', () => {
     expect(app.input.uiOpen).toBe(true);
   });
 
-  it.each(['draw', 'release', 'skinning'] as const)('opening a panel cancels active %s without spending an arrow or granting loot', (action) => {
+  it.each(['draw', 'release'] as const)('opening a panel lets an active %s down without spending an arrow', (action) => {
     const f = fixture();
     Object.assign(f.app, { uiRoot: new ElementFixture('DIV'), mapView: {} });
     f.call('buildShell');
@@ -462,13 +467,30 @@ describe('actual application world transitions', () => {
     f.hunting.afterWorld(.2, true);
     expect(f.hunting.controls).toHaveBeenCalledExactlyOnceWith(0, false);
     expect(f.hunting.isDrawing).toBe(false);
-    expect(f.app.player.cancelSkinning).toHaveBeenCalledOnce();
-    expect(f.app.player.channel).toBeNull();
-    expect(f.app.audio.stopHuntingSounds).toHaveBeenCalledWith(action === 'skinning' ? 'skinning' : 'bow_draw');
+    expect(f.app.audio.stopHuntingSounds).toHaveBeenCalledWith('bow_draw');
     expect(f.app.audio.setWildlifeActive).toHaveBeenCalledExactlyOnceWith(false);
     expect(f.app.cam.setAiming).toHaveBeenLastCalledWith(false);
     expect(f.app.game.state.inventory).toEqual(inventory);
     expect(f.hunting.arrows.activeCount).toBe(0);
+  });
+
+  it('holds a skinning where it is behind a panel, as every channel is held, and grants nothing until it is done', () => {
+    const f = fixture();
+    Object.assign(f.app, { uiRoot: new ElementFixture('DIV'), mapView: {} });
+    f.call('buildShell');
+    const inventory = startHunting(f, 'skinning');
+    const channel = f.app.player.channel;
+    f.app.panels.isOpen = true;
+    Reflect.get(f.app.panels, 'onOpen')();
+    f.hunting.afterWorld(.2, false);
+    f.app.panels.isOpen = false; f.input.uiOpen = false;
+    f.hunting.afterWorld(.2, true);
+    expect(f.hunting.controls).toHaveBeenCalledExactlyOnceWith(0, false);
+    expect(f.app.player.cancelSkinning).not.toHaveBeenCalled();
+    expect(f.app.player.channel).toBe(channel);
+    expect(f.app.player.channel).toMatchObject({ kind: 'skinning', t: .5 });
+    expect(f.app.audio.stopHuntingSounds).not.toHaveBeenCalledWith('skinning');
+    expect(f.app.game.state.inventory).toEqual(inventory);
   });
 
   it.each(['draw', 'release', 'skinning'] as const)('a graphics pause resets active %s and its pending effects before any rebuilt frame', (action) => {
@@ -587,9 +609,14 @@ describe('actual application world transitions', () => {
     expect(app.loadingEl.classList.contains('off')).toBe(false);
     expect(app.input.uiOpen).toBe(true);
     call('step', 1 / 60); expect(intermediate.syncStatic).not.toHaveBeenCalled();
+    // Each hostile of the rebuilt world takes up the fight of the one it replaces (the core's HostileMoment).
+    type Fake = { id: string; moment(): unknown; resumed: unknown[] };
+    const fights = (Reflect.get(app, 'enemies') as Fake[]).map((enemy) => [enemy.id, enemy.moment()]);
+    expect(fights.length).toBeGreaterThan(0);
     const latest = nextWorld(); high.resolve(latest as unknown as WorldScene);
     await finishReload(app);
     expect(app.world).toBe(latest); expect(latest.dispose).not.toHaveBeenCalled();
+    expect((Reflect.get(app, 'enemies') as Fake[]).map((enemy) => [enemy.id, enemy.resumed])).toEqual(fights.map(([id, moment]) => [id, [moment]]));
     expect(app.loadingEl.classList.contains('off')).toBe(true);
   });
 
@@ -951,10 +978,10 @@ describe('shell corrections (A70)', () => {
     const inside = { ...nextWorld(), occupiesArchive: () => true, playerInArchive: false };
     vi.spyOn(WorldScene, 'create').mockResolvedValue(inside as unknown as WorldScene);
     let seen: boolean | null = null;
-    const sync = Reflect.get(app, 'syncWorldFromState') as (restore?: boolean) => void;
-    Reflect.set(app, 'syncWorldFromState', function (this: object, restore?: boolean) {
-      if (restore) seen = (Reflect.get(app, 'world') as unknown as { playerInArchive: boolean }).playerInArchive;
-      return sync.call(this, restore);
+    const sync = Reflect.get(app, 'syncWorldFromState') as (...args: unknown[]) => void;
+    Reflect.set(app, 'syncWorldFromState', function (this: object, ...args: unknown[]) {
+      seen = (Reflect.get(app, 'world') as unknown as { playerInArchive: boolean }).playerInArchive;
+      return sync.call(this, ...args);
     });
     app.settings.quality = app.settings.quality === 'low' ? 'high' : 'low';
     call('applySettings', true);

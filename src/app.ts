@@ -6,35 +6,35 @@ import { pruneContentCache } from './presentation/assets/download';
 import { prefetchJourney, warmJourney } from './presentation/journeyPrefetch';
 import * as THREE from 'three';
 import { beginStaticSkinFrame, endStaticSkinFrame } from './presentation/npc/dualQuaternionSkinning';
-import { NPCS } from './core/content/npcs';
-import { SCENE_REACH, SCENES, SPEAKER_NAMES, VOICE_LINES, inHours, shown, type HeroCue } from './core/content/voice';
+import { figureScale, NPCS } from './core/content/npcs';
+import { SPEAKER_NAMES, VOICE_LINES, shown, type HeroCue } from './core/content/voice';
 import { S } from './core/content/strings';
-import { CLOCK_RATE } from './core/game/constants';
+import { CLOCK_RATE, RITE_CALM_MIN } from './core/game/constants';
 import { Game } from './core/game/game';
 import { nextHint } from './core/game/hints';
-import { huntingHint, restockParams } from './core/game/hunting';
+import { restockParams } from './core/game/hunting';
 import { INSPECT_POINTS } from './core/content/inspect';
-import { ITEMS, itemAction } from './core/content/items';
-import { hasFact, hourOfDay, evalAll, createInitialState, formatClock, clockDay } from './core/game/state';
-import { EVIDENCE_IDS, type Allocation, type Command, type GameEvent, type ItemId, type NpcId, type PlaceId, type WorldState } from './core/game/types';
+import { HEAL_KEY_ITEM, ITEMS, itemAction } from './core/content/items';
+import { hourOfDay, createInitialState, formatClock, clockDay } from './core/game/state';
+import { EVIDENCE_IDS, QUICK_SLOT_COUNT, type Allocation, type GameEvent, type ItemId, type NpcId, type PlaceId, type WorldState } from './core/game/types';
 import { Input } from './platform/input';
 import { FrameClock, MotionInterpolation, SIM_CATCH_UP, SIM_STEP, cappedFrame } from './platform/frameTiming';
 import { waitForGraphicsReady } from './platform/graphicsReady';
+import { testControlsOffered } from './platform/diagnostics';
 import { prepareSceneTextures } from './platform/prepareSceneTextures';
 import { codeLabel, loadSettings } from './platform/settings';
 import { BrowserStore, SaveStore, type SlotId } from './platform/storage';
 import { ENEMY_SPAWNS, PLACES, SPAWN, type V2 } from './core/world/layout';
-import { MOUNT_STAMINA } from './core/rules/riding';
-import { coastX } from './core/world/coast';
-import { canPlayerStandAt, PLAYER_BODY_RADIUS, supportedPlayerHeight } from './core/world/playerPlacement';
+import { PLAYER_BODY_RADIUS } from './core/world/playerPlacement';
 import { EnemyActor, NpcActor, type ActorContext, type EnemyContext } from './presentation/actors';
 import { AudioEngine } from './presentation/audio';
 import { SpeechDirector } from './presentation/speech';
-import { threatFrom } from './core/rules/music';
-import { windTone } from './core/rules/soundscape';
+import { eventSting, fightWon, threatFrom } from './core/rules/music';
+import { seaBedNearness, windTone } from './core/rules/soundscape';
 import { CameraRig } from './presentation/cameraRig';
 import { NearFade, heroNearCoverage } from './presentation/nearFade';
 import { Grade, WORLD_EXPOSURE } from './presentation/grade';
+import { MENU_LOOK } from './core/content/look';
 import { buildInteractables, type Interactable } from './presentation/interactions';
 import { chooseInteractable } from './core/rules/interaction';
 import { Player } from './presentation/player';
@@ -69,9 +69,23 @@ import { installDepthOnlyShadowPass } from './presentation/softShadows';
 import { setHighLodBands, setHighLodSpecies } from './presentation/floraPopulation';
 import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
-import { AUTOSAVE_SECONDS, bellGain, checkpointAllowed, couldWitness, DEATH, DROUGHT_BELL, HIT_STOP, noThreatNear, OVERHEAR_REACH, SPEECH_SOON_REACH, UNDER_WORLD, WOUNDED_BELOW } from './core/rules/journey';
+import { handsForCargo, keepsHold } from './core/rules/cargo';
+import {
+  BUBBLE, bubbleMs, CLEARING_FOE, dayPartCue, defeatRemark, eventRemarks, HERO_CUE_AGAIN, HERO_CUE_DELAY, SCENE_CHECK_SECONDS, scenesInEarshot, stopsToTalk, trespassOutcry, UNNOTED_LOSSES, warCry,
+  woundedNow,
+} from './core/rules/speech';
+import { fightingFoes } from './core/rules/residentWalk';
+import { RESIDENT } from './core/rules/resident';
+import { MOUNT_ID } from './core/rules/interactables';
+import { AUTOSAVE_SECONDS, bellGain, bellWait, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH, witnessesOf } from './core/rules/journey';
+import {
+  archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveAt, autosaveDue, awaitedMountLapsed, momentOf, WHAT_RUNS, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
+  journeyBegun, arrivesInView, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
+  STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING, type AutosaveMoment, type RespawnMoment, type RespawnPoint,
+} from './core/rules/session';
 import { STAMINA_MAX } from './core/rules/hero';
 import { CAMERA } from './core/rules/camera';
+import { banditScale, ENEMY_VARIANT } from './core/content/enemies';
 
 /** How far round the line from the camera to the wanderer leaves give way (A84), metres. */
 const FOLIAGE_FOCUS_RADIUS = 1.3;
@@ -84,8 +98,8 @@ const PANEL_SCROLL = { dead: 0.2, speed: 900 } as const;
  */
 export function quickSlotPressed(pressedKey: (code: string) => boolean, bindings: Readonly<Record<string, readonly string[]>>): number | null {
   const bound = new Set(Object.values(bindings).flat());
-  for (let slot = 0; slot < 10; slot++) {
-    const key = (slot + 1) % 10;
+  for (let slot = 0; slot < QUICK_SLOT_COUNT; slot++) {
+    const key = (slot + 1) % QUICK_SLOT_COUNT;
     if ([`Digit${key}`, `Numpad${key}`].some((code) => !bound.has(code) && pressedKey(code))) return slot;
   }
   return null;
@@ -103,7 +117,6 @@ export class App {
   renderer!: THREE.WebGLRenderer;
   grade!: Grade;
   private lastFrameDt = 1 / 60;
-  /** Whether this step is the frame's last, which draws the picture and the HUD (a slow frame is caught up in several). */
   world!: WorldScene;
   private menuScene!: MenuScene;
   private menuVisitActive = false;
@@ -115,7 +128,8 @@ export class App {
   private treeTemplates: MeshyTreeTemplates | undefined;
   /** The stag that grazes across the title meadow: the same template the wildlife uses later, loaded once. */
   private menuDeer: { template: GLTF; definition: AnimalDefinition } | undefined;
-  private static readonly MENU_DEER_ID = '1005232412';
+  /** The title's stag is the saddled deer's model. */
+  private static readonly MENU_DEER_ID = MOUNT_ID;
   private npcAssets: MeshyNpcCatalog | null = null;
   /** The residents' catalog on its way: only the near ones' models before the world opens (stage 2). */
   private npcAssetsLoad: Promise<void> | null = null;
@@ -161,11 +175,13 @@ export class App {
   private menuSceneDisposed = false;
   private rebuildRetry: HTMLButtonElement | null = null;
   private rebuildFocus: HTMLElement | null = null;
+  /** Game minutes passed and not yet on the clock; when they are due is the core's (core/rules/session.ts). */
   private clockAcc = 0;
   private worldDirty = true;
   private inventoryNotesChanged = false;
-  private bellClock = 4;
-  private checkpoint: { x: number; y?: number; z: number; yaw: number } = { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw };
+  private bellClock: number = DROUGHT_BELL.first;
+  /** Where a fall brings him back; when it moves is the core's (respawnAfter). */
+  private checkpoint: RespawnPoint = { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw };
   private hitStop = 0;
   private deathRemaining = 0;
   private qualityReload: Promise<void> | null = null;
@@ -201,7 +217,6 @@ export class App {
   private wasNight: boolean | null = null;
   private vignetteLevel = 0;
   private wantPlayLock = false;
-  captionsEnabled = true;
   private hunting = new HuntingController(this, () => this.mode === 'play' && this.overlay === 'none' && !this.worldPaused && document.visibilityState !== 'hidden');
 
   constructor(private canvas: HTMLCanvasElement, private uiRoot: HTMLElement) {}
@@ -274,7 +289,7 @@ export class App {
     });
     document.addEventListener('keydown', (e) => this.onUiKey(e), true);
     // Save on backgrounding, and freeze simulation/audio even if the browser still calls RAF.
-    window.addEventListener('pagehide', () => this.autosaveQuiet());
+    window.addEventListener('pagehide', () => this.autosaveQuiet('pageLeft'));
     document.addEventListener('visibilitychange', () => {
       const hidden = document.visibilityState === 'hidden';
       this.frameClock.setHidden(hidden);
@@ -283,7 +298,7 @@ export class App {
       if (hidden) {
         this.hunting.controls(0, false);
         this.clearSpeech(true);
-        this.autosaveQuiet();
+        this.autosaveQuiet('pageLeft');
         if (this.mode === 'play' && this.overlay === 'none' && !this.bench.active) this.openPause();
       }
     });
@@ -312,8 +327,8 @@ export class App {
     }
   }
 
-  /** True in a ?shot capture, which must not pause over its view. */
-  private capturing = false;
+  /** True in a ?shot capture: it must not pause over its view, keeps its preset's resolution, and never saves. */
+  private readonly capturing = typeof location !== 'undefined' && new URLSearchParams(location.search).has('shot');
 
   /**
    * Developer aid: `?shot=1&place=rillford&yaw=0.6&pitch=0.3&dist=12&hour=11&hud=0` starts a new game, frames a
@@ -322,7 +337,6 @@ export class App {
   private applyShotParams() {
     const q = new URLSearchParams(location.search);
     if (!q.has('shot')) return;
-    this.capturing = true;
     const num = (k: string, d: number) => (q.has(k) ? Number(q.get(k)) : d);
     this.quietStart = true;
     this.startNew();
@@ -465,7 +479,7 @@ export class App {
       personBuildOptions.sheetSize = this.settings.quality === 'low' ? 512 : 1024;
       // Stage private Meshy rigs before the world adopts them, so a failed build can release the complete cast.
       for (const definition of Object.values(NPCS)) {
-        const height = definition.look.height * (npcStyle(definition.id).build === 'woman' ? 0.94 : 1);
+        const height = figureScale(definition.look.height, npcStyle(definition.id).build === 'woman');
         const role = `named:${definition.id}`, arrived = cast.has(role);
         // Someone whose model is still on its way keeps their schedule unseen and cannot be met until it is here (stage 2).
         const npc = new NpcActor(definition, arrived ? cast.create(role, height) : cast.standIn(role, height), arrived);
@@ -475,8 +489,8 @@ export class App {
           adopt: (catalog, rig) => npc.adoptRig(rig ?? catalog.create(role, height)), make: (catalog) => catalog.createSteps(role, height) });
       }
       for (const spawn of ENEMY_SPAWNS) {
-        const variant = spawn.id === 'ford_bandit_b' ? 1 : 0;
-        const role = `enemy:${spawn.id}`, scale = 1.04 + variant * 0.05, arrived = spawn.kind === 'thornback' || cast.has(role);
+        const variant = ENEMY_VARIANT[spawn.id] ?? 0;
+        const role = `enemy:${spawn.id}`, scale = banditScale(variant), arrived = spawn.kind === 'thornback' || cast.has(role);
         const rig = spawn.kind === 'thornback' ? undefined : arrived ? cast.create(role, scale, 'blade') : cast.standIn(role, scale, 'blade');
         // A bandit still waiting for their model is out of every fight until it is here (stage 2).
         const enemy = new EnemyActor(spawn, rig, arrived);
@@ -513,7 +527,7 @@ export class App {
       // A new world must know who is in the archive before its door and shutter close: one rebuilt with the player inside
       // a reported archive locked them in (A93 scout).
       this.world.playerInArchive = this.archiveWasOccupied = this.world.occupiesArchive(this.player.x, this.player.z, PLAYER_BODY_RADIUS);
-      this.syncWorldFromState(true);
+      this.syncWorldFromState();
       // Settle any provisional hero/procedural-tool sheets; imported NPC surfaces are already baked and loaded.
       await sheetsSettled();
       this.rebuildPropPoses = null;
@@ -845,8 +859,6 @@ export class App {
 
   private renderScaleState: RenderScale | null = null;
   private get renderScale(): RenderScale { return this.renderScaleState ??= new RenderScale(); }
-  /** Captures (?shot) keep the preset's resolution, so their pictures compare. */
-  private get shotMode(): boolean { return typeof location !== 'undefined' && new URLSearchParams(location.search).has('shot'); }
 
   private applyPixelRatio() {
     const q = this.settings.quality;
@@ -913,7 +925,11 @@ export class App {
           continue;
         }
         const riding = this.player.mount?.id ?? null;
+        // A rebuild changes how the world looks, not where a fight stands (the core's HostileMoment): each hostile takes
+        // up its fight again in the rebuilt world instead of standing whole at its post.
+        const fights = new Map(this.enemies.map((enemy) => [enemy.id, enemy.moment()]));
         await this.buildWorld();
+        for (const enemy of this.enemies) { const moment = fights.get(enemy.id); if (moment) enemy.resume(moment); }
         // The player rig and action state survive graphics rebuilds; do not rewind to a stale pre-load transform.
         const safe = this.safePosition(this.player.x, this.player.z, this.player.y);
         if (safe.x !== this.player.x || safe.z !== this.player.z) {
@@ -1028,8 +1044,8 @@ export class App {
     this.speech.forget();
     this.beginPlay(null);
     if (!this.quietStart) {
-      this.speech.hero('arrival', { delay: 3 });
-      this.speech.hero('arrival.bell', { delay: 11 });
+      this.speech.hero('arrival', { delay: HERO_CUE_DELAY.arrival });
+      this.speech.hero('arrival.bell', { delay: HERO_CUE_DELAY.arrivalBell });
     }
     // A brief notice leaves movement, look and the world clock running. The journal keeps the premise.
     this.hud.toast(S('arrival.wake'));
@@ -1065,10 +1081,10 @@ export class App {
     this.placePlayerForEntry(fromLoad);
     this.clockAcc = 0;
     this.hitStop = this.deathRemaining = 0;
-    this.bellClock = 3;
+    this.bellClock = DROUGHT_BELL.first;
     // A fresh session waits a full interval: the last session's leftover countdown would otherwise autosave a just-loaded
     // older slot over the newer auto slot within a second (A71).
-    this.autosaveTimer = AUTOSAVE_SECONDS;
+    this.autosaveTimer = ENTRY_RESTORES.autosaveSeconds;
     if (fromLoad?.recovered) this.hud.toast(S(`menu.recovered.${fromLoad.recovered}`));
     if (this.settings.reducedMotion) this.hud.setVignette(0);
     this.canvas.focus?.({ preventScroll: true });
@@ -1082,14 +1098,14 @@ export class App {
     // The archive's door and shutter are set for where he arrives, not where he stood before the load (A101 scout: a load
     // into a sealed archive from outside closed them round him; the reverse left them open).
     this.world.playerInArchive = this.world.occupiesArchive(arrival.x, arrival.z, PLAYER_BODY_RADIUS);
-    this.syncWorldFromState(true, arrival);
+    this.syncWorldFromState(arrival);
     const safe = this.safePosition(p.x, p.z, p.y);
     const start = fresh ? { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw } : { x: safe.x, z: safe.z, yaw: p.yaw };
     this.pendingMount = !fresh && typeof p.mount === 'string' ? { id: p.mount, x: start.x, z: start.z } : null;
     this.player.setPosition(start.x, start.z, start.yaw, this.world.terrain, fresh ? undefined : safe.y, !fresh && safe.afloat === true);
     if (!fresh) {
-      const top = this.world.physics.supportAt(start.x, start.z, p.y);
-      if (top !== null && Math.abs(top - p.y) < .12) {
+      const top = trustedPropTop(this.world.physics.supportAt(start.x, start.z, p.y), p.y);
+      if (top !== null) {
         // A restored loose body can be buried by newer terrain. Its saved contact must
         // never lower the safe standing/swimming height resolved above.
         this.player.y = Math.max(this.player.y, top);
@@ -1098,7 +1114,7 @@ export class App {
     }
     // Whatever the save held, he is never rebuilt beneath the land unless he is swimming or in the archive.
     const floor = this.world.terrain.groundAt(start.x, start.z);
-    if (!fresh && !safe.afloat && !this.world.playerInArchive && this.player.y < floor - 0.3) {
+    if (!fresh && buriedOnEntry(this.player.y, floor, { afloat: safe.afloat === true, inArchive: this.world.playerInArchive })) {
       this.player.y = floor;
       this.player.rig.root.position.y = floor;
     }
@@ -1106,16 +1122,15 @@ export class App {
     this.cam.yaw = start.yaw;
     this.cam.reset();
     this.player.group.visible = true;
-    this.cam.pitch = 0.3;
+    this.cam.pitch = CAMERA.entryPitch;
     // A load is a fresh start for the body too: rested, the deer's wind whole (A95 scout: exhaustion carried over).
-    this.player.stamina = 100;
-    this.player.exhausted = false;
-    this.player.mountStamina = MOUNT_STAMINA.max;
-    this.player.mountSpent = false;
+    this.player.stamina = ENTRY_RESTORES.stamina;
+    this.player.exhausted = ENTRY_RESTORES.exhausted;
+    this.player.mountStamina = ENTRY_RESTORES.mountStamina;
+    this.player.mountSpent = ENTRY_RESTORES.mountSpent;
     // Where a fall brings him back follows the checkpoint rule (A95 scout): a save made beside a foe's post made that post
     // his respawn point, a death loop. Away from any, the loaded place serves; otherwise the strand.
-    this.checkpoint = { x: SPAWN.x, z: SPAWN.z, yaw: SPAWN.yaw, y: this.world.terrain.groundAt(SPAWN.x, SPAWN.z) };
-    this.markCheckpoint();
+    this.markCheckpoint('entry');
     // Who is in the archive is read from where the load put him, not kept from before it (A95 scout: a false "sealed" toast).
     const occupied = this.world.occupiesArchive(this.player.x, this.player.z, PLAYER_BODY_RADIUS);
     // Set down somewhere safer than the saved spot: the door follows him there too.
@@ -1132,9 +1147,9 @@ export class App {
    */
   private recoverFromUnderWorld(dt: number) {
     const p = this.player, terrain = this.world.terrain;
-    const below = !p.swimming && !this.world.playerInArchive && !p.mount && p.y < terrain.groundAt(p.x, p.z) - UNDER_WORLD.depth;
-    this.underWorld = below ? this.underWorld + dt : 0;
-    if (this.underWorld < UNDER_WORLD.seconds) return;
+    const below = belowTheWorld({ y: p.y, ground: terrain.groundAt(p.x, p.z), swimming: p.swimming, inArchive: this.world.playerInArchive, riding: !!p.mount });
+    this.underWorld = underWorldSeconds(this.underWorld, dt, below);
+    if (!recoversFromUnderWorld(this.underWorld)) return;
     this.underWorld = 0;
     const safe = this.safePosition(p.x, p.z);
     p.setPosition(safe.x, safe.z, p.yaw, terrain, safe.y);
@@ -1143,51 +1158,27 @@ export class App {
   }
 
   private safePosition(x: number, z: number, feetY?: number): V2 & { y: number; afloat?: boolean } {
-    const { terrain, colliders } = this.world;
-    if (canPlayerStandAt(terrain, colliders, x, z, feetY)) return { x, z, y: supportedPlayerHeight(terrain, x, z, feetY) };
-    // A swimmer is saved and rebuilt where he swims, not carried ashore (A70).
-    const water = this.world.water?.world.sample(x, z);
-    // Only real water over the ground, and never a saved height beneath it (0.0.17: a Continue rebuilt him under the land).
-    const ground = terrain.groundAt(x, z);
-    if (water && water.depth > 0.9 && water.surface > ground + 0.9 && !colliders.blocked(x, z, PLAYER_BODY_RADIUS)) {
-      return { x, z, y: Math.max(ground, Math.min(feetY ?? water.surface - 1.1, water.surface - 0.2)), afloat: true };
-    }
-    const cell = this.world.nav.nearestOpen(x, z, 10);
-    const position = cell ? this.world.nav.cellCenter(cell.i, cell.j) : { x: SPAWN.x, z: SPAWN.z };
-    return { ...position, y: terrain.groundAt(position.x, position.z) };
+    // Where he can stand, there; where he swam, there, afloat (A70); else the nearest open ground, else the strand.
+    const { terrain, colliders, nav } = this.world;
+    return safePlace({ terrain, colliders, nav, waterAt: (wx, wz) => this.world.water?.world.sample(wx, wz) }, x, z, feetY);
   }
 
   quitToTitle() {
     if (this.worldPaused) return;
-    this.autosaveQuiet();
+    this.autosaveQuiet('toTitle');
     this.enterTitle();
   }
 
   /** `hunter` is where he will stand: on a load, the saved spot rather than wherever he stood before it (A101 scout). */
-  private syncWorldFromState(snap: boolean, hunter: { x: number; z: number } = this.player) {
+  private syncWorldFromState(hunter: { x: number; z: number } = this.player) {
     // The actors are set from the state: their sounds must not hear that as something happening (A89 scout).
-    if (snap) this.audio?.forgetActors?.();
+    this.audio?.forgetActors?.();
     this.player.syncEquipment(this.game);
-    this.world.syncStatic(this.game.state, snap);
+    this.world.syncStatic(this.game.state, true);
     this.world.animals?.syncHunting(this.game.state.hunting, true, { x: hunter.x, z: hunter.z });
     const ctx = this.actorContext();
     for (const n of this.npcs) n.snapToGoal(ctx);
-    for (const e of this.enemies) {
-      if (this.game.state.defeated[e.id]) {
-        e.state = 'dead';
-        e.fade = 0;
-        e.rig.root.visible = false;
-      } else {
-        e.state = 'idle';
-        e.engaged = false;
-        e.hp = e.maxHp;
-        e.x = e.spawn.x;
-        e.z = e.spawn.z;
-        e.fade = 1;
-        e.rig.root.visible = true;
-        e.rig.body.rotation.set(0, 0, 0);
-      }
-    }
+    for (const e of this.enemies) e.restore(this.game.state.defeated[e.id] === true);
     this.worldDirty = false;
     this.interactables = buildInteractables(this);
   }
@@ -1213,7 +1204,7 @@ export class App {
       this.lastFrameDt = Math.min(interval, SIM_CATCH_UP);
       if (interval < 5) this.recordFrame(interval);
       // Drawing resolution follows what the display manages to show, in play only (A113).
-      if (this.settings.dynamicResolution && this.mode === 'play' && this.overlay === 'none' && !this.bench.active && !this.shotMode
+      if (this.settings.dynamicResolution && this.mode === 'play' && this.overlay === 'none' && !this.bench.active && !this.capturing
         && this.renderScale.sample(interval * 1000)) this.onResize();
       this.audioClock += dt;
       held = steps === 0;
@@ -1331,7 +1322,8 @@ export class App {
       const scene = this.world.scene;
       const world = this.world;
       this.arrivals.warm ??= (rig) => this.warmShaders(rig.root, scene, true, world);
-      this.arrivals.update(this.npcAssets, (p) => this.inView(p));
+      // Near enough to matter, a figure arrives even in view (the core's arrivesInView): better seen to appear than missing.
+      this.arrivals.update(this.npcAssets, (p) => this.inView(p), (p) => arrivesInView(Math.hypot(p.x - this.player.x, p.z - this.player.z)));
     }
 
     if (this.menuBackgroundActive) {
@@ -1341,7 +1333,7 @@ export class App {
       // heath shows rolling up the slope reaches the lens.
       const gust = this.menuScene.windAtLens;
       this.audio.update(dt, { nightness: 0.3, waterProximity: 0, seaProximity: 0.32, flow: 0,
-        millNear: 0, millTurning: false, windAmount: 0.3 + 0.7 * gust, windTone: 360 + 180 * gust, quarryNear: 0,
+        millTurning: false, windAmount: 0.3 + 0.7 * gust, windTone: 360 + 180 * gust,
         quarryWorking: false, time: this.audioClock, underRoof: false });
       this.audio.updateWorld(dt, null);
       return;
@@ -1353,26 +1345,27 @@ export class App {
     if (inArchive !== this.archiveWasOccupied) {
       this.archiveWasOccupied = inArchive;
       this.worldDirty = true;
-      const lm = this.game.state.locationChanges;
-      if (!inArchive && (lm.archive_shutter === 'sealed' || lm.archive_door === 'locked') && this.game.state.facts.archive_reported === true) {
+      if (!inArchive && archiveClosesBehind(this.game.state)) {
         this.hud.toast(S('toast.archive.sealed_now'), 'bad');
       }
     }
     this.world.playerInArchive = inArchive;
 
-    // Time only passes while the world is running freely.
-    if (playing) {
+    // What goes on in this moment is the core's (WHAT_RUNS): time passes, and the day's people go on, only while he plays.
+    const hitStopped = this.hitStop > 0, runs = WHAT_RUNS[momentOf({ playing, fallen: this.mode === 'dead', hitStopped })];
+    if (runs.clock) {
       this.autosaveTimer -= dt;
-      if (this.autosaveTimer <= 0) {
+      if (autosaveDue(this.autosaveTimer)) {
         this.autosaveTimer = AUTOSAVE_SECONDS;
-        this.autosaveQuiet();
+        this.autosaveQuiet('interval');
       }
       this.game.addPlaySeconds(dt);
       this.clockAcc += dt * CLOCK_RATE;
-      if (this.clockAcc >= 0.5) {
+      const due = clockDue(this.clockAcc);
+      if (due > 0) {
         // Wildlife returns only out of the hunter's sight, judged from where he is now, not where he was last saved (A94).
         this.game.setPlayerTransform(this.player.x, this.player.y, this.player.z, this.player.yaw);
-        this.game.tickClock(this.clockAcc);
+        this.game.tickClock(due);
         this.clockAcc = 0;
       }
     }
@@ -1385,33 +1378,32 @@ export class App {
     this.hunting.controls(dt, playing && this.hitStop <= 0);
 
     // Simulation
-    const hitStopped = this.hitStop > 0;
     if (playing && hitStopped) this.hitStop -= dt;
-    if (playing && this.mode === 'play' && !hitStopped) {
+    if (runs.action) {
       this.world.physics.beginCharacter(this.player, dt);
       this.player.update(dt, this.playerContext(true));
       this.recoverFromUnderWorld(dt);
       this.carryRider();
-      this.updateEnemies(dt);
+      this.updateEnemies(dt * runs.foePace);
       this.checkDiscoveries();
     } else if (this.mode === 'dead') {
       this.player.update(dt, this.playerContext(false));
-      this.updateEnemies(dt * DEATH.foePace);
-      this.deathRemaining = Math.max(0, this.deathRemaining - dt);
+      this.updateEnemies(dt * runs.foePace);
+      this.deathRemaining = fallRemaining(this.deathRemaining, dt);
       if (this.deathRemaining === 0) this.respawn();
     }
     // Reading freezes controller/action timers and patrol routes as well as the world clock.
-    if (playing) {
+    if (runs.people) {
       this.speech.update(dt);
       // Someone in an exchange stops, turns to whom they are talking to and talks with their hands. A passing remark is
       // made on the move: only someone already standing turns to it (A69).
       for (const n of this.npcs) {
         n.speaking = this.speech.speakingFor(n.id) > 0;
-        n.talking = this.speech.heldFor(n.id) > 0 || (n.speaking && !n.underway);
+        n.talking = stopsToTalk({ held: this.speech.heldFor(n.id) > 0, speaking: n.speaking, underway: n.underway });
         if (!n.talking) n.faceTo = null;
       }
       this.sceneClock += dt;
-      if (this.sceneClock > 0.5) {
+      if (this.sceneClock > SCENE_CHECK_SECONDS) {
         this.sceneClock = 0;
         this.overhear(hour);
         const state = this.game.state;
@@ -1420,22 +1412,17 @@ export class App {
           .flatMap((n) => this.speech.soon(n.id, state, hour));
       }
       // Nightfall and dawn, once each, in the hero's words.
-      const night = isNightHour(hour);
-      if (this.wasNight !== null && night !== this.wasNight) this.speech.hero(night ? 'night' : 'dawn', { delay: 1 });
+      const night = isNightHour(hour), turned = dayPartCue(this.wasNight, night);
+      if (turned) this.speech.hero(turned, { delay: HERO_CUE_DELAY.dayPart });
       this.wasNight = night;
       this.updateActors(dt, hour);
       // The hero's breath gives out before he does.
       const health = this.game.state.player.health / Math.max(1, this.game.state.player.maxHealth);
-      if (health < WOUNDED_BELOW && this.healthFrac >= WOUNDED_BELOW && this.player.alive) this.speech.hero('wounded', { again: 40 });
+      if (woundedNow(health, this.healthFrac, this.player.alive)) this.speech.hero('wounded', { again: HERO_CUE_AGAIN.wounded });
       this.healthFrac = health;
     }
-    if (playing && this.mode === 'play' && !hitStopped) {
-      this.world.physics.syncActors([
-        ...this.world.animals.physicalActors,
-        ...this.npcs.map(n => ({ id: `person:${n.id}`, x: n.x, y: n.y, z: n.z, radius: .35, height: 2.1,
-          active: n.solid && this.game.state.npcs[n.id].available })),
-        ...this.enemies.map(e => ({ id: `enemy:${e.id}`, x: e.x, y: e.y, z: e.z, radius: e.radius, height: 2.1, active: e.alive })),
-      ]);
+    if (runs.action) {
+      this.world.physics.syncActors([...this.world.animals.physicalActors, ...this.standing()]);
       this.world.physics.step(dt, this.player, this.cam.yaw, this.cam.pitch);
     }
 
@@ -1453,11 +1440,10 @@ export class App {
 
     // Camera follow
     if (this.cam.mode === 'follow' && !this.bench.active) {
-      const sitting = 0;
       this.cam.mounted = this.riding;
       // The camera keeps out of tree crowns (A82); asked of whichever world is current.
       this.cam.crowns ??= (x, z, r) => this.world?.crownsNear?.(x, z, r) ?? [];
-      this.cam.follow(dt, this.player.x, this.player.y, this.player.z, this.world.terrain, this.world.colliders, this.settings.reducedMotion, this.player.shake, CAMERA.pivotHeight + sitting);
+      this.cam.follow(dt, this.player.x, this.player.y, this.player.z, this.world.terrain, this.world.colliders, this.settings.reducedMotion, this.player.shake, CAMERA.pivotHeight);
       this.cam.clearWater((x, z) => this.world.water.world.surfaceAt(x, z), this.player.swimming);
       // Playtest 7: pulled in against a tree, the lens must never sit inside his arm or shoulder; he dithers out first.
       const coverage = this.cam.bodyVisible ? (this.cam.manual ? 1 : heroNearCoverage(this.cam.camera.position, this.player)) : 0;
@@ -1465,19 +1451,18 @@ export class App {
     }
 
     // World presentation
-    this.world.animals.setPeople([
-      ...this.npcs.map(n => ({ id: `person:${n.id}`, x: n.x, y: n.y, z: n.z, radius: .35, height: 2.1, active: n.solid && this.game.state.npcs[n.id].available })),
-      ...this.enemies.map(e => ({ id: `enemy:${e.id}`, x: e.x, y: e.y, z: e.z, radius: e.radius, height: 2.1, active: e.alive })),
-    ]);
-    // Interactions can open a panel or kill the player after the frame's initial play flag.
-    const worldActive = playing && !hitStopped && this.mode === 'play' && this.overlay === 'none'
-      && !this.worldPaused && document.visibilityState !== 'hidden';
+    this.world.animals.setPeople(this.standing());
+    // Interactions can open a panel or end his life after the frame began: what runs is asked of the core again
+    // (WHAT_RUNS), and a hidden page runs nothing.
+    const stillPlaying = playing && this.mode === 'play' && this.overlay === 'none' && !this.worldPaused;
+    const now = WHAT_RUNS[momentOf({ playing: stillPlaying, fallen: this.mode === 'dead', hitStopped })], shown = document.visibilityState !== 'hidden';
+    const worldActive = now.action && shown;
     // Residents and bandits walk through the grass as well as the hero; the world adds its animals and cargo.
     this.world.setGrassMovers([
       ...this.npcs.filter((n) => n.solid && this.game.state.npcs[n.id].available).map((n) => ({ x: n.x, z: n.z, radius: 0.5, weight: 0.6 })),
       ...this.enemies.filter((e) => e.alive).map((e) => ({ x: e.x, z: e.z, radius: e.radius + 0.25, weight: 0.8 })),
     ]);
-    this.world.update(dt, this.game.state, new THREE.Vector3(this.player.x, this.player.y, this.player.z), this.settings, hour, this.cam.camera, worldActive);
+    this.world.update(dt, this.game.state, new THREE.Vector3(this.player.x, this.player.y, this.player.z), this.settings, hour, this.cam.camera, worldActive, now.clock && shown);
     // Doors swing open for the wanderer and the residents who come to them, and shut behind them (A66); someone only
     // standing near a door, at their place outside it, leaves it shut (A69).
     for (const swing of this.world.updateDoors(worldActive ? dt : 0, [...(this.riding ? [] : [this.player]), ...this.npcs.filter((n) => n.underway)])) this.audio.door(swing.at, swing.open);
@@ -1485,6 +1470,11 @@ export class App {
     this.audioUpdate(dt, this.cam.camera.position, hour);
 
     this.captureMotion();
+  }
+
+  /** The residents and hostiles as bodies in the way of loose cargo and the animals. */
+  private standing() {
+    return standingBodies(this.npcs, (id) => this.game.state.npcs[id as NpcId].available, this.enemies);
   }
 
   private render() {
@@ -1496,7 +1486,7 @@ export class App {
       this.menuScene.prepareFrame(this.renderer, this.lastFrameDt, this.settings.reducedMotion);
       this.renderer.toneMappingExposure = 1.05 * this.settings.brightness;
       if (!this.worldLook) this.worldLook = this.grade.getLook();
-      this.grade.setLook({ ...App.MENU_LOOK, night: 0 });
+      this.grade.setLook({ ...MENU_LOOK, night: 0 });
       this.grade.render(this.menuScene.scene, this.menuScene.camera, this.settings.reducedMotion ? 0 : this.lastFrameDt);
       return;
     }
@@ -1531,7 +1521,6 @@ export class App {
   }
 
   /** The menu's picture is rougher than play: an old painted backdrop, grainy and darkened at the edges. */
-  private static readonly MENU_LOOK = { saturation: 0.9, contrast: 1.07, vignette: 0.3, grain: 0.03, earth: 1, chromatic: 0.0012 };
   private worldLook: ReturnType<Grade['getLook']> | null = null;
 
   private get menuBackgroundActive() {
@@ -1581,7 +1570,7 @@ export class App {
     if (this.overlay === 'none') {
       if (inp.pressed('quicksave')) this.saveTo('quick');
       if (inp.pressed('quickload')) this.loadSlot('quick');
-      if (inp.pressed('heal')) this.usePoultice();
+      if (inp.pressed('heal')) this.useHealKeyItem();
       const slot = quickSlotPressed((code) => inp.pressedKey(code), this.settings.bindings);
       if (slot !== null) this.activateQuickSlot(slot);
     }
@@ -1715,9 +1704,7 @@ export class App {
   /** The map marks the objective the HUD names: while hunting leads, Rowan's camp in the deepwood for his kit and
    * arrows, and no single place for the hunt itself (A104 scout: it circled Rillford under "get a bow and knife"). */
   private hintPlace(quest: PlaceId | null): PlaceId | null {
-    const hunting = huntingHint(this.game.state);
-    if (!hunting) return quest;
-    return hunting === 'hunting.objective.kit' || hunting === 'hunting.objective.spare' || hunting === 'hunting.objective.restock' ? 'deepwood' : null;
+    return objectivePlace(this.game.state, quest);
   }
 
   private onPanelsClosed() {
@@ -1752,7 +1739,6 @@ export class App {
       input: this.input,
       host: this.panels,
       toast: (t, k) => this.hud.toast(t, k),
-      playerNear: { sluice: false },
       actions: this.panelActions(),
     };
   }
@@ -1788,7 +1774,7 @@ export class App {
 
   /** Keeps a tester on the latest merge: reload once on start when the page came from cache, else offer it on pause. */
   private async checkLiveBuild(onStart: boolean) {
-    if (this.liveBuildNotice || new URLSearchParams(location.search).has('shot')) return;
+    if (this.liveBuildNotice || this.capturing) return;
     const live = newerBuild(REVISION, await fetchLiveBuild());
     if (!live) return;
     let storage: Storage | null = null;
@@ -1836,7 +1822,7 @@ export class App {
   openSluice() {
     this.panelKind = 'sluice';
     this.audio.interact();
-    this.panels.push(sluicePanel(this.panelCtx()), { refresh: () => sluicePanel(this.panelCtx()) });
+    this.panels.push(sluicePanel(this.panelCtx()));
   }
 
   openNotice() {
@@ -1849,16 +1835,14 @@ export class App {
     this.panels.push(huntingPanel(this.panelCtx()), { narrow: true });
   }
 
-  /** The saddled deer, the one animal that can be ridden (A70). */
-  static readonly MOUNT_ID = '1005232412';
-
-  mountDeer() {
-    if (this.mode !== 'play' || this.overlay !== 'none' || this.worldPaused || this.player.mount || !this.player.alive) return;
-    if (this.player.mountMove) return;
-    const at = this.world.animals?.mount(App.MOUNT_ID);
+  /** Go to the side of the deer the table of interactables names, the saddled one (A70), and swing up. */
+  mountDeer(id: string = MOUNT_ID) {
+    if (!mayMount({ playing: this.mode === 'play' && this.overlay === 'none' && !this.worldPaused, riding: !!this.player.mount, mounting: !!this.player.mountMove,
+      alive: this.player.alive, swimming: this.player.swimming })) return;
+    const at = this.world.animals?.mount(id);
     if (!at) return;
     // He walks to the deer's side and swings up (A71); the deer is held still meanwhile.
-    if (this.player.beginMount(App.MOUNT_ID, at.seat, at, { colliders: this.world.colliders })) this.audio.pickup();
+    if (this.player.beginMount(id, at.seat, at, { colliders: this.world.colliders })) this.audio.pickup();
   }
 
   /** Step down beside the deer (A71); where that cannot be done he is put down at once. */
@@ -1894,8 +1878,8 @@ export class App {
     if (this.pendingMount) {
       const pending = this.pendingMount, at = animals?.mount(pending.id);
       // Walked off before the deer arrived, he stays afoot.
-      if (this.player.mount || this.player.mountMove || !this.player.alive || this.player.swimming ||
-        Math.hypot(this.player.x - pending.x, this.player.z - pending.z) > 1) this.pendingMount = null;
+      if (awaitedMountLapsed({ riding: !!this.player.mount, mounting: !!this.player.mountMove, alive: this.player.alive, swimming: this.player.swimming,
+        strayed: Math.hypot(this.player.x - pending.x, this.player.z - pending.z) })) this.pendingMount = null;
       else if (at) {
         this.player.mountUp(pending.id, at.seat, this.player.x, this.player.y, this.player.z, this.player.yaw);
         this.pendingMount = null;
@@ -1915,8 +1899,8 @@ export class App {
     if (!mount) { if (this.ridden) { animals?.ride(this.ridden, null); this.ridden = null; } return; }
     // No deer under him (the animals not yet arrived after a rebuild): he gets down.
     // A blow in the saddle is a flinch there, not a fall (A94); riding off a ledge is a fall, and puts him down (A100 scout).
-    const seated = this.player.state === 'free' || this.player.state === 'hurt';
-    if (!this.player.alive || this.player.swimming || !seated || !this.player.grounded || !animals?.mount(mount.id)) { this.forceDismount(); return; }
+    if (mustDismount({ alive: this.player.alive, swimming: this.player.swimming, state: this.player.state, grounded: this.player.grounded,
+      deerHere: !!animals?.mount(mount.id) })) { this.forceDismount(); return; }
     this.ridden = mount.id;
     animals.ride(mount.id, { x: this.player.x, z: this.player.z, yaw: this.player.yaw, speed: this.player.rideSpeed });
     // The saddle rises with the deer's stride, and its hooves sound on the ground underfoot (A71).
@@ -1934,7 +1918,8 @@ export class App {
   }
 
   sellGameMeat() {
-    if (this.mode !== 'play' || this.overlay !== 'none' || this.worldPaused || !this.noThreatNear()) return;
+    // The core's interactable offers this only with no threat near (`no_threat_near`).
+    if (this.mode !== 'play' || this.overlay !== 'none' || this.worldPaused) return;
     this.game.setPlayerTransform(this.player.x, this.player.y, this.player.z, this.player.yaw);
     const result = this.game.dispatch({ t: 'sellGameMeat' });
     if (!result.ok) this.hud.toast(S(`hunting.${result.reason}`), 'bad');
@@ -1968,10 +1953,10 @@ export class App {
 
   private updateInteraction() {
     const p = this.player, physics = this.world.physics;
-    if (p.state !== 'free') { physics.release(); this.hud.setPrompt(null); return; }
+    if (!keepsHold(p.state)) { physics.release(); this.hud.setPrompt(null); return; }
     // Nothing is picked up from the saddle or while getting up or down: a held barrel rode through the deer's back
     // (A100 scout). Interacting (dismounting among it) still works.
-    const saddled = p.mount !== null || p.mountMove !== null;
+    const saddled = !handsForCargo({ riding: p.mount !== null, mounting: p.mountMove !== null });
     if (saddled && physics.holding) physics.release();
     const prop = physics.holding || saddled ? null : physics.candidate(p, this.cam.yaw);
     if (this.input.pressed('grab')) {
@@ -2012,7 +1997,7 @@ export class App {
       return;
     }
     this.showObservation(S(pt.noticeKey));
-    this.speech.hero(`inspect.${pointId}` as HeroCue, { delay: 0.8 });
+    this.speech.hero(`inspect.${pointId}` as HeroCue, { delay: HERO_CUE_DELAY.inspect });
   }
 
   pickup(id: string, item: ItemId, qty: number) {
@@ -2037,42 +2022,31 @@ export class App {
 
   tryArchiveDoor() {
     const s = this.game.state;
-    if (s.facts.archive_access_lost === true) {
-      this.hud.toast(S('toast.archive.withdrawn'), 'bad');
+    const attempt = archiveDoorAttempt(s);
+    if ('refused' in attempt) {
+      if (attempt.refused === 'withdrawn') this.hud.toast(S('toast.archive.withdrawn'), 'bad');
+      else this.hud.toast(S('toast.archive.locked'));
       return;
     }
-    let cmd: Command | null = null;
-    if ((s.inventory.archive_key ?? 0) > 0) cmd = { t: 'archiveAccess', method: 'borrowed_key' };
-    else if (hasFact(s, 'edda_permission')) cmd = { t: 'archiveAccess', method: 'permission' };
-    if (!cmd) {
-      this.hud.toast(S('toast.archive.locked'));
-      return;
-    }
-    const r = this.game.dispatch(cmd);
+    const r = this.game.dispatch({ t: 'archiveAccess', method: attempt.opens });
     if (r.ok) {
-      this.hud.toast(S(cmd.t === 'archiveAccess' && cmd.method === 'borrowed_key' ? 'toast.unlocked.key' : 'toast.archive.open'), 'good');
+      this.hud.toast(S(attempt.opens === 'borrowed_key' ? 'toast.unlocked.key' : 'toast.archive.open'), 'good');
       this.audio.worldEvent('door', '[The archive door opens]');
-      this.speech.hero('place.archive' as HeroCue, { delay: 1.5 });
+      this.speech.hero('place.archive' as HeroCue, { delay: HERO_CUE_DELAY.archive });
       this.world.syncStatic(this.game.state, false);
     } else this.hud.toast(S('toast.archive.withdrawn'), 'bad');
   }
 
   /** Whether the archive can be seen into: its door opened or its shutter forced. */
   private archiveOpen(): boolean {
-    const changes = this.game.state.locationChanges;
-    return changes.archive_door === 'open' || changes.archive_shutter === 'forced';
+    return archiveIsOpen(this.game.state);
   }
 
   /** Who could plausibly have seen the player at this spot: awake, close, with a clear line of sight. */
   observersAt(x: number, z: number): NpcId[] {
-    const out: NpcId[] = [];
-    for (const n of this.npcs) {
-      // Asleep in their beds, they see nothing (A70).
-      if (!couldWitness(n.id, Math.hypot(n.x - x, n.z - z), !n.hidden, n.asleep, this.game.state.npcs[n.id].available)) continue;
-      const ignore = new Set<string>();
-      if (!this.world.colliders.segmentBlocked(n.x, n.z, x, z, ignore)) out.push(n.id);
-    }
-    return out;
+    // Asleep in their beds, they see nothing (A70); who sees is the core's (witnessesOf).
+    return witnessesOf(x, z, this.npcs.map((n) => ({ id: n.id, x: n.x, z: n.z, present: !n.hidden, asleep: n.asleep, available: this.game.state.npcs[n.id].available })),
+      this.world.colliders);
   }
 
   forceShutter() {
@@ -2088,13 +2062,16 @@ export class App {
     if (this.game.state.locationChanges.archive_shutter === 'sealed') this.hud.toast(S('toast.archive.caught'), 'bad');
     else {
       this.hud.toast(S('toast.archive.forced'));
-      this.speech.hero('place.archive' as HeroCue, { delay: 1.5 });
+      this.speech.hero('place.archive' as HeroCue, { delay: HERO_CUE_DELAY.archive });
     }
     this.world.syncStatic(this.game.state, false);
     // A witness cue the player can act on: the observer calls out.
     const w = this.npcs.find((n) => seenBy.includes(n.id));
-    if (w?.id === 'shrine_warden') this.bark(w, 'tolan.bark.hey');
-    else if (w) this.bubbleState.set(w.id, { text: S('toast.warden.hey'), until: performance.now() + 3600 });
+    if (w) {
+      const outcry = trespassOutcry(w.id);
+      if (outcry.voiced) this.bark(w, outcry.line);
+      else this.bubbleState.set(w.id, { text: S(outcry.text), until: performance.now() + BUBBLE.leastMs });
+    }
   }
 
   readLedger() {
@@ -2106,16 +2083,16 @@ export class App {
 
   performRite() {
     const s = this.game.state;
-    if (!hasFact(s, 'rite_taught') || (s.inventory.votive_reed ?? 0) < 1) {
+    if (!riteReady(s)) {
       this.hud.toast(S('toast.rite.need'));
       return;
     }
-    this.player.beginChannel(S('prompt.rite'), 3.0, () => {
+    this.player.beginChannel(S('prompt.rite'), TIMED_WORK.rite, () => {
       const r = this.game.dispatch({ t: 'performRite' });
       if (r.ok) {
         this.world.playRite();
         this.audio.rite();
-        this.hud.toast(S('toast.rite.done', { min: 45 }), 'good');
+        this.hud.toast(S('toast.rite.done', { min: RITE_CALM_MIN }), 'good');
       }
     });
   }
@@ -2130,7 +2107,7 @@ export class App {
 
   private beginBrace() {
     this.panels.closeAll();
-    this.player.beginChannel(S('sluice.brace.working'), 2.8, () => {
+    this.player.beginChannel(S('sluice.brace.working'), TIMED_WORK.brace, () => {
       const r = this.game.dispatch({ t: 'stabilizeGate' });
       if (!r.ok) {
         this.hud.toast(S(`toast.need.${r.reason.replace('need_', '')}`), 'bad');
@@ -2141,7 +2118,7 @@ export class App {
       const events = r.events;
       if (events.some((e) => e.t === 'surge')) {
         this.audio.waterSurge();
-        this.player.shake = 0.6;
+        this.player.shake = SHAKE.surge;
         this.hud.toast(S('toast.surge'), 'bad');
       } else this.hud.toast(S('toast.calm'), 'good');
       this.hud.toast(S('toast.gate.stable'), 'good');
@@ -2154,7 +2131,7 @@ export class App {
     const r = this.game.dispatch({ t: 'forceGate', observedBy: this.observersAt(this.player.x, this.player.z) });
     if (!r.ok) return;
     this.audio.worldEvent('sluice_jam', '[The sluice jams hard against its frame]');
-    this.player.shake = 0.4;
+    this.player.shake = SHAKE.jam;
     this.hud.toast(S('toast.gate.jammed'), 'bad');
     this.world.syncStatic(this.game.state, false);
   }
@@ -2189,7 +2166,7 @@ export class App {
   }
 
   private activateQuickSlot(slot: number) {
-    if (!this.inventoryActionAllowed() || this.overlay !== 'none' || !Number.isInteger(slot) || slot < 0 || slot >= 10) return;
+    if (!this.inventoryActionAllowed() || this.overlay !== 'none' || !Number.isInteger(slot) || slot < 0 || slot >= QUICK_SLOT_COUNT) return;
     const item = this.game.state.quickSlots[slot];
     if (!item || (this.game.state.inventory[item] ?? 0) <= 0) return;
     this.input.consumePad();
@@ -2220,13 +2197,18 @@ export class App {
     else if (result.reason === 'missing_item') this.hud.toast(item === 'poultice' ? S('toast.nopoultice') : `${S(ITEMS[item].nameKey)} is no longer carried.`);
   }
 
-  usePoultice() { this.useInventoryItem('poultice'); }
+  useHealKeyItem() { this.useInventoryItem(HEAL_KEY_ITEM); }
 
   /* =============================== game events =============================== */
 
   private onGameEvents(events: GameEvent[]) {
     this.worldDirty = true;
     for (const e of events) {
+      // What he says of it and the sting it earns are the core's (rules/speech.ts, rules/music.ts).
+      for (const remark of eventRemarks(e, { archiveOpen: this.archiveOpen() })) this.speech.hero(remark.cue, { delay: remark.delay });
+      const sting = eventSting(e);
+      if (sting?.kind === 'quest') this.audio.quest();
+      else if (sting?.kind === 'discover') this.audio.discover(sting.place);
       switch (e.t) {
         case 'equipment':
           this.inventoryNotesChanged = true;
@@ -2246,21 +2228,15 @@ export class App {
           if (e.phase === 'settled') {
             this.hud.toast(S('toast.settled'), 'good');
             this.ringBell(true);
-            this.speech.hero('settled', { delay: 2 });
-          } else this.audio.quest();
+          }
           break;
         case 'grant':
-          for (const [id, qty] of Object.entries(e.items) as [ItemId, number][]) {
-            this.hud.toast(S('toast.item.gain', { qty, name: S(ITEMS[id].nameKey) }), 'good');
-            // A reward is remarked on as a find is (A89 scout: the key's and the reed's lines were never heard).
-            this.speech.hero(`item.${id}` as HeroCue, { delay: 0.6 });
-          }
+          for (const [id, qty] of Object.entries(e.items) as [ItemId, number][]) this.hud.toast(S('toast.item.gain', { qty, name: S(ITEMS[id].nameKey) }), 'good');
           this.audio.pickup(Object.keys(e.items)[0] as ItemId | undefined);
           break;
         case 'item':
           if (e.delta > 0) this.hud.toast(S('toast.item.gain', { qty: e.delta, name: S(ITEMS[e.id].nameKey) }), 'good');
-          if (e.delta > 0) this.speech.hero(e.id === 'rusted_sword' ? 'blade' : (`item.${e.id}` as HeroCue), { delay: 0.6 });
-          else if (e.id !== 'sluice_brace' && e.id !== 'votive_reed' && e.id !== 'arrow') this.hud.toast(S('toast.item.lose', { qty: -e.delta, name: S(ITEMS[e.id].nameKey) }));
+          else if (!UNNOTED_LOSSES.includes(e.id)) this.hud.toast(S('toast.item.lose', { qty: -e.delta, name: S(ITEMS[e.id].nameKey) }));
           break;
         case 'toast':
           if (e.key.startsWith('hunting.')) this.hud.toast(S(e.key, e.params));
@@ -2271,32 +2247,17 @@ export class App {
           break;
         case 'skill':
           this.hud.toast(S('toast.skill', { name: S(`skill.${e.id}`) }), 'good');
-          this.audio.quest();
           break;
         case 'place':
           this.hud.toast(S('toast.place', { name: S(`place.${e.id}`) }), 'evidence');
-          this.audio.discover(e.id);
-          // The archive's shelves are remarked on once it stands open, not from outside its locked door (A89 scout).
-          if (e.id !== 'archive' || this.archiveOpen()) this.speech.hero(`place.${e.id}` as HeroCue, { delay: 1.2 });
           // Discovering somewhere new moves the respawn point there.
-          this.markCheckpoint();
-          break;
-        case 'shortcut':
-          this.speech.hero('shortcut', { delay: 1 });
-          break;
-        case 'rite':
-          this.speech.hero('rite', { delay: 2 });
-          break;
-        case 'gate':
-          if (e.gate === 'stabilized' || e.gate === 'jammed') this.speech.hero(`gate.${e.gate}`, { delay: 1 });
+          this.markCheckpoint('place');
           break;
         case 'worker_rescued':
-          this.speech.hero('rescued', { delay: 2.5 });
           this.hud.toast(S(e.method === 'shortcut' ? 'toast.shortcut.rescued' : 'toast.rescued'), 'good');
-          this.audio.quest();
           break;
         case 'autosave':
-          this.autosave(e.reason);
+          this.autosave();
           break;
         default:
           break;
@@ -2310,12 +2271,12 @@ export class App {
     this.game.setPlayerTransform(this.player.x, this.player.y, this.player.z, this.player.yaw);
     // Saved in the saddle, a load puts him back in it (A71); getting up or down saves him afoot.
     // A rider loaded in the saddle whose deer has not arrived yet is still riding it (A71).
-    this.game.state.player.mount = this.player.mount?.id ?? this.pendingMount?.id ?? null;
+    this.game.state.player.mount = savedMount(this.player.mount?.id, this.pendingMount?.id);
     this.game.state.physicalObjects = this.world.physics.snapshot().map(({ id, position, rotation }) => ({ id, position, rotation }));
   }
 
   saveTo(slot: SlotId): PanelSaveResult {
-    if (this.worldPaused || this.mode !== 'play' || !this.world || this.worldDisposed) {
+    if (!savingAllowed({ playing: this.mode === 'play', paused: this.worldPaused, worldReady: !!this.world && !this.worldDisposed, capture: this.capturing })) {
       return { ok: false, message: S('menu.saveUnavailable') };
     }
     this.stamp();
@@ -2325,47 +2286,35 @@ export class App {
     return r;
   }
 
-  /** The respawn point follows the player, but never to where a living enemy would meet him again (A70). */
-  private markCheckpoint() {
+  /** The respawn point follows the player, but never to where a living enemy would meet him again (A70); the rule is the core's. */
+  private markCheckpoint(moment: RespawnMoment) {
     const p = this.player;
     // Not near a living foe, nor beside a foe's post, whether or not its model has arrived yet (A87 scout): one not yet
     // here is not among the enemies, and it comes back to its post as the player respawns there.
     const defeated = this.game.state.defeated;
-    if (!checkpointAllowed(p.x, p.z, this.enemies.filter(e => e.alive), ENEMY_SPAWNS.filter(spawn => !defeated[spawn.id]))) return;
-    this.checkpoint = { x: p.x, y: p.y, z: p.z, yaw: p.yaw };
+    this.checkpoint = respawnAfter(this.checkpoint, moment, { x: p.x, y: p.y, z: p.z, yaw: p.yaw }, strandRespawn((x, z) => this.world.terrain.groundAt(x, z)),
+      this.enemies.filter(e => e.alive), ENEMY_SPAWNS.filter(spawn => !defeated[spawn.id]));
   }
 
-  private autosave(reason: string) {
-    if (this.mode !== 'play' || this.worldPaused) return;
+  private autosave() {
+    const at = autosaveAt('story', { playing: this.mode === 'play', paused: this.worldPaused, begun: true, capture: this.capturing });
+    if (!at.save) return;
     this.stamp();
     const r = this.saves.save('auto', this.game.state);
     if (r.ok) {
-      this.markCheckpoint();
+      if (at.movesWaking) this.markCheckpoint('eventAutosave');
       this.hud.toast(S('menu.saved', { slot: S('menu.slot.auto') }));
     } else this.hud.toast(S('menu.savefailed', { reason: r.message }), 'bad');
-    void reason;
   }
 
   /** A brand-new run that has done nothing yet must not replace an earlier autosave. */
   private hasProgress(): boolean {
-    const s = this.game.state;
-    // Loose provisions and deliberate binding/pin edits are progress before the investigation or timed autosave.
-    return s.quest.phase !== 'unseen'
-      || Object.keys(s.evidence).length > 0
-      || Object.keys(s.grants).length > 0
-      || Object.entries(s.locationChanges).some(([key, value]) => key.startsWith('pickup:') && value === 'taken')
-      || this.inventoryNotesChanged
-      || s.quickSlots.some((item) => item !== null)
-      || s.equippedWeapon !== null
-      || Object.keys(s.hunting).length > 0
-      || s.mapMarker !== null
-      || s.playSeconds > AUTOSAVE_SECONDS;
+    return journeyBegun(this.game.state, this.inventoryNotesChanged);
   }
 
-  private autosaveQuiet() {
-    // Backgrounding can happen while the old graphics/physics world has been
-    // disposed and its replacement is still loading. Never snapshot that gap.
-    if (this.mode !== 'play' || this.worldPaused || !this.hasProgress()) return;
+  /** Backgrounding can happen while the old world is disposed and its replacement still loads: that gap is never saved. */
+  private autosaveQuiet(moment: Exclude<AutosaveMoment, 'story'>) {
+    if (!autosaveAt(moment, { playing: this.mode === 'play', paused: this.worldPaused, begun: this.hasProgress(), capture: this.capturing }).save) return;
     this.stamp();
     this.saves.save('auto', this.game.state);
   }
@@ -2403,8 +2352,8 @@ export class App {
       player: { x: this.player.x, z: this.player.z, y: this.player.y },
       reducedMotion: this.settings.reducedMotion,
       onBark: (a, text) => this.mode === 'play' && this.settings.barks && this.bark(a, text),
-      // A fight wakes the sleepers near it (A70).
-      alarms: this.enemies.filter(en => en.alive && en.engaged).map(en => ({ x: en.x, z: en.z })),
+      // A fight wakes the sleepers near it (A70); what counts as one is the core's.
+      alarms: fightingFoes(this.enemies),
     };
   }
 
@@ -2433,7 +2382,7 @@ export class App {
   private residentContact(n: NpcActor): CircleCollider {
     let contact = this.residentContactRecords.get(n);
     if (!contact) {
-      contact = { id: `person:${n.id}`, kind: 'circle', x: n.x, z: n.z, r: .35, active: false };
+      contact = { id: `person:${n.id}`, kind: 'circle', x: n.x, z: n.z, r: RESIDENT.radius, active: false };
       this.residentContactRecords.set(n, contact);
     }
     contact.x = n.x; contact.z = n.z;
@@ -2457,15 +2406,8 @@ export class App {
   private overhear(hour: number) {
     const state = this.game.state;
     const day = clockDay(state.clock);
-    for (const scene of SCENES) {
-      if (!inHours(hour, scene.hours) || !evalAll(state, scene.when)) continue;
-      const [a, b] = scene.cast.map((id) => this.npcs.find((n) => n.id === id));
-      if (!a || !b || a.hidden || b.hidden || a.asleep || b.asleep || !state.npcs[a.id].available || !state.npcs[b.id].available) continue;
-      // Only two people at their places talk between themselves: neither is stopped and turned about mid-route (A69).
-      if (a.underway || b.underway) continue;
-      // The quarry pair stand 24.7 m apart, yard to face, since A70 moved the face: a foreman calls across his yard (A104 scout).
-      if (Math.hypot(a.x - b.x, a.z - b.z) > SCENE_REACH) continue;
-      if (Math.hypot(this.player.x - (a.x + b.x) / 2, this.player.z - (a.z + b.z) / 2) > OVERHEAR_REACH) continue;
+    // Only two people at their places, within calling distance and near enough to be heard, talk between themselves (A69, A104 scout).
+    for (const { scene, a, b } of scenesInEarshot(state, hour, (id) => this.npcs.find((n) => n.id === id), this.player)) {
       const where = (id: NpcId) => {
         const p = (id === a.id ? a : b).headPosition;
         return { x: p.x, y: p.y, z: p.z };
@@ -2495,7 +2437,7 @@ export class App {
     // Heard from where they are as they say it: a remark made on the way walks on with them (A70).
     const seconds = this.speech.remark(a.id, line, () => { const p = a.headPosition; return { x: p.x, y: p.y, z: p.z }; });
     if (seconds <= 0) return false;
-    this.bubbleState.set(a.id, { text: shown(text), until: performance.now() + Math.max(3600, seconds * 1000 + 800) });
+    this.bubbleState.set(a.id, { text: shown(text), until: performance.now() + bubbleMs(seconds) });
     return true;
   }
 
@@ -2515,7 +2457,7 @@ export class App {
       viewYaw: this.cam.yaw,
       controllable: controllable && this.overlay === 'none',
       onHitEnemy: (e: EnemyActor, killed: boolean, heavy: boolean) => {
-        this.hitStop = heavy ? HIT_STOP.heavy : HIT_STOP.light;
+        this.hitStop = hitStopFor(heavy);
         if (killed) this.onEnemyDefeated(e);
       },
       onHurt: (damage: number, blocked: boolean) => {
@@ -2534,19 +2476,15 @@ export class App {
       colliders: this.world.colliders,
       nav: this.world.nav,
       contacts: [...this.world.animals.contacts, ...this.npcs.map(n => this.residentContact(n)), ...enemyContacts,
-        { id: 'player', kind: 'circle', x: p.x, z: p.z, r: .32, active: p.alive, minY: p.y, maxY: p.y + 1.8 }],
+        { id: 'player', kind: 'circle', x: p.x, z: p.z, r: STANDING_BODY.heroRadius, active: p.alive, minY: p.y, maxY: p.y + STANDING_BODY.heroHeight }],
       player: { x: p.x, z: p.z, y: p.y, alive: p.alive, invulnerable: p.invulnerable },
       reducedMotion: this.settings.reducedMotion,
       strikePlayer: (e, dmg, heavy) => p.receiveHit(dmg, heavy, e, this.playerContext(true)),
       onGrowl: (e) => {
-        const at = { x: e.x, y: e.y + 1.2, z: e.z };
-        if (e.spawn.kind === 'thornback') {
-          this.audio.growl(at);
-          this.speech.hero('beast', { delay: 0.7 });
-        }
-        else this.audio.shout(at);
+        const at = { x: e.x, y: e.y + 1.2, z: e.z }, cry = warCry(e.spawn.kind);
+        if (cry.cry === 'growl') this.audio.growl(at); else this.audio.shout(at);
+        if (cry.remark) this.speech.hero(cry.remark.cue, { delay: cry.remark.delay });
       },
-      time: this.world.time,
     };
     for (let i = 0; i < this.enemies.length; i++) {
       const e = this.enemies[i]!;
@@ -2557,12 +2495,10 @@ export class App {
 
   private onEnemyDefeated(e: EnemyActor) {
     this.game.dispatch({ t: 'defeat', id: e.id });
-    // The fight is won when nobody else is still on the player.
-    if (!this.enemies.some((o) => o !== e && o.alive && o.engaged)) this.audio.victory();
-    if (e.id === 'cut_creature') {
-      this.hud.toast(S('toast.cleared'), 'good');
-      this.speech.hero('victory', { delay: 0.8 });
-    }
+    if (fightWon(e, this.enemies)) this.audio.victory();
+    if (e.id === CLEARING_FOE) this.hud.toast(S('toast.cleared'), 'good');
+    const remark = defeatRemark(e.id);
+    if (remark) this.speech.hero(remark.cue, { delay: remark.delay });
   }
 
   private onPlayerDeath() {
@@ -2579,20 +2515,21 @@ export class App {
 
   private respawn() {
     if (this.mode !== 'dead') return;
-    this.game.dispatch({ t: 'healPlayer', amount: DEATH.heal });
+    // What waking restores is the core's (WAKING).
+    this.game.dispatch({ t: 'healPlayer', amount: WAKING.heal });
     const cp = this.safePosition(this.checkpoint.x, this.checkpoint.z, this.checkpoint.y);
     // Stamina first: setPosition derives the exhausted flag from it, and a hero who fell spent rises fresh (A100 scout).
-    this.player.stamina = STAMINA_MAX;
+    this.player.stamina = WAKING.stamina;
     this.player.setPosition(cp.x, cp.z, this.checkpoint.yaw, this.world.terrain, cp.y, cp.afloat === true);
-    for (const e of this.enemies) e.reset(this.world);
+    if (WAKING.foesToPosts) for (const e of this.enemies) e.reset(this.world);
     this.hud.showFade(false);
     this.mode = 'play';
     this.cam.yaw = this.checkpoint.yaw;
     this.cam.reset();
     this.hitStop = 0;
-    this.autosaveTimer = AUTOSAVE_SECONDS; // the countdown restarts with the life, as it does with a load (A71)
+    this.autosaveTimer = WAKING.autosaveSeconds; // the countdown restarts with the life, as it does with a load (A71)
     this.input.reset();
-    this.speech.hero('respawn', { delay: 1, again: 1 });
+    this.speech.hero('respawn', { delay: HERO_CUE_DELAY.respawn, again: HERO_CUE_AGAIN.respawn });
     // Escape or leaving the window during the fall could not pause a dead player; it pauses now, rather than the world
     // running on unattended and uncaptured (A70).
     const unfocused = typeof document.hasFocus === 'function' && !document.hasFocus();
@@ -2601,10 +2538,7 @@ export class App {
 
   private checkDiscoveries() {
     const s = this.game.state;
-    for (const [id, p] of Object.entries(PLACES) as [PlaceId, { x: number; z: number; r: number }][]) {
-      if (s.discovered[id]) continue;
-      if (Math.hypot(this.player.x - p.x, this.player.z - p.z) < p.r) this.game.dispatch({ t: 'discover', place: id });
-    }
+    for (const place of placesReached(s.discovered, this.player.x, this.player.z)) this.game.dispatch({ t: 'discover', place });
   }
 
   /* ======================= the bell and other ambient life ======================= */
@@ -2615,7 +2549,7 @@ export class App {
     this.bellClock -= dt;
     if (this.bellClock <= 0) {
       if (v.bellMode === 'drought') this.ringBell(false);
-      this.bellClock = v.bellMode === 'drought' ? DROUGHT_BELL.every : 9999;
+      this.bellClock = bellWait(v.bellMode === 'drought');
     }
   }
 
@@ -2638,22 +2572,18 @@ export class App {
   private audioUpdate(dt: number, camPos: THREE.Vector3, hour: number) {
     const v = this.world.view;
     const w = this.world.waterProximity(camPos.x, camPos.z);
-    const millD = Math.hypot(camPos.x + 14, camPos.z + 8);
-    const quarryD = Math.hypot(camPos.x - 92, camPos.z + 26);
     const indoors = this.world.underRoof(camPos.x, camPos.y, camPos.z);
     this.audio.update(dt, {
       nightness: this.world.sky.state.nightness,
       waterProximity: w,
       flow: v.flow.main,
-      millNear: Math.max(0, 1 - millD / 40),
       millTurning: v.millTurning,
       // Higher ground is windier; each gust that crosses the grass and the crowns is heard as it passes.
       windAmount: Math.min(1, (0.3 + camPos.y / 60) * (0.62 + 0.7 * Math.min(1, this.world.grassWind.pushAt(camPos.x, camPos.z) / (REALM_WIND.steady + REALM_WIND.gust)))),
-      quarryNear: Math.max(0, 1 - quarryD / 60),
       quarryWorking: v.quarryState === 'working' || v.quarryState === 'night_shift',
       time: this.audioClock,
       underRoof: indoors,
-      seaProximity: Math.exp(-Math.max(0, camPos.x - coastX(camPos.z)) / 95),
+      seaProximity: seaBedNearness(camPos.x, camPos.z),
       windTone: windTone(camPos.x, camPos.z),
     });
     const forward = this.cam.camera.getWorldDirection(this.listenerForward);
@@ -2691,7 +2621,7 @@ export class App {
     if (this.mode === 'title') return;
     const s = this.game.state;
     const hint = nextHint(s);
-    const obj = this.settings.guidance ? S(huntingHint(s) ?? hint.key, restockParams(s)) : null;
+    const obj = this.settings.guidance ? S(objectiveKey(s, hint.key), restockParams(s)) : null;
     this.hud.update({
       health: s.player.health,
       maxHealth: s.player.maxHealth,
@@ -2772,10 +2702,8 @@ export class App {
     clear(this.debugEl);
     const btn = (label: string, fn: () => void) => h('button', { class: 'btn', onClick: fn }, label);
     const place = (id: PlaceId) => btn(S(`place.${id}`), () => this.teleport(id));
-    this.debugEl.append(
-      h('h2', {}, S('debug.title')),
-      h('p', { class: 'muted' }, S('debug.note')),
-      this.debugPre,
+    const offered = testControlsOffered(location.search, import.meta.env.DEV);
+    const testControls = offered ? [
       h('h2', {}, 'Teleport'),
       h('div', { class: 'pillrow' }, (Object.keys(PLACES) as PlaceId[]).map(place)),
       h('h2', {}, 'Authored test conditions'),
@@ -2793,15 +2721,29 @@ export class App {
         btn('Toggle Ila absent', () => this.debugToggleNpc('maintenance_worker')),
         btn('Heal + stamina', () => this.debugHeal()),
       ),
+    ] : [h('p', { class: 'small' }, 'Test controls and the benchmark: open the page with ?debug=1.')];
+    this.debugEl.append(
+      h('h2', {}, S('debug.title')),
+      h('p', { class: 'muted' }, S('debug.note')),
+      this.debugPre,
+      ...testControls,
       h('h2', {}, 'Menu score timing'),
       h('p', { class: 'small' }, 'Seeks the actual menu song for doorway, wisp and loop review; has no effect in gameplay.'),
       h('div', { class: 'pillrow' }, ...[28, 30, 33, 60, 75, 110, 205, 211].map((time) => btn(`Score → ${Math.floor(time / 60)}:${String(time % 60).padStart(2, '0')}`, () => this.audio.seekMenuMusic(time)))),
+      ...(offered ? this.benchmarkControls() : []),
+    );
+  }
+
+  /** The benchmark's heading, note and buttons: a test control (platform/diagnostics.ts). */
+  private benchmarkControls() {
+    const btn = (label: string, fn: () => void) => h('button', { class: 'btn', onClick: fn }, label);
+    return [
       h('h2', {}, 'Benchmark'),
-      h('p', { class: 'muted' }, new URLSearchParams(location.search).get('review') === 'water' && new URLSearchParams(location.search).has('shot')
+      h('p', { class: 'muted' }, new URLSearchParams(location.search).get('review') === 'water' && this.capturing
         ? 'Runs a 12 s shoreline camera review up to 5.85 m/s, retaining reflected land and shallow water in view. Reports frame times for this device and quality preset.'
         : 'Runs a fixed camera route from the landing through the woodland and town (about 72 s) and reports median/95th/99th percentile frame times for this device, renderer and quality preset.'),
       h('div', { class: 'pillrow' }, btn('Run benchmark route', () => this.startBenchmark()), btn('Copy report', () => navigator.clipboard?.writeText(this.debugPre.textContent ?? ''))),
-    );
+    ];
   }
 
   private updateDebug(dt: number) {
@@ -2883,7 +2825,7 @@ export class App {
 
   private debugHeal() {
     this.game.dispatch({ t: 'healPlayer', amount: 100 });
-    this.player.stamina = 100;
+    this.player.stamina = STAMINA_MAX;
   }
 
   /**
@@ -3087,11 +3029,10 @@ export class App {
   private startBenchmark() {
     const T = this.world.terrain;
     const H = (x: number, z: number, up: number) => new THREE.Vector3(x, T.heightAt(x, z) + up, z);
-    // Query-only water review reuses the native F3 benchmark button. Its
+    // Query-only water review (?shot&review=water&debug) reuses the native F3 benchmark button. Its
     // 23.4 m / 6 s smooth segment reaches the authored 5.85 m/s running speed
     // while keeping the reflected coast in view, without synthetic key events.
-    const waterReview = new URLSearchParams(location.search).has('shot')
-      && new URLSearchParams(location.search).get('review') === 'water';
+    const waterReview = this.capturing && new URLSearchParams(location.search).get('review') === 'water';
     const route: { p: THREE.Vector3; look: THREE.Vector3 }[] = waterReview ? [
       { p: H(-268, 27, 2.6), look: new THREE.Vector3(-334, 5, 108) },
       { p: H(-268, 50.4, 2.6), look: new THREE.Vector3(-334, 5, 108) },

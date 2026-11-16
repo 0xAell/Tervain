@@ -19,14 +19,15 @@ Done here, without the engine:
 - A source-only Unreal project mirrors the data types, and two rules as a worked example.
 - Each system has a proposed Unreal counterpart ([system mapping](system-mapping.md)).
 
-Not done, and the first thing the next phase does: none of the Unreal code has been compiled, and none of the imports
-has been run.
+Not done, and the first thing the next phase does: none of the Unreal code has been built by the engine (CI compiles
+it against stand-ins for the engine's names, not against Unreal), and none of the imports has been run.
 
 ## Phase 1: stand the project up
 
 On a Windows machine with Unreal Engine 5.9 and its C++ toolchain.
 
 1. Build the `TervainEditor` target from `unreal/`. Fix what the compiler finds; keep the fixes in this repository.
+   Start with the names [the public record does not settle](engine-symbols.md#what-the-public-record-does-not-settle).
 2. Import the ten DataTables and the string table. Confirm row counts against `data/unreal/tables.json`.
 3. Create the Landscape from the height image and import the eight layers.
 4. Check orientation and scale: the heights of the named places in `data/world/terrain.json` must match within a few
@@ -56,8 +57,8 @@ passes in 24 minutes; the measurements are written down with the machine they we
 2. The camera: boom, limits, aim view, room view, with the field of view converted.
 3. Stamina and combat on plain components, calling the mirrored rules; then the bow.
 4. Riding.
-5. Mirror each ported rule's unit tests as automation tests. Lift the player's action state machine out of
-   `src/presentation/player.ts` into the core first if it helps, so there is one description to port.
+5. Mirror each ported rule's unit tests as automation tests. The player's action state machine is one description
+   to port: `src/core/rules/wanderer.ts`, with its tests in `tests/core/rules/wanderer.test.ts`.
 
 **Holds when:** the mirrored tests pass on the same numbers as `tests/core`; a playtest of the same route feels the
 same in both builds for walking, running, a fight with each hostile, a hunt and a ride. Decide here between components
@@ -105,24 +106,24 @@ Only after Unreal Engine 5.9 is released, not in preview.
 1. Build the compatibility tier for the web target and measure it in Chrome: load time, download size, memory against
    the reported 2 GB ceiling, frame time.
 2. Confirm saving works across reloads.
-3. Decide hosting. GitHub Pages cannot send custom headers and limits a site to 1 GB (see [the web target](web-target.md)).
+3. Decide hosting. The build needs cross-origin isolation headers, which this project judges, untested, that GitHub
+   Pages cannot send, and GitHub limits a site to 1 GB (see [the web target](web-target.md)).
 
 **Holds when:** a build of the whole game runs in Chrome within memory with saved games that persist. If it does not,
 the Three.js build remains the browser version and the Unreal build is desktop only. See [the web target](web-target.md).
 
 ## Later: Unreal Engine 6
 
-Epic's stated plan, as reported in search results of its announcements (see [the web target](web-target.md)), is early
-access at the end of 2027, with gameplay moving to Verse and Actors and Blueprints deprecated in time. Nothing needs
-doing now beyond the habit this repository already has: rules that are small,
-tested and free of engine classes, and data in files.
+Epic's post on its plans could not be read from here; users on Epic's forum report that it moves gameplay programming
+to Verse (see [the web target](web-target.md)). Nothing needs doing now beyond the habit this repository already has:
+rules that are small, tested and free of engine classes, and data in files.
 
 ## Work that can be done in this repository meanwhile
 
 Each of these shortens a later phase and can be done on the web build alone:
 
-- Lift the remaining design decisions out of the scene layer ([system mapping](system-mapping.md), last section): the
-  player's, residents' and animals' state machines.
+- Keep the scene layer free of rules: the last section of the [system mapping](system-mapping.md) lists what is still
+  there and why it stays, and anything found there that decides play moves into the core.
 - Replace, before anything is released, the files the [asset manifest](../../data/assets/README.md#replace-before-ship)
   marks `replaceBeforeShip`: the hero's two sources of unsettled origin and the title theme. Each names its pack, so
   nothing waits on the questions themselves.

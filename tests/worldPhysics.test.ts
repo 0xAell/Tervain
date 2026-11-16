@@ -76,7 +76,7 @@ describe('real 60 Hz rigid-body world', () => {
     try {
       p.props[0]!.body.setTranslation({ x: 0, y: 3, z: 0 }, true);
       tick(p, 240);
-      expect(p.poses(false)[0]!.position.y).toBeCloseTo(.3, 2);
+      expect(p.poses()[0]!.position.y).toBeCloseTo(.3, 2);
       expect(p.props[0]!.body.linvel().y).toBeCloseTo(0, 2);
       expect(p.supportAt(0, 0, 5)).toBeCloseTo(.6, 2);
       expect(p.stats().steps).toBe(240);
@@ -87,7 +87,7 @@ describe('real 60 Hz rigid-body world', () => {
     try {
       p.props[1]!.body.setTranslation({ x: 0, y: 1.1, z: 0 }, true);
       tick(p, 300);
-      expect(p.poses(false)[1]!.position.y).toBeCloseTo(.9, 1);
+      expect(p.poses()[1]!.position.y).toBeCloseTo(.9, 1);
       expect(p.supportAt(0, 0, 2)).toBeCloseTo(1.2, 1);
     } finally { p.dispose(); }
   });

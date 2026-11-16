@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { S } from '../core/content/strings';
 import type { Game } from '../core/game/game';
-import { ANIMAL_SPECIES, HUNTING_ARROW_RANGE, skinningSeconds, withinSkinningReach, type AnimalId } from '../core/game/hunting';
+import { ANIMAL_SPECIES, HUNTING_ARROW_RANGE, skinningSeconds, type AnimalId } from '../core/game/hunting';
 import type { Input } from '../platform/input';
 import { codeLabel, type Settings } from '../platform/settings';
 import type { AudioEngine } from './audio';
@@ -12,6 +12,7 @@ import type { Hud } from './ui/hud';
 import { HuntingArrows, HUNTING_ARROW_GRAVITY, type ArrowImpact, type ArrowShot } from './huntingArrow';
 import type { AnimalArrowHit } from './animals/hunting/hit';
 import { arrowLaunchDirection, BOW } from '../core/rules/bow';
+import { arrowMeets, BowHand, bowAvailable, coverAtBow, shotTarget, skinningRefusal } from '../core/rules/archery';
 
 interface HuntingHost {
   game: Game; input: Input; player: Player; world: WorldScene; cam: CameraRig;
@@ -19,7 +20,6 @@ interface HuntingHost {
 }
 interface HuntingImpact extends ArrowImpact { animal?: AnimalArrowHit; treeId?: string; expired?: boolean }
 const SPEED = BOW.arrowSpeed;
-const DRAW_SECONDS = BOW.drawSeconds;
 const center = new THREE.Vector2();
 
 /** The low ballistic arc through the reticle target. Damage is independent of draw time. */
@@ -28,20 +28,22 @@ export function arrowDirection(origin: THREE.Vector3, target: THREE.Vector3, spe
   return new THREE.Vector3(d.x, d.y, d.z);
 }
 
-/** Transient input, flight and skinning presentation; durable hunting facts remain in Game commands. */
+/**
+ * The bow and the knife in the scene: it reads the controls, asks the scene what a ray meets, plays the sounds and
+ * shows the arrows. When the bow may be drawn, what the arrow is aimed at and meets, and whether he may skin are the
+ * core's (core/rules/archery.ts); what lasts goes through the game's commands.
+ */
 export class HuntingController {
   readonly arrows = new HuntingArrows();
-  private drawing = false;
-  private drawTime = 0;
-  private releasePending = false;
+  private readonly hand = new BowHand();
   private skinId: AnimalId | null = null;
   private shotOrigins = new Map<number, THREE.Vector3>();
   private resolved = new Set<number>();
 
   constructor(private readonly host: HuntingHost, private readonly canAct: () => boolean) {}
 
-  get drawFraction() { return Math.min(1, this.drawTime / DRAW_SECONDS); }
-  get isDrawing() { return this.drawing; }
+  get drawFraction() { return this.hand.drawFraction; }
+  get isDrawing() { return this.hand.drawing; }
 
   attach() { this.reset(); this.host.world.scene.add(this.arrows.group); }
   detach() { this.reset(); this.arrows.group.removeFromParent(); }
@@ -57,39 +59,36 @@ export class HuntingController {
   }
 
   private cancelDraw() {
-    this.drawing = this.releasePending = false; this.drawTime = 0;
+    this.hand.cancel();
     this.host.player.setBowAim(null);
     this.host.audio.stopHuntingSounds('bow_draw');
   }
 
+  /** Whether the bow can be drawn and loosed now: the core's rule (bowAvailable) on the wanderer as he stands. */
+  private bowAvailable(): boolean {
+    const { player, game, world } = this.host;
+    return bowAvailable({ equipped: player.bowEquipped(game), free: player.state === 'free', alive: player.alive, swimming: player.swimming,
+      riding: !!player.mount, mounting: !!player.mountMove, carrying: !!world.physics.holding });
+  }
+
   /** Runs before the player's native skeleton is posed. */
   controls(dt: number, playing: boolean) {
-    const { player, input, game, world, cam, audio } = this.host;
+    const { player, input, game, cam, audio } = this.host;
     if (!playing || !this.canAct()) {
-      this.cancelDraw(); player.cancelSkinning(); cam.setAiming(false); return;
+      // Held play (a panel, the pause, a hidden page) lets a drawn arrow down but holds a skinning where it is, as the
+      // core's wanderer holds every channel while he is not controllable; his fall ends it when he is set down again.
+      this.cancelDraw(); cam.setAiming(false); return;
     }
     if (input.pressed('skin')) this.skin();
     if (this.skinId && !this.skinValid(this.skinId)) player.cancelSkinning();
     // Not while getting onto or off the deer either: melee is already locked then (A86 scout).
-    const available = player.bowEquipped(game) && player.state === 'free' && player.alive && !player.swimming && !player.mount && !player.mountMove && !world.physics.holding;
-    if (!available) { this.cancelDraw(); cam.setAiming(false); return; }
-    const held = input.isDown('attack');
-    const aimHeld = input.isDown('block');
-    // A complete click between rendered frames still carries a press edge, even though it is no longer held.
-    if (!this.drawing && !this.releasePending && (input.pressed('attack') || (held && aimHeld))) {
-      if ((game.state.inventory.arrow ?? 0) <= 0) {
-        if (input.pressed('attack')) this.host.hud.toast(S('hunting.need_arrow'), 'bad');
-      } else {
-        this.drawing = true; this.drawTime = 0;
-        audio.huntingSound('bow_draw');
-      }
-    }
-    if (this.drawing) {
-      this.drawTime = Math.min(DRAW_SECONDS, this.drawTime + dt);
-      if (!held) { this.drawing = false; this.releasePending = true; audio.stopHuntingSounds('bow_draw'); }
-    }
-    const aiming = aimHeld || this.drawing || this.releasePending;
-    cam.setAiming(aiming, this.drawing ? this.drawFraction : 0);
+    if (!this.bowAvailable()) { this.cancelDraw(); cam.setAiming(false); return; }
+    const hand = this.hand.step(dt, { pressed: input.pressed('attack'), held: input.isDown('attack'), aimHeld: input.isDown('block'), arrows: game.state.inventory.arrow ?? 0 });
+    if (hand.empty) this.host.hud.toast(S('hunting.need_arrow'), 'bad');
+    if (hand.started) audio.huntingSound('bow_draw');
+    if (hand.letGo) audio.stopHuntingSounds('bow_draw');
+    const aiming = hand.aiming;
+    cam.setAiming(aiming, this.hand.drawing ? this.drawFraction : 0);
     player.setBowAim(aiming ? {
       x: Math.sin(cam.yaw) * Math.cos(cam.pitch), y: -Math.sin(cam.pitch), z: Math.cos(cam.yaw) * Math.cos(cam.pitch),
     } : null, this.drawFraction);
@@ -98,9 +97,10 @@ export class HuntingController {
   /** Runs after camera following and native animal posing, so contacts use this frame's visible triangles. */
   afterWorld(dt: number, playing: boolean) {
     if (!playing || !this.canAct()) return;
-    // Movement can enter deep water after controls ran. Cancel before releasing, while existing arrows keep flying.
-    if (this.host.player.swimming) { this.cancelDraw(); this.host.cam.setAiming(false); }
-    if (this.releasePending) { this.releasePending = false; this.release(); this.drawTime = 0; }
+    // The step after the controls can take him into deep water, onto the deer or under a crate: the core's bow rule is
+    // asked again before the arrow is loosed, while arrows already in flight keep flying.
+    if (!this.bowAvailable()) { this.cancelDraw(); this.host.cam.setAiming(false); }
+    if (this.hand.loose()) this.release();
     this.arrows.quiver = !this.host.settings.reducedMotion;
     const water = this.host.world.water as WorldScene['water'] | undefined;
     this.arrows.update(dt, (from, to, shot) => this.sweep(from, to, shot), (shot, impact) => this.impact(shot, impact as HuntingImpact), water && {
@@ -124,17 +124,15 @@ export class HuntingController {
     const scenery = world.physics.traceProjectile(ray.ray.origin, far);
     const animal = world.animals.traceArrow(ray.ray.origin, ray.ray.direction, HUNTING_ARROW_RANGE);
     // A camera ray hit behind the bow (the hero's own cover, a shoulder-close post) would turn the arrow round (A70).
-    const past = ray.ray.origin.distanceTo(muzzle.origin) + 0.3;
-    const near = (hit: { distance: number } | null | undefined) => !!hit && hit.distance > past;
-    const target = near(animal) && (!near(scenery) || animal!.distance < scenery!.distance) ? new THREE.Vector3().copy(animal!.point)
-      : near(scenery) ? new THREE.Vector3().copy(scenery!.point) : far;
+    const aimed = shotTarget(ray.ray.origin, muzzle.origin, far, scenery, animal);
+    const target = new THREE.Vector3(aimed.x, aimed.y, aimed.z);
     const direction = arrowDirection(muzzle.origin, target);
     const shot = this.arrows.launch(muzzle.origin, direction, SPEED);
     if (!shot) return;
     this.shotOrigins.set(shot.id, muzzle.origin.clone());
     while (this.shotOrigins.size > 32) this.shotOrigins.delete(this.shotOrigins.keys().next().value!);
     // The visible bow cannot put an arrow through cover between the player and the arrow tip.
-    const cover = world.physics.traceProjectile({ x: player.x, y: player.y + 1.25, z: player.z }, muzzle.origin);
+    const cover = coverAtBow(player, muzzle.origin, (from, to) => world.physics.traceProjectile(from, to));
     if (cover) {
       this.impact(shot, { point: new THREE.Vector3().copy(cover.point), treeId: cover.treeId });
       // Resolve that obstruction on the first swept step too, then remove the flight exactly once.
@@ -143,29 +141,12 @@ export class HuntingController {
   }
 
   private sweep(from: THREE.Vector3, to: THREE.Vector3, shot: ArrowShot): HuntingImpact | null {
-    const origin = this.shotOrigins.get(shot.id);
-    if (!origin || !Number.isFinite(origin.x)) return { point: from.clone(), lodge: false, expired: true };
-    const rangeSquared = HUNTING_ARROW_RANGE * HUNTING_ARROW_RANGE;
-    if (from.distanceToSquared(origin) >= rangeSquared) return { point: from.clone(), lodge: false, expired: true };
-    const segment = to.clone().sub(from);
-    if (segment.lengthSq() < 1e-16) return null;
-    segment.normalize();
-    // The final swept step can cross the range boundary. Trace only its in-range portion: a contact beyond it must not
-    // win before expiry merely because both happen in the same ballistic step.
-    const expires = to.distanceToSquared(origin) > rangeSquared;
-    const end = expires
-      ? new THREE.Ray(from, segment).intersectSphere(new THREE.Sphere(origin, HUNTING_ARROW_RANGE), new THREE.Vector3())!
-      : to;
-    const scenery = this.host.world.physics.traceProjectile(from, end);
-    const animal = this.host.world.animals.traceArrow(from, segment, from.distanceTo(end));
-    if (animal && (!scenery || animal.distance < scenery.distance - 1e-5)) {
-      return { point: new THREE.Vector3().copy(animal.point), animal, lodge: false };
-    }
-    // A person or a bandit walks on: an arrow glancing off them falls away rather than staying where they stood (A86 scout).
-    if (scenery?.actorId) return { point: new THREE.Vector3().copy(scenery.point), lodge: false };
-    if (scenery) return { point: new THREE.Vector3().copy(scenery.point), treeId: scenery.treeId };
-    if (expires) return { point: end, lodge: false, expired: true };
-    return null;
+    const { physics, animals } = this.host.world;
+    const met = arrowMeets<AnimalArrowHit>(from, to, this.shotOrigins.get(shot.id), {
+      scenery: (a, b) => physics.traceProjectile(a, b),
+      animal: (a, direction, reach) => animals.traceArrow(a as THREE.Vector3, new THREE.Vector3(direction.x, direction.y, direction.z), reach),
+    });
+    return met && { ...met, point: new THREE.Vector3(met.point.x, met.point.y, met.point.z) };
   }
 
   private impact(shot: ArrowShot, impact: HuntingImpact) {
@@ -204,23 +185,16 @@ export class HuntingController {
   /** The HUD and activation report the same prerequisite; active channels also recheck their footing and reach. */
   private skinUnavailable(id: AnimalId, starting = true): string | null {
     const { player, game, world } = this.host;
-    const record = game.state.hunting[id];
-    if (record?.status !== 'dead') return 'hunting.animal_alive';
-    if ((game.state.inventory.skinning_knife ?? 0) < 1) return 'hunting.need_knife';
-    if (!player.alive || !player.grounded || player.swimming) return 'hunting.skin_need_footing';
-    if (starting) {
-      if (world.physics.holding) return 'hunting.skin_put_down';
-      if (this.drawing || this.releasePending) return 'hunting.skin_release_bow';
-      if (player.state !== 'free' || player.mount || player.mountMove) return 'hunting.skin_busy';
-    }
-    const frame = world.animals.skinningFrame(id, player);
-    if (!frame?.ready) return 'hunting.skin_wait';
-    if (!withinSkinningReach(player, record.position) || Math.hypot(frame.stance.x - player.x, frame.stance.z - player.z) > .4) return 'hunting.too_far';
-    const from = { x: player.x, y: player.y + .95, z: player.z };
-    const target = { ...frame.target, y: frame.target.y + .04 };
-    const obstruction = world.physics.traceProjectile(from, target);
-    return obstruction && obstruction.distance < Math.hypot(target.x - from.x, target.y - from.y, target.z - from.z) - .06
-      ? 'hunting.skin_blocked' : null;
+    return skinningRefusal({
+      record: game.state.hunting[id],
+      knives: game.state.inventory.skinning_knife ?? 0,
+      hunter: { x: player.x, y: player.y, z: player.z, alive: player.alive, grounded: player.grounded, swimming: player.swimming,
+        free: player.state === 'free', riding: !!player.mount, mounting: !!player.mountMove },
+      carrying: !!world.physics.holding,
+      bowBusy: this.hand.busy,
+      carcass: () => world.animals.skinningFrame(id, player),
+      sight: (from, to) => world.physics.traceProjectile(from, to),
+    }, starting);
   }
 
   private skinValid(id: AnimalId) { return this.skinUnavailable(id, false) === null; }
@@ -257,7 +231,7 @@ export class HuntingController {
     const carcass = this.skinId ? { id: this.skinId } : world.animals.nearestCarcass(player);
     const unavailable = carcass ? this.skinUnavailable(carcass.id) : null;
     hud.setHunting({
-      bowEquipped: player.bowEquipped(game), aiming: player.bowAiming, drawing: this.drawing,
+      bowEquipped: player.bowEquipped(game), aiming: player.bowAiming, drawing: this.hand.drawing,
       drawFraction: this.drawFraction, arrows: game.state.inventory.arrow ?? 0,
       aimKey: input.label('block', codeLabel), drawKey: input.label('attack', codeLabel), skinKey: input.label('skin', codeLabel),
       carcassName: carcass ? S(`animal.${ANIMAL_SPECIES[carcass.id]}`) : undefined,

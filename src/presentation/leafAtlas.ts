@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { downloadAsset } from './assets/download';
 
 /**
- * Procedural leaf atlases (B12), made offline by tools/leaf-atlas (no third-party art) into public/textures/leaf.
+ * Leaf atlases (B12), made offline by tools/leaf-atlas into public/textures/leaf: the broadleaf and conifer leaves drawn
+ * in code, the fir's needles redrawn from the supplied fir model's own needle sheet.
  *
  * Each atlas is 2048 x 2048, 4 x 4 cells of 512 px; cell i is column i % 4, row floor(i / 4), rows counted from the top
  * of the image (v = 0 is the top row, the glTF convention, texture.flipY = false). Two files per atlas: `*-color.webp`

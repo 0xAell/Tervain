@@ -545,6 +545,26 @@
             "sprint"
           ],
           "additionalProperties": false
+        },
+        "wade": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "number"
+            },
+            "span": {
+              "type": "number"
+            },
+            "slowest": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "from",
+            "span",
+            "slowest"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -567,7 +587,8 @@
         "firmFootingSlope",
         "moveResponse",
         "vault",
-        "swim"
+        "swim",
+        "wade"
       ],
       "additionalProperties": false
     },
@@ -784,6 +805,264 @@
       ],
       "additionalProperties": false
     },
+    "cargo": {
+      "type": "object",
+      "properties": {
+        "carry": {
+          "type": "object",
+          "properties": {
+            "shoulder": {
+              "type": "number"
+            },
+            "reach": {
+              "type": "number"
+            },
+            "vertical": {
+              "type": "number"
+            },
+            "ahead": {
+              "type": "number"
+            },
+            "sidePenalty": {
+              "type": "number"
+            },
+            "holdAhead": {
+              "type": "number"
+            },
+            "holdPitch": {
+              "type": "number"
+            },
+            "dropBeyond": {
+              "type": "number"
+            },
+            "pull": {
+              "type": "integer"
+            },
+            "damp": {
+              "type": "integer"
+            },
+            "pullMax": {
+              "type": "integer"
+            },
+            "throwAhead": {
+              "type": "number"
+            },
+            "throwUp": {
+              "type": "number"
+            },
+            "throwPitch": {
+              "type": "integer"
+            },
+            "spin": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "y",
+                "z"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "shoulder",
+            "reach",
+            "vertical",
+            "ahead",
+            "sidePenalty",
+            "holdAhead",
+            "holdPitch",
+            "dropBeyond",
+            "pull",
+            "damp",
+            "pullMax",
+            "throwAhead",
+            "throwUp",
+            "throwPitch",
+            "spin"
+          ],
+          "additionalProperties": false
+        },
+        "step": {
+          "type": "object",
+          "properties": {
+            "height": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "height",
+            "width"
+          ],
+          "additionalProperties": false
+        },
+        "body": {
+          "type": "object",
+          "properties": {
+            "friction": {
+              "type": "number"
+            },
+            "restitution": {
+              "type": "number"
+            },
+            "linearDamping": {
+              "type": "number"
+            },
+            "angularDamping": {
+              "type": "number"
+            },
+            "pusherMass": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "friction",
+            "restitution",
+            "linearDamping",
+            "angularDamping",
+            "pusherMass"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "carry",
+        "step",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    "shot": {
+      "type": "object",
+      "properties": {
+        "pastBow": {
+          "type": "number"
+        },
+        "chest": {
+          "type": "number"
+        },
+        "alarm": {
+          "type": "integer"
+        },
+        "animalWins": {
+          "type": "number"
+        },
+        "step": {
+          "type": "number"
+        },
+        "woundedFleesBehind": {
+          "type": "integer"
+        },
+        "skinning": {
+          "type": "object",
+          "properties": {
+            "collapseSeconds": {
+              "type": "number"
+            },
+            "stanceSlack": {
+              "type": "number"
+            },
+            "eye": {
+              "type": "number"
+            },
+            "lift": {
+              "type": "number"
+            },
+            "slack": {
+              "type": "number"
+            },
+            "least": {
+              "type": "number"
+            },
+            "beside": {
+              "type": "number"
+            },
+            "clear": {
+              "type": "number"
+            },
+            "inside": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "collapseSeconds",
+            "stanceSlack",
+            "eye",
+            "lift",
+            "slack",
+            "least",
+            "beside",
+            "clear",
+            "inside"
+          ],
+          "additionalProperties": false
+        },
+        "skullBand": {
+          "type": "object",
+          "properties": {
+            "below": {
+              "type": "number"
+            },
+            "above": {
+              "type": "number"
+            },
+            "headShare": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "below",
+            "above",
+            "headShare"
+          ],
+          "additionalProperties": false
+        },
+        "skulls": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "height": {
+                "type": "number"
+              },
+              "rear": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "height",
+              "rear"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "pastBow",
+        "chest",
+        "alarm",
+        "animalWins",
+        "step",
+        "woundedFleesBehind",
+        "skinning",
+        "skullBand",
+        "skulls"
+      ],
+      "additionalProperties": false
+    },
     "clock": {
       "type": "object",
       "properties": {
@@ -860,6 +1139,131 @@
     "journey": {
       "type": "object",
       "properties": {
+        "sitting": {
+          "type": "object",
+          "properties": {
+            "clockTickMinutes": {
+              "type": "number"
+            },
+            "afloat": {
+              "type": "object",
+              "properties": {
+                "depth": {
+                  "type": "number"
+                },
+                "over": {
+                  "type": "number"
+                },
+                "feetBelow": {
+                  "type": "number"
+                },
+                "headroom": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "depth",
+                "over",
+                "feetBelow",
+                "headroom"
+              ],
+              "additionalProperties": false
+            },
+            "safePlaceRings": {
+              "type": "integer"
+            },
+            "entry": {
+              "type": "object",
+              "properties": {
+                "propSupport": {
+                  "type": "number"
+                },
+                "buried": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "propSupport",
+                "buried"
+              ],
+              "additionalProperties": false
+            },
+            "standingBody": {
+              "type": "object",
+              "properties": {
+                "residentRadius": {
+                  "type": "number"
+                },
+                "height": {
+                  "type": "number"
+                },
+                "heroRadius": {
+                  "type": "number"
+                },
+                "heroHeight": {
+                  "type": "number"
+                },
+                "animalMargin": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "residentRadius",
+                "height",
+                "heroRadius",
+                "heroHeight",
+                "animalMargin"
+              ],
+              "additionalProperties": false
+            },
+            "awaitedMountReach": {
+              "type": "integer"
+            },
+            "timedWork": {
+              "type": "object",
+              "properties": {
+                "rite": {
+                  "type": "integer"
+                },
+                "brace": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "rite",
+                "brace"
+              ],
+              "additionalProperties": false
+            },
+            "shake": {
+              "type": "object",
+              "properties": {
+                "surge": {
+                  "type": "number"
+                },
+                "jam": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "surge",
+                "jam"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "clockTickMinutes",
+            "afloat",
+            "safePlaceRings",
+            "entry",
+            "standingBody",
+            "awaitedMountReach",
+            "timedWork",
+            "shake"
+          ],
+          "additionalProperties": false
+        },
         "autosaveSeconds": {
           "type": "integer"
         },
@@ -942,6 +1346,9 @@
         "droughtBell": {
           "type": "object",
           "properties": {
+            "first": {
+              "type": "integer"
+            },
             "every": {
               "type": "integer"
             },
@@ -962,6 +1369,7 @@
             }
           },
           "required": [
+            "first",
             "every",
             "reach",
             "strikeGapMs",
@@ -973,6 +1381,7 @@
         }
       },
       "required": [
+        "sitting",
         "autosaveSeconds",
         "hitStop",
         "death",
@@ -1018,6 +1427,9 @@
             "pitch": {
               "type": "number"
             },
+            "entryPitch": {
+              "type": "number"
+            },
             "minPitch": {
               "type": "number"
             },
@@ -1046,6 +1458,7 @@
             "maxDistance",
             "zoomRate",
             "pitch",
+            "entryPitch",
             "minPitch",
             "maxPitch",
             "pivotHeight",
@@ -1066,12 +1479,20 @@
             },
             "up": {
               "type": "number"
+            },
+            "fov": {
+              "type": "integer"
+            },
+            "drawFov": {
+              "type": "integer"
             }
           },
           "required": [
             "boom",
             "right",
-            "up"
+            "up",
+            "fov",
+            "drawFov"
           ],
           "additionalProperties": false
         },
@@ -1169,6 +1590,8 @@
     "hero",
     "riding",
     "bow",
+    "cargo",
+    "shot",
     "clock",
     "journey",
     "camera",

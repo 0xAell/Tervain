@@ -1,13 +1,12 @@
-import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT } from '../content/animals';
+import { ANIMALS, ANIMAL_CALL_REACH, ANIMAL_SENSES, ANIMAL_TEMPERAMENT } from '../content/animals';
 import { DIALOGUE_STRINGS } from '../content/dialogue';
 import { ENEMY_ARCHETYPES, ENEMY_IDLE_YAW, ENEMY_POST_YAW } from '../content/enemies';
 import { ITEMS, itemAction } from '../content/items';
 import { NPCS } from '../content/npcs';
 import { EN } from '../content/strings';
-import { Exclusions } from '../world/exclusions';
-import { createFloraPopulation } from '../world/flora';
 import { BUILDINGS, ENEMY_SPAWNS, PLACES } from '../world/layout';
 import { PHYSICAL_PROPS } from '../world/physicalProps';
+import { PLANTED_FOREST } from '../world/plantedForest';
 import type { Terrain } from '../world/terrain';
 
 /**
@@ -16,7 +15,7 @@ import type { Terrain } from '../world/terrain';
  * members cannot drift apart. Positions are converted to Unreal's units and axes here, once.
  */
 
-/** Core metres (x east, y up, z south) to Unreal centimetres (X east, Y south, Z up): a left-handed frame, as glTF import gives. */
+/** Core metres (x east, y up, z south) to Unreal centimetres (X east, Y south, Z up): a left-handed frame, meant to match a glTF import (docs/unreal/conventions.md). */
 export const toUnreal = (x: number, y: number, z: number) => ({ X: round(x * 100), Y: round(z * 100), Z: round(y * 100) });
 /** A core yaw (radians, 0 faces +z, front = (sin, cos)) as an Unreal yaw in degrees for an asset whose forward is +X. */
 export const yawToUnreal = (yaw: number) => { const d = 90 - yaw * 180 / Math.PI; return round(((d + 180) % 360 + 360) % 360 - 180); };
@@ -75,7 +74,7 @@ export const UNREAL_CONVENTIONS = {
 
 export function unrealTables(terrain: Terrain): UnrealTable[] {
   const ground = (x: number, z: number) => terrain.heightAt(x, z);
-  const trees = createFloraPopulation(terrain, new Exclusions(terrain));
+  const trees = PLANTED_FOREST;
   const location = f('FVector', 'Where it stands, on the ground (cm).');
   return [
     {
@@ -90,18 +89,17 @@ export function unrealTables(terrain: Terrain): UnrealTable[] {
       rows: Object.values(ITEMS).map((item) => ({ Name: item.id, NameKey: item.nameKey, DescriptionKey: item.descKey, Kind: pascal(item.kind), HealAmount: item.healAmount ?? 0, Action: pascal(itemAction(item.id) ?? 'none') })),
     },
     {
-      file: 'DT_AnimalSpecies.json', name: 'FTervainAnimalSpeciesRow', note: 'How a kind of animal moves and meets the hunter. The row name is the species.',
+      file: 'DT_AnimalSpecies.json', name: 'FTervainAnimalSpeciesRow', note: 'How a kind of animal meets the hunter and how far it calls. The row name is the species.',
       fields: {
-        WalkSpeed: f('float', 'Walking pace (cm/s).'),
-        RunSpeed: f('float', 'Running pace (cm/s).'),
         NoticeDistance: f('float', 'It looks up at the hunter within this distance (cm).'),
         FleeDistance: f('float', 'It flees, or a predator stands its ground, within this distance (cm).'),
         HoldUntil: f('float', 'A predator holds its ground until the hunter is within this share of the flee distance; 1 for prey.'),
         HerdAlarmDistance: f('float', 'An alarm carries to its own kind within this distance (cm); 0 for solitary kinds.'),
+        CallReach: f('float', 'It calls only when someone is within this distance, and its call is heard out to it (cm).'),
       },
-      rows: Object.keys(ANIMAL_SPEEDS).map((species) => {
-        const pace = ANIMAL_SPEEDS[species as keyof typeof ANIMAL_SPEEDS], temper = ANIMAL_TEMPERAMENT[species as keyof typeof ANIMAL_TEMPERAMENT];
-        return { Name: species, WalkSpeed: cm(pace.walk), RunSpeed: cm(pace.run), NoticeDistance: cm(pace.notice), FleeDistance: cm(pace.flee), HoldUntil: temper.holdUntil, HerdAlarmDistance: cm(temper.herd) };
+      rows: Object.keys(ANIMAL_SENSES).map((species) => {
+        const senses = ANIMAL_SENSES[species as keyof typeof ANIMAL_SENSES], temper = ANIMAL_TEMPERAMENT[species as keyof typeof ANIMAL_TEMPERAMENT];
+        return { Name: species, NoticeDistance: cm(senses.notice), FleeDistance: cm(senses.flee), HoldUntil: temper.holdUntil, HerdAlarmDistance: cm(temper.herd), CallReach: cm(ANIMAL_CALL_REACH[species as keyof typeof ANIMAL_CALL_REACH]) };
       }),
     },
     {
@@ -112,6 +110,8 @@ export function unrealTables(terrain: Terrain): UnrealTable[] {
         Habitat: f({ enum: 'ETervainAnimalHabitat' }, 'The ground it keeps to.'),
         Home: f('FVector', 'The centre of its range, on the ground (cm).'),
         RoamRadius: f('float', 'How far from home it wanders (cm).'),
+        WalkSpeed: f('float', 'Walking pace (cm/s); the stride is played to match. 0 for an animal that never walks.'),
+        RunSpeed: f('float', 'Running pace (cm/s); the stride is played to match. 0 for an animal that never walks.'),
         bSeated: f('bool', 'It sits in one place and never walks.'),
         bTame: f('bool', 'It watches travellers and does not flee; the tame deer can be ridden.'),
         HomeYaw: f('float', 'Its facing at home (degrees), when bHasHomeYaw.'),
@@ -119,7 +119,7 @@ export function unrealTables(terrain: Terrain): UnrealTable[] {
       },
       rows: ANIMALS.map((animal) => ({
         Name: `${animal.species}-${animal.id}`, Species: animal.species, SourceModel: animal.file, Habitat: pascal(animal.habitat),
-        Home: toUnreal(animal.home.x, ground(animal.home.x, animal.home.z), animal.home.z), RoamRadius: cm(animal.roam),
+        Home: toUnreal(animal.home.x, ground(animal.home.x, animal.home.z), animal.home.z), RoamRadius: cm(animal.roam), WalkSpeed: cm(animal.walk), RunSpeed: cm(animal.run),
         bSeated: !!animal.seated, bTame: !!animal.tame, HomeYaw: animal.homeYaw === undefined ? 0 : yawToUnreal(animal.homeYaw), bHasHomeYaw: animal.homeYaw !== undefined,
       })),
     },
@@ -200,16 +200,17 @@ export function unrealTables(terrain: Terrain): UnrealTable[] {
       rows: PHYSICAL_PROPS.map((prop) => ({ Name: prop.id, DisplayName: prop.name, Kind: pascal(prop.kind), Location: toUnreal(prop.x, ground(prop.x, prop.z), prop.z), Yaw: yawToUnreal(prop.yaw), Size: { X: cm(prop.width), Y: cm(prop.depth), Z: cm(prop.height) }, MassKg: prop.mass })),
     },
     {
-      file: 'DT_Trees.json', name: 'FTervainTreeRow', note: 'One tree or shrub of the planting. Row names are stable only for one export.',
+      file: 'DT_Trees.json', name: 'FTervainTreeRow', note: 'One tree or shrub of the forest as the web build plants it. Row names are stable only for one export.',
       fields: {
         Species: f('FName', 'oak, birch, pine, fir, shorepine, dead, orchard, shrub or palm.'),
         Variant: f('int32', 'Which of the species’ models, 0 to 2.'),
         Location: location,
         Yaw: f('float', 'Its turn about the vertical (degrees).'),
         Scale: f('float', 'Uniform scale.'),
-        TrunkRadius: f('float', 'Radius of the trunk as an obstacle (cm); 0 for a shrub that does not block.'),
+        TrunkRadius: f('float', 'Radius of the trunk as an obstacle to movement (cm); 0 for a tree or shrub that does not block.'),
+        NavigationRadius: f('float', 'Radius the walk grid keeps clear of (cm): the trunk or the drawn wood, whichever reaches further; 0 if it does not block.'),
       },
-      rows: trees.map((tree, index) => ({ Name: `tree_${String(index).padStart(5, '0')}`, Species: tree.sp, Variant: tree.v, Location: toUnreal(tree.x, tree.y, tree.z), Yaw: yawToUnreal(tree.yaw), Scale: round(tree.s), TrunkRadius: cm(tree.radius) })),
+      rows: trees.map((tree, index) => ({ Name: `tree_${String(index).padStart(5, '0')}`, Species: tree.sp, Variant: tree.v, Location: toUnreal(tree.x, tree.y, tree.z), Yaw: yawToUnreal(tree.yaw), Scale: round(tree.s), TrunkRadius: cm(tree.radius), NavigationRadius: cm(tree.navigationRadius) })),
     },
   ];
 }
@@ -243,7 +244,11 @@ export function unrealRowsHeader(tables: readonly UnrealStruct[]): string {
     '#pragma once',
     '',
     '#include "CoreMinimal.h"',
+    '#include "Containers/Array.h"',
+    '#include "Containers/UnrealString.h"',
     '#include "Engine/DataTable.h"',
+    '#include "Math/Vector.h"',
+    '#include "UObject/NameTypes.h"',
     '#include "TervainRows.generated.h"',
     '',
   ];

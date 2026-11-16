@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { MUSIC, type MusicId } from '../../../src/core/content/music';
-import { moodAt, MUSIC_PACING, MusicDirector, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS, threatFrom } from '../../../src/core/rules/music';
+import { eventSting, fightWon, moodAt, MUSIC_PACING, MusicDirector, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS, threatFrom } from '../../../src/core/rules/music';
 import {
   BEDS, bedTargets, dawn, dayness, EMITTER_CLIPS, emitterRuleIds, emitterRuleTable, EmitterScheduler, forestCover, MILL_SOUND, QUARRY_SOUND,
   roomFloorSurface, seaProximity, villageCover, type ListenerState, type WorldSoundState,
+  seaBedNearness,
 } from '../../../src/core/rules/soundscape';
+import { coastX } from '../../../src/core/world/coast';
 import { PLACES } from '../../../src/core/world/layout';
 
 // The score's director and the world's sound are rules of the game: which piece answers a place, a threat and a
@@ -146,5 +148,36 @@ describe('the world’s sound', () => {
     expect(roomFloorSurface(room('shrine'), 0, 0)).toBe('stone');
     expect(roomFloorSurface({}, 0, 0)).toBeNull();
     expect(roomFloorSurface({ rooms: { at: () => null } } as unknown as Parameters<typeof roomFloorSurface>[0], 0, 0)).toBeNull();
+  });
+});
+
+describe('the sea’s low bed', () => {
+  it('is heard whole at the coast line and fades inland, more slowly than the surf', () => {
+    const coast = coastX(0);
+    expect(seaBedNearness(coast, 0)).toBe(1);
+    expect(seaBedNearness(coast - 10, 0), 'out over the water').toBe(1);
+    expect(seaBedNearness(coast + 95, 0)).toBeCloseTo(Math.exp(-1), 9);
+    expect(seaBedNearness(coast + 40, 0)).toBeGreaterThan(seaBedNearness(coast + 80, 0));
+  });
+});
+
+describe('the stings happenings earn', () => {
+  it('plays the quest\u2019s for a step of the story, a skill or a worker brought out, and a place\u2019s own when it is found', () => {
+    expect(eventSting({ t: 'phase', phase: 'committed' })).toEqual({ kind: 'quest' });
+    expect(eventSting({ t: 'skill', id: 'steady_guard' })).toEqual({ kind: 'quest' });
+    expect(eventSting({ t: 'worker_rescued', method: 'rope' })).toEqual({ kind: 'quest' });
+    expect(eventSting({ t: 'place', id: 'ford' })).toEqual({ kind: 'discover', place: 'ford' });
+  });
+
+  it('leaves the valley\u2019s settling to the bell, and everything else without a sting', () => {
+    expect(eventSting({ t: 'phase', phase: 'settled' })).toBeNull();
+    expect(eventSting({ t: 'shortcut' })).toBeNull();
+    expect(eventSting({ t: 'item', id: 'arrow', delta: 1 })).toBeNull();
+  });
+
+  it('wins the fight as a foe falls with no other still alive and on him', () => {
+    const fallen = { alive: false, engaged: true }, onHim = { alive: true, engaged: true }, away = { alive: true, engaged: false }, dead = { alive: false, engaged: true };
+    expect(fightWon(fallen, [fallen, away, dead])).toBe(true);
+    expect(fightWon(fallen, [fallen, onHim])).toBe(false);
   });
 });

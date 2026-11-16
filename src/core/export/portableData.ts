@@ -1,5 +1,5 @@
 import { AMBIENT_RESIDENTS } from '../content/ambientPeople';
-import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips } from '../content/animals';
+import { ANIMALS, ANIMAL_CALL_REACH, ANIMAL_GESTURE_SECONDS, ANIMAL_SENSES, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips } from '../content/animals';
 import { NPC_OBSERVATIONS } from '../content/arrival';
 import { DIALOGUE_NODES, DIALOGUE_STRINGS } from '../content/dialogue';
 import { ENEMY_ARCHETYPES, ENEMY_IDLE_YAW, ENEMY_POST_YAW, ENEMY_VARIANT } from '../content/enemies';
@@ -9,6 +9,7 @@ import { BARKS, NPCS } from '../content/npcs';
 import { WORLD_PICKUP_ITEM_IDS } from '../content/pickups';
 import { EN } from '../content/strings';
 import { HERO_LINES, SCENE_REACH, SCENES, SPEAKER_NAMES, TALKS, VOICE_LINES } from '../content/voice';
+import { VOICE_LINE_SECONDS } from '../content/voiceLengths';
 import { APPLY_DELAY_MIN, CLOCK_RATE, REPORT_DELAY_MIN, REWARD_COIN, RITE_CALM_MIN, TRAINING_COST } from '../game/constants';
 import {
   ANIMAL_IDS, ANIMAL_MODEL_IDS, ANIMAL_SPECIES, animalLoot, ARROW_QUIVER_CAPACITY, ARROW_RESTOCK_AMOUNT, CARCASS_HOURS, HUNTABLE_ANIMAL_IDS,
@@ -28,13 +29,18 @@ import { MUSIC } from '../content/music';
 import { MUSIC_PACING, PLACE_REGION, PLAYLISTS, REGION_STING, THREAT_LOOPS } from '../rules/music';
 import { BEDS, emitterRuleTable, INN, MILL_SOUND, QUARRY_SOUND } from '../rules/soundscape';
 import { BOW } from '../rules/bow';
+import { CARGO_BODY, CARGO_STEP, CARRY } from '../rules/cargo';
+import { BUBBLE, HERO_CUE_AGAIN, HERO_CUE_DELAY, SCENE_CHECK_SECONDS, SPEECH } from '../rules/speech';
+import { AFLOAT, AWAITED_MOUNT_REACH, CLOCK_TICK_MINUTES, ENTRY, SAFE_PLACE_RINGS, SHAKE, STANDING_BODY, TIMED_WORK } from '../rules/session';
+import { SHOT, SKINNING, SKULL_BAND, SKULLS } from '../rules/archery';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../rules/camera';
 import { NIGHT, nightness, SUNRISE_HOUR, SUNSET_HOUR } from '../rules/dayNight';
 import { moonDirection, SKY_KEYS, SKY_LIGHT, sunDirection } from '../rules/sky';
+import { LOOK, MENU_LOOK } from '../content/look';
 import { DOORS } from '../rules/doors';
 import {
   ACTION_COST, ACTION_SECONDS, BLADE, DODGE, ENGAGED_REACH, FIRM_FOOTING_SLOPE, FISTS, GRAVITY, GROUND_FOLLOW_DROP, GUARD, HIT_AT, JUMP_SPEED,
-  MOVE_RESPONSE, PERFECT_BLOCK_WINDOW, SHEATHE_AFTER, STAMINA, STEP_HEIGHT, SWIM_DEPTH, SWIM_EXIT, SWIM_FLOAT, SWIM_SPEED, SWIM_SPRINT, VAULT,
+  MOVE_RESPONSE, PERFECT_BLOCK_WINDOW, SHEATHE_AFTER, STAMINA, STEP_HEIGHT, SWIM_DEPTH, SWIM_EXIT, SWIM_FLOAT, SWIM_SPEED, SWIM_SPRINT, VAULT, WADE,
 } from '../rules/hero';
 import { HERO_GUARD_SPEED, HERO_RUN_CYCLE, HERO_RUN_SPEED, HERO_RUN_THRESHOLD, HERO_WALK_CYCLE, HERO_WALK_SPEED } from '../rules/heroLocomotion';
 import { HOSTILE } from '../rules/hostile';
@@ -45,12 +51,14 @@ import {
 import { RESIDENT } from '../rules/resident';
 import { DEER_BODY, MOUNT_SIDE, MOUNT_STAMINA, MOUNT_TIMES, RIDE, RIDE_CAMERA } from '../rules/riding';
 import { BIOME_IDS, BIOME_REGIONS } from '../world/biomes';
+import { buildStaticColliders } from '../world/colliders';
 import { DRESSING } from '../world/dressing';
 import { Exclusions } from '../world/exclusions';
 import { DETAIL_KEEP } from '../world/detail';
 import { createForestFloorPopulation, FOREST_FLOOR_DISTANCE } from '../world/forestFloor';
 import { createShoreDetailPopulation, placeScatter, ROCK_SHAPE_COUNT } from '../world/scatter';
 import { createFloraPopulation } from '../world/flora';
+import { PLANTED_FOREST, PLANTED_TRUNKS, plantedAsFlora } from '../world/plantedForest';
 import { FOREST_CLEARINGS, FOREST_OPENINGS } from '../world/forest';
 import { FURNITURE } from '../world/furniture';
 import { LAYERS } from '../world/groundLayers';
@@ -58,14 +66,16 @@ import { RESIDENT_HOMES } from '../world/homes';
 import { houseYard } from '../world/houseYards';
 import { hearthOf, INTERIORS } from '../world/interiors';
 import {
-  ANCHORS, ARCHIVE_ROOM, ARCHIVE_SHUTTER, ARRIVAL_ROUTE, ARRIVAL_SIGN, ARRIVAL_TRAIL_WIDTH, ARRIVAL_WRECK, BELL, BELL_TOWER, BORDER_SIGN, BUILDINGS,
-  COAST, COASTAL, DECKS, DEEP_WATER, ENEMY_SPAWNS, FIELDS, FORD, FOREST_REGION, FOREST_RUIN, FOREST_WAYMARKERS, HAMLET_PROPS, HUNTER_CAMP, HUNTER_SUPPLY,
-  INLAND_HAMLET, INSPECT_LOCATIONS, LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LANTERNS, LEDGER, LIGHTHOUSE, MILL_WHEEL, ORCHARD, PALISADE, PICKUP_LOCATIONS,
-  PLACES, RESULT_CHECKS, RITE_ALTAR, ROADS, SEA_LEVEL, SHORTCUT, SLUICE, SPAWN, SPRING_POOL, STRAND, STREAMS, VALLEY, VILLAGE_HANDCART, WAGON, WELL, WORLD,
+  ANCHORS, ARCHIVE_ROOM, ARCHIVE_SHUTTER, ARRIVAL_ROUTE, ARRIVAL_SIGN, ARRIVAL_TRAIL_WIDTH, ARRIVAL_WRECK, BELL, BELL_TOWER, BENCHES, BORDER_SIGN, BUILDINGS,
+  COAST, COASTAL, DECKS, DEEP_WATER, ENEMY_SPAWNS, FIELD_FENCE_MARGIN, FIELDS, FORD, FOREST_REGION, FOREST_RUIN, FOREST_WAYMARKERS, HAMLET_PROPS, HUNTER_CAMP,
+  HUNTER_SUPPLY, INLAND_HAMLET, INSPECT_LOCATIONS, KIT_TABLE, LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LANTERNS, LEDGER, LIGHTHOUSE, MILL_WHEEL, NOTICEBOARD, ORCHARD,
+  PALISADE, PICKUP_LOCATIONS, PLACES, QUARRY_BOULDERS, RESULT_CHECKS, RITE_ALTAR, ROADS, SEA_LEVEL, SHORTCUT, SLUICE, SPAWN, SPRING_POOL, STRAND, STREAMS,
+  VALLEY, VILLAGE_HANDCART, WAGON, WELL, WORLD, fieldFenceRuns,
 } from '../world/layout';
 import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG } from '../world/physicalProps';
 import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS } from '../world/playerPlacement';
 import type { Terrain } from '../world/terrain';
+import { coastalRockPiles, ROCK_PILE_CLEARANCE, ROCK_PILE_REACH } from '../world/rockPiles';
 import { REALM_WIND } from '../world/wind';
 
 /**
@@ -150,8 +160,9 @@ function game(): PortableDocument[] {
     },
     {
       path: 'game/voice.json',
-      about: 'Spoken lines by key, residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks.',
-      data: { speakers: SPEAKER_NAMES, lines: VOICE_LINES, talks: TALKS, scenes: SCENES, sceneReach: SCENE_REACH, hero: HERO_LINES },
+      about: 'Spoken lines by key, with how long each lasts as recorded (`seconds`; a line without one is shown, not heard, for the unvoiced time `timing` gives), residents’ exchanges with the wanderer, overheard scenes and the wanderer’s own remarks. Exchanges and scenes are booked for their lines’ lengths.',
+      data: { speakers: SPEAKER_NAMES, lines: Object.fromEntries(Object.entries(VOICE_LINES).map(([id, line]) => [id, { ...line, seconds: VOICE_LINE_SECONDS[id] ?? null }])), talks: TALKS, scenes: SCENES, sceneReach: SCENE_REACH, hero: HERO_LINES,
+        timing: { ...SPEECH, heroCueDelay: HERO_CUE_DELAY, heroCueAgain: HERO_CUE_AGAIN, sceneCheckSeconds: SCENE_CHECK_SECONDS, bubble: BUBBLE } },
     },
     {
       path: 'game/strings.en.json',
@@ -160,14 +171,14 @@ function game(): PortableDocument[] {
     },
     {
       path: 'game/animals.json',
-      about: 'The nineteen animals, each kind’s paces and temperament, their behaviour, and the hunting rules.',
+      about: 'The nineteen animals with their paces, each kind’s senses, temperament and call, how long a gesture lasts, their behaviour, and the hunting rules.',
       data: {
         animals: ANIMALS.map((animal) => {
           const hunt = ANIMAL_IDS.find((id) => ANIMAL_MODEL_IDS[id] === animal.id)!;
           return { ...animal, huntId: hunt, huntSpecies: ANIMAL_SPECIES[hunt], huntable: HUNTABLE_ANIMAL_IDS.includes(hunt), clips: requiredAnimalClips(animal), loot: animalLoot(hunt) };
         }),
-        species: Object.fromEntries(Object.keys(ANIMAL_SPEEDS).map((species) => [species, { ...ANIMAL_SPEEDS[species as keyof typeof ANIMAL_SPEEDS], ...ANIMAL_TEMPERAMENT[species as keyof typeof ANIMAL_TEMPERAMENT] }])),
-        behaviour: ANIMAL_BEHAVIOUR, triangleLimit: ANIMAL_TRIANGLE_LIMIT, protected: PROTECTED_ANIMAL_IDS,
+        species: Object.fromEntries(Object.keys(ANIMAL_SENSES).map((species) => [species, { ...ANIMAL_SENSES[species as keyof typeof ANIMAL_SENSES], ...ANIMAL_TEMPERAMENT[species as keyof typeof ANIMAL_TEMPERAMENT], callReach: ANIMAL_CALL_REACH[species as keyof typeof ANIMAL_CALL_REACH] }])),
+        gestureSeconds: ANIMAL_GESTURE_SECONDS, behaviour: ANIMAL_BEHAVIOUR, triangleLimit: ANIMAL_TRIANGLE_LIMIT, protected: PROTECTED_ANIMAL_IDS,
         hunting: {
           arrowRange: HUNTING_ARROW_RANGE, skinningReach: SKINNING_REACH, skinningSeconds: SKINNING_SECONDS, quiverCapacity: ARROW_QUIVER_CAPACITY,
           restockArrows: ARROW_RESTOCK_AMOUNT, spareArrows: HUNTER_SPARE_ARROWS, meatPrice: HUNTER_MEAT_PRICE, ranks: HUNTER_RANKS,
@@ -195,15 +206,18 @@ function game(): PortableDocument[] {
           arms: { fists: FISTS, blade: BLADE }, sheatheAfter: SHEATHE_AFTER, engagedReach: ENGAGED_REACH, guard: GUARD,
           dodge: DODGE, jumpSpeed: JUMP_SPEED, gravity: GRAVITY, stepHeight: STEP_HEIGHT, groundFollowDrop: GROUND_FOLLOW_DROP,
           firmFootingSlope: FIRM_FOOTING_SLOPE, moveResponse: MOVE_RESPONSE, vault: VAULT,
-          swim: { depth: SWIM_DEPTH, exit: SWIM_EXIT, float: SWIM_FLOAT, speed: SWIM_SPEED, sprint: SWIM_SPRINT },
+          swim: { depth: SWIM_DEPTH, exit: SWIM_EXIT, float: SWIM_FLOAT, speed: SWIM_SPEED, sprint: SWIM_SPRINT }, wade: WADE,
         },
         riding: { ride: RIDE, deerBody: DEER_BODY, mountTimes: MOUNT_TIMES, mountSide: MOUNT_SIDE, camera: RIDE_CAMERA, stamina: MOUNT_STAMINA },
         bow: BOW,
+        cargo: { carry: CARRY, step: CARGO_STEP, body: CARGO_BODY },
+        shot: { ...SHOT, skinning: SKINNING, skullBand: SKULL_BAND, skulls: SKULLS },
         clock: {
           gameMinutesPerSecond: CLOCK_RATE, sunrise: SUNRISE_HOUR, sunset: SUNSET_HOUR, night: NIGHT,
           nightnessByHour: Array.from({ length: 49 }, (_, i) => ({ hour: i / 2, nightness: nightness(i / 2 % 24) })),
         },
         journey: {
+          sitting: { clockTickMinutes: CLOCK_TICK_MINUTES, afloat: AFLOAT, safePlaceRings: SAFE_PLACE_RINGS, entry: ENTRY, standingBody: STANDING_BODY, awaitedMountReach: AWAITED_MOUNT_REACH, timedWork: TIMED_WORK, shake: SHAKE },
           autosaveSeconds: AUTOSAVE_SECONDS, hitStop: HIT_STOP, death: DEATH, threatReach: THREAT_REACH, checkpointClearance: CHECKPOINT_CLEARANCE,
           underWorld: UNDER_WORLD, witnesses: WITNESSES, witnessReach: WITNESS_REACH, overhearReach: OVERHEAR_REACH, speechSoonReach: SPEECH_SOON_REACH,
           woundedBelow: WOUNDED_BELOW, droughtBell: DROUGHT_BELL,
@@ -222,10 +236,17 @@ const colour = (value: number) => `#${value.toString(16).padStart(6, '0')}`;
 function world(terrain: Terrain): PortableDocument[] {
   const height = (p: { x: number; z: number }) => terrain.heightAt(p.x, p.z);
   const grounded = <T extends { x: number; z: number }>(p: T) => ({ ...p, y: height(p) });
-  const exclusions = new Exclusions(terrain), trees = createFloraPopulation(terrain, exclusions);
-  const floor = createForestFloorPopulation(terrain, exclusions, trees);
+  // The forest as the web build plants it, and the places the planting rule offers without measuring any tree model.
+  const exclusions = new Exclusions(terrain), trees = PLANTED_FOREST, offered = createFloraPopulation(terrain, exclusions);
+  const floor = createForestFloorPopulation(terrain, exclusions, plantedAsFlora());
   // Where a stone lies does not depend on its shape; its resting height and its solid do, and are the port's own.
-  const stones = placeScatter(terrain, exclusions, trees, { groundedY: (rock, heightAt) => heightAt(rock.x, rock.z), contact: (rock, id) => ({ id, bounds: { minY: 0, maxY: rock.size } }) as never });
+  const stones = placeScatter(terrain, exclusions, PLANTED_TRUNKS, { groundedY: (rock, heightAt) => heightAt(rock.x, rock.z), contact: (rock, id) => ({ id, bounds: { minY: 0, maxY: rock.size } }) as never });
+  // What stands when the shore's rock piles are laid, as in the game: the buildings and the core's props, the planted
+  // trunks and the stones that are obstacles.
+  const standing = buildStaticColliders(terrain);
+  for (const trunk of PLANTED_TRUNKS) standing.circle('trunk', trunk.x, trunk.z, trunk.radius);
+  for (const rock of stones) if (rock.collisionId && rock.radius > 0) standing.circle(rock.collisionId, rock.x, rock.z, rock.radius);
+  const rockPiles = coastalRockPiles(terrain, exclusions, standing);
   const count: Record<string, number> = {};
   for (const tree of trees) count[tree.sp] = (count[tree.sp] ?? 0) + 1;
   return [
@@ -239,11 +260,12 @@ function world(terrain: Terrain): PortableDocument[] {
         spawn: grounded(SPAWN), places: Object.fromEntries(Object.entries(PLACES).map(([id, place]) => [id, grounded(place)])),
         anchors: Object.fromEntries(Object.entries(ANCHORS).map(([id, anchor]) => [id, grounded(anchor)])),
         buildings: BUILDINGS.map((building) => ({ ...building, ground: height(building) })),
-        fields: FIELDS, palisade: PALISADE, lanterns: LANTERNS.map(grounded),
+        fields: FIELDS.map((field) => ({ ...field, fence: fieldFenceRuns(field) })), fieldFenceMargin: FIELD_FENCE_MARGIN,
+        palisade: PALISADE, lanterns: LANTERNS.map(grounded),
         landmarks: {
           lighthouse: LIGHTHOUSE, wreck: ARRIVAL_WRECK, arrivalSign: ARRIVAL_SIGN, borderSign: BORDER_SIGN, bell: BELL, bellTower: BELL_TOWER, well: WELL,
           millWheel: MILL_WHEEL, wagon: WAGON, handcart: VILLAGE_HANDCART, forestRuin: FOREST_RUIN, waymarkers: FOREST_WAYMARKERS, hunterCamp: HUNTER_CAMP,
-          hunterSupply: HUNTER_SUPPLY, hamletProps: HAMLET_PROPS,
+          hunterSupply: HUNTER_SUPPLY, hamletProps: HAMLET_PROPS, benches: BENCHES, noticeboard: NOTICEBOARD, kitTable: KIT_TABLE, quarryBoulders: QUARRY_BOULDERS,
         },
         quest: { sluice: SLUICE, riteAltar: RITE_ALTAR, ledger: LEDGER, archiveShutter: ARCHIVE_SHUTTER, archiveRoom: ARCHIVE_ROOM, shortcut: SHORTCUT, resultChecks: RESULT_CHECKS },
         inspectLocations: INSPECT_LOCATIONS.map(grounded), pickups: PICKUP_LOCATIONS.map(grounded),
@@ -267,11 +289,17 @@ function world(terrain: Terrain): PortableDocument[] {
     },
     {
       path: 'world/flora.json',
-      about: 'Where every tree stands, as the planting rule places it without measuring any tree model: species, variant, position, scale, facing and trunk radius.',
+      about: 'Where every tree stands as the web build plants it (the planting rule told each tree\u2019s footprint by its model): species, variant, position, scale, facing, radius as an obstacle and for the walk grid, and the model it is drawn with where that is fixed; and the places the rule offers without measuring any tree model, for a port that brings its own trees.',
       data: {
         count,
-        trees: trees.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, age: tree.age ?? null, stand: tree.standId ?? null })),
+        trees: trees.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, navigationRadius: tree.navigationRadius, asset: tree.assetId ?? null })),
+        offered: offered.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, age: tree.age ?? null, stand: tree.standId ?? null })),
       },
+    },
+    {
+      path: 'world/look.json',
+      about: 'The look of the final image as numbers, for a post-process volume: exposure before tone mapping, the daylight contrast curve, saturation and its lift by day, vignette, grain, how far greens lean olive and the sky is muted, and the glow on bright parts; and the title’s own look. Night fades the contrast curve and the day’s lift to 1.',
+      data: { world: LOOK, title: MENU_LOOK },
     },
     {
       path: 'world/sky.json',
@@ -284,12 +312,13 @@ function world(terrain: Terrain): PortableDocument[] {
     },
     {
       path: 'world/placement.json',
-      about: 'What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone) and the shore’s driftwood and scrub. `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s resting height is left to its own shape: `groundY` is the ground under its centre.',
+      about: 'What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone), the shore’s driftwood and scrub, and the weathered rock piles the shore keeps (solid, climbable rock; `radius` is the circle each blocks). `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s or a rock pile’s resting height is left to its own shape: `groundY` is the ground under its centre.',
       data: {
         detailKeep: DETAIL_KEEP, woodlandFloorFade: FOREST_FLOOR_DISTANCE, stoneShapes: ROCK_SHAPE_COUNT,
         woodlandFloor: floor.map((piece) => ({ id: piece.id, kind: piece.kind, x: piece.x, y: piece.y, z: piece.z, yaw: piece.yaw, scale: piece.scale, rank: piece.rank, variant: piece.variant, colony: piece.colonyId ?? null, onLog: piece.parentLogId ?? null })),
         stones: stones.map((rock) => ({ kind: rock.kind, x: rock.x, groundY: terrain.heightAt(rock.x, rock.z), z: rock.z, size: rock.size, shape: rock.shape, yaw: rock.yaw, squash: rock.squash, rank: rock.decorationRank, obstacleRadius: rock.radius, solid: rock.size >= 0.35 })),
-        shore: createShoreDetailPopulation(terrain, exclusions, trees).map((detail) => ({ kind: detail.kind, x: detail.x, y: detail.y, z: detail.z, yaw: detail.yaw, scale: detail.scale, rank: detail.rank })),
+        shore: createShoreDetailPopulation(terrain, exclusions, PLANTED_TRUNKS).map((detail) => ({ kind: detail.kind, x: detail.x, y: detail.y, z: detail.z, yaw: detail.yaw, scale: detail.scale, rank: detail.rank })),
+        rockPiles: { reach: ROCK_PILE_REACH, clearance: ROCK_PILE_CLEARANCE, kept: rockPiles.map((rock) => ({ ...rock, groundY: terrain.heightAt(rock.x, rock.z) })) },
       },
     },
   ];

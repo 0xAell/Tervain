@@ -11,8 +11,9 @@ import {
 import { VOICE_AUDIO, type VoiceBank, type VoiceLineId } from './voiceManifest';
 import { WORLD_AUDIO, type LoopId, type MusicId, type SongId } from './worldAudioManifest';
 import type { WaterSoundState } from '../water/waterSound';
-import { NIGHT } from '../../core/rules/dayNight';
+import { goneInForTheNight, NIGHT } from '../../core/rules/dayNight';
 import { AMBIENT_RESIDENTS } from '../../core/content/ambientPeople';
+import { WOUNDED_BELOW } from '../../core/rules/journey';
 
 /**
  * Tervain's recorded world sound at run time: one-shots placed in the world, looping beds that follow the place,
@@ -1037,7 +1038,7 @@ export class SoundWorld {
     }
     for (const p of AMBIENT_PEOPLE_SOUND) {
       const d = Math.hypot(p.x - l.x, p.z - l.z);
-      if (d > 30 || (p.sleeps && frame.world.nightness > NIGHT.sleepers)) continue;
+      if (d > 30 || goneInForTheNight(p.sleeps, frame.world.nightness)) continue;
       const s = this.clockFor(p.id, p.x, p.z);
       const at = { x: p.x, y: 1, z: p.z };
       this.workTick(s, p.work, dt, at);
@@ -1234,14 +1235,14 @@ export class SoundWorld {
     return { x: l.x + Math.sin(a) * r, z: l.z + Math.cos(a) * r, clock: this.random(), rate: 0.88 + 0.24 * this.random(), voice: Math.floor(this.random() * 6) };
   }
 
-  /** Below a third of health the player hears their own heart, faster and louder as the end comes near. */
+  /** Wounded (the core's WOUNDED_BELOW), the player hears their own heart, faster and louder as the end comes near. */
   private updateHeart(dt: number, frame: SoundFrame) {
     const h = frame.player.health;
-    if (!(h > 0 && h < 0.3)) {
+    if (!(h > 0 && h < WOUNDED_BELOW)) {
       this.heart = 0.3;
       return;
     }
-    const fear = (0.3 - h) / 0.3;
+    const fear = (WOUNDED_BELOW - h) / WOUNDED_BELOW;
     this.heart -= dt;
     if (this.heart > 0) return;
     this.heart = 60 / (72 + 48 * fear);

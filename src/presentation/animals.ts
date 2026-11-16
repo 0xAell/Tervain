@@ -1,3 +1,4 @@
+import { rideable, STANDING_BODY } from '../core/rules/session';
 import * as THREE from 'three';
 import { compactAnimalBoneTexture } from './animals/boneTexture';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -5,22 +6,19 @@ import { createGltfLoader } from './assets/gltfLoader';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import type { Collider } from '../core/world/colliders';
 import type { PhysicalActor } from '../physics/physics';
-import { mulberry32 } from '../core/world/noise';
-import type { V2 } from '../core/world/layout';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { modelAssetUrl } from './assets/modelUrl';
 import { withModelLoadSlot } from './assets/modelLoadQueue';
 import { downloadAsset } from './assets/download';
 import { matteHide } from './matte';
-import { ANIMAL_AUDIO, ANIMAL_CALL_EVENT, type AnimalCall } from './sound/animalAudio';
-import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
-import { animalGroundAllowed, animalHabitatAllowed, animalNavigationColliders, findAnimalPath, findAnimalSite, type AnimalSite } from '../core/rules/animalNavigation';
+import { ANIMAL_CALL_EVENT, type AnimalCall } from './sound/animalAudio';
+import { ANIMALS, ANIMAL_HOME_MARGIN, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
+import { animalNavigationColliders, findAnimalSite, type AnimalSite } from '../core/rules/animalNavigation';
 import { AnimalHunting, type HuntingAnimal } from './animals/hunting/adapter';
 import type { AnimalArrowHit } from './animals/hunting/hit';
-import { WILDLIFE_RETURN_DISTANCE, type AnimalId, type HuntingState } from '../core/game/hunting';
+import type { AnimalId, HuntingState } from '../core/game/hunting';
 import { finishCooperatively, type CooperativeOptions } from '../platform/cooperative';
-import { NIGHT } from '../core/rules/dayNight';
-import { ANIMAL_BEHAVIOUR as BEHAVIOUR } from '../core/rules/animalBehaviour';
+import { AnimalMind, Wildlife } from '../core/rules/animalMind';
 
 export { ANIMALS, ANIMAL_TRIANGLE_LIMIT } from '../core/content/animals';
 export type AnimalTemplates = ReadonlyMap<string, GLTF>;
@@ -211,8 +209,9 @@ export class AnimalAnimation {
   readonly mixer: THREE.AnimationMixer;
   private actions = new Map<AnimalClip, THREE.AnimationAction>();
   current: AnimalClip = 'Idle';
-  constructor(private scene: THREE.Group, clips: readonly THREE.AnimationClip[], species: AnimalSpecies,
-    private motionSpeeds: MotionSpeeds = { Walk: ANIMAL_SPEEDS[species].walk, Run: ANIMAL_SPEEDS[species].run }) {
+  /** `motionSpeeds` are the ground speeds the model's walk and run were drawn at: a stride is played faster or slower
+   * to match the pace the animal actually moves at, which is the core's. */
+  constructor(private scene: THREE.Group, clips: readonly THREE.AnimationClip[], private motionSpeeds: MotionSpeeds) {
     this.mixer = new THREE.AnimationMixer(scene);
     const bones = new Set<string>(); scene.traverse(object => { if ((object as THREE.Bone).isBone) bones.add(object.name); });
     for (const source of clips) {
@@ -225,7 +224,6 @@ export class AnimalAnimation {
     }
     this.actions.get('Idle')?.play();
   }
-  duration(clip: AnimalClip) { return this.actions.get(clip)?.getClip().duration ?? 2; }
   has(clip: AnimalClip) { return this.actions.has(clip); }
   referenceSpeed(clip: 'Walk' | 'Run') { return this.motionSpeeds[clip]; }
   /** How far through its stride a walking or running animal is (0..1), or null standing (A71). */
@@ -337,7 +335,7 @@ function cloneAnimal(template: GLTF, definition: AnimalDefinition, validated = v
   else retain(fallbackSoles, SOLE_SAMPLES_PER_PAW * 4);
   byMesh.forEach((vertices, mesh) => paws.push({ mesh, vertices }));
   return { scene, bounds: validated.bounds, size: validated.bounds.getSize(new THREE.Vector3()), triangles: validated.triangles,
-    paws, skeletons, animation: new AnimalAnimation(scene, template.animations, definition.species, validated.motionSpeeds) };
+    paws, skeletons, animation: new AnimalAnimation(scene, template.animations, validated.motionSpeeds) };
 }
 
 /** One posable copy of a validated animal with its own skeleton, materials and actions, outside the wildlife module
@@ -372,25 +370,8 @@ export function createAnimalFigure(template: GLTF, definition: AnimalDefinition)
 }
 
 export interface AnimalSnapshot { id: string; species: AnimalSpecies; x: number; y: number; z: number; yaw: number; radius: number; state: AnimalClip | 'Dead' | 'Skinned' | 'Returning'; visible: boolean }
-interface AnimalInstance extends AnimalBody {
-  definition: AnimalDefinition;
-  root: THREE.Group;
-  home: AnimalSite;
-  yaw: number;
-  state: AnimalClip;
-  stateTime: number;
-  rest: number;
-  callIn: number;
-  callSent: boolean;
-  alertIn: number;
-  path: V2[];
-  blockedFor: number;
-  planIn: number;
-  turn: THREE.Quaternion;
-  rng: () => number;
-  alarm: { x: number; z: number; remaining: number } | null;
-  initialYaw: number;
-}
+/** An animal here: its mind (core/rules/animalMind.ts), which decides and moves, and the body that is drawn. */
+type AnimalInstance = AnimalMind & AnimalBody & { root: THREE.Group; turn: THREE.Quaternion };
 
 export interface AnimalWildlife extends SceneModule {
   setPeople(people: readonly PhysicalActor[]): void;
@@ -445,7 +426,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
   definitions: readonly AnimalDefinition[], emit: (event: AnimalCallEvent) => void, onAbandon: (dispose: () => void) => void): Generator<void, AnimalWildlife> {
   const group = new THREE.Group(); group.name = 'Land wildlife';
   const animals: AnimalInstance[] = [], occupied: AnimalSite[] = [];
-  let people: readonly PhysicalActor[] = [], disposed = false, running = true, calls = 0;
+  let disposed = false, running = true, calls = 0;
   let hunting!: AnimalHunting;
   const dispose = () => {
     if (disposed) return;
@@ -465,6 +446,11 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
   };
   onAbandon(dispose);
   const { terrain } = ctx, colliders = animalNavigationColliders(ctx.colliders);
+  // What the animals decide together is the core's; what is seen, shot and heard of them is answered from here.
+  const herd = new Wildlife(terrain, colliders, {
+    present: mind => hunting.isVisible(mind as AnimalInstance), dead: mind => hunting.isDead(mind as AnimalInstance),
+  });
+  const facingScratch = new THREE.Vector3();
   // Fit every habitat before allocating disposable copies, so a bad placement cannot strand a partial set of GPU resources.
   // Reuse validation only within this build; a subsequent build still checks its source anew.
   const fitted: { definition: AnimalDefinition; template: GLTF; home: AnimalSite; validated: ReturnType<typeof validateAnimalTemplate> }[] = [];
@@ -472,7 +458,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     const template = templates.get(definition.id);
     if (!template) throw new Error(`The ${definition.species} source model was not loaded.`);
     const validated = validateAnimalTemplate(template, definition);
-    const size = validated.bounds.getSize(new THREE.Vector3()), radius = Math.hypot(size.x, size.z) / 2 + 0.14;
+    const size = validated.bounds.getSize(new THREE.Vector3()), radius = Math.hypot(size.x, size.z) / 2 + ANIMAL_HOME_MARGIN;
     const home = findAnimalSite(definition, radius, terrain, colliders, occupied, size.y); occupied.push(home);
     fitted.push({ definition, template, home, validated });
     yield;
@@ -480,67 +466,19 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
   for (const [index, { definition, template, home, validated }] of fitted.entries()) {
     const body = cloneAnimal(template, definition, validated), root = new THREE.Group(); root.name = `${definition.species} / ${definition.id}`; root.add(body.scene);
     body.scene.traverse(object => { if ((object as THREE.Mesh).isMesh) (object as THREE.Mesh).castShadow = ctx.quality !== 'low'; });
-    const rng = mulberry32(Number(definition.id.slice(-7)) + index * 271), randomYaw = rng() * Math.PI * 2, yaw = definition.homeYaw ?? randomYaw;
-    root.position.set(home.x, terrain.heightAt(home.x, home.z), home.z); root.rotation.y = yaw; group.add(root);
-    const state: AnimalClip = body.animation.has('Graze') ? 'Graze' : 'Idle'; body.animation.transition(state);
-    const animal: AnimalInstance = { ...body, definition, root, home, yaw, state, stateTime: 0, rest: BEHAVIOUR.firstRest[0] + rng() * BEHAVIOUR.firstRest[1],
-      callIn: BEHAVIOUR.firstCall.base + index * BEHAVIOUR.firstCall.stagger + rng() * BEHAVIOUR.firstCall.span, callSent: false, alertIn: 0, path: [], blockedFor: 0, planIn: 0, turn: new THREE.Quaternion(), rng, alarm: null, initialYaw: yaw };
+    // The body as the mind needs it: where it stands, how tall it is, the motion it plays, and the way the drawn body faces.
+    const mind = new AnimalMind(definition, home, index, {
+      position: root.position, height: body.size.y,
+      transition: clip => body.animation.transition(clip),
+      facing: () => { facingScratch.set(0, 0, 1).applyQuaternion(root.quaternion); return Math.atan2(facingScratch.x, facingScratch.z); },
+    }, herd);
+    root.position.set(home.x, terrain.heightAt(home.x, home.z), home.z); root.rotation.y = mind.yaw; group.add(root);
+    const animal: AnimalInstance = Object.assign(mind, body, { root, turn: new THREE.Quaternion() });
     animals.push(animal);
     yield;
   }
   const up = new THREE.Vector3(), forward = new THREE.Vector3(), right = new THREE.Vector3(), basis = new THREE.Matrix4(), vertex = new THREE.Vector3();
   const normal: [number, number, number] = [0, 1, 0];
-  const enter = (animal: AnimalInstance, state: AnimalClip) => {
-    if (animal.state === state) return;
-    animal.state = state; animal.stateTime = 0; animal.callSent = false; animal.animation.transition(state);
-  };
-  const rest = (animal: AnimalInstance) => {
-    animal.path = []; animal.rest = BEHAVIOUR.rest[0] + animal.rng() * BEHAVIOUR.rest[1];
-    const state = animal.definition.seated ? (animal.rng() < BEHAVIOUR.seatedGroomShare ? 'Groom' : 'Idle')
-      : animal.animation.has('Graze') && animal.rng() < BEHAVIOUR.grazeShare ? 'Graze' : 'Idle';
-    enter(animal, state);
-  };
-  const extrasFor = (animal: AnimalInstance, focus: THREE.Vector3): Collider[] => [
-    ...animals.filter(other => other !== animal && hunting.isVisible(other)).map(other => ({ id: `animal:${other.definition.id}`, kind: 'circle' as const, x: other.root.position.x, z: other.root.position.z,
-      r: other.home.radius, active: true, minY: other.root.position.y, maxY: other.root.position.y + other.size.y })),
-    ...people.filter(person => person.active).map(person => ({ id: person.id, kind: 'circle' as const, x: person.x, z: person.z, r: person.radius + 0.12,
-      active: true, minY: person.y, maxY: person.y + person.height })),
-    { id: 'wildlife:player', kind: 'circle', x: focus.x, z: focus.z, r: 0.55, active: true, minY: focus.y, maxY: focus.y + 1.9 },
-  ];
-  const goal = (animal: AnimalInstance, focus: THREE.Vector3, fleeing: boolean): boolean => {
-    animal.planIn = BEHAVIOUR.plan[0] + animal.rng() * BEHAVIOUR.plan[1];
-    const start = animal.root.position, allExtras = extrasFor(animal, focus);
-    // Yield from a newly approaching actor's avoidance margin; the actual step still resolves the full contacts.
-    const extras = allExtras.filter(extra => extra.kind !== 'circle' || Math.hypot(extra.x - start.x, extra.z - start.z) > extra.r + animal.home.radius + 0.05);
-    const tryTo = (candidate: { x: number; z: number }): boolean => {
-      const path = findAnimalPath(animal.definition, start, candidate, animal.home, animal.home.radius, terrain, colliders, extras, animal.size.y);
-      if (!path?.length) return false;
-      animal.path = path; animal.blockedFor = 0; enter(animal, fleeing ? 'Run' : 'Walk'); return true;
-    };
-    for (let attempt = 0; attempt < BEHAVIOUR.wander.attempts; attempt++) {
-      const a = fleeing ? Math.atan2(start.x - focus.x, start.z - focus.z) + (attempt % 2 ? 1 : -1) * Math.ceil(attempt / 2) * BEHAVIOUR.flee.fan : animal.rng() * Math.PI * 2;
-      const distance = fleeing ? BEHAVIOUR.flee.base + attempt * BEHAVIOUR.flee.step : BEHAVIOUR.wander.base + animal.rng() * Math.max(1, animal.definition.roam * BEHAVIOUR.wander.roamShare);
-      const candidate = { x: start.x + Math.sin(a) * distance, z: start.z + Math.cos(a) * distance };
-      if (Math.hypot(candidate.x - animal.home.x, candidate.z - animal.home.z) > animal.definition.roam) continue;
-      if (tryTo(candidate)) return true;
-    }
-    if (!fleeing) return false;
-    // Cornered at the edge of its range with the hunter on the home side (A96 scout: it froze there, to be shot at point
-    // blank): it breaks round him, to the place in its range that keeps it farthest from him.
-    const away = Math.hypot(start.x - focus.x, start.z - focus.z), roam = animal.definition.roam * BEHAVIOUR.cornered.roamShare;
-    const around: { x: number; z: number; d: number }[] = [];
-    for (let k = 0; k < BEHAVIOUR.cornered.directions; k++) {
-      const a = (k / BEHAVIOUR.cornered.directions) * Math.PI * 2;
-      let x = start.x + Math.sin(a) * BEHAVIOUR.cornered.reach, z = start.z + Math.cos(a) * BEHAVIOUR.cornered.reach;
-      const fromHome = Math.hypot(x - animal.home.x, z - animal.home.z);
-      if (fromHome > roam) { x = animal.home.x + (x - animal.home.x) * roam / fromHome; z = animal.home.z + (z - animal.home.z) * roam / fromHome; }
-      const d = Math.hypot(x - focus.x, z - focus.z);
-      if (d >= away - BEHAVIOUR.cornered.slack && Math.hypot(x - start.x, z - start.z) > BEHAVIOUR.cornered.minMove) around.push({ x, z, d });
-    }
-    around.sort((p, q) => q.d - p.d);
-    for (const candidate of around.slice(0, BEHAVIOUR.cornered.keep)) if (tryTo(candidate)) return true;
-    return false;
-  };
   const place = (animal: AnimalInstance, dt: number) => {
     const point = animal.root.position;
     // The mount stands where a rider does (A86 scout): on a deck or a bridge, not on the stream bed beneath it, ridden
@@ -568,17 +506,6 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
       animal.root.updateMatrixWorld(true);
     }
   };
-  // A frightened herd or pack animal carries the alarm to its own kind nearby, so a group scatters together (A70).
-  const spreadAlarm = (from: AnimalInstance, position: { x: number; z: number }) => {
-    const herd = ANIMAL_TEMPERAMENT[from.definition.species].herd;
-    if (!herd) return;
-    for (const other of animals) {
-      if (other === from || other.alarm || other.definition.tame || other.definition.species !== from.definition.species) continue;
-      if (!hunting.isVisible(other) || hunting.isDead(other)) continue;
-      if (Math.hypot(other.root.position.x - from.root.position.x, other.root.position.z - from.root.position.z) > herd) continue;
-      other.alarm = { ...position, remaining: 6 }; other.path = []; other.planIn = 0.15 + other.rng() * 0.5;
-    }
-  };
   // The saddled deer can be ridden (A70): while carried, it follows its rider and keeps out of its own routine.
   let ridden: { animal: AnimalInstance; at: { x: number; z: number; yaw: number; speed: number } } | null = null;
   const seats = new Map<AnimalInstance, number>();
@@ -604,38 +531,10 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     seats.set(animal, seat);
     return seat;
   };
-  // Where the hunter was last seen, so a returning animal does not settle in front of him (A96 scout).
-  let hunter: { x: number; z: number } | null = null;
-  hunting = new AnimalHunting([], terrain, (body: HuntingAnimal, fallback, wounded) => {
+  hunting = new AnimalHunting([], terrain, (body: HuntingAnimal, fallback, wounded) => (body as AnimalInstance).startled(fallback, wounded), (body, returning) => {
     const animal = body as AnimalInstance;
-    const position = !wounded ? fallback
-      : animal.alarm && animal.alarm.remaining > 0 ? { x: animal.alarm.x, z: animal.alarm.z } : hunter ?? fallback;
-    animal.alarm = { ...position, remaining: 8 }; animal.path = []; animal.planIn = 0; animal.callSent = true;
-    if (!goal(animal, new THREE.Vector3(position.x, terrain.heightAt(position.x, position.z), position.z), true)) enter(animal, 'Alert');
-    spreadAlarm(animal, position);
-  }, (body, returning) => {
-    const animal = body as AnimalInstance;
-    // A returning animal settles somewhere new in its range, so the same wood is a new encounter (A70).
-    let at: { x: number; z: number } = animal.home, best = -Infinity, yaw = animal.initialYaw;
-    // Of the places tried, the one farthest from the hunter (A96 scout): the first that fitted could be 30 m from him.
-    const away = (p: { x: number; z: number }) => hunter ? Math.hypot(p.x - hunter.x, p.z - hunter.z) : 0;
-    if (hunter) best = away(animal.home);
-    // Expiry measures the old carcass, not the new site. If the entire return range is too close, wait without
-    // probing terrain or resetting the live controller every frame. The adapter retries once a second.
-    if (returning && hunter && best + animal.definition.roam * .7 < WILDLIFE_RETURN_DISTANCE) return false;
-    for (let attempt = 0; attempt < 8 && animal.definition.roam > 2 && !animal.definition.tame; attempt++) {
-      const a = animal.rng() * Math.PI * 2, r = animal.definition.roam * (0.2 + 0.5 * animal.rng());
-      const candidate = { x: animal.home.x + Math.sin(a) * r, z: animal.home.z + Math.cos(a) * r };
-      if (!(animalGroundAllowed(terrain, candidate, animal.home.radius) && animalHabitatAllowed(animal.definition, candidate)
-        && !colliders.blocked(candidate.x, candidate.z, animal.home.radius))) continue;
-      const d = away(candidate);
-      if (d > best || at === animal.home && !hunter) { at = candidate; best = d; yaw = a; }
-      if (!hunter || d >= WILDLIFE_RETURN_DISTANCE) break;
-    }
-    if (returning && hunter && best < WILDLIFE_RETURN_DISTANCE) return false;
-    animal.alarm = null; animal.path = []; animal.yaw = yaw; animal.root.rotation.set(0, yaw, 0);
-    animal.root.position.set(at.x, terrain.heightAt(at.x, at.z), at.z);
-    animal.state = 'Idle'; animal.stateTime = 0; animal.callSent = false; animal.callIn = 20 + animal.rng() * 35; rest(animal);
+    if (!animal.resettle(returning)) return false;
+    animal.root.rotation.set(0, animal.yaw, 0);
     return true;
   });
   yield* hunting.prepare(animals);
@@ -649,10 +548,10 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
   return {
     group,
     movers: () => animals.map(animal => animal.root),
-    setPeople(next) { people = next; },
-    syncHunting: (records, restore, at) => { if (at) hunter = { x: at.x, z: at.z }; hunting.syncHunting(records, restore); },
+    setPeople(next) { herd.people = next; },
+    syncHunting: (records, restore, at) => { if (at) herd.hunter = { x: at.x, z: at.z }; hunting.syncHunting(records, restore); },
     mount(id) {
-      const animal = animals.find(a => a.definition.id === id && a.definition.tame && !a.definition.seated && a.definition.species === 'deer');
+      const animal = animals.find(a => a.definition.id === id && rideable(a.definition));
       if (!animal || !hunting.isVisible(animal)) return null;
       const p = animal.root.position;
       return { x: p.x, y: p.y, z: p.z, yaw: animal.yaw, seat: seatOf(animal) };
@@ -661,7 +560,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
       const animal = animals.find(a => a.definition.id === id);
       if (!animal) return;
       if (at) { ridden = { animal, at: { ...at } }; return; }
-      if (ridden?.animal === animal) { ridden = null; rideGait = null; animal.path = []; rest(animal); }
+      if (ridden?.animal === animal) { ridden = null; rideGait = null; animal.path = []; animal.settle(); }
     },
     rideGait(id) {
       if (!rideGait || rideGait.id !== id) return null;
@@ -678,7 +577,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     setReduceEffects: value => hunting.setReduceEffects(value),
     get contacts(): Collider[] {
       return animals.filter(animal => hunting.isVisible(animal) && animal !== ridden?.animal).map(animal => hunting.corpseContact(animal) ?? ({ id: `animal:${animal.definition.id}`, kind: 'box', x: animal.root.position.x, z: animal.root.position.z,
-        hw: animal.size.x / 2 + 0.07, hd: animal.size.z / 2 + 0.07, yaw: animal.yaw, active: true,
+        hw: animal.size.x / 2 + STANDING_BODY.animalMargin, hd: animal.size.z / 2 + STANDING_BODY.animalMargin, yaw: animal.yaw, active: true,
         minY: animal.root.position.y, maxY: animal.root.position.y + animal.size.y }));
     },
     get physicalActors(): PhysicalActor[] {
@@ -705,7 +604,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     update(inputDt: number, frame: FrameContext) {
       if (disposed || !running || frame.wildlifeActive === false) return;
       const dt = Math.min(Math.max(0, inputDt), 0.1);
-      hunter = { x: frame.focus.x, z: frame.focus.z };
+      herd.hunter = { x: frame.focus.x, z: frame.focus.z };
       hunting.update(dt, frame.reducedMotion);
       hunting.group.traverse(object => { if ((object as THREE.Mesh).isMesh) (object as THREE.Mesh).castShadow = frame.quality !== 'low'; });
       const shadows = frame.quality !== 'low';
@@ -719,12 +618,9 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
         animalShadows = shadows;
       }
       for (const animal of animals) {
-        const p = animal.root.position, distance = Math.hypot(p.x - frame.focus.x, p.z - frame.focus.z);
+        const p = animal.root.position;
         if (ridden?.animal === animal) {
-          const { at } = ridden;
-          p.x = at.x; p.z = at.z; animal.yaw = at.yaw; animal.path = []; animal.alarm = null;
-          const pace = Math.abs(at.speed), gait = pace > BEHAVIOUR.rideRun ? 'Run' as const : pace > BEHAVIOUR.rideWalk ? 'Walk' as const : 'Idle' as const;
-          enter(animal, gait);
+          const { at } = ridden, gait = animal.carry(at);
           const before = animal.animation.gaitPhase();
           animal.animation.update(dt, at.speed); place(animal, dt);
           const after = animal.animation.gaitPhase();
@@ -734,84 +630,18 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
           rideGait.phase = after; rideGait.gait = gait;
           continue;
         }
-        // Left far from its rest, the mount is led home once well beyond the hunter's sight (A70).
-        if (animal.definition.tame && !animal.definition.seated && distance > BEHAVIOUR.ledHomeBeyond && !animalHabitatAllowed(animal.definition, p)) {
-          p.x = animal.home.x; p.z = animal.home.z; animal.yaw = animal.initialYaw; animal.path = []; rest(animal);
-        }
         // All nineteen remain in the scene on every preset. Expanded skin bounds let Three's actual
         // camera/shadow frusta reject submissions without a visible distance seam.
-        if (!hunting.isVisible(animal) || hunting.isDead(animal)) continue;
-        if (animal.alarm) { animal.alarm.remaining -= dt; if (animal.alarm.remaining <= 0) animal.alarm = null; }
-        const fleeingFrom = animal.alarm ? new THREE.Vector3(animal.alarm.x, p.y, animal.alarm.z) : frame.focus;
-        animal.stateTime += dt; animal.callIn -= dt; animal.alertIn = Math.max(0, animal.alertIn - dt); animal.planIn = Math.max(0, animal.planIn - dt);
-        const speeds = ANIMAL_SPEEDS[animal.definition.species];
-        const holding = !animal.definition.tame && !animal.definition.seated && !animal.alarm && distance < speeds.flee;
-        if (animal.definition.seated) {
-          if (distance < speeds.notice && animal.alertIn <= 0 && animal.state !== 'Alert') { enter(animal, 'Alert'); animal.alertIn = BEHAVIOUR.seatedAlert; }
-        } else if (!animal.definition.tame && (distance < speeds.flee * ANIMAL_TEMPERAMENT[animal.definition.species].holdUntil || animal.alarm)) {
-          if (!animal.alarm) spreadAlarm(animal, frame.focus);
-          if (animal.planIn <= 0 && (animal.state !== 'Run' || !animal.path.length || animal.blockedFor > BEHAVIOUR.replanBlocked)) {
-            if (!goal(animal, fleeingFrom, true)) { animal.path = []; enter(animal, 'Alert'); }
-          }
-        } else if (distance < speeds.notice && animal.alertIn <= 0 && animal.state !== 'Run' && animal.state !== 'Alert') {
-          animal.path = []; enter(animal, 'Alert'); animal.alertIn = BEHAVIOUR.alert[0] + animal.rng() * BEHAVIOUR.alert[1];
-        } else if (!animal.definition.tame && distance < speeds.flee && animal.state !== 'Alert' && animal.state !== 'Call') {
-          // A predator inside its flee distance but standing its ground watches the hunter, and now and then warns him off.
-          animal.path = []; enter(animal, animal.rng() < BEHAVIOUR.warnShare && animal.animation.has('Call') ? 'Call' : 'Alert');
-        }
-        const callNow = animal.state === 'Call' && !animal.callSent && animal.stateTime >= BEHAVIOUR.callAt;
-        let speed = 0;
-        if (animal.state === 'Walk' || animal.state === 'Run') {
-          const target = animal.path[0];
-          if (target) {
-            const dx = target.x - p.x, dz = target.z - p.z, length = Math.hypot(dx, dz);
-            const desiredYaw = Math.atan2(dx, dz), turn = Math.atan2(Math.sin(desiredYaw - animal.yaw), Math.cos(desiredYaw - animal.yaw));
-            animal.yaw += THREE.MathUtils.clamp(turn, -dt * BEHAVIOUR.turn, dt * BEHAVIOUR.turn);
-            // The rendered body eases toward navigation yaw in place(). Do not
-            // translate along the new path while it still faces the old one.
-            forward.set(0, 0, 1).applyQuaternion(animal.root.quaternion);
-            const facing = Math.atan2(forward.x, forward.z);
-            const facingTurn = Math.atan2(Math.sin(desiredYaw - facing), Math.cos(desiredYaw - facing));
-            const turning = Math.abs(turn) > BEHAVIOUR.turnFirst || Math.abs(facingTurn) > BEHAVIOUR.turnFirst;
-            const step = turning ? 0 : Math.min(length, dt * animal.animation.referenceSpeed(animal.state));
-            const extras = extrasFor(animal, frame.focus);
-            const next = colliders.move(p.x, p.z, dx / Math.max(length, 1e-5) * step, dz / Math.max(length, 1e-5) * step, animal.home.radius,
-              undefined, { minY: p.y + 0.03, maxY: p.y + animal.size.y }, extras);
-            if (animalGroundAllowed(terrain, next, animal.home.radius) && animalHabitatAllowed(animal.definition, next)
-              && Math.hypot(next.x - animal.home.x, next.z - animal.home.z) <= animal.definition.roam + 0.01) {
-              const travel = Math.hypot(next.x - p.x, next.z - p.z);
-              p.x = next.x; p.z = next.z; speed = travel / Math.max(dt, 1e-5);
-            }
-            animal.blockedFor = !turning && speed < BEHAVIOUR.stalled ? animal.blockedFor + dt : 0;
-            if (length < BEHAVIOUR.arrive || step >= length && speed > 0) animal.path.shift();
-            if (animal.blockedFor > BEHAVIOUR.giveUp || !animal.path.length) rest(animal);
-          } else rest(animal);
-        } else {
-          if (animal.state === 'Alert') {
-            const yaw = Math.atan2(frame.focus.x - p.x, frame.focus.z - p.z), turn = Math.atan2(Math.sin(yaw - animal.yaw), Math.cos(yaw - animal.yaw));
-            animal.yaw += THREE.MathUtils.clamp(turn, -dt * BEHAVIOUR.watchTurn, dt * BEHAVIOUR.watchTurn);
-          }
-          const gestureDuration = animal.state === 'Call' ? Math.max(BEHAVIOUR.callSeconds, animal.animation.duration('Call')) : animal.animation.duration(animal.state);
-          if (['Call', 'Alert', 'Groom'].includes(animal.state) && animal.stateTime > gestureDuration + BEHAVIOUR.gestureSlack) {
-            // Still alarmed with nowhere to run, it stays on watch rather than grazing beside the hunter (A96 scout).
-            if (holding || animal.alarm && !animal.definition.tame) { animal.stateTime = 0; enter(animal, 'Alert'); } else rest(animal);
-          }
-          animal.rest -= dt;
-          if (animal.callIn <= 0 && distance < ANIMAL_AUDIO.species[animal.definition.species].maxDistance && distance > speeds.flee + BEHAVIOUR.callClearance && ['Idle', 'Graze'].includes(animal.state)) {
-            // Not in its sleep (A96 scout: the cat woke to call whenever its timer ran out at night).
-            enter(animal, 'Call'); animal.callIn = BEHAVIOUR.call[0] + animal.rng() * BEHAVIOUR.call[1];
-          } else if (animal.rest <= 0 && ['Idle', 'Graze', 'Sleep'].includes(animal.state)) {
-            if (animal.definition.seated) { enter(animal, frame.nightness > NIGHT.catSleeps && animal.rng() < BEHAVIOUR.catSleepShare ? 'Sleep' : 'Groom'); animal.rest = BEHAVIOUR.seatedRest[0] + animal.rng() * BEHAVIOUR.seatedRest[1]; }
-            else if (!goal(animal, frame.focus, false)) animal.rest = BEHAVIOUR.restNoPath[0] + animal.rng() * BEHAVIOUR.restNoPath[1];
-          }
-        }
-        animal.animation.update(dt, speed); place(animal, dt);
-        if (callNow) {
-          animal.callSent = true; calls++;
+        // What it does this step is its mind's (core/rules/animalMind.ts); nothing of it moves while it is gone or dead.
+        const step = animal.step(dt, frame.focus, frame.nightness);
+        if (!step) continue;
+        animal.animation.update(dt, step.speed); place(animal, dt);
+        if (step.call) {
+          calls++;
           const mouth = animal.scene.getObjectByName('jaw') ?? animal.scene.getObjectByName('head');
           if (mouth) mouth.getWorldPosition(vertex); else vertex.set(p.x, p.y + animal.size.y * 0.68, p.z);
           emit({ id: animal.definition.id, species: animal.definition.species,
-            position: { x: vertex.x, y: vertex.y, z: vertex.z }, callVariant: animal.rng() < 0.5 ? 1 : 2 });
+            position: { x: vertex.x, y: vertex.y, z: vertex.z }, callVariant: step.call });
         }
       }
     },

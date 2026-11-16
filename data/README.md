@@ -12,11 +12,13 @@ TypeScript: an Unreal Engine project in particular (see `data/unreal`).
 | Folder | Holds | Units and axes |
 | --- | --- | --- |
 | `game/` | Items, residents and their schedules, dialogue, inspections, everything the wanderer can act on, the score and the world's sound, spoken lines, display strings, animals and hunting, hostiles, the quest's vocabulary, and tuning values by system. | The core's: metres, seconds, radians. |
-| `world/` | The authored layout (bounds, coast, water, roads, places, buildings, anchors), each room's furniture and dressing, where every tree stands, what lies and grows on the ground besides (the woodland floor, the loose stone, the shore's driftwood and scrub), the sky through the day, and the terrain as rasters. | The core's: `x` east, `z` south, `y` up; a yaw of 0 faces `+z`. |
+| `world/` | The authored layout (bounds, coast, water, roads, places, buildings, anchors), each room's furniture and dressing, where every tree stands, what lies and grows on the ground besides (the woodland floor, the loose stone, the shore's driftwood and scrub and its rock piles), the sky through the day, and the terrain as rasters. | The core's: `x` east, `z` south, `y` up; a yaw of 0 faces `+z`. |
 | `schema/` | A JSON Schema (draft 2020-12) for every document in `game/` and `world/`. | |
 | `unreal/` | The flat tables again, shaped for Unreal's importers, with positions already in Unreal's units. | Centimetres, degrees; X east, Y south, Z up. |
 
-Every JSON document starts with `about` (what it holds) and `units`. Numbers are rounded to six decimals. A value that
+Every JSON document in `game/` and `world/` starts with `about` (what it holds) and `units`. The DataTables in
+`unreal/` are bare arrays of rows, as Unreal's importer reads them, and `unreal/conventions.json` and
+`unreal/tables.json` state their units in their text. Numbers are rounded to six decimals. A value that
 JSON cannot hold (an animal kind that never returns to its range) is `null`.
 
 ## The terrain rasters
@@ -32,14 +34,23 @@ tree models.
 
 `world/terrain.json` gives the grid's origin, the Landscape's location and scale in Unreal units, and the heights of
 named places to check an import against. The import has not been run in Unreal yet: check the
-orientation against those points on the first import, and flip the image's rows if the lighthouse lands in the south.
+orientation against those points on the first import: the lighthouse stands in the south-west, on its rock, so flip
+the image's rows if it lands in the north.
 
 ## The trees
 
-`world/flora.json` and `unreal/DT_Trees.json` hold the planting as the core's rule produces it on its own: 945 trees
-and shrubs. The web build runs the same rule with the measured trunk and crown sizes of its tree models, which changes
-which crowded sites are accepted, so its forest differs in detail. For a port that brings its own tree assets, this
-model-independent planting is the starting point.
+`unreal/DT_Trees.json` and `world/flora.json` hold the forest as the web build plants it: the core's planting rule,
+told each tree's trunk and crown by the model that draws it. The core keeps that result as content
+(`src/core/world/plantedForest.ts`), and `tests/presentation/plantedForest.test.ts` plants it again from the shipped
+models and fails if the two part. Each tree has a radius as an obstacle and a larger one where the walk grid keeps clear
+of its drawn wood. The stones and the shore's details in `world/placement.json` are laid round these trunks, as in the
+game, and so are the weathered rock piles the shore keeps: `src/core/world/rockPiles.ts` leaves out any that would claim
+a route, a tree or a stone, and `tests/presentation/sourceRockPile.test.ts` lays them among everything the game builds
+first and fails if they part from the export.
+
+`world/flora.json` also lists, as `offered`, the places the rule gives without measuring any tree model, with the
+supplied trees' trunk sizes. The drawn models are wider, so the web build keeps fewer of them. A port that brings its
+own tree assets plants through the same rule with their footprints.
 
 ## The Unreal tables
 

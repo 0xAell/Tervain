@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ANIMALS, ANIMAL_SPEEDS, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalSpecies } from '../../../src/core/content/animals';
+import { ANIMALS, ANIMAL_CALL_REACH, ANIMAL_GESTURE_SECONDS, ANIMAL_SENSES, ANIMAL_TEMPERAMENT, ANIMAL_TRIANGLE_LIMIT, GRAZERS, requiredAnimalClips, type AnimalSpecies } from '../../../src/core/content/animals';
 import { CARAVAN_ANIMAL_REST } from '../../../src/core/world/caravanAnimal';
 import { WORLD } from '../../../src/core/world/layout';
 
@@ -41,14 +41,29 @@ describe('the animal roster', () => {
 });
 
 describe('how each kind moves and meets the hunter', () => {
-  it('has a pace and a temperament for every species, running faster than walking and noticing before fleeing', () => {
+  it('has senses, a temperament and a call for every species, noticing before fleeing and calling from beyond', () => {
     for (const species of SPECIES) {
-      const pace = ANIMAL_SPEEDS[species], temper = ANIMAL_TEMPERAMENT[species];
-      expect(pace.run).toBeGreaterThan(pace.walk);
-      expect(pace.notice).toBeGreaterThan(pace.flee);
+      const senses = ANIMAL_SENSES[species], temper = ANIMAL_TEMPERAMENT[species];
+      expect(senses.notice).toBeGreaterThan(senses.flee);
       expect(temper.holdUntil).toBeGreaterThan(0); expect(temper.holdUntil).toBeLessThanOrEqual(1);
       expect(temper.herd).toBeGreaterThanOrEqual(0);
+      expect(ANIMAL_CALL_REACH[species]).toBeGreaterThan(senses.notice);
     }
+  });
+
+  it('gives every animal its own pace, running faster than walking, and none to the one that only sits', () => {
+    for (const animal of ANIMALS) {
+      if (animal.seated) { expect([animal.walk, animal.run], animal.id).toEqual([0, 0]); continue; }
+      expect(animal.walk, animal.id).toBeGreaterThan(0.1);
+      expect(animal.run, animal.id).toBeGreaterThan(animal.walk);
+    }
+    // One deer's stride is a trot, not a gallop: its pace is what it plays, not the others' (no average is taken).
+    expect(ANIMALS.find((animal) => animal.id === '1005232351')!.run).toBeLessThan(1.2);
+    expect(ANIMALS.find((animal) => animal.id === '1005232341')!.run).toBeGreaterThan(2);
+  });
+
+  it('holds a gesture for a set length: a look up, a call, a groom', () => {
+    expect(ANIMAL_GESTURE_SECONDS).toEqual({ Alert: 2, Call: 4, Groom: 4 });
   });
 
   it('lets predators hold their ground, and carries an alarm through wolves, boar and deer', () => {
@@ -67,5 +82,14 @@ describe('how each kind moves and meets the hunter', () => {
 
   it('holds every animal to the 50,000-triangle budget', () => {
     expect(ANIMAL_TRIANGLE_LIMIT).toBe(50_000);
+  });
+});
+
+describe('which animals graze', () => {
+  it('is the kind\u2019s, not the model\u2019s: deer and boar graze, and each has the motion for it; the rest stand idle', () => {
+    expect([...GRAZERS].sort()).toEqual(['boar', 'deer']);
+    for (const animal of ANIMALS) {
+      expect(requiredAnimalClips(animal).includes('Graze'), animal.id).toBe(!animal.seated && GRAZERS.includes(animal.species));
+    }
   });
 });

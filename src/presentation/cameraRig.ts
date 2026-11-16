@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { BoxCollider, Collider, Colliders } from '../core/world/colliders';
+import { PROP_COLLIDER, type BoxCollider, type Collider, type Colliders } from '../core/world/colliders';
 import type { Terrain } from '../core/world/terrain';
 import { BUILDINGS, LIGHTHOUSE } from '../core/world/layout';
 import { CAMERA_CLEARANCE, cameraColliderEntry } from '../core/rules/cameraObstruction';
@@ -69,7 +69,6 @@ export class CameraRig {
   /** The boom length and pivot height actually used by the last follow, for checks. */
   lastBoom = 0;
   lastPivotLift = 0;
-  private titleAngle = 0;
   private initialized = false;
   private lastFollowYaw = Number.NaN;
   private waterSide: 'above' | 'under' | null = null;
@@ -95,10 +94,10 @@ export class CameraRig {
     this.shakeT = 0;
     this.aiming = false;
     this.aimBlend = this.draw = this.kick = 0;
-    this.camera.fov = 60;
+    this.camera.fov = CAMERA.fov;
     this.camera.updateProjectionMatrix();
   }
-  mode: 'follow' | 'title' | 'bench' = 'follow';
+  mode: 'follow' | 'bench' = 'follow';
   benchPath: { p: THREE.Vector3; look: THREE.Vector3 }[] = [];
   benchT = 0;
   /** Seconds the benchmark route spends on each segment (6; `?bench=quick` 0.5, for a software-rendered check). */
@@ -170,7 +169,7 @@ export class CameraRig {
     this.followPivot.copy(this.smoothTarget);
     // A rail fence is seen through (A125): its wall above the rails keeps the hero off them, not the camera, which pulled
     // in to a metre from his back whenever it swung across one.
-    const candidates = colliders.nearCamera(px, pz, boomDistance + aimOffset + CAMERA_CLEARANCE + MAX_RECOIL).filter((c) => c.id !== 'fence');
+    const candidates = colliders.nearCamera(px, pz, boomDistance + aimOffset + CAMERA_CLEARANCE + MAX_RECOIL).filter((c) => c.id !== PROP_COLLIDER.fence);
     this.waterTerrain = terrain;
     this.waterColliders = candidates;
     // B12: in a room (decided by the hero's footprint, with hysteresis) the boom drops under the ceiling, eased, instead
@@ -415,7 +414,7 @@ export class CameraRig {
       this.camera.rotateX(this.kick * this.kick * 0.022);
       this.kick = Math.max(0, this.kick - Math.max(0, dt) * 5);
     }
-    const fov = this.aiming ? 48 - 4 * this.draw : 60;
+    const fov = this.aiming ? AIM_VIEW.fov - AIM_VIEW.drawFov * this.draw : CAMERA.fov;
     if (this.camera.fov !== fov) {
       this.camera.fov += (fov - this.camera.fov) * k;
       if (Math.abs(this.camera.fov - fov) < 0.01) this.camera.fov = fov;
@@ -459,23 +458,6 @@ export class CameraRig {
     if (y < floor + r) return false;
     const lowered = { x: p.x, y, z: p.z };
     return this.waterColliders.every(c => cameraColliderEntry(p, lowered, c, terrain.groundAt(c.x, c.z), obstacleHeight(c)) === null);
-  }
-
-  /**
-   * The title view: a slow drift above the Grey Strand, looking along the beach to the lighthouse on Lantern Point with the sea
-   * to the right. Static under reduced motion.
-   */
-  title(dt: number, terrain: Terrain, reducedMotion: boolean) {
-    if (!reducedMotion) this.titleAngle += dt * 0.05;
-    const t = this.titleAngle;
-    const x = -262 + Math.sin(t * 0.9) * 7;
-    const z = 2 + Math.cos(t * 0.7) * 5;
-    const y = terrain.heightAt(x, z) + 4.6 + Math.sin(t * 0.6) * 0.7;
-    this.camera.position.set(x, y, z);
-    const lx = -322 + Math.sin(t * 0.5) * 5;
-    const lz = 98;
-    this.camera.lookAt(lx, terrain.heightAt(-322, 98) + 11 + Math.sin(t * 0.8) * 1.2, lz);
-    this.smoothTarget.set(-290, terrain.heightAt(-290, 50), 50);
   }
 
   /** A fixed camera route for repeatable frame-time measurements. */

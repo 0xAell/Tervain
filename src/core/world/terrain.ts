@@ -3,7 +3,7 @@ import type { PhysicalRockGeometry } from './physicsGeometry';
 import { clamp, fbm, lerp, ridged, smoothstep, warp } from './noise';
 import { lighthouseRock, shapeCoast, shoreDistance } from './coast';
 import { lighthouseFloorAt, lighthouseSurfacesAt } from './lighthouse';
-import { buildingStepSurfacesAt } from './buildingEntries';
+import { archiveSupports, buildingStepSurfacesAt, onSupport } from './buildingEntries';
 import { roomLocator, type RoomLocator } from './interiors';
 import { springBasinGround } from './water/spring';
 import { checkCancelled, finishCooperatively, type CooperativeOptions } from '../util/cooperative';
@@ -12,7 +12,6 @@ import { FIELDS,
   ANCHORS,
   ARRIVAL_ROUTE,
   ARRIVAL_TRAIL_WIDTH,
-  ARCHIVE_ROOM,
   BELL,
   BUILDINGS,
   COASTAL,
@@ -188,6 +187,7 @@ let pads: Pad[] | null = null;
 
 const archive = BUILDINGS.find((b) => b.kind === 'archive')!;
 const archiveCos = Math.cos(archive.yaw), archiveSin = Math.sin(archive.yaw);
+const ARCHIVE_SUPPORTS = archiveSupports(archive);
 // Authored support transforms stay fixed for the lifetime of the terrain.
 const deckFrames = DECKS.map(deck => ({ deck, cos: Math.cos(deck.yaw), sin: Math.sin(deck.yaw) }));
 let archivePadLevel: number | null = null;
@@ -636,18 +636,11 @@ export class Terrain {
     const s = archiveSin;
     const lx = dx * c - dz * s;
     const lz = dx * s + dz * c;
-    const hd = archive.d / 2;
-    const wall = ARCHIVE_ROOM.wallThickness;
-    // The forced rear entry retains its stone sill; feet step onto it instead of passing through the slab.
-    if (Math.abs(lx) <= ARCHIVE_ROOM.shutterHalfWidth + 1e-6 && Math.abs(lz + hd) <= wall + 1e-6) {
-      return Math.max(t, this.heightAt(archive.x, archive.z) + ARCHIVE_ROOM.shutterBottom);
-    }
-    if (Math.abs(lx) <= ARCHIVE_ROOM.doorHalfWidth + 1e-6 && lz >= hd - wall - 1e-6 && lz <= hd + wall + 0.2 + 1e-6) {
-      return Math.max(t, this.heightAt(archive.x, archive.z) + ARCHIVE_ROOM.floorTop);
-    }
-    if (Math.abs(lx) <= archive.w / 2 - ARCHIVE_ROOM.wallThickness + 1e-6 && Math.abs(lz) <= archive.d / 2 - ARCHIVE_ROOM.wallThickness + 1e-6) {
-      // Every point used by groundOf lies on the flat terrace, so its average equals this grid-sampled base.
-      return Math.max(t, this.heightAt(archive.x, archive.z) + ARCHIVE_ROOM.floorTop);
+    // The forced rear entry keeps its stone sill (feet step onto it rather than through the slab), the door its sill,
+    // and the room its plank floor (archiveSupports). Every point of the floor lies on the flat terrace, so the ground at
+    // the centre is the base of all three.
+    for (const support of ARCHIVE_SUPPORTS) {
+      if (onSupport(support, lx, lz, 1e-6)) return Math.max(t, this.heightAt(archive.x, archive.z) + support.top);
     }
     const floor = this.rooms.floorAt(x, z);
     if (floor !== null) return Math.max(t, floor);

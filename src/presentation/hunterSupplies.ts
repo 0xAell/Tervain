@@ -2,9 +2,13 @@ import * as THREE from 'three';
 import { mergeStaticParts } from './staticMerge';
 import { HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE as T, hunterStationPoint, hunterTableSurfaceY } from '../core/world/layout';
 import type { Terrain } from '../core/world/terrain';
-import type { Colliders } from '../core/world/colliders';
+import { PROP_COLLIDER, type Colliders } from '../core/world/colliders';
 import { makeTexPair } from './buildingTextures';
 import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
+import { HUNTER_RANKS } from '../core/game/hunting';
+
+/** Counts as the sign is lettered. */
+const COUNT_WORDS: Readonly<Record<number, string>> = { 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten' };
 
 // The table's top is where the core says it is (the interactables and the pickups share it).
 export { hunterTableSurfaceY };
@@ -177,9 +181,9 @@ export function buildHunterSupplies(terrain: Pick<Terrain, 'heightAt'>, collider
   const postUpper = T.signCentreAboveTop + T.signHeight / 2 - .04;
   const postHeight = postUpper - postBottom;
   solid('hunter-sign-post', .11, postHeight, .11, T.signX, (postBottom + postUpper) / 2, T.signZ - .1);
-  collider('hunter_board_post', .11, postHeight, .11, T.signX, (postBottom + postUpper) / 2, T.signZ - .1);
+  collider(PROP_COLLIDER.hunterBoardPost, .11, postHeight, .11, T.signX, (postBottom + postUpper) / 2, T.signZ - .1);
   solid('hunter-sign-board', T.signWidth, T.signHeight, T.signDepth, T.signX, T.signCentreAboveTop, T.signZ);
-  collider('hunter_board', T.signWidth, T.signHeight, T.signDepth, T.signX, T.signCentreAboveTop, T.signZ);
+  collider(PROP_COLLIDER.hunterBoard, T.signWidth, T.signHeight, T.signDepth, T.signX, T.signCentreAboveTop, T.signZ);
   // Mounting blocks bridge the post-to-board gap behind the face; the post cannot cut through the lettering.
   for (const y of [T.signCentreAboveTop - .18, T.signCentreAboveTop + .18]) {
     solid(`hunter-sign-mount-${y}`, .18, .065, .065, T.signX, y, T.signZ - .066);
@@ -193,8 +197,10 @@ export function buildHunterSupplies(terrain: Pick<Terrain, 'heightAt'>, collider
     context.fillStyle = '#f0dfb8'; context.textAlign = 'center'; context.textBaseline = 'middle';
     context.font = 'bold 62px Georgia'; context.fillText('ROWAN’S GAME CAMP', 512, 91);
     context.font = '45px Georgia'; context.fillText('Bow · Skinning knife · Arrows', 512, 192);
-    context.fillText('Meat for Rillford: 2 coin each', 512, 277);
-    context.font = '38px Georgia'; context.fillText('Bring a hide for six more arrows', 512, 365);
+    // Painted with the trade a newcomer gets, the core's first rank; his hunting notes give the terms of his present one.
+    const opening = HUNTER_RANKS[0]!;
+    context.fillText(`Meat for Rillford: ${opening.meat} coin each`, 512, 277);
+    context.font = '38px Georgia'; context.fillText(`Bring a hide for ${COUNT_WORDS[opening.arrows] ?? opening.arrows} more arrows`, 512, 365);
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
     const label = new THREE.Mesh(new THREE.PlaneGeometry(T.signWidth - .09, T.signHeight - .065), new THREE.MeshStandardMaterial({ map: texture, roughness: 1, metalness: 0 }));
     label.name = 'hunter-sign-lettering';

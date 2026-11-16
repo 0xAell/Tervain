@@ -1,14 +1,15 @@
 import { hotbarEligible, itemAction, ITEMS } from '../../core/content/items';
 import { NPCS } from '../../core/content/npcs';
 import { S } from '../../core/content/strings';
-import { commitPreconditions, riteCalmActive, rotationBlockers, stabilizePreconditions } from '../../core/game/commands';
+import { commitPreconditions, hasProcedure, riteCalmActive, rotationBlockers, stabilizePreconditions } from '../../core/game/commands';
 import type { Game } from '../../core/game/game';
 import { buildJournal } from '../../core/game/journal';
 import { clockDay, evalCond, formatClock } from '../../core/game/state';
 import { worldView } from '../../core/game/worldView';
-import type { Allocation, Cond, ItemId, WorldState } from '../../core/game/types';
+import { PARTIES, PARTY_NPC, type Allocation, type Cond, type ItemId, type WorldState } from '../../core/game/types';
 import { type Input } from '../../platform/input';
 import { ACTIONS, codeLabel, assignSlot, cancelsCapture, findConflict, resetToDefaults, saveSettings, type Action, type Settings } from '../../platform/settings';
+import { HAND_SAVE_SLOTS } from '../../core/rules/session';
 import { SLOT_IDS, type LoadResult, type SaveStore, type SlotId } from '../../platform/storage';
 import { clear, focusableElements, focusFirst, h, moveFocus, visibleControl } from './dom';
 import { BUILD_LABEL, GAME_VERSION } from '../../version';
@@ -47,7 +48,6 @@ export interface PanelCtx {
   actions: PanelActions;
   host: PanelHost;
   toast(text: string, kind?: '' | 'evidence' | 'good' | 'bad'): void;
-  playerNear: { sluice: boolean };
 }
 
 interface Frame {
@@ -55,7 +55,6 @@ interface Frame {
   narrow: boolean;
   returnFocus: HTMLElement | null;
   onClose?: () => void;
-  refresh?: () => HTMLElement;
 }
 
 /** Holds a stack of modal panels so Settings can open from Pause and return to it. */
@@ -82,9 +81,9 @@ export class PanelHost {
     return this.stack.length;
   }
 
-  push(content: HTMLElement, opts: { narrow?: boolean; onClose?: () => void; refresh?: () => HTMLElement } = {}) {
+  push(content: HTMLElement, opts: { narrow?: boolean; onClose?: () => void } = {}) {
     const wasEmpty = this.stack.length === 0;
-    this.stack.push({ content, narrow: !!opts.narrow, returnFocus: document.activeElement as HTMLElement | null, onClose: opts.onClose, refresh: opts.refresh });
+    this.stack.push({ content, narrow: !!opts.narrow, returnFocus: document.activeElement as HTMLElement | null, onClose: opts.onClose });
     this.render();
     if (wasEmpty) this.onOpen?.();
   }
@@ -95,14 +94,6 @@ export class PanelHost {
     top.content = content;
     if (opts.narrow !== undefined) top.narrow = opts.narrow;
     this.render();
-  }
-
-  refreshTop() {
-    const top = this.stack[this.stack.length - 1];
-    if (top?.refresh) {
-      top.content = top.refresh();
-      this.render(false);
-    }
   }
 
   back() {
@@ -499,7 +490,7 @@ export function sluicePanel(ctx: PanelCtx): HTMLElement {
   if (gate !== 'stabilized') {
     const block = stabilizePreconditions(s);
     const safeRite = riteCalmActive(s);
-    const safeProc = s.evidence.worker_testimony !== undefined;
+    const safeProc = hasProcedure(s);
     const note = safeRite ? S('sluice.brace.safe.rite') : safeProc ? S('sluice.brace.safe.procedure') : S('sluice.brace.unsafe');
     frag.push(
       h(
@@ -532,8 +523,8 @@ export function sluicePanel(ctx: PanelCtx): HTMLElement {
       const block = commitPreconditions(s, a);
       const reasons: string[] = [];
       if (a === 'rotation') for (const b of rotationBlockers(s)) reasons.push(S(`sluice.alloc.rotation.need.${b}`));
+      // The core's preconditions say why it cannot be chosen, `already_committed` among them.
       const disabled = !!block;
-      const committedAlready = s.quest.phase === 'committed' || s.quest.phase === 'settled';
       cards.append(
         h(
           'div',
@@ -543,8 +534,8 @@ export function sluicePanel(ctx: PanelCtx): HTMLElement {
           h('p', { class: 'cost' }, `− ${S(`sluice.alloc.${a}.cost`)}`),
           h('p', { class: 'kind' }, S(`sluice.alloc.${a}.kind`)),
           reasons.map((r) => h('p', { class: 'need' }, `${S('hud.requires')} ${r}`)),
-          a === 'rotation' && !reasons.length && s.npcs.quarry_foreman.available && s.npcs.rillford_reeve.available && s.npcs.spring_steward.available ? null : a === 'rotation' && [s.npcs.quarry_foreman, s.npcs.rillford_reeve, s.npcs.spring_steward].some((n) => !n.available) ? h('p', { class: 'need' }, S('sluice.alloc.caretaker')) : null,
-          h('div', { class: 'row', style: { marginTop: '6px' } }, h('button', { class: 'btn primary', disabled: disabled || committedAlready, 'data-nav': true, onClick: () => (disabled || committedAlready ? null : showCommitConfirm(ctx, a)) }, S(`sluice.alloc.${a}`))),
+          a === 'rotation' && !reasons.length && PARTIES.every((p) => s.npcs[PARTY_NPC[p]].available) ? null : a === 'rotation' && PARTIES.some((p) => !s.npcs[PARTY_NPC[p]].available) ? h('p', { class: 'need' }, S('sluice.alloc.caretaker')) : null,
+          h('div', { class: 'row', style: { marginTop: '6px' } }, h('button', { class: 'btn primary', disabled, 'data-nav': true, onClick: () => (disabled ? null : showCommitConfirm(ctx, a)) }, S(`sluice.alloc.${a}`))),
         ),
       );
     }
@@ -617,7 +608,7 @@ export function slotsPanel(ctx: PanelCtx, mode: 'save' | 'load'): HTMLElement {
       }
     }
   };
-  const rows = SLOT_IDS.filter((s) => mode === 'load' || (s !== 'auto' && s !== 'quick')).map((slot) => {
+  const rows = (mode === 'load' ? SLOT_IDS : HAND_SAVE_SLOTS).map((slot) => {
     const res = ctx.saves.load(slot);
     const l = slotLabel(res, slot);
     const summary = h('div', {});
