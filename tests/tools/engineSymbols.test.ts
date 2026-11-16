@@ -87,7 +87,7 @@ describe('the register of engine names the Unreal seed assumes', () => {
     for (const entry of register.symbols.filter((item) => item.status !== 'verified')) expect(text, entry.symbol).toContain(`\`${entry.symbol.replace(/\|/g, '\\|')}\``);
   });
 
-  it('checks each passage on its page when asked to, and opens a page once more before calling a passage missing', async () => {
+  it('checks each passage on its page when asked to, and opens a page again before calling a passage missing', async () => {
     const small = copy();
     small.symbols = small.symbols.filter((entry) => entry.source).slice(0, 3);
     const wrap = (text: string) => `<html><body><p>${text.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</p></body></html>`;
@@ -99,8 +99,15 @@ describe('the register of engine names the Unreal seed assumes', () => {
     const flaky = await onlineProblems({ ...small, symbols: small.symbols.slice(0, 1) }, async () => (calls++ === 0 ? wrap('cut short') : wrap(small.symbols[0]!.passage!)));
     expect(flaky.problems).toEqual([]);
     expect(calls).toBe(2);
-    const bad = await onlineProblems({ ...small, symbols: small.symbols.slice(0, 1) }, async () => wrap('something else entirely'));
+    // So is a page that arrives whole but without its tables, up to three times in all.
+    let served = 0;
+    const thin = await onlineProblems({ ...small, symbols: small.symbols.slice(0, 1) }, async () => (served++ < 2 ? wrap('the page without its tables') : wrap(small.symbols[0]!.passage!)));
+    expect(thin.problems).toEqual([]);
+    expect(served).toBe(3);
+    let asked = 0;
+    const bad = await onlineProblems({ ...small, symbols: small.symbols.slice(0, 1) }, async () => { asked++; return wrap('something else entirely'); });
     expect(bad.problems.join('\n')).toMatch(/the passage is not on https:\/\/dev\.epicgames\.com/);
+    expect(asked).toBe(3);
     const down = await onlineProblems({ ...small, symbols: small.symbols.slice(0, 1) }, async () => { throw new Error('status 503'); });
     expect(down.problems.join('\n')).toMatch(/could not be read: status 503/);
     // A page that starts as HTML and never closes is fetched again; one that never arrives whole is reported as such, and

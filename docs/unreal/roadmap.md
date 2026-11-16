@@ -19,8 +19,8 @@ Done here, without the engine:
 - A source-only Unreal project mirrors the data types, and two rules as a worked example.
 - Each system has a proposed Unreal counterpart ([system mapping](system-mapping.md)).
 
-Not done, and the first thing the next phase does: none of the Unreal code has been compiled, and none of the imports
-has been run.
+Not done, and the first thing the next phase does: none of the Unreal code has been built by the engine (CI compiles
+it against stand-ins for the engine's names, not against Unreal), and none of the imports has been run.
 
 ## Phase 1: stand the project up
 
@@ -122,8 +122,8 @@ rules that are small, tested and free of engine classes, and data in files.
 
 Each of these shortens a later phase and can be done on the web build alone:
 
-- Lift the remaining design decisions out of the scene layer ([system mapping](system-mapping.md), last section): the
-  player's state machine.
+- Keep the scene layer free of rules: the last section of the [system mapping](system-mapping.md) lists what is still
+  there and why it stays, and anything found there that decides play moves into the core.
 - Replace, before anything is released, the files the [asset manifest](../../data/assets/README.md#replace-before-ship)
   marks `replaceBeforeShip`: the hero's two sources of unsettled origin and the title theme. Each names its pack, so
   nothing waits on the questions themselves.
