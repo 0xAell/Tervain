@@ -224,7 +224,6 @@ export class AnimalAnimation {
     }
     this.actions.get('Idle')?.play();
   }
-  duration(clip: AnimalClip) { return this.actions.get(clip)?.getClip().duration ?? 2; }
   has(clip: AnimalClip) { return this.actions.has(clip); }
   referenceSpeed(clip: 'Walk' | 'Run') { return this.motionSpeeds[clip]; }
   /** How far through its stride a walking or running animal is (0..1), or null standing (A71). */

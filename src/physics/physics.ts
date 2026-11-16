@@ -3,7 +3,7 @@ import { authoredBounds, FENCE_WALL_LIFT, PROP_COLLIDER, type Collider as WorldC
 import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../core/world/layout';
 import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG, type PropSpec } from '../core/world/physicalProps';
 // Loose bodies fall under the same gravity as the wanderer.
-import { GRAVITY } from '../core/rules/hero';
+import { GRAVITY, STEP_HEIGHT } from '../core/rules/hero';
 import { CARGO_BODY, CARGO_STEP, carryForce, carryLift, carryOrigin, carryRank, holdPoint, throwImpulse, throwSpin, withinCarry } from '../core/rules/cargo';
 import { buildingEntry, buildingGround } from '../core/world/buildingEntries';
 import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, PLAYER_FOOT_CLEARANCE } from '../core/world/playerPlacement';
@@ -201,7 +201,7 @@ export class RealmPhysics {
     this.controller = this.world.createCharacterController(.012);
     // Asking where he can go pushes nothing; `push` applies a step once the game has taken it (A106).
     this.controller.setApplyImpulsesToDynamicBodies(false); this.controller.setCharacterMass(CARGO_BODY.pusherMass);
-    this.controller.enableAutostep(.8, .25, true);
+    this.controller.enableAutostep(CARGO_STEP.height, CARGO_STEP.width, true);
     this.controller.setSlideEnabled(true);
     this.controller.setMaxSlopeClimbAngle(ROCK_CLIMB_ANGLE);
     this.controller.setMinSlopeSlideAngle(ROCK_CLIMB_ANGLE);
@@ -356,7 +356,7 @@ export class RealmPhysics {
   }
 
   private contactSupport(x: number, z: number, feetY: number): { height: number; collider: RAPIER.Collider } | null {
-    const top = feetY + .8;
+    const top = feetY + STEP_HEIGHT;
     // The bottom hemisphere is the same radius/shape as the capsule, including partial-foot edge contacts.
     const hit = this.castContacts(this.footShape, { x, y: top + PLAYER_BODY_RADIUS, z }, { x: 0, y: -1, z: 0 }, 120,
       (normal, witness, collider) => !this.rockHandles.has(collider.handle) && normal.y > .45 && witness.y <= top + .001, false);
