@@ -28,6 +28,18 @@ export type HostileMode = 'idle' | 'walk' | 'run' | 'telegraph' | 'strike' | 'de
 
 export type HostileState = 'idle' | 'alert' | 'chase' | 'telegraph' | 'strike' | 'recover' | 'stagger' | 'return' | 'dead';
 
+/**
+ * Where a hostile's fight stands: its health, where it stands and faces, what it is doing and for how long. A rebuild
+ * of the world's drawing (a change of graphics quality) keeps it, because it changes how the world looks, not where a
+ * fight stands: a hostile left at a tenth of its health is still at a tenth, still chasing, after the rebuild. Only a
+ * load or waking after a fall puts hostiles back at their posts (`restore`, `WAKING.foesToPosts`). Residents return to
+ * the place their schedule gives the hour, and animals to their ranges, as on a load: neither keeps a fight.
+ */
+export interface HostileMoment {
+  hp: number; x: number; z: number; y: number; yaw: number; state: HostileState; t: number; engaged: boolean;
+  staggerFor: number; dashDir: { x: number; z: number };
+}
+
 export interface HostileContext {
   terrain: Terrain;
   colliders: Colliders;
@@ -152,6 +164,21 @@ export abstract class HostileActor {
       this.fade = 1;
       this.bodyShown(true);
     }
+  }
+
+  /** Where its fight stands now, to be resumed by the same hostile in a rebuilt world (HostileMoment). */
+  moment(): HostileMoment {
+    return { hp: this.hp, x: this.x, z: this.z, y: this.y, yaw: this.yaw, state: this.state, t: this.t, engaged: this.engaged,
+      staggerFor: this.staggerFor, dashDir: { ...this.dashDir } };
+  }
+
+  /** Take up a fight where `moment` left it; its route is planned afresh. A fallen hostile stays as `restore` left it. */
+  resume(moment: HostileMoment): void {
+    if (this.state === 'dead' || moment.state === 'dead') return;
+    this.hp = moment.hp; this.x = moment.x; this.z = moment.z; this.y = moment.y; this.yaw = moment.yaw;
+    this.state = moment.state; this.t = moment.t; this.engaged = moment.engaged; this.staggerFor = moment.staggerFor;
+    this.dashDir = { ...moment.dashDir };
+    this.route.reset();
   }
 
   reset(ctx: { terrain: Terrain }) {

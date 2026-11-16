@@ -47,11 +47,16 @@ vi.mock('../../src/presentation/actors', () => ({
     }
   },
   EnemyActor: class {
+    id: string;
     rig = { root: new THREE.Group() };
-    constructor() {
+    resumed: unknown[] = [];
+    constructor(spawn: { id: string }) {
+      this.id = spawn.id;
       this.rig.root.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial()));
       stagedActors.roots.push(this.rig.root);
     }
+    moment() { return { id: this.id, body: this.rig.root.uuid }; }
+    resume(moment: unknown) { this.resumed.push(moment); }
   },
 }));
 vi.mock('../../src/presentation/menuScene', () => ({
@@ -587,9 +592,14 @@ describe('actual application world transitions', () => {
     expect(app.loadingEl.classList.contains('off')).toBe(false);
     expect(app.input.uiOpen).toBe(true);
     call('step', 1 / 60); expect(intermediate.syncStatic).not.toHaveBeenCalled();
+    // Each hostile of the rebuilt world takes up the fight of the one it replaces (the core's HostileMoment).
+    type Fake = { id: string; moment(): unknown; resumed: unknown[] };
+    const fights = (Reflect.get(app, 'enemies') as Fake[]).map((enemy) => [enemy.id, enemy.moment()]);
+    expect(fights.length).toBeGreaterThan(0);
     const latest = nextWorld(); high.resolve(latest as unknown as WorldScene);
     await finishReload(app);
     expect(app.world).toBe(latest); expect(latest.dispose).not.toHaveBeenCalled();
+    expect((Reflect.get(app, 'enemies') as Fake[]).map((enemy) => [enemy.id, enemy.resumed])).toEqual(fights.map(([id, moment]) => [id, [moment]]));
     expect(app.loadingEl.classList.contains('off')).toBe(true);
   });
 
