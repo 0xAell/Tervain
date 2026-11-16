@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  CARGO_STEP, CARRY, carryForce, carryLift, carryOrigin, carryRank, handsForCargo, holdPoint, keepsHold, throwImpulse, throwSpin, withinCarry, CARGO_BODY,
+  CARGO_STEP, CARRY, carryForce, carryLift, carryOrigin, carryRank, handsForCargo, holdPoint, keepsHold, throwImpulse, throwSpin, withinCarry, CARGO_BODY, SURFACE_FRICTION,
 } from '../../../src/core/rules/cargo';
 import { GRAVITY, STEP_HEIGHT } from '../../../src/core/rules/hero';
 
@@ -75,5 +75,12 @@ describe('how loose cargo moves', () => {
     // A shove's bounce is small beside its grip, and turning dies away faster than travel.
     expect(CARGO_BODY.restitution).toBeLessThan(CARGO_BODY.friction / 4);
     expect(CARGO_BODY.angularDamping).toBeGreaterThan(CARGO_BODY.linearDamping);
+  });
+
+  it('slides on surfaces whose friction is the core’s too: rock grips most, the wanderer’s body least', () => {
+    expect(SURFACE_FRICTION).toEqual({ ground: 0.85, rock: 0.9, built: 0.8, wanderer: 0.25 });
+    // Averaged with a barrel's own, the ground holds it better than the wanderer's body does, so a shove carries it on.
+    expect((CARGO_BODY.friction + SURFACE_FRICTION.ground) / 2).toBeGreaterThan((CARGO_BODY.friction + SURFACE_FRICTION.wanderer) / 2);
+    expect(SURFACE_FRICTION.rock).toBeGreaterThan(SURFACE_FRICTION.ground);
   });
 });
