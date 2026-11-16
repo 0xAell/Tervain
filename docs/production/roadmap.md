@@ -2,7 +2,7 @@
 
 Status: proposed sequence. No calendar release date, staffing level, funding, or full-game duration has been agreed.
 
-This page was written at `0.0.5` and its milestones still stand as the plan; the build has moved on since (see the [decision register](../decisions.md)). The port to Unreal Engine has its own [roadmap](../unreal/roadmap.md).
+This page was written at `0.0.5` and its milestones still stand as the plan; the build has moved on since (see the [decision register](../decisions.md)). The port to Unreal Engine has its own [roadmap](../unreal/roadmap.md). The engine is chosen ([A169](../decisions.md)): where a milestone or work package below asks for an engine comparison, a candidate toolchain or a selected engine (M1, M5, and packages 1, 6 and 7), that question is answered, and the proofs M1 asks for are made in the engine, in Phases 1 to 3 of the port's roadmap.
 
 The `0.0.5` pass was an owner-directed forest-arrival exploration revision ([A27](../decisions.md)). It moves settlement inland and removes dialogue windows while retaining the earlier simulation and authored graphs. This does not complete M1–M4 or the full Dry Bell player loop; conversation-dependent quest/service access needs future interface work. Current implementation and validation status are in the [release handoff](releases/0.0.5.md).
 

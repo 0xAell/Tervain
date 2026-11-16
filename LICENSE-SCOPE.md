@@ -33,7 +33,7 @@ These exclusions leave all files and their current records in place. This licens
 
 The following existing terms and notices remain unchanged and are not replaced by the root license:
 
-- Warpkeep-derived Apache-2.0 adaptations in `src/presentation/environment.ts`, `src/presentation/vegetation.ts`, `src/presentation/ground/grass.ts`, `src/presentation/ground/patchMaterial.ts`, and `src/presentation/ground/tileStream.ts`, with their source headers and attribution in [NOTICE](NOTICE).
+- Warpkeep-derived Apache-2.0 adaptations in `src/presentation/environment.ts`, `src/presentation/vegetation.ts`, and `src/presentation/ground/tileStream.ts`, with their source headers and attribution in [NOTICE](NOTICE).
 - Three.js and its unmodified Reflector addon under MIT, and `@dimforge/rapier3d-compat` under Apache-2.0, with their existing notices in `public/third-party-notices.txt`.
 - GPL-3.0-only terms and full license retained for the offline Gothic 3 tools under `tools/gothic3/`.
 

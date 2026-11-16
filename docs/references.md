@@ -61,7 +61,6 @@ The Enter action did not acquire pointer lock in the in-app Chromium browser, so
 
 - [Three.js documentation](https://threejs.org/docs/): renderer/import API reference to consult at implementation time.
 - [Three.js Reflector](https://threejs.org/docs/pages/Reflector.html): the existing dependency's WebGL planar-reflection addon is used for the optional coastal capture; its [source](https://github.com/mrdoob/three.js/blob/r186/examples/jsm/objects/Reflector.js) and [MIT license](https://github.com/mrdoob/three.js/blob/r186/LICENSE) were checked against the installed Three.js `0.186.1` package. No additional rendering dependency was added. Tervain's wave, foam, transmission, and composite orchestration code is original.
-- [Electron security guidance](https://www.electronjs.org/docs/latest/tutorial/security): candidate shell boundaries; Electron is not yet selected.
 - [Steam Input](https://partner.steamgames.com/doc/features/steam_controller/getting_started_for_devs): optional platform input integration reference.
 - [Steam Cloud](https://partner.steamgames.com/doc/features/cloud): optional save synchronization reference.
 

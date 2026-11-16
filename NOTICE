@@ -8,7 +8,6 @@ This product includes material from the Warpkeep project (https://github.com/ael
 1. Software techniques. The following files identify adaptations or rewritten ports
    of Warpkeep software at revision 786c0b2be6f2d2e7eb2de02ef3b6826c8907fc32:
    src/presentation/environment.ts, src/presentation/vegetation.ts,
-   src/presentation/ground/grass.ts, src/presentation/ground/patchMaterial.ts,
    and src/presentation/ground/tileStream.ts. Their headers name the original
    source paths and describe Tervain's changes. The applicable license is
    Apache-2.0 (https://www.apache.org/licenses/LICENSE-2.0); its complete,
