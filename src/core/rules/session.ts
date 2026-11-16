@@ -79,7 +79,8 @@ export function momentOf(facts: { playing: boolean; fallen: boolean; hitStopped:
 }
 
 /**
- * What goes on in each moment. `clock`: the day's clock, the time played and the autosave countdown. `people`: speech
+ * What goes on in each moment. `clock`: the day's clock, the time played, the autosave countdown and the water (its
+ * swell and the easing of its flows, so a swimmer's surface holds still while play is held). `people`: speech
  * and the residents. `action`: the wanderer, his foes, the animals, arrows and loose cargo, the doors, and discovery. `foePace`:
  * the share of their pace his foes keep. A blow holds the action while the day and its people go on; while he lies
  * fallen the day stops and only his foes move, at `DEATH.foePace`, until he wakes.

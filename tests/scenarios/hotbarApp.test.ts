@@ -29,6 +29,8 @@ function fixture() {
       pressed: vi.fn((action: string) => action === 'attack' && buttons.attack),
     },
   });
+  // As the core's syncEquipment does (rules/wanderer.ts): a change of equipment ends a skinning.
+  app.player.syncEquipment.mockImplementation(() => app.player.cancelSkinning());
   app.player.cancelSkinning.mockImplementation(() => {
     const channel = app.player.channel;
     if (!channel) return;
