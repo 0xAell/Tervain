@@ -4,10 +4,9 @@ import { ENEMY_ARCHETYPES, ENEMY_IDLE_YAW, ENEMY_POST_YAW } from '../content/ene
 import { ITEMS, itemAction } from '../content/items';
 import { NPCS } from '../content/npcs';
 import { EN } from '../content/strings';
-import { Exclusions } from '../world/exclusions';
-import { createFloraPopulation } from '../world/flora';
 import { BUILDINGS, ENEMY_SPAWNS, PLACES } from '../world/layout';
 import { PHYSICAL_PROPS } from '../world/physicalProps';
+import { PLANTED_FOREST } from '../world/plantedForest';
 import type { Terrain } from '../world/terrain';
 
 /**
@@ -75,7 +74,7 @@ export const UNREAL_CONVENTIONS = {
 
 export function unrealTables(terrain: Terrain): UnrealTable[] {
   const ground = (x: number, z: number) => terrain.heightAt(x, z);
-  const trees = createFloraPopulation(terrain, new Exclusions(terrain));
+  const trees = PLANTED_FOREST;
   const location = f('FVector', 'Where it stands, on the ground (cm).');
   return [
     {
@@ -201,16 +200,17 @@ export function unrealTables(terrain: Terrain): UnrealTable[] {
       rows: PHYSICAL_PROPS.map((prop) => ({ Name: prop.id, DisplayName: prop.name, Kind: pascal(prop.kind), Location: toUnreal(prop.x, ground(prop.x, prop.z), prop.z), Yaw: yawToUnreal(prop.yaw), Size: { X: cm(prop.width), Y: cm(prop.depth), Z: cm(prop.height) }, MassKg: prop.mass })),
     },
     {
-      file: 'DT_Trees.json', name: 'FTervainTreeRow', note: 'One tree or shrub of the planting. Row names are stable only for one export.',
+      file: 'DT_Trees.json', name: 'FTervainTreeRow', note: 'One tree or shrub of the forest as the web build plants it. Row names are stable only for one export.',
       fields: {
         Species: f('FName', 'oak, birch, pine, fir, shorepine, dead, orchard, shrub or palm.'),
         Variant: f('int32', 'Which of the species’ models, 0 to 2.'),
         Location: location,
         Yaw: f('float', 'Its turn about the vertical (degrees).'),
         Scale: f('float', 'Uniform scale.'),
-        TrunkRadius: f('float', 'Radius of the trunk as an obstacle (cm); 0 for a shrub that does not block.'),
+        TrunkRadius: f('float', 'Radius of the trunk as an obstacle to movement (cm); 0 for a tree or shrub that does not block.'),
+        NavigationRadius: f('float', 'Radius the walk grid keeps clear of (cm): the trunk or the drawn wood, whichever reaches further; 0 if it does not block.'),
       },
-      rows: trees.map((tree, index) => ({ Name: `tree_${String(index).padStart(5, '0')}`, Species: tree.sp, Variant: tree.v, Location: toUnreal(tree.x, tree.y, tree.z), Yaw: yawToUnreal(tree.yaw), Scale: round(tree.s), TrunkRadius: cm(tree.radius) })),
+      rows: trees.map((tree, index) => ({ Name: `tree_${String(index).padStart(5, '0')}`, Species: tree.sp, Variant: tree.v, Location: toUnreal(tree.x, tree.y, tree.z), Yaw: yawToUnreal(tree.yaw), Scale: round(tree.s), TrunkRadius: cm(tree.radius), NavigationRadius: cm(tree.navigationRadius) })),
     },
   ];
 }

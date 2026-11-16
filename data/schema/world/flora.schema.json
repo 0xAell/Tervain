@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/flora.schema.json",
   "title": "world/flora.json",
-  "description": "Where every tree stands, as the planting rule places it without measuring any tree model: species, variant, position, scale, facing and trunk radius.",
+  "description": "Where every tree stands as the web build plants it (the planting rule told each tree’s footprint by its model): species, variant, position, scale, facing, radius as an obstacle and for the walk grid, and the model it is drawn with where that is fixed; and the places the rule offers without measuring any tree model, for a port that brings its own trees.",
   "type": "object",
   "properties": {
     "about": {
@@ -14,19 +14,19 @@
     "count": {
       "type": "object",
       "properties": {
-        "fir": {
+        "shrub": {
           "type": "integer"
         },
         "pine": {
           "type": "integer"
         },
-        "shrub": {
-          "type": "integer"
-        },
-        "oak": {
+        "fir": {
           "type": "integer"
         },
         "birch": {
+          "type": "integer"
+        },
+        "oak": {
           "type": "integer"
         },
         "palm": {
@@ -35,27 +35,77 @@
         "shorepine": {
           "type": "integer"
         },
-        "dead": {
-          "type": "integer"
-        },
         "orchard": {
           "type": "integer"
         }
       },
       "required": [
-        "fir",
-        "pine",
         "shrub",
-        "oak",
+        "pine",
+        "fir",
         "birch",
+        "oak",
         "palm",
         "shorepine",
-        "dead",
         "orchard"
       ],
       "additionalProperties": false
     },
     "trees": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "species": {
+            "type": "string"
+          },
+          "variant": {
+            "type": "integer"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          },
+          "scale": {
+            "type": "number"
+          },
+          "yaw": {
+            "type": "number"
+          },
+          "radius": {
+            "type": "number"
+          },
+          "navigationRadius": {
+            "type": "number"
+          },
+          "asset": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "species",
+          "variant",
+          "x",
+          "y",
+          "z",
+          "scale",
+          "yaw",
+          "radius",
+          "navigationRadius",
+          "asset"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "offered": {
       "type": "array",
       "items": {
         "type": "object",
@@ -114,7 +164,8 @@
     "about",
     "units",
     "count",
-    "trees"
+    "trees",
+    "offered"
   ],
   "additionalProperties": false
 }

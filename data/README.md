@@ -36,10 +36,16 @@ orientation against those points on the first import, and flip the image's rows 
 
 ## The trees
 
-`world/flora.json` and `unreal/DT_Trees.json` hold the planting as the core's rule produces it on its own: 945 trees
-and shrubs. The web build runs the same rule with the measured trunk and crown sizes of its tree models, which changes
-which crowded sites are accepted, so its forest differs in detail. For a port that brings its own tree assets, this
-model-independent planting is the starting point.
+`unreal/DT_Trees.json` and `world/flora.json` hold the forest as the web build plants it: the core's planting rule,
+told each tree's trunk and crown by the model that draws it. The core keeps that result as content
+(`src/core/world/plantedForest.ts`), and `tests/presentation/plantedForest.test.ts` plants it again from the shipped
+models and fails if the two part. Each tree has a radius as an obstacle and a larger one where the walk grid keeps clear
+of its drawn wood. The stones and the shore's details in `world/placement.json` are laid round these trunks, as in the
+game.
+
+`world/flora.json` also lists, as `offered`, the places the rule gives without measuring any tree model, with the
+supplied trees' trunk sizes. The drawn models are wider, so the web build keeps fewer of them. A port that brings its
+own tree assets plants through the same rule with their footprints.
 
 ## The Unreal tables
 

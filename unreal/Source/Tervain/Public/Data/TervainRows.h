@@ -436,7 +436,7 @@ struct TERVAIN_API FTervainLooseCargoRow : public FTableRowBase
 	float MassKg = 0.f;
 };
 
-/** One tree or shrub of the planting. Row names are stable only for one export. */
+/** One tree or shrub of the forest as the web build plants it. Row names are stable only for one export. */
 USTRUCT(BlueprintType)
 struct TERVAIN_API FTervainTreeRow : public FTableRowBase
 {
@@ -462,7 +462,11 @@ struct TERVAIN_API FTervainTreeRow : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
 	float Scale = 0.f;
 
-	/** Radius of the trunk as an obstacle (cm); 0 for a shrub that does not block. */
+	/** Radius of the trunk as an obstacle to movement (cm); 0 for a tree or shrub that does not block. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
 	float TrunkRadius = 0.f;
+
+	/** Radius the walk grid keeps clear of (cm): the trunk or the drawn wood, whichever reaches further; 0 if it does not block. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
+	float NavigationRadius = 0.f;
 };

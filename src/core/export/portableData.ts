@@ -56,6 +56,7 @@ import { DETAIL_KEEP } from '../world/detail';
 import { createForestFloorPopulation, FOREST_FLOOR_DISTANCE } from '../world/forestFloor';
 import { createShoreDetailPopulation, placeScatter, ROCK_SHAPE_COUNT } from '../world/scatter';
 import { createFloraPopulation } from '../world/flora';
+import { PLANTED_FOREST, PLANTED_TRUNKS, plantedAsFlora } from '../world/plantedForest';
 import { FOREST_CLEARINGS, FOREST_OPENINGS } from '../world/forest';
 import { FURNITURE } from '../world/furniture';
 import { LAYERS } from '../world/groundLayers';
@@ -231,10 +232,11 @@ const colour = (value: number) => `#${value.toString(16).padStart(6, '0')}`;
 function world(terrain: Terrain): PortableDocument[] {
   const height = (p: { x: number; z: number }) => terrain.heightAt(p.x, p.z);
   const grounded = <T extends { x: number; z: number }>(p: T) => ({ ...p, y: height(p) });
-  const exclusions = new Exclusions(terrain), trees = createFloraPopulation(terrain, exclusions);
-  const floor = createForestFloorPopulation(terrain, exclusions, trees);
+  // The forest as the web build plants it, and the places the planting rule offers without measuring any tree model.
+  const exclusions = new Exclusions(terrain), trees = PLANTED_FOREST, offered = createFloraPopulation(terrain, exclusions);
+  const floor = createForestFloorPopulation(terrain, exclusions, plantedAsFlora());
   // Where a stone lies does not depend on its shape; its resting height and its solid do, and are the port's own.
-  const stones = placeScatter(terrain, exclusions, trees, { groundedY: (rock, heightAt) => heightAt(rock.x, rock.z), contact: (rock, id) => ({ id, bounds: { minY: 0, maxY: rock.size } }) as never });
+  const stones = placeScatter(terrain, exclusions, PLANTED_TRUNKS, { groundedY: (rock, heightAt) => heightAt(rock.x, rock.z), contact: (rock, id) => ({ id, bounds: { minY: 0, maxY: rock.size } }) as never });
   const count: Record<string, number> = {};
   for (const tree of trees) count[tree.sp] = (count[tree.sp] ?? 0) + 1;
   return [
@@ -276,10 +278,11 @@ function world(terrain: Terrain): PortableDocument[] {
     },
     {
       path: 'world/flora.json',
-      about: 'Where every tree stands, as the planting rule places it without measuring any tree model: species, variant, position, scale, facing and trunk radius.',
+      about: 'Where every tree stands as the web build plants it (the planting rule told each tree\u2019s footprint by its model): species, variant, position, scale, facing, radius as an obstacle and for the walk grid, and the model it is drawn with where that is fixed; and the places the rule offers without measuring any tree model, for a port that brings its own trees.',
       data: {
         count,
-        trees: trees.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, age: tree.age ?? null, stand: tree.standId ?? null })),
+        trees: trees.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, navigationRadius: tree.navigationRadius, asset: tree.assetId ?? null })),
+        offered: offered.map((tree) => ({ species: tree.sp, variant: tree.v, x: tree.x, y: tree.y, z: tree.z, scale: tree.s, yaw: tree.yaw, radius: tree.radius, age: tree.age ?? null, stand: tree.standId ?? null })),
       },
     },
     {
@@ -303,7 +306,7 @@ function world(terrain: Terrain): PortableDocument[] {
         detailKeep: DETAIL_KEEP, woodlandFloorFade: FOREST_FLOOR_DISTANCE, stoneShapes: ROCK_SHAPE_COUNT,
         woodlandFloor: floor.map((piece) => ({ id: piece.id, kind: piece.kind, x: piece.x, y: piece.y, z: piece.z, yaw: piece.yaw, scale: piece.scale, rank: piece.rank, variant: piece.variant, colony: piece.colonyId ?? null, onLog: piece.parentLogId ?? null })),
         stones: stones.map((rock) => ({ kind: rock.kind, x: rock.x, groundY: terrain.heightAt(rock.x, rock.z), z: rock.z, size: rock.size, shape: rock.shape, yaw: rock.yaw, squash: rock.squash, rank: rock.decorationRank, obstacleRadius: rock.radius, solid: rock.size >= 0.35 })),
-        shore: createShoreDetailPopulation(terrain, exclusions, trees).map((detail) => ({ kind: detail.kind, x: detail.x, y: detail.y, z: detail.z, yaw: detail.yaw, scale: detail.scale, rank: detail.rank })),
+        shore: createShoreDetailPopulation(terrain, exclusions, PLANTED_TRUNKS).map((detail) => ({ kind: detail.kind, x: detail.x, y: detail.y, z: detail.z, yaw: detail.yaw, scale: detail.scale, rank: detail.rank })),
       },
     },
   ];
