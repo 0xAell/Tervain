@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { CLOCK_RATE } from '../../src/core/game/constants';
 import { QUICK_SLOT_COUNT } from '../../src/core/game/types';
 import { AUTOSAVE_SECONDS } from '../../src/core/rules/journey';
-import { WORLD } from '../../src/core/world/layout';
+import { LIGHTHOUSE, WORLD } from '../../src/core/world/layout';
 import { NATURAL_MODEL_TRIANGLE_LIMIT } from '../../src/presentation/naturalModelBudget';
 import { blocks, plain, unmarked } from '../../tools/check-doc-sources.mjs';
 import { PAGES_SITE_BYTE_LIMIT } from '../../tools/modelAssetDelivery';
@@ -110,6 +110,17 @@ function bareNumbers(file: Doc, block: string): string[] {
   rest = rest.replace(/^ \d+\. /, ' ').replace(/^ #+ .*$/, ' ');
   return HEDGED.test(block) ? [] : [...rest.matchAll(/(?<![a-z_])\d[\d,.]*\d|(?<![a-z_])\d/g)].map((match) => match[0]);
 }
+
+describe('where the documents say the lighthouse stands', () => {
+  it('is where the layout puts it, so an import is checked against the right half of the map', () => {
+    // The core's +z is south and its +x east; the terrain raster's row 0 is its northern edge.
+    const half = LIGHTHOUSE.z > 0 ? 'south' : 'north', other = half === 'south' ? 'north' : 'south', side = LIGHTHOUSE.x < 0 ? 'west' : 'east';
+    expect(plain(text('docs/unreal/roadmap.md'))).toContain(`the lighthouse must stand in the ${half}-${side} on its rock`);
+    const data = plain(text('data/README.md'));
+    expect(data).toContain(`the lighthouse stands in the ${half}-${side}, on its rock, so flip the image's rows if it lands in the ${other}`);
+    expect(data).toContain('row 0 is the northern edge');
+  });
+});
 
 describe('the numbers in the Unreal documents', () => {
   it('that describe this repository are the values its data and code give today', () => {

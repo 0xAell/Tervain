@@ -34,7 +34,8 @@ tree models.
 
 `world/terrain.json` gives the grid's origin, the Landscape's location and scale in Unreal units, and the heights of
 named places to check an import against. The import has not been run in Unreal yet: check the
-orientation against those points on the first import, and flip the image's rows if the lighthouse lands in the south.
+orientation against those points on the first import: the lighthouse stands in the south-west, on its rock, so flip
+the image's rows if it lands in the north.
 
 ## The trees
 
