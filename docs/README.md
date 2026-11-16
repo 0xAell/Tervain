@@ -30,7 +30,7 @@ What is here and where to start. Most pages are dated records: they say what was
 - [Play gate](engineering/play-gate.md): the check a pull request must pass, with the latest [GPU run](perf/LATEST.md), the [Mac budget](perf/MAC-BUDGET.md) and the [cuts made toward it](perf/AIR-CUTS.md).
 - Provenance and terms: [model licenses](engineering/model-licenses.md), [asset inventory](engineering/asset-inventory.md), [shared assets](engineering/shared-assets.md), [world audio](engineering/world-audio.md), [animal audio](engineering/animal-audio.md), [menu score](engineering/menu-score.md), [menu grove score](engineering/menu-grove-score.md), [main hero](engineering/main-hero.md), [resident models](engineering/meshy-npcs.md), [solitary pine](engineering/solitary-pine.md), with their machine-readable receipts (`engineering/*.json`).
 - System descriptions written at a release (`engineering/*-0.0.10.md`, `*-0.0.12.md`, `*-0.0.13.md`): water, grass, foliage, physics, rooms, residents and their rigs and motion, hunting, the weathered look.
-- Change records `engineering/a70-*.md` to `a168-*.md`: one per round of work, with what was found, what changed and how it was checked. The decision register links each.
+- Change records `engineering/a70-*.md` to `a170-*.md`: one per round of work, with what was found, what changed and how it was checked. The decision register links each.
 
 ## Porting to Unreal Engine
 

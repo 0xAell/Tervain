@@ -282,3 +282,10 @@ Not measured in this review: texture taps, shader cost, JS frame CPU (see each P
 - Tree build at load: +4% (5.48 s → 5.72 s for twelve broadleaf templates, in node).
 - Details: docs/engineering/a168-0048-far-crowns.md. Budget gate against live on the release head: in the release PR.
 - Budget gate on main, 0.0.48 (ebf5848): draws 284, triangles 2,915,743, console errors 0. Measured on 15 November 2026 on a software renderer at the gate's pose; the same figures on every run since #775.
+
+## 0.0.49: the date palm's far trunk and a supplied oak's middle crown, prepared 2026-10-21, shipped 2026-11-16
+
+- Date palm, far against middle: change on screen 47.0 → 33.7; far area against near −19.5% → −10.6%.
+- Tree-1505, middle against near: area −27.9% → −24.0%; change on screen 47.4 → 42.8.
+- Triangles: the date palm's far wood +906 per tree (at most +7,248 on Low); tree-1505's middle wood −30; everything else unchanged. Union bounds unchanged or smaller. Canopy audit unchanged.
+- Details: docs/engineering/a170-0049-palm-trunk-oak-middle.md. Budget gate against live on the release head: in the release PR.
