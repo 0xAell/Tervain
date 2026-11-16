@@ -5,8 +5,8 @@ same hand that did the work, with the evidence for each score and what is missin
 state of `main` on the day above. Nothing here has been run in Unreal Engine; where that is what a ten needs, the
 score says so. It replaces the review of 15 November, which scored 8, 9, 9, 8 and 9. A seventh reading, the same day,
 read the documents a newcomer opens first and the notices, against the port the repository is for, rather than the
-code alone. It found stale documents the earlier readings had not opened, so the Cleanup score given that morning was
-too high; with them corrected it stands at ten ([what it found](#5-cleanup)).
+code alone. It found stale documents the earlier readings had not opened, so the Cleanup score given earlier that day
+was too high; with them corrected it stands at ten ([what it found](#5-cleanup)).
 
 | Requirement | Score | In one line |
 | --- | --- | --- |
@@ -128,8 +128,14 @@ What is there:
   which documents the checks cover, the ids header's groups, the glTF import's axes (an assumption, now marked so), the
   quick slots, the source build the preview asks for, and four of the preview's known issues now quoted from registered
   passages ([#833](https://github.com/0xAell/Tervain/pull/833)).
+- The conventions were then checked statement by statement against the core, `data/`, the manifest and the C++ seed:
+  units and axes, positions and yaws over every building, animal and tree, the camera's field of view, the tables and
+  strings, the Landscape's size, heights and orientation, naming and levels of detail. One thing was missing: the
+  texture suffixes name a material's maps, and the title's emblem, an interface image, rightly carries none; the
+  conventions now say so ([#848](https://github.com/0xAell/Tervain/pull/848)).
 - Pull requests: [#780](https://github.com/0xAell/Tervain/pull/780), [#794](https://github.com/0xAell/Tervain/pull/794),
-  [#814](https://github.com/0xAell/Tervain/pull/814), [#833](https://github.com/0xAell/Tervain/pull/833).
+  [#814](https://github.com/0xAell/Tervain/pull/814), [#833](https://github.com/0xAell/Tervain/pull/833),
+  [#848](https://github.com/0xAell/Tervain/pull/848).
 
 What a ten does not cover: Unreal Engine 5.9 is a preview, and what is written about its web target can change at
 release; `npm run docs:sources` is to be run again then, and the web target page corrected.
