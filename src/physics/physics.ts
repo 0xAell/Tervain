@@ -1,11 +1,11 @@
 import RAPIER from '@dimforge/rapier3d-compat';
 import { authoredBounds, FENCE_WALL_LIFT, PROP_COLLIDER, type Collider as WorldCollider, type Colliders } from '../core/world/colliders';
-import { ARCHIVE_ROOM, BUILDINGS, DECKS } from '../core/world/layout';
+import { BUILDINGS, DECKS } from '../core/world/layout';
 import { FLOAT_LINE, PHYSICAL_PROPS, PROP_WATER_DRAG, type PropSpec } from '../core/world/physicalProps';
 // Loose bodies fall under the same gravity as the wanderer.
 import { GRAVITY, STEP_HEIGHT } from '../core/rules/hero';
-import { CARGO_BODY, CARGO_STEP, carryForce, carryLift, carryOrigin, carryRank, holdPoint, throwImpulse, throwSpin, withinCarry } from '../core/rules/cargo';
-import { buildingEntry, buildingGround } from '../core/world/buildingEntries';
+import { CARGO_BODY, CARGO_STEP, SURFACE_FRICTION, carryForce, carryLift, carryOrigin, carryRank, holdPoint, throwImpulse, throwSpin, withinCarry } from '../core/rules/cargo';
+import { archiveSupports, buildingGround, buildingTreads, SUPPORT_FOOTING, type LocalSupport } from '../core/world/buildingEntries';
 import { PLAYER_BODY_HEIGHT, PLAYER_BODY_RADIUS, PLAYER_FOOT_CLEARANCE } from '../core/world/playerPlacement';
 import type { Terrain } from '../core/world/terrain';
 import type { PhysicalObjectPose } from '../core/game/types';
@@ -108,13 +108,13 @@ export class RealmPhysics {
       const a = j * w + i, b = a + 1, c = a + w, d = c + 1;
       for (const v of [a, c, b, b, c, d]) indices[k++] = v;
     }
-    this.world.createCollider(RAPIER.ColliderDesc.trimesh(vertices, indices).setFriction(.85));
+    this.world.createCollider(RAPIER.ColliderDesc.trimesh(vertices, indices).setFriction(SURFACE_FRICTION.ground));
     const exactWood = new Set(wood.map(tree => tree.id));
     for (const source of colliders.all) {
       if (exactWood.has(source.id)) continue;
       if (source.rockMesh) {
         const collider = this.world.createCollider(RAPIER.ColliderDesc.trimesh(source.rockMesh.positions, source.rockMesh.indices)
-          .setFriction(.9).setEnabled(source.active));
+          .setFriction(SURFACE_FRICTION.rock).setEnabled(source.active));
         this.fixed.push({ source, collider, enabled: source.active }); this.rocks.push({ source, collider }); this.rockHandles.add(collider.handle);
         continue;
       }
@@ -126,7 +126,7 @@ export class RealmPhysics {
       const desc = source.kind === 'box'
         ? RAPIER.ColliderDesc.cuboid(source.hw, (high - low) / 2, source.hd).setRotation(yawRotation(source.yaw))
         : RAPIER.ColliderDesc.cylinder((high - low) / 2, source.r);
-      const collider = this.world.createCollider(desc.setTranslation(source.x, (low + high) / 2, source.z).setFriction(.8).setEnabled(source.active));
+      const collider = this.world.createCollider(desc.setTranslation(source.x, (low + high) / 2, source.z).setFriction(SURFACE_FRICTION.built).setEnabled(source.active));
       this.fixed.push({ source, collider, enabled: source.active });
       // The invisible fence lift prevents stepping onto rails; it is not a surface for arrows.
       if (source.id === PROP_COLLIDER.fence && source.kind === 'box' && source.minY !== undefined && source.maxY !== undefined && high - low > FENCE_WALL_LIFT) {
@@ -149,7 +149,7 @@ export class RealmPhysics {
       if (installedRocks.has(mesh.id)) continue;
       const source: WorldCollider = { id: mesh.id, kind: 'circle', x: (mesh.bounds.minX + mesh.bounds.maxX) / 2,
         z: (mesh.bounds.minZ + mesh.bounds.maxZ) / 2, r: 0, active: true, rockMesh: mesh };
-      const collider = this.world.createCollider(RAPIER.ColliderDesc.trimesh(mesh.positions, mesh.indices).setFriction(.9));
+      const collider = this.world.createCollider(RAPIER.ColliderDesc.trimesh(mesh.positions, mesh.indices).setFriction(SURFACE_FRICTION.rock));
       this.fixed.push({ source, collider, enabled: source.active }); this.rocks.push({ source, collider }); this.rockHandles.add(collider.handle);
     }
     this.rockSurfaces.register(this.rocks.flatMap(rock => rock.source.rockMesh ? [rock.source.rockMesh] : []));
@@ -157,34 +157,29 @@ export class RealmPhysics {
       const positions = Float32Array.from(tree.positions, value => value * tree.scale);
       const collider = this.world.createCollider(RAPIER.ColliderDesc.trimesh(positions, tree.indices)
         .setTranslation(tree.translation.x, tree.translation.y, tree.translation.z)
-        .setRotation(yawRotation(tree.yaw)).setFriction(.8));
+        .setRotation(yawRotation(tree.yaw)).setFriction(SURFACE_FRICTION.built));
       this.woodHandles.set(collider.handle, tree.id);
     }
     // These standing planes already exist in Terrain and in the rendered mesh; rigid cargo needs the same support.
     const slab = (x: number, z: number, halfX: number, halfZ: number, bottom: number, top: number, yaw = 0) =>
       this.world.createCollider(RAPIER.ColliderDesc.cuboid(halfX, (top - bottom) / 2, halfZ)
-        .setTranslation(x, (bottom + top) / 2, z).setRotation(yawRotation(yaw)).setFriction(.8));
+        .setTranslation(x, (bottom + top) / 2, z).setRotation(yawRotation(yaw)).setFriction(SURFACE_FRICTION.built));
     for (const deck of DECKS) slab(deck.x, deck.z, deck.hx, deck.hz, deck.y - .09, deck.y, deck.yaw);
-    const archive = BUILDINGS.find(b => b.kind === 'archive')!;
-    const archiveBase = terrain.heightAt(archive.x, archive.z), wall = ARCHIVE_ROOM.wallThickness;
-    slab(archive.x, archive.z, archive.w / 2 - wall + .08, archive.d / 2 - wall + .08,
-      archiveBase + ARCHIVE_ROOM.floorBase, archiveBase + ARCHIVE_ROOM.floorTop, archive.yaw);
-    const localSlab = (localZ: number, halfX: number, halfZ: number, bottom: number, top: number) =>
-      slab(archive.x + Math.sin(archive.yaw) * localZ, archive.z + Math.cos(archive.yaw) * localZ,
-        halfX, halfZ, archiveBase + bottom, archiveBase + top, archive.yaw);
-    localSlab(archive.d / 2 + .08, ARCHIVE_ROOM.doorHalfWidth + .1, .475, -.08, ARCHIVE_ROOM.floorTop);
-    localSlab(-archive.d / 2, ARCHIVE_ROOM.shutterHalfWidth, wall, ARCHIVE_ROOM.wallBase, ARCHIVE_ROOM.shutterBottom);
-    // The stone treads before every closed building's door, as Terrain stands on them (buildingStepSurfacesAt): a crate
-    // set on a doorstep sank 0.48 m into the stone to the ground beneath (A103 scout).
+    // The archive's sills and floor and the stone treads before every closed building's door are the supports the core
+    // stands walkers on (archiveSupports, buildingTreads): a crate set on a doorstep once sank 0.48 m into the stone to the
+    // ground beneath (A103 scout). Each reaches SUPPORT_FOOTING below the lowest ground under its building.
+    const support = (b: { x: number; z: number; yaw: number }, s: LocalSupport, base: number, low: number) => {
+      const lz = (s.zMin + s.zMax) / 2, c = Math.cos(b.yaw), sn = Math.sin(b.yaw);
+      slab(b.x + s.x * c + lz * sn, b.z - s.x * sn + lz * c, s.halfX, (s.zMax - s.zMin) / 2, low - SUPPORT_FOOTING, base + s.top, b.yaw);
+    };
     for (const b of BUILDINGS) {
-      if (b.kind === 'archive') continue;
-      const entry = buildingEntry(b), ground = buildingGround((x, z) => terrain.heightAt(x, z), b);
-      const tread = (localX: number, localZ: number, halfX: number, halfZ: number, top: number) =>
-        slab(b.x + localX * Math.cos(b.yaw) + localZ * Math.sin(b.yaw), b.z - localX * Math.sin(b.yaw) + localZ * Math.cos(b.yaw),
-          halfX, halfZ, ground.lo - 0.3, ground.avg + top, b.yaw);
-      const from = Math.min(entry.z + 0.07, b.d / 2 + 0.1), to = entry.z + 0.77;
-      tread(entry.x, (from + to) / 2, (entry.w + 0.7) / 2, (to - from) / 2, entry.y + 0.08);
-      tread(entry.x, entry.z + 0.96, (entry.w + 0.9) / 2, 0.25, entry.y * 0.5);
+      if (b.kind === 'archive') {
+        const base = terrain.heightAt(b.x, b.z);
+        for (const s of archiveSupports(b)) support(b, s, base, base);
+        continue;
+      }
+      const ground = buildingGround((x, z) => terrain.heightAt(x, z), b);
+      for (const s of buildingTreads(b)) support(b, s, ground.avg, ground.lo);
     }
     for (const spec of specs) {
       const body = this.world.createRigidBody(RAPIER.RigidBodyDesc.dynamic()
@@ -197,7 +192,7 @@ export class RealmPhysics {
       this.props.push(prop); this.propHandles.add(collider.handle);
     }
     this.character = this.world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0, -100, 0));
-    this.characterCollider = this.world.createCollider(RAPIER.ColliderDesc.capsule(CAPSULE_CENTER - PLAYER_BODY_RADIUS, PLAYER_BODY_RADIUS).setFriction(.25), this.character);
+    this.characterCollider = this.world.createCollider(RAPIER.ColliderDesc.capsule(CAPSULE_CENTER - PLAYER_BODY_RADIUS, PLAYER_BODY_RADIUS).setFriction(SURFACE_FRICTION.wanderer), this.character);
     this.controller = this.world.createCharacterController(.012);
     // Asking where he can go pushes nothing; `push` applies a step once the game has taken it (A106).
     this.controller.setApplyImpulsesToDynamicBodies(false); this.controller.setCharacterMass(CARGO_BODY.pusherMass);

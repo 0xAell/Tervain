@@ -42,6 +42,13 @@ export const CARGO_STEP = { height: STEP_HEIGHT, width: 0.25 } as const;
  */
 export const CARGO_BODY = { friction: 0.72, restitution: 0.08, linearDamping: 0.12, angularDamping: 0.35, pusherMass: 80 } as const;
 
+/**
+ * The friction of what cargo slides on and of the wanderer's body: the ground, rock, anything built (walls, decks,
+ * steps, timber and tree wood) and the wanderer. Two touching surfaces combine their friction (the web build's physics
+ * averages them), so where a thrown barrel stops depends on the ground's as much as on CARGO_BODY's.
+ */
+export const SURFACE_FRICTION = { ground: 0.85, rock: 0.9, built: 0.8, wanderer: 0.25 } as const;
+
 interface Point { x: number; y: number; z: number }
 
 /** Where he reaches from. */
