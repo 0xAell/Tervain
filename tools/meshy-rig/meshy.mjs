@@ -21,7 +21,7 @@ import { day, download, meshy, read, report, settled, succeeded, write } from '.
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
 /** Meshy reads each model from the public repository. */
-const MODELS = 'https://raw.githubusercontent.com/ael-dev3/Tervain/main/public/models/npcs/';
+const MODELS = 'https://raw.githubusercontent.com/0xAell/Tervain/main/public/models/npcs/';
 
 const plan = read(path.join(HERE, 'motion-plan.json'));
 const manifest = read(path.join(ROOT, 'public/models/npcs/manifest.json'));

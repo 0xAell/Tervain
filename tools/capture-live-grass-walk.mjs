@@ -6,7 +6,7 @@ const args=Object.fromEntries(process.argv.slice(2).flatMap((a,i,v)=>a.startsWit
 const out=args.out??'live-grass-walk';fs.mkdirSync(out,{recursive:true});fs.rmSync(path.join(out,'report.json'),{force:true});const frames=Number(args.frames??51),popMetres=Number(args.metres??24),x=Number(args.x??-7),z=Number(args.z??45);
 if(!Number.isInteger(frames)||frames<5||frames>181||!Number.isFinite(popMetres)||popMetres<=0||popMetres>50)throw new Error('Invalid route');
 const controls=args.controls?JSON.parse(fs.readFileSync(args.controls,'utf8')):null;if(args.controls)normalizeGrassPhaseControls(controls,{hour:Number(args.hour??19.3),cloudTime:null});
-const page=await liveProofPage(args.url??'https://ael-dev3.github.io/Tervain/',{quality:args.quality??'high',hour:Number(args.hour??19.3)});
+const page=await liveProofPage(args.url??'https://0xaell.github.io/Tervain/',{quality:args.quality??'high',hour:Number(args.hour??19.3)});
 const roi={left:64,top:126,width:512,height:216};
 const image=async file=>new Uint8Array(await sharp(file).removeAlpha().extract(roi).raw().toBuffer());
 try{

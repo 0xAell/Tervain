@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/interactables.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/game/interactables.schema.json",
   "title": "game/interactables.json",
   "description": "Everything the wanderer can act on: where it is, how near he must come, its place in the order of offers (lower first; each whole step outweighs two metres), the solids that are the thing itself, the facts of the moment it needs, and what acting on it does. When the state offers each, and its prompt, are rules in core/rules/interactables.ts.",
   "type": "object",

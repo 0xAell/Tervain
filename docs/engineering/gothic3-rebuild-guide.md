@@ -2535,7 +2535,7 @@ world activation, campaign saves and a playable ending remain unfinished.
 - [Detailed workflow and reference paths](gothic3-rebuild-workflow.md)
 - [Architecture and implementation background](gothic3-rebuild-overview.md)
 - [Dated technical checkpoint history](gothic3-rebuilding-process.md)
-- [Hosted reconstruction route](https://ael-dev3.github.io/Tervain/gothic3/)
+- [Hosted reconstruction route](https://0xaell.github.io/Tervain/gothic3/)
 
 
 ### 11 October 2026: original basic-type value copy

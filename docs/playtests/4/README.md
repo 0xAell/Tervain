@@ -2,7 +2,7 @@
 
 Played in Chrome on a Mac at 60 Hz on the hosted build. The list below is tracked on the pinned issue
 "Playtest 4 overhaul (0.0.14+)", where items are ticked as their fixes go live. A fix counts once it is live on
-https://ael-dev3.github.io/Tervain/ and shown with before/after shots, clips or frame times. Versions continue 0.0.14,
+https://0xaell.github.io/Tervain/ and shown with before/after shots, clips or frame times. Versions continue 0.0.14,
 0.0.15, …
 
 ## Findings

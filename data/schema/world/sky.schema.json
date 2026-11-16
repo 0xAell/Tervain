@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/sky.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/world/sky.schema.json",
   "title": "world/sky.json",
   "description": "The sky through the day: the colours of the air, of the sun’s light, of the fill from sky and ground and of the haze at keyed hours (sRGB, #rrggbb), with the sun’s and the fill’s strength and the cloud coverage; the balance of the light; and where the sun and the moon stand at every half hour (unit directions). A renderer blends linearly between the two keys an hour lies between. The sun’s arc, daylight and nightness by the hour are rules in core/rules/dayNight.ts and core/rules/sky.ts.",
   "type": "object",

@@ -9,7 +9,7 @@ const SHA = '0123456789abcdef0123456789abcdef01234567';
 describe('hosted production model policy', () => {
   it('activates only for a production Actions build with a full immutable revision', () => {
     const env = { GITHUB_ACTIONS: 'true', GITHUB_SHA: SHA };
-    expect(productionModelAssetBase('build', 'production', env)).toBe(`https://raw.githubusercontent.com/ael-dev3/Tervain/${SHA}/public/models/`);
+    expect(productionModelAssetBase('build', 'production', env)).toBe(`https://raw.githubusercontent.com/0xAell/Tervain/${SHA}/public/models/`);
     expect(productionModelAssetBase('build', 'production', { ...env, GITHUB_SHA: SHA.toUpperCase() })).toContain(SHA);
     for (const [command, mode, settings] of [
       ['serve', 'development', env], ['serve', 'production', env], ['build', 'development', env],

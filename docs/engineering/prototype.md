@@ -195,7 +195,7 @@ npm test           # scenario tests (Vitest)
 npm run build      # typecheck, then a static build in dist/
 ```
 
-Node 24 or newer is recommended. [`.github/workflows/pages.yml`](../../.github/workflows/pages.yml) checks pull requests and builds/deploys `main` to the [hosted browser game](https://ael-dev3.github.io/Tervain/). Running this source locally uses `0.0.10`; live acceptance requires a successful Pages run for the final source and the served title/About version, as described in its [release record](../production/releases/0.0.10.md). The [0.0.5 publication record](../production/releases/0.0.5.md#publication) preserves the earlier Pages outage, restored with `0.0.7`.
+Node 24 or newer is recommended. [`.github/workflows/pages.yml`](../../.github/workflows/pages.yml) checks pull requests and builds/deploys `main` to the [hosted browser game](https://0xaell.github.io/Tervain/). Running this source locally uses `0.0.10`; live acceptance requires a successful Pages run for the final source and the served title/About version, as described in its [release record](../production/releases/0.0.10.md). The [0.0.5 publication record](../production/releases/0.0.5.md#publication) preserves the earlier Pages outage, restored with `0.0.7`.
 
 `npm run people:sheets` exports every person's texture sheet with its repainting guides into `out/people/`, and `npm run people:check` checks a repainted sheet against the person's shape (see the [retexture guide](../art/people-retexture.md)).
 

@@ -63,7 +63,7 @@ describe('what the rules report in text', () => {
       j('Co-Authored-By: Somebody <', CLEAN_ID, '>'),
       'docs/unreal/web-target.md and tools/play-gate.mjs',
       'git@github.com:owner/repository.git',
-      'https://ael-dev3.github.io/Tervain/ and https://github.com/ael-dev3/Tervain/pull/790',
+      'https://0xaell.github.io/Tervain/ and https://github.com/0xAell/Tervain/pull/790',
       'the session ended; sessions are not kept; a 45 s stall',
       'play-gate: PASS 7c6ef0c305d9',
       'feature/gate-waits-for-deploy',

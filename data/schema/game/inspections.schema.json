@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/inspections.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/game/inspections.schema.json",
   "title": "game/inspections.json",
   "description": "What can be examined in the world: requirements, effects and the notice shown. Positions are in world/layout.json.",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/assets/manifest.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/assets/manifest.schema.json",
   "title": "assets/manifest.json",
   "description": "Every model, texture, image and sound in the repository's asset folders, with what an Unreal Engine port does with it.",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/look.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/world/look.schema.json",
   "title": "world/look.json",
   "description": "The look of the final image as numbers, for a post-process volume: exposure before tone mapping, the daylight contrast curve, saturation and its lift by day, vignette, grain, how far greens lean olive and the sky is muted, and the glow on bright parts; and the title’s own look. Night fades the contrast curve and the day’s lift to 1.",
   "type": "object",

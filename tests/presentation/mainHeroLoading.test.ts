@@ -51,7 +51,7 @@ beforeEach(async () => {
   loaderMock.construct.mockReset();
   loaderMock.parseAsync.mockReset().mockResolvedValue(parsedHero);
   vi.stubGlobal('fetch', fetchMock);
-  vi.stubGlobal('document', { baseURI: 'https://ael-dev3.github.io/Tervain/index.html' });
+  vi.stubGlobal('document', { baseURI: 'https://0xaell.github.io/Tervain/index.html' });
   vi.stubEnv('BASE_URL', './');
   subject = await import('../../src/presentation/mainHero');
   // The reset module graph has its own download policy: keep its tries, without the pauses between them.
@@ -70,9 +70,9 @@ afterEach(() => {
 
 describe('main hero transport and loading-screen retry', () => {
   it('resolves the relative production base inside the Pages repository subdirectory', () => {
-    expect(subject.mainHeroUrl().href).toBe('https://ael-dev3.github.io/Tervain/models/hero/weathered-wanderer-hero-sealed.glb');
-    expect(subject.mainHeroUrl('/Tervain/', 'https://ael-dev3.github.io/Tervain/').href)
-      .toBe('https://ael-dev3.github.io/Tervain/models/hero/weathered-wanderer-hero-sealed.glb');
+    expect(subject.mainHeroUrl().href).toBe('https://0xaell.github.io/Tervain/models/hero/weathered-wanderer-hero-sealed.glb');
+    expect(subject.mainHeroUrl('/Tervain/', 'https://0xaell.github.io/Tervain/').href)
+      .toBe('https://0xaell.github.io/Tervain/models/hero/weathered-wanderer-hero-sealed.glb');
     expect(subject.mainHeroUrl('./', 'https://example.test/games/tervain/index.html').href)
       .toBe('https://example.test/games/tervain/models/hero/weathered-wanderer-hero-sealed.glb');
     expect(subject.mainHeroUrl('/', 'http://localhost:5173/').href)
@@ -90,7 +90,7 @@ describe('main hero transport and loading-screen retry', () => {
     completeDownload(new Response(buffer));
     await expect(first).resolves.toBe(parsedHero);
     expect(loaderMock.construct).toHaveBeenCalledOnce();
-    expect(loaderMock.parseAsync).toHaveBeenCalledWith(buffer, 'https://ael-dev3.github.io/Tervain/models/hero/');
+    expect(loaderMock.parseAsync).toHaveBeenCalledWith(buffer, 'https://0xaell.github.io/Tervain/models/hero/');
     // The finger joints are seated in the loaded asset before anyone rigs it (A75).
     expect(fitMock).toHaveBeenCalledWith(parsedHero);
     expect(subject.loadMainHero()).toBe(first);

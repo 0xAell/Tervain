@@ -43,7 +43,7 @@ describe('delivered Solitary Pine forest', () => {
   });
 
   it('uses locally hosted, complete GLB files with embedded standard textures and a subdirectory-safe URL', () => {
-    expect(solitaryPineUrl(PINE_FILES[0], './', 'https://ael-dev3.github.io/Tervain/index.html').href).toBe('https://ael-dev3.github.io/Tervain/models/flora/solitary-pine-under-10k.glb');
+    expect(solitaryPineUrl(PINE_FILES[0], './', 'https://0xaell.github.io/Tervain/index.html').href).toBe('https://0xaell.github.io/Tervain/models/flora/solitary-pine-under-10k.glb');
     for (const file of PINE_FILES) {
       const { bytes, json } = pineBinary(file);
       expect(bytes.readUInt32LE(8)).toBe(bytes.length);

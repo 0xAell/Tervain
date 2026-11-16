@@ -19,6 +19,6 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  const out=args.out??'artifacts/tree-edge-motion';fs.mkdirSync(out,{recursive:true});fs.rmSync(path.join(out,'report.json'),{force:true});
  if(args.quality&&!['low','medium','high'].includes(args.quality))throw Error('Invalid quality preset');
  const options={frames:Number(args.frames??24),degrees:Number(args.degrees??4),x:Number(args.x??-40),z:Number(args.z??0),hour:Number(args.hour??12)},program=treeEdgeCaptureProgram(options);
- const page=await liveProofPage(args.url??'https://ael-dev3.github.io/Tervain/',{quality:args.quality??'high',hour:options.hour,headed:args.headed==='true'});
+ const page=await liveProofPage(args.url??'https://0xaell.github.io/Tervain/',{quality:args.quality??'high',hour:options.hour,headed:args.headed==='true'});
  try{const capture=await page.eval(program);capture.route=options;const report=await saveTreeEdgeCapture(capture,out);console.log(JSON.stringify({build:report.build,samples:report.observedSamples,assertions:report.assertions,stationary:report.metrics.stationary.summary,pan:report.metrics.pan.summary,pass:report.pass}));if(!report.pass)process.exitCode=1;}finally{page.close()}
 }
