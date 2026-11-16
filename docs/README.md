@@ -39,9 +39,10 @@ What is here and where to start. Most pages are dated records: they say what was
 ## Production
 
 - [Roadmap](production/roadmap.md), [vertical slice](production/vertical-slice.md), [versioning and the promotion gate](production/versioning.md).
-- [Release records](production/releases) for `0.0.4` to `0.0.18`. Later versions are recorded in the decision register and the change records.
+- [Release records](production/releases) for `0.0.4` to `0.0.18`, and for [`0.0.48`](production/releases/0.0.48.md), the first milestone tagged since `0.0.5`. The versions between are recorded in the decision register and the change records.
 - [Playtest records](playtests).
 - The [teaser](media/teaser) and how it was made: [teaser record](production/teaser-presentable.md).
+- The README's two screenshots, [the village road](media/screenshots/village-road.jpg) and [the meadow in the evening](media/screenshots/meadow-evening.jpg): frames of the `0.0.48` build on the High preset, with the interface hidden, taken on 16 November 2026 from a local build in a headless browser through the game's capture mode. The wanderer walks into the village in the morning, and through the meadow by the ford in the early evening.
 
 ## The separate Gothic 3 study
 
