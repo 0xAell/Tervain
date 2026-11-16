@@ -68,7 +68,9 @@ export class HuntingController {
   controls(dt: number, playing: boolean) {
     const { player, input, game, world, cam, audio } = this.host;
     if (!playing || !this.canAct()) {
-      this.cancelDraw(); player.cancelSkinning(); cam.setAiming(false); return;
+      // Held play (a panel, the pause, a hidden page) lets a drawn arrow down but holds a skinning where it is, as the
+      // core's wanderer holds every channel while he is not controllable; his fall ends it when he is set down again.
+      this.cancelDraw(); cam.setAiming(false); return;
     }
     if (input.pressed('skin')) this.skin();
     if (this.skinId && !this.skinValid(this.skinId)) player.cancelSkinning();

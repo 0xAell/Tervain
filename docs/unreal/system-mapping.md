@@ -163,7 +163,8 @@ What stays in the scene layer, and why it is not a rule of the game:
   `?shot` is a capture: a staged journey, framed at a place and hour, that never pauses over its view and never saves
   (`savingAllowed`). The play gate, the live smoke test, the benchmark and the screenshot tools drive the game through
   them. The F3 panel shows the build's diagnostics to everyone and adds its test controls (teleporting, the quest's
-  shortcuts) only on the development server or with `?debug` (`platform/diagnostics.ts`). That is the web build's test
+  shortcuts) and its benchmark, which runs the world on while the camera flies its route, only on the development
+  server or with `?debug` (`platform/diagnostics.ts`). That is the web build's test
   harness; a port has its own automation.
 
 What else is there is presentation: meshes, materials and shaders, rigs and poses, effects, the interface, playing

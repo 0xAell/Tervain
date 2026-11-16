@@ -484,7 +484,15 @@ describe('skinning controller command integration', () => {
       expect(item.game.state.hunting['bear-a']?.status).toBe('dead');
     });
 
-  it.each(['pause', 'moved', 'airborne', 'swimming', 'knife', 'cover', 'cancel button', 'reset'] as const)(
+  it('holds a skinning while play is held, and harvests when the channel completes after', () => {
+    const item = fixture(); prepareCarcass(item); item.controller.skin();
+    item.controller.controls(.1, false);
+    expect(item.audio.stopHuntingSounds).not.toHaveBeenCalledWith('skinning');
+    item.completeSkinning();
+    expect(item.dispatch.mock.calls.some(([command]) => command.t === 'skinAnimal')).toBe(true);
+  });
+
+  it.each(['moved', 'airborne', 'swimming', 'knife', 'cover', 'cancel button', 'reset'] as const)(
     'cancels a skinning channel on %s and gives no partial loot', (cause) => {
       const item = fixture(); prepareCarcass(item); item.controller.skin();
       if (cause === 'moved') item.player.z -= .5;
@@ -494,7 +502,7 @@ describe('skinning controller command integration', () => {
       if (cause === 'cover') item.mutable.cover = [-60.5];
       if (cause === 'cancel button') item.controller.skin();
       else if (cause === 'reset') item.controller.reset();
-      else item.controller.controls(.1, cause !== 'pause');
+      else item.controller.controls(.1, true);
       item.completeSkinning();
       expect(item.game.state.inventory.animal_hide ?? 0).toBe(0);
       expect(item.game.state.inventory.raw_meat ?? 0).toBe(0);

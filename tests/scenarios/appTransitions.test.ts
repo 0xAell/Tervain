@@ -455,7 +455,7 @@ describe('actual application world transitions', () => {
     expect(app.input.uiOpen).toBe(true);
   });
 
-  it.each(['draw', 'release', 'skinning'] as const)('opening a panel cancels active %s without spending an arrow or granting loot', (action) => {
+  it.each(['draw', 'release'] as const)('opening a panel lets an active %s down without spending an arrow', (action) => {
     const f = fixture();
     Object.assign(f.app, { uiRoot: new ElementFixture('DIV'), mapView: {} });
     f.call('buildShell');
@@ -467,13 +467,30 @@ describe('actual application world transitions', () => {
     f.hunting.afterWorld(.2, true);
     expect(f.hunting.controls).toHaveBeenCalledExactlyOnceWith(0, false);
     expect(f.hunting.isDrawing).toBe(false);
-    expect(f.app.player.cancelSkinning).toHaveBeenCalledOnce();
-    expect(f.app.player.channel).toBeNull();
-    expect(f.app.audio.stopHuntingSounds).toHaveBeenCalledWith(action === 'skinning' ? 'skinning' : 'bow_draw');
+    expect(f.app.audio.stopHuntingSounds).toHaveBeenCalledWith('bow_draw');
     expect(f.app.audio.setWildlifeActive).toHaveBeenCalledExactlyOnceWith(false);
     expect(f.app.cam.setAiming).toHaveBeenLastCalledWith(false);
     expect(f.app.game.state.inventory).toEqual(inventory);
     expect(f.hunting.arrows.activeCount).toBe(0);
+  });
+
+  it('holds a skinning where it is behind a panel, as every channel is held, and grants nothing until it is done', () => {
+    const f = fixture();
+    Object.assign(f.app, { uiRoot: new ElementFixture('DIV'), mapView: {} });
+    f.call('buildShell');
+    const inventory = startHunting(f, 'skinning');
+    const channel = f.app.player.channel;
+    f.app.panels.isOpen = true;
+    Reflect.get(f.app.panels, 'onOpen')();
+    f.hunting.afterWorld(.2, false);
+    f.app.panels.isOpen = false; f.input.uiOpen = false;
+    f.hunting.afterWorld(.2, true);
+    expect(f.hunting.controls).toHaveBeenCalledExactlyOnceWith(0, false);
+    expect(f.app.player.cancelSkinning).not.toHaveBeenCalled();
+    expect(f.app.player.channel).toBe(channel);
+    expect(f.app.player.channel).toMatchObject({ kind: 'skinning', t: .5 });
+    expect(f.app.audio.stopHuntingSounds).not.toHaveBeenCalledWith('skinning');
+    expect(f.app.game.state.inventory).toEqual(inventory);
   });
 
   it.each(['draw', 'release', 'skinning'] as const)('a graphics pause resets active %s and its pending effects before any rebuilt frame', (action) => {

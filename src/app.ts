@@ -1456,13 +1456,14 @@ export class App {
     // Interactions can open a panel or end his life after the frame began: what runs is asked of the core again
     // (WHAT_RUNS), and a hidden page runs nothing.
     const stillPlaying = playing && this.mode === 'play' && this.overlay === 'none' && !this.worldPaused;
-    const worldActive = WHAT_RUNS[momentOf({ playing: stillPlaying, fallen: this.mode === 'dead', hitStopped })].action && document.visibilityState !== 'hidden';
+    const now = WHAT_RUNS[momentOf({ playing: stillPlaying, fallen: this.mode === 'dead', hitStopped })], shown = document.visibilityState !== 'hidden';
+    const worldActive = now.action && shown;
     // Residents and bandits walk through the grass as well as the hero; the world adds its animals and cargo.
     this.world.setGrassMovers([
       ...this.npcs.filter((n) => n.solid && this.game.state.npcs[n.id].available).map((n) => ({ x: n.x, z: n.z, radius: 0.5, weight: 0.6 })),
       ...this.enemies.filter((e) => e.alive).map((e) => ({ x: e.x, z: e.z, radius: e.radius + 0.25, weight: 0.8 })),
     ]);
-    this.world.update(dt, this.game.state, new THREE.Vector3(this.player.x, this.player.y, this.player.z), this.settings, hour, this.cam.camera, worldActive);
+    this.world.update(dt, this.game.state, new THREE.Vector3(this.player.x, this.player.y, this.player.z), this.settings, hour, this.cam.camera, worldActive, now.clock && shown);
     // Doors swing open for the wanderer and the residents who come to them, and shut behind them (A66); someone only
     // standing near a door, at their place outside it, leaves it shut (A69).
     for (const swing of this.world.updateDoors(worldActive ? dt : 0, [...(this.riding ? [] : [this.player]), ...this.npcs.filter((n) => n.underway)])) this.audio.door(swing.at, swing.open);
@@ -2703,7 +2704,8 @@ export class App {
     clear(this.debugEl);
     const btn = (label: string, fn: () => void) => h('button', { class: 'btn', onClick: fn }, label);
     const place = (id: PlaceId) => btn(S(`place.${id}`), () => this.teleport(id));
-    const testControls = testControlsOffered(location.search, import.meta.env.DEV) ? [
+    const offered = testControlsOffered(location.search, import.meta.env.DEV);
+    const testControls = offered ? [
       h('h2', {}, 'Teleport'),
       h('div', { class: 'pillrow' }, (Object.keys(PLACES) as PlaceId[]).map(place)),
       h('h2', {}, 'Authored test conditions'),
@@ -2721,7 +2723,7 @@ export class App {
         btn('Toggle Ila absent', () => this.debugToggleNpc('maintenance_worker')),
         btn('Heal + stamina', () => this.debugHeal()),
       ),
-    ] : [h('p', { class: 'small' }, 'Test controls: open the page with ?debug=1.')];
+    ] : [h('p', { class: 'small' }, 'Test controls and the benchmark: open the page with ?debug=1.')];
     this.debugEl.append(
       h('h2', {}, S('debug.title')),
       h('p', { class: 'muted' }, S('debug.note')),
@@ -2730,12 +2732,20 @@ export class App {
       h('h2', {}, 'Menu score timing'),
       h('p', { class: 'small' }, 'Seeks the actual menu song for doorway, wisp and loop review; has no effect in gameplay.'),
       h('div', { class: 'pillrow' }, ...[28, 30, 33, 60, 75, 110, 205, 211].map((time) => btn(`Score → ${Math.floor(time / 60)}:${String(time % 60).padStart(2, '0')}`, () => this.audio.seekMenuMusic(time)))),
+      ...(offered ? this.benchmarkControls() : []),
+    );
+  }
+
+  /** The benchmark's heading, note and buttons: a test control (platform/diagnostics.ts). */
+  private benchmarkControls() {
+    const btn = (label: string, fn: () => void) => h('button', { class: 'btn', onClick: fn }, label);
+    return [
       h('h2', {}, 'Benchmark'),
       h('p', { class: 'muted' }, new URLSearchParams(location.search).get('review') === 'water' && this.capturing
         ? 'Runs a 12 s shoreline camera review up to 5.85 m/s, retaining reflected land and shallow water in view. Reports frame times for this device and quality preset.'
         : 'Runs a fixed camera route from the landing through the woodland and town (about 72 s) and reports median/95th/99th percentile frame times for this device, renderer and quality preset.'),
       h('div', { class: 'pillrow' }, btn('Run benchmark route', () => this.startBenchmark()), btn('Copy report', () => navigator.clipboard?.writeText(this.debugPre.textContent ?? ''))),
-    );
+    ];
   }
 
   private updateDebug(dt: number) {
@@ -3021,7 +3031,7 @@ export class App {
   private startBenchmark() {
     const T = this.world.terrain;
     const H = (x: number, z: number, up: number) => new THREE.Vector3(x, T.heightAt(x, z) + up, z);
-    // Query-only water review reuses the native F3 benchmark button. Its
+    // Query-only water review (?shot&review=water&debug) reuses the native F3 benchmark button. Its
     // 23.4 m / 6 s smooth segment reaches the authored 5.85 m/s running speed
     // while keeping the reflected coast in view, without synthetic key events.
     const waterReview = this.capturing && new URLSearchParams(location.search).get('review') === 'water';

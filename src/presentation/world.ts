@@ -682,7 +682,11 @@ export class WorldScene {
   }
 
   /** Move the whole scene forward: sky, water, foliage, animated props. */
-  update(dt: number, state: WorldState, focus: THREE.Vector3, settings: Settings, hour: number, camera: THREE.Camera, wildlifeActive = true) {
+  /**
+   * `wildlifeActive`: the moment's action runs (the core's WHAT_RUNS). `clockRuns`: its clock runs, and with it the water,
+   * whose swell is the surface he swims in, so it stands still behind every panel as it does behind the pause menu.
+   */
+  update(dt: number, state: WorldState, focus: THREE.Vector3, settings: Settings, hour: number, camera: THREE.Camera, wildlifeActive = true, clockRuns = true) {
     this.time += dt;
     this.view = worldView(state);
     const v = this.view;
@@ -714,7 +718,7 @@ export class WorldScene {
     this.scenery.setNight(night);
     this.scenery.update(dt, this.time, night, reduced);
     for (const s of this.physics.drainSplashes()) this.water.splash(s.x, s.y, s.z, s.energy);
-    this.water.update(dt, v.flow, camera, focus, reduced, settings.reduceEffects);
+    this.water.update(clockRuns ? dt : 0, v.flow, camera, focus, reduced, settings.reduceEffects);
     let shadowFrustum: THREE.Frustum | null = null;
     if (settings.quality !== 'low' && this.sky.sunShadows) {
       // Scene modules cull before the renderer updates light matrices. Use the real snapped
