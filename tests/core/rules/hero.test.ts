@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ACTION_COST, ACTION_SECONDS, BLADE, blowFaced, DODGE, FISTS, GRAVITY, GUARD, HIT_AT, JUMP_SPEED, PERFECT_BLOCK_WINDOW, resolveGuardedHit,
-  STAMINA, STAMINA_MAX, staminaStep, SWIM_DEPTH, SWIM_EXIT, SWIM_SPEED, SWIM_SPRINT, VAULT, wadeFactor, type StaminaState,
+  STAMINA, STAMINA_MAX, staminaStep, SWIM_DEPTH, SWIM_EXIT, SWIM_SPEED, SWIM_SPRINT, VAULT, WADE, wadeFactor, type StaminaState,
 } from '../../../src/core/rules/hero';
 
 const meter = (stamina: number, pause = 0, exhausted = false): StaminaState => ({ stamina, pause, exhausted });
@@ -139,6 +139,10 @@ describe('moving', () => {
     expect(wadeFactor(0.625)).toBeCloseTo(0.75, 9);
     expect(wadeFactor(1.15)).toBeCloseTo(0.5, 9);
     expect(wadeFactor(3)).toBe(0.5);
+    // The exported numbers are the ones the rule reads: the wade ends at its slowest where the swim lets go.
+    expect(wadeFactor(WADE.from)).toBe(1);
+    expect(wadeFactor(WADE.from + WADE.span)).toBeCloseTo(WADE.slowest, 9);
+    expect(WADE.from + WADE.span).toBeCloseTo(SWIM_EXIT, 9);
     for (let depth = 0.1; depth < 1.15; depth += 0.05) expect(wadeFactor(depth + 0.05)).toBeLessThanOrEqual(wadeFactor(depth));
   });
 

@@ -545,6 +545,26 @@
             "sprint"
           ],
           "additionalProperties": false
+        },
+        "wade": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "number"
+            },
+            "span": {
+              "type": "number"
+            },
+            "slowest": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "from",
+            "span",
+            "slowest"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -567,7 +587,8 @@
         "firmFootingSlope",
         "moveResponse",
         "vault",
-        "swim"
+        "swim",
+        "wade"
       ],
       "additionalProperties": false
     },
