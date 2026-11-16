@@ -95,7 +95,9 @@ Fab content stays out of this repository.
 1. Budgets per view on the minimum desktop hardware chosen for release: triangles, draw calls, memory, frame time.
 2. Quality tiers: a desktop tier that may use Nanite, Virtual Shadow Maps and Lumen, and a compatibility tier that
    does not.
-3. Packaging, save locations, controller support and text scale.
+3. Packaging, save locations, controller support and text scale. The data subsystem reads `tuning.json` from `data/`
+   beside the project, which a packaged game does not carry: import the tuning into an asset, or stage the folder with
+   the package as the string table must be, and check a packaged build reads every value.
 
 **Holds when:** the measured numbers meet the budgets on the minimum hardware with the compatibility tier.
 

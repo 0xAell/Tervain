@@ -157,11 +157,19 @@ What is there:
   shape, a tuning value the C++ reads or a generated header no longer agrees
   ([`tests/tools/unrealDrift.test.ts`](../../tests/tools/unrealDrift.test.ts)).
 - Every engine name the seed and its stand-ins use is in [the register](engine-symbols.md), with the files that use it,
-  what is assumed and the evidence: 188 of 196 are confirmed by a passage quoted from Epic's documentation, 6 are
-  documented in part, one is not documented and one is shown in an older form on a dated page. Three of those eight are
+  what is assumed and the evidence: 190 of 200 are confirmed by a passage quoted from Epic's documentation, 8 are
+  documented in part, one is not documented and one is shown in an older form on a dated page. Three of those ten are
   corroborated by a public project built against Unreal Engine 5.5, which uses them as the seed does. `npm run
-  unreal:symbols -- --online` opened all 91 cited pages and files on 16 November 2026 and found every passage
+  unreal:symbols -- --online` opened all 93 cited pages and files on 16 November 2026 and found every passage
   ([#813](https://github.com/0xAell/Tervain/pull/813), [#832](https://github.com/0xAell/Tervain/pull/832)).
+- Read as an Unreal engineer would read it, the data subsystem had a fault no compiler would report: it loaded a
+  DataTable for every lookup and held it nowhere, so garbage collection could unload the table while a row found in it
+  was still in use, and a lookup could load a table in the middle of play. Epic: "you typically need to maintain a
+  UPROPERTY reference to any Object you wish to keep alive". The subsystem now loads the tables the settings name when
+  it starts and holds them in a `UPROPERTY(Transient)` array of `TObjectPtr`, the pointer Epic recommends there; a
+  table that cannot be loaded is named in a warning, and the test shows a held table still answers once nothing is left
+  at its path. The tuning file is read from `data/` beside the project, which a packaged game does not carry: the
+  roadmap's Phase 6 now says to import or stage it ([#853](https://github.com/0xAell/Tervain/pull/853)).
 - Pull requests: [#781](https://github.com/0xAell/Tervain/pull/781), [#790](https://github.com/0xAell/Tervain/pull/790),
   [#792](https://github.com/0xAell/Tervain/pull/792), [#813](https://github.com/0xAell/Tervain/pull/813),
   [#832](https://github.com/0xAell/Tervain/pull/832).
