@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/flora.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/world/flora.schema.json",
   "title": "world/flora.json",
   "description": "Where every tree stands as the web build plants it (the planting rule told each tree’s footprint by its model): species, variant, position, scale, facing, radius as an obstacle and for the walk grid, and the model it is drawn with where that is fixed; and the places the rule offers without measuring any tree model, for a port that brings its own trees.",
   "type": "object",

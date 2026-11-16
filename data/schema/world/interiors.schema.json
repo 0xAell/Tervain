@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/interiors.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/world/interiors.schema.json",
   "title": "world/interiors.json",
   "description": "Each walk-in building’s room, hearth, furniture, dressing and yard. Positions are in the building’s own frame (x along its width, z towards its front door).",
   "type": "object",

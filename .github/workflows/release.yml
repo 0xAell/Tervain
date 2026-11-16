@@ -1,0 +1,73 @@
+name: Release
+
+# A release is tagged at notable milestones, not at every version (docs/production/versioning.md). This workflow makes
+# one: a pre-release `v<version>` whose title and notes are the release record docs/production/releases/<version>.md,
+# on the latest commit of main whose "Check and publish the prototype" run passed. It starts in two ways:
+#   - when a commit on main adds or changes a release record;
+#   - by hand (Actions, Release, Run workflow), where another commit of main with a passed run may be named.
+# The version is the one in the tagged commit's package.json. Nothing is released when that version has no record or
+# already has its tag, so a record is added once its version is on main and has passed. Existing releases are never
+# changed.
+
+on:
+  push:
+    branches: [main]
+    paths: ['docs/production/releases/*.md']
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Commit of main to tag. Leave empty for the latest one whose Check and publish run passed.
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  release:
+    name: Tag a milestone
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Every commit, no file contents: only the release records and the package.json of the tagged commit are read.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: docs/production/releases
+      - name: Tag the commit and publish its release record
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          COMMIT: ${{ inputs.commit }}
+          CHECKS: pages.yml
+        run: |
+          set -euo pipefail
+          # Commits of main whose run passed, oldest first.
+          passed() { gh run list --workflow "$CHECKS" --branch main --event push --status success --limit 40 --json headSha,createdAt --jq 'sort_by(.createdAt) | .[].headSha'; }
+          # On a push, an absent record or an existing tag is not a failure: most changes to a record release nothing.
+          nothing() { echo "$1"; if [ "$EVENT" = push ]; then exit 0; else exit 1; fi; }
+
+          runs=$(passed)
+          if [ -n "$COMMIT" ]; then
+            target=$(git rev-parse --verify "$COMMIT^{commit}")
+            git merge-base --is-ancestor "$target" HEAD || { echo "$target is not a commit of main."; exit 1; }
+            grep -qx "$target" <<<"$runs" || { echo "No passed Check and publish run is recorded for $target."; exit 1; }
+          else
+            target=$(tail -n 1 <<<"$runs")
+            [ -n "$target" ] || { echo "No commit of main has a passed Check and publish run."; exit 1; }
+          fi
+
+          version=$(git show "$target:package.json" | node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(0, "utf8")).version)')
+          tag="v$version"
+          record="docs/production/releases/$version.md"
+          [ -f "$record" ] || nothing "No release record $record for version $version: nothing to release."
+          [ -z "$(git ls-remote --tags origin "refs/tags/$tag")" ] || nothing "The tag $tag exists already: nothing to release."
+
+          title=$(head -n 1 "$record" | sed 's/^#\+ *//')
+          tail -n +2 "$record" > "$RUNNER_TEMP/notes.md"
+          gh release create "$tag" --target "$target" --title "$title" --notes-file "$RUNNER_TEMP/notes.md" --prerelease
+          echo "Released $tag at $target."

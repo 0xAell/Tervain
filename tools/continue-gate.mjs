@@ -4,7 +4,7 @@
  * menu's Continue and checks that the hero stands on or above the ground, is drawn and the camera is above the land.
  * Repeats with a save whose height lies 3 m under the ground (what an old save looks like after the land changed).
  *
- *   node tools/continue-gate.mjs [--url https://ael-dev3.github.io/Tervain/]
+ *   node tools/continue-gate.mjs [--url https://0xaell.github.io/Tervain/]
  */
 import fs from 'node:fs';
 import path from 'node:path';

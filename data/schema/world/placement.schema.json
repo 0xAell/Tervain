@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/world/placement.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/world/placement.schema.json",
   "title": "world/placement.json",
   "description": "What lies and grows on the ground besides the trees, as the placement rules author it once from fixed seeds: the woodland floor (ferns, shrubs, moss, litter, fallen logs and their fungi), the loose stone (beach pebbles, surf rocks, sea stacks, inland erratics, the lighthouse’s boulders, shelf stone), the shore’s driftwood and scrub, and the weathered rock piles the shore keeps (solid, climbable rock; `radius` is the circle each blocks). `rank` is 0 to 1: a detail level keeps what ranks below its share in `detailKeep`; stones with an obstacle radius, sea stacks and stones large enough to be solid are kept at every level. A stone’s or a rock pile’s resting height is left to its own shape: `groundY` is the ground under its centre.",
   "type": "object",

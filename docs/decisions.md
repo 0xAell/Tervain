@@ -116,7 +116,9 @@ The same day the owner asked for four screenshots of that viewer in the README.
 This is a narrow owner exception to A14 for those files: they document the
 viewer, show Gothic 3 rather than Tervain, and are never Tervain assets or
 image-generator input. Their provenance is in the
-[viewer's record](engineering/gothic3-local.md#screenshots).
+[viewer's record](engineering/gothic3-local.md#screenshots). On 16 November 2026, on
+the owner's call that the README lead with Tervain's own picture, the four
+screenshots moved from the README to that record, which now shows them.
 
 ## Proposed development baseline
 

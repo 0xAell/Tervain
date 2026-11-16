@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/quest.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/game/quest.schema.json",
   "title": "game/quest.json",
   "description": "The Dry Bell quest’s vocabulary and timings: phases, evidence, parties, residents’ roles, places, save identity.",
   "type": "object",

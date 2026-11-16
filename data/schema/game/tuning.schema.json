@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ael-dev3.github.io/Tervain/data/schema/game/tuning.schema.json",
+  "$id": "https://0xaell.github.io/Tervain/data/schema/game/tuning.schema.json",
   "title": "game/tuning.json",
   "description": "Designer-tunable values by system: the hero, riding, the bow, the day’s clock, the journey, the camera and doors.",
   "type": "object",

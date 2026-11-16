@@ -187,7 +187,7 @@ jobs:
       - name: Load the live build, start a journey, pause, walk
         env:
           CHROME: /usr/bin/google-chrome
-        run: node tools/live-smoke.mjs --url https://ael-dev3.github.io/Tervain/ --revision ${{ github.sha }} --out live-smoke-proof
+        run: node tools/live-smoke.mjs --url https://0xaell.github.io/Tervain/ --revision ${{ github.sha }} --out live-smoke-proof
       - name: Upload the smoke test's report and screenshot
         if: always()
         uses: actions/upload-artifact@v4

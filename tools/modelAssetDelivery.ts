@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Plugin } from 'vite';
 
-const MODEL_HOST = 'https://raw.githubusercontent.com/ael-dev3/Tervain/';
+const MODEL_HOST = 'https://raw.githubusercontent.com/0xAell/Tervain/';
 /** Conservatively enforce the published site's 1 GB limit in bytes after models are omitted. */
 export const PAGES_SITE_BYTE_LIMIT = 1_000_000_000;
 

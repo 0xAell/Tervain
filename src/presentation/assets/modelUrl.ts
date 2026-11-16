@@ -16,7 +16,7 @@ export function modelAssetUrl(
     }
   })) throw new Error(`Invalid model asset path: ${file}`);
   if (modelBase) {
-    if (!/^https:\/\/raw\.githubusercontent\.com\/ael-dev3\/Tervain\/[0-9a-f]{40}\/public\/models\/$/.test(modelBase)) {
+    if (!/^https:\/\/raw\.githubusercontent\.com\/0xAell\/Tervain\/[0-9a-f]{40}\/public\/models\/$/.test(modelBase)) {
       throw new Error('Hosted model delivery requires the exact production commit.');
     }
     return new URL(file, modelBase);

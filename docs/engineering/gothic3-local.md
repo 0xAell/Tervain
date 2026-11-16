@@ -1,7 +1,7 @@
 # Gothic 3 from your own install (`/gothic3-local/`)
 
 A study viewer for comparing Tervain with Gothic 3: Ardea and its coast, drawn in the browser from the visitor's own
-installed copy of the game. Hosted at <https://ael-dev3.github.io/Tervain/gothic3-local/>.
+installed copy of the game. Hosted at <https://0xaell.github.io/Tervain/gothic3-local/>.
 
 It is separate from the [`/gothic3/` reconstruction](gothic3-browser-port.md), which it does not change or use.
 
@@ -88,9 +88,17 @@ revision. They do not establish native-game equivalence or a completed game.
 
 ## Screenshots
 
-At the owner's request (4 October 2026) the README shows four screenshots, kept beside this note in
-[`gothic3-local/`](gothic3-local/). They were captured that day in headless Chrome at 1600×900, from the viewer reading
-the owner's Steam installation; the files are JPEG copies of those captures.
+Four screenshots of the viewer are kept beside this note in [`gothic3-local/`](gothic3-local/). At the owner's request
+(4 October 2026) the README showed them; since 16 November 2026 the README shows Tervain only, and they are shown here.
+They were captured on 4 October in headless Chrome at 1600×900, from the viewer reading the owner's Steam installation;
+the files are JPEG copies of those captures.
+
+<p align="center">
+  <img src="gothic3-local/coast.jpg" width="49%" alt="Gothic 3: tall grass on a sea cliff above a sandy beach.">
+  <img src="gothic3-local/ardea.jpg" width="49%" alt="Gothic 3: Ardea's cobbled square, roofs and palisade.">
+  <img src="gothic3-local/forest.jpg" width="49%" alt="Gothic 3: lichen-covered rocks and dry grass beside a fir forest.">
+  <img src="gothic3-local/bay.jpg" width="49%" alt="Gothic 3: a watchtower on a cliff above a quiet bay.">
+</p>
 
 | File | Shows | Viewer state |
 | --- | --- | --- |
@@ -99,8 +107,9 @@ the owner's Steam installation; the files are JPEG copies of those captures.
 | `forest.jpg` | A grassy rise beside a fir forest | An earlier PR #21 build at brightness 2, before the sky and haze change (the far mountains are flat shapes) |
 | `bay.jpg` | The watchtower above the bay | PR #21's production build, loaded through the folder picker |
 
-They show Gothic 3, not Tervain (© THQ Nordic GmbH, developed by Piranha Bytes). They document this viewer only and are
-never Tervain assets or image-generator input (A14). Later changes to the viewer are not reflected in them.
+They show Gothic 3, not Tervain (© THQ Nordic GmbH, developed by Piranha Bytes). The viewer is not affiliated with or
+endorsed by them. The pictures document this viewer only and are never Tervain assets or image-generator input (A14).
+Later changes to the viewer are not reflected in them.
 
 ## Known limits and next steps
 

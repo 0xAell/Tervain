@@ -23,7 +23,7 @@ figures alternate. After: 48 consecutive frames, all upright.
 
 ## Which build is live
 
-The hosted build at https://ael-dev3.github.io/Tervain/ deploys on every merge to `main`. Its assets carry content
+The hosted build at https://0xaell.github.io/Tervain/ deploys on every merge to `main`. Its assets carry content
 hashes, but GitHub Pages lets browsers keep `index.html` for ten minutes, so a page opened soon after a merge can be
 the older build.
 

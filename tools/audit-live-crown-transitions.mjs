@@ -26,7 +26,7 @@ export async function auditLiveCrowns(page,diagnostics) {
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
 const args=Object.fromEntries(process.argv.slice(2).flatMap((a,i,v)=>a.startsWith('--')?[[a.slice(2),v[i+1]]]:[]));if(!args.diagnostics)throw new Error('Supply --diagnostics with the running diagnostic-module server origin');
-const page=await liveProofPage(args.url??'https://ael-dev3.github.io/Tervain/',{quality:'high'});try{const report=await auditLiveCrowns(page,args.diagnostics);
+const page=await liveProofPage(args.url??'https://0xaell.github.io/Tervain/',{quality:'high'});try{const report=await auditLiveCrowns(page,args.diagnostics);
  report.measurementPass=crownCoverageComplete(report);
  fs.writeFileSync(args.out??'live-crown-transitions.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({build:report.build,levels:report.levels.map(l=>({lod:l.lod,covered:l.coveredTrees,...l.summary})),missing:report.missing.length,transitionSamples:report.transitionSamples,unpairedSamples:report.unpairedSamples,emptyTransitionSamples:report.emptyTransitionSamples,measurementPass:report.measurementPass}));if(!report.measurementPass)process.exitCode=1;
 }finally{page.close();}

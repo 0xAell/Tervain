@@ -2134,7 +2134,7 @@ that the NPC read reaches the ScriptAdmin getter; no manual browser exercise is
 recorded.
 
 At the checkpoint 91 review, before PR 56, the [Gothic 3 / Ardea
-route](https://ael-dev3.github.io/Tervain/gothic3/) served the published
+route](https://0xaell.github.io/Tervain/gothic3/) served the published
 incomplete build and responded with HTTP 200. That historical published
 revision was `main` commit `3b968ba51c1924a1c6b2daded2803d7782fabb39`, merged
 in [PR 55](https://github.com/ael-dev3/Tervain/pull/55) by successful

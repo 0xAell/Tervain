@@ -10,7 +10,7 @@ function response() {
 }
 beforeEach(() => {
   vi.resetModules(); vi.clearAllMocks();
-  vi.stubGlobal('document', { baseURI: 'https://ael-dev3.github.io/Tervain/index.html' });
+  vi.stubGlobal('document', { baseURI: 'https://0xaell.github.io/Tervain/index.html' });
   vi.stubGlobal('fetch', fetchMock);
   const scene = new THREE.Group();
   scene.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial()));

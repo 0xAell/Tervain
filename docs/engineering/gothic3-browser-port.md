@@ -6,7 +6,7 @@ Date: 7 October 2026. Status: an incomplete TypeScript browser reconstruction wi
 
 The owner asked to rebuild the installed Gothic 3 in TypeScript and host it as
 a second URL in Tervain. The repository is public and GitHub Pages is enabled.
-The [Gothic 3 / Ardea route](https://ael-dev3.github.io/Tervain/gothic3/) is
+The [Gothic 3 / Ardea route](https://0xaell.github.io/Tervain/gothic3/) is
 live. Checkpoints 92–93 were merged in
 [PR 56](https://github.com/ael-dev3/Tervain/pull/56) at commit
 `dcc68c61a5f738ad9e99c464e8ca6f98f4db5dd6` and published by successful
