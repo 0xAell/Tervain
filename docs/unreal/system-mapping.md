@@ -145,6 +145,12 @@ What stays in the scene layer, and why it is not a rule of the game:
   characters' capsules and its physics' resting bodies.
 - **When the page is left** (`src/app.ts`): which browser events count as leaving play (the page hidden or closed) is
   the application's wiring; that leaving play saves, and when, is the core's (`autosaveAt`).
+- **What the tools reach** (`src/app.ts`): the page exposes the running game as `window.tervain`, and a page opened with
+  `?shot` is a capture: a staged journey, framed at a place and hour, that never pauses over its view and never saves
+  (`savingAllowed`). The play gate, the live smoke test, the benchmark and the screenshot tools drive the game through
+  them. The F3 panel shows the build's diagnostics to everyone and adds its test controls (teleporting, the quest's
+  shortcuts) only on the development server or with `?debug` (`platform/diagnostics.ts`). That is the web build's test
+  harness; a port has its own automation.
 
 What else is there is presentation: meshes, materials and shaders, rigs and poses, effects, the interface, playing
 sound, loading, and reading input devices.

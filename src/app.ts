@@ -20,6 +20,7 @@ import { EVIDENCE_IDS, QUICK_SLOT_COUNT, type Allocation, type GameEvent, type I
 import { Input } from './platform/input';
 import { FrameClock, MotionInterpolation, SIM_CATCH_UP, SIM_STEP, cappedFrame } from './platform/frameTiming';
 import { waitForGraphicsReady } from './platform/graphicsReady';
+import { testControlsOffered } from './platform/diagnostics';
 import { prepareSceneTextures } from './platform/prepareSceneTextures';
 import { codeLabel, loadSettings } from './platform/settings';
 import { BrowserStore, SaveStore, type SlotId } from './platform/storage';
@@ -328,8 +329,8 @@ export class App {
     }
   }
 
-  /** True in a ?shot capture, which must not pause over its view. */
-  private capturing = false;
+  /** True in a ?shot capture: it must not pause over its view, keeps its preset's resolution, and never saves. */
+  private readonly capturing = typeof location !== 'undefined' && new URLSearchParams(location.search).has('shot');
 
   /**
    * Developer aid: `?shot=1&place=rillford&yaw=0.6&pitch=0.3&dist=12&hour=11&hud=0` starts a new game, frames a
@@ -338,7 +339,6 @@ export class App {
   private applyShotParams() {
     const q = new URLSearchParams(location.search);
     if (!q.has('shot')) return;
-    this.capturing = true;
     const num = (k: string, d: number) => (q.has(k) ? Number(q.get(k)) : d);
     this.quietStart = true;
     this.startNew();
@@ -861,8 +861,6 @@ export class App {
 
   private renderScaleState: RenderScale | null = null;
   private get renderScale(): RenderScale { return this.renderScaleState ??= new RenderScale(); }
-  /** Captures (?shot) keep the preset's resolution, so their pictures compare. */
-  private get shotMode(): boolean { return typeof location !== 'undefined' && new URLSearchParams(location.search).has('shot'); }
 
   private applyPixelRatio() {
     const q = this.settings.quality;
@@ -1204,7 +1202,7 @@ export class App {
       this.lastFrameDt = Math.min(interval, SIM_CATCH_UP);
       if (interval < 5) this.recordFrame(interval);
       // Drawing resolution follows what the display manages to show, in play only (A113).
-      if (this.settings.dynamicResolution && this.mode === 'play' && this.overlay === 'none' && !this.bench.active && !this.shotMode
+      if (this.settings.dynamicResolution && this.mode === 'play' && this.overlay === 'none' && !this.bench.active && !this.capturing
         && this.renderScale.sample(interval * 1000)) this.onResize();
       this.audioClock += dt;
       held = steps === 0;
@@ -1773,7 +1771,7 @@ export class App {
 
   /** Keeps a tester on the latest merge: reload once on start when the page came from cache, else offer it on pause. */
   private async checkLiveBuild(onStart: boolean) {
-    if (this.liveBuildNotice || new URLSearchParams(location.search).has('shot')) return;
+    if (this.liveBuildNotice || this.capturing) return;
     const live = newerBuild(REVISION, await fetchLiveBuild());
     if (!live) return;
     let storage: Storage | null = null;
@@ -2274,7 +2272,7 @@ export class App {
   }
 
   saveTo(slot: SlotId): PanelSaveResult {
-    if (!savingAllowed({ playing: this.mode === 'play', paused: this.worldPaused, worldReady: !!this.world && !this.worldDisposed })) {
+    if (!savingAllowed({ playing: this.mode === 'play', paused: this.worldPaused, worldReady: !!this.world && !this.worldDisposed, capture: this.capturing })) {
       return { ok: false, message: S('menu.saveUnavailable') };
     }
     this.stamp();
@@ -2295,7 +2293,7 @@ export class App {
   }
 
   private autosave(reason: string) {
-    const at = autosaveAt('story', { playing: this.mode === 'play', paused: this.worldPaused, begun: true });
+    const at = autosaveAt('story', { playing: this.mode === 'play', paused: this.worldPaused, begun: true, capture: this.capturing });
     if (!at.save) return;
     this.stamp();
     const r = this.saves.save('auto', this.game.state);
@@ -2313,7 +2311,7 @@ export class App {
 
   /** Backgrounding can happen while the old world is disposed and its replacement still loads: that gap is never saved. */
   private autosaveQuiet(moment: Exclude<AutosaveMoment, 'story'>) {
-    if (!autosaveAt(moment, { playing: this.mode === 'play', paused: this.worldPaused, begun: this.hasProgress() }).save) return;
+    if (!autosaveAt(moment, { playing: this.mode === 'play', paused: this.worldPaused, begun: this.hasProgress(), capture: this.capturing }).save) return;
     this.stamp();
     this.saves.save('auto', this.game.state);
   }
@@ -2702,10 +2700,7 @@ export class App {
     clear(this.debugEl);
     const btn = (label: string, fn: () => void) => h('button', { class: 'btn', onClick: fn }, label);
     const place = (id: PlaceId) => btn(S(`place.${id}`), () => this.teleport(id));
-    this.debugEl.append(
-      h('h2', {}, S('debug.title')),
-      h('p', { class: 'muted' }, S('debug.note')),
-      this.debugPre,
+    const testControls = testControlsOffered(location.search, import.meta.env.DEV) ? [
       h('h2', {}, 'Teleport'),
       h('div', { class: 'pillrow' }, (Object.keys(PLACES) as PlaceId[]).map(place)),
       h('h2', {}, 'Authored test conditions'),
@@ -2723,11 +2718,17 @@ export class App {
         btn('Toggle Ila absent', () => this.debugToggleNpc('maintenance_worker')),
         btn('Heal + stamina', () => this.debugHeal()),
       ),
+    ] : [h('p', { class: 'small' }, 'Test controls: open the page with ?debug=1.')];
+    this.debugEl.append(
+      h('h2', {}, S('debug.title')),
+      h('p', { class: 'muted' }, S('debug.note')),
+      this.debugPre,
+      ...testControls,
       h('h2', {}, 'Menu score timing'),
       h('p', { class: 'small' }, 'Seeks the actual menu song for doorway, wisp and loop review; has no effect in gameplay.'),
       h('div', { class: 'pillrow' }, ...[28, 30, 33, 60, 75, 110, 205, 211].map((time) => btn(`Score → ${Math.floor(time / 60)}:${String(time % 60).padStart(2, '0')}`, () => this.audio.seekMenuMusic(time)))),
       h('h2', {}, 'Benchmark'),
-      h('p', { class: 'muted' }, new URLSearchParams(location.search).get('review') === 'water' && new URLSearchParams(location.search).has('shot')
+      h('p', { class: 'muted' }, new URLSearchParams(location.search).get('review') === 'water' && this.capturing
         ? 'Runs a 12 s shoreline camera review up to 5.85 m/s, retaining reflected land and shallow water in view. Reports frame times for this device and quality preset.'
         : 'Runs a fixed camera route from the landing through the woodland and town (about 72 s) and reports median/95th/99th percentile frame times for this device, renderer and quality preset.'),
       h('div', { class: 'pillrow' }, btn('Run benchmark route', () => this.startBenchmark()), btn('Copy report', () => navigator.clipboard?.writeText(this.debugPre.textContent ?? ''))),
@@ -3020,8 +3021,7 @@ export class App {
     // Query-only water review reuses the native F3 benchmark button. Its
     // 23.4 m / 6 s smooth segment reaches the authored 5.85 m/s running speed
     // while keeping the reflected coast in view, without synthetic key events.
-    const waterReview = new URLSearchParams(location.search).has('shot')
-      && new URLSearchParams(location.search).get('review') === 'water';
+    const waterReview = this.capturing && new URLSearchParams(location.search).get('review') === 'water';
     const route: { p: THREE.Vector3; look: THREE.Vector3 }[] = waterReview ? [
       { p: H(-268, 27, 2.6), look: new THREE.Vector3(-334, 5, 108) },
       { p: H(-268, 50.4, 2.6), look: new THREE.Vector3(-334, 5, 108) },
