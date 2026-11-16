@@ -100,7 +100,9 @@ if (args['budget-url']) {
   }
   const live = { ...liveA, calls: Math.max(liveA.calls, liveB.calls), triangles: Math.max(liveA.triangles, liveB.triangles), errors: [...liveA.errors, ...liveB.errors] };
   const candidate = await probe(URL_, 'candidate');
-  const headOk = !args.head || (candidate.revision !== null && args.head.startsWith(candidate.revision));
+  // A missing, empty or malformed revision never certifies a build: any head starts with the empty string.
+  const revisionOk = typeof candidate.revision === 'string' && /^[0-9a-f]{7,40}$/i.test(candidate.revision);
+  const headOk = revisionOk && (!args.head || args.head.startsWith(candidate.revision));
   // --tri-allowance: an owner-approved triangle exception over live (0 by default), recorded in the PR.
   const triAllowance = Number(args['tri-allowance'] ?? 0);
   const drawsOk = candidate.calls <= live.calls, trisOk = candidate.triangles <= live.triangles + triAllowance;

@@ -6,7 +6,7 @@
   "description": "Tervain exploration prototype: silent Grey Strand arrival / Templar deepwood",
   "scripts": {
     "play-gate": "node tools/play-gate.mjs",
-    "dev": "vite",
+    "dev": "vite --host 127.0.0.1",
     "build": "npm run typecheck && vite build",
     "typecheck": "npm run typecheck:game && npm run typecheck:gothic3",
     "typecheck:game": "tsc --noEmit -p tsconfig.game.json && tsc --noEmit -p tsconfig.core.json",
@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:game": "vitest run --project game",
     "test:gothic3": "vitest run --project gothic3",
-    "preview": "vite preview",
+    "preview": "vite preview --host 127.0.0.1",
     "people:sheets": "node tools/export-people-sheets.mjs",
     "people:check": "node tools/export-people-sheets.mjs --check",
     "data:export": "node tools/export-data.mjs",
@@ -34,7 +34,7 @@
     "meshoptimizer": "^1.1.1",
     "sharp": "^0.35.5",
     "typescript": "^7.0.2",
-    "vite": "^8.3.1",
+    "vite": "^8.3.8",
     "vitest": "^5.0.2"
   },
   "dependencies": {
