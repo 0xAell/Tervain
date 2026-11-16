@@ -199,10 +199,18 @@ describe('Unreal conventions in the manifest', () => {
     for (const [mesh, lods] of trees) expect(lods, mesh).toEqual([0, 1, 2]);
   });
 
-  it('suffixes textures by what they hold', () => {
+  it('suffixes textures by what they hold, and makes no texture of a data file', () => {
     const textures = imported.filter((asset) => asset.unreal!.type === 'Texture' && asset.group === 'building-textures');
     expect(textures).toHaveLength(24);
     for (const asset of textures) expect(asset.unreal!.name).toMatch(asset.path.endsWith('-normal.jpg') ? /_N$/ : /_D$/);
+    // A leaf atlas is a colour image and a packed mask (alpha, thickness, underside gain); its loader's manifest is dropped.
+    const leaves = committed.assets.filter((asset) => asset.path.startsWith('public/textures/leaf/'));
+    expect(leaves).toHaveLength(7);
+    for (const asset of leaves) {
+      if (asset.path.endsWith('.json')) expect([asset.plan, asset.unreal], asset.path).toEqual(['drop', null]);
+      else expect(asset.unreal!.name, asset.path).toMatch(asset.path.endsWith('-data.webp') ? /^T_Leaf_[A-Za-z]+_M$/ : /^T_Leaf_[A-Za-z]+_D$/);
+    }
+    expect(committed.assets.filter((asset) => asset.kind === 'data' && asset.unreal).map((asset) => asset.path)).toEqual([]);
   });
 
   it('imports nothing from files a port drops, and something from every model or sound it keeps or replaces', () => {
