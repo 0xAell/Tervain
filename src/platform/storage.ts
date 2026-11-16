@@ -1,5 +1,5 @@
 import { reviveState } from '../core/game/revive';
-import { SAVE_SLOTS, type SaveSlot } from '../core/rules/session';
+import { continueFrom, SAVE_SLOTS, type SaveSlot } from '../core/rules/session';
 import { CONTENT_REVISION, SAVE_FORMAT_VERSION, type WorldState } from '../core/game/types';
 import { GAME_BUILD } from '../version';
 
@@ -232,14 +232,12 @@ export class SaveStore {
     return SLOT_IDS.some((s) => this.load(s).ok);
   }
 
-  /** The most recently written valid slot, for "Continue". */
+  /** The save "Continue" loads (the core's continueFrom: the most recently written readable slot). */
   latest(): { slot: SlotId; state: WorldState; summary: SaveSummary } | null {
-    let best: { slot: SlotId; state: WorldState; summary: SaveSummary } | null = null;
-    for (const slot of SLOT_IDS) {
-      const r = this.load(slot);
-      if (r.ok && (!best || r.summary.savedAt > best.summary.savedAt)) best = { slot, state: r.state, summary: r.summary };
-    }
-    return best;
+    const readable = SLOT_IDS.flatMap((slot) => { const r = this.load(slot); return r.ok ? [{ slot, savedAt: r.summary.savedAt, state: r.state, summary: r.summary }] : []; });
+    const slot = continueFrom(readable);
+    const chosen = readable.find((save) => save.slot === slot);
+    return chosen ? { slot: chosen.slot, state: chosen.state, summary: chosen.summary } : null;
   }
 
   delete(slot: SlotId) {

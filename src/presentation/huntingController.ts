@@ -64,9 +64,16 @@ export class HuntingController {
     this.host.audio.stopHuntingSounds('bow_draw');
   }
 
+  /** Whether the bow can be drawn and loosed now: the core's rule (bowAvailable) on the wanderer as he stands. */
+  private bowAvailable(): boolean {
+    const { player, game, world } = this.host;
+    return bowAvailable({ equipped: player.bowEquipped(game), free: player.state === 'free', alive: player.alive, swimming: player.swimming,
+      riding: !!player.mount, mounting: !!player.mountMove, carrying: !!world.physics.holding });
+  }
+
   /** Runs before the player's native skeleton is posed. */
   controls(dt: number, playing: boolean) {
-    const { player, input, game, world, cam, audio } = this.host;
+    const { player, input, game, cam, audio } = this.host;
     if (!playing || !this.canAct()) {
       // Held play (a panel, the pause, a hidden page) lets a drawn arrow down but holds a skinning where it is, as the
       // core's wanderer holds every channel while he is not controllable; his fall ends it when he is set down again.
@@ -75,9 +82,7 @@ export class HuntingController {
     if (input.pressed('skin')) this.skin();
     if (this.skinId && !this.skinValid(this.skinId)) player.cancelSkinning();
     // Not while getting onto or off the deer either: melee is already locked then (A86 scout).
-    const available = bowAvailable({ equipped: player.bowEquipped(game), free: player.state === 'free', alive: player.alive, swimming: player.swimming,
-      riding: !!player.mount, mounting: !!player.mountMove, carrying: !!world.physics.holding });
-    if (!available) { this.cancelDraw(); cam.setAiming(false); return; }
+    if (!this.bowAvailable()) { this.cancelDraw(); cam.setAiming(false); return; }
     const hand = this.hand.step(dt, { pressed: input.pressed('attack'), held: input.isDown('attack'), aimHeld: input.isDown('block'), arrows: game.state.inventory.arrow ?? 0 });
     if (hand.empty) this.host.hud.toast(S('hunting.need_arrow'), 'bad');
     if (hand.started) audio.huntingSound('bow_draw');
@@ -92,8 +97,9 @@ export class HuntingController {
   /** Runs after camera following and native animal posing, so contacts use this frame's visible triangles. */
   afterWorld(dt: number, playing: boolean) {
     if (!playing || !this.canAct()) return;
-    // Movement can enter deep water after controls ran. Cancel before releasing, while existing arrows keep flying.
-    if (this.host.player.swimming) { this.cancelDraw(); this.host.cam.setAiming(false); }
+    // The step after the controls can take him into deep water, onto the deer or under a crate: the core's bow rule is
+    // asked again before the arrow is loosed, while arrows already in flight keep flying.
+    if (!this.bowAvailable()) { this.cancelDraw(); this.host.cam.setAiming(false); }
     if (this.hand.loose()) this.release();
     this.arrows.quiver = !this.host.settings.reducedMotion;
     const water = this.host.world.water as WorldScene['water'] | undefined;

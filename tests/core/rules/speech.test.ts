@@ -6,7 +6,7 @@ import { OVERHEAR_REACH, WOUNDED_BELOW } from '../../../src/core/rules/journey';
 import { VOICE_LINE_SECONDS } from '../../../src/core/content/voiceLengths';
 import {
   BUBBLE, bubbleMs, CLEARING_FOE, dayPartCue, defeatRemark, eventRemarks, HERO_CUE_AGAIN, HERO_CUE_DELAY, itemCue, placeRemarked, SCENE_CHECK_SECONDS, scenesInEarshot, SPEECH,
-  SpeechDirector, trespassOutcry, UNNOTED_LOSSES, warCry, woundedNow, type SceneResident,
+  SpeechDirector, stopsToTalk, trespassOutcry, UNNOTED_LOSSES, warCry, woundedNow, type SceneResident,
 } from '../../../src/core/rules/speech';
 
 // Who says what and when is decided in the core: these run the director with nothing to play a sound or draw a word.
@@ -202,5 +202,22 @@ describe('how long a line lasts', () => {
     expect(Object.keys(VOICE_LINE_SECONDS)).toHaveLength(245);
     expect(open.lengthOf('hero.arrival')).toBe(VOICE_LINE_SECONDS['hero.arrival']);
     expect(open.lengthOf('a line nobody recorded')).toBeUndefined();
+  });
+
+  it('is the time its words take to read when the sound says it has no recording', () => {
+    class Unrecorded extends SpeechDirector { protected override recorded(): number | undefined { return undefined; } }
+    const line = 'hero.arrival', reading = SPEECH.unvoiced.least + VOICE_LINES[line]!.text.length / SPEECH.unvoiced.charactersPerSecond;
+    const speech = new Unrecorded({ say: () => undefined, caption: () => {} });
+    expect(speech.remark('rillford_reeve', line, here)).toBeCloseTo(reading, 9);
+    expect(speech.busyFor('rillford_reeve')).toBeCloseTo(reading, 9);
+  });
+});
+
+describe('a resident who talks', () => {
+  it('stops for an exchange or a scene, and for a remark only if already standing', () => {
+    expect(stopsToTalk({ held: true, speaking: false, underway: true })).toBe(true);
+    expect(stopsToTalk({ held: false, speaking: true, underway: false })).toBe(true);
+    expect(stopsToTalk({ held: false, speaking: true, underway: true }), 'a remark is made on the move').toBe(false);
+    expect(stopsToTalk({ held: false, speaking: false, underway: false })).toBe(false);
   });
 });

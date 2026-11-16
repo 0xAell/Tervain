@@ -22,12 +22,21 @@ export interface Vec3 {
   z: number;
 }
 
+/**
+ * Whether a resident stops walking to talk: always while an exchange or a scene holds them, and for a passing remark only
+ * if they were already standing, since a remark is made on the move (A69). One who stops turns to whom they talk to.
+ */
+export function stopsToTalk(facts: { held: boolean; speaking: boolean; underway: boolean }): boolean {
+  return facts.held || (facts.speaking && !facts.underway);
+}
+
 export interface SpeechHooks {
   /**
    * Plays a line (from a place in the world, when given) and returns its length in seconds, playable or not; null
-   * when its voice is still loading and the line should wait a moment.
+   * when its voice is still loading and the line should wait a moment; undefined when it has no recording at all, and
+   * the director gives it the time its words take to read.
    */
-  say(line: string, at?: Vec3 | (() => Vec3)): number | null;
+  say(line: string, at?: Vec3 | (() => Vec3)): number | null | undefined;
   /** Shows the spoken words for as long as they are heard. */
   caption(speaker: Speaker, text: string, seconds: number): void;
   /** Stops what a speaker is saying (a passing remark, when the player starts a conversation). */
@@ -183,8 +192,9 @@ export class SpeechDirector {
     // barks overlapped. A passing remark may still come while the hero is talking to himself.
     if ([...this.held.values()].some((t) => t > this.clock) || [...this.busy].some(([who, t]) => who !== 'hero' && t > this.clock)) return 0;
     // A remark whose voice is not ready is simply not made; there will be another.
-    const seconds = this.hooks.say(line, at);
-    if (seconds === null) return 0;
+    const said = this.hooks.say(line, at);
+    if (said === null) return 0;
+    const seconds = said ?? this.length(line);
     this.busy.set(npc, this.clock + seconds);
     return seconds;
   }
@@ -268,6 +278,7 @@ export class SpeechDirector {
       }
       // The voice follows its speaker, who may walk on while saying it (A70).
       let seconds = this.hooks.say(q.line, q.where);
+      if (seconds === undefined) seconds = this.length(q.line);
       if (seconds === null) {
         // Its voice is on its way: wait a moment, then go ahead without it if need be.
         if ((q.tries ?? 0) < LOAD_TRIES) {

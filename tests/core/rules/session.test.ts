@@ -9,7 +9,7 @@ import { NPCS } from '../../../src/core/content/npcs';
 import { MOUNT_STAMINA } from '../../../src/core/rules/riding';
 import { RESIDENT } from '../../../src/core/rules/resident';
 import {
-  AFLOAT, archiveClosesBehind, arrivesInView, ARRIVES_IN_VIEW_WITHIN, archiveDoorAttempt, archiveOpen, AUTOSAVE_MOMENTS, autosaveAt, autosaveDue, AWAITED_MOUNT_REACH, momentOf, WHAT_RUNS, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
+  AFLOAT, archiveClosesBehind, continueFrom, arrivesInView, ARRIVES_IN_VIEW_WITHIN, archiveDoorAttempt, archiveOpen, AUTOSAVE_MOMENTS, autosaveAt, autosaveDue, AWAITED_MOUNT_REACH, momentOf, WHAT_RUNS, awaitedMountLapsed, belowTheWorld, buriedOnEntry, clockDue, CLOCK_TICK_MINUTES, ENTRY,
   ENTRY_RESTORES, fallRemaining, HAND_SAVE_SLOTS, hitStopFor, journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter,
   rideable, riteReady, SAFE_PLACE_RINGS, safePlace, SAVE_SLOTS, savedMount, savingAllowed, SHAKE, STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING,
   type PlacingWorld, type RespawnPoint,
@@ -133,6 +133,14 @@ describe('figures on their way', () => {
     expect(arrivesInView(WITNESS_REACH)).toBe(true);
     expect(arrivesInView(ARRIVES_IN_VIEW_WITHIN)).toBe(true);
     expect(arrivesInView(ARRIVES_IN_VIEW_WITHIN + 0.01), 'further off, the change waits until nobody sees it').toBe(false);
+  });
+});
+
+describe('continuing', () => {
+  it('loads the most recently written save of any slot, or none', () => {
+    expect(continueFrom([{ slot: 'auto', savedAt: 5 }, { slot: 'slot-2', savedAt: 9 }, { slot: 'quick', savedAt: 7 }])).toBe('slot-2');
+    expect(continueFrom([{ slot: 'auto', savedAt: 5 }])).toBe('auto');
+    expect(continueFrom([])).toBeNull();
   });
 });
 

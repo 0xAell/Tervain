@@ -71,7 +71,7 @@ import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
 import { handsForCargo, keepsHold } from './core/rules/cargo';
 import {
-  BUBBLE, bubbleMs, CLEARING_FOE, dayPartCue, defeatRemark, eventRemarks, HERO_CUE_AGAIN, HERO_CUE_DELAY, SCENE_CHECK_SECONDS, scenesInEarshot, trespassOutcry, UNNOTED_LOSSES, warCry,
+  BUBBLE, bubbleMs, CLEARING_FOE, dayPartCue, defeatRemark, eventRemarks, HERO_CUE_AGAIN, HERO_CUE_DELAY, SCENE_CHECK_SECONDS, scenesInEarshot, stopsToTalk, trespassOutcry, UNNOTED_LOSSES, warCry,
   woundedNow,
 } from './core/rules/speech';
 import { fightingFoes } from './core/rules/residentWalk';
@@ -1400,7 +1400,7 @@ export class App {
       // made on the move: only someone already standing turns to it (A69).
       for (const n of this.npcs) {
         n.speaking = this.speech.speakingFor(n.id) > 0;
-        n.talking = this.speech.heldFor(n.id) > 0 || (n.speaking && !n.underway);
+        n.talking = stopsToTalk({ held: this.speech.heldFor(n.id) > 0, speaking: n.speaking, underway: n.underway });
         if (!n.talking) n.faceTo = null;
       }
       this.sceneClock += dt;
