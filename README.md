@@ -61,7 +61,7 @@ npm ci
 npm run dev
 ```
 
-The dev server prints its address, normally `http://localhost:5173/`. The working tree is more than a gigabyte of models, textures, audio and the separate study's data, hence the shallow clone.
+The dev server prints its address, `http://127.0.0.1:5173/`; it and `npm run preview` listen on this machine only. The working tree is more than a gigabyte of models, textures, audio and the separate study's data, hence the shallow clone.
 
 To build the static site and serve the result:
 
