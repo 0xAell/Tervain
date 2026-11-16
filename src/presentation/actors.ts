@@ -8,7 +8,7 @@ import { workSiteFor, type WorkSite } from './npc/workSites';
 import { resolveGoal, type Goal } from '../core/rules/schedule';
 import { NPC_WALK_SPEED, ResidentWalker, type ResidentContext, type ResidentStep } from '../core/rules/residentWalk';
 import { ENEMY_VARIANT } from '../core/content/enemies';
-import { HostileActor, lerpAngle, type HostileContext, type HostileState } from '../core/rules/hostileActor';
+import { HostileActor, lerpAngle, type HostileContext, type HostileMoment, type HostileState } from '../core/rules/hostileActor';
 
 export { resolveGoal, type Goal };
 export { lerpAngle };
@@ -207,6 +207,11 @@ export class EnemyActor extends HostileActor {
   override restore(defeated: boolean): void {
     super.restore(defeated);
     if (!defeated) this.rig.body.rotation.set(0, 0, 0);
+  }
+  override resume(moment: HostileMoment): void {
+    super.resume(moment);
+    // Drawn where the fight left it at once, not at its post until the next step.
+    if (this.state !== 'dead') { this.rig.root.position.set(this.x, this.y, this.z); this.rig.root.rotation.set(0, this.yaw, 0); }
   }
   protected override bodyReady(): void { if (this.showOnUpdate) { this.showOnUpdate = false; this.rig.root.visible = true; } }
 

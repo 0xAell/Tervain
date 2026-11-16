@@ -185,6 +185,28 @@ describe('a hostile’s fight, on the core alone', () => {
     expect([hostile.hp, hostile.x, hostile.z]).toEqual([archetype.hp, spawn.x, spawn.z]);
   });
 
+  it('keeps its fight through a rebuild of the world: health, place, heading and what it is doing', () => {
+    const hostile = new Hostile(spawn), { ctx } = fight({ x: spawn.x + 3, z: spawn.z });
+    hostile.yaw = Math.PI / 2;
+    for (let frame = 0; frame < 60; frame++) hostile.update(0.02, ctx);
+    hostile.takeHit(archetype.hp - 6, false, spawn.x + 3, spawn.z);
+    for (let frame = 0; frame < 20; frame++) hostile.update(0.02, ctx);
+    const moment = hostile.moment();
+    expect(moment.hp).toBe(6);
+    expect(moment.engaged).toBe(true);
+    // The rebuilt world makes the hostile again and restores it from the saved journey, whole at its post; then it resumes.
+    const rebuilt = new Hostile(spawn);
+    rebuilt.restore(false);
+    rebuilt.resume(moment);
+    expect(rebuilt.moment()).toEqual(moment);
+    expect([rebuilt.hp, rebuilt.state, rebuilt.engaged]).toEqual([6, moment.state, true]);
+    // A hostile the journey records as defeated stays fallen.
+    const fallen = new Hostile(spawn);
+    fallen.restore(true);
+    fallen.resume(moment);
+    expect([fallen.state, fallen.alive]).toEqual(['dead', false]);
+  });
+
   it('turns from one heading toward another the short way round', () => {
     expect(lerpAngle(0, 1, 0.5)).toBeCloseTo(0.5, 12);
     expect(lerpAngle(3, -3, 0.5)).toBeCloseTo(3 + (2 * Math.PI - 6) / 2, 9);

@@ -926,7 +926,11 @@ export class App {
           continue;
         }
         const riding = this.player.mount?.id ?? null;
+        // A rebuild changes how the world looks, not where a fight stands (the core's HostileMoment): each hostile takes
+        // up its fight again in the rebuilt world instead of standing whole at its post.
+        const fights = new Map(this.enemies.map((enemy) => [enemy.id, enemy.moment()]));
         await this.buildWorld();
+        for (const enemy of this.enemies) { const moment = fights.get(enemy.id); if (moment) enemy.resume(moment); }
         // The player rig and action state survive graphics rebuilds; do not rewind to a stale pre-load transform.
         const safe = this.safePosition(this.player.x, this.player.z, this.player.y);
         if (safe.x !== this.player.x || safe.z !== this.player.z) {
