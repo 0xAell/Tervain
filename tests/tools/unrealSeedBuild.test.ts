@@ -108,7 +108,8 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
   });
 
   it.skipIf(!compiler)('finds a row by name in the table the settings name, and nothing where there is no table or another kind of row', () => {
-    expect(run('rows')).toEqual(['1', '1 item.bread 12 1', '1', '1 1', '1', '1', '10 1']);
+    expect(run('rows')).toEqual(['1', '1 item.bread 12 1', '1', '1 1', '1', '1', '1', '10 1',
+      'log LogTervain: Warning: The table set as Residents Table in Project Settings > Game > Tervain could not be loaded.']);
   });
 
   it('makes every generated row struct in the driver', () => {

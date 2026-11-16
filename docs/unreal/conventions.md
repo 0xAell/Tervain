@@ -76,7 +76,8 @@ packaging settings when the game is first packaged.
 
 **Everything else** (`data/game`, `data/world/*.json`) is canonical JSON in core units with a schema each. The
 dialogue graph, the quest vocabulary, inspections, voice lines and tuning values have no built-in Unreal importer:
-read them at runtime as `UTervainDataSubsystem` reads `tuning.json`, or write an editor importer into data assets.
+read them at runtime as `UTervainDataSubsystem` reads `tuning.json`, or write an editor importer into data assets. Files
+read at runtime must also be staged when the game is packaged, as the string table must; data assets need no staging.
 
 ## Naming
 

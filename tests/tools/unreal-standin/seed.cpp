@@ -29,8 +29,61 @@ int main(int Count, char** Arguments)
 	StandIn::ProjectDir() = StandIn::Widen(Arguments[2]);
 	if (Count > 3) StandIn::MutableDefault<UTervainSettings>()->DataDirectory = FString(StandIn::Widen(Arguments[3]));
 
-	UTervainDataSubsystem Data;
 	FSubsystemCollectionBase Collection;
+	if (Mode == "rows")
+	{
+		// The subsystem loads the tables the settings name when it starts, as a game does: the settings are its config.
+		{
+			// No table is set: nothing is found.
+			UTervainDataSubsystem Bare;
+			Bare.Initialize(Collection);
+			std::printf("%d\n", Bare.FindItem(FName(TEXT("bread"))) == nullptr ? 1 : 0);
+		}
+
+		// A table of items where the settings point: a row is found by name as its own struct.
+		UDataTable Items;
+		FTervainItemRow Bread;
+		Bread.NameKey = TEXT("item.bread");
+		Bread.Kind = ETervainItemKind::Consumable;
+		Bread.HealAmount = 12;
+		Bread.Action = ETervainItemAction::Consume;
+		Items.StandInAddRow(TEXT("bread"), &Bread);
+		StandIn::Objects()[TEXT("/Game/Tervain/Data/DT_Items.DT_Items")] = &Items;
+		StandIn::MutableDefault<UTervainSettings>()->ItemsTable = FSoftObjectPath(TEXT("/Game/Tervain/Data/DT_Items.DT_Items"));
+		// A path with nothing behind it gives null rather than a wrong row, and a warning that names the setting.
+		StandIn::MutableDefault<UTervainSettings>()->ResidentsTable = FSoftObjectPath(TEXT("/Game/Tervain/Data/DT_Missing.DT_Missing"));
+		UTervainDataSubsystem Data;
+		Data.Initialize(Collection);
+		const FTervainItemRow* Found = Data.FindItem(FName(TEXT("bread")));
+		std::printf("%d %s %d %d\n", Found == &Bread ? 1 : 0, Found ? StandIn::Narrow(Found->NameKey.StandInValue()).c_str() : "", Found ? Found->HealAmount : -1, Found && Found->Kind == ETervainItemKind::Consumable ? 1 : 0);
+		std::printf("%d\n", Data.FindItem(FName(TEXT("no-such-item"))) == nullptr ? 1 : 0);
+		// Names compare without regard to case, as the engine's do: the row "bread" answers to "Bread".
+		std::printf("%d %d\n", Data.FindItem(FName(TEXT("Bread"))) == &Bread ? 1 : 0, FName(TEXT("BREAD")) == FName(TEXT("bread")) ? 1 : 0);
+		std::printf("%d\n", Data.FindResident(FName(TEXT("mara"))) == nullptr ? 1 : 0);
+
+		// The table is held, not looked up again: with nothing left at its path, its rows are still found.
+		StandIn::Objects().erase(TEXT("/Game/Tervain/Data/DT_Items.DT_Items"));
+		std::printf("%d\n", Data.FindItem(FName(TEXT("bread"))) == &Bread ? 1 : 0);
+
+		// A table whose rows are of another struct gives null rather than a wrong row.
+		StandIn::Objects()[TEXT("/Game/Tervain/Data/DT_Items.DT_Items")] = &Items;
+		StandIn::MutableDefault<UTervainSettings>()->ResidentsTable = FSoftObjectPath(TEXT("/Game/Tervain/Data/DT_Items.DT_Items"));
+		UTervainDataSubsystem Mixed;
+		Mixed.Initialize(Collection);
+		std::printf("%d\n", Mixed.FindResident(FName(TEXT("bread"))) == nullptr ? 1 : 0);
+
+		// Every generated row struct is a complete type that can be made, and a resident's schedule holds entries.
+		FTervainAnimalSpeciesRow Species; FTervainAnimalRow Animal; FTervainEnemyArchetypeRow Archetype; FTervainEnemyPostRow Post; FTervainPlaceRow Place;
+		FTervainBuildingRow Building; FTervainResidentRow Resident; FTervainLooseCargoRow Cargo; FTervainTreeRow Tree;
+		FTervainScheduleEntry Entry;
+		Resident.Schedule.Add(Entry);
+		const FTableRowBase* Rows[] = { &Bread, &Species, &Animal, &Archetype, &Post, &Place, &Building, &Resident, &Cargo, &Tree };
+		std::printf("%d %d\n", static_cast<int>(sizeof(Rows) / sizeof(Rows[0])), Resident.Schedule.Num());
+		PrintLog();
+		return 0;
+	}
+
+	UTervainDataSubsystem Data;
 	Data.Initialize(Collection);
 
 	if (Mode == "tuning")
@@ -62,41 +115,6 @@ int main(int Count, char** Arguments)
 		const UTervainSettings* Settings = GetDefault<UTervainSettings>();
 		std::printf("%s\n%s\n%s\n%d\n%d\n", StandIn::Narrow(Settings->GetCategoryName().StandInValue()).c_str(), StandIn::Narrow(Settings->GetDataDirectory().StandInValue()).c_str(), StandInGameName_Tervain(),
 			StandInModule_Tervain() != nullptr ? 1 : 0, Data.HasTuning() ? 1 : 0);
-	}
-	else if (Mode == "rows")
-	{
-		// No table is set: nothing is found, and nothing is loaded.
-		std::printf("%d\n", Data.FindItem(FName(TEXT("bread"))) == nullptr ? 1 : 0);
-
-		// A table of items where the settings point: a row is found by name as its own struct.
-		UDataTable Items;
-		FTervainItemRow Bread;
-		Bread.NameKey = TEXT("item.bread");
-		Bread.Kind = ETervainItemKind::Consumable;
-		Bread.HealAmount = 12;
-		Bread.Action = ETervainItemAction::Consume;
-		Items.StandInAddRow(TEXT("bread"), &Bread);
-		StandIn::Objects()[TEXT("/Game/Tervain/Data/DT_Items.DT_Items")] = &Items;
-		StandIn::MutableDefault<UTervainSettings>()->ItemsTable = FSoftObjectPath(TEXT("/Game/Tervain/Data/DT_Items.DT_Items"));
-		const FTervainItemRow* Found = Data.FindItem(FName(TEXT("bread")));
-		std::printf("%d %s %d %d\n", Found == &Bread ? 1 : 0, Found ? StandIn::Narrow(Found->NameKey.StandInValue()).c_str() : "", Found ? Found->HealAmount : -1, Found && Found->Kind == ETervainItemKind::Consumable ? 1 : 0);
-		std::printf("%d\n", Data.FindItem(FName(TEXT("no-such-item"))) == nullptr ? 1 : 0);
-		// Names compare without regard to case, as the engine's do: the row "bread" answers to "Bread".
-		std::printf("%d %d\n", Data.FindItem(FName(TEXT("Bread"))) == &Bread ? 1 : 0, FName(TEXT("BREAD")) == FName(TEXT("bread")) ? 1 : 0);
-
-		// A path with nothing behind it, and a table whose rows are of another struct, give null rather than a wrong row.
-		StandIn::MutableDefault<UTervainSettings>()->ResidentsTable = FSoftObjectPath(TEXT("/Game/Tervain/Data/DT_Missing.DT_Missing"));
-		std::printf("%d\n", Data.FindResident(FName(TEXT("mara"))) == nullptr ? 1 : 0);
-		StandIn::MutableDefault<UTervainSettings>()->ResidentsTable = FSoftObjectPath(TEXT("/Game/Tervain/Data/DT_Items.DT_Items"));
-		std::printf("%d\n", Data.FindResident(FName(TEXT("bread"))) == nullptr ? 1 : 0);
-
-		// Every generated row struct is a complete type that can be made, and a resident's schedule holds entries.
-		FTervainAnimalSpeciesRow Species; FTervainAnimalRow Animal; FTervainEnemyArchetypeRow Archetype; FTervainEnemyPostRow Post; FTervainPlaceRow Place;
-		FTervainBuildingRow Building; FTervainResidentRow Resident; FTervainLooseCargoRow Cargo; FTervainTreeRow Tree;
-		FTervainScheduleEntry Entry;
-		Resident.Schedule.Add(Entry);
-		const FTableRowBase* Rows[] = { &Bread, &Species, &Animal, &Archetype, &Post, &Place, &Building, &Resident, &Cargo, &Tree };
-		std::printf("%d %d\n", static_cast<int>(sizeof(Rows) / sizeof(Rows[0])), Resident.Schedule.Num());
 	}
 	else return 2;
 

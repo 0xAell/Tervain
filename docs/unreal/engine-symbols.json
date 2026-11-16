@@ -9,9 +9,9 @@
     "contradicted": "A public page says otherwise."
   },
   "summary": {
-    "symbols": 196,
-    "verified": 188,
-    "partly": 6,
+    "symbols": 200,
+    "verified": 190,
+    "partly": 8,
     "unverified": 1,
     "contradicted": 1
   },
@@ -545,7 +545,8 @@
         "tests/tools/unreal-standin/Containers/Array.h",
         "tests/tools/unreal-standin/Containers/UnrealString.h",
         "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
-        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
       ],
       "assumes": "A dynamically sized array template; TArray<FString> and TArray<a USTRUCT> are used.",
       "status": "verified",
@@ -596,7 +597,8 @@
       "usedIn": [
         "tests/tools/unreal-standin/Containers/Array.h",
         "tests/tools/unreal-standin/Containers/UnrealString.h",
-        "tests/tools/unreal-standin/seed.cpp"
+        "tests/tools/unreal-standin/seed.cpp",
+        "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp"
       ],
       "assumes": "Add(const T&) appends an item and returns its index.",
       "status": "verified",
@@ -605,7 +607,7 @@
         "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/TArray/Add?application_version=5.8"
       },
       "passage": "SizeType Add ( const ElementType & Item ) Copy full snippet SizeType Add ( const ElementType & Item ) Index to the new item",
-      "note": "Used only inside the stand-in (by ParseIntoArray); the seed never calls Add."
+      "note": "The seed calls it once, to hold the tables it loads; the stand-ins use it in ParseIntoArray."
     },
     {
       "symbol": "FString",
@@ -1923,6 +1925,22 @@
       "note": "Declared in Modules/ModuleManager.h; syntax \"class FDefaultGameModuleImpl : public FDefaultModuleImpl\"."
     },
     {
+      "symbol": "TObjectPtr",
+      "kind": "type",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/ObjectPtr.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "TObjectPtr<UDataTable> is the object pointer to use for a UPROPERTY member and inside a container held as one; it is made from a raw pointer (or null) and converts back to one.",
+      "status": "partly",
+      "source": {
+        "title": "Unreal Engine 5 Migration Guide | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-5-migration-guide"
+      },
+      "passage": "Although it is optional, we recommend using TObjectPtr<T> over T* for UObject pointer properties and container classes found in UCLASS and USTRUCT types.",
+      "note": "The same guide says \"TObjectPtr variables also convert automatically to raw pointers when passed to functions or stored in local variables\" and calls it \"an optional replacement for raw object pointers\", \"performing identically to raw pointers in non-editor builds\". No page found shows its constructors, so that a raw pointer converts to it is assumed from \"replacement\"; no class page for TObjectPtr was found in the API reference."
+    },
+    {
       "symbol": "IMPLEMENT_PRIMARY_GAME_MODULE",
       "kind": "macro",
       "usedIn": [
@@ -2020,7 +2038,8 @@
         "tests/tools/unreal-standin/Containers/Array.h",
         "tests/tools/unreal-standin/Containers/UnrealString.h",
         "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
-        "unreal/Source/Tervain/Public/Data/TervainRows.h"
+        "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
       ],
       "assumes": "#include \"Containers/Array.h\" declares TArray.",
       "status": "verified",
@@ -2246,6 +2265,22 @@
       },
       "passage": "Header File /Engine/Source/Runtime/CoreUObject/Public/UObject/ObjectMacros.h Include Path #include \"UObject/ObjectMacros.h\"",
       "note": "Module CoreUObject."
+    },
+    {
+      "symbol": "UObject/ObjectPtr.h",
+      "kind": "header",
+      "usedIn": [
+        "tests/tools/unreal-standin/UObject/ObjectPtr.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "#include \"UObject/ObjectPtr.h\" declares TObjectPtr (module CoreUObject).",
+      "status": "partly",
+      "source": {
+        "title": "CoreUObject | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/CoreUObject?application_version=5.8"
+      },
+      "passage": "decltype(auto) ConstCast ( const TObjectPtr < T >& P ) UObject/ObjectPtr.h",
+      "note": "The module's function table gives this header for TObjectPtr's own helpers (ConstCast, and Exchange between a TObjectPtr and a raw pointer), and its typedef table for TObjectPtrWrapTypeOf. No page gives the header of the class itself."
     },
     {
       "symbol": "UCLASS(Config = Game)",
@@ -2659,6 +2694,37 @@
       },
       "passage": "Classes that inherit from UObject are prefixed by U.",
       "note": "The same page gives \"Enums are prefixed by E.\", \"Boolean variables must be prefixed by b.\" and \"Most other classes are prefixed by F\". The seed follows all four. That the header tool rejects a wrong prefix is not stated on the pages fetched."
+    },
+    {
+      "symbol": "UPROPERTY(Transient)",
+      "kind": "specifier",
+      "usedIn": [
+        "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "Transient marks a property that is never saved or loaded: the held tables are runtime state of the subsystem, not data.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Engine UProperties | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-uproperties"
+      },
+      "passage": "Transient Property is transient, meaning it will not be saved or loaded. Properties tagged this way will be zero-filled at load time.",
+      "note": "As assumed."
+    },
+    {
+      "symbol": "UPROPERTY members of type TArray of TObjectPtr",
+      "kind": "specifier",
+      "usedIn": [
+        "unreal/Source/Tervain/Public/TervainDataSubsystem.h"
+      ],
+      "assumes": "An array of object pointers held as a UPROPERTY counts as a reference to each object in it, so garbage collection keeps the tables the subsystem loaded for as long as the subsystem lives.",
+      "status": "verified",
+      "source": {
+        "title": "Unreal Object Handling in Unreal Engine | Unreal Engine 5.9 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-object-handling-in-unreal-engine"
+      },
+      "passage": "you typically need to maintain a UPROPERTY reference to any Object you wish to keep alive, whether it's a simple Object pointer or an Unreal Engine container class that contains Object pointer types, such as TArray<UObject*>",
+      "note": "The same page: \"An Object reference stored in a raw pointer will be unknown to the Unreal Engine, and will not be automatically nulled, nor will it prevent garbage collection.\" That is why the subsystem holds its tables rather than loading them for each lookup. TObjectPtr is the pointer type Epic recommends inside such containers (its own entry)."
     },
     {
       "symbol": "UnrealBuildTool (namespace)",

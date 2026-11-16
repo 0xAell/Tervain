@@ -25,7 +25,7 @@ from Fab (`.gitignore` here ignores `Content/`).
 | `Source/Tervain/Public/Data/TervainIds.h` | **Generated.** The core's ids as constants: items, residents, hostiles and their posts, animal species, places, buildings, and the quest's phases, evidence, allocations, gate states, parties, principals and decision makers, with four single values: the save format version, the content revision, the number of quick slots and the pickup that gives the first weapon. Written by the same export from `src/core/export/unrealIds.ts`; do not edit it. Name an id through it (`FName(TervainIds::Item::Bread)`) so that an id the core renames stops the build instead of failing to find a row. |
 | `Source/Tervain/Public/TervainUnits.h` | Conversions between the core's units (metres, radians, x east, y up, z south) and Unreal's (centimetres, degrees, X east, Y south, Z up). |
 | `Source/Tervain/Public/TervainSettings.h` | Project settings: where the exported data folder is, and which DataTable asset holds each table. |
-| `Source/Tervain/Public/TervainDataSubsystem.h` | A game-instance subsystem that reads `data/game/tuning.json` and finds rows in the imported tables. |
+| `Source/Tervain/Public/TervainDataSubsystem.h` | A game-instance subsystem that reads `data/game/tuning.json`, loads the tables the settings name when it starts and holds them for its lifetime, and finds rows in them. |
 | `Source/Tervain/Public/Rules/TervainHeroRules.h` | Two rules mirrored from the core as a worked example: the stamina meter's step and a blow on a raised guard. |
 | `Config/` | Default configuration: the project's name and the data folder. |
 | `Content/` | Empty on purpose; see its README. |
@@ -39,6 +39,7 @@ from Fab (`.gitignore` here ignores `Content/`).
    folder (the default, `../data`, is right when the project sits in the repository checkout).
 4. For each `data/unreal/DT_*.json`, create a DataTable with the row struct named in `data/unreal/tables.json`, import
    the JSON file into it, and point the matching setting at it. Import `data/unreal/ST_Tervain.csv` as a string table.
+   The data subsystem loads the tables when a game starts, so a setting changed during play takes effect at the next.
 5. Create a Landscape from `data/world/terrain-height.png` with the location, scale and component layout in
    `data/world/terrain.json`, import the eight layer images, and check the named heights listed there.
 
@@ -102,9 +103,9 @@ checked against and the passage that supports it (for the one rule of the C++ la
 draft, the standard Epic says the engine builds with). [The page made from it](../docs/unreal/engine-symbols.md) lists
 them all, and first the ones the public record does not settle.
 
-- Of 196 names, 188 are confirmed by a quoted passage, 6 are documented in part, one could not be found, and one, the
+- Of 200 names, 190 are confirmed by a quoted passage, 8 are documented in part, one could not be found, and one, the
   game module macro, is shown with a different argument list on the only page that shows it, a page that reads as
-  dated. Each of the eight says what is missing; none can be settled from public pages, only by a build.
+  dated. Each of the ten says what is missing; none can be settled from public pages, only by a build.
 - The check corrected the stand-ins in four places where they did not behave as the engine is documented to (a JSON
   field name is a string view, names compare without regard to case, a default-constructed vector is not zeroed, and
   a relative path is resolved against the process's base directory), and the seed in five (it calls the rounding
