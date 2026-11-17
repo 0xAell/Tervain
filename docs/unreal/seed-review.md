@@ -293,7 +293,7 @@ Improved:
   painter and the search to the ones they replace ([#859](https://github.com/0xAell/Tervain/pull/859)).
 - The woodland floor the core exports is the one the game lays. Its rule reads the shade the drawn crowns cast, which
   only the models give; the export laid it with an estimate from the trees' sizes and had 296 pieces where the game lays
-  720 (669: the test drew the supplied trees, corrected below). The core keeps the game's floor as it keeps the forest,
+  720 (669: the test drew the supplied trees, corrected by [#869](https://github.com/0xAell/Tervain/pull/869)). The core keeps the game's floor as it keeps the forest,
   checked by the same test ([#860](https://github.com/0xAell/Tervain/pull/860)).
 - The fractal noise the faces, the menu's materials, the bark and the ground are painted from (`fbmField`) hashes each
   lattice corner once for the rows that share it, where every pixel hashed its four again: 2.5 times as fast, to the
@@ -328,7 +328,7 @@ Improved:
   trees and a sentinel in their slots by default. A tree keeps the supplied model's spacing, but the drawn model's roots
   seat it, its wood sets the walk grid's clearance and its crown the floor's shade. Compared with a running game tree
   for tree and piece for piece: 13 oaks sat up to 0.24 m too high in the copy, 27 trees kept the wrong clearance (by up
-  to 7.5 m), and the floor has 669 pieces, not 720. The export follows (PR_FAMILIES).
+  to 7.5 m), and the floor has 669 pieces, not 720. The export follows ([#869](https://github.com/0xAell/Tervain/pull/869)).
 
 Next:
 
