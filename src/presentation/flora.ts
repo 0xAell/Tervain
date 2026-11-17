@@ -196,7 +196,10 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
   group.name = 'flora';
   const pine = createPineForest(pineTemplates);
   const meshy = meshyTemplates ? createMeshyForest(meshyTemplates) : null;
-  // Species 'pine' draws the generated hero pines (on by default, HERO_PINE_DEFAULT; ?heropine=0 turns them off); placement, colliders and seating keep reading the live pine's footprint.
+  // Species 'pine' draws the generated hero pines (on by default, HERO_PINE_DEFAULT; ?heropine=0 turns them off). A pine's
+  // spacing and collider read the live pine's trunk; its crown's reach and its seat on the ground are the hero pine's own,
+  // so the hero pines decide which trees fit as well as where the pines stand. The core's copy of the forest is planted the
+  // same way (tests/presentation/plantedForest.test.ts).
   const heroTemplates = heroPineEnabled() ? heroPineTemplates() : null;
   const hero = heroTemplates ? createHeroPineForest(heroTemplates) : null;
   const heroVariants = new Set<TreeVariant>();

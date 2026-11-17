@@ -20,7 +20,7 @@
     "Location": {
       "X": -3760.46,
       "Y": -14321.02,
-      "Z": 1272.01
+      "Z": 1275.11
     },
     "Yaw": -96.369,
     "Scale": 1.281,
@@ -48,7 +48,7 @@
     "Location": {
       "X": 3560.86,
       "Y": -14411.43,
-      "Z": 1298.05
+      "Z": 1307.58
     },
     "Yaw": -144.984,
     "Scale": 1.281,
@@ -62,7 +62,7 @@
     "Location": {
       "X": 6133.45,
       "Y": -14557.7,
-      "Z": 1341.91
+      "Z": 1352.72
     },
     "Yaw": -55.634,
     "Scale": 0.829,
@@ -76,7 +76,7 @@
     "Location": {
       "X": -8260.48,
       "Y": -13462.94,
-      "Z": 1431.34
+      "Z": 1458.59
     },
     "Yaw": 151.355,
     "Scale": 1.118,
@@ -146,7 +146,7 @@
     "Location": {
       "X": 3032.57,
       "Y": -13698.81,
-      "Z": 1094.06
+      "Z": 1109.67
     },
     "Yaw": -86.9,
     "Scale": 1.553,
@@ -160,7 +160,7 @@
     "Location": {
       "X": 4067.63,
       "Y": -13507.6,
-      "Z": 1226.26
+      "Z": 1242.9
     },
     "Yaw": -96.827,
     "Scale": 1.212,
@@ -174,7 +174,7 @@
     "Location": {
       "X": 4913.36,
       "Y": -13681.12,
-      "Z": 1310.98
+      "Z": 1323.03
     },
     "Yaw": -133.475,
     "Scale": 1.12,
@@ -188,7 +188,7 @@
     "Location": {
       "X": -8040.84,
       "Y": -12845.55,
-      "Z": 1342.86
+      "Z": 1307.5
     },
     "Yaw": 84.145,
     "Scale": 1.12,
@@ -286,7 +286,7 @@
     "Location": {
       "X": -9272.2,
       "Y": -12567.86,
-      "Z": 1151.96
+      "Z": 1146.83
     },
     "Yaw": -125.343,
     "Scale": 1.137,
@@ -300,7 +300,7 @@
     "Location": {
       "X": -5522.63,
       "Y": -12434.78,
-      "Z": 1135.89
+      "Z": 1112.09
     },
     "Yaw": -95.821,
     "Scale": 1.161,
@@ -314,7 +314,7 @@
     "Location": {
       "X": -2546.13,
       "Y": -12409.86,
-      "Z": 1651.45
+      "Z": 1625.58
     },
     "Yaw": 174.397,
     "Scale": 0.705,
@@ -328,7 +328,7 @@
     "Location": {
       "X": -1640.32,
       "Y": -12615.16,
-      "Z": 1553.51
+      "Z": 1562.03
     },
     "Yaw": -110.601,
     "Scale": 1.462,
@@ -356,7 +356,7 @@
     "Location": {
       "X": -454.44,
       "Y": -12362.48,
-      "Z": 1294.37
+      "Z": 1317.04
     },
     "Yaw": 128.833,
     "Scale": 1.211,
@@ -370,7 +370,7 @@
     "Location": {
       "X": 221.47,
       "Y": -12353.52,
-      "Z": 1178.02
+      "Z": 1167.97
     },
     "Yaw": 12.863,
     "Scale": 0.734,
@@ -398,7 +398,7 @@
     "Location": {
       "X": 2504.3,
       "Y": -12459.47,
-      "Z": 1084.87
+      "Z": 1074.2
     },
     "Yaw": 67.677,
     "Scale": 1.162,
@@ -426,7 +426,7 @@
     "Location": {
       "X": 4302.01,
       "Y": -12255.28,
-      "Z": 1138.36
+      "Z": 1134.62
     },
     "Yaw": -6.918,
     "Scale": 1.368,
@@ -454,7 +454,7 @@
     "Location": {
       "X": -6341.36,
       "Y": -11982.58,
-      "Z": 1123.8
+      "Z": 1125.3
     },
     "Yaw": 114.605,
     "Scale": 0.419,
@@ -482,7 +482,7 @@
     "Location": {
       "X": 3005.31,
       "Y": -11830.34,
-      "Z": 1056.71
+      "Z": 1076.03
     },
     "Yaw": -22.276,
     "Scale": 1.169,
@@ -510,7 +510,7 @@
     "Location": {
       "X": 8839.99,
       "Y": -12094.07,
-      "Z": 1140.99
+      "Z": 1141.34
     },
     "Yaw": -83.491,
     "Scale": 1.218,
@@ -524,7 +524,7 @@
     "Location": {
       "X": 12460.52,
       "Y": -11870.92,
-      "Z": 1376.29
+      "Z": 1367.38
     },
     "Yaw": 59.91,
     "Scale": 1.206,
@@ -552,7 +552,7 @@
     "Location": {
       "X": -8711.24,
       "Y": -11429.31,
-      "Z": 889.2
+      "Z": 858.13
     },
     "Yaw": 169.556,
     "Scale": 1.106,
@@ -566,7 +566,7 @@
     "Location": {
       "X": -7489.5,
       "Y": -10979.53,
-      "Z": 959.23
+      "Z": 982.54
     },
     "Yaw": -119.533,
     "Scale": 0.818,
@@ -594,7 +594,7 @@
     "Location": {
       "X": -5652.66,
       "Y": -11403.49,
-      "Z": 1311.38
+      "Z": 1277.29
     },
     "Yaw": -140.211,
     "Scale": 0.744,
@@ -608,7 +608,7 @@
     "Location": {
       "X": 251,
       "Y": -11166.07,
-      "Z": 1240.7
+      "Z": 1212.24
     },
     "Yaw": -57.935,
     "Scale": 1.218,
@@ -622,7 +622,7 @@
     "Location": {
       "X": 4393.22,
       "Y": -11455.57,
-      "Z": 996.31
+      "Z": 995.96
     },
     "Yaw": -132.698,
     "Scale": 1.305,
@@ -636,7 +636,7 @@
     "Location": {
       "X": 9151.8,
       "Y": -11339.81,
-      "Z": 1156.53
+      "Z": 1121.53
     },
     "Yaw": -163.816,
     "Scale": 1.094,
@@ -650,7 +650,7 @@
     "Location": {
       "X": 11630.29,
       "Y": -11436.24,
-      "Z": 1163.21
+      "Z": 1105.28
     },
     "Yaw": 152.575,
     "Scale": 1.198,
@@ -734,7 +734,7 @@
     "Location": {
       "X": 7378.58,
       "Y": -10829.9,
-      "Z": 920.9
+      "Z": 936.94
     },
     "Yaw": -70.198,
     "Scale": 1.357,
@@ -762,7 +762,7 @@
     "Location": {
       "X": 9704.27,
       "Y": -10370.96,
-      "Z": 1047.05
+      "Z": 1046.43
     },
     "Yaw": -167.476,
     "Scale": 0.497,
@@ -776,7 +776,7 @@
     "Location": {
       "X": -10487.14,
       "Y": -10068.32,
-      "Z": 734.65
+      "Z": 734.09
     },
     "Yaw": 107.557,
     "Scale": 0.392,
@@ -832,7 +832,7 @@
     "Location": {
       "X": 1640.61,
       "Y": -9958.77,
-      "Z": 934.78
+      "Z": 933.73
     },
     "Yaw": 9.769,
     "Scale": 0.665,
@@ -860,7 +860,7 @@
     "Location": {
       "X": 11548.49,
       "Y": -10179.19,
-      "Z": 150.4
+      "Z": 130.45
     },
     "Yaw": 27.389,
     "Scale": 1.438,
@@ -888,7 +888,7 @@
     "Location": {
       "X": 2065.06,
       "Y": -9415.09,
-      "Z": 947.83
+      "Z": 916.93
     },
     "Yaw": -14.528,
     "Scale": 1.356,
@@ -930,7 +930,7 @@
     "Location": {
       "X": -19868.38,
       "Y": -9208.35,
-      "Z": 784.81
+      "Z": 787.5
     },
     "Yaw": -4.388,
     "Scale": 0.321,
@@ -1000,7 +1000,7 @@
     "Location": {
       "X": -7255.53,
       "Y": -8780.74,
-      "Z": 810.79
+      "Z": 786.59
     },
     "Yaw": 136.272,
     "Scale": 0.885,
@@ -1042,7 +1042,7 @@
     "Location": {
       "X": 2916.11,
       "Y": -8529.73,
-      "Z": 879.06
+      "Z": 906.21
     },
     "Yaw": -122.978,
     "Scale": 1.164,
@@ -1056,7 +1056,7 @@
     "Location": {
       "X": 6726.9,
       "Y": -8909.28,
-      "Z": 877.15
+      "Z": 885.13
     },
     "Yaw": 164.391,
     "Scale": 0.773,
@@ -1140,7 +1140,7 @@
     "Location": {
       "X": -13787,
       "Y": -8391.88,
-      "Z": 428.57
+      "Z": 431.23
     },
     "Yaw": 163.604,
     "Scale": 1.291,
@@ -1168,7 +1168,7 @@
     "Location": {
       "X": 3378.64,
       "Y": -8090.31,
-      "Z": 778.57
+      "Z": 782.26
     },
     "Yaw": 172.695,
     "Scale": 0.887,
@@ -1238,7 +1238,7 @@
     "Location": {
       "X": 11603.8,
       "Y": -8362.13,
-      "Z": 746.31
+      "Z": 509.97
     },
     "Yaw": -43.978,
     "Scale": 1.253,
@@ -1252,7 +1252,7 @@
     "Location": {
       "X": 13512.14,
       "Y": -7984.32,
-      "Z": 951.34
+      "Z": 954.43
     },
     "Yaw": 102.26,
     "Scale": 1.301,
@@ -1364,7 +1364,7 @@
     "Location": {
       "X": 14267.15,
       "Y": -7280.42,
-      "Z": 1027.64
+      "Z": 1066.14
     },
     "Yaw": -74.912,
     "Scale": 1.547,
@@ -1546,7 +1546,7 @@
     "Location": {
       "X": 13849.15,
       "Y": -6485.76,
-      "Z": 911.88
+      "Z": 894.87
     },
     "Yaw": 52.937,
     "Scale": 0.885,
@@ -1560,7 +1560,7 @@
     "Location": {
       "X": 14747.92,
       "Y": -6018.86,
-      "Z": 872.51
+      "Z": 879.1
     },
     "Yaw": -91.025,
     "Scale": 0.326,
@@ -1602,7 +1602,7 @@
     "Location": {
       "X": -22313.85,
       "Y": -4955.13,
-      "Z": 1023.38
+      "Z": 1018.56
     },
     "Yaw": 98.148,
     "Scale": 1.333,
@@ -1630,7 +1630,7 @@
     "Location": {
       "X": -11788.25,
       "Y": -5016.97,
-      "Z": 415.53
+      "Z": 425.22
     },
     "Yaw": -100.988,
     "Scale": 0.846,
@@ -1672,7 +1672,7 @@
     "Location": {
       "X": 17173.27,
       "Y": -4950.06,
-      "Z": 1182.75
+      "Z": 1210.28
     },
     "Yaw": -93.774,
     "Scale": 1.42,
@@ -1698,23 +1698,9 @@
     "Species": "pine",
     "Variant": 1,
     "Location": {
-      "X": -15468.9,
-      "Y": -4394.56,
-      "Z": 609.8
-    },
-    "Yaw": 59.417,
-    "Scale": 1.304,
-    "TrunkRadius": 338.03,
-    "NavigationRadius": 338.03
-  },
-  {
-    "Name": "tree_00122",
-    "Species": "pine",
-    "Variant": 1,
-    "Location": {
       "X": -14293.32,
       "Y": -4526.98,
-      "Z": 597.79
+      "Z": 599.43
     },
     "Yaw": 17.198,
     "Scale": 0.458,
@@ -1722,7 +1708,7 @@
     "NavigationRadius": 120.61
   },
   {
-    "Name": "tree_00123",
+    "Name": "tree_00122",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -1736,13 +1722,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00124",
+    "Name": "tree_00123",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": -11043.86,
       "Y": -4499.42,
-      "Z": 158.72
+      "Z": 177.3
     },
     "Yaw": -76.844,
     "Scale": 1.176,
@@ -1750,7 +1736,7 @@
     "NavigationRadius": 299.43
   },
   {
-    "Name": "tree_00125",
+    "Name": "tree_00124",
     "Species": "birch",
     "Variant": 0,
     "Location": {
@@ -1764,7 +1750,7 @@
     "NavigationRadius": 99.66
   },
   {
-    "Name": "tree_00126",
+    "Name": "tree_00125",
     "Species": "birch",
     "Variant": 2,
     "Location": {
@@ -1778,7 +1764,7 @@
     "NavigationRadius": 192.58
   },
   {
-    "Name": "tree_00127",
+    "Name": "tree_00126",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -1792,7 +1778,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00128",
+    "Name": "tree_00127",
     "Species": "fir",
     "Variant": 1,
     "Location": {
@@ -1806,7 +1792,7 @@
     "NavigationRadius": 785.42
   },
   {
-    "Name": "tree_00129",
+    "Name": "tree_00128",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -1820,13 +1806,27 @@
     "NavigationRadius": 0
   },
   {
+    "Name": "tree_00129",
+    "Species": "shrub",
+    "Variant": 1,
+    "Location": {
+      "X": -16148.09,
+      "Y": -3852.5,
+      "Z": 823.34
+    },
+    "Yaw": -61.725,
+    "Scale": 0.802,
+    "TrunkRadius": 0,
+    "NavigationRadius": 0
+  },
+  {
     "Name": "tree_00130",
     "Species": "pine",
     "Variant": 0,
     "Location": {
       "X": -15245.95,
       "Y": -3706.97,
-      "Z": 522.61
+      "Z": 534.44
     },
     "Yaw": -72.745,
     "Scale": 1.232,
@@ -1854,7 +1854,7 @@
     "Location": {
       "X": -12909.01,
       "Y": -4036.47,
-      "Z": 275.44
+      "Z": 276.53
     },
     "Yaw": -42.773,
     "Scale": 1.201,
@@ -1868,7 +1868,7 @@
     "Location": {
       "X": -12508.88,
       "Y": -4473.27,
-      "Z": 328.39
+      "Z": 316.48
     },
     "Yaw": 102.625,
     "Scale": 0.379,
@@ -1896,7 +1896,7 @@
     "Location": {
       "X": -11644.3,
       "Y": -3600.99,
-      "Z": 119.92
+      "Z": 121.24
     },
     "Yaw": -46.713,
     "Scale": 0.674,
@@ -1910,12 +1910,12 @@
     "Location": {
       "X": -12152.29,
       "Y": -3235.05,
-      "Z": 103.78
+      "Z": 105.59
     },
     "Yaw": -173.893,
     "Scale": 0.354,
-    "TrunkRadius": 150.54,
-    "NavigationRadius": 150.54
+    "TrunkRadius": 92.16,
+    "NavigationRadius": 92.16
   },
   {
     "Name": "tree_00137",
@@ -1924,7 +1924,7 @@
     "Location": {
       "X": -9320.27,
       "Y": -3758.68,
-      "Z": 91.55
+      "Z": 95.03
     },
     "Yaw": -166.718,
     "Scale": 1.318,
@@ -2008,7 +2008,7 @@
     "Location": {
       "X": -16819.67,
       "Y": -3132.55,
-      "Z": 670.6
+      "Z": 673.4
     },
     "Yaw": -5.843,
     "Scale": 0.783,
@@ -2022,7 +2022,7 @@
     "Location": {
       "X": -14242.54,
       "Y": -3385.91,
-      "Z": 369.72
+      "Z": 355.44
     },
     "Yaw": 170.711,
     "Scale": 1.3,
@@ -2050,7 +2050,7 @@
     "Location": {
       "X": -13625.68,
       "Y": -3327.12,
-      "Z": 327.53
+      "Z": 310.23
     },
     "Yaw": 136.172,
     "Scale": 0.844,
@@ -2064,7 +2064,7 @@
     "Location": {
       "X": -11269.53,
       "Y": -3560.68,
-      "Z": 128.86
+      "Z": 130.09
     },
     "Yaw": -28.571,
     "Scale": 0.348,
@@ -2078,7 +2078,7 @@
     "Location": {
       "X": -10316.72,
       "Y": -3159.28,
-      "Z": 57.22
+      "Z": 56.98
     },
     "Yaw": -3.658,
     "Scale": 1.369,
@@ -2092,7 +2092,7 @@
     "Location": {
       "X": -5611.89,
       "Y": -2990.04,
-      "Z": 193.1
+      "Z": 196.57
     },
     "Yaw": 74.503,
     "Scale": 1.096,
@@ -2134,7 +2134,7 @@
     "Location": {
       "X": -22660.09,
       "Y": -3093.95,
-      "Z": 152.09
+      "Z": 160.76
     },
     "Yaw": -19.193,
     "Scale": 0.405,
@@ -2176,7 +2176,7 @@
     "Location": {
       "X": -16179.32,
       "Y": -2657.77,
-      "Z": 353.87
+      "Z": 310.29
     },
     "Yaw": 97.507,
     "Scale": 1.096,
@@ -2190,7 +2190,7 @@
     "Location": {
       "X": -13862.53,
       "Y": -2505.2,
-      "Z": 156.64
+      "Z": 164.01
     },
     "Yaw": 130.538,
     "Scale": 1.362,
@@ -2204,7 +2204,7 @@
     "Location": {
       "X": -10806.74,
       "Y": -2759,
-      "Z": 65.51
+      "Z": 65.48
     },
     "Yaw": -9.965,
     "Scale": 0.477,
@@ -2302,7 +2302,7 @@
     "Location": {
       "X": -12871.87,
       "Y": -1786.91,
-      "Z": 100.83
+      "Z": 100.24
     },
     "Yaw": 147.226,
     "Scale": 0.67,
@@ -2316,7 +2316,7 @@
     "Location": {
       "X": -12461.68,
       "Y": -2783.19,
-      "Z": 136.92
+      "Z": 140.57
     },
     "Yaw": -179.287,
     "Scale": 0.459,
@@ -2330,7 +2330,7 @@
     "Location": {
       "X": -10592.75,
       "Y": -1901.4,
-      "Z": 53.29
+      "Z": 53.54
     },
     "Yaw": 164.429,
     "Scale": 0.448,
@@ -2358,7 +2358,7 @@
     "Location": {
       "X": -7280.51,
       "Y": -2176.93,
-      "Z": 280.29
+      "Z": 286.47
     },
     "Yaw": -34.656,
     "Scale": 0.362,
@@ -2526,7 +2526,7 @@
     "Location": {
       "X": -16966.64,
       "Y": -950.42,
-      "Z": 125.25
+      "Z": 122.26
     },
     "Yaw": -164.901,
     "Scale": 1.173,
@@ -2540,7 +2540,7 @@
     "Location": {
       "X": -15919.46,
       "Y": -872.32,
-      "Z": 60.43
+      "Z": 58.77
     },
     "Yaw": -146.481,
     "Scale": 1.364,
@@ -2554,7 +2554,7 @@
     "Location": {
       "X": -15154.11,
       "Y": -456.31,
-      "Z": 306.32
+      "Z": 284.85
     },
     "Yaw": -80.713,
     "Scale": 0.439,
@@ -2568,7 +2568,7 @@
     "Location": {
       "X": -13895.47,
       "Y": -396.69,
-      "Z": 139.94
+      "Z": 136.5
     },
     "Yaw": -145.291,
     "Scale": 0.353,
@@ -2610,7 +2610,7 @@
     "Location": {
       "X": -10887.69,
       "Y": -505.23,
-      "Z": 62.95
+      "Z": 64.06
     },
     "Yaw": -56.175,
     "Scale": 1.199,
@@ -2680,7 +2680,7 @@
     "Location": {
       "X": -14767.8,
       "Y": -45.65,
-      "Z": 441.86
+      "Z": 431.23
     },
     "Yaw": -114.704,
     "Scale": 0.676,
@@ -2694,7 +2694,7 @@
     "Location": {
       "X": -8598.57,
       "Y": 76.73,
-      "Z": 61.49
+      "Z": 62.06
     },
     "Yaw": -40.357,
     "Scale": 1.212,
@@ -2834,7 +2834,7 @@
     "Location": {
       "X": -14030.12,
       "Y": 649.79,
-      "Z": 560.38
+      "Z": 547.58
     },
     "Yaw": 13.684,
     "Scale": 1.644,
@@ -2890,7 +2890,7 @@
     "Location": {
       "X": -15692.95,
       "Y": 933.68,
-      "Z": 556.62
+      "Z": 566.37
     },
     "Yaw": 86.766,
     "Scale": 0.692,
@@ -2918,7 +2918,7 @@
     "Location": {
       "X": -11356.77,
       "Y": 1077.31,
-      "Z": 257.43
+      "Z": 251
     },
     "Yaw": 28.821,
     "Scale": 1.535,
@@ -2932,7 +2932,7 @@
     "Location": {
       "X": -10682.21,
       "Y": 722.81,
-      "Z": 85.33
+      "Z": 80.48
     },
     "Yaw": -5.869,
     "Scale": 0.419,
@@ -2988,7 +2988,7 @@
     "Location": {
       "X": -18111.04,
       "Y": 1718.21,
-      "Z": 114.43
+      "Z": 116.25
     },
     "Yaw": 117.489,
     "Scale": 0.717,
@@ -3072,7 +3072,7 @@
     "Location": {
       "X": -19617.76,
       "Y": 2148.92,
-      "Z": 78.33
+      "Z": 75.85
     },
     "Yaw": -55.307,
     "Scale": 1.166,
@@ -3100,7 +3100,7 @@
     "Location": {
       "X": -19327.65,
       "Y": 3099.22,
-      "Z": 177.32
+      "Z": 184.93
     },
     "Yaw": 98.348,
     "Scale": 0.735,
@@ -3114,7 +3114,7 @@
     "Location": {
       "X": -18334.06,
       "Y": 2990.94,
-      "Z": 141.68
+      "Z": 154.43
     },
     "Yaw": 44.759,
     "Scale": 1.665,
@@ -3128,7 +3128,7 @@
     "Location": {
       "X": -16925.54,
       "Y": 3122.57,
-      "Z": 462.43
+      "Z": 479.19
     },
     "Yaw": -38.386,
     "Scale": 1.337,
@@ -3142,7 +3142,7 @@
     "Location": {
       "X": -15895.08,
       "Y": 3143.19,
-      "Z": 752.84
+      "Z": 753.57
     },
     "Yaw": -149.669,
     "Scale": 1.301,
@@ -3212,7 +3212,7 @@
     "Location": {
       "X": -18629.43,
       "Y": 3821.01,
-      "Z": 192.04
+      "Z": 200.69
     },
     "Yaw": 27.216,
     "Scale": 1.189,
@@ -3226,7 +3226,7 @@
     "Location": {
       "X": -16239.79,
       "Y": 3665.62,
-      "Z": 679.7
+      "Z": 681.59
     },
     "Yaw": 38.312,
     "Scale": 0.849,
@@ -3296,7 +3296,7 @@
     "Location": {
       "X": -22081.05,
       "Y": 4451.11,
-      "Z": 174.44
+      "Z": 173.1
     },
     "Yaw": 149.298,
     "Scale": 0.812,
@@ -3310,7 +3310,7 @@
     "Location": {
       "X": -21158.89,
       "Y": 4175.12,
-      "Z": 158.83
+      "Z": 167.04
     },
     "Yaw": 92.58,
     "Scale": 0.908,
@@ -3324,7 +3324,7 @@
     "Location": {
       "X": -19735.73,
       "Y": 4052.58,
-      "Z": 124.86
+      "Z": 144.13
     },
     "Yaw": -49.963,
     "Scale": 1.362,
@@ -3338,7 +3338,7 @@
     "Location": {
       "X": -17458.91,
       "Y": 4519.21,
-      "Z": 341.43
+      "Z": 334.72
     },
     "Yaw": 156.315,
     "Scale": 0.811,
@@ -3352,7 +3352,7 @@
     "Location": {
       "X": -16052.71,
       "Y": 4476.75,
-      "Z": 788.01
+      "Z": 798.34
     },
     "Yaw": -3.327,
     "Scale": 1.375,
@@ -3408,7 +3408,7 @@
     "Location": {
       "X": -21075.31,
       "Y": 4809.38,
-      "Z": 68.96
+      "Z": 71.33
     },
     "Yaw": -132.131,
     "Scale": 1.195,
@@ -3422,7 +3422,7 @@
     "Location": {
       "X": -20405.25,
       "Y": 5145.48,
-      "Z": 74.2
+      "Z": 76.11
     },
     "Yaw": 47.925,
     "Scale": 1.184,
@@ -3431,20 +3431,6 @@
   },
   {
     "Name": "tree_00245",
-    "Species": "pine",
-    "Variant": 0,
-    "Location": {
-      "X": -19298.07,
-      "Y": 5063.57,
-      "Z": 190.91
-    },
-    "Yaw": -146.458,
-    "Scale": 1.286,
-    "TrunkRadius": 321.78,
-    "NavigationRadius": 321.78
-  },
-  {
-    "Name": "tree_00246",
     "Species": "oak",
     "Variant": 1,
     "Location": {
@@ -3458,7 +3444,7 @@
     "NavigationRadius": 430.42
   },
   {
-    "Name": "tree_00247",
+    "Name": "tree_00246",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -3472,7 +3458,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00248",
+    "Name": "tree_00247",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -3486,13 +3472,13 @@
     "NavigationRadius": 439.31
   },
   {
-    "Name": "tree_00249",
+    "Name": "tree_00248",
     "Species": "pine",
     "Variant": 0,
     "Location": {
       "X": -21766.59,
       "Y": 5705.25,
-      "Z": 85.57
+      "Z": 87.18
     },
     "Yaw": 130.008,
     "Scale": 1.155,
@@ -3500,35 +3486,7 @@
     "NavigationRadius": 289.33
   },
   {
-    "Name": "tree_00250",
-    "Species": "pine",
-    "Variant": 1,
-    "Location": {
-      "X": -18226.52,
-      "Y": 5396.52,
-      "Z": 497.31
-    },
-    "Yaw": -92.991,
-    "Scale": 1.166,
-    "TrunkRadius": 302.71,
-    "NavigationRadius": 302.71
-  },
-  {
-    "Name": "tree_00251",
-    "Species": "pine",
-    "Variant": 0,
-    "Location": {
-      "X": -17162.02,
-      "Y": 5236.77,
-      "Z": 608.01
-    },
-    "Yaw": 136.178,
-    "Scale": 1.324,
-    "TrunkRadius": 331.29,
-    "NavigationRadius": 331.29
-  },
-  {
-    "Name": "tree_00252",
+    "Name": "tree_00249",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -3542,7 +3500,7 @@
     "NavigationRadius": 205.08
   },
   {
-    "Name": "tree_00253",
+    "Name": "tree_00250",
     "Species": "oak",
     "Variant": 1,
     "Location": {
@@ -3556,7 +3514,7 @@
     "NavigationRadius": 395.61
   },
   {
-    "Name": "tree_00254",
+    "Name": "tree_00251",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -3570,7 +3528,21 @@
     "NavigationRadius": 329.25
   },
   {
-    "Name": "tree_00255",
+    "Name": "tree_00252",
+    "Species": "shrub",
+    "Variant": 0,
+    "Location": {
+      "X": -21801.83,
+      "Y": 6604.74,
+      "Z": 81.2
+    },
+    "Yaw": 27.829,
+    "Scale": 1.227,
+    "TrunkRadius": 0,
+    "NavigationRadius": 0
+  },
+  {
+    "Name": "tree_00253",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -3584,7 +3556,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00256",
+    "Name": "tree_00254",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -3598,7 +3570,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00257",
+    "Name": "tree_00255",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -3612,27 +3584,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00258",
-    "Species": "pine",
-    "Variant": 2,
-    "Location": {
-      "X": -21581.79,
-      "Y": 6743.48,
-      "Z": 81.62
-    },
-    "Yaw": 38.418,
-    "Scale": 1.368,
-    "TrunkRadius": 347.8,
-    "NavigationRadius": 347.8
-  },
-  {
-    "Name": "tree_00259",
+    "Name": "tree_00256",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": -20870.96,
       "Y": 6803.97,
-      "Z": 154.76
+      "Z": 157.69
     },
     "Yaw": 9.673,
     "Scale": 0.334,
@@ -3640,7 +3598,21 @@
     "NavigationRadius": 145.1
   },
   {
-    "Name": "tree_00260",
+    "Name": "tree_00257",
+    "Species": "oak",
+    "Variant": 1,
+    "Location": {
+      "X": -14938.45,
+      "Y": 6481.4,
+      "Z": 1193.34
+    },
+    "Yaw": -162.854,
+    "Scale": 0.806,
+    "TrunkRadius": 347.8,
+    "NavigationRadius": 450.11
+  },
+  {
+    "Name": "tree_00258",
     "Species": "oak",
     "Variant": 1,
     "Location": {
@@ -3654,7 +3626,7 @@
     "NavigationRadius": 302.32
   },
   {
-    "Name": "tree_00261",
+    "Name": "tree_00259",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -3668,7 +3640,7 @@
     "NavigationRadius": 524.07
   },
   {
-    "Name": "tree_00262",
+    "Name": "tree_00260",
     "Species": "oak",
     "Variant": 1,
     "Location": {
@@ -3682,7 +3654,7 @@
     "NavigationRadius": 406.82
   },
   {
-    "Name": "tree_00263",
+    "Name": "tree_00261",
     "Species": "oak",
     "Variant": 1,
     "Location": {
@@ -3696,7 +3668,7 @@
     "NavigationRadius": 479.02
   },
   {
-    "Name": "tree_00264",
+    "Name": "tree_00262",
     "Species": "birch",
     "Variant": 2,
     "Location": {
@@ -3710,7 +3682,7 @@
     "NavigationRadius": 233.3
   },
   {
-    "Name": "tree_00265",
+    "Name": "tree_00263",
     "Species": "birch",
     "Variant": 1,
     "Location": {
@@ -3724,13 +3696,13 @@
     "NavigationRadius": 233.57
   },
   {
-    "Name": "tree_00266",
+    "Name": "tree_00264",
     "Species": "pine",
     "Variant": 0,
     "Location": {
       "X": -21983.28,
       "Y": 7789.14,
-      "Z": 205.69
+      "Z": 209.21
     },
     "Yaw": 157.909,
     "Scale": 0.334,
@@ -3738,7 +3710,21 @@
     "NavigationRadius": 154.43
   },
   {
-    "Name": "tree_00267",
+    "Name": "tree_00265",
+    "Species": "shrub",
+    "Variant": 0,
+    "Location": {
+      "X": -21409.76,
+      "Y": 7082.61,
+      "Z": 134.35
+    },
+    "Yaw": -51.458,
+    "Scale": 0.875,
+    "TrunkRadius": 0,
+    "NavigationRadius": 0
+  },
+  {
+    "Name": "tree_00266",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -3752,7 +3738,7 @@
     "NavigationRadius": 255.19
   },
   {
-    "Name": "tree_00268",
+    "Name": "tree_00267",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -3766,7 +3752,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00269",
+    "Name": "tree_00268",
     "Species": "oak",
     "Variant": 0,
     "Location": {
@@ -3780,7 +3766,7 @@
     "NavigationRadius": 169.12
   },
   {
-    "Name": "tree_00270",
+    "Name": "tree_00269",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -3794,7 +3780,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00271",
+    "Name": "tree_00270",
     "Species": "birch",
     "Variant": 0,
     "Location": {
@@ -3808,7 +3794,7 @@
     "NavigationRadius": 61.89
   },
   {
-    "Name": "tree_00272",
+    "Name": "tree_00271",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -3822,7 +3808,7 @@
     "NavigationRadius": 216.72
   },
   {
-    "Name": "tree_00273",
+    "Name": "tree_00272",
     "Species": "oak",
     "Variant": 1,
     "Location": {
@@ -3836,7 +3822,7 @@
     "NavigationRadius": 328.01
   },
   {
-    "Name": "tree_00274",
+    "Name": "tree_00273",
     "Species": "oak",
     "Variant": 0,
     "Location": {
@@ -3850,13 +3836,13 @@
     "NavigationRadius": 904.43
   },
   {
-    "Name": "tree_00275",
+    "Name": "tree_00274",
     "Species": "pine",
     "Variant": 0,
     "Location": {
       "X": -1951.52,
       "Y": 7883.77,
-      "Z": 124.94
+      "Z": 129.25
     },
     "Yaw": 33.492,
     "Scale": 1.293,
@@ -3864,7 +3850,7 @@
     "NavigationRadius": 323.59
   },
   {
-    "Name": "tree_00276",
+    "Name": "tree_00275",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -3878,7 +3864,7 @@
     "NavigationRadius": 521.4
   },
   {
-    "Name": "tree_00277",
+    "Name": "tree_00276",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -3892,7 +3878,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00278",
+    "Name": "tree_00277",
     "Species": "oak",
     "Variant": 1,
     "Location": {
@@ -3906,7 +3892,7 @@
     "NavigationRadius": 334.74
   },
   {
-    "Name": "tree_00279",
+    "Name": "tree_00278",
     "Species": "oak",
     "Variant": 0,
     "Location": {
@@ -3920,13 +3906,13 @@
     "NavigationRadius": 573
   },
   {
-    "Name": "tree_00280",
+    "Name": "tree_00279",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": 9863.11,
       "Y": 8853.73,
-      "Z": 240.97
+      "Z": 250.33
     },
     "Yaw": -9.879,
     "Scale": 1.175,
@@ -3934,7 +3920,7 @@
     "NavigationRadius": 299.08
   },
   {
-    "Name": "tree_00281",
+    "Name": "tree_00280",
     "Species": "oak",
     "Variant": 0,
     "Location": {
@@ -3948,7 +3934,7 @@
     "NavigationRadius": 264.42
   },
   {
-    "Name": "tree_00282",
+    "Name": "tree_00281",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -3962,13 +3948,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00283",
+    "Name": "tree_00282",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": 1315.98,
       "Y": 9177.49,
-      "Z": 81.52
+      "Z": 83.7
     },
     "Yaw": -163.065,
     "Scale": 1.662,
@@ -3976,21 +3962,7 @@
     "NavigationRadius": 430.11
   },
   {
-    "Name": "tree_00284",
-    "Species": "pine",
-    "Variant": 1,
-    "Location": {
-      "X": -15062.21,
-      "Y": 10113.24,
-      "Z": 70.6
-    },
-    "Yaw": 159.094,
-    "Scale": 1.124,
-    "TrunkRadius": 291.89,
-    "NavigationRadius": 291.89
-  },
-  {
-    "Name": "tree_00285",
+    "Name": "tree_00283",
     "Species": "oak",
     "Variant": 0,
     "Location": {
@@ -4004,7 +3976,7 @@
     "NavigationRadius": 553.36
   },
   {
-    "Name": "tree_00286",
+    "Name": "tree_00284",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4018,7 +3990,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00287",
+    "Name": "tree_00285",
     "Species": "oak",
     "Variant": 1,
     "Location": {
@@ -4032,7 +4004,7 @@
     "NavigationRadius": 345.39
   },
   {
-    "Name": "tree_00288",
+    "Name": "tree_00286",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -4046,13 +4018,13 @@
     "NavigationRadius": 471.67
   },
   {
-    "Name": "tree_00289",
+    "Name": "tree_00287",
     "Species": "pine",
     "Variant": 0,
     "Location": {
       "X": -3456.92,
       "Y": 10631.99,
-      "Z": 45.22
+      "Z": 44.74
     },
     "Yaw": -171.521,
     "Scale": 1.182,
@@ -4060,13 +4032,13 @@
     "NavigationRadius": 295.96
   },
   {
-    "Name": "tree_00290",
+    "Name": "tree_00288",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": -2133.05,
       "Y": 10504.54,
-      "Z": 54.93
+      "Z": 55
     },
     "Yaw": -121.691,
     "Scale": 0.823,
@@ -4074,7 +4046,7 @@
     "NavigationRadius": 214.48
   },
   {
-    "Name": "tree_00291",
+    "Name": "tree_00289",
     "Species": "oak",
     "Variant": 2,
     "Location": {
@@ -4088,7 +4060,7 @@
     "NavigationRadius": 200.51
   },
   {
-    "Name": "tree_00292",
+    "Name": "tree_00290",
     "Species": "oak",
     "Variant": 0,
     "Location": {
@@ -4102,7 +4074,7 @@
     "NavigationRadius": 312.19
   },
   {
-    "Name": "tree_00293",
+    "Name": "tree_00291",
     "Species": "palm",
     "Variant": 2,
     "Location": {
@@ -4116,7 +4088,7 @@
     "NavigationRadius": 112.92
   },
   {
-    "Name": "tree_00294",
+    "Name": "tree_00292",
     "Species": "palm",
     "Variant": 1,
     "Location": {
@@ -4130,7 +4102,7 @@
     "NavigationRadius": 121.2
   },
   {
-    "Name": "tree_00295",
+    "Name": "tree_00293",
     "Species": "palm",
     "Variant": 0,
     "Location": {
@@ -4144,7 +4116,7 @@
     "NavigationRadius": 137.04
   },
   {
-    "Name": "tree_00296",
+    "Name": "tree_00294",
     "Species": "palm",
     "Variant": 2,
     "Location": {
@@ -4158,7 +4130,7 @@
     "NavigationRadius": 137.48
   },
   {
-    "Name": "tree_00297",
+    "Name": "tree_00295",
     "Species": "palm",
     "Variant": 2,
     "Location": {
@@ -4172,7 +4144,7 @@
     "NavigationRadius": 134.81
   },
   {
-    "Name": "tree_00298",
+    "Name": "tree_00296",
     "Species": "palm",
     "Variant": 0,
     "Location": {
@@ -4186,7 +4158,7 @@
     "NavigationRadius": 132.59
   },
   {
-    "Name": "tree_00299",
+    "Name": "tree_00297",
     "Species": "palm",
     "Variant": 2,
     "Location": {
@@ -4200,7 +4172,7 @@
     "NavigationRadius": 131.35
   },
   {
-    "Name": "tree_00300",
+    "Name": "tree_00298",
     "Species": "palm",
     "Variant": 1,
     "Location": {
@@ -4214,7 +4186,7 @@
     "NavigationRadius": 116.28
   },
   {
-    "Name": "tree_00301",
+    "Name": "tree_00299",
     "Species": "palm",
     "Variant": 2,
     "Location": {
@@ -4228,7 +4200,7 @@
     "NavigationRadius": 150.25
   },
   {
-    "Name": "tree_00302",
+    "Name": "tree_00300",
     "Species": "palm",
     "Variant": 0,
     "Location": {
@@ -4242,7 +4214,7 @@
     "NavigationRadius": 124.19
   },
   {
-    "Name": "tree_00303",
+    "Name": "tree_00301",
     "Species": "palm",
     "Variant": 0,
     "Location": {
@@ -4256,7 +4228,7 @@
     "NavigationRadius": 119.2
   },
   {
-    "Name": "tree_00304",
+    "Name": "tree_00302",
     "Species": "palm",
     "Variant": 0,
     "Location": {
@@ -4270,7 +4242,7 @@
     "NavigationRadius": 134.89
   },
   {
-    "Name": "tree_00305",
+    "Name": "tree_00303",
     "Species": "palm",
     "Variant": 0,
     "Location": {
@@ -4284,7 +4256,7 @@
     "NavigationRadius": 100.86
   },
   {
-    "Name": "tree_00306",
+    "Name": "tree_00304",
     "Species": "palm",
     "Variant": 1,
     "Location": {
@@ -4298,7 +4270,7 @@
     "NavigationRadius": 101.23
   },
   {
-    "Name": "tree_00307",
+    "Name": "tree_00305",
     "Species": "palm",
     "Variant": 0,
     "Location": {
@@ -4312,7 +4284,7 @@
     "NavigationRadius": 132.71
   },
   {
-    "Name": "tree_00308",
+    "Name": "tree_00306",
     "Species": "palm",
     "Variant": 0,
     "Location": {
@@ -4326,7 +4298,7 @@
     "NavigationRadius": 120.26
   },
   {
-    "Name": "tree_00309",
+    "Name": "tree_00307",
     "Species": "palm",
     "Variant": 2,
     "Location": {
@@ -4340,7 +4312,7 @@
     "NavigationRadius": 128.98
   },
   {
-    "Name": "tree_00310",
+    "Name": "tree_00308",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4354,7 +4326,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00311",
+    "Name": "tree_00309",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4368,7 +4340,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00312",
+    "Name": "tree_00310",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4382,7 +4354,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00313",
+    "Name": "tree_00311",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4396,7 +4368,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00314",
+    "Name": "tree_00312",
     "Species": "shorepine",
     "Variant": 0,
     "Location": {
@@ -4410,7 +4382,7 @@
     "NavigationRadius": 204.04
   },
   {
-    "Name": "tree_00315",
+    "Name": "tree_00313",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4424,7 +4396,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00316",
+    "Name": "tree_00314",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4438,7 +4410,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00317",
+    "Name": "tree_00315",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4452,7 +4424,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00318",
+    "Name": "tree_00316",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4466,7 +4438,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00319",
+    "Name": "tree_00317",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4480,7 +4452,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00320",
+    "Name": "tree_00318",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4494,7 +4466,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00321",
+    "Name": "tree_00319",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4508,7 +4480,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00322",
+    "Name": "tree_00320",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4522,7 +4494,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00323",
+    "Name": "tree_00321",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4536,7 +4508,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00324",
+    "Name": "tree_00322",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4550,7 +4522,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00325",
+    "Name": "tree_00323",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4564,7 +4536,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00326",
+    "Name": "tree_00324",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4578,7 +4550,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00327",
+    "Name": "tree_00325",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4592,7 +4564,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00328",
+    "Name": "tree_00326",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4606,7 +4578,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00329",
+    "Name": "tree_00327",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4620,7 +4592,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00330",
+    "Name": "tree_00328",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4634,7 +4606,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00331",
+    "Name": "tree_00329",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4648,7 +4620,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00332",
+    "Name": "tree_00330",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4662,7 +4634,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00333",
+    "Name": "tree_00331",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4676,7 +4648,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00334",
+    "Name": "tree_00332",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4690,7 +4662,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00335",
+    "Name": "tree_00333",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4704,7 +4676,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00336",
+    "Name": "tree_00334",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4718,7 +4690,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00337",
+    "Name": "tree_00335",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4732,7 +4704,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00338",
+    "Name": "tree_00336",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4746,7 +4718,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00339",
+    "Name": "tree_00337",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4760,7 +4732,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00340",
+    "Name": "tree_00338",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4774,7 +4746,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00341",
+    "Name": "tree_00339",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4788,7 +4760,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00342",
+    "Name": "tree_00340",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4802,7 +4774,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00343",
+    "Name": "tree_00341",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4816,7 +4788,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00344",
+    "Name": "tree_00342",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4830,7 +4802,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00345",
+    "Name": "tree_00343",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4844,7 +4816,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00346",
+    "Name": "tree_00344",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4858,7 +4830,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00347",
+    "Name": "tree_00345",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4872,7 +4844,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00348",
+    "Name": "tree_00346",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4886,7 +4858,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00349",
+    "Name": "tree_00347",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4900,7 +4872,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00350",
+    "Name": "tree_00348",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -4914,7 +4886,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00351",
+    "Name": "tree_00349",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4928,7 +4900,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00352",
+    "Name": "tree_00350",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4942,7 +4914,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00353",
+    "Name": "tree_00351",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4956,7 +4928,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00354",
+    "Name": "tree_00352",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4970,7 +4942,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00355",
+    "Name": "tree_00353",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -4984,7 +4956,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00356",
+    "Name": "tree_00354",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -4998,7 +4970,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00357",
+    "Name": "tree_00355",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5012,7 +4984,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00358",
+    "Name": "tree_00356",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5026,7 +4998,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00359",
+    "Name": "tree_00357",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5040,7 +5012,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00360",
+    "Name": "tree_00358",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5054,7 +5026,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00361",
+    "Name": "tree_00359",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5068,7 +5040,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00362",
+    "Name": "tree_00360",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -5082,7 +5054,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00363",
+    "Name": "tree_00361",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5096,7 +5068,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00364",
+    "Name": "tree_00362",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5110,7 +5082,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00365",
+    "Name": "tree_00363",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5124,7 +5096,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00366",
+    "Name": "tree_00364",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5138,7 +5110,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00367",
+    "Name": "tree_00365",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -5152,7 +5124,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00368",
+    "Name": "tree_00366",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5166,7 +5138,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00369",
+    "Name": "tree_00367",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5180,7 +5152,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00370",
+    "Name": "tree_00368",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -5194,7 +5166,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00371",
+    "Name": "tree_00369",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5208,7 +5180,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00372",
+    "Name": "tree_00370",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5222,7 +5194,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00373",
+    "Name": "tree_00371",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5236,7 +5208,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00374",
+    "Name": "tree_00372",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -5250,7 +5222,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00375",
+    "Name": "tree_00373",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5264,7 +5236,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00376",
+    "Name": "tree_00374",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5278,7 +5250,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00377",
+    "Name": "tree_00375",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5292,7 +5264,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00378",
+    "Name": "tree_00376",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5306,7 +5278,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00379",
+    "Name": "tree_00377",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -5320,7 +5292,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00380",
+    "Name": "tree_00378",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5334,7 +5306,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00381",
+    "Name": "tree_00379",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5348,7 +5320,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00382",
+    "Name": "tree_00380",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5362,7 +5334,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00383",
+    "Name": "tree_00381",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5376,7 +5348,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00384",
+    "Name": "tree_00382",
     "Species": "shrub",
     "Variant": 1,
     "Location": {
@@ -5390,7 +5362,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00385",
+    "Name": "tree_00383",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5404,7 +5376,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00386",
+    "Name": "tree_00384",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -5418,7 +5390,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00387",
+    "Name": "tree_00385",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -5432,7 +5404,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00388",
+    "Name": "tree_00386",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5446,7 +5418,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00389",
+    "Name": "tree_00387",
     "Species": "shrub",
     "Variant": 0,
     "Location": {
@@ -5460,7 +5432,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00390",
+    "Name": "tree_00388",
     "Species": "shrub",
     "Variant": 2,
     "Location": {
@@ -5474,7 +5446,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00391",
+    "Name": "tree_00389",
     "Species": "orchard",
     "Variant": 0,
     "Location": {
@@ -5488,7 +5460,7 @@
     "NavigationRadius": 262.49
   },
   {
-    "Name": "tree_00392",
+    "Name": "tree_00390",
     "Species": "orchard",
     "Variant": 1,
     "Location": {
@@ -5502,7 +5474,7 @@
     "NavigationRadius": 159.41
   },
   {
-    "Name": "tree_00393",
+    "Name": "tree_00391",
     "Species": "orchard",
     "Variant": 1,
     "Location": {
@@ -5516,7 +5488,7 @@
     "NavigationRadius": 141.77
   },
   {
-    "Name": "tree_00394",
+    "Name": "tree_00392",
     "Species": "orchard",
     "Variant": 2,
     "Location": {
@@ -5530,7 +5502,7 @@
     "NavigationRadius": 281.54
   },
   {
-    "Name": "tree_00395",
+    "Name": "tree_00393",
     "Species": "orchard",
     "Variant": 0,
     "Location": {
@@ -5544,7 +5516,7 @@
     "NavigationRadius": 300.15
   },
   {
-    "Name": "tree_00396",
+    "Name": "tree_00394",
     "Species": "orchard",
     "Variant": 1,
     "Location": {
@@ -5558,7 +5530,7 @@
     "NavigationRadius": 131.82
   },
   {
-    "Name": "tree_00397",
+    "Name": "tree_00395",
     "Species": "orchard",
     "Variant": 1,
     "Location": {
@@ -5572,7 +5544,7 @@
     "NavigationRadius": 148.91
   },
   {
-    "Name": "tree_00398",
+    "Name": "tree_00396",
     "Species": "orchard",
     "Variant": 0,
     "Location": {
@@ -5586,7 +5558,7 @@
     "NavigationRadius": 253.37
   },
   {
-    "Name": "tree_00399",
+    "Name": "tree_00397",
     "Species": "orchard",
     "Variant": 2,
     "Location": {
@@ -5600,7 +5572,7 @@
     "NavigationRadius": 265
   },
   {
-    "Name": "tree_00400",
+    "Name": "tree_00398",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -5614,13 +5586,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00401",
+    "Name": "tree_00399",
     "Species": "pine",
     "Variant": 0,
     "Location": {
       "X": -2020.91,
       "Y": -14875.85,
-      "Z": 1260.26
+      "Z": 1265.35
     },
     "Yaw": -162.646,
     "Scale": 1.617,
@@ -5628,13 +5600,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00402",
+    "Name": "tree_00400",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": -474.33,
       "Y": -14841.39,
-      "Z": 1275.23
+      "Z": 1274.15
     },
     "Yaw": -73.981,
     "Scale": 2.121,
@@ -5642,7 +5614,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00403",
+    "Name": "tree_00401",
     "Species": "fir",
     "Variant": 1,
     "Location": {
@@ -5656,7 +5628,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00404",
+    "Name": "tree_00402",
     "Species": "fir",
     "Variant": 1,
     "Location": {
@@ -5670,7 +5642,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00405",
+    "Name": "tree_00403",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -5684,7 +5656,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00406",
+    "Name": "tree_00404",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -5698,7 +5670,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00407",
+    "Name": "tree_00405",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -5712,13 +5684,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00408",
+    "Name": "tree_00406",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": 5260.97,
       "Y": -14534.66,
-      "Z": 1291.02
+      "Z": 1290.68
     },
     "Yaw": -177.939,
     "Scale": 1.958,
@@ -5726,7 +5698,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00409",
+    "Name": "tree_00407",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -5740,7 +5712,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00410",
+    "Name": "tree_00408",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -5754,13 +5726,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00411",
+    "Name": "tree_00409",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": -22116.94,
       "Y": -12839.91,
-      "Z": 1302.08
+      "Z": 1303.88
     },
     "Yaw": 123.524,
     "Scale": 1.634,
@@ -5768,13 +5740,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00412",
+    "Name": "tree_00410",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": -18156.69,
       "Y": -12861.68,
-      "Z": 1158.44
+      "Z": 1153.64
     },
     "Yaw": 150.3,
     "Scale": 2.175,
@@ -5782,7 +5754,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00413",
+    "Name": "tree_00411",
     "Species": "fir",
     "Variant": 1,
     "Location": {
@@ -5796,7 +5768,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00414",
+    "Name": "tree_00412",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -5810,13 +5782,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00415",
+    "Name": "tree_00413",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": -26086.73,
       "Y": -11894.79,
-      "Z": 1227.75
+      "Z": 1234.54
     },
     "Yaw": 107.525,
     "Scale": 1.116,
@@ -5824,7 +5796,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00416",
+    "Name": "tree_00414",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -5838,7 +5810,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00417",
+    "Name": "tree_00415",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -5852,7 +5824,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00418",
+    "Name": "tree_00416",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -5866,7 +5838,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00419",
+    "Name": "tree_00417",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -5880,7 +5852,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00420",
+    "Name": "tree_00418",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -5894,16 +5866,44 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00421",
+    "Name": "tree_00419",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": 14097.67,
       "Y": -10317.97,
-      "Z": 1260.08
+      "Z": 1265.99
     },
     "Yaw": 78.312,
     "Scale": 1.62,
+    "TrunkRadius": 0,
+    "NavigationRadius": 0
+  },
+  {
+    "Name": "tree_00420",
+    "Species": "pine",
+    "Variant": 0,
+    "Location": {
+      "X": 15905.36,
+      "Y": -8886.28,
+      "Z": 1383.88
+    },
+    "Yaw": -125.797,
+    "Scale": 1.867,
+    "TrunkRadius": 0,
+    "NavigationRadius": 0
+  },
+  {
+    "Name": "tree_00421",
+    "Species": "pine",
+    "Variant": 0,
+    "Location": {
+      "X": 15430.55,
+      "Y": -7481.68,
+      "Z": 1063.38
+    },
+    "Yaw": -39.443,
+    "Scale": 1.08,
     "TrunkRadius": 0,
     "NavigationRadius": 0
   },
@@ -5912,37 +5912,9 @@
     "Species": "pine",
     "Variant": 0,
     "Location": {
-      "X": 15905.36,
-      "Y": -8886.28,
-      "Z": 1388.63
-    },
-    "Yaw": -125.797,
-    "Scale": 1.867,
-    "TrunkRadius": 0,
-    "NavigationRadius": 0
-  },
-  {
-    "Name": "tree_00423",
-    "Species": "pine",
-    "Variant": 0,
-    "Location": {
-      "X": 15430.55,
-      "Y": -7481.68,
-      "Z": 1067.95
-    },
-    "Yaw": -39.443,
-    "Scale": 1.08,
-    "TrunkRadius": 0,
-    "NavigationRadius": 0
-  },
-  {
-    "Name": "tree_00424",
-    "Species": "pine",
-    "Variant": 0,
-    "Location": {
       "X": 16400.25,
       "Y": -6918.81,
-      "Z": 998.8
+      "Z": 1003.57
     },
     "Yaw": -30.76,
     "Scale": 1.816,
@@ -5950,7 +5922,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00425",
+    "Name": "tree_00423",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -5964,7 +5936,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00426",
+    "Name": "tree_00424",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -5978,13 +5950,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00427",
+    "Name": "tree_00425",
     "Species": "pine",
     "Variant": 0,
     "Location": {
       "X": 16644.86,
       "Y": -694.36,
-      "Z": 810.77
+      "Z": 825.03
     },
     "Yaw": -19.994,
     "Scale": 1.488,
@@ -5992,7 +5964,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00428",
+    "Name": "tree_00426",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -6006,7 +5978,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00429",
+    "Name": "tree_00427",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -6020,7 +5992,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00430",
+    "Name": "tree_00428",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -6034,7 +6006,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00431",
+    "Name": "tree_00429",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -6048,13 +6020,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00432",
+    "Name": "tree_00430",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": 13700.56,
       "Y": 5760.85,
-      "Z": 333.27
+      "Z": 352.56
     },
     "Yaw": 59.414,
     "Scale": 2.216,
@@ -6062,7 +6034,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00433",
+    "Name": "tree_00431",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -6076,13 +6048,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00434",
+    "Name": "tree_00432",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": 10913.97,
       "Y": 7955.82,
-      "Z": 249.34
+      "Z": 239.2
     },
     "Yaw": -131.094,
     "Scale": 1.211,
@@ -6090,13 +6062,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00435",
+    "Name": "tree_00433",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": -8669.47,
       "Y": 8813.94,
-      "Z": 62.11
+      "Z": 64.3
     },
     "Yaw": 50,
     "Scale": 1.313,
@@ -6104,7 +6076,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00436",
+    "Name": "tree_00434",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -6118,7 +6090,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00437",
+    "Name": "tree_00435",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -6132,7 +6104,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00438",
+    "Name": "tree_00436",
     "Species": "fir",
     "Variant": 1,
     "Location": {
@@ -6146,7 +6118,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00439",
+    "Name": "tree_00437",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -6160,7 +6132,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00440",
+    "Name": "tree_00438",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -6174,7 +6146,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00441",
+    "Name": "tree_00439",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -6188,7 +6160,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00442",
+    "Name": "tree_00440",
     "Species": "fir",
     "Variant": 1,
     "Location": {
@@ -6202,13 +6174,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00443",
+    "Name": "tree_00441",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": 2722.56,
       "Y": 10363.44,
-      "Z": 61.64
+      "Z": 65.44
     },
     "Yaw": -121.788,
     "Scale": 1.729,
@@ -6216,7 +6188,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00444",
+    "Name": "tree_00442",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -6230,7 +6202,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00445",
+    "Name": "tree_00443",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -6244,13 +6216,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00446",
+    "Name": "tree_00444",
     "Species": "pine",
     "Variant": 2,
     "Location": {
       "X": 8049.9,
       "Y": 9826.94,
-      "Z": 141.2
+      "Z": 145
     },
     "Yaw": 70.545,
     "Scale": 1.665,
@@ -6258,13 +6230,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00447",
+    "Name": "tree_00445",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": -9839.74,
       "Y": 11476.01,
-      "Z": 65.33
+      "Z": 66.77
     },
     "Yaw": -137.847,
     "Scale": 1.267,
@@ -6272,13 +6244,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00448",
+    "Name": "tree_00446",
     "Species": "pine",
     "Variant": 1,
     "Location": {
       "X": 3542.02,
       "Y": 10623.36,
-      "Z": 109.54
+      "Z": 103.99
     },
     "Yaw": 157.996,
     "Scale": 1.371,
@@ -6286,7 +6258,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00449",
+    "Name": "tree_00447",
     "Species": "fir",
     "Variant": 2,
     "Location": {
@@ -6300,7 +6272,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00450",
+    "Name": "tree_00448",
     "Species": "fir",
     "Variant": 0,
     "Location": {
@@ -6314,7 +6286,7 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00451",
+    "Name": "tree_00449",
     "Species": "fir",
     "Variant": 1,
     "Location": {
@@ -6328,13 +6300,13 @@
     "NavigationRadius": 0
   },
   {
-    "Name": "tree_00452",
+    "Name": "tree_00450",
     "Species": "pine",
     "Variant": 0,
     "Location": {
       "X": -13767.41,
       "Y": 15226.03,
-      "Z": 138.33
+      "Z": 137.46
     },
     "Yaw": 117.922,
     "Scale": 2.097,

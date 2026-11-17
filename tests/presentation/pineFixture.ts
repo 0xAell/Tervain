@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { createGltfLoader } from '../../src/presentation/assets/gltfLoader';
+import { HERO_PINE_FILES, type HeroPineTemplates } from '../../src/presentation/heroPine';
 import { PINE_FILES, type PineTemplates } from '../../src/presentation/solitaryPine';
 
 export function pineBinary(file: string) {
@@ -29,4 +30,9 @@ async function withoutImages(file: string): Promise<GLTF> {
 
 export async function pineTemplates(): Promise<PineTemplates> {
   return await Promise.all(PINE_FILES.map(withoutImages)) as unknown as PineTemplates;
+}
+
+/** The generated hero pines (heroPine.ts), which draw species 'pine' by default, without their images like the pine's above. */
+export async function heroPineFixtureTemplates(): Promise<HeroPineTemplates> {
+  return await Promise.all(HERO_PINE_FILES.map(withoutImages)) as unknown as HeroPineTemplates;
 }

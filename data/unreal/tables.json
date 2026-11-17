@@ -309,7 +309,7 @@
       "file": "DT_Trees.json",
       "rowStruct": "FTervainTreeRow",
       "note": "One tree or shrub of the forest as the web build plants it. Row names are stable only for one export.",
-      "rows": 453,
+      "rows": 451,
       "members": {
         "Species": {
           "type": "FName",
