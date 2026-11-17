@@ -357,7 +357,7 @@ Improved:
   data, the game's tests and the hygiene check, in turn. CONTRIBUTING and the README listed them one by one ([#874](https://github.com/0xAell/Tervain/pull/874)).
 - The Unreal seed mirrors a third rule, the first of movement: the pace kept wading (`TervainRules::WadeFactor`, its
   numbers read from `hero.wade`). It returns what the core's `wadeFactor` returns at every centimetre from half a metre
-  out of the water to 3 m deep, and every wade key is read ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  out of the water to 3 m deep, and every wade key is read ([#875](https://github.com/0xAell/Tervain/pull/875)).
 
 Next:
 
