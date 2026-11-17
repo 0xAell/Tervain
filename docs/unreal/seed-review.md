@@ -347,7 +347,7 @@ Improved:
   measure. Each was keyed by something the world keeps, so it lived as long as the world. A module registers how to
   empty its cache (`presentation/buildCaches.ts`), and the world empties them once built; a later build fills them
   again. A settled journey holds 515 MB of array buffers where it held 556 to 560 MB, and the world is the same
-  (PR_CACHES).
+  ([#872](https://github.com/0xAell/Tervain/pull/872)).
 
 Next:
 
