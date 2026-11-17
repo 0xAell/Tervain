@@ -282,7 +282,7 @@ Improved:
 - The canvases the game reads back are CPU canvases. The rugs and the residents' sheets are made while the world is
   already drawing, and reading back a GPU canvas waits for every frame queued before it: in the first minute of play on
   a software renderer the page was stalled for 46 s and drew a frame a second, now three, its main thread idle 90% of
-  the time; on a GPU each read was a hitch (PR_CANVAS).
+  the time; on a GPU each read was a hitch ([#857](https://github.com/0xAell/Tervain/pull/857)).
 
 Next:
 
