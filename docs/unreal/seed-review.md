@@ -316,7 +316,7 @@ Improved:
   twelve, gave the hero the 49,500-triangle model of 0.0.5 where he has had a 149,974-triangle body since A74, and
   described the other people as the generated eleven-bone figures that A49 and A65 replaced with the supplied models
   on rigs of their own. The README's numbers test now holds the guide's numbers too, and fails with the missing phrase
-  instead of printing the page (PR_GUIDE).
+  instead of printing the page ([#867](https://github.com/0xAell/Tervain/pull/867)).
 
 Next:
 
