@@ -55,10 +55,10 @@ import { buildStaticColliders } from '../world/colliders';
 import { DRESSING } from '../world/dressing';
 import { Exclusions } from '../world/exclusions';
 import { DETAIL_KEEP } from '../world/detail';
-import { createForestFloorPopulation, FOREST_FLOOR_DISTANCE } from '../world/forestFloor';
+import { FOREST_FLOOR_DISTANCE } from '../world/forestFloor';
 import { createShoreDetailPopulation, placeScatter, ROCK_SHAPE_COUNT } from '../world/scatter';
 import { createFloraPopulation } from '../world/flora';
-import { PLANTED_FOREST, PLANTED_TRUNKS, plantedAsFlora } from '../world/plantedForest';
+import { PLANTED_FLOOR, PLANTED_FOREST, PLANTED_TRUNKS } from '../world/plantedForest';
 import { FOREST_CLEARINGS, FOREST_OPENINGS } from '../world/forest';
 import { FURNITURE } from '../world/furniture';
 import { LAYERS } from '../world/groundLayers';
@@ -236,9 +236,10 @@ const colour = (value: number) => `#${value.toString(16).padStart(6, '0')}`;
 function world(terrain: Terrain): PortableDocument[] {
   const height = (p: { x: number; z: number }) => terrain.heightAt(p.x, p.z);
   const grounded = <T extends { x: number; z: number }>(p: T) => ({ ...p, y: height(p) });
-  // The forest as the web build plants it, and the places the planting rule offers without measuring any tree model.
+  // The forest as the web build plants it and the floor it lays among it, and the places the planting rule offers without
+  // measuring any tree model.
   const exclusions = new Exclusions(terrain), trees = PLANTED_FOREST, offered = createFloraPopulation(terrain, exclusions);
-  const floor = createForestFloorPopulation(terrain, exclusions, plantedAsFlora());
+  const floor = PLANTED_FLOOR;
   // Where a stone lies does not depend on its shape; its resting height and its solid do, and are the port's own.
   const stones = placeScatter(terrain, exclusions, PLANTED_TRUNKS, { groundedY: (rock, heightAt) => heightAt(rock.x, rock.z), contact: (rock, id) => ({ id, bounds: { minY: 0, maxY: rock.size } }) as never });
   // What stands when the shore's rock piles are laid, as in the game: the buildings and the core's props, the planted
