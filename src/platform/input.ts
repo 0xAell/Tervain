@@ -41,6 +41,7 @@ export class Input {
   private capturedContextMenu = false;
   device: Device = 'keyboard';
   gamepadConnected = false;
+  private gamepadAccessDenied = false;
   /** Set by the UI while typing/rebinding so gameplay keys are ignored. */
   captureNext: ((code: string) => void) | null = null;
   /** True while menus, panels or dialogue are open: the browser keeps Tab, Space and the arrows for focus and buttons. */
@@ -103,10 +104,11 @@ export class Input {
       this.capturedContextMenu = false;
     });
     window.addEventListener('gamepadconnected', () => {
+      this.gamepadAccessDenied = false;
       this.gamepadConnected = true;
     });
     window.addEventListener('gamepaddisconnected', () => {
-      this.gamepadConnected = navigator.getGamepads?.().some((g) => g) ?? false;
+      this.gamepadConnected = this.connectedGamepad() !== null;
       this.padDown.clear();
       this.padPressed.clear();
       this.padAxes = { lx: 0, ly: 0, rx: 0, ry: 0 };
@@ -250,17 +252,31 @@ export class Input {
     if (cancelling) cancel?.();
   };
 
+  private connectedGamepad(): Gamepad | null {
+    if (this.gamepadAccessDenied) return null;
+    try {
+      const pads = navigator.getGamepads?.() ?? [];
+      let connected: Gamepad | null = null;
+      for (const pad of pads) if (pad?.connected) connected = pad;
+      return connected;
+    } catch (error) {
+      // An embed can deny this API. Keep keyboard input running and avoid a policy violation every frame.
+      if (!(error instanceof DOMException && error.name === 'SecurityError')) throw error;
+      this.gamepadAccessDenied = true;
+      return null;
+    }
+  }
+
   /** Poll the gamepad once per frame, before gameplay reads any action. */
   poll(dt: number) {
-    const pads = navigator.getGamepads?.() ?? [];
-    let pad: Gamepad | null = null;
-    for (const p of pads) if (p && p.connected) pad = p;
+    const pad = this.connectedGamepad();
     this.padPressed.clear();
     if (!pad) {
       this.padAxes = { lx: 0, ly: 0, rx: 0, ry: 0 };
       this.padDown.clear();
       this.blockedPad.clear();
       this.gamepadConnected = false;
+      this.device = 'keyboard';
       return;
     }
     this.gamepadConnected = true;
