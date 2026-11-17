@@ -341,7 +341,7 @@ Improved:
   supplied trees the generated ones replace, which only a forest planted afresh measures by: 21 files, 16 MB of a first
   visit's 48 MB of trees. The world and the menu's warm-up ask for the models the planted forest is drawn with, and for
   every model only when a journey plants afresh (under a flag). The world is the same, tree for tree, and holds 13 MB
-  less (PR_DRAWN).
+  less ([#871](https://github.com/0xAell/Tervain/pull/871)).
 
 Next:
 
