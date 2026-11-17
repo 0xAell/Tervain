@@ -823,7 +823,7 @@
     "Yaw": -134.72,
     "Scale": 0.423,
     "TrunkRadius": 54.77,
-    "NavigationRadius": 54.77
+    "NavigationRadius": 128.97
   },
   {
     "Name": "tree_00059",
@@ -991,7 +991,7 @@
     "Yaw": -73.38,
     "Scale": 1.088,
     "TrunkRadius": 832.37,
-    "NavigationRadius": 838.81
+    "NavigationRadius": 832.37
   },
   {
     "Name": "tree_00071",
@@ -1033,7 +1033,7 @@
     "Yaw": -84.041,
     "Scale": 0.556,
     "TrunkRadius": 70.73,
-    "NavigationRadius": 70.73
+    "NavigationRadius": 93.33
   },
   {
     "Name": "tree_00074",
@@ -1392,7 +1392,7 @@
     "Location": {
       "X": -5931.99,
       "Y": -6649.64,
-      "Z": 496.74
+      "Z": 490.25
     },
     "Yaw": 133.699,
     "Scale": 0.671,
@@ -1649,7 +1649,7 @@
     "Yaw": -46.274,
     "Scale": 0.565,
     "TrunkRadius": 296.83,
-    "NavigationRadius": 296.83
+    "NavigationRadius": 414.98
   },
   {
     "Name": "tree_00118",
@@ -1938,12 +1938,12 @@
     "Location": {
       "X": -1798.87,
       "Y": -3818.58,
-      "Z": 238.68
+      "Z": 231.5
     },
     "Yaw": -64.711,
     "Scale": 0.72,
     "TrunkRadius": 311.16,
-    "NavigationRadius": 311.16
+    "NavigationRadius": 376.22
   },
   {
     "Name": "tree_00139",
@@ -2153,7 +2153,7 @@
     "Yaw": -178.203,
     "Scale": 1.12,
     "TrunkRadius": 481.86,
-    "NavigationRadius": 481.86
+    "NavigationRadius": 583.07
   },
   {
     "Name": "tree_00154",
@@ -2246,12 +2246,12 @@
     "Location": {
       "X": 11995.64,
       "Y": -2371.48,
-      "Z": 151.68
+      "Z": 151.18
     },
     "Yaw": -64.717,
     "Scale": 1.437,
     "TrunkRadius": 617.14,
-    "NavigationRadius": 617.14
+    "NavigationRadius": 747
   },
   {
     "Name": "tree_00161",
@@ -2470,12 +2470,12 @@
     "Location": {
       "X": -21046.54,
       "Y": -917.12,
-      "Z": 242.68
+      "Z": 231.47
     },
     "Yaw": -78.395,
     "Scale": 1.079,
     "TrunkRadius": 464.04,
-    "NavigationRadius": 464.04
+    "NavigationRadius": 561.48
   },
   {
     "Name": "tree_00177",
@@ -2596,12 +2596,12 @@
     "Location": {
       "X": -12879.79,
       "Y": -746,
-      "Z": 69.82
+      "Z": 68.67
     },
     "Yaw": -141.663,
     "Scale": 0.614,
     "TrunkRadius": 266.01,
-    "NavigationRadius": 343.98
+    "NavigationRadius": 321.51
   },
   {
     "Name": "tree_00186",
@@ -2629,7 +2629,7 @@
     "Yaw": -77.696,
     "Scale": 1.021,
     "TrunkRadius": 439.53,
-    "NavigationRadius": 439.53
+    "NavigationRadius": 531.77
   },
   {
     "Name": "tree_00188",
@@ -2769,7 +2769,7 @@
     "Yaw": 168.56,
     "Scale": 1.081,
     "TrunkRadius": 255.64,
-    "NavigationRadius": 827.35
+    "NavigationRadius": 255.64
   },
   {
     "Name": "tree_00198",
@@ -2783,7 +2783,7 @@
     "Yaw": -8.858,
     "Scale": 1.416,
     "TrunkRadius": 333.64,
-    "NavigationRadius": 1080.55
+    "NavigationRadius": 333.64
   },
   {
     "Name": "tree_00199",
@@ -2797,7 +2797,7 @@
     "Yaw": 15.152,
     "Scale": 0.442,
     "TrunkRadius": 57.06,
-    "NavigationRadius": 57.06
+    "NavigationRadius": 105.88
   },
   {
     "Name": "tree_00200",
@@ -2867,7 +2867,7 @@
     "Yaw": -161.665,
     "Scale": 0.89,
     "TrunkRadius": 383.62,
-    "NavigationRadius": 383.62
+    "NavigationRadius": 464.02
   },
   {
     "Name": "tree_00205",
@@ -2960,7 +2960,7 @@
     "Location": {
       "X": 9716.7,
       "Y": 1327.92,
-      "Z": 56.03
+      "Z": 55.08
     },
     "Yaw": -63.218,
     "Scale": 0.597,
@@ -3436,12 +3436,12 @@
     "Location": {
       "X": -15384.13,
       "Y": 5097.76,
-      "Z": 1132.26
+      "Z": 1108.64
     },
     "Yaw": 39.581,
     "Scale": 1,
     "TrunkRadius": 430.42,
-    "NavigationRadius": 430.42
+    "NavigationRadius": 520.74
   },
   {
     "Name": "tree_00246",
@@ -3492,7 +3492,7 @@
     "Location": {
       "X": -13801.2,
       "Y": 5541.01,
-      "Z": 1070.37
+      "Z": 1064.35
     },
     "Yaw": -62.986,
     "Scale": 0.26,
@@ -3506,12 +3506,12 @@
     "Location": {
       "X": -12124.89,
       "Y": 5454.13,
-      "Z": 420.51
+      "Z": 408.68
     },
     "Yaw": 93.412,
     "Scale": 0.918,
     "TrunkRadius": 395.61,
-    "NavigationRadius": 395.61
+    "NavigationRadius": 478.55
   },
   {
     "Name": "tree_00251",
@@ -3604,12 +3604,12 @@
     "Location": {
       "X": -14938.45,
       "Y": 6481.4,
-      "Z": 1193.34
+      "Z": 1174.58
     },
     "Yaw": -162.854,
     "Scale": 0.806,
     "TrunkRadius": 347.8,
-    "NavigationRadius": 450.11
+    "NavigationRadius": 420.62
   },
   {
     "Name": "tree_00258",
@@ -3646,12 +3646,12 @@
     "Location": {
       "X": -3318.03,
       "Y": 6664.07,
-      "Z": 143.9
+      "Z": 136.64
     },
     "Yaw": 45.706,
     "Scale": 0.944,
     "TrunkRadius": 406.82,
-    "NavigationRadius": 406.82
+    "NavigationRadius": 492.14
   },
   {
     "Name": "tree_00261",
@@ -3665,7 +3665,7 @@
     "Yaw": -166.097,
     "Scale": 1.114,
     "TrunkRadius": 479.02,
-    "NavigationRadius": 479.02
+    "NavigationRadius": 579.63
   },
   {
     "Name": "tree_00262",
@@ -3735,7 +3735,7 @@
     "Yaw": 130.566,
     "Scale": 0.362,
     "TrunkRadius": 238.62,
-    "NavigationRadius": 255.19
+    "NavigationRadius": 276.45
   },
   {
     "Name": "tree_00267",
@@ -3791,7 +3791,7 @@
     "Yaw": -134.358,
     "Scale": 0.482,
     "TrunkRadius": 61.89,
-    "NavigationRadius": 61.89
+    "NavigationRadius": 81.49
   },
   {
     "Name": "tree_00271",
@@ -3800,7 +3800,7 @@
     "Location": {
       "X": -12931.18,
       "Y": 7965.19,
-      "Z": 94.78
+      "Z": 92.24
     },
     "Yaw": 25.922,
     "Scale": 0.275,
@@ -3814,12 +3814,12 @@
     "Location": {
       "X": -9231.9,
       "Y": 8238.91,
-      "Z": 49.85
+      "Z": 49.83
     },
     "Yaw": -143.595,
     "Scale": 0.56,
     "TrunkRadius": 313.74,
-    "NavigationRadius": 328.01
+    "NavigationRadius": 313.74
   },
   {
     "Name": "tree_00273",
@@ -3833,7 +3833,7 @@
     "Yaw": 35.976,
     "Scale": 1.185,
     "TrunkRadius": 279.71,
-    "NavigationRadius": 904.43
+    "NavigationRadius": 279.71
   },
   {
     "Name": "tree_00274",
@@ -3889,7 +3889,7 @@
     "Yaw": 52.207,
     "Scale": 0.775,
     "TrunkRadius": 334.74,
-    "NavigationRadius": 334.74
+    "NavigationRadius": 404.79
   },
   {
     "Name": "tree_00278",
@@ -3931,7 +3931,7 @@
     "Yaw": -156.527,
     "Scale": 0.334,
     "TrunkRadius": 264.42,
-    "NavigationRadius": 264.42
+    "NavigationRadius": 284.45
   },
   {
     "Name": "tree_00281",
@@ -4001,7 +4001,7 @@
     "Yaw": -43.935,
     "Scale": 0.8,
     "TrunkRadius": 345.39,
-    "NavigationRadius": 345.39
+    "NavigationRadius": 417.69
   },
   {
     "Name": "tree_00286",
@@ -4057,7 +4057,7 @@
     "Yaw": -172.041,
     "Scale": 0.304,
     "TrunkRadius": 200.51,
-    "NavigationRadius": 200.51
+    "NavigationRadius": 232.2
   },
   {
     "Name": "tree_00290",

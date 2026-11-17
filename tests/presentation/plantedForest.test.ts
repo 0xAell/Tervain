@@ -7,7 +7,7 @@ import { PLANTED_FLOOR, PLANTED_FOREST, type PlantedTree } from '../../src/core/
 import { Terrain } from '../../src/core/world/terrain';
 import { forestModels, plantedObstacleRadius, plantForest, type ForestModels } from '../../src/presentation/flora';
 import { createHeroPineForest, HERO_PINE_DEFAULT, type HeroPineForest } from '../../src/presentation/heroPine';
-import { createMeshyForest, type MeshyForest } from '../../src/presentation/meshyTrees';
+import { activeMeshyTreeIds, createMeshyForest, type MeshyForest } from '../../src/presentation/meshyTrees';
 import { PlantedCrownIndex } from '../../src/presentation/plantedCrowns';
 import { createPineForest, type PineForest } from '../../src/presentation/solitaryPine';
 import { meshyTreeTemplates } from './meshyTreeFixture';
@@ -15,12 +15,17 @@ import { heroPineFixtureTemplates, pineTemplates } from './pineFixture';
 
 // The core keeps the forest as the web build plants it (src/core/world/plantedForest.ts), and the woodland floor the
 // game lays among it, so that the export carries what is played. Here both are made exactly as the game makes them,
-// from the shipped tree models, with the generated hero pines whenever the game draws species 'pine' with them
-// (HERO_PINE_DEFAULT): a pine's crown and its seat on the ground are its drawing model's, so the hero pines change which
-// trees fit as well as where the pines stand. Planted without them, the copy had 453 trees where the game plants 451,
-// and 307 of them in other places. The floor's rule asks how much shade the drawn crowns cast at a place; laid with an
-// estimate of that shade instead, the export had 296 pieces of floor where the game lays 720. If a copy and what the
-// game makes part, the copy is out of date. Regenerate both with
+// from the tree models it loads (activeMeshyTreeIds): the supplied trees, and the generated ones that draw by default.
+// - The generated hero pines draw species 'pine' (HERO_PINE_DEFAULT). A pine's crown and its seat on the ground are its
+//   drawing model's, so they change which trees fit as well as where the pines stand: planted without them, the copy had
+//   453 trees where the game plants 451, and 307 of them in other places.
+// - The generated oaks, birches, bushes, orchard trees and sentinel draw in their species' slots. A tree is spaced by
+//   the supplied model it replaces, but its seat also meets the drawn model's roots, the walk grid keeps clear of the
+//   drawn wood, and the floor reads the drawn crowns' shade: planted with the supplied models drawn instead, 13 oaks sat
+//   up to 0.24 m too high, 27 trees (23 oaks, 4 birches) kept the wrong clearance, by up to 7.5 m, and the floor had 720
+//   pieces where the game lays 669.
+// The floor's rule asks how much shade the drawn crowns cast at a place; laid with an estimate of that shade instead,
+// the export had 296 pieces. If a copy and what the game makes part, the copy is out of date. Regenerate both with
 //   PLANTED_FOREST_WRITE=1 npx vitest run --project game tests/presentation/plantedForest.test.ts
 
 const fixed = (value: number, places: number) => Math.round(value * 10 ** places) / 10 ** places;
@@ -62,7 +67,7 @@ function renderFloor(pieces: readonly ForestFloorPiece[]): string {
 describe('the forest the core exports', () => {
   let meshy: MeshyForest, pine: PineForest, hero: HeroPineForest | null, models: ForestModels, terrain: Terrain, population: FloraTree[];
   beforeAll(async () => {
-    const [meshySource, pineSource, heroSource] = await Promise.all([meshyTreeTemplates(), pineTemplates(), HERO_PINE_DEFAULT ? heroPineFixtureTemplates() : null]);
+    const [meshySource, pineSource, heroSource] = await Promise.all([meshyTreeTemplates(activeMeshyTreeIds()), pineTemplates(), HERO_PINE_DEFAULT ? heroPineFixtureTemplates() : null]);
     meshy = createMeshyForest(meshySource); pine = createPineForest(pineSource); hero = heroSource ? createHeroPineForest(heroSource) : null;
     terrain = new Terrain(); models = forestModels(pine, meshy, hero);
     population = plantForest(terrain, new Exclusions(terrain), pine, meshy, models);

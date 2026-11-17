@@ -293,7 +293,8 @@ Improved:
   painter and the search to the ones they replace ([#859](https://github.com/0xAell/Tervain/pull/859)).
 - The woodland floor the core exports is the one the game lays. Its rule reads the shade the drawn crowns cast, which
   only the models give; the export laid it with an estimate from the trees' sizes and had 296 pieces where the game lays
-  720. The core keeps the game's floor as it keeps the forest, checked by the same test ([#860](https://github.com/0xAell/Tervain/pull/860)).
+  720 (669: the test drew the supplied trees, corrected below). The core keeps the game's floor as it keeps the forest,
+  checked by the same test ([#860](https://github.com/0xAell/Tervain/pull/860)).
 - The fractal noise the faces, the menu's materials, the bark and the ground are painted from (`fbmField`) hashes each
   lattice corner once for the rows that share it, where every pixel hashed its four again: 2.5 times as fast, to the
   bit, and 0.6 s less of the load between the click and the woodland ([#861](https://github.com/0xAell/Tervain/pull/861)).
@@ -322,6 +323,12 @@ Improved:
   life of the page kept their parsers too. The game parses through `parseModel`, which keeps of the parser only the
   JSON and the associations it reads afterwards: at a settled journey the page's array buffers take 654 MB where they
   took 810 ([#868](https://github.com/0xAell/Tervain/pull/868)).
+- The core's forest and floor are planted with the generated trees the game draws. The test that keeps them drew the
+  supplied trees: its fixture read only those files, while the game draws generated oaks, birches, bushes, orchard
+  trees and a sentinel in their slots by default. A tree keeps the supplied model's spacing, but the drawn model's roots
+  seat it, its wood sets the walk grid's clearance and its crown the floor's shade. Compared with a running game tree
+  for tree and piece for piece: 13 oaks sat up to 0.24 m too high in the copy, 27 trees kept the wrong clearance (by up
+  to 7.5 m), and the floor has 669 pieces, not 720. The export follows (PR_FAMILIES).
 
 Next:
 
