@@ -1,13 +1,8 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { readGlb as readModel, type Glb } from './glbFixture';
 import { heroPineEnabled, HERO_PINE_DEFAULT, HERO_PINE_FILES, HERO_PINE_VARIANTS } from '../../src/presentation/heroPine';
 
-interface Glb { json: any }
-function readGlb(name: string): Glb {
-  const bytes = readFileSync(new URL(`../../public/models/flora/hero/${name}`, import.meta.url));
-  expect(bytes.readUInt32LE(0)).toBe(0x46546c67); expect(bytes.readUInt32LE(8)).toBe(bytes.length);
-  return { json: JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString('utf8')) };
-}
+const readGlb = (name: string): Glb => readModel(`flora/hero/${name}`);
 const mesh = (glb: Glb, name: string) => glb.json.meshes.find((m: { name: string }) => m.name === name).primitives[0];
 const tris = (glb: Glb, name: string) => glb.json.accessors[mesh(glb, name).indices].count / 3;
 

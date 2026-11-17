@@ -1,9 +1,9 @@
 import { webcrypto } from 'node:crypto';
-import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { deduplicateTreeTextures, treeCutoutIsRedundant } from '../../src/presentation/treeTexturePool';
+import { readGlb } from './glbFixture';
 
 vi.stubGlobal('crypto', webcrypto);
 afterEach(() => vi.restoreAllMocks());
@@ -30,10 +30,7 @@ const closeOf = (value: THREE.Texture) => (value.image as unknown as { close: Re
 
 describe('embedded tree LOD texture residency', () => {
   it('recognizes actual opaque bark while retaining other alpha inputs and unknown images', async () => {
-    const read = (file: string) => {
-      const bytes = readFileSync(new URL(`../../public/models/flora/hero/${file}`, import.meta.url));
-      return { bytes, json: JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString()) };
-    };
+    const read = (file: string) => readGlb(`flora/hero/${file}`);
     for (const id of ['hero-oak', 'hero-oak-b', 'hero-oak-c']) {
       // hero-oak-b and -c carry no images: they draw hero-oak's, whose near file theirs names (A159).
       const own = read(`${id}-near.glb`), shared = own.json.asset.extras?.tervainSharedImages as string | undefined;

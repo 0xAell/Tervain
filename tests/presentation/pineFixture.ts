@@ -1,18 +1,14 @@
-import { readFileSync } from 'node:fs';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from '../../src/presentation/assets/gltfLoader';
 import { HERO_PINE_FILES, type HeroPineTemplates } from '../../src/presentation/heroPine';
 import { PINE_FILES, type PineTemplates } from '../../src/presentation/solitaryPine';
+import { packGlb, parseGlb, readGlb } from './glbFixture';
 
 export function pineBinary(file: string) {
-  const bytes = readFileSync(new URL(`../../public/models/flora/${file}`, import.meta.url));
-  const length = bytes.readUInt32LE(12);
-  const json = JSON.parse(bytes.subarray(20, 20 + length).toString('utf8'));
-  return { bytes, json, length };
+  return readGlb(`flora/${file}`);
 }
 
 async function withoutImages(file: string): Promise<GLTF> {
-  const { bytes, json, length } = pineBinary(file);
+  const glb = pineBinary(file), json = glb.json;
   // Keep every delivered vertex/index/UV and the MASK/PBR material semantics; image pixels have a browser gate.
   json.materials = json.materials.map((material: { alphaMode?: string; alphaCutoff?: number; doubleSided?: boolean }) => ({
     alphaMode: material.alphaMode, alphaCutoff: material.alphaCutoff, doubleSided: material.doubleSided,
@@ -20,12 +16,7 @@ async function withoutImages(file: string): Promise<GLTF> {
   }));
   delete json.textures; delete json.images; delete json.samplers;
   delete json.extensionsUsed; delete json.extensionsRequired;
-  const serialized = Buffer.from(JSON.stringify(json)), padded = Math.ceil(serialized.length / 4) * 4;
-  const bin = bytes.subarray(20 + length), decoded = Buffer.alloc(20 + padded + bin.length);
-  decoded.writeUInt32LE(0x46546c67, 0); decoded.writeUInt32LE(2, 4); decoded.writeUInt32LE(decoded.length, 8);
-  decoded.writeUInt32LE(padded, 12); decoded.writeUInt32LE(0x4e4f534a, 16);
-  decoded.fill(0x20, 20, 20 + padded); serialized.copy(decoded, 20); bin.copy(decoded, 20 + padded);
-  return createGltfLoader().parseAsync(decoded.buffer.slice(decoded.byteOffset, decoded.byteOffset + decoded.byteLength) as ArrayBuffer, '');
+  return parseGlb(packGlb(glb, json));
 }
 
 export async function pineTemplates(): Promise<PineTemplates> {
