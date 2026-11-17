@@ -299,7 +299,7 @@ Improved:
   bit, and 0.6 s less of the load between the click and the woodland ([#861](https://github.com/0xAell/Tervain/pull/861)).
 - The tests read and decode the shipped model files through one fixture (`tests/presentation/glbFixture.ts`): five
   fixtures and seven tests each had their own copy of the bytes that re-pack a glTF file without its images, and of
-  the checks that it is one (PR_GLB).
+  the checks that it is one ([#862](https://github.com/0xAell/Tervain/pull/862)).
 
 Next:
 
