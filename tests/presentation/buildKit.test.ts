@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { Batch, Ctx } from '../../src/presentation/buildKit';
+import { Region } from '../../src/presentation/regions';
 
 const color = 0x9a8468;
 
@@ -186,5 +187,24 @@ describe('settlement geometry front faces', () => {
     expect(hits[0]!.point.distanceTo(center)).toBeLessThan(0.151);
     mesh.material.dispose();
     g.dispose();
+  });
+});
+
+describe('a merged region', () => {
+  // The settlement's and the scatter's regions are kept by the closures of the world they were built for. Their
+  // batches' building arrays grow by doubling, so they held up to twice the geometry after the meshes had copied it:
+  // 65 MB at a settled journey. A merged region lets them go.
+  it('keeps its meshes and counts but not its building arrays, and takes no more geometry', () => {
+    const region = new Region('merged', new Ctx()), material = new THREE.MeshStandardMaterial();
+    region.stone.box(1, 1, 1, 0, 0.5, 0, color);
+    const tris = region.tris;
+    expect(tris).toBeGreaterThan(0);
+    const mesh = region.toGroup({ get: () => material }).children[0] as THREE.Mesh;
+    expect(mesh.geometry.getIndex()!.count / 3).toBe(tris);
+    expect(region.tris).toBe(tris);
+    expect(region.stone.p.a.length + region.stone.nr.a.length + region.stone.ix.a.length).toBe(0);
+    expect(() => region.stone.box(1, 1, 1, 0, 0.5, 0, color)).toThrow(/merged/);
+    expect(() => region.plaster).toThrow(/merged/);
+    expect(() => region.toGroup({ get: () => material })).toThrow(/already been merged/);
   });
 });
