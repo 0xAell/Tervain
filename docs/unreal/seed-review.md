@@ -368,6 +368,11 @@ Improved:
   working it out for every texel: a texel's angle depends only on an integer step, which a 512² tile reaches at most
   41,000 times where it has 262,144 texels. Every byte of the three is the same, and in a profiled load on the
   four-core test machine they take 0.57 s of the terrain stage where they took 1.08 s ([#877](https://github.com/0xAell/Tervain/pull/877)).
+- The world's cooperative construction (the terrain, its surface and tiles, the walking routes) works in 48 ms slices
+  while the loading screen covers it. It worked 8 ms and then waited for a painted frame, so those stages were idle
+  about as long as they worked; the loading screen's animations run on the compositor, and only its progress text now
+  changes less often. In three alternating pairs on the four-core test machine the build from the terrain to the first
+  view's preparation takes 12.5 to 12.7 s where it took 16.5 to 17.1 s, and the world is the same ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 

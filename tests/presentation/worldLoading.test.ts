@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { WorldScene, type WorldBuildProgress } from '../../src/presentation/world';
+import { WORLD_BUILD_SLICE_MS, WorldScene, type WorldBuildProgress } from '../../src/presentation/world';
 import { createInitialState } from '../../src/core/game/state';
 import { defaultSettings } from '../../src/platform/settings';
 import { Colliders } from '../../src/core/world/colliders';
@@ -23,6 +23,8 @@ const controls = vi.hoisted(() => ({
   modelsStarted: null as (() => void) | null,
   furnitureGate: null as Promise<void> | null,
   furnitureLoads: 0,
+  /** The work slice each cooperative stage was asked to keep to. */
+  budgets: [] as [string, number | undefined][],
   modelCallbacks: {} as Partial<Record<'pine' | 'heroPine' | 'stone' | 'trees' | 'animals' | 'furniture', (loaded: number, total: number) => void>>,
 }));
 
@@ -44,7 +46,8 @@ function owner(name: string) {
 
 vi.mock('../../src/presentation/assets/needs', () => ({ ALL_NEEDS: [] }));
 vi.mock('../../src/core/world/terrain', () => ({ Terrain: class {
-  static async create(options: { onProgress?: (completed: number, total: number) => void }) {
+  static async create(options: { onProgress?: (completed: number, total: number) => void; budgetMs?: number }) {
+    controls.budgets.push(['terrain', options.budgetMs]);
     const nz = (WORLD.maxZ - WORLD.minZ) / WORLD.cell;
     options.onProgress?.(nz + 1, nz + 1);
     return { heightAt: () => 0, nz, rooms: { base: () => 0 } };
@@ -54,11 +57,13 @@ vi.mock('../../src/core/world/colliders', async importOriginal => ({
   ...await importOriginal<typeof import('../../src/core/world/colliders')>(), buildStaticColliders: () => controls.colliders,
 }));
 vi.mock('../../src/core/world/nav', async importOriginal => ({ ...await importOriginal<typeof import('../../src/core/world/nav')>(), NavGrid: class {
-  static async create(terrain: { nz: number }, _colliders: unknown, _radius: number, options: { onProgress?: (completed: number, total: number) => void }) {
+  static async create(terrain: { nz: number }, _colliders: unknown, _radius: number, options: { onProgress?: (completed: number, total: number) => void; budgetMs?: number }) {
+    controls.budgets.push(['walking routes', options.budgetMs]);
     if (controls.navigationGate) await controls.navigationGate;
     options.onProgress?.(terrain.nz, terrain.nz);
     controls.navVersions.push((controls.colliders as Colliders).version);
-    return { ensureFresh() {}, async forRadiusAsync(_radius: number, wider: { onProgress?: (completed: number, total: number) => void }) {
+    return { ensureFresh() {}, async forRadiusAsync(_radius: number, wider: { onProgress?: (completed: number, total: number) => void; budgetMs?: number }) {
+      controls.budgets.push(['large creature routes', wider.budgetMs]);
       wider.onProgress?.(4, terrain.nz); wider.onProgress?.(terrain.nz, terrain.nz);
       controls.navVersions.push((controls.colliders as Colliders).version);
     } };
@@ -75,7 +80,8 @@ vi.mock('../../src/presentation/terrainTextures', () => ({ TERRAIN_TEXTURE_SIZE:
   options.onProgress?.(8, 8);
   return textures;
 } }));
-vi.mock('../../src/presentation/terrainMesh', () => ({ buildTerrainTilesAsync: async () => {
+vi.mock('../../src/presentation/terrainMesh', () => ({ buildTerrainTilesAsync: async (...args: unknown[]) => {
+  controls.budgets.push(['ground', (args[5] as { budgetMs?: number } | undefined)?.budgetMs]);
   if (controls.groundFailure) throw controls.groundFailure;
   return owner('ground tiles').group;
 } }));
@@ -142,7 +148,7 @@ function deferred() {
 beforeEach(() => {
   controls.owners = []; controls.navVersions = []; controls.groundFailure = null; controls.navigationGate = null;
   controls.modelGate = null; controls.modelsStarted = null; controls.modelCallbacks = {};
-  controls.furnitureGate = null; controls.furnitureLoads = 0; buildCaches.release.mockClear();
+  controls.furnitureGate = null; controls.furnitureLoads = 0; controls.budgets = []; buildCaches.release.mockClear();
   const colliders = new Colliders();
   for (const id of ['archive_door', 'archive_shutter', 'shortcut_gate']) colliders.circle(id, 0, 0, 1);
   controls.colliders = colliders;
@@ -241,6 +247,19 @@ describe('world load and activation boundary', () => {
       expect(world.modules.find(module => module.name === 'forest')).toBeDefined();
       expect(WorldScene.prototype.syncStatic).toHaveBeenCalledWith(state, true);
     } finally { disposeSceneResources(world.scene, () => world.dispose()); }
+  });
+
+  it('works its cooperative stages in long slices while the loading screen covers them, unless the caller names its own', async () => {
+    expect(WORLD_BUILD_SLICE_MS).toBeGreaterThan(8);
+    for (const [given, expected] of [[undefined, WORLD_BUILD_SLICE_MS], [5, 5]] as const) {
+      controls.budgets = [];
+      const world = await WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined,
+        { yieldNow: async () => {}, ...(given === undefined ? {} : { budgetMs: given }) });
+      try {
+        expect(new Set(controls.budgets.map(([stage]) => stage))).toEqual(new Set(['terrain', 'ground', 'walking routes', 'large creature routes']));
+        expect(controls.budgets.filter(([, budget]) => budget !== expected)).toEqual([]);
+      } finally { disposeSceneResources(world.scene, () => world.dispose()); }
+    }
   });
 
   it('cleans every completed owner and attached geometry when cancellation arrives before activation', async () => {
