@@ -62,7 +62,7 @@ import { ResidentArrivals, residentRolesNear, type AwaitingFigure } from './pres
 import { ANIMALS, loadAnimalTemplates } from './presentation/animals';
 import { REALM_WIND } from './core/world/wind';
 import type { AnimalDefinition } from './core/content/animals';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { ModelGltf } from './presentation/assets/gltfLoader';
 import { npcStyle } from './presentation/npcStyle';
 import { WaterRenderPass } from './presentation/waterRenderPass';
 import { installDepthOnlyShadowPass } from './presentation/softShadows';
@@ -127,7 +127,7 @@ export class App {
   private mainHeroInstalled = false;
   private treeTemplates: MeshyTreeTemplates | undefined;
   /** The stag that grazes across the title meadow: the same template the wildlife uses later, loaded once. */
-  private menuDeer: { template: GLTF; definition: AnimalDefinition } | undefined;
+  private menuDeer: { template: ModelGltf; definition: AnimalDefinition } | undefined;
   /** The title's stag is the saddled deer's model. */
   private static readonly MENU_DEER_ID = MOUNT_ID;
   private npcAssets: MeshyNpcCatalog | null = null;

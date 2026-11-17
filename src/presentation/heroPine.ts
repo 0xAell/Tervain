@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from './assets/gltfLoader';
+import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import type { TreeVariant } from './treeGen';
 import { modelAssetUrl } from './assets/modelUrl';
 import { withModelLoadSlot } from './assets/modelLoadQueue';
@@ -30,23 +29,23 @@ function needleTint(search = typeof location !== 'undefined' ? location.search :
   } catch { /* the default tint */ }
   return HERO_NEEDLE_TINT;
 }
-export type HeroPineTemplates = readonly [GLTF, GLTF, GLTF];
+export type HeroPineTemplates = readonly [ModelGltf, ModelGltf, ModelGltf];
 
 export function heroPineEnabled(search = typeof location !== 'undefined' ? location.search : ''): boolean {
   try { const flag = new URLSearchParams(search).get('heropine'); return flag === '1' ? true : flag === '0' ? false : HERO_PINE_DEFAULT; } catch { return HERO_PINE_DEFAULT; }
 }
 
-const pending = new Map<string, Promise<GLTF>>();
+const pending = new Map<string, Promise<ModelGltf>>();
 let loaded: HeroPineTemplates | null = null;
 export const heroPineTemplates = (): HeroPineTemplates | null => loaded;
 
-function load(file: string): Promise<GLTF> {
+function load(file: string): Promise<ModelGltf> {
   const existing = pending.get(file);
   if (existing) return existing;
   const request = withModelLoadSlot(async () => {
     const url = modelAssetUrl(`flora/${file}`, import.meta.env.BASE_URL, document.baseURI);
     const buffer = await downloadAsset(url, { label: 'The hero pine model', model: `flora/${file}` });
-    return createGltfLoader().parseAsync(buffer, new URL('.', url).href);
+    return parseModel(buffer, new URL('.', url).href);
   }).catch((error: unknown) => { pending.delete(file); throw error; });
   pending.set(file, request);
   return request;
@@ -66,7 +65,7 @@ export interface HeroPineForest {
   dispose(): void;
 }
 
-function find(gltf: GLTF, name: string): THREE.Mesh {
+function find(gltf: ModelGltf, name: string): THREE.Mesh {
   let found: THREE.Mesh | null = null;
   gltf.scene.traverse((o) => { if (o.name === name && (o as THREE.Mesh).isMesh) found = o as THREE.Mesh; });
   if (!found) throw new Error(`The hero pine model lacks ${name}.`);

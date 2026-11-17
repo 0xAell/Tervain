@@ -39,7 +39,7 @@ function malformed(field: number, value: number) {
   return bytes;
 }
 
-const parsedHero = { scene: { name: 'approved-main-hero' }, animations: [] } as unknown as GLTF;
+const parsedHero = { scene: { name: 'approved-main-hero' }, animations: [], parser: { json: {}, associations: new Map() } } as unknown as GLTF;
 const fetchMock = vi.fn<typeof fetch>();
 let subject: typeof import('../../src/presentation/mainHero');
 let policy: typeof import('../../src/presentation/assets/download').DOWNLOAD_POLICY;

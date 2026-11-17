@@ -1,7 +1,6 @@
 import { CONIFER_MAX_SCALE, ORCHARD_MAX_SCALE, PALM_MAX_SCALE } from '../core/world/treeScale';
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from './assets/gltfLoader';
+import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { Species, TreeVariant } from './treeGen';
 import { assertNaturalModelBudget } from './naturalModelBudget';
@@ -83,9 +82,9 @@ const heroNoTwigs = () => heroFlag('heronotwigs');
 export function activeMeshyTreeIds(enabled = heroOakEnabled(), birches = heroBirchEnabled(), bushes = heroBushEnabled(), orchards = heroOrchardEnabled(), sentinels = heroSentinelEnabled()): readonly string[] {
   return enabled ? [...MESHY_TREE_IDS, ...HERO_OAK_IDS, ...(birches ? HERO_BIRCH_IDS : []), ...(bushes ? HERO_BUSH_IDS : []), ...(orchards ? HERO_ORCHARD_IDS : []), ...(sentinels ? HERO_SENTINEL_IDS : [])] : MESHY_TREE_IDS;
 }
-export type MeshyTreeTemplates = ReadonlyMap<string, readonly [GLTF, GLTF, GLTF]>;
+export type MeshyTreeTemplates = ReadonlyMap<string, readonly [ModelGltf, ModelGltf, ModelGltf]>;
 export const MESHY_TREE_LODS = ['near', 'mid', 'far'] as const;
-const pending = new Map<string, Promise<GLTF>>();
+const pending = new Map<string, Promise<ModelGltf>>();
 
 /** Broadleaf kinds whose exported leaflets leave a thin crown (A70). */
 const BROADLEAF = new Set<Species>(['oak', 'birch', 'orchard']);
@@ -341,7 +340,7 @@ export const meshyTreeModelPath = (id: string, lod: typeof MESHY_TREE_LODS[numbe
 interface Part { geometry: THREE.BufferGeometry; material: THREE.MeshStandardMaterial; matrix: THREE.Matrix4 }
 interface Parts { wood: Part | null; leaf: Part | null }
 /** Only a rejected, not-yet-pooled parse owns these images; accepted templates stay immutable and cached. */
-function disposeRejectedTree(gltf: GLTF): void {
+function disposeRejectedTree(gltf: ModelGltf): void {
   const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(), textures = new Set<THREE.Texture>(), images = new Set<unknown>();
   for (const scene of new Set([gltf.scene, ...gltf.scenes])) scene.traverse(object => {
     const mesh = object as THREE.Mesh;
@@ -355,7 +354,7 @@ function disposeRejectedTree(gltf: GLTF): void {
   geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); textures.forEach(t => t.dispose());
   for (const image of images) if (typeof (image as { close?: unknown } | null)?.close === 'function') (image as { close(): void }).close();
 }
-function assertDecodedTreeTextures(gltf: GLTF, decoded: Parts): void {
+function assertDecodedTreeTextures(gltf: ModelGltf, decoded: Parts): void {
   const json = gltf.parser.json as { materials?: { pbrMetallicRoughness?: { baseColorTexture?: unknown; metallicRoughnessTexture?: unknown }; normalTexture?: unknown; occlusionTexture?: unknown; emissiveTexture?: unknown }[] };
   for (const part of [decoded.wood!, decoded.leaf!]) {
     const material = part.material;
@@ -375,7 +374,7 @@ function assertDecodedTreeTextures(gltf: GLTF, decoded: Parts): void {
   }
 }
 /** Semantic names are authored by the preparation pipeline; opaque leaf volumes are still foliage. */
-export function meshyTreeParts(gltf: GLTF): Parts {
+export function meshyTreeParts(gltf: ModelGltf): Parts {
   gltf.scene.updateMatrixWorld(true);
   const result: Parts = { wood: null, leaf: null };
   gltf.scene.traverse(object => {
@@ -394,18 +393,18 @@ export function meshyTreeParts(gltf: GLTF): Parts {
   return result;
 }
 /** The file a tree model's images come from when it carries none of its own (A71). */
-function sharedImages(gltf: GLTF): string | null {
+function sharedImages(gltf: ModelGltf): string | null {
   const extras = (gltf.parser.json as { asset?: { extras?: { tervainSharedImages?: unknown } } }).asset?.extras;
   return typeof extras?.tervainSharedImages === 'string' ? extras.tervainSharedImages : null;
 }
 
 const TEXTURE_SLOTS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap'] as const;
-const borrowed = new WeakSet<GLTF>();
+const borrowed = new WeakSet<ModelGltf>();
 /**
  * Give a model that carries no images the textures of the near model that does, material by material (matched by role,
  * the name before its `|`: a bush borrows the oak's), slot by slot (A71).
  */
-function borrowTextures(near: GLTF, lod: GLTF) {
+function borrowTextures(near: ModelGltf, lod: ModelGltf) {
   if (!sharedImages(lod) || borrowed.has(lod)) return;
   const source = new Map<string, THREE.MeshStandardMaterial>();
   const role = (name: string) => name.split('|')[0]!.trim().toLowerCase();
@@ -425,7 +424,7 @@ function borrowTextures(near: GLTF, lod: GLTF) {
  * The near model whose images a tree's models share: its own, or the one beside it that its near file names. The hero oaks
  * draw the same bark and leaves, so only hero-oak-near carries them (A159).
  */
-async function imageOwner(id: string, near: GLTF): Promise<GLTF> {
+async function imageOwner(id: string, near: ModelGltf): Promise<ModelGltf> {
   const file = sharedImages(near);
   if (!file) return near;
   const owner = /^(.+)-near\.glb$/.exec(file)?.[1];
@@ -437,7 +436,7 @@ async function imageOwner(id: string, near: GLTF): Promise<GLTF> {
   return source;
 }
 
-async function load(id: string, lod: typeof MESHY_TREE_LODS[number]): Promise<GLTF> {
+async function load(id: string, lod: typeof MESHY_TREE_LODS[number]): Promise<ModelGltf> {
   const key = `${id}:${lod}`, existing = pending.get(key);
   if (existing) return existing;
   const request = withModelLoadSlot(async () => {
@@ -446,7 +445,7 @@ async function load(id: string, lod: typeof MESHY_TREE_LODS[number]): Promise<GL
     if (buffer.byteLength < 12) throw new Error(`Tree ${id} download is incomplete.`);
     const header = new DataView(buffer);
     if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(4, true) !== 2 || header.getUint32(8, true) !== buffer.byteLength) throw new Error(`Tree ${id} is not a complete GLB 2 file.`);
-    const gltf = await createGltfLoader().parseAsync(buffer, new URL('.', url).href);
+    const gltf = await parseModel(buffer, new URL('.', url).href);
     try {
       const bounds = new THREE.Box3().setFromObject(gltf.scene);
       if (bounds.isEmpty() || ![...bounds.min, ...bounds.max].every(Number.isFinite)) throw new Error(`Tree ${id} has invalid geometry bounds.`);
@@ -466,7 +465,7 @@ async function load(id: string, lod: typeof MESHY_TREE_LODS[number]): Promise<GL
 }
 /** Decode a bounded number of trees concurrently; failed requests can be retried by the loading screen. */
 export async function loadMeshyTrees(ids: readonly string[] = activeMeshyTreeIds(), onProgress?: (loaded: number, total: number) => void): Promise<MeshyTreeTemplates> {
-  const result = new Map<string, readonly [GLTF, GLTF, GLTF]>();
+  const result = new Map<string, readonly [ModelGltf, ModelGltf, ModelGltf]>();
   const selected = [...new Set(ids)];
   // B12: the procedural leaf atlases load beside the models (a failure keeps the earlier leaf art).
   if (leafAtlasWanted()) await loadLeafAtlas();
@@ -479,7 +478,7 @@ export async function loadMeshyTrees(ids: readonly string[] = activeMeshyTreeIds
         const lods = await Promise.all(MESHY_TREE_LODS.map(lod => load(id, lod)));
         const owner = await imageOwner(id, lods[0]!);
         for (const lod of lods) if (lod !== owner) borrowTextures(owner, lod);
-        result.set(id, lods as unknown as readonly [GLTF, GLTF, GLTF]);
+        result.set(id, lods as unknown as readonly [ModelGltf, ModelGltf, ModelGltf]);
         if (active) onProgress?.(result.size, selected.length);
       }
     }));

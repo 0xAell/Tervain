@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { ModelGltf } from '../assets/gltfLoader';
 import { HERO_FINGERS } from './bones';
 
 /**
@@ -26,7 +26,7 @@ const HAND_WEIGHT_PASSES = 3;
 
 export interface FingerFitReport { joint: string; moved: number }
 
-export function fitHeroFingers(asset: Pick<GLTF, 'scene' | 'animations'>): FingerFitReport[] {
+export function fitHeroFingers(asset: Pick<ModelGltf, 'scene' | 'animations'>): FingerFitReport[] {
   if (asset.scene.userData[FITTED]) return asset.scene.userData[FITTED] as FingerFitReport[];
   let skin: THREE.SkinnedMesh | null = null;
   asset.scene.traverse((object) => { if (!skin && (object as THREE.SkinnedMesh).isSkinnedMesh) skin = object as THREE.SkinnedMesh; });

@@ -1,8 +1,7 @@
 import { rideable, STANDING_BODY } from '../core/rules/session';
 import * as THREE from 'three';
 import { compactAnimalBoneTexture } from './animals/boneTexture';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from './assets/gltfLoader';
+import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import type { Collider } from '../core/world/colliders';
 import type { PhysicalActor } from '../physics/physics';
@@ -21,10 +20,10 @@ import { finishCooperatively, type CooperativeOptions } from '../platform/cooper
 import { AnimalMind, Wildlife } from '../core/rules/animalMind';
 
 export { ANIMALS, ANIMAL_TRIANGLE_LIMIT } from '../core/content/animals';
-export type AnimalTemplates = ReadonlyMap<string, GLTF>;
+export type AnimalTemplates = ReadonlyMap<string, ModelGltf>;
 export type AnimalCallEvent = AnimalCall;
 export { ANIMAL_CALL_EVENT } from './sound/animalAudio';
-const pending = new Map<string, Promise<GLTF>>();
+const pending = new Map<string, Promise<ModelGltf>>();
 const PAWS = new Set(['frontPawL', 'frontPawR', 'hindPawL', 'hindPawR']);
 const SOLE_SAMPLES_PER_PAW = 12;
 
@@ -52,7 +51,7 @@ function modelMotionSpeeds(scene: THREE.Group, definition: AnimalDefinition): Mo
   return { Walk: motion.Walk!, Run: motion.Run! };
 }
 
-function* animalValidationSteps(template: Pick<GLTF, 'scene' | 'animations'>, definition: AnimalDefinition): Generator<void, AnimalValidation> {
+function* animalValidationSteps(template: Pick<ModelGltf, 'scene' | 'animations'>, definition: AnimalDefinition): Generator<void, AnimalValidation> {
   let triangles = 0, skins = 0;
   const bones = new Set<string>();
   const meshes: THREE.Mesh[] = [];
@@ -64,7 +63,7 @@ function* animalValidationSteps(template: Pick<GLTF, 'scene' | 'animations'>, de
     const vertices = mesh.geometry.index?.count ?? mesh.geometry.getAttribute('position')?.count;
     if (!vertices || vertices % 3) throw new Error(`The ${definition.species} model requires complete triangle geometry.`);
     triangles += vertices / 3;
-    const parser = (template as GLTF).parser;
+    const parser = (template as ModelGltf).parser;
     for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
       const association = parser?.associations?.get(material), authored = association?.materials === undefined ? undefined : parser?.json?.materials?.[association.materials];
       const expected: Record<string, unknown> = { map: authored?.pbrMetallicRoughness?.baseColorTexture,
@@ -126,7 +125,7 @@ function* animalValidationSteps(template: Pick<GLTF, 'scene' | 'animations'>, de
 }
 
 /** Validate the entire rendered model, including supplied saddles, ears, horns and tails. */
-export function validateAnimalTemplate(template: Pick<GLTF, 'scene' | 'animations'>, definition: AnimalDefinition): AnimalValidation {
+export function validateAnimalTemplate(template: Pick<ModelGltf, 'scene' | 'animations'>, definition: AnimalDefinition): AnimalValidation {
   const steps = animalValidationSteps(template, definition);
   let next = steps.next();
   while (!next.done) next = steps.next();
@@ -134,12 +133,12 @@ export function validateAnimalTemplate(template: Pick<GLTF, 'scene' | 'animation
 }
 
 /** Prepare an unpublished source while allowing the browser to present between bounded batches. */
-export function validateAnimalTemplateAsync(template: Pick<GLTF, 'scene' | 'animations'>, definition: AnimalDefinition,
+export function validateAnimalTemplateAsync(template: Pick<ModelGltf, 'scene' | 'animations'>, definition: AnimalDefinition,
   options: CooperativeOptions = {}): Promise<AnimalValidation> {
   return finishCooperatively(animalValidationSteps(template, definition), { ...options, budgetMs: options.budgetMs ?? 2 });
 }
 
-function releaseRejectedTemplate(template: GLTF) {
+function releaseRejectedTemplate(template: ModelGltf) {
   const geometry = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(), textures = new Set<THREE.Texture>();
   template.scene.traverse(object => {
     const mesh = object as THREE.Mesh;
@@ -156,7 +155,7 @@ function releaseRejectedTemplate(template: GLTF) {
   images.forEach(value => value.close?.());
 }
 
-function loadAnimal(definition: AnimalDefinition): Promise<GLTF> {
+function loadAnimal(definition: AnimalDefinition): Promise<ModelGltf> {
   const cached = pending.get(definition.id);
   if (cached) return cached;
   const request = withModelLoadSlot(async () => {
@@ -167,7 +166,7 @@ function loadAnimal(definition: AnimalDefinition): Promise<GLTF> {
     if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(4, true) !== 2 || header.getUint32(8, true) !== bytes.byteLength) {
       throw new Error('The animal model download is not a complete GLB 2 file.');
     }
-    const template = await createGltfLoader().parseAsync(bytes, new URL('.', url).href);
+    const template = await parseModel(bytes, new URL('.', url).href);
     try { await validateAnimalTemplateAsync(template, definition); } catch (error) { releaseRejectedTemplate(template); throw error; }
     return template;
   }).catch(error => { pending.delete(definition.id); throw error; });
@@ -179,7 +178,7 @@ function loadAnimal(definition: AnimalDefinition): Promise<GLTF> {
  * Rejected art reaches the existing loading Retry; completed CPU templates survive a world reload. */
 export async function loadAnimalTemplates(progress?: (loaded: number, total: number) => void,
   definitions: readonly AnimalDefinition[] = ANIMALS): Promise<AnimalTemplates> {
-  const templates = new Map<string, GLTF>();
+  const templates = new Map<string, ModelGltf>();
   let next = 0, loaded = 0, failed = false;
   progress?.(0, definitions.length);
   await Promise.all(Array.from({ length: Math.min(3, definitions.length) }, async () => {
@@ -266,7 +265,7 @@ interface AnimalBody {
   animation: AnimalAnimation;
 }
 
-function cloneAnimal(template: GLTF, definition: AnimalDefinition, validated = validateAnimalTemplate(template, definition)): AnimalBody {
+function cloneAnimal(template: ModelGltf, definition: AnimalDefinition, validated = validateAnimalTemplate(template, definition)): AnimalBody {
   const scene = cloneSkinned(template.scene) as THREE.Group;
   const geometries = new Map<THREE.BufferGeometry, THREE.BufferGeometry>(), materials = new Map<THREE.Material, THREE.Material>(), textures = new Map<THREE.Texture, THREE.Texture>();
   const skeletons = new Set<THREE.Skeleton>(), paws: AnimalBody['paws'] = [];
@@ -347,7 +346,7 @@ export interface AnimalFigure {
   dispose(): void;
 }
 
-export function createAnimalFigure(template: GLTF, definition: AnimalDefinition): AnimalFigure {
+export function createAnimalFigure(template: ModelGltf, definition: AnimalDefinition): AnimalFigure {
   const body = cloneAnimal(template, definition);
   let disposed = false;
   return {
@@ -453,7 +452,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
   const facingScratch = new THREE.Vector3();
   // Fit every habitat before allocating disposable copies, so a bad placement cannot strand a partial set of GPU resources.
   // Reuse validation only within this build; a subsequent build still checks its source anew.
-  const fitted: { definition: AnimalDefinition; template: GLTF; home: AnimalSite; validated: ReturnType<typeof validateAnimalTemplate> }[] = [];
+  const fitted: { definition: AnimalDefinition; template: ModelGltf; home: AnimalSite; validated: ReturnType<typeof validateAnimalTemplate> }[] = [];
   for (const definition of definitions) {
     const template = templates.get(definition.id);
     if (!template) throw new Error(`The ${definition.species} source model was not loaded.`);

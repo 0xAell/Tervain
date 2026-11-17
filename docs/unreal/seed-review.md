@@ -317,6 +317,11 @@ Improved:
   described the other people as the generated eleven-bone figures that A49 and A65 replaced with the supplied models
   on rigs of their own. The README's numbers test now holds the guide's numbers too, and fails with the missing phrase
   instead of printing the page ([#867](https://github.com/0xAell/Tervain/pull/867)).
+- The models the game keeps no longer keep their files. Three's glTF result carries its parser, which holds the whole
+  file and what it decoded from it, and the caches that keep the residents', animals', trees' and hero's models for the
+  life of the page kept their parsers too. The game parses through `parseModel`, which keeps of the parser only the
+  JSON and the associations it reads afterwards: at a settled journey the page's array buffers take 654 MB where they
+  took 810 (PR_PARSER).
 
 Next:
 
@@ -327,7 +332,12 @@ Next:
   textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
   materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
   depth and shade passes).
-- Memory: the page holds about 2 GB, a JavaScript heap near 0.9 GB of it, most of that in typed arrays rather than
-  objects; find what holds them with a full heap snapshot.
+- Memory: at a settled journey the JavaScript heap is about 67 MB and its array buffers about 654 MB. A heap snapshot
+  names the largest holders left. Rapier's memory is 100 MB: every planted tree with a collision id gets its own copy
+  of its variant's near wood for contact (only trunk and roots for the hero pines), built again for each tree; how
+  much of the 100 MB that is is not yet measured, and a lighter contact mesh would change what can be stood on. The
+  geometry three keeps on the CPU after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB:
+  three needs both again only if a lost WebGL context is restored, which the game does not otherwise handle, so
+  freeing them trades that recovery for the memory.
 - Draws: in the opening view the trees are 77% of the 11 million triangles, and the water's reflection pass a third
   of the 744 draw calls. Trimming either changes the picture; measure it on a GPU first.
