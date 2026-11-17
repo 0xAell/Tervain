@@ -13,4 +13,7 @@ struct FMath
 	static int32 RoundToInt32(float F) { return static_cast<int32>(std::floor(F + 0.5f)); }
 	static float RadiansToDegrees(float Radians) { return Radians * (180.f / 3.14159265358979323846f); }
 	static float DegreesToRadians(float Degrees) { return Degrees * (3.14159265358979323846f / 180.f); }
+	/** "static float Sqrt ( float Value )" and "static double Sqrt ( double Value )": the two overloads Epic lists. */
+	static float Sqrt(float Value) { return std::sqrt(Value); }
+	static double Sqrt(double Value) { return std::sqrt(Value); }
 };

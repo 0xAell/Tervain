@@ -10,6 +10,7 @@
 #include "UObject/ObjectPtr.h"
 #include "UObject/SoftObjectPath.h"
 #include "Data/TervainRows.h"
+#include "Rules/TervainBowRules.h"
 #include "Rules/TervainHeroRules.h"
 #include "TervainDataSubsystem.generated.h"
 
@@ -53,6 +54,10 @@ public:
 	/** How water slows the legs, read from "hero.wade". */
 	UFUNCTION(BlueprintPure, Category = "Tervain|Data")
 	FTervainWadeTuning GetWadeTuning() const;
+
+	/** How an arrow leaves the string and falls, read from "bow". */
+	UFUNCTION(BlueprintPure, Category = "Tervain|Data")
+	FTervainBowTuning GetBowTuning() const;
 
 	/** An item's row, or null when the items table is not set, could not be loaded or has no such row. */
 	const FTervainItemRow* FindItem(FName ItemId) const;

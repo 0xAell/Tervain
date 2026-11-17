@@ -75,7 +75,7 @@ What is there:
   [#840](https://github.com/0xAell/Tervain/pull/840), [#841](https://github.com/0xAell/Tervain/pull/841), [#842](https://github.com/0xAell/Tervain/pull/842), [#843](https://github.com/0xAell/Tervain/pull/843), [#844](https://github.com/0xAell/Tervain/pull/844).
 
 What is missing from a ten: nothing the repository can do. Porting the rules to C++ is the port's work, phase by phase
-in the [roadmap](roadmap.md); the seed mirrors three of them as a worked example.
+in the [roadmap](roadmap.md); the seed mirrors four of them as a worked example.
 
 ## 2. Asset manifest
 
@@ -148,7 +148,7 @@ What is there:
 
 - [`unreal/`](../../unreal/README.md): a source-only project for Unreal Engine 5.9 with one module: row structs
   generated from the same definitions as the tables, the core's ids as generated constants, unit conversions, project
-  settings, a data subsystem that reads the tuning values, and three rules mirrored as a worked example.
+  settings, a data subsystem that reads the tuning values, and four rules mirrored as a worked example.
 - Every source file of the module compiles with warnings as errors, links and runs against stand-ins for the engine's
   headers ([`tests/tools/unrealSeedBuild.test.ts`](../../tests/tools/unrealSeedBuild.test.ts)); the mirrored rules
   return what the core returns on a few thousand cases
@@ -383,6 +383,10 @@ Improved:
   three alternating pairs the journey reaches its first view's preparation 19.2 s after the click where it took 22.8 s
   (medians). Splitting the ground's eight textures across three workers gained 0.2 s more, within the noise, and
   slowed the residents and the terrain by contention: not taken ([#880](https://github.com/0xAell/Tervain/pull/880)).
+- The Unreal seed mirrors a fourth rule: the bow's launch (`TervainRules::ArrowLaunchDirection`, its speed and gravity
+  read from `bow`), the low arc that carries an arrow through its target, in double precision as the core computes it.
+  It returns the core's direction within a millionth on 305 targets, from under the archer to beyond the bow's reach;
+  `FMath::Sqrt` joins the register with the page that documents it ([#881](https://github.com/0xAell/Tervain/pull/881)).
 
 Next:
 

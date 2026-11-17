@@ -118,6 +118,14 @@ FTervainWadeTuning UTervainDataSubsystem::GetWadeTuning() const
 	return Out;
 }
 
+FTervainBowTuning UTervainDataSubsystem::GetBowTuning() const
+{
+	FTervainBowTuning Out;
+	Out.ArrowSpeed = GetTuningNumber(TEXT("bow.arrowSpeed"));
+	Out.Gravity = GetTuningNumber(TEXT("bow.gravity"));
+	return Out;
+}
+
 UDataTable* UTervainDataSubsystem::LoadTable(const FSoftObjectPath& Path)
 {
 	return Path.IsNull() ? nullptr : Cast<UDataTable>(Path.TryLoad(nullptr, LOAD_None));

@@ -10,11 +10,11 @@ Checked on 2026-11-16. The register, [engine-symbols.json](engine-symbols.json),
 
 | Status | Names | Meaning |
 | --- | ---: | --- |
-| verified | 190 | The quoted passage, on the page named, states or shows what is assumed: the name and, for a function, its parameters or the behaviour relied on. |
+| verified | 191 | The quoted passage, on the page named, states or shows what is assumed: the name and, for a function, its parameters or the behaviour relied on. |
 | partly | 8 | The name is documented but something the seed or a stand-in relies on is not: a default argument, a value's spelling, an include that brings a name in. |
 | unverified | 1 | No public page was found that shows it. |
 | contradicted | 1 | A public page says otherwise. |
-| all | 200 | |
+| all | 201 | |
 
 ## What the public record does not settle
 
@@ -84,6 +84,7 @@ These are for the first build in the engine to settle. Each row says what is mis
 | --- | --- | --- |
 | `FMath::Max` | verified | [Max](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Max?application_version=5.8) |
 | `FMath::Min` | verified | [Min](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Min?application_version=5.8) |
+| `FMath::Sqrt` | verified | [Sqrt](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Sqrt?application_version=5.8) |
 | `FMath::RoundToInt32` | verified | [RoundToInt32](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/RoundToInt32?application_version=5.8) |
 | `FMath::RadiansToDegrees` | verified | [RadiansToDegrees](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMath/RadiansToDegrees?application_version=5.8) |
 | `FMath::DegreesToRadians` | verified | [FMath](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMath?application_version=5.8) |

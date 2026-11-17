@@ -18,7 +18,7 @@ import { BUILDINGS, ENEMY_SPAWNS, PLACES } from '../../src/core/world/layout';
 import { differences } from '../../tools/export-data.mjs';
 
 // The drift check between the engine-agnostic core and the Unreal C++ seed. The core is the source; unreal/ holds
-// C++ that mirrors its ids, its tables' shapes and the tuning values three rules read. This file fails when the two
+// C++ that mirrors its ids, its tables' shapes and the tuning values four rules read. This file fails when the two
 // stop agreeing, and proves on altered copies that it would. It is run by `npm run unreal:check` and by its own CI
 // job, together with the export check (data/ and the generated headers equal what the core produces), the row struct
 // check (unrealSkeleton), the mirrored rules (unrealRulesParity) and the build against stand-ins (unrealSeedBuild).
@@ -167,14 +167,14 @@ describe('the ids the Unreal seed names and the core', () => {
   it('is plain ASCII, and no hand-written source spells an id out instead of naming it', () => {
     expect(/[^\x09\x0a\x20-\x7e]/.exec(header)).toBeNull();
     const ids = new Set(Object.values(CORE).flat());
-    for (const file of ['unreal/Source/Tervain/Private/TervainDataSubsystem.cpp', 'unreal/Source/Tervain/Private/TervainSettings.cpp', 'unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp', 'unreal/Source/Tervain/Private/Tervain.cpp']) {
+    for (const file of ['unreal/Source/Tervain/Private/TervainDataSubsystem.cpp', 'unreal/Source/Tervain/Private/TervainSettings.cpp', 'unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp', 'unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp', 'unreal/Source/Tervain/Private/Tervain.cpp']) {
       for (const literal of text(file).matchAll(/TEXT\("([^"]+)"\)/g)) expect(ids.has(literal[1]!), `${file} spells out the id "${literal[1]}"`).toBe(false);
     }
   });
 });
 
 describe('the tuning values and shared constants the Unreal seed mirrors', () => {
-  const rules = text('unreal/Source/Tervain/Public/Rules/TervainHeroRules.h');
+  const rules = ['TervainHeroRules.h', 'TervainBowRules.h'].map((file) => text(`unreal/Source/Tervain/Public/Rules/${file}`)).join('\n');
   const subsystem = text('unreal/Source/Tervain/Private/TervainDataSubsystem.cpp');
   const tuning = JSON.parse(text('data/game/tuning.json')) as Record<string, unknown>;
   const at = (path: string) => path.split('.').reduce<unknown>((value, key) => (value && typeof value === 'object' ? (value as Record<string, unknown>)[key] : undefined), tuning);
@@ -190,7 +190,7 @@ describe('the tuning values and shared constants the Unreal seed mirrors', () =>
   };
 
   it('fill every member of each tuning struct from a number in data/game/tuning.json, each from its own path', () => {
-    for (const [struct, getter, count] of [['FTervainStaminaTuning', 'GetStaminaTuning', 9], ['FTervainGuardTuning', 'GetGuardTuning', 5], ['FTervainWadeTuning', 'GetWadeTuning', 3]] as const) {
+    for (const [struct, getter, count] of [['FTervainStaminaTuning', 'GetStaminaTuning', 9], ['FTervainGuardTuning', 'GetGuardTuning', 5], ['FTervainWadeTuning', 'GetWadeTuning', 3], ['FTervainBowTuning', 'GetBowTuning', 2]] as const) {
       const read = filled(getter);
       expect(read.map(([member]) => member), struct).toEqual(members(struct));
       expect(read).toHaveLength(count);
@@ -199,10 +199,14 @@ describe('the tuning values and shared constants the Unreal seed mirrors', () =>
     }
   });
 
-  it('read each stamina and wade value from the key of the same name, and every wade key', () => {
+  it('read each stamina, wade and bow value from the key of the same name, and every wade key', () => {
     const lower = (name: string) => name[0]!.toLowerCase() + name.slice(1);
     for (const [member, path] of filled('GetStaminaTuning')) expect(path).toBe(`hero.stamina.${lower(member)}`);
     for (const [member, path] of filled('GetWadeTuning')) expect(path).toBe(`hero.wade.${lower(member)}`);
+    for (const [member, path] of filled('GetBowTuning')) expect(path).toBe(`bow.${lower(member)}`);
+    // The bow's keys the launch does not read are named here, so a key added to the core is noticed.
+    expect(Object.keys(at('bow') as object).filter((key) => !filled('GetBowTuning').some(([, path]) => path === `bow.${key}`)))
+      .toEqual(['drawSeconds', 'flightSeconds', 'waterGravity', 'waterDrag', 'floatSpeed', 'floatSeconds', 'maxFlights', 'maxLodged', 'readySeconds']);
     expect(filled('GetWadeTuning').map(([, path]) => path.split('.').pop())).toEqual(Object.keys(at('hero.wade') as object));
     // Every stamina key the mirrored rule uses is read; the two it does not use are named here so a new key is noticed.
     const mirrored = filled('GetStaminaTuning').map(([, path]) => path.split('.').pop()!);
