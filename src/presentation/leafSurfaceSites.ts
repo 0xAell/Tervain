@@ -96,9 +96,14 @@ function nativeImagePixels(source: unknown): LeafRgbaImage | null {
 
 function channelPixels(image: LeafRgbaImage | null, channel: 1 | 3): LeafChannelImage | null {
   if (!validPixels(image)) return null;
-  const data = new Uint8Array(image.width * image.height);
+  const data = new Uint8Array(image.width * image.height), source = image.data;
+  // Decoded pixels are bytes already (a canvas's or a texture's), which need no check or clamp.
+  if (source instanceof Uint8Array || source instanceof Uint8ClampedArray) {
+    for (let i = 0; i < data.length; i++) data[i] = source[i * 4 + channel]!;
+    return { width: image.width, height: image.height, data };
+  }
   for (let i = 0; i < data.length; i++) {
-    const value = image.data[i * 4 + channel]!;
+    const value = source[i * 4 + channel]!;
     data[i] = Number.isFinite(value) ? Math.max(0, Math.min(255, value)) : 0;
   }
   return { width: image.width, height: image.height, data };
@@ -115,6 +120,8 @@ function nativeImageChannel(source: unknown, channel: 1 | 3): LeafChannelImage |
 }
 
 function wrappedPixel(index: number, size: number, wrap: THREE.Wrapping): number {
+  // Nearly every lookup lands inside the image, where each wrap gives the index back: no division for those.
+  if (index >= 0 && index < size) return index;
   if (wrap === THREE.RepeatWrapping) return ((index % size) + size) % size;
   if (wrap === THREE.MirroredRepeatWrapping) {
     const repeated = ((index % (size * 2)) + size * 2) % (size * 2);
