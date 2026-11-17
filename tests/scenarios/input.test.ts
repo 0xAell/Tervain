@@ -33,6 +33,28 @@ function controls() {
 afterEach(()=>vi.unstubAllGlobals());
 
 describe('input across world and interface boundaries',()=>{
+  it('keeps keyboard play running when the browser denies gamepad access', () => {
+    const { input, key, emit, setPad } = controls();
+    const getGamepads = navigator.getGamepads.bind(navigator);
+    const blocked = vi.fn(() => { throw new DOMException('Gamepad access denied', 'SecurityError'); });
+    vi.stubGlobal('navigator', { getGamepads: blocked });
+
+    key('KeyW');
+    input.poll(1 / 60);
+    input.poll(1 / 60);
+    emit('gamepaddisconnected');
+    expect(blocked).toHaveBeenCalledOnce();
+    expect(input.gamepadConnected).toBe(false);
+    expect(input.move().y).toBe(1);
+
+    vi.stubGlobal('navigator', { getGamepads });
+    setPad(0);
+    emit('gamepadconnected');
+    input.poll(1 / 60);
+    expect(input.gamepadConnected).toBe(true);
+    expect(input.pressed('interact')).toBe(true);
+  });
+
   it('requires a fresh press to confirm a conflicting rebind rather than accepting held-key autorepeat', () => {
     const { input, key, release } = controls();
     const confirm = vi.fn();
