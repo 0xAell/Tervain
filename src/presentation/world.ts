@@ -51,6 +51,7 @@ import type { MeshyNpcCatalog } from './meshynpcs';
 import { buildSourceRockPiles, loadSourceRockPile } from './sourceRockPile';
 import { loadMeshyTrees, MESHY_TREE_LODS, type MeshyTreeTemplates } from './meshyTrees';
 import { forestTreeIds } from './forestPlanting';
+import { releaseBuildCaches } from './buildCaches';
 import type { ModelGltf } from './assets/gltfLoader';
 import { buildCoastalBackdrop } from './coastalBackdrop';
 import { createGroundContactField } from '../core/world/groundContacts';
@@ -434,6 +435,8 @@ export class WorldScene {
         physics, nav, lanternLights, dust, dustData, riteResponse, foliage, buildMs: performance.now() - t0, disposeOwned, letIn, arrived: Promise.allSettled(late).then(() => undefined), warming, quality: settings.quality,
       });
       roomOpen = (room) => world.roomOpen(room);
+      // What only the build read (decoded leaf alpha, the trees' basal polygons) goes now, not with the world.
+      releaseBuildCaches();
       phase('finishing', 'Scene ready', 1, 1);
       return world;
     } catch (error) {

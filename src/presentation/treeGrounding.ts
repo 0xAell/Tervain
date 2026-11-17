@@ -1,4 +1,5 @@
 import type { TreeVariant } from './treeGen';
+import { buildCache } from './buildCaches';
 import type { FloraTree } from './floraPopulation';
 import { WORLD } from '../core/world/layout';
 import type { Terrain } from '../core/world/terrain';
@@ -15,11 +16,13 @@ export const TREE_ROOT_PLANE = 0.025;
 export const TREE_ROOT_FLARE = 0.35;
 /** The furthest a flare may sink a placed tree below its planting-plane seat. */
 export const TREE_FLARE_MAX_SINK = 1.5;
-const flares = new WeakMap<TreeVariant, readonly (readonly Point[])[]>();
+let flares = new WeakMap<TreeVariant, readonly (readonly Point[])[]>();
 export const TREE_SOIL_OVERLAP = 0.06;
 type Point = readonly [number, number, number];
-const roots = new WeakMap<TreeVariant, readonly (readonly Point[])[]>();
-const woodSlabs = new WeakMap<TreeVariant, { edges: Float32Array; radii: Map<number, number> }>();
+let roots = new WeakMap<TreeVariant, readonly (readonly Point[])[]>();
+let woodSlabs = new WeakMap<TreeVariant, { edges: Float32Array; radii: Map<number, number> }>();
+// The planting and the colliders read these while a world is built. A built world lets them go.
+buildCache(() => { flares = new WeakMap(); roots = new WeakMap(); woodSlabs = new WeakMap(); });
 const mix = (a: Point, b: Point, t: number): Point => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 
 /** Conservative navigation footprint of actual wood through the 2.6 m player slab.

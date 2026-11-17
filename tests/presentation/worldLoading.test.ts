@@ -130,6 +130,8 @@ vi.mock('../../src/presentation/furniture', async importOriginal => ({ loadFurni
 vi.mock('../../src/core/world/groundContacts', () => ({ createGroundContactField: () => ({}) }));
 vi.mock('../../src/presentation/physicalProps', () => ({ buildPhysicalProps: () => owner('physical supplies') }));
 vi.mock('../../src/presentation/riteResponse', () => ({ buildRiteResponse: () => owner('rite') }));
+const buildCaches = vi.hoisted(() => ({ release: vi.fn() }));
+vi.mock('../../src/presentation/buildCaches', () => ({ buildCache: () => {}, releaseBuildCaches: buildCaches.release }));
 
 function deferred() {
   let resolve!: () => void;
@@ -140,7 +142,7 @@ function deferred() {
 beforeEach(() => {
   controls.owners = []; controls.navVersions = []; controls.groundFailure = null; controls.navigationGate = null;
   controls.modelGate = null; controls.modelsStarted = null; controls.modelCallbacks = {};
-  controls.furnitureGate = null; controls.furnitureLoads = 0;
+  controls.furnitureGate = null; controls.furnitureLoads = 0; buildCaches.release.mockClear();
   const colliders = new Colliders();
   for (const id of ['archive_door', 'archive_shutter', 'shortcut_gate']) colliders.circle(id, 0, 0, 1);
   controls.colliders = colliders;
@@ -253,6 +255,17 @@ describe('world load and activation boundary', () => {
     }
     expect(geometryDisposal).toHaveBeenCalled();
     expect(WorldScene.prototype.syncStatic).not.toHaveBeenCalled();
+  });
+
+  it('empties the caches only a build reads once the world is built, and leaves them to the build after a cancelled one', async () => {
+    const controller = new AbortController(), reason = new DOMException('Replaced build', 'AbortError');
+    await expect(WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, {
+      yieldNow: async () => {}, signal: controller.signal,
+      onPhase: p => { if (p.phase === 'navigation') controller.abort(reason); },
+    })).rejects.toBe(reason);
+    expect(buildCaches.release).not.toHaveBeenCalled();
+    const world = await WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, { yieldNow: async () => {} });
+    try { expect(buildCaches.release).toHaveBeenCalledOnce(); } finally { disposeSceneResources(world.scene, () => world.dispose()); }
   });
 
   it('cleans earlier modules and private textures when a later ground construction stage fails', async () => {
