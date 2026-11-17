@@ -363,7 +363,7 @@ Improved:
   sampler indexes pixels inside the image without wrapping them; the wood search runs from a stack; the clump search
   welds leaf corners through a typed-array table and sorts its bounds tree on precomputed keys. In three alternating
   pairs on the four-core test machine the woodland stage takes 7.6 s where it took 10.4 s (medians), and all 63 drawn
-  tree levels' wood and leaves, and every planted tree's matrix, hash the same ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  tree levels' wood and leaves, and every planted tree's matrix, hash the same ([#876](https://github.com/0xAell/Tervain/pull/876)).
 
 Next:
 
