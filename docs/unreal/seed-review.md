@@ -373,11 +373,16 @@ Improved:
   about as long as they worked; the loading screen's animations run on the compositor, and only its progress text now
   changes less often. In three alternating pairs on the four-core test machine the build from the terrain to the first
   view's preparation takes 12.5 to 12.7 s where it took 16.5 to 17.1 s, and the world is the same ([#878](https://github.com/0xAell/Tervain/pull/878)).
+- `npm run perf:load` times each stage of a journey's load from the loading screen's own updates (polling its text
+  missed the short stages), alternating between builds served on two ports and printing each stage's median: the
+  measurements of this list's loading entries, made repeatable ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
-- Loading: the woodland stage takes about 7.6 s on the four-core test machine; in a profiled run the drawn trees'
-  models are most of it and the leaf-island pass (`anchorLeafIslands` in flora.ts) about 1.9 s. Past a few more small
+- Loading: on the four-core test machine, without a GPU, `npm run perf:load` times a journey's stages on `main` after
+  #878 at 1.9 s for the residents, 6.7 s for the models, 1.2 s for the terrain, 8.3 s for the woodland, 2.3 s for paths
+  and shelter and 51 s for the first view, nearly all of it the software renderer compiling shaders. In a profiled run
+  the drawn trees' models are most of the woodland and the leaf-island pass (`anchorLeafIslands` in flora.ts) 1.8 s. Past a few more small
   gains, the step is to build the models in workers, or keep them between visits. Before the woodland the main thread
   waits about 7 s, idle, for the ground's textures (painted in a worker), Rapier's compilation and the images' decoding;
   building the terrain and the woodland meanwhile gained nothing measurable in five alternating pairs on that machine,
