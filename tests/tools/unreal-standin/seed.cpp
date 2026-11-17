@@ -109,6 +109,9 @@ int main(int Count, char** Arguments)
 		Fists.FreshShare = 0.6f; Fists.TiredShare = 0.85f; Fists.PerfectShare = 0.35f;
 		const FTervainGuardedHit Hit = TervainRules::ResolveGuardedHit(Guard, Fists, 20, true, 0.5f, 100.f, false);
 		std::printf("%d %d %.9g %.9g %d\n", Hit.bParried ? 1 : 0, Hit.Damage, Hit.Cost, Hit.Stamina, Hit.bGuardBroken ? 1 : 0);
+		// And the wade: the pace kept at the knee, 0.625 m deep.
+		const FTervainWadeTuning Wade = Data.GetWadeTuning();
+		std::printf("%.9g %.9g %.9g %.9g\n", Wade.From, Wade.Span, Wade.Slowest, TervainRules::WadeFactor(Wade, 0.625f));
 	}
 	else if (Mode == "settings")
 	{

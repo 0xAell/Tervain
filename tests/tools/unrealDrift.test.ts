@@ -18,7 +18,7 @@ import { BUILDINGS, ENEMY_SPAWNS, PLACES } from '../../src/core/world/layout';
 import { differences } from '../../tools/export-data.mjs';
 
 // The drift check between the engine-agnostic core and the Unreal C++ seed. The core is the source; unreal/ holds
-// C++ that mirrors its ids, its tables' shapes and the tuning values two rules read. This file fails when the two
+// C++ that mirrors its ids, its tables' shapes and the tuning values three rules read. This file fails when the two
 // stop agreeing, and proves on altered copies that it would. It is run by `npm run unreal:check` and by its own CI
 // job, together with the export check (data/ and the generated headers equal what the core produces), the row struct
 // check (unrealSkeleton), the mirrored rules (unrealRulesParity) and the build against stand-ins (unrealSeedBuild).
@@ -190,7 +190,7 @@ describe('the tuning values and shared constants the Unreal seed mirrors', () =>
   };
 
   it('fill every member of each tuning struct from a number in data/game/tuning.json, each from its own path', () => {
-    for (const [struct, getter, count] of [['FTervainStaminaTuning', 'GetStaminaTuning', 9], ['FTervainGuardTuning', 'GetGuardTuning', 5]] as const) {
+    for (const [struct, getter, count] of [['FTervainStaminaTuning', 'GetStaminaTuning', 9], ['FTervainGuardTuning', 'GetGuardTuning', 5], ['FTervainWadeTuning', 'GetWadeTuning', 3]] as const) {
       const read = filled(getter);
       expect(read.map(([member]) => member), struct).toEqual(members(struct));
       expect(read).toHaveLength(count);
@@ -199,9 +199,11 @@ describe('the tuning values and shared constants the Unreal seed mirrors', () =>
     }
   });
 
-  it('read each stamina value from the key of the same name', () => {
+  it('read each stamina and wade value from the key of the same name, and every wade key', () => {
     const lower = (name: string) => name[0]!.toLowerCase() + name.slice(1);
     for (const [member, path] of filled('GetStaminaTuning')) expect(path).toBe(`hero.stamina.${lower(member)}`);
+    for (const [member, path] of filled('GetWadeTuning')) expect(path).toBe(`hero.wade.${lower(member)}`);
+    expect(filled('GetWadeTuning').map(([, path]) => path.split('.').pop())).toEqual(Object.keys(at('hero.wade') as object));
     // Every stamina key the mirrored rule uses is read; the two it does not use are named here so a new key is noticed.
     const mirrored = filled('GetStaminaTuning').map(([, path]) => path.split('.').pop()!);
     expect(Object.keys(at('hero.stamina') as object).filter((key) => !mirrored.includes(key))).toEqual(['pauseAfterAction', 'pauseAfterJump']);

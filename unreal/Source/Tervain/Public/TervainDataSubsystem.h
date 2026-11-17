@@ -50,6 +50,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Tervain|Data")
 	FTervainGuardTuning GetGuardTuning() const;
 
+	/** How water slows the legs, read from "hero.wade". */
+	UFUNCTION(BlueprintPure, Category = "Tervain|Data")
+	FTervainWadeTuning GetWadeTuning() const;
+
 	/** An item's row, or null when the items table is not set, could not be loaded or has no such row. */
 	const FTervainItemRow* FindItem(FName ItemId) const;
 

@@ -48,3 +48,9 @@ FTervainGuardedHit TervainRules::ResolveGuardedHit(const FTervainGuardTuning& Tu
 	Out.bGuardBroken = Out.Stamina <= 0.f && bHeavy;
 	return Out;
 }
+
+float TervainRules::WadeFactor(const FTervainWadeTuning& Tuning, float DepthMetres)
+{
+	const float T = FMath::Min(1.f, FMath::Max(0.f, (DepthMetres - Tuning.From) / Tuning.Span));
+	return 1.f - (1.f - Tuning.Slowest) * T * T * (3.f - 2.f * T);
+}
