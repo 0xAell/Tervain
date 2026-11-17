@@ -647,6 +647,9 @@ export class App {
       if (!this.journeyWarmed && !this.world) {
         this.journeyWarmed = true;
         void warmJourney(() => !!this.world || this.initialJourneyLoading).catch(() => {});
+        // And the world's own code, its largest script, is fetched and compiled now rather than after the click
+        // (buildWorld imports it). A failure here is the journey's to report when it imports it again.
+        void import('./presentation/world').catch(() => {});
       }
       return;
     }

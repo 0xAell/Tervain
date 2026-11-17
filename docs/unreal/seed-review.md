@@ -306,6 +306,10 @@ Improved:
 - The 36 generated hero tree files are compressed losslessly, as every other model already was: 29.3 MiB become
   18.3 MiB, 11 MiB less for a first visit (the model host sends them uncompressed). The trees built from them hash the
   same as before, and the generators' instructions now include the step ([#864](https://github.com/0xAell/Tervain/pull/864)).
+- The title menu fetches what a journey needs ahead: its list had missed the 36 generated trees (18 MiB), which were
+  downloaded only once a journey began, and the world's own code (1.7 MB) is fetched and compiled there too. At
+  10 Mbit/s, after a minute in the menu, the ground is ready 3 s sooner; at 20 Mbit/s the downloads had overlapped the
+  preparation and nothing changes ([#865](https://github.com/0xAell/Tervain/pull/865)).
 
 Next:
 
