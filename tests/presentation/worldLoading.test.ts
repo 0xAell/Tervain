@@ -23,6 +23,8 @@ const controls = vi.hoisted(() => ({
   modelsStarted: null as (() => void) | null,
   furnitureGate: null as Promise<void> | null,
   furnitureLoads: 0,
+  /** How often the physics engine was asked to start. */
+  physicsStarts: 0,
   /** The work slice each cooperative stage was asked to keep to. */
   budgets: [] as [string, number | undefined][],
   modelCallbacks: {} as Partial<Record<'pine' | 'heroPine' | 'stone' | 'trees' | 'animals' | 'furniture', (loaded: number, total: number) => void>>,
@@ -69,7 +71,7 @@ vi.mock('../../src/core/world/nav', async importOriginal => ({ ...await importOr
     } };
   }
 } }));
-vi.mock('../../src/physics/physics', () => ({ initializePhysics: async () => {}, RealmPhysics: class {
+vi.mock('../../src/physics/physics', () => ({ initializePhysics: async () => { controls.physicsStarts++; }, RealmPhysics: class {
   dispose = vi.fn(); setWater() {}
   constructor() { controls.owners.push({ name: 'physics', dispose: this.dispose }); }
 } }));
@@ -148,7 +150,7 @@ function deferred() {
 beforeEach(() => {
   controls.owners = []; controls.navVersions = []; controls.groundFailure = null; controls.navigationGate = null;
   controls.modelGate = null; controls.modelsStarted = null; controls.modelCallbacks = {};
-  controls.furnitureGate = null; controls.furnitureLoads = 0; controls.budgets = []; buildCaches.release.mockClear();
+  controls.furnitureGate = null; controls.furnitureLoads = 0; controls.budgets = []; controls.physicsStarts = 0; buildCaches.release.mockClear();
   const colliders = new Colliders();
   for (const id of ['archive_door', 'archive_shutter', 'shortcut_gate']) colliders.circle(id, 0, 0, 1);
   controls.colliders = colliders;
@@ -247,6 +249,16 @@ describe('world load and activation boundary', () => {
       expect(world.modules.find(module => module.name === 'forest')).toBeDefined();
       expect(WorldScene.prototype.syncStatic).toHaveBeenCalledWith(state, true);
     } finally { disposeSceneResources(world.scene, () => world.dispose()); }
+  });
+
+  it('starts the physics engine while the models are still loading, not after them', async () => {
+    const gate = deferred(), started = deferred(); controls.modelGate = gate.promise; controls.modelsStarted = started.resolve;
+    const pending = WorldScene.create(createInitialState(), defaultSettings(), undefined, undefined, { yieldNow: async () => {} });
+    await started.promise;
+    expect(controls.physicsStarts).toBeGreaterThan(0);
+    gate.resolve();
+    const world = await pending;
+    disposeSceneResources(world.scene, () => world.dispose());
   });
 
   it('works its cooperative stages in long slices while the loading screen covers them, unless the caller names its own', async () => {
