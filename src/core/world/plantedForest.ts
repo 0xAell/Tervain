@@ -3,6 +3,8 @@ import type { ForestFloorPiece } from './forestFloor';
 import { FLOOR_ROWS } from './plantedForest.floor';
 import { PLANTED_ROWS } from './plantedForest.trees';
 
+export { PLANTED_FLORA, PLANTED_WITH } from './plantedFlora';
+
 /**
  * The forest as the web build plants it. The planting rule is the core's (flora.ts: where trees may stand, how far
  * apart, which kind where). The web build tells it each tree's footprint, its seat on the ground and its crown's reach
@@ -28,9 +30,16 @@ export interface PlantedTree {
   assetId?: string;
 }
 
-export const PLANTED_FOREST: readonly PlantedTree[] = PLANTED_ROWS.map(([sp, v, x, y, z, s, yaw, radius, navigationRadius, assetId]) => ({
-  sp, v, x, y, z, s, yaw, radius, navigationRadius, ...(assetId ? { assetId } : {}),
-}));
+const fixed = (value: number, places: number) => Math.round(value * 10 ** places) / 10 ** places;
+
+/** The forest for the export: positions to a tenth of a millimetre, and a radius only for a tree that stands in the way. */
+export const PLANTED_FOREST: readonly PlantedTree[] = PLANTED_ROWS.map(([sp, v, x, y, z, s, yaw, , radius, collisionId, , navigationRadius, , , , , assetId]) => {
+  const blocks = !!collisionId && radius > 0;
+  return {
+    sp, v, x: fixed(x, 4), y: fixed(y, 4), z: fixed(z, 4), s: fixed(s, 5), yaw: fixed(yaw, 5), radius: blocks ? fixed(radius, 4) : 0,
+    navigationRadius: blocks ? fixed(Math.max(radius, navigationRadius), 4) : 0, ...(assetId ? { assetId } : {}),
+  };
+});
 
 /** The planted trees that stand in the way, as the stones and the shore's details are laid round them. */
 export const PLANTED_TRUNKS: readonly { x: number; z: number; radius: number }[] = PLANTED_FOREST.filter((tree) => tree.radius > 0)
