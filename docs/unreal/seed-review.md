@@ -364,6 +364,10 @@ Improved:
   welds leaf corners through a typed-array table and sorts its bounds tree on precomputed keys. In three alternating
   pairs on the four-core test machine the woodland stage takes 7.6 s where it took 10.4 s (medians), and all 63 drawn
   tree levels' wood and leaves, and every planted tree's matrix, hash the same ([#876](https://github.com/0xAell/Tervain/pull/876)).
+- The water's three procedural textures (ripples, foam, caustics) look each wave's sine up by lattice step instead of
+  working it out for every texel: a texel's angle depends only on an integer step, which a 512² tile reaches at most
+  41,000 times where it has 262,144 texels. Every byte of the three is the same, and in a profiled load on the
+  four-core test machine they take 0.57 s of the terrain stage where they took 1.08 s ([#877](https://github.com/0xAell/Tervain/pull/877)).
 
 Next:
 

@@ -31,10 +31,12 @@ function finish(tex: THREE.DataTexture, name: string, mips = true): THREE.DataTe
   return tex;
 }
 
+export interface Wave { kx: number; kz: number; amp: number; phase: number }
+
 /** A periodic height field on a square tile: waves whose wave vectors lie on the tile lattice, amplitude by spectrum. */
 function periodicWaves(count: number, seed: number, minK: number, maxK: number, falloff: number) {
   const rnd = mulberry32(seed);
-  const waves: { kx: number; kz: number; amp: number; phase: number }[] = [];
+  const waves: Wave[] = [];
   while (waves.length < count) {
     const kx = Math.round((rnd() * 2 - 1) * maxK), kz = Math.round((rnd() * 2 - 1) * maxK);
     const k = Math.hypot(kx, kz);
@@ -44,18 +46,50 @@ function periodicWaves(count: number, seed: number, minK: number, maxK: number, 
   return waves;
 }
 
+export interface WaveTable { wave: Wave; from: number; at: Float64Array }
+
+/**
+ * One wave's sine or cosine at every texel of an n-texel tile, by lattice step. The angle at texel (i, j) is
+ * ((kx·i + kz·j) / n)·2π + phase, the same for every texel of the same integer step kx·i + kz·j: the textures look it
+ * up at `at[step - from]` instead of working it out per texel, to the same bits, with several times fewer calls (a 512²
+ * tile reaches at most 41,000 steps of a wave, where it has 262,144 texels).
+ */
+export function waveTable(wave: Wave, n: number, f: (angle: number) => number): WaveTable {
+  const last = n - 1;
+  return table(wave, f, Math.min(0, wave.kx * last) + Math.min(0, wave.kz * last), Math.max(0, wave.kx * last) + Math.max(0, wave.kz * last),
+    (step) => (step / n) * Math.PI * 2 + wave.phase);
+}
+
+/**
+ * The same at the points (i + 0.5) / per of each axis, where the caustics' photons leave the surface: kx·x + kz·z is then
+ * exactly step / (2·per) for the odd step kx·(2i + 1) + kz·(2j + 1), `per` being a power of two.
+ */
+export function centredWaveTable(wave: Wave, n: number, per: number, f: (angle: number) => number): WaveTable {
+  if (!Number.isInteger(Math.log2(per))) throw new Error('A centred wave table needs a power of two of points per texel');
+  const last = 2 * n * per - 1;
+  return table(wave, f, Math.min(wave.kx, wave.kx * last) + Math.min(wave.kz, wave.kz * last), Math.max(wave.kx, wave.kx * last) + Math.max(wave.kz, wave.kz * last),
+    (step) => ((step / (2 * per)) / n) * Math.PI * 2 + wave.phase);
+}
+
+function table(wave: Wave, f: (angle: number) => number, from: number, to: number, angle: (step: number) => number): WaveTable {
+  const at = new Float64Array(to - from + 1);
+  for (let step = from; step <= to; step++) at[step - from] = f(angle(step));
+  return { wave, from, at };
+}
+
 /** RG: slopes d/dx, d/dz (0.5 = flat); B: height; A: unused. */
 function makeRipples(): THREE.DataTexture {
   const n = 256;
   const waves = periodicWaves(72, 1301, 2, 34, 1.15);
+  const sines = waves.map((w) => waveTable(w, n, Math.sin)), cosines = waves.map((w) => waveTable(w, n, Math.cos));
   const h = new Float32Array(n * n), sx = new Float32Array(n * n), sz = new Float32Array(n * n);
   let maxSlope = 0, minH = Infinity, maxH = -Infinity;
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     let y = 0, gx = 0, gz = 0;
-    for (const w of waves) {
-      const theta = ((w.kx * i + w.kz * j) / n) * Math.PI * 2 + w.phase;
-      y += w.amp * Math.sin(theta);
-      const d = w.amp * Math.cos(theta) * Math.PI * 2;
+    for (let k = 0; k < waves.length; k++) {
+      const w = waves[k]!, step = w.kx * i + w.kz * j, sine = sines[k]!, cosine = cosines[k]!;
+      y += w.amp * sine.at[step - sine.from]!;
+      const d = w.amp * cosine.at[step - cosine.from]! * Math.PI * 2;
       gx += d * w.kx; gz += d * w.kz;
     }
     const id = j * n + i;
@@ -97,15 +131,15 @@ function makeFoam(): THREE.DataTexture {
     }
     return [f1, f2] as const;
   };
-  const lace = periodicWaves(40, 3307, 3, 40, 0.9);
-  const cover = periodicWaves(18, 3313, 1, 7, 1.4);
+  const lace = periodicWaves(40, 3307, 3, 40, 0.9).map((w) => waveTable(w, n, Math.sin));
+  const cover = periodicWaves(18, 3313, 1, 7, 1.4).map((w) => waveTable(w, n, Math.sin));
   const data = new Uint8Array(n * n * 4);
   const laceVals = new Float32Array(n * n), coverVals = new Float32Array(n * n);
   let lMin = Infinity, lMax = -Infinity, cMin = Infinity, cMax = -Infinity;
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     let l = 0, c = 0;
-    for (const w of lace) l += w.amp * Math.sin(((w.kx * i + w.kz * j) / n) * Math.PI * 2 + w.phase);
-    for (const w of cover) c += w.amp * Math.sin(((w.kx * i + w.kz * j) / n) * Math.PI * 2 + w.phase);
+    for (const { wave: w, from, at } of lace) l += w.amp * at[w.kx * i + w.kz * j - from]!;
+    for (const { wave: w, from, at } of cover) c += w.amp * at[w.kx * i + w.kz * j - from]!;
     laceVals[j * n + i] = l; coverVals[j * n + i] = c;
     lMin = Math.min(lMin, l); lMax = Math.max(lMax, l); cMin = Math.min(cMin, c); cMax = Math.max(cMax, c);
   }
@@ -137,11 +171,12 @@ function makeCaustics(): THREE.DataTexture {
   const counts = new Float32Array(n * n);
   const photons = 4;
   const depth = 0.9 * n;
+  const cosines = waves.map((w) => centredWaveTable(w, n, photons, Math.cos));
   for (let j = 0; j < n * photons; j++) for (let i = 0; i < n * photons; i++) {
     const x = (i + 0.5) / photons, z = (j + 0.5) / photons;
     let gx = 0, gz = 0;
-    for (const w of waves) {
-      const d = w.amp * Math.cos(((w.kx * x + w.kz * z) / n) * Math.PI * 2 + w.phase) * Math.PI * 2 / n;
+    for (const { wave: w, from, at } of cosines) {
+      const d = w.amp * at[w.kx * (2 * i + 1) + w.kz * (2 * j + 1) - from]! * Math.PI * 2 / n;
       gx += d * w.kx; gz += d * w.kz;
     }
     // Snell's law, small angles: light leaves the surface bent by a quarter of the slope (water's 1.33).
