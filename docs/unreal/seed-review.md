@@ -321,7 +321,7 @@ Improved:
   file and what it decoded from it, and the caches that keep the residents', animals', trees' and hero's models for the
   life of the page kept their parsers too. The game parses through `parseModel`, which keeps of the parser only the
   JSON and the associations it reads afterwards: at a settled journey the page's array buffers take 654 MB where they
-  took 810 (PR_PARSER).
+  took 810 ([#868](https://github.com/0xAell/Tervain/pull/868)).
 
 Next:
 
