@@ -305,7 +305,7 @@ Improved:
   already were ([#863](https://github.com/0xAell/Tervain/pull/863)).
 - The 36 generated hero tree files are compressed losslessly, as every other model already was: 29.3 MiB become
   18.3 MiB, 11 MiB less for a first visit (the model host sends them uncompressed). The trees built from them hash the
-  same as before, and the generators' instructions now include the step (PR_HERO).
+  same as before, and the generators' instructions now include the step ([#864](https://github.com/0xAell/Tervain/pull/864)).
 
 Next:
 
