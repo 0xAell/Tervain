@@ -367,7 +367,7 @@ Improved:
 - The water's three procedural textures (ripples, foam, caustics) look each wave's sine up by lattice step instead of
   working it out for every texel: a texel's angle depends only on an integer step, which a 512² tile reaches at most
   41,000 times where it has 262,144 texels. Every byte of the three is the same, and in a profiled load on the
-  four-core test machine they take 0.57 s of the terrain stage where they took 1.08 s ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  four-core test machine they take 0.57 s of the terrain stage where they took 1.08 s ([#877](https://github.com/0xAell/Tervain/pull/877)).
 
 Next:
 
