@@ -116,6 +116,14 @@ int main(int Count, char** Arguments)
 		const FTervainBowTuning Bow = Data.GetBowTuning();
 		const FVector Loose = TervainRules::ArrowLaunchDirection(Bow, FVector(0.0, 0.0, 30.0));
 		std::printf("%.9g %.9g %.17g %.17g %.17g\n", Bow.ArrowSpeed, Bow.Gravity, Loose.X, Loose.Y, Loose.Z);
+		// And the deer: a sixtieth of a second of the reins pulled east at a stand, galloping, and a second's gallop from a full meter.
+		const FTervainRideTuning Ride = Data.GetRideTuning();
+		FTervainRideMotion Motion;
+		const float Turned = TervainRules::SteerMount(Motion, Ride, 1.f, 0.f, 1.f, true, 1.f / 60.f);
+		std::printf("%.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g %.9g\n", Ride.Walk, Ride.Run, Ride.Back, Ride.Accel, Ride.Brake, Ride.TurnStill, Ride.TurnRun, Ride.BackCone,
+			Motion.Speed, Motion.Yaw, Turned);
+		const FTervainMountStaminaTuning Mount = Data.GetMountStaminaTuning();
+		std::printf("%.9g %.9g %.9g %.9g\n", Mount.Max, Mount.Drain, Mount.Recover, TervainRules::MountStaminaStep(Mount, Mount.Max, true, 1.f));
 	}
 	else if (Mode == "settings")
 	{

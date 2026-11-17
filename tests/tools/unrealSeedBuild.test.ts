@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { arrowLaunchDirection, BOW } from '../../src/core/rules/bow';
 import { ACTION_COST, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STAMINA, staminaStep, WADE, wadeFactor } from '../../src/core/rules/hero';
+import { MOUNT_STAMINA, mountStaminaStep, RIDE, steerMount } from '../../src/core/rules/riding';
 
 // Unreal Engine is not available to this repository's tests. This builds every source file of the Unreal seed with an
 // ordinary C++ compiler against stand-ins for the engine names it uses (tests/tools/unreal-standin), links it, and
@@ -63,7 +64,7 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
 
   it('compiles every source file of the seed', () => {
     const names = seedSources.map((path) => path.slice(seed.length + 1).replace(/\\/g, '/')).sort();
-    expect(names).toEqual(['Private/Rules/TervainBowRules.cpp', 'Private/Rules/TervainHeroRules.cpp', 'Private/Tervain.cpp', 'Private/TervainDataSubsystem.cpp', 'Private/TervainSettings.cpp']);
+    expect(names).toEqual(['Private/Rules/TervainBowRules.cpp', 'Private/Rules/TervainHeroRules.cpp', 'Private/Rules/TervainRidingRules.cpp', 'Private/Tervain.cpp', 'Private/TervainDataSubsystem.cpp', 'Private/TervainSettings.cpp']);
   });
 
   it.skipIf(!compiler)('reads every number of the exported tuning file to the same value', () => {
@@ -81,8 +82,8 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
     expect(values).toEqual(paths.map(() => '-12345'));
   });
 
-  it.skipIf(!compiler)('fills the stamina, guard, wade and bow values from the file and runs the mirrored rules on them', () => {
-    const [stamina, guard, step, hit, wade, bow] = run('structs').map((line) => line.split(' ').map(Number));
+  it.skipIf(!compiler)('fills the stamina, guard, wade, bow and riding values from the file and runs the mirrored rules on them', () => {
+    const [stamina, guard, step, hit, wade, bow, ride, mount] = run('structs').map((line) => line.split(' ').map(Number));
     const expectStamina = [STAMINA.max, STAMINA.sprintPerSecond, STAMINA.sprintMin, STAMINA.swimSprintPerSecond, STAMINA.regen, STAMINA.regenWinded, STAMINA.regenGuarding, STAMINA.recoverAbove, STAMINA.pauseAfterSprint];
     stamina!.forEach((value, index) => near(value, expectStamina[index]!));
     const expectGuard = [ACTION_COST.blockHit, GUARD.steadyGuard, GUARD.heavyCost, GUARD.tiredBelow, PERFECT_BLOCK_WINDOW];
@@ -103,6 +104,13 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
     expect(bow).toHaveLength(5);
     const level = arrowLaunchDirection(0, 0, 30);
     [BOW.arrowSpeed, BOW.gravity, level.x, level.y, level.z].forEach((value, index) => near(bow![index]!, value));
+    // The reins' eight numbers, and a sixtieth of a second pulled east at a stand, galloping.
+    expect(ride).toHaveLength(11);
+    const reined = steerMount({ speed: 0, yaw: 0 }, 1, 0, 1, true, 1 / 60);
+    [RIDE.walk, RIDE.run, RIDE.back, RIDE.accel, RIDE.brake, RIDE.turnStill, RIDE.turnRun, RIDE.backCone, reined.speed, reined.yaw, reined.turn].forEach((value, index) => near(ride![index]!, value));
+    // The gallop's three numbers, and a second's gallop from a full meter.
+    expect(mount).toHaveLength(4);
+    [MOUNT_STAMINA.max, MOUNT_STAMINA.drain, MOUNT_STAMINA.recover, mountStaminaStep(MOUNT_STAMINA.max, true, 1)].forEach((value, index) => near(mount![index]!, value));
   });
 
   it.skipIf(!compiler)('finds the data folder beside the project and names its settings and module', () => {

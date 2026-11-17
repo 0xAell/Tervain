@@ -126,6 +126,29 @@ FTervainBowTuning UTervainDataSubsystem::GetBowTuning() const
 	return Out;
 }
 
+FTervainRideTuning UTervainDataSubsystem::GetRideTuning() const
+{
+	FTervainRideTuning Out;
+	Out.Walk = GetTuningNumber(TEXT("riding.ride.walk"));
+	Out.Run = GetTuningNumber(TEXT("riding.ride.run"));
+	Out.Back = GetTuningNumber(TEXT("riding.ride.back"));
+	Out.Accel = GetTuningNumber(TEXT("riding.ride.accel"));
+	Out.Brake = GetTuningNumber(TEXT("riding.ride.brake"));
+	Out.TurnStill = GetTuningNumber(TEXT("riding.ride.turnStill"));
+	Out.TurnRun = GetTuningNumber(TEXT("riding.ride.turnRun"));
+	Out.BackCone = GetTuningNumber(TEXT("riding.ride.backCone"));
+	return Out;
+}
+
+FTervainMountStaminaTuning UTervainDataSubsystem::GetMountStaminaTuning() const
+{
+	FTervainMountStaminaTuning Out;
+	Out.Max = GetTuningNumber(TEXT("riding.stamina.max"));
+	Out.Drain = GetTuningNumber(TEXT("riding.stamina.drain"));
+	Out.Recover = GetTuningNumber(TEXT("riding.stamina.recover"));
+	return Out;
+}
+
 UDataTable* UTervainDataSubsystem::LoadTable(const FSoftObjectPath& Path)
 {
 	return Path.IsNull() ? nullptr : Cast<UDataTable>(Path.TryLoad(nullptr, LOAD_None));

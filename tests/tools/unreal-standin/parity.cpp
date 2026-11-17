@@ -2,6 +2,7 @@
 // one line of results for each. Driven by tests/tools/unrealRulesParity.test.ts.
 #include "Rules/TervainBowRules.h"
 #include "Rules/TervainHeroRules.h"
+#include "Rules/TervainRidingRules.h"
 #include "TervainUnits.h"
 
 #include <cstdio>
@@ -16,6 +17,8 @@ int main()
 	FTervainGuardArms Arms[2];
 	FTervainWadeTuning Wade;
 	FTervainBowTuning Bow;
+	FTervainRideTuning Ride;
+	FTervainMountStaminaTuning Mount;
 	std::string Line;
 	while (std::getline(std::cin, Line))
 	{
@@ -76,6 +79,30 @@ int main()
 			In >> X >> Y >> Z;
 			const FVector Direction = TervainRules::ArrowLaunchDirection(Bow, FVector(X, Y, Z));
 			std::printf("%.17g %.17g %.17g\n", Direction.X, Direction.Y, Direction.Z);
+		}
+		else if (Kind == "ride-tuning")
+		{
+			In >> Ride.Walk >> Ride.Run >> Ride.Back >> Ride.Accel >> Ride.Brake >> Ride.TurnStill >> Ride.TurnRun >> Ride.BackCone;
+		}
+		else if (Kind == "ride")
+		{
+			FTervainRideMotion Motion;
+			float DirX = 0.f, DirZ = 0.f, Push = 0.f, DeltaSeconds = 0.f;
+			int Gallop = 0;
+			In >> Motion.Speed >> Motion.Yaw >> DirX >> DirZ >> Push >> Gallop >> DeltaSeconds;
+			const float Turned = TervainRules::SteerMount(Motion, Ride, DirX, DirZ, Push, Gallop != 0, DeltaSeconds);
+			std::printf("%.9g %.9g %.9g\n", Motion.Speed, Motion.Yaw, Turned);
+		}
+		else if (Kind == "mount-tuning")
+		{
+			In >> Mount.Max >> Mount.Drain >> Mount.Recover;
+		}
+		else if (Kind == "mount")
+		{
+			float Meter = 0.f, DeltaSeconds = 0.f;
+			int Galloping = 0;
+			In >> Meter >> Galloping >> DeltaSeconds;
+			std::printf("%.9g\n", TervainRules::MountStaminaStep(Mount, Meter, Galloping != 0, DeltaSeconds));
 		}
 		else if (Kind == "position")
 		{

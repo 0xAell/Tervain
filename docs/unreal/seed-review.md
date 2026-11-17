@@ -75,7 +75,7 @@ What is there:
   [#840](https://github.com/0xAell/Tervain/pull/840), [#841](https://github.com/0xAell/Tervain/pull/841), [#842](https://github.com/0xAell/Tervain/pull/842), [#843](https://github.com/0xAell/Tervain/pull/843), [#844](https://github.com/0xAell/Tervain/pull/844).
 
 What is missing from a ten: nothing the repository can do. Porting the rules to C++ is the port's work, phase by phase
-in the [roadmap](roadmap.md); the seed mirrors four of them as a worked example.
+in the [roadmap](roadmap.md); the seed mirrors six of them as a worked example.
 
 ## 2. Asset manifest
 
@@ -148,7 +148,7 @@ What is there:
 
 - [`unreal/`](../../unreal/README.md): a source-only project for Unreal Engine 5.9 with one module: row structs
   generated from the same definitions as the tables, the core's ids as generated constants, unit conversions, project
-  settings, a data subsystem that reads the tuning values, and four rules mirrored as a worked example.
+  settings, a data subsystem that reads the tuning values, and six rules mirrored as a worked example.
 - Every source file of the module compiles with warnings as errors, links and runs against stand-ins for the engine's
   headers ([`tests/tools/unrealSeedBuild.test.ts`](../../tests/tools/unrealSeedBuild.test.ts)); the mirrored rules
   return what the core returns on a few thousand cases
@@ -390,6 +390,11 @@ Improved:
 - `npm run perf:load -- --until view` ends a run where the first view's preparation begins, a third of the time
   without a GPU, where the rest is the software renderer compiling shaders; the Loading item below gives today's
   stages and the three overlaps tried and not taken ([#883](https://github.com/0xAell/Tervain/pull/883)).
+- The Unreal seed mirrors a fifth and a sixth rule: how the saddled deer answers the reins (`TervainRules::SteerMount`,
+  its paces, rates and back-up cone read from `riding.ride`) and its gallop's stamina (`MountStaminaStep`, from
+  `riding.stamina`). On 14,400 steps of speed, facing, reins, push, gait and time the C++ gives the core's speed, turn
+  and facing within a ten-thousandth; `FMath::Atan2`, `Sin`, `Cos` and `Abs` join the register, every page of
+  which was opened again and still holds its passage ([#884](https://github.com/0xAell/Tervain/pull/884)).
 
 Next:
 
