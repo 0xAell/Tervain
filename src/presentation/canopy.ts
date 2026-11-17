@@ -284,26 +284,30 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
     return id;
   };
   build(0, count);
-  const boxDistance = (array: ArrayLike<number>, o: number, p: THREE.Vector3) => Math.hypot(
-    Math.max(array[o]! - p.x, 0, p.x - array[o + 3]!), Math.max(array[o + 1]! - p.y, 0, p.y - array[o + 4]!), Math.max(array[o + 2]! - p.z, 0, p.z - array[o + 5]!));
+  // Boxes are compared by squared distance, which orders and prunes as the distance does without a square root (Math.hypot
+  // was a fifth of the trees' build time).
+  const boxDistanceSq = (array: ArrayLike<number>, o: number, p: THREE.Vector3) => {
+    const dx = Math.max(array[o]! - p.x, 0, p.x - array[o + 3]!), dy = Math.max(array[o + 1]! - p.y, 0, p.y - array[o + 4]!), dz = Math.max(array[o + 2]! - p.z, 0, p.z - array[o + 5]!);
+    return dx * dx + dy * dy + dz * dz;
+  };
   const triangle = new THREE.Triangle(), near = new THREE.Vector3();
   return (p, hit, max = Infinity) => {
-    let best = max, found = false;
+    let best = max, bestSq = max * max, found = false;
     const visit = (node: number) => {
-      if (boxDistance(nodeBox, node * 6, p) > best) return;
+      if (boxDistanceSq(nodeBox, node * 6, p) > bestSq) return;
       if (nodeLeft[node]! < 0) {
         for (let i = nodeStart[node]!; i < nodeEnd[node]!; i++) {
           const t = order[i]!;
-          if (boxDistance(boxes, t * 6, p) > best) continue;
+          if (boxDistanceSq(boxes, t * 6, p) > bestSq) continue;
           triangle.a.fromArray(corners, t * 9); triangle.b.fromArray(corners, t * 9 + 3); triangle.c.fromArray(corners, t * 9 + 6);
           triangle.closestPointToPoint(p, near);
           const d = near.distanceTo(p);
-          if (d <= best) { best = d; hit.copy(near); found = true; }
+          if (d <= best) { best = d; bestSq = d * d; hit.copy(near); found = true; }
         }
         return;
       }
       const a = nodeLeft[node]!, b = nodeRight[node]!;
-      if (boxDistance(nodeBox, a * 6, p) <= boxDistance(nodeBox, b * 6, p)) { visit(a); visit(b); } else { visit(b); visit(a); }
+      if (boxDistanceSq(nodeBox, a * 6, p) <= boxDistanceSq(nodeBox, b * 6, p)) { visit(a); visit(b); } else { visit(b); visit(a); }
     };
     visit(0);
     return found ? best : Infinity;
@@ -956,9 +960,13 @@ export function canopyAtlas(size: number, cells: number, seed: number): CanopyAt
       const hue = random();
       const base = [84 + hue * 40, 112 + hue * 30 + random() * 14, 40 + random() * 20];
       const fade = 1 - 0.55 * THREE.MathUtils.smoothstep(rim, 0.62, 1.0);
-      const reach = len + 2;
-      const x0 = Math.max(0, Math.floor(lx - reach)), x1 = Math.min(size - 1, Math.ceil(lx + reach));
-      const y0 = Math.max(0, Math.floor(ly - reach)), y1 = Math.min(size - 1, Math.ceil(ly + reach));
+      // Only the pixels the leaf can cover are visited. A sample covers only within half the leaf's length along it and
+      // half its width across it, so within |hx|·len/2 + |hy|·wid/2 of its centre in x (hx and hy swapped in y); a
+      // pixel's samples sit a quarter and three quarters into it, and the extra pixel keeps rounding out of it. A square
+      // of len + 2 each way, five times as many pixels, was visited before; the atlas comes out the same, byte for byte.
+      const ex = (Math.abs(hx) * len + Math.abs(hy) * wid) / 2 + 1, ey = (Math.abs(hy) * len + Math.abs(hx) * wid) / 2 + 1;
+      const x0 = Math.max(0, Math.floor(lx - ex)), x1 = Math.min(size - 1, Math.ceil(lx + ex));
+      const y0 = Math.max(0, Math.floor(ly - ey)), y1 = Math.min(size - 1, Math.ceil(ly + ey));
       for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
         let cover = 0, along = 0, across = 0;
         for (let sub = 0; sub < 4; sub++) {

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { auditCanopies } from '../../src/diagnostics/canopyAudit';
-import { alphaCoverage, buildCanopy, canopyAtlas, canopyCrown, canopyLobes, downsampleCoverage, trimExposedWood, woodAnchor, growTwigs, ANCHOR_LIMIT, CROWN_LOBES, MID_CANOPY, NEAR_CANOPY, type CanopyLobe } from '../../src/presentation/canopy';
+import { alphaCoverage, buildCanopy, canopyAtlas, canopyCrown, canopyLobes, canopyRandom, downsampleCoverage, trimExposedWood, woodAnchor, growTwigs, ANCHOR_LIMIT, CROWN_LOBES, MID_CANOPY, NEAR_CANOPY, type CanopyLobe } from '../../src/presentation/canopy';
 
 /** A source crown like the Meshy exports: a few large curved sheets through a spheroid 12 m wide, 8 m tall, at y 12. */
 function sourceCrown(): THREE.BufferGeometry {
@@ -272,6 +272,28 @@ describe('cluster canopy (A134)', () => {
     expect(hit.x).toBeGreaterThan(0.3);
     expect(woodAnchor(null)(new THREE.Vector3(), hit)).toBe(Infinity);
   });
+
+  it('finds the distance a search of every triangle finds, within a limit or without one', () => {
+    // The search prunes its boxes by squared distance; it must still find the very triangle a full scan finds.
+    const w = growTwigs(wood(), [{ from: new THREE.Vector3(0.4, 9, 0), to: new THREE.Vector3(3, 13, 1) }, { from: new THREE.Vector3(-0.4, 10, 0.2), to: new THREE.Vector3(-2.5, 14, -1.5) }]);
+    const anchor = woodAnchor(w), p = w.getAttribute('position'), index = w.index!, triangle = new THREE.Triangle(), near = new THREE.Vector3(), hit = new THREE.Vector3();
+    const scan = (q: THREE.Vector3) => {
+      let best = Infinity;
+      for (let t = 0; t < index.count; t += 3) {
+        triangle.a.fromBufferAttribute(p, index.getX(t)); triangle.b.fromBufferAttribute(p, index.getX(t + 1)); triangle.c.fromBufferAttribute(p, index.getX(t + 2));
+        best = Math.min(best, triangle.closestPointToPoint(q, near).distanceTo(q));
+      }
+      return best;
+    };
+    const random = canopyRandom(11);
+    for (let i = 0; i < 400; i++) {
+      const q = new THREE.Vector3((random() - 0.5) * 12, random() * 24, (random() - 0.5) * 12), expected = scan(q);
+      expect(anchor(q, hit)).toBe(expected);
+      expect(hit.distanceTo(q)).toBeCloseTo(expected, 9);
+      // With a limit, a point beyond it finds nothing and one within finds the same.
+      expect(anchor(q, hit, 1.5)).toBe(expected <= 1.5 ? expected : Infinity);
+    }
+  });
 });
 
 describe('cluster atlas (A134)', () => {
@@ -285,6 +307,46 @@ describe('cluster atlas (A134)', () => {
     const at = (x: number, y: number) => a.data[(y * 128 + x) * 4 + 3]!;
     expect(at(32, 32)).toBeGreaterThan(200); // a cluster's heart
     expect(at(0, 0)).toBe(0); // between clusters
+  });
+  it('is the atlas a painter visiting a square round every leaf draws, byte for byte', () => {
+    // The atlas painter visits only the pixels a leaf can cover. This is the painter as it was before (A134 to 0.0.49),
+    // visiting a square of len + 2 each way round every leaf: the two must agree on every byte.
+    const square = (size: number, cells: number, seed: number) => {
+      const random = canopyRandom(seed), data = new Uint8Array(size * size * 4);
+      for (let i = 0; i < size * size; i++) { data[i * 4] = 52; data[i * 4 + 1] = 66; data[i * 4 + 2] = 30; }
+      const cell = size / cells;
+      for (let cv = 0; cv < cells; cv++) for (let cu = 0; cu < cells; cu++) {
+        const cx = (cu + 0.5) * cell, cy = (cv + 0.5) * cell, R = cell * 0.47;
+        for (let l = 0; l < 340; l++) {
+          const depth = l / 340, rr = R * Math.sqrt(random()) * (0.55 + 0.45 * (1 - depth * 0.4)), ang = random() * Math.PI * 2;
+          const lx = cx + Math.cos(ang) * rr, ly = cy + Math.sin(ang) * rr, rim = rr / R, heading = ang + (random() - 0.5) * 1.6;
+          const len = cell * (0.075 + random() * 0.05) * (1 - 0.3 * rim), wid = len * (0.36 + random() * 0.14);
+          const hx = Math.cos(heading), hy = Math.sin(heading), shade = 0.68 + 0.42 * depth + (random() - 0.5) * 0.2, hue = random();
+          const base = [84 + hue * 40, 112 + hue * 30 + random() * 14, 40 + random() * 20];
+          const fade = 1 - 0.55 * THREE.MathUtils.smoothstep(rim, 0.62, 1.0), reach = len + 2;
+          for (let y = Math.max(0, Math.floor(ly - reach)); y <= Math.min(size - 1, Math.ceil(ly + reach)); y++) for (let x = Math.max(0, Math.floor(lx - reach)); x <= Math.min(size - 1, Math.ceil(lx + reach)); x++) {
+            let cover = 0, along = 0, across = 0;
+            for (let sub = 0; sub < 4; sub++) {
+              const px = x + 0.25 + 0.5 * (sub & 1) - lx, py = y + 0.25 + 0.5 * (sub >> 1) - ly;
+              const u = (px * hx + py * hy) / len, v = (-px * hy + py * hx) / wid, t = u + 0.5;
+              if (t <= 0 || t >= 1) continue;
+              const half = Math.pow(Math.sin(Math.PI * Math.pow(t, 0.8)), 0.75) * 0.5;
+              if (Math.abs(v) < half) { cover += 0.25; along += t * 0.25; across += Math.abs(v) / Math.max(half, 1e-3) * 0.25; }
+            }
+            if (cover <= 0) continue;
+            along /= cover; across /= cover;
+            const light = shade * (0.82 + 0.18 * along) * (1.05 - 0.2 * across) * (across < 0.12 ? 1.12 : 1);
+            const i = (y * size + x) * 4, a = cover * fade, prev = data[i + 3]! / 255, outA = a + prev * (1 - a);
+            for (let k = 0; k < 3; k++) { const c = Math.min(255, base[k]! * light); data[i + k] = outA > 0 ? (c * a + data[i + k]! * prev * (1 - a)) / outA : data[i + k]!; }
+            data[i + 3] = Math.round(outA * 255);
+          }
+        }
+      }
+      return data;
+    };
+    for (const [size, cells, seed] of [[128, 2, 3], [96, 3, 11], [64, 1, 1340]] as const) {
+      expect(Buffer.from(canopyAtlas(size, cells, seed).data).equals(Buffer.from(square(size, cells, seed))), `${size} px, ${cells} cells, seed ${seed}`).toBe(true);
+    }
   });
   it('keeps coverage through its mips', () => {
     let level = canopyAtlas(256, 2, 3);
