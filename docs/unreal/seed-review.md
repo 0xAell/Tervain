@@ -382,7 +382,7 @@ Improved:
   also compiles from the menu (or the build's start), where the build began it only once every model had loaded. In
   three alternating pairs the journey reaches its first view's preparation 19.2 s after the click where it took 22.8 s
   (medians). Splitting the ground's eight textures across three workers gained 0.2 s more, within the noise, and
-  slowed the residents and the terrain by contention: not taken ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  slowed the residents and the terrain by contention: not taken ([#880](https://github.com/0xAell/Tervain/pull/880)).
 
 Next:
 
