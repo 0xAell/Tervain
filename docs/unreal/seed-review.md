@@ -372,7 +372,7 @@ Improved:
   while the loading screen covers it. It worked 8 ms and then waited for a painted frame, so those stages were idle
   about as long as they worked; the loading screen's animations run on the compositor, and only its progress text now
   changes less often. In three alternating pairs on the four-core test machine the build from the terrain to the first
-  view's preparation takes 12.5 to 12.7 s where it took 16.5 to 17.1 s, and the world is the same ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  view's preparation takes 12.5 to 12.7 s where it took 16.5 to 17.1 s, and the world is the same ([#878](https://github.com/0xAell/Tervain/pull/878)).
 
 Next:
 
