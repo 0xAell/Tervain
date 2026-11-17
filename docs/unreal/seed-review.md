@@ -329,12 +329,18 @@ Improved:
   seat it, its wood sets the walk grid's clearance and its crown the floor's shade. Compared with a running game tree
   for tree and piece for piece: 13 oaks sat up to 0.24 m too high in the copy, 27 trees kept the wrong clearance (by up
   to 7.5 m), and the floor has 669 pieces, not 720. The export follows ([#869](https://github.com/0xAell/Tervain/pull/869)).
+- The game takes its forest from the core's copy instead of planting it again. Planting builds every supplied tree a
+  generated one replaces (the oaks, birches, bushes, orchard trees and sentinel, by default) only to measure where it
+  would stand: most of the woodland stage of the load. The core keeps the planting to the bit, with the models and
+  flags it was planted with; a world planted with those takes it, and any other plants as before. On the four-core
+  test machine the woodland stage takes 11 to 12 s where it took 17 to 21 s, and every tree's world matrix, tree
+  collider and floor piece is the same, to the bit; the scripts are 40 KB (gzip) larger ([#870](https://github.com/0xAell/Tervain/pull/870)).
 
 Next:
 
-- Loading: the tree models are still most of the woodland stage, about 11 s of 17 on a four-core machine without a
-  GPU, spread over the nearest-wood index, the leaf-clump connectivity, the leaf islands and the branch wind. Past a
-  few more small gains, the step is to build the models in workers, or keep them between visits.
+- Loading: the drawn trees' models are now most of the woodland stage, about 7 s of its 14 in a profiled run on the
+  four-core test machine, and the leaf-island pass (`anchorLeafIslands` in flora.ts) about 4 more. Past a few more small
+  gains, the step is to build the models in workers, or keep them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
   textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
   materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
