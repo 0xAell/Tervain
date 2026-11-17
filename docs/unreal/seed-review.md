@@ -411,8 +411,9 @@ Next:
   shelter; the first view then takes about 50 s more, nearly all of it the software renderer compiling shaders. The
   drawn trees' models are most of the woodland, and the leaf-island pass (`anchorLeafIslands`, run by flora.ts) 1.7 s
   of it. One tree level's wood is searched by three passes in turn (the clump snap, the card seat and the island
-  pass), each building its own bounding tree over it: building it once would save about 0.3 s if no pass changes the
-  wood in between, which is to be shown first.
+  pass), each building its own bounding tree over it, about 0.5 s in all. Built once, each wood's tree would be held
+  from its level's build to the island pass, which runs after every level of the tree is built: about 100 bytes a
+  triangle for every tree's wood at once, to save perhaps 0.3 s; holding only the latest saves only the snap's.
   Three ways to overlap the work were tried and not taken, each within the noise on that machine, whose four cores the
   work already fills: the ground's textures in three workers (0.2 s); the trees' models built while the textures are
   painted (the woodland 1.0 s shorter, the wait for the textures 1.0 s longer: a model takes up to a second and runs
