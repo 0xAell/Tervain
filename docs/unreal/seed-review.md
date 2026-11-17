@@ -376,13 +376,22 @@ Improved:
 - `npm run perf:load` times each stage of a journey's load from the loading screen's own updates (polling its text
   missed the short stages), alternating between builds served on two ports and printing each stage's median: the
   measurements of this list's loading entries, made repeatable ([#879](https://github.com/0xAell/Tervain/pull/879)).
+- Loading no longer waits for paints that do not come. Each turn of the build waited for the browser to paint, and a
+  browser whose GPU process is busy compiling shaders presents no frame: on the four-core test machine without a GPU
+  the turns waited up to 4.4 s each while the models loaded. A turn now goes on after 100 ms without a paint. Rapier
+  also compiles from the menu (or the build's start), where the build began it only once every model had loaded. In
+  three alternating pairs the journey reaches its first view's preparation 19.2 s after the click where it took 22.8 s
+  (medians). Splitting the ground's eight textures across three workers gained 0.2 s more, within the noise, and
+  slowed the residents and the terrain by contention: not taken ([#880](https://github.com/0xAell/Tervain/pull/880)).
 
 Next:
 
-- Loading: on the four-core test machine, without a GPU, `npm run perf:load` times a journey's stages on `main` after
-  #878 at 1.9 s for the residents, 6.7 s for the models, 1.2 s for the terrain, 8.3 s for the woodland, 2.3 s for paths
-  and shelter and 51 s for the first view, nearly all of it the software renderer compiling shaders. In a profiled run
-  the drawn trees' models are most of the woodland and the leaf-island pass (`anchorLeafIslands` in flora.ts) 1.8 s. Past a few more small
+- Loading: on the four-core test machine, without a GPU, `npm run perf:load` times a journey's stages after the paint
+  cap at 1.9 s for the residents, 0.8 s for the models, 1.7 s for the ground textures, 2.8 s for the terrain, 9.1 s for
+  the woodland, 2.5 s for paths and shelter and 53 s for the first view, nearly all of it the software renderer
+  compiling shaders. In a profiled run the drawn trees' models are most of the woodland and the leaf-island pass
+  (`anchorLeafIslands` in flora.ts) 1.8 s. The terrain and the woodland now overlap the ground textures' worker and the
+  shader compiles and slow down with them; the textures in several workers are worth measuring on a machine with a GPU. Past a few more small
   gains, the step is to build the models in workers, or keep them between visits. Before the woodland the main thread
   waits about 7 s, idle, for the ground's textures (painted in a worker), Rapier's compilation and the images' decoding;
   building the terrain and the woodland meanwhile gained nothing measurable in five alternating pairs on that machine,

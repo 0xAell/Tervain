@@ -74,6 +74,17 @@ export interface WorldBuildProgress {
 }
 
 /**
+ * Start what a world's build will wait on that needs no world: Rapier's compilation, which runs in the background and
+ * which the build otherwise began only once every model had loaded. The menu calls it when it fetches the world's code
+ * ahead (A86); the build calls it again, and takes up the same promise.
+ */
+export function prepareWorldAhead(): Promise<void> {
+  const ready = initializePhysics();
+  ready.catch(() => {});
+  return ready;
+}
+
+/**
  * How long the world's cooperative construction (the terrain, its surface and tiles, the walking routes) works before it
  * lets the browser paint, when the caller names no budget. The loading screen covers the build and its animations run
  * on the compositor, so a longer slice only updates the progress text less often; the default 8 ms slices, each followed
@@ -188,6 +199,8 @@ export class WorldScene {
   /** Load, construct and activate in separate phases. No partial scene escapes this promise. */
   static async create(state: WorldState, settings: Settings, onProgress?: (p: LoadProgress) => void, npcAssets?: MeshyNpcCatalog, options: WorldCreateOptions = {}): Promise<WorldScene> {
     options = { ...options, budgetMs: options.budgetMs ?? WORLD_BUILD_SLICE_MS };
+    // Rapier compiles in the background while the models load (if the menu has not already started it), not after them.
+    const physicsReady = prepareWorldAhead();
     const yieldNow = options.yieldNow ?? yieldToBrowser;
     const phase = (stage: WorldBuildProgress['phase'], label: string, completed?: number, total?: number) => {
       checkCancelled(options.signal);
@@ -230,7 +243,7 @@ export class WorldScene {
       ]);
     } finally { modelProgressActive = false; }
     await checkpoint('models', 'World models', modelTotal, modelTotal);
-    await initializePhysics();
+    await physicsReady;
     await checkpoint('textures', 'Ground materials', 0, 8);
     const tex = await makeTerrainTextures(TERRAIN_TEXTURE_SIZE[settings.quality], yieldNow, {
       signal: options.signal,

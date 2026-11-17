@@ -648,8 +648,9 @@ export class App {
         this.journeyWarmed = true;
         void warmJourney(() => !!this.world || this.initialJourneyLoading).catch(() => {});
         // And the world's own code, its largest script, is fetched and compiled now rather than after the click
-        // (buildWorld imports it). A failure here is the journey's to report when it imports it again.
-        void import('./presentation/world').catch(() => {});
+        // (buildWorld imports it), and its physics engine compiled in the background. A failure here is the journey's to
+        // report when it imports and starts them again.
+        void import('./presentation/world').then((world) => { void world.prepareWorldAhead(); }).catch(() => {});
       }
       return;
     }
