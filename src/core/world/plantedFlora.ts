@@ -1,7 +1,7 @@
 import type { FloraTree } from './flora';
-import { PLANTED_ROWS, PLANTED_WITH } from './plantedForest.trees';
+import { PLANTED_ROWS } from './plantedForest.trees';
 
-export { PLANTED_WITH };
+export { PLANTED_DRAWS, PLANTED_WITH } from './plantedForest.models';
 
 /**
  * The forest the web build plants (plantedForest.ts) to the bit, each tree as the planting makes it (flora.ts's

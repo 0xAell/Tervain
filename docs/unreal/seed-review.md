@@ -334,7 +334,14 @@ Improved:
   would stand: most of the woodland stage of the load. The core keeps the planting to the bit, with the models and
   flags it was planted with; a world planted with those takes it, and any other plants as before. On the four-core
   test machine the woodland stage takes 11 to 12 s where it took 17 to 21 s, and every tree's world matrix, tree
-  collider and floor piece is the same, to the bit; the scripts are 40 KB (gzip) larger ([#870](https://github.com/0xAell/Tervain/pull/870)).
+  collider and floor piece is the same, to the bit; the scripts are 40 KB (gzip) larger. The supplied trees built only
+  to be measured had been kept with the drawn ones, so a settled journey also holds 80 MB less of array buffers (574 MB)
+  and 17 MB less of JavaScript heap ([#870](https://github.com/0xAell/Tervain/pull/870)).
+- A journey loads only the tree models its forest draws. After #870 it still downloaded, parsed and kept the seven
+  supplied trees the generated ones replace, which only a forest planted afresh measures by: 21 files, 16 MB of a first
+  visit's 48 MB of trees. The world and the menu's warm-up ask for the models the planted forest is drawn with, and for
+  every model only when a journey plants afresh (under a flag). The world is the same, tree for tree, and holds 13 MB
+  less ([#871](https://github.com/0xAell/Tervain/pull/871)).
 
 Next:
 
@@ -345,12 +352,13 @@ Next:
   textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
   materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
   depth and shade passes).
-- Memory: at a settled journey the JavaScript heap is about 67 MB and its array buffers about 654 MB. A heap snapshot
+- Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 561 MB. A heap snapshot
   names the largest holders left. Rapier's memory is 100 MB: every planted tree with a collision id gets its own copy
   of its variant's near wood for contact (only trunk and roots for the hero pines), built again for each tree; how
   much of the 100 MB that is is not yet measured, and a lighter contact mesh would change what can be stood on. The
   geometry three keeps on the CPU after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB:
   three needs both again only if a lost WebGL context is restored, which the game does not otherwise handle, so
-  freeing them trades that recovery for the memory.
+  freeing them trades that recovery for the memory. Caches kept for the life of the page hold more: the leaf cards'
+  alpha, decoded for the island pass and the audits (34 MB), and the procedural bark (25 MB).
 - Draws: in the opening view the trees are 77% of the 11 million triangles, and the water's reflection pass a third
   of the 744 draw calls. Trimming either changes the picture; measure it on a GPU first.
