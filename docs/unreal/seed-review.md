@@ -270,3 +270,25 @@ What is there:
   check failed: the account's rename had moved the hosted build to https://0xaell.github.io/Tervain/, and the check
   still loaded the old address. [#849](https://github.com/0xAell/Tervain/pull/849) moved it, and the deploy and the
   check passed at the new address after its merge.
+
+## After the review: what was improved and what is next
+
+A running list, kept short; each line names the pull request that did it.
+
+Improved:
+
+- Every CI job has a time limit: a checkout that hung held its run for 23 minutes
+  ([#856](https://github.com/0xAell/Tervain/pull/856)).
+- The canvases the game reads back are CPU canvases. The rugs and the residents' sheets are made while the world is
+  already drawing, and reading back a GPU canvas waits for every frame queued before it: in the first minute of play on
+  a software renderer the page was stalled for 46 s and drew a frame a second, now three, its main thread idle 90% of
+  the time; on a GPU each read was a hitch (PR_CANVAS).
+
+Next:
+
+- The forest the core exports is planted without the hero pines the game draws by default: it has 453 trees where the
+  game plants 451, and 307 of them stand elsewhere. Plant it as the game does.
+- Loading: building the 25 tree models is about 13 s of the woodland stage on a four-core machine without a GPU. The canopy atlas
+  painter, the nearest-wood search and the procedural bark and water textures can do the same work in less time.
+- Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA, and compiles 230
+  shader programs before the first view.
