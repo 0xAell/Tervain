@@ -3,7 +3,8 @@ import type { Quality } from './context';
 import { loadFurniture } from './furniture';
 import { warmContentCache } from './assets/download';
 import { modelAssetUrl } from './assets/modelUrl';
-import { loadMeshyTrees, MESHY_TREE_IDS, MESHY_TREE_LODS } from './meshyTrees';
+import { HERO_PINE_FILES, heroPineEnabled } from './heroPine';
+import { activeMeshyTreeIds, loadMeshyTrees, MESHY_TREE_LODS, meshyTreeModelPath } from './meshyTrees';
 import { loadSolitaryPine, PINE_FILES } from './solitaryPine';
 import { loadSourceRockPile, ROCK_PILE_FILE } from './sourceRockPile';
 import { MAIN_HERO_FILE } from './assets/heroFile';
@@ -28,13 +29,17 @@ export function prefetchJourney(quality: Quality, options: { deferFurniture?: bo
 }
 
 /**
- * The largest files a journey downloads before its world opens, in the order it needs them (A86): the wanderer, the
- * forest's trees (27 MiB, near files first), the conifers and the rock pile.
+ * The largest files a journey downloads before its world opens, in the order it needs them (A86): the wanderer, every
+ * tree the forest loads (near files first), the conifers and the rock pile. The trees are the ones loadMeshyTrees asks
+ * for: the supplied models and, as the game draws them by default, the generated families that replace some of them,
+ * with the generated pines. The list named the supplied trees alone until 17 November 2026, so the generated ones,
+ * 18 MiB, were downloaded only once a journey had begun.
  */
 export const JOURNEY_MODEL_FILES: readonly string[] = [
   MAIN_HERO_FILE,
-  ...MESHY_TREE_LODS.flatMap((lod) => MESHY_TREE_IDS.map((id) => `flora/meshy-012/${id}-${lod}.glb`)),
+  ...MESHY_TREE_LODS.flatMap((lod) => activeMeshyTreeIds().map((id) => meshyTreeModelPath(id, lod))),
   ...PINE_FILES.map((file) => `flora/${file}`),
+  ...(heroPineEnabled() ? HERO_PINE_FILES.map((file) => `flora/${file}`) : []),
   `scenery/${ROCK_PILE_FILE}`,
 ];
 
