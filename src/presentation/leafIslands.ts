@@ -102,7 +102,8 @@ export function anchorLeafIslands(leaf: THREE.BufferGeometry, wood: THREE.Buffer
   // Parts in a grid by their boxes grown by half the gap: parts within `gap` share a cell. Each cell lists its parts in
   // index order, as a linked list over typed arrays: a part taken into a chunk leaves every cell it is in at once, and
   // the lists are walked without a lookup (a quarter of the pass went to finding and emptying cells in maps of sets).
-  const sizes = list.map(part => Math.max(part.box.max.x - part.box.min.x, part.box.max.y - part.box.min.y, part.box.max.z - part.box.min.z)).sort((x, y) => x - y);
+  // Sizes are never negative or NaN, so the typed array's own numeric sort puts them in the comparator's order.
+  const sizes = Float64Array.from(list, part => Math.max(part.box.max.x - part.box.min.x, part.box.max.y - part.box.min.y, part.box.max.z - part.box.min.z)).sort();
   const cell = Math.max(gap, sizes[Math.floor(sizes.length / 2)]!), half = gap / 2;
   // Each part's cells, as ranges of cell coordinates, and the ranges of all of them.
   const span = new Float64Array(list.length * 6);

@@ -6,7 +6,9 @@ outputs/
 __pycache__/
 *.pyc
 .DS_Store
-.claude/
+# Claude Code's local files stay out; the shared project settings (no session links in commits or pull requests) are kept.
+.claude/*
+!.claude/settings.json
 
 # Local development instructions and private working notes
 /AGENTS.md

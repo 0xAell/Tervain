@@ -7,6 +7,43 @@ export type CutoutSampler = { uv: string; cutoff: number; alpha(u: number, v: nu
 export interface Component { box: THREE.Box3; samples: THREE.Vector3[]; vertices?: number[] }
 export const boxGap = (a: THREE.Box3, b: THREE.Box3) => Math.hypot(
   Math.max(0,a.min.x-b.max.x,b.min.x-a.max.x),Math.max(0,a.min.y-b.max.y,b.min.y-a.max.y),Math.max(0,a.min.z-b.max.z,b.min.z-a.max.z));
+/**
+ * The point of a triangle nearest to (x, y, z), written to `out`: three's Triangle.closestPointToPoint (Ericson's test of
+ * which region of the triangle the point lies in) with the same arithmetic in the same order, so the same doubles come
+ * out, without six vectors and their calls per triangle. The corners are read from `corners` at `o`: a, b, then c.
+ */
+export function closestPointOnTriangle(corners: ArrayLike<number>, o: number, x: number, y: number, z: number, out: Float64Array): void {
+  const ax = corners[o]!, ay = corners[o + 1]!, az = corners[o + 2]!, bx = corners[o + 3]!, by = corners[o + 4]!, bz = corners[o + 5]!;
+  const cx = corners[o + 6]!, cy = corners[o + 7]!, cz = corners[o + 8]!;
+  const abx = bx - ax, aby = by - ay, abz = bz - az, acx = cx - ax, acy = cy - ay, acz = cz - az;
+  const apx = x - ax, apy = y - ay, apz = z - az;
+  const d1 = abx * apx + aby * apy + abz * apz, d2 = acx * apx + acy * apy + acz * apz;
+  if (d1 <= 0 && d2 <= 0) { out[0] = ax; out[1] = ay; out[2] = az; return; }
+  const bpx = x - bx, bpy = y - by, bpz = z - bz;
+  const d3 = abx * bpx + aby * bpy + abz * bpz, d4 = acx * bpx + acy * bpy + acz * bpz;
+  if (d3 >= 0 && d4 <= d3) { out[0] = bx; out[1] = by; out[2] = bz; return; }
+  const vc = d1 * d4 - d3 * d2;
+  if (vc <= 0 && d1 >= 0 && d3 <= 0) { const v = d1 / (d1 - d3); out[0] = ax + abx * v; out[1] = ay + aby * v; out[2] = az + abz * v; return; }
+  const cpx = x - cx, cpy = y - cy, cpz = z - cz;
+  const d5 = abx * cpx + aby * cpy + abz * cpz, d6 = acx * cpx + acy * cpy + acz * cpz;
+  if (d6 >= 0 && d5 <= d6) { out[0] = cx; out[1] = cy; out[2] = cz; return; }
+  const vb = d5 * d2 - d1 * d6;
+  if (vb <= 0 && d2 >= 0 && d6 <= 0) { const w = d2 / (d2 - d6); out[0] = ax + acx * w; out[1] = ay + acy * w; out[2] = az + acz * w; return; }
+  const va = d3 * d6 - d5 * d4;
+  if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
+    const w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+    out[0] = bx + (cx - bx) * w; out[1] = by + (cy - by) * w; out[2] = bz + (cz - bz) * w; return;
+  }
+  const denom = 1 / (va + vb + vc), v = vb * denom, w = vc * denom;
+  out[0] = ax + abx * v + acx * w; out[1] = ay + aby * v + acy * w; out[2] = az + abz * v + acz * w;
+}
+
+/** A box's distance from a point: three's Box3.distanceToPoint (the point clamped into the box, and how far it moved), in scalars. */
+export function boxPointDistance(box: THREE.Box3, x: number, y: number, z: number): number {
+  const dx = Math.max(box.min.x, Math.min(box.max.x, x)) - x, dy = Math.max(box.min.y, Math.min(box.max.y, y)) - y, dz = Math.max(box.min.z, Math.min(box.max.z, z)) - z;
+  return Math.sqrt(dx * dx + dy * dy + dz * dz);
+}
+
 export function union(size: number) {
   const parent=Int32Array.from({length:size},(_,i)=>i);
   const find=(i:number):number=>{while(parent[i]!==i){parent[i]=parent[parent[i]!]!;i=parent[i]!;}return i;};
@@ -132,24 +169,46 @@ export function spanningLeafEdges(parts: Component[], limit: number, charge: () 
 export function contactDistances(parts: readonly Component[], wood: THREE.BufferGeometry, maxGap: number, charge: () => void = () => {}): number[] {
   const p = wood.getAttribute('position'), index = wood.index;
   if (!p) throw new Error('Missing wood positions');
-  const triangles: THREE.Triangle[] = [];
-  const corner = (i: number) => new THREE.Vector3().fromBufferAttribute(p, index?.getX(i) ?? i);
-  for (let i = 0; i + 2 < (index?.count ?? p.count); i += 3) triangles.push(new THREE.Triangle(corner(i), corner(i + 1), corner(i + 2)));
-  const woodBounds = triangles.map(t => new THREE.Box3().expandByPoint(t.a).expandByPoint(t.b).expandByPoint(t.c));
-  const support = boundsTree(woodBounds, charge), nearest = new THREE.Vector3();
-  const minGap = maxGap;
-  return parts.map(c => {
-    let distance = maxGap, found = false;
-    for (const sample of c.samples) {
-      const visit = (node: LeafNode) => {
-        charge(); if (node.box.distanceToPoint(sample) > distance) return;
-        if (node.ids) { for (const i of node.ids) { charge(); triangles[i]!.closestPointToPoint(sample, nearest); const d = nearest.distanceTo(sample); if (d <= distance) { distance = d; found = true; } if (found && distance <= minGap) return; } return; }
-        const left = node.left!, right = node.right!, first = left.box.distanceToPoint(sample) <= right.box.distanceToPoint(sample) ? left : right, second = first === left ? right : left;
-        visit(first); if (!found || distance > minGap) visit(second);
-      };
-      visit(support); if (found && distance <= minGap) break;
+  // Each triangle's corners in one array (a, b, c), as three's triangles held them, and its bounds (the least and the
+  // greatest of its corners, as Box3.expandByPoint takes them).
+  const count = Math.floor((index?.count ?? p.count) / 3), corners = new Float64Array(count * 9), woodBounds: THREE.Box3[] = [];
+  for (let t = 0; t < count; t++) {
+    let x0 = Infinity, y0 = Infinity, z0 = Infinity, x1 = -Infinity, y1 = -Infinity, z1 = -Infinity;
+    for (let k = 0; k < 3; k++) {
+      const v = index ? index.getX(t * 3 + k) : t * 3 + k, x = p.getX(v), y = p.getY(v), z = p.getZ(v), o = t * 9 + k * 3;
+      corners[o] = x; corners[o + 1] = y; corners[o + 2] = z;
+      x0 = Math.min(x0, x); y0 = Math.min(y0, y); z0 = Math.min(z0, z); x1 = Math.max(x1, x); y1 = Math.max(y1, y); z1 = Math.max(z1, z);
     }
-    return found ? distance : Infinity;
+    woodBounds.push(new THREE.Box3(new THREE.Vector3(x0, y0, z0), new THREE.Vector3(x1, y1, z1)));
+  }
+  const support = boundsTree(woodBounds, charge), nearest = new Float64Array(3);
+  // A component's contact is the first triangle found within maxGap from any of its samples, searching the nearer half
+  // of each node first. The nodes still to search wait on a stack with their boxes' distances, in the order the search
+  // visits them; `charge` is called at each node and each triangle, as the search reaches them.
+  const pendingNode: LeafNode[] = [], pendingDistance: number[] = [];
+  return parts.map(c => {
+    for (const sample of c.samples) {
+      const x = sample.x, y = sample.y, z = sample.z;
+      pendingNode.length = 0; pendingDistance.length = 0;
+      pendingNode.push(support); pendingDistance.push(boxPointDistance(support.box, x, y, z));
+      while (pendingNode.length) {
+        const node = pendingNode.pop()!, boxDistance = pendingDistance.pop()!;
+        charge(); if (boxDistance > maxGap) continue;
+        if (node.ids) {
+          for (const i of node.ids) {
+            charge(); closestPointOnTriangle(corners, i * 9, x, y, z, nearest);
+            const dx = nearest[0]! - x, dy = nearest[1]! - y, dz = nearest[2]! - z, d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            if (d <= maxGap) return d;
+          }
+          continue;
+        }
+        const left = node.left!, right = node.right!, toLeft = boxPointDistance(left.box, x, y, z), toRight = boxPointDistance(right.box, x, y, z);
+        // The nearer child is searched first, so it goes on the stack last.
+        if (toLeft <= toRight) { pendingNode.push(right, left); pendingDistance.push(toRight, toLeft); }
+        else { pendingNode.push(left, right); pendingDistance.push(toLeft, toRight); }
+      }
+    }
+    return Infinity;
   });
 }
 
