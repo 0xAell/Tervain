@@ -290,7 +290,7 @@ Improved:
   fifth of what it visited), and the nearest-wood search compares squared distances instead of calling Math.hypot. In
   node the 25 tree models take 10.2 s where they took 12.9 s and the atlas 1.2 s where it took 3.2 s; in the browser the
   woodland stage is 2.6 s shorter. Every model, the atlas and both plantings hash the same as before, and tests hold the
-  painter and the search to the ones they replace (PR_TREES).
+  painter and the search to the ones they replace ([#859](https://github.com/0xAell/Tervain/pull/859)).
 
 Next:
 
