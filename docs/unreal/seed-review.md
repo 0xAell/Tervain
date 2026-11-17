@@ -311,7 +311,7 @@ Improved:
   10 Mbit/s, after a minute in the menu, the ground is ready 3 s sooner; at 20 Mbit/s the downloads had overlapped the
   preparation and nothing changes ([#865](https://github.com/0xAell/Tervain/pull/865)).
 - CONTRIBUTING.md lists the checks CI runs on a pull request and how to run each first, the play gate's command and
-  where its PASS line goes among them, and no longer calls the repository an outline (PR_CONTRIB).
+  where its PASS line goes among them, and no longer calls the repository an outline ([#866](https://github.com/0xAell/Tervain/pull/866)).
 
 Next:
 
