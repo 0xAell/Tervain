@@ -12,6 +12,7 @@
 #include "Data/TervainRows.h"
 #include "Rules/TervainBowRules.h"
 #include "Rules/TervainHeroRules.h"
+#include "Rules/TervainRidingRules.h"
 #include "TervainDataSubsystem.generated.h"
 
 class FJsonObject;
@@ -58,6 +59,14 @@ public:
 	/** How an arrow leaves the string and falls, read from "bow". */
 	UFUNCTION(BlueprintPure, Category = "Tervain|Data")
 	FTervainBowTuning GetBowTuning() const;
+
+	/** How the deer answers the reins, read from "riding.ride". */
+	UFUNCTION(BlueprintPure, Category = "Tervain|Data")
+	FTervainRideTuning GetRideTuning() const;
+
+	/** The gallop's stamina, read from "riding.stamina". */
+	UFUNCTION(BlueprintPure, Category = "Tervain|Data")
+	FTervainMountStaminaTuning GetMountStaminaTuning() const;
 
 	/** An item's row, or null when the items table is not set, could not be loaded or has no such row. */
 	const FTervainItemRow* FindItem(FName ItemId) const;

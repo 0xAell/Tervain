@@ -6,15 +6,15 @@ Every engine name the Unreal seed (unreal/) and the stand-ins its tests compile 
 
 **How it was checked.** Epic's documentation at dev.epicgames.com: the guides of the current version, and the C++ API reference of Unreal Engine 5.8, or of 5.5 and 5.7 where the 5.8 page leaves a detail out. The seed targets Unreal Engine 5.9, whose API reference was not published when this was checked. The reference prints signatures without default arguments, does not document macros, and drops a trailing const in its class tables. Epic's engine source is not public, so no header was read. Where an assumption is a rule of the C++ language rather than of the engine, it is checked against the C++20 working draft (N4861, in the cplusplus/draft repository on GitHub), the standard Epic's coding standard says the engine builds with.
 
-Checked on 2026-11-16. The register, [engine-symbols.json](engine-symbols.json), holds for each name the files that use it, what is assumed, the page and the quoted passage. `npm run unreal:symbols` fails when the seed or a stand-in uses an engine name that is not entered; with `--online` it opens every page again and looks for each passage.
+Checked on 2026-11-17. The register, [engine-symbols.json](engine-symbols.json), holds for each name the files that use it, what is assumed, the page and the quoted passage. `npm run unreal:symbols` fails when the seed or a stand-in uses an engine name that is not entered; with `--online` it opens every page again and looks for each passage.
 
 | Status | Names | Meaning |
 | --- | ---: | --- |
-| verified | 191 | The quoted passage, on the page named, states or shows what is assumed: the name and, for a function, its parameters or the behaviour relied on. |
+| verified | 195 | The quoted passage, on the page named, states or shows what is assumed: the name and, for a function, its parameters or the behaviour relied on. |
 | partly | 8 | The name is documented but something the seed or a stand-in relies on is not: a default argument, a value's spelling, an include that brings a name in. |
 | unverified | 1 | No public page was found that shows it. |
 | contradicted | 1 | A public page says otherwise. |
-| all | 201 | |
+| all | 205 | |
 
 ## What the public record does not settle
 
@@ -85,6 +85,10 @@ These are for the first build in the engine to settle. Each row says what is mis
 | `FMath::Max` | verified | [Max](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Max?application_version=5.8) |
 | `FMath::Min` | verified | [Min](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Min?application_version=5.8) |
 | `FMath::Sqrt` | verified | [Sqrt](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Sqrt?application_version=5.8) |
+| `FMath::Atan2` | verified | [Atan2](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Atan2?application_version=5.8) |
+| `FMath::Sin` | verified | [Sin](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Sin?application_version=5.8) |
+| `FMath::Cos` | verified | [Cos](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Cos?application_version=5.8) |
+| `FMath::Abs` | verified | [Abs](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Abs?application_version=5.8) |
 | `FMath::RoundToInt32` | verified | [RoundToInt32](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/RoundToInt32?application_version=5.8) |
 | `FMath::RadiansToDegrees` | verified | [RadiansToDegrees](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMath/RadiansToDegrees?application_version=5.8) |
 | `FMath::DegreesToRadians` | verified | [FMath](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FMath?application_version=5.8) |

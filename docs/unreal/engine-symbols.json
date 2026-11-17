@@ -1,6 +1,6 @@
 {
   "about": "Every engine name the Unreal seed (unreal/) and the stand-ins its tests compile it against (tests/tools/unreal-standin/) assume, each checked against Epic's public documentation, or, for a rule of the C++ language itself, against the C++20 working draft. The seed has never been built by the engine; this register says how far the public record supports each assumption, and what only a build can settle.",
-  "checked": "2026-11-16",
+  "checked": "2026-11-17",
   "reference": "Epic's documentation at dev.epicgames.com: the guides of the current version, and the C++ API reference of Unreal Engine 5.8, or of 5.5 and 5.7 where the 5.8 page leaves a detail out. The seed targets Unreal Engine 5.9, whose API reference was not published when this was checked. The reference prints signatures without default arguments, does not document macros, and drops a trailing const in its class tables. Epic's engine source is not public, so no header was read. Where an assumption is a rule of the C++ language rather than of the engine, it is checked against the C++20 working draft (N4861, in the cplusplus/draft repository on GitHub), the standard Epic's coding standard says the engine builds with.",
   "statuses": {
     "verified": "The quoted passage, on the page named, states or shows what is assumed: the name and, for a function, its parameters or the behaviour relied on.",
@@ -9,8 +9,8 @@
     "contradicted": "A public page says otherwise."
   },
   "summary": {
-    "symbols": 201,
-    "verified": 191,
+    "symbols": 205,
+    "verified": 195,
     "partly": 8,
     "unverified": 1,
     "contradicted": 1
@@ -42,6 +42,7 @@
         "tests/tools/unreal-standin/CoreMinimal.h",
         "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
         "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp",
         "unreal/Source/Tervain/Private/TervainDataSubsystem.cpp",
         "unreal/Source/Tervain/Public/Data/TervainIds.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
@@ -144,7 +145,8 @@
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
-        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h"
       ],
       "assumes": "USTRUCT(...) goes above a struct definition whose first line is GENERATED_BODY().",
       "status": "verified",
@@ -199,6 +201,7 @@
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
       "assumes": "UPROPERTY(specifiers, meta=(...)) goes above a member variable.",
@@ -234,11 +237,13 @@
         "tests/tools/unreal-standin/TervainBowRules.generated.h",
         "tests/tools/unreal-standin/TervainDataSubsystem.generated.h",
         "tests/tools/unreal-standin/TervainHeroRules.generated.h",
+        "tests/tools/unreal-standin/TervainRidingRules.generated.h",
         "tests/tools/unreal-standin/TervainRows.generated.h",
         "tests/tools/unreal-standin/TervainSettings.generated.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
@@ -258,11 +263,13 @@
         "tests/tools/unreal-standin/TervainBowRules.generated.h",
         "tests/tools/unreal-standin/TervainDataSubsystem.generated.h",
         "tests/tools/unreal-standin/TervainHeroRules.generated.h",
+        "tests/tools/unreal-standin/TervainRidingRules.generated.h",
         "tests/tools/unreal-standin/TervainRows.generated.h",
         "tests/tools/unreal-standin/TervainSettings.generated.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
@@ -300,6 +307,7 @@
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/Tervain.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
@@ -320,6 +328,7 @@
         "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
         "unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp",
         "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp",
         "unreal/Source/Tervain/Public/TervainUnits.h"
       ],
       "assumes": "A struct of static math helper functions.",
@@ -338,7 +347,8 @@
         "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
         "tests/tools/unreal-standin/parity.cpp",
         "tests/tools/unreal-standin/seed.cpp",
-        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp"
+        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp"
       ],
       "assumes": "static T Max(T A, T B) returns the larger of two values of one type; the seed calls it with two floats.",
       "status": "verified",
@@ -354,7 +364,8 @@
       "kind": "function",
       "usedIn": [
         "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
-        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp"
+        "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp"
       ],
       "assumes": "static T Min(T A, T B) returns the smaller of two values of one type; the seed calls it with two floats.",
       "status": "verified",
@@ -380,6 +391,70 @@
       },
       "passage": "static float Sqrt ( float Value ) GenericPlatform/GenericPlatformMath.h static double Sqrt ( double Value )",
       "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from (the FMath page says it \"inherits from platform math\"). The page lists both overloads with their header, and no remark on their behaviour beyond the name."
+    },
+    {
+      "symbol": "FMath::Atan2",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp"
+      ],
+      "assumes": "static float Atan2(float Y, float X) returns the angle of the point (X, Y) from the X axis in radians, Y first; the seed's riding rule calls it with floats, as the core calls Math.atan2.",
+      "status": "verified",
+      "source": {
+        "title": "Atan2 | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Atan2?application_version=5.8"
+      },
+      "passage": "static float Atan2 ( float Y, float X ) GenericPlatform/GenericPlatformMath.h static double Atan2 ( double Y, double X )",
+      "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from (the FMath page says it \"inherits from platform math\"). The page lists both overloads with their header, and no remark on their behaviour beyond the name. It names the parameters Y then X, the order the seed passes them in. How the engine computes it is not on the page: the parity test allows for single-precision rounding."
+    },
+    {
+      "symbol": "FMath::Sin",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp"
+      ],
+      "assumes": "static float Sin(float Value) returns the sine of an angle in radians; the seed's riding rule calls it with floats.",
+      "status": "verified",
+      "source": {
+        "title": "Sin | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Sin?application_version=5.8"
+      },
+      "passage": "static float Sin ( float Value ) GenericPlatform/GenericPlatformMath.h static double Sin ( double Value )",
+      "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from (the FMath page says it \"inherits from platform math\"). The page lists both overloads with their header, and no remark on their behaviour beyond the name."
+    },
+    {
+      "symbol": "FMath::Cos",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp"
+      ],
+      "assumes": "static float Cos(float Value) returns the cosine of an angle in radians; the seed's riding rule calls it with floats.",
+      "status": "verified",
+      "source": {
+        "title": "Cos | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Cos?application_version=5.8"
+      },
+      "passage": "static float Cos ( float Value ) GenericPlatform/GenericPlatformMath.h static double Cos ( double Value )",
+      "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from (the FMath page says it \"inherits from platform math\"). The page lists both overloads with their header, and no remark on their behaviour beyond the name."
+    },
+    {
+      "symbol": "FMath::Abs",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp"
+      ],
+      "assumes": "static T Abs(const T A) returns the absolute value of its argument; the seed's riding rule calls it with floats.",
+      "status": "verified",
+      "source": {
+        "title": "Abs | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Abs?application_version=5.8"
+      },
+      "passage": "static T Abs ( const T A ) Computes absolute value in a generic way GenericPlatform/GenericPlatformMath.h float Abs ( const float A ) Float specialization",
+      "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from. The page gives the generic template, which the stand-in implements, and float and double specializations."
     },
     {
       "symbol": "FMath::RoundToInt32",
@@ -2025,6 +2100,7 @@
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/Tervain.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
         "unreal/Source/Tervain/Public/TervainSettings.h",
@@ -2043,10 +2119,12 @@
       "symbol": "Primitive types and TEXT from CoreMinimal.h",
       "kind": "header",
       "usedIn": [
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp",
         "unreal/Source/Tervain/Public/Data/TervainIds.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/Tervain.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
         "unreal/Source/Tervain/Public/TervainSettings.h",
@@ -2125,6 +2203,7 @@
         "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
         "unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp",
         "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
+        "unreal/Source/Tervain/Private/Rules/TervainRidingRules.cpp",
         "unreal/Source/Tervain/Public/TervainUnits.h"
       ],
       "assumes": "#include \"Math/UnrealMathUtility.h\" declares FMath.",
@@ -2414,6 +2493,7 @@
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
       "assumes": "EditAnywhere lets the property be edited in property windows.",
@@ -2434,6 +2514,7 @@
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
       "assumes": "BlueprintReadOnly exposes the property to Blueprints for reading.",
@@ -2453,6 +2534,7 @@
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
       "assumes": "BlueprintReadWrite exposes the property to Blueprints for reading and writing.",
@@ -2473,6 +2555,7 @@
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
       "assumes": "Category names the group a property is shown under, and \"Data|Tables\" is a nested category.",
@@ -2530,7 +2613,8 @@
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
-        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h"
       ],
       "assumes": "BlueprintType exposes a struct as a type usable for Blueprint variables.",
       "status": "verified",
@@ -2612,7 +2696,8 @@
       "usedIn": [
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
-        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
+        "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
+        "unreal/Source/Tervain/Public/Rules/TervainRidingRules.h"
       ],
       "assumes": "A float can be a UPROPERTY member.",
       "status": "verified",

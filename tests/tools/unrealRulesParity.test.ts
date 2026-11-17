@@ -8,8 +8,9 @@ import { toUnreal, yawToUnreal } from '../../src/core/export/unrealTables';
 import { arrowLaunchDirection, BOW } from '../../src/core/rules/bow';
 import { ENEMY_ARCHETYPES } from '../../src/core/content/enemies';
 import { ACTION_COST, BLADE, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STAMINA, staminaStep, SWIM_EXIT, WADE, wadeFactor, type Arms } from '../../src/core/rules/hero';
+import { MOUNT_STAMINA, mountStaminaStep, RIDE, steerMount } from '../../src/core/rules/riding';
 
-// The Unreal seed mirrors four of the core's rules and its unit conversions in C++. Unreal Engine is not available to
+// The Unreal seed mirrors six of the core's rules and its unit conversions in C++. Unreal Engine is not available to
 // this repository's tests, so this compiles that plain C++ with an ordinary compiler against small stand-ins for the
 // few engine names it uses (tests/tools/unreal-standin) and checks that it returns what the TypeScript returns on the
 // same cases. It proves the mirrored logic, not that the project builds in the engine.
@@ -25,7 +26,8 @@ afterAll(() => { if (work) rmSync(work, { recursive: true, force: true }); });
 function build(): string {
   const binary = join(work!, 'parity');
   const result = spawnSync(compiler!, ['-std=c++20', '-Wall', '-Wextra', '-Werror', '-I', join(here, 'unreal-standin'), '-I', join(seed, 'Public'),
-    join(seed, 'Private', 'Rules', 'TervainHeroRules.cpp'), join(seed, 'Private', 'Rules', 'TervainBowRules.cpp'), join(here, 'unreal-standin', 'parity.cpp'), '-o', binary], { encoding: 'utf8' });
+    join(seed, 'Private', 'Rules', 'TervainHeroRules.cpp'), join(seed, 'Private', 'Rules', 'TervainBowRules.cpp'),
+    join(seed, 'Private', 'Rules', 'TervainRidingRules.cpp'), join(here, 'unreal-standin', 'parity.cpp'), '-o', binary], { encoding: 'utf8' });
   expect(result.stderr, 'the mirrored C++ compiles without warnings').toBe('');
   expect(result.status).toBe(0);
   return binary;
@@ -44,6 +46,8 @@ const tuning = [
   ...arms.map((a, index) => `arms ${index} ${a.guard.fresh} ${a.guard.tired} ${typeof a.guard.perfect === 'number' ? a.guard.perfect : 0} ${a.guard.perfect === 'parry' ? 1 : 0}`),
   `wade-tuning ${WADE.from} ${WADE.span} ${WADE.slowest}`,
   `bow-tuning ${BOW.arrowSpeed} ${BOW.gravity}`,
+  `ride-tuning ${[RIDE.walk, RIDE.run, RIDE.back, RIDE.accel, RIDE.brake, RIDE.turnStill, RIDE.turnRun, RIDE.backCone].join(' ')}`,
+  `mount-tuning ${MOUNT_STAMINA.max} ${MOUNT_STAMINA.drain} ${MOUNT_STAMINA.recover}`,
 ];
 /** Single-precision results against double-precision ones. */
 const near = (actual: number, expected: number) => expect(Math.abs(actual - expected)).toBeLessThanOrEqual(1e-4 * Math.max(1, Math.abs(expected)));
@@ -140,6 +144,52 @@ describe('the Unreal seed\'s mirrored C++', () => {
     });
     expect(arcs).toBeGreaterThan(200);
     expect(straight).toBeGreaterThan(20);
+  });
+
+  it.skipIf(!compiler)('steers the deer as the core does: turning, gathering speed, pulling up and backing up', () => {
+    const binary = build();
+    const cases: { speed: number; yaw: number; bearing: number; push: number; gallop: boolean; dt: number }[] = [];
+    for (const speed of [-0.9, -0.4, 0, 0.3, 0.49, 0.5, 0.51, 1, 2.1, 3.3, 6.2, 7]) for (const yaw of [0, 0.7, -1.2, 2.85, -3.1]) {
+      for (const bearing of [0, 0.4, Math.PI / 2, 2.4, 2.6, -0.8, -2.55, -3.1]) for (const push of [0, 0.04, 0.05, 0.5, 1]) {
+        for (const gallop of [false, true]) for (const dt of [1 / 120, 1 / 60, 0.1]) cases.push({ speed, yaw, bearing, push, gallop, dt });
+      }
+    }
+    const out = run(binary, [...tuning, ...cases.map((c) => `ride ${c.speed} ${c.yaw} ${Math.sin(c.bearing)} ${Math.cos(c.bearing)} ${c.push} ${c.gallop ? 1 : 0} ${c.dt}`)]);
+    expect(out).toHaveLength(cases.length);
+    let backing = 0, turning = 0;
+    cases.forEach((c, index) => {
+      const behind = c.bearing - c.yaw, offset = Math.abs(Math.atan2(Math.sin(behind), Math.cos(behind)));
+      // The cases keep away from reins straight behind, which rounding may turn either way, and from the back-up cone's edge.
+      expect(Math.PI - offset).toBeGreaterThan(1e-3);
+      expect(Math.abs(offset - RIDE.backCone)).toBeGreaterThan(1e-3);
+      const expected = steerMount({ speed: c.speed, yaw: c.yaw }, Math.sin(c.bearing), Math.cos(c.bearing), c.push, c.gallop, c.dt);
+      const [speed, yaw, turn] = out[index]!;
+      near(speed!, expected.speed);
+      near(turn!, expected.turn);
+      // The facing as an angle: either side of the half turn is the same way.
+      expect(Math.abs(Math.sin(yaw!) - Math.sin(expected.yaw)) + Math.abs(Math.cos(yaw!) - Math.cos(expected.yaw)), JSON.stringify(c)).toBeLessThan(1e-4);
+      if (c.push > 0.05 && offset > RIDE.backCone && c.speed < 0.5) backing++;
+      else if (expected.turn !== 0) turning++;
+    });
+    expect(cases.length).toBeGreaterThan(10_000);
+    expect(backing).toBeGreaterThan(400);
+    expect(turning).toBeGreaterThan(4_000);
+  });
+
+  it.skipIf(!compiler)('drains and refills the gallop as the core does, between empty and full', () => {
+    const binary = build();
+    const cases: { stamina: number; galloping: boolean; dt: number }[] = [];
+    for (const stamina of [0, 0.5, MOUNT_STAMINA.spent, 17, MOUNT_STAMINA.resume, 62.5, 99.9, MOUNT_STAMINA.max]) {
+      for (const galloping of [false, true]) for (const dt of [1 / 120, 1 / 60, 0.1, 1, 5]) cases.push({ stamina, galloping, dt });
+    }
+    const out = run(binary, [...tuning, ...cases.map((c) => `mount ${c.stamina} ${c.galloping ? 1 : 0} ${c.dt}`)]).map(([meter]) => meter!);
+    expect(out).toHaveLength(cases.length);
+    cases.forEach((c, index) => near(out[index]!, mountStaminaStep(c.stamina, c.galloping, c.dt)));
+    // Empty and full exactly, as the core's own test expects.
+    cases.forEach((c, index) => {
+      const expected = mountStaminaStep(c.stamina, c.galloping, c.dt);
+      if (expected === 0 || expected === MOUNT_STAMINA.max) expect(out[index], JSON.stringify(c)).toBe(expected);
+    });
   });
 
   it.skipIf(!compiler)('converts positions and yaws as the exported tables do', () => {
