@@ -293,7 +293,7 @@ Improved:
   painter and the search to the ones they replace ([#859](https://github.com/0xAell/Tervain/pull/859)).
 - The woodland floor the core exports is the one the game lays. Its rule reads the shade the drawn crowns cast, which
   only the models give; the export laid it with an estimate from the trees' sizes and had 296 pieces where the game lays
-  720. The core keeps the game's floor as it keeps the forest, checked by the same test (PR_FLOOR).
+  720. The core keeps the game's floor as it keeps the forest, checked by the same test ([#860](https://github.com/0xAell/Tervain/pull/860)).
 
 Next:
 
