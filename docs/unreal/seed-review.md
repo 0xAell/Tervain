@@ -291,11 +291,12 @@ Improved:
   node the 25 tree models take 10.2 s where they took 12.9 s and the atlas 1.2 s where it took 3.2 s; in the browser the
   woodland stage is 2.6 s shorter. Every model, the atlas and both plantings hash the same as before, and tests hold the
   painter and the search to the ones they replace ([#859](https://github.com/0xAell/Tervain/pull/859)).
+- The woodland floor the core exports is the one the game lays. Its rule reads the shade the drawn crowns cast, which
+  only the models give; the export laid it with an estimate from the trees' sizes and had 296 pieces where the game lays
+  720. The core keeps the game's floor as it keeps the forest, checked by the same test (PR_FLOOR).
 
 Next:
 
-- The woodland floor the core exports is laid with an estimate of the crowns' shade, the game's with the drawn crowns
-  themselves; check whether the two agree, and export the one that is played.
 - Loading: the tree models still take most of the woodland stage. The leaf-clump connectivity, the leaf islands, the
   branch-wind search and the procedural bark and water textures are next; past them, building the models in workers or
   keeping them between visits.

@@ -1,4 +1,6 @@
-import type { FloraTree, Species } from './flora';
+import type { Species } from './flora';
+import type { ForestFloorPiece } from './forestFloor';
+import { FLOOR_ROWS } from './plantedForest.floor';
 import { PLANTED_ROWS } from './plantedForest.trees';
 
 /**
@@ -34,8 +36,12 @@ export const PLANTED_FOREST: readonly PlantedTree[] = PLANTED_ROWS.map(([sp, v, 
 export const PLANTED_TRUNKS: readonly { x: number; z: number; radius: number }[] = PLANTED_FOREST.filter((tree) => tree.radius > 0)
   .map((tree) => ({ x: tree.x, z: tree.z, radius: tree.radius }));
 
-/** The planted forest in the shape the placement rules read (they use where, which kind, how large and whether it blocks). */
-export function plantedAsFlora(): FloraTree[] {
-  return PLANTED_FOREST.map((tree) => ({ sp: tree.sp, v: tree.v, x: tree.x, y: tree.y, z: tree.z, s: tree.s, yaw: tree.yaw, tint: 1, radius: tree.radius,
-    collisionId: null, decorationRank: 0, ...(tree.assetId ? { assetId: tree.assetId } : {}) }));
-}
+/**
+ * The woodland floor as the game lays it among the planted forest (forestFloor.ts). Its rule asks how much shade the
+ * drawn crowns cast at a place, which only the models answer, so it is kept here as the forest is; the same test lays
+ * it again from the models and fails if the two part. Laid with an estimate of the shade from the trees' sizes, the
+ * export had 296 pieces where the game lays 720.
+ */
+export const PLANTED_FLOOR: readonly ForestFloorPiece[] = FLOOR_ROWS.map(([id, kind, x, y, z, nx, nz, yaw, scale, rank, variant, colonyId, parentLogId]) => ({
+  id, kind, x, y, z, nx, nz, yaw, scale, rank, variant, ...(colonyId ? { colonyId } : {}), ...(parentLogId ? { parentLogId } : {}),
+}));
