@@ -10,7 +10,7 @@ function model(kind: number): GLTF {
   for (let i = 0; i < (kind === 1 ? 2 : 1); i++) {
     scene.add(new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshStandardMaterial({ alphaTest: i ? 0.4 : 0 })));
   }
-  return { scene, animations: [] } as unknown as GLTF;
+  return { scene, animations: [], parser: { json: {}, associations: new Map() } } as unknown as GLTF;
 }
 function bytes(kind: number): ArrayBuffer {
   const buffer = new ArrayBuffer(16), header = new DataView(buffer);

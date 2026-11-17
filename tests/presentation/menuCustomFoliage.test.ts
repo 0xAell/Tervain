@@ -2,7 +2,7 @@ import { createFoliageField } from '../../src/presentation/foliage/foliageWind';
 import { GrassWind } from '../../src/presentation/grass/wind';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { ModelGltf } from '../../src/presentation/assets/gltfLoader';
 import { buildAncientTree } from '../../src/presentation/menu/menuTree';
 import { HERMIT_DOOR } from '../../src/presentation/menu/menuCamp';
 import { MENU_TREE_SOURCE, createMenuTreeRemix } from '../../src/presentation/menu/menuTreeRemix';
@@ -13,7 +13,7 @@ import { menuResourceFixture } from './menuResourceFixture';
 
 interface Sprig { vertexStart: number; vertexCount: number; stemRootVertexIndices: number[] }
 interface Attachments { sourceVertices: number; sprigs: Sprig[] }
-let source: readonly [GLTF, GLTF, GLTF];
+let source: readonly [ModelGltf, ModelGltf, ModelGltf];
 const owned: { dispose(): void }[] = [];
 beforeAll(async () => { source = (await meshyTreeTemplates([MENU_TREE_SOURCE])).get(MENU_TREE_SOURCE)!; });
 afterEach(() => { for (const item of owned.splice(0)) item.dispose(); });
@@ -159,7 +159,7 @@ describe('actual custom foliage bound to the carved menu tree', () => {
   });
 
   it('rejects malformed embedded sprig ranges before cloning or touching a shared actual template', () => {
-    const broken = { ...source[0], scene: source[0].scene.clone() } as GLTF, mesh = foliage(broken);
+    const broken = { ...source[0], scene: source[0].scene.clone() } as ModelGltf, mesh = foliage(broken);
     mesh.userData.tervainCustomFoliage.sprigs[0].vertexStart = -1;
     const geometryDisposal = vi.spyOn(mesh.geometry, 'dispose');
     expect(() => createMenuTreeRemix([broken, source[1], source[2]], architecture(),

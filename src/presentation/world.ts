@@ -50,7 +50,7 @@ import { buildPhysicalProps } from './physicalProps';
 import type { MeshyNpcCatalog } from './meshynpcs';
 import { buildSourceRockPiles, loadSourceRockPile } from './sourceRockPile';
 import { activeMeshyTreeIds, loadMeshyTrees, MESHY_TREE_LODS, type MeshyTreeTemplates } from './meshyTrees';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { ModelGltf } from './assets/gltfLoader';
 import { buildCoastalBackdrop } from './coastalBackdrop';
 import { createGroundContactField } from '../core/world/groundContacts';
 import { buildAnimals, buildAnimalsAsync, deferredWildlife, loadAnimalTemplates, type AnimalTemplates, type AnimalWildlife } from './animals';
@@ -208,7 +208,7 @@ export class WorldScene {
     await checkpoint('models', 'World models', 0, modelTotal);
     // The baked building surfaces download alongside the models; any that fail keep their generated textures.
     const surfaces = loadBakedTextures(settings.quality);
-    let pine: PineTemplates, rockPile: GLTF, treeTemplates: MeshyTreeTemplates, animalTemplates: AnimalTemplates | null, furniture: FurnitureTemplates | null;
+    let pine: PineTemplates, rockPile: ModelGltf, treeTemplates: MeshyTreeTemplates, animalTemplates: AnimalTemplates | null, furniture: FurnitureTemplates | null;
     try {
       [pine, rockPile, treeTemplates, animalTemplates, furniture] = await Promise.all([
         Promise.all([loadSolitaryPine((loaded, total) => modelProgress('pine', loaded, total, 'Coastal pines')), heroPineEnabled() ? loadHeroPine((loaded, total) => modelProgress('heroPine', loaded, total, 'Coastal pines')) : null]).then(([templates]) => templates),
@@ -246,7 +246,7 @@ export class WorldScene {
   /** Whether a room's window capture is shown (it reads the sun's shadow map in every direction). */
   private windowShown = false;
 
-  private static async build(state: WorldState, settings: Settings, terrainTex: TerrainTextures, pine: PineTemplates, rockPile: GLTF,
+  private static async build(state: WorldState, settings: Settings, terrainTex: TerrainTextures, pine: PineTemplates, rockPile: ModelGltf,
     treeTemplates: MeshyTreeTemplates, animalTemplates: AnimalTemplates | null, furniture: FurnitureTemplates | null, npcAssets: MeshyNpcCatalog | undefined, options: WorldCreateOptions,
     phase: (stage: WorldBuildProgress['phase'], label: string, completed?: number, total?: number) => void,
     checkpoint: (stage: WorldBuildProgress['phase'], label: string, completed?: number, total?: number) => Promise<void>): Promise<WorldScene> {

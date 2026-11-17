@@ -44,7 +44,7 @@ function source() {
   const material = new THREE.MeshStandardMaterial({ map: texture, normalMap: texture });
   const mesh = new THREE.SkinnedMesh(geometry, material); scene.add(mesh);
   mesh.bind(new THREE.Skeleton(BONES.map(name => bones[name])));
-  const asset = { scene, animations: [] } as unknown as GLTF;
+  const asset = { scene, animations: [], parser: { json: {}, associations: new Map() } } as unknown as GLTF;
   return { asset, bones, mesh, geometry, material, texture };
 }
 

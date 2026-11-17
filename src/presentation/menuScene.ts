@@ -18,7 +18,7 @@ import { buildMenuDeer, type MenuDeer } from './menu/menuDeer';
 import { buildMenuFluff, type MenuFluff } from './menu/menuFluff';
 import { createAnimalFigure } from './animals';
 import type { AnimalDefinition } from '../core/content/animals';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { ModelGltf } from './assets/gltfLoader';
 import { TREE_HOLLOW, buildAncientTree } from './menu/menuTree';
 import { buildMenuFire } from './menu/menuFire';
 import { buildMenuBanner, type CanvasSource } from './menu/menuBanner';
@@ -155,7 +155,7 @@ export class MenuScene {
   private readonly baseFov = MENU_CAMERA.fov;
   static readonly MAX_FOV = 76;
 
-  constructor(opts: { quality?: MenuQuality; resources?: MenuResources; trafficSeed?: number; trafficTime?: number; awakening?: MenuAwakeningState; grove?: MenuGrove; wardenRig?: Rig; treeTemplates?: MeshyTreeTemplates; deer?: { template: GLTF; definition: AnimalDefinition }; clock?: MenuClockState } = {}) {
+  constructor(opts: { quality?: MenuQuality; resources?: MenuResources; trafficSeed?: number; trafficTime?: number; awakening?: MenuAwakeningState; grove?: MenuGrove; wardenRig?: Rig; treeTemplates?: MeshyTreeTemplates; deer?: { template: ModelGltf; definition: AnimalDefinition }; clock?: MenuClockState } = {}) {
     this.quality = opts.quality ?? 'high';
     // A scene rebuilt (a quality change) goes on from the old one's moment: the fire, the clouds and the stag where they
     // were rather than all from the start (A91 scout).
@@ -556,7 +556,7 @@ export class MenuScene {
    * Lets the stag into the heath (once; its model may arrive after the scene is built). Whenever it joins, it starts its
    * round out of sight beyond the stones rather than appearing in the middle of the meadow.
    */
-  addDeer(template: GLTF, definition: AnimalDefinition): boolean {
+  addDeer(template: ModelGltf, definition: AnimalDefinition): boolean {
     if (this.disposed || this.deer) return false;
     this.deer = buildMenuDeer(createAnimalFigure(template, definition), { shadows: this.quality !== 'low' });
     this.deerStart = this.time - (this.deerRound ?? 0);

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from './assets/gltfLoader';
+import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { coastalRockPiles, type RockPile } from '../core/world/rockPiles';
 import type { PhysicalRockGeometry } from '../core/world/physicsGeometry';
 import type { BuildContext, SceneModule } from './context';
@@ -12,13 +11,13 @@ import { observeModelLoad, withModelLoadSlot, type ModelLoadProgress } from './a
 import { downloadAsset } from './assets/download';
 
 export const ROCK_PILE_FILE = 'weathered-rock-pile-under-20k.glb';
-let pending: Promise<GLTF> | null = null;
+let pending: Promise<ModelGltf> | null = null;
 
 export function rockPileUrl(base = import.meta.env.BASE_URL, page = document.baseURI): URL {
   return modelAssetUrl(`scenery/${ROCK_PILE_FILE}`, base, page);
 }
 
-function sourceMesh(template: GLTF): THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> {
+function sourceMesh(template: ModelGltf): THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> {
   let result: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
   template.scene.updateMatrixWorld(true);
   template.scene.traverse(object => {
@@ -35,7 +34,7 @@ function sourceMesh(template: GLTF): THREE.Mesh<THREE.BufferGeometry, THREE.Mesh
 }
 
 /** Required art shares a CPU template; failure reaches the existing loading Retry. */
-export function loadSourceRockPile(progress?: ModelLoadProgress): Promise<GLTF> {
+export function loadSourceRockPile(progress?: ModelLoadProgress): Promise<ModelGltf> {
   if (pending) return observeModelLoad(pending, progress);
   pending = withModelLoadSlot(async () => {
     const url = rockPileUrl();
@@ -45,7 +44,7 @@ export function loadSourceRockPile(progress?: ModelLoadProgress): Promise<GLTF> 
     if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(4, true) !== 2 || header.getUint32(8, true) !== bytes.byteLength) {
       throw new Error('Rock pile download is not a complete GLB 2 file.');
     }
-    const template = await createGltfLoader().parseAsync(bytes, new URL('.', url).href);
+    const template = await parseModel(bytes, new URL('.', url).href);
     sourceMesh(template);
     return template;
   }).catch(error => { pending = null; throw error; });
@@ -89,7 +88,7 @@ function physicalContact(geometry: THREE.BufferGeometry, placement: RockPilePlac
 }
 
 /** Original source forms stay rigid, uniformly scaled and resident; contacts use their exact rendered triangles. */
-export function buildSourceRockPiles(ctx: BuildContext, template: GLTF): SceneModule & {
+export function buildSourceRockPiles(ctx: BuildContext, template: ModelGltf): SceneModule & {
   placements: readonly RockPilePlacement[]; contacts: readonly PhysicalRockGeometry[];
 } {
   const original = sourceMesh(template), geometry = original.geometry.clone().applyMatrix4(original.matrixWorld);

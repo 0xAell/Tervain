@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createGltfLoader } from '../assets/gltfLoader';
+import { loadModel } from '../assets/gltfLoader';
 import { FOLIAGE_RESPONSE, type FoliageField } from './foliageWind';
 import { crownOf, foliageGeometryFeatures, installFoliage, installFoliageShadow } from './foliageMaterial';
 import { shadowDepthMaterial } from './shadowCasters';
@@ -49,7 +49,7 @@ export interface WindTestTree {
 }
 
 export async function createWindTestTree(field: FoliageField, signal?: AbortSignal): Promise<WindTestTree | null> {
-  const gltf = await createGltfLoader().loadAsync(WIND_TEST_URL);
+  const gltf = await loadModel(WIND_TEST_URL);
   if (signal?.aborted) return null;
   const group = new THREE.Group();
   group.name = 'wind-test-tree';

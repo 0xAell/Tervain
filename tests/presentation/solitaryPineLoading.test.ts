@@ -15,7 +15,7 @@ beforeEach(() => {
   const scene = new THREE.Group();
   scene.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial()));
   scene.add(new THREE.Mesh(new THREE.PlaneGeometry(), new THREE.MeshStandardMaterial({ alphaTest: 0.42, side: THREE.DoubleSide })));
-  parser.mockResolvedValue({ scene }); fetchMock.mockImplementation(async () => response());
+  parser.mockResolvedValue({ scene, parser: { json: {}, associations: new Map() } }); fetchMock.mockImplementation(async () => response());
 });
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
@@ -43,7 +43,7 @@ describe('required woodland loading', () => {
     fetchMock.mockResolvedValueOnce(new Response(new ArrayBuffer(6)));
     await expect(loadSolitaryPine()).rejects.toThrow('incomplete');
     const empty = new THREE.Group(); empty.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial()));
-    parser.mockResolvedValueOnce({ scene: empty });
+    parser.mockResolvedValueOnce({ scene: empty, parser: { json: {}, associations: new Map() } });
     await expect(loadSolitaryPine()).rejects.toThrow('no masked foliage');
     await expect(loadSolitaryPine()).resolves.toHaveLength(3);
   });

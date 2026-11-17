@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { ModelGltf } from '../assets/gltfLoader';
 import type { AncientTree } from './menuTree';
 import { FOLIAGE_RESPONSE, type FoliageField } from '../foliage/foliageWind';
 import { crownOf, installFoliage, installFoliageShadow } from '../foliage/foliageMaterial';
@@ -34,7 +34,7 @@ export interface MenuTreeRemix {
   dispose(): void;
 }
 
-function sourceFoliage(template: GLTF): THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[] {
+function sourceFoliage(template: ModelGltf): THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[] {
   const parts: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[] = [];
   template.scene.updateMatrixWorld(true);
   template.scene.traverse(object => {
@@ -142,7 +142,7 @@ function bindCustomSprigs(
  * stem roots receive zero wind displacement, without deforming the sprig or source.
  */
 export function createMenuTreeRemix(
-  source: readonly [GLTF, GLTF, GLTF], architecture: AncientTree, foliage: FoliageField | null, lights: WispLighting,
+  source: readonly [ModelGltf, ModelGltf, ModelGltf], architecture: AncientTree, foliage: FoliageField | null, lights: WispLighting,
 ): MenuTreeRemix {
   const available = TRIANGLE_LIMIT - 1 - architecture.stats.woodTris - ARCHITECTURE_RESERVE;
   let selected: ReturnType<typeof sourceFoliage> | undefined, sourceLod = -1, triangles = 0;

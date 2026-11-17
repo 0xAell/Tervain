@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from './assets/gltfLoader';
+import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { mulberry32 } from '../core/world/noise';
 import type { Species, TreeVariant } from './treeGen';
 import { barkTextures } from './treeTextures';
@@ -13,8 +12,8 @@ import { downloadAsset } from './assets/download';
 
 export const PINE_FILES = ['solitary-pine-under-10k.glb', 'solitary-pine-mid.glb', 'solitary-pine-far.glb'] as const;
 export type PineSpecies = 'pine' | 'fir' | 'shorepine';
-export type PineTemplates = readonly [GLTF, GLTF, GLTF];
-const pending = new Map<string, Promise<GLTF>>();
+export type PineTemplates = readonly [ModelGltf, ModelGltf, ModelGltf];
+const pending = new Map<string, Promise<ModelGltf>>();
 
 export function isPineSpecies(species: Species): species is PineSpecies {
   return species === 'pine' || species === 'fir' || species === 'shorepine';
@@ -25,7 +24,7 @@ export function solitaryPineUrl(file: string, base = import.meta.env.BASE_URL, p
 }
 
 /** Required art: failures reach the existing loading screen's Retry rather than restoring old conifers. */
-function load(file: string): Promise<GLTF> {
+function load(file: string): Promise<ModelGltf> {
   const existing = pending.get(file);
   if (existing) return existing;
   const request = withModelLoadSlot(async () => {
@@ -36,7 +35,7 @@ function load(file: string): Promise<GLTF> {
     if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(4, true) !== 2 || header.getUint32(8, true) !== buffer.byteLength) {
       throw new Error('The forest model download is not a complete GLB 2 file.');
     }
-    const gltf = await createGltfLoader().parseAsync(buffer, new URL('.', url).href);
+    const gltf = await parseModel(buffer, new URL('.', url).href);
     if (new THREE.Box3().setFromObject(gltf.scene).isEmpty()) throw new Error('The forest model contains no geometry.');
     const decoded = parts(gltf);
     if (file !== PINE_FILES[2] && !decoded.wood) throw new Error('Close forest models must include real woody branches.');
@@ -66,7 +65,7 @@ export async function loadSolitaryPine(progress?: ModelLoadProgress): Promise<Pi
 
 interface Part { geometry: THREE.BufferGeometry; material: THREE.MeshStandardMaterial; matrix: THREE.Matrix4 }
 interface Parts { wood: Part | null; leaf: Part }
-function parts(gltf: GLTF): Parts {
+function parts(gltf: ModelGltf): Parts {
   gltf.scene.updateMatrixWorld(true);
   let wood: Part | null = null, leaf: Part | null = null;
   gltf.scene.traverse((object) => {

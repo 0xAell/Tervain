@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from './assets/gltfLoader';
+import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { NPCS } from '../core/content/npcs';
 import type { NpcId } from '../core/game/types';
@@ -121,7 +120,7 @@ function bindNpcBones(scene: THREE.Group): Record<BoneName, THREE.Bone> {
 }
 
 /** Count complete mesh instances, including hidden parts, and verify real skinning rather than trusting the manifest. */
-export function validateMeshyNpcAsset(asset: Pick<GLTF, 'scene' | 'animations'>, entry: MeshyNpcEntry): number {
+export function validateMeshyNpcAsset(asset: Pick<ModelGltf, 'scene' | 'animations'>, entry: MeshyNpcEntry): number {
   const bones = bindNpcBones(asset.scene);
   let triangles = 0, skins = 0;
   asset.scene.traverse(object => {
@@ -349,7 +348,7 @@ function fittedJoints(template: THREE.Object3D, scene: THREE.Group, bones: Recor
 const poseFits = new WeakMap<THREE.BufferGeometry, Map<string, NpcPoseFit>>();
 
 /** A private animated skeleton and GPU resources per actor/world; only decoded image pixels are shared. */
-export function createMeshyNpcRig(asset: Pick<GLTF, 'scene' | 'animations'>, entry: MeshyNpcEntry, heightScale = 1, grip: Grip = 'none', equipment?: NpcEquipment,
+export function createMeshyNpcRig(asset: Pick<ModelGltf, 'scene' | 'animations'>, entry: MeshyNpcEntry, heightScale = 1, grip: Grip = 'none', equipment?: NpcEquipment,
   options: NpcRigOptions = {}, motion?: ResidentMotionSource): Rig {
   return finish(createMeshyNpcRigSteps(asset, entry, heightScale, grip, equipment, options, motion));
 }
@@ -365,7 +364,7 @@ export function finish<T>(steps: Generator<void, T, void>): T {
  * so nothing is shared; a figure who takes their model after the world has opened therefore builds it a step at a time
  * (each a few to a few tens of milliseconds), instead of stalling one frame for all of it.
  */
-export function* createMeshyNpcRigSteps(asset: Pick<GLTF, 'scene' | 'animations'>, entry: MeshyNpcEntry, heightScale = 1, grip: Grip = 'none', equipment?: NpcEquipment,
+export function* createMeshyNpcRigSteps(asset: Pick<ModelGltf, 'scene' | 'animations'>, entry: MeshyNpcEntry, heightScale = 1, grip: Grip = 'none', equipment?: NpcEquipment,
   options: NpcRigOptions = {}, motion?: ResidentMotionSource): Generator<void, Rig, void> {
   const settings = { ...NPC_RIG_DEFAULTS, ...options };
   // On its own rig a resident plays authored clips: the eleven-joint repairs and fitted poses do not apply.
@@ -837,7 +836,7 @@ const ROLE_MOTION: Readonly<Record<string, { build: Build; work?: WorkGesture }>
 };
 
 export class MeshyNpcCatalog {
-  constructor(readonly manifest: MeshyNpcManifest, private readonly templates: ReadonlyMap<string, GLTF>,
+  constructor(readonly manifest: MeshyNpcManifest, private readonly templates: ReadonlyMap<string, ModelGltf>,
     private readonly rigs: ReadonlyMap<string, ResidentRigData> = new Map(), readonly library: ResidentMotionLibrary | null = null) {}
   /** Whether this catalog holds the role's model: a world opened with only the near residents lacks the rest (stage 2). */
   has(role: string): boolean {
@@ -911,14 +910,14 @@ function loadResidentMotionLibrary(file: MeshyNpcFile | undefined): Promise<Resi
   if (!file) return Promise.resolve(null);
   if (!libraryRequest) {
     libraryRequest = fetchChecked(file)
-      .then(buffer => createGltfLoader().parseAsync(buffer, new URL('.', meshyNpcUrl(file.file)).href))
+      .then(buffer => parseModel(buffer, new URL('.', meshyNpcUrl(file.file)).href))
       .then(gltf => residentMotionLibrary(gltf))
       .catch(error => { console.warn('Residents keep their procedural poser:', error); libraryRequest = null; return null; });
   }
   return libraryRequest;
 }
 
-const templates = new Map<string, Promise<GLTF>>();
+const templates = new Map<string, Promise<ModelGltf>>();
 interface CatalogProgress { loaded: number; total: number; complete: boolean; failed: boolean; listeners: Set<ModelLoadProgress> }
 const catalogs = new Map<string, { request: Promise<MeshyNpcCatalog>; progress: CatalogProgress }>();
 let manifestRequest: Promise<MeshyNpcManifest> | null = null;
@@ -958,7 +957,7 @@ export function loadMeshyNpcCatalog(progress?: ModelLoadProgress, requiredRoles:
   const request = (async () => {
     const manifest = await loadNpcManifest();
     const selected = [...new Set(roles.map(role => manifest.roles[role]!))];
-    const loaded = new Map<string, GLTF>();
+    const loaded = new Map<string, ModelGltf>();
     let next = 0, done = 0, failed = false;
     report(0, selected.length);
     await Promise.all(Array.from({ length: Math.min(4, selected.length) }, async () => {
@@ -973,7 +972,7 @@ export function loadMeshyNpcCatalog(progress?: ModelLoadProgress, requiredRoles:
               if (buffer.byteLength < 20) throw new Error(`Resident ${id} download is incomplete.`);
               const header = new DataView(buffer);
               if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(4, true) !== 2 || header.getUint32(8, true) !== buffer.byteLength) throw new Error(`Resident ${id} is not a complete GLB 2 file.`);
-              const asset = await createGltfLoader().parseAsync(buffer, new URL('.', url).href);
+              const asset = await parseModel(buffer, new URL('.', url).href);
               validateMeshyNpcAsset(asset, entry);
               return asset;
             }).catch(error => { templates.delete(key); throw error; });

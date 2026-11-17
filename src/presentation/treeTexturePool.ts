@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { ModelGltf } from './assets/gltfLoader';
 
 interface EmbeddedImages {
   textures?: { source?: number }[];
@@ -8,7 +8,7 @@ interface EmbeddedImages {
 }
 /** Immutable page-lifetime templates share content; each world still owns its cloned GPU handles. */
 const pool = new Map<string, THREE.Texture>();
-const installed = new WeakSet<GLTF>();
+const installed = new WeakSet<ModelGltf>();
 const opaque = new WeakSet<THREE.Texture>();
 /** Only simple lossy WebP is intrinsically RGB. Extended/lossless containers may carry alpha. */
 function opaqueWebP(bytes: Uint8Array, mime: string | undefined): boolean {
@@ -59,7 +59,7 @@ function textureSignature(texture: THREE.Texture): string {
   return JSON.stringify(values);
 }
 
-function materialTextureFields(gltf: GLTF): { fields: Record<string, unknown>; key: string; texture: THREE.Texture }[] {
+function materialTextureFields(gltf: ModelGltf): { fields: Record<string, unknown>; key: string; texture: THREE.Texture }[] {
   const result: { fields: Record<string, unknown>; key: string; texture: THREE.Texture }[] = [], materials = new Set<THREE.Material>();
   for (const scene of new Set([gltf.scene, ...gltf.scenes])) scene.traverse(object => {
     const mesh = object as THREE.Mesh; if (!mesh.isMesh) return;
@@ -77,7 +77,7 @@ function materialTextureFields(gltf: GLTF): { fields: Record<string, unknown>; k
  * Validate/hash every used image before adopting any new canonical texture, so a
  * malformed input cannot leave a partially installed pool or material replacement.
  */
-export async function deduplicateTreeTextures(gltf: GLTF, buffer: ArrayBuffer): Promise<void> {
+export async function deduplicateTreeTextures(gltf: ModelGltf, buffer: ArrayBuffer): Promise<void> {
   if (installed.has(gltf)) return;
   const refs = materialTextureFields(gltf), textures = [...new Set(refs.map(ref => ref.texture))];
   if (!textures.length) return;

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from './assets/gltfLoader';
+import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { FURNITURE, pieceSize, type FurniturePlacement } from '../core/world/furniture';
 import { FURNITURE_SIZES, type FurnitureId } from '../core/world/furnitureSizes';
 import { DRESSING, MODEL_SCALE, rugPattern, type Dressing } from '../core/world/dressing';
@@ -37,7 +36,7 @@ const fetchChecked = (file: string, bytes?: number, sha256?: string): Promise<Ar
   downloadAsset(url(file), { label: `Furniture ${file}`, bytes, sha256, holds: 'data' });
 
 /** A prepared piece's one mesh, checked against its budget. */
-function pieceMesh(id: FurnitureId, gltf: GLTF) {
+function pieceMesh(id: FurnitureId, gltf: ModelGltf) {
   let mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> | null = null;
   gltf.scene.traverse((object) => {
     const candidate = object as THREE.Mesh;
@@ -69,7 +68,7 @@ export function loadFurniture(progress?: ModelLoadProgress): Promise<FurnitureTe
     // Each piece downloads and decodes in its own load slot, side by side with the other models (A68).
     const meshes = await Promise.all(pieces.map((piece) => withModelLoadSlot(async () => {
       const data = await fetchChecked(piece.file, piece.bytes, piece.sha256);
-      const mesh = pieceMesh(piece.id, await createGltfLoader().parseAsync(data, new URL('.', url(piece.file)).href));
+      const mesh = pieceMesh(piece.id, await parseModel(data, new URL('.', url(piece.file)).href));
       // Worn wood and old iron: nothing in a room is polished (A67).
       roughnessFloor(mesh.material, 0.72).envMapIntensity = 0.8;
       return mesh;

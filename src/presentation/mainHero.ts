@@ -1,13 +1,12 @@
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MAIN_HERO_FILE } from './assets/heroFile';
-import { createGltfLoader } from './assets/gltfLoader';
+import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { modelAssetUrl } from './assets/modelUrl';
 import { observeModelLoad, withModelLoadSlot, type ModelLoadProgress } from './assets/modelLoadQueue';
 import { downloadAsset } from './assets/download';
 import { fitHeroFingers } from './hero/fingerFit';
 
 const FILE = MAIN_HERO_FILE;
-let pending: Promise<GLTF> | null = null;
+let pending: Promise<ModelGltf> | null = null;
 
 /** Resolve from the built page, including the /Tervain/ Pages subdirectory. */
 export function mainHeroUrl(base = import.meta.env.BASE_URL, page = document.baseURI) {
@@ -15,7 +14,7 @@ export function mainHeroUrl(base = import.meta.env.BASE_URL, page = document.bas
 }
 
 /** Load once; a failed request is released so the loading screen's Retry works. */
-export function loadMainHero(progress?: ModelLoadProgress): Promise<GLTF> {
+export function loadMainHero(progress?: ModelLoadProgress): Promise<ModelGltf> {
   if (pending) return observeModelLoad(pending, progress);
   pending = withModelLoadSlot(async () => {
     const url = mainHeroUrl();
@@ -25,7 +24,7 @@ export function loadMainHero(progress?: ModelLoadProgress): Promise<GLTF> {
     if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(4, true) !== 2 || header.getUint32(8, true) !== buffer.byteLength) {
       throw new Error('The Wanderer model download is not a complete GLB 2 file.');
     }
-    const asset = await createGltfLoader().parseAsync(buffer, new URL('.', url).href);
+    const asset = await parseModel(buffer, new URL('.', url).href);
     // The finger joints are seated in the A74 body's fingers before any rig is cloned from it (A75).
     fitHeroFingers(asset);
     return asset;
