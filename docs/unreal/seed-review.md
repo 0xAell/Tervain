@@ -400,7 +400,7 @@ Improved:
   wood and pine each made the same three), and the searches for the nearest wood find a triangle's closest point with
   three's arithmetic in scalars. Profiles of the load put it at about 0.4 s less work in the trees' build, which the
   woodland stage's own time, varying as much between runs on the test machine, cannot show; every drawn tree level
-  and planted tree comes out the same (PR_X). A stable key sort and flat-array boxes for the two bounding trees were
+  and planted tree comes out the same ([#886](https://github.com/0xAell/Tervain/pull/886)). A stable key sort and flat-array boxes for the two bounding trees were
   measured too, saved nothing, and were not kept.
 
 Next:
