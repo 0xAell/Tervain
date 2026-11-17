@@ -1,18 +1,13 @@
-import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { detachedClumpSet } from '../../src/diagnostics/canopyConnectivity';
 import { MAX_TREE_SCALE, woodReachLocal } from '../../src/presentation/canopy';
 import { activeMeshyTreeIds, createMeshyForest, HERO_SENTINEL_IDS, heroSentinelEnabled, MESHY_TREE_IDS, meshyTreeModelPath, type MeshyTreeTemplates } from '../../src/presentation/meshyTrees';
+import { readGlb as readModel, type Glb } from './glbFixture';
 import { meshyTreeTemplate } from './meshyTreeFixture';
 
-interface Glb { json: any }
-function readGlb(path: string): Glb {
-  const bytes = readFileSync(new URL(`../../public/models/flora/${path}`, import.meta.url));
-  expect(bytes.readUInt32LE(0)).toBe(0x46546c67); expect(bytes.readUInt32LE(8)).toBe(bytes.length);
-  return { json: JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString('utf8')) };
-}
+const readGlb = (path: string): Glb => readModel(`flora/${path}`);
 const positions = (glb: Glb) => glb.json.meshes.map((m: { primitives: { attributes: { POSITION: number } }[] }) => glb.json.accessors[m.primitives[0]!.attributes.POSITION]);
 const triangles = (glb: Glb) => glb.json.meshes.reduce((n: number, m: { primitives: { indices: number }[] }) => n + glb.json.accessors[m.primitives[0]!.indices].count / 3, 0);
 /** The box corner farthest from the trunk's axis, at a 16 m height (from the model's foot to its top). */

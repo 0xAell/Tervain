@@ -1,8 +1,7 @@
-import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { createGltfLoader } from '../../src/presentation/assets/gltfLoader';
 import { ANIMALS, type AnimalDefinition, type AnimalClip } from '../../src/core/content/animals';
+import { packGlb, parseGlb, readGlb, withoutTextures } from './glbFixture';
 
 /** Small skin for lifecycle/controller tests. Real delivered topology is checked separately. */
 export function animalFixture(segments = 1): GLTF {
@@ -28,25 +27,15 @@ export function animalFixture(segments = 1): GLTF {
 }
 
 export function animalBinary(definition: AnimalDefinition) {
-  const bytes = readFileSync(new URL(`../../public/models/animals/${definition.file}`, import.meta.url));
-  const length = bytes.readUInt32LE(12), json = JSON.parse(bytes.subarray(20, 20 + length).toString('utf8'));
-  return { bytes, json, length };
+  return readGlb(`animals/${definition.file}`);
 }
 
 /** Preserve every skinned surface, bone and animation sample; texture/GPU appearance has a native acceptance gate. */
 export async function animalTemplates(definitions: readonly AnimalDefinition[] = ANIMALS): Promise<ReadonlyMap<string, GLTF>> {
   const result = new Map<string, GLTF>();
   for (const definition of definitions) {
-    const { bytes, json, length } = animalBinary(definition);
-    for (const material of json.materials ?? []) {
-      delete material.normalTexture; delete material.occlusionTexture; delete material.emissiveTexture;
-      if (material.pbrMetallicRoughness) { delete material.pbrMetallicRoughness.baseColorTexture; delete material.pbrMetallicRoughness.metallicRoughnessTexture; }
-    }
-    delete json.images; delete json.textures; delete json.samplers;
-    const text = Buffer.from(JSON.stringify(json)), padded = Math.ceil(text.length / 4) * 4, bin = bytes.subarray(20 + length), decoded = Buffer.alloc(20 + padded + bin.length);
-    decoded.writeUInt32LE(0x46546c67, 0); decoded.writeUInt32LE(2, 4); decoded.writeUInt32LE(decoded.length, 8);
-    decoded.writeUInt32LE(padded, 12); decoded.writeUInt32LE(0x4e4f534a, 16); decoded.fill(32, 20, 20 + padded); text.copy(decoded, 20); bin.copy(decoded, 20 + padded);
-    const template = await createGltfLoader().parseAsync(decoded.buffer.slice(decoded.byteOffset, decoded.byteOffset + decoded.byteLength) as ArrayBuffer, '');
+    const glb = animalBinary(definition);
+    const template = await parseGlb(packGlb(glb, withoutTextures(glb.json)));
     result.set(definition.id, template);
   }
   return result;

@@ -1,14 +1,8 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { readGlb as readModel, type Glb } from './glbFixture';
 import { activeMeshyTreeIds, heroOakEnabled, HERO_OAK_ID, MESHY_TREE_IDS, meshyTreeModelPath, meshyTreeUrl } from '../../src/presentation/meshyTrees';
 
-interface Glb { json: any; bin: Buffer }
-function readGlb(name: string): Glb {
-  const bytes = readFileSync(new URL(`../../public/models/flora/hero/${name}`, import.meta.url));
-  expect(bytes.readUInt32LE(0)).toBe(0x46546c67); expect(bytes.readUInt32LE(8)).toBe(bytes.length);
-  const jsonLength = bytes.readUInt32LE(12);
-  return { json: JSON.parse(bytes.subarray(20, 20 + jsonLength).toString('utf8')), bin: bytes.subarray(28 + jsonLength) };
-}
+const readGlb = (name: string): Glb => readModel(`flora/hero/${name}`);
 const meshByName = (glb: Glb, name: string) => glb.json.meshes.find((m: { name: string }) => m.name === name).primitives[0];
 const triangles = (glb: Glb, name: string) => glb.json.accessors[meshByName(glb, name).indices].count / 3;
 

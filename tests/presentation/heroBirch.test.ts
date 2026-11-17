@@ -1,21 +1,15 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { readGlb as readModel, type Glb } from './glbFixture';
 import { activeMeshyTreeIds, HERO_BIRCH_IDS, heroBirchEnabled, MESHY_TREE_IDS, meshyTreeModelPath } from '../../src/presentation/meshyTrees';
 
-interface Glb { json: any; bin: Buffer }
-function readGlb(name: string): Glb {
-  const bytes = readFileSync(new URL(`../../public/models/flora/hero/${name}`, import.meta.url));
-  expect(bytes.readUInt32LE(0)).toBe(0x46546c67); expect(bytes.readUInt32LE(8)).toBe(bytes.length);
-  const jsonLength = bytes.readUInt32LE(12);
-  return { json: JSON.parse(bytes.subarray(20, 20 + jsonLength).toString('utf8')), bin: bytes.subarray(28 + jsonLength) };
-}
+const readGlb = (name: string): Glb => readModel(`flora/hero/${name}`);
 const primitive = (glb: Glb, name: string) => glb.json.meshes.find((m: { name: string }) => m.name === name).primitives[0];
 const triangles = (glb: Glb, name: string) => glb.json.accessors[primitive(glb, name).indices].count / 3;
 function attribute(glb: Glb, accessorIndex: number, size: number): number[] {
   const accessor = glb.json.accessors[accessorIndex], view = glb.json.bufferViews[accessor.bufferView];
   const offset = (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0), out: number[] = [];
   for (let i = 0; i < accessor.count * size; i++) {
-    out.push(accessor.componentType === 5126 ? glb.bin.readFloatLE(offset + i * 4) : glb.bin.readUInt8(offset + i) / (accessor.normalized ? 255 : 1));
+    out.push(accessor.componentType === 5126 ? glb.binary.readFloatLE(offset + i * 4) : glb.binary.readUInt8(offset + i) / (accessor.normalized ? 255 : 1));
   }
   return out;
 }
