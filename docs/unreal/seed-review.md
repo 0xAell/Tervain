@@ -285,7 +285,7 @@ Improved:
   the time; on a GPU each read was a hitch ([#857](https://github.com/0xAell/Tervain/pull/857)).
 - The forest the core exports is the one the game plants. It was planted without the hero pines the game draws by
   default, whose crowns and seats decide which trees fit: it had 453 trees where the game plants 451, 307 of them
-  elsewhere, and the woodland floor, the export's trees and the Unreal tables followed it (PR_FOREST).
+  elsewhere, and the woodland floor, the export's trees and the Unreal tables followed it ([#858](https://github.com/0xAell/Tervain/pull/858)).
 
 Next:
 
