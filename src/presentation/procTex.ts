@@ -30,28 +30,60 @@ export function pnoise(u: number, v: number, px: number, py: number, seed: numbe
   return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
 }
 
-/** Tileable fractal noise field in 0..1, `n` x `n`. `px` and `py` are the periods of the first octave. */
+/**
+ * Tileable fractal noise field in 0..1, `n` x `n`. `px` and `py` are the periods of the first octave.
+ *
+ * The sum of pnoise over the octaves for every pixel, to the bit. With whole periods (every caller's), each octave's
+ * lattice cell and fade are worked out once per column and once per row, and a lattice corner is hashed once for the
+ * rows that share it, where every pixel hashed its four corners again.
+ */
 export function fbmField(n: number, px: number, py: number, octaves: number, seed: number): Float32Array {
   const out = new Float32Array(n * n);
-  for (let j = 0; j < n; j++) {
-    const v = j / n;
-    for (let i = 0; i < n; i++) {
-      const u = i / n;
-      let amp = 0.5;
-      let sum = 0;
-      let norm = 0;
-      let fx = px;
-      let fy = py;
-      for (let o = 0; o < octaves; o++) {
-        sum += pnoise(u, v, fx, fy, seed + o * 31) * amp;
-        norm += amp;
-        amp *= 0.5;
-        fx *= 2;
-        fy *= 2;
+  if (!Number.isInteger(px) || !Number.isInteger(py) || px <= 0 || py <= 0) {
+    for (let j = 0; j < n; j++) {
+      const v = j / n;
+      for (let i = 0; i < n; i++) {
+        const u = i / n;
+        let amp = 0.5, sum = 0, norm = 0, fx = px, fy = py;
+        for (let o = 0; o < octaves; o++) {
+          sum += pnoise(u, v, fx, fy, seed + o * 31) * amp;
+          norm += amp; amp *= 0.5; fx *= 2; fy *= 2;
+        }
+        out[j * n + i] = sum / norm;
       }
-      out[j * n + i] = sum / norm;
     }
+    return out;
   }
+  const sum = new Float64Array(n * n), x0s = new Int32Array(n), x1s = new Int32Array(n), fxs = new Float64Array(n);
+  let amp = 0.5, norm = 0, fx = px, fy = py;
+  for (let o = 0; o < octaves; o++) {
+    const s = seed + o * 31;
+    for (let i = 0; i < n; i++) {
+      const x = (i / n) * fx, ix = Math.floor(x);
+      fxs[i] = fade(x - ix);
+      const x0 = ((ix % fx) + fx) % fx;
+      x0s[i] = x0; x1s[i] = (x0 + 1) % fx;
+    }
+    // The corner hashes of the lattice rows under the current pixel row, by lattice column, hashed as first needed and
+    // kept while the next pixel row lies in the same lattice cell.
+    const top = new Float64Array(fx), bottom = new Float64Array(fx), stamp = new Int32Array(fx).fill(-1);
+    let rowY0 = -1, rowY1 = -1, rows = -1;
+    for (let j = 0; j < n; j++) {
+      const y = (j / n) * fy, iy = Math.floor(y), g = fade(y - iy);
+      const y0 = ((iy % fy) + fy) % fy, y1 = (y0 + 1) % fy;
+      if (y0 !== rowY0 || y1 !== rowY1) { rowY0 = y0; rowY1 = y1; rows++; }
+      const row = j * n;
+      for (let i = 0; i < n; i++) {
+        const x0 = x0s[i]!, x1 = x1s[i]!;
+        if (stamp[x0] !== rows) { stamp[x0] = rows; top[x0] = hashi(x0, y0, s); bottom[x0] = hashi(x0, y1, s); }
+        if (stamp[x1] !== rows) { stamp[x1] = rows; top[x1] = hashi(x1, y0, s); bottom[x1] = hashi(x1, y1, s); }
+        const a = top[x0]!, b = top[x1]!, c = bottom[x0]!, d = bottom[x1]!, f = fxs[i]!;
+        sum[row + i] = sum[row + i]! + (a + (b - a) * f + (c - a) * g + (a - b - c + d) * f * g) * amp;
+      }
+    }
+    norm += amp; amp *= 0.5; fx *= 2; fy *= 2;
+  }
+  for (let k = 0; k < n * n; k++) out[k] = sum[k]! / norm;
   return out;
 }
 
