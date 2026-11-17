@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { components, contactDistances, detachedClumpSet, farClumps } from '../diagnostics/canopyConnectivity';
+import { closestPointOnTriangle, components, contactDistances, detachedClumpSet, farClumps, sortByKey } from '../diagnostics/canopyConnectivity';
 
 /**
  * Cluster canopies for broadleaf trees (A134).
@@ -272,7 +272,7 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
       boxes[t * 6 + c] = Math.min(a, b, d); boxes[t * 6 + 3 + c] = Math.max(a, b, d); centres[t * 3 + c] = (a + b + d) / 3;
     }
   }
-  const order = new Int32Array(count).map((_, i) => i);
+  const order = new Int32Array(count).map((_, i) => i), scratch = new Int32Array(count);
   const nodeBox: number[] = [], nodeStart: number[] = [], nodeEnd: number[] = [], nodeLeft: number[] = [], nodeRight: number[] = [];
   const build = (start: number, end: number): number => {
     const id = nodeStart.length;
@@ -286,7 +286,7 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
     nodeBox.push(x0, y0, z0, x1, y1, z1);
     if (end - start <= 8) return id;
     const axis = x1 - x0 >= y1 - y0 && x1 - x0 >= z1 - z0 ? 0 : y1 - y0 >= z1 - z0 ? 1 : 2;
-    order.subarray(start, end).sort((a, b) => centres[a * 3 + axis]! - centres[b * 3 + axis]!);
+    sortByKey(order, start, end, centres, 3, axis, scratch);
     const middle = (start + end) >> 1;
     const left = build(start, middle), right = build(middle, end);
     nodeLeft[id] = left; nodeRight[id] = right;
@@ -299,11 +299,11 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
     const dx = Math.max(array[o]! - x, 0, x - array[o + 3]!), dy = Math.max(array[o + 1]! - y, 0, y - array[o + 4]!), dz = Math.max(array[o + 2]! - z, 0, z - array[o + 5]!);
     return dx * dx + dy * dy + dz * dz;
   };
-  const triangle = new THREE.Triangle(), near = new THREE.Vector3();
+  const near = new Float64Array(3);
   // The nodes still to visit, depth first, each with its box's squared distance. The tree halves at every level, so at
   // most one sibling per level waits: 64 entries hold any tree of fewer than 2^31 triangles.
   const pendingNode = new Int32Array(64), pendingDistance = new Float64Array(64);
-  // `p` and `hit` must be different vectors: the search reads `p` until it returns.
+  // The point is read once, as the search starts: `p` and `hit` may be one vector.
   return (p, hit, max = Infinity) => {
     const x = p.x, y = p.y, z = p.z;
     let best = max, bestSq = max * max, found = false, pending = 1;
@@ -316,10 +316,10 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
         for (let i = nodeStart[node]!; i < nodeEnd[node]!; i++) {
           const t = order[i]!;
           if (boxDistanceSq(boxes, t * 6, x, y, z) > bestSq) continue;
-          triangle.a.fromArray(corners, t * 9); triangle.b.fromArray(corners, t * 9 + 3); triangle.c.fromArray(corners, t * 9 + 6);
-          triangle.closestPointToPoint(p, near);
-          const d = near.distanceTo(p);
-          if (d <= best) { best = d; bestSq = d * d; hit.copy(near); found = true; }
+          // three's closest point on the triangle and its distance, to the same doubles, in scalars.
+          closestPointOnTriangle(corners, t * 9, x, y, z, near);
+          const dx = near[0]! - x, dy = near[1]! - y, dz = near[2]! - z, d = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          if (d <= best) { best = d; bestSq = d * d; hit.set(near[0]!, near[1]!, near[2]!); found = true; }
         }
         continue;
       }
@@ -995,10 +995,12 @@ export function canopyAtlas(size: number, cells: number, seed: number): CanopyAt
         for (let sub = 0; sub < 4; sub++) {
           const px = x + 0.25 + 0.5 * (sub & 1) - lx, py = y + 0.25 + 0.5 * (sub >> 1) - ly;
           const u = (px * hx + py * hy) / len, v = (-px * hy + py * hx) / wid; // u in -0.5..0.5 along the leaf
-          const t = u + 0.5;
-          if (t <= 0 || t >= 1) continue;
+          const t = u + 0.5, side = Math.abs(v);
+          // The leaf's half-width below never passes 0.5 (a sine to a power, halved), so a sample farther across lies
+          // outside it: nearly half of all samples, whose width is not worked out. The atlas is the same, byte for byte.
+          if (t <= 0 || t >= 1 || side >= 0.5) continue;
           const half = Math.pow(Math.sin(Math.PI * Math.pow(t, 0.8)), 0.75) * 0.5;
-          if (Math.abs(v) < half) { cover += 0.25; along += t * 0.25; across += Math.abs(v) / Math.max(half, 1e-3) * 0.25; }
+          if (side < half) { cover += 0.25; along += t * 0.25; across += side / Math.max(half, 1e-3) * 0.25; }
         }
         if (cover <= 0) continue;
         along /= cover; across /= cover;
