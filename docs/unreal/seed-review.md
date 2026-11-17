@@ -300,6 +300,9 @@ Improved:
 - The tests read and decode the shipped model files through one fixture (`tests/presentation/glbFixture.ts`): five
   fixtures and seven tests each had their own copy of the bytes that re-pack a glTF file without its images, and of
   the checks that it is one ([#862](https://github.com/0xAell/Tervain/pull/862)).
+- The README's account of the prototype (the region's size, the residents, the animals and their kinds, those hunted
+  and those left alone, the hostiles, the hotbar) is checked against the exported data, as the porting docs' numbers
+  already were ([#863](https://github.com/0xAell/Tervain/pull/863)).
 
 Next:
 
