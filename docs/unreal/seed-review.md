@@ -309,7 +309,7 @@ Improved:
 - The title menu fetches what a journey needs ahead: its list had missed the 36 generated trees (18 MiB), which were
   downloaded only once a journey began, and the world's own code (1.7 MB) is fetched and compiled there too. At
   10 Mbit/s, after a minute in the menu, the ground is ready 3 s sooner; at 20 Mbit/s the downloads had overlapped the
-  preparation and nothing changes (PR_WARM).
+  preparation and nothing changes ([#865](https://github.com/0xAell/Tervain/pull/865)).
 
 Next:
 
