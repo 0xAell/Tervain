@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { buildCache } from './buildCaches';
 
 export interface LeafSurfaceSite { x: number; y: number; z: number }
 /** Decoded pixels in canvas order: first row at the top, four unsigned-byte channels per pixel. */
@@ -13,9 +14,11 @@ export interface LeafSurfaceOptions {
 interface LeafChannelImage { width: number; height: number; data: Uint8Array }
 // Canonical decoded image identities survive cloned Texture wrappers. Cache one
 // byte of alpha per pixel, rather than retaining another full RGBA atlas.
-const decodedImages = new WeakMap<object, Map<1 | 3, LeafChannelImage | null>>();
+let decodedImages = new WeakMap<object, Map<1 | 3, LeafChannelImage | null>>();
 // The base alpha channel is already owned by decodedImages. For square atlases, higher max levels cost about one third as much again.
-const alphaMaxLevels = new WeakMap<LeafChannelImage, readonly LeafChannelImage[]>();
+let alphaMaxLevels = new WeakMap<LeafChannelImage, readonly LeafChannelImage[]>();
+// Both serve a build: the tree models' leaf sites and the island pass (flora.ts). A built world lets them go.
+buildCache(() => { decodedImages = new WeakMap(); alphaMaxLevels = new WeakMap(); });
 function maxLevels(image: LeafChannelImage): readonly LeafChannelImage[] {
   const cached = alphaMaxLevels.get(image); if (cached) return cached;
   const levels = [image];

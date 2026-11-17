@@ -342,6 +342,12 @@ Improved:
   visit's 48 MB of trees. The world and the menu's warm-up ask for the models the planted forest is drawn with, and for
   every model only when a journey plants afresh (under a flag). The world is the same, tree for tree, and holds 13 MB
   less ([#871](https://github.com/0xAell/Tervain/pull/871)).
+- A built world lets go of the caches only its build reads: the leaf cards' decoded alpha, which the tree models' leaf
+  sites and the island pass sample, and the trees' wood edges and basal polygons, which the planting and the colliders
+  measure. Each was keyed by something the world keeps, so it lived as long as the world. A module registers how to
+  empty its cache (`presentation/buildCaches.ts`), and the world empties them once built; a later build fills them
+  again. A settled journey holds 515 MB of array buffers where it held 556 to 560 MB, and the world is the same
+  (PR_CACHES).
 
 Next:
 
@@ -352,13 +358,13 @@ Next:
   textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
   materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
   depth and shade passes).
-- Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 561 MB. A heap snapshot
+- Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 515 MB. A heap snapshot
   names the largest holders left. Rapier's memory is 100 MB: every planted tree with a collision id gets its own copy
   of its variant's near wood for contact (only trunk and roots for the hero pines), built again for each tree; how
   much of the 100 MB that is is not yet measured, and a lighter contact mesh would change what can be stood on. The
   geometry three keeps on the CPU after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB:
   three needs both again only if a lost WebGL context is restored, which the game does not otherwise handle, so
-  freeing them trades that recovery for the memory. Caches kept for the life of the page hold more: the leaf cards'
-  alpha, decoded for the island pass and the audits (34 MB), and the procedural bark (25 MB).
+  freeing them trades that recovery for the memory. The procedural bark's cache (25 MB) is the same case: the pixels of
+  textures in use, which only a restored context would read again.
 - Draws: in the opening view the trees are 77% of the 11 million triangles, and the water's reflection pass a third
   of the 744 draw calls. Trimming either changes the picture; measure it on a GPU first.
