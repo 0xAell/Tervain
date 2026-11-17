@@ -296,7 +296,7 @@ Improved:
   720. The core keeps the game's floor as it keeps the forest, checked by the same test ([#860](https://github.com/0xAell/Tervain/pull/860)).
 - The fractal noise the faces, the menu's materials, the bark and the ground are painted from (`fbmField`) hashes each
   lattice corner once for the rows that share it, where every pixel hashed its four again: 2.5 times as fast, to the
-  bit, and 0.6 s less of the load between the click and the woodland (PR_NOISE).
+  bit, and 0.6 s less of the load between the click and the woodland ([#861](https://github.com/0xAell/Tervain/pull/861)).
 
 Next:
 
