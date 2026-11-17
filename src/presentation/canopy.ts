@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { closestPointOnTriangle, components, contactDistances, detachedClumpSet, farClumps, sortByKey } from '../diagnostics/canopyConnectivity';
+import { closestPointOnTriangle, components, contactDistances, detachedClumpSet, farClumps } from '../diagnostics/canopyConnectivity';
 
 /**
  * Cluster canopies for broadleaf trees (A134).
@@ -272,7 +272,7 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
       boxes[t * 6 + c] = Math.min(a, b, d); boxes[t * 6 + 3 + c] = Math.max(a, b, d); centres[t * 3 + c] = (a + b + d) / 3;
     }
   }
-  const order = new Int32Array(count).map((_, i) => i), scratch = new Int32Array(count);
+  const order = new Int32Array(count).map((_, i) => i);
   const nodeBox: number[] = [], nodeStart: number[] = [], nodeEnd: number[] = [], nodeLeft: number[] = [], nodeRight: number[] = [];
   const build = (start: number, end: number): number => {
     const id = nodeStart.length;
@@ -286,7 +286,7 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
     nodeBox.push(x0, y0, z0, x1, y1, z1);
     if (end - start <= 8) return id;
     const axis = x1 - x0 >= y1 - y0 && x1 - x0 >= z1 - z0 ? 0 : y1 - y0 >= z1 - z0 ? 1 : 2;
-    sortByKey(order, start, end, centres, 3, axis, scratch);
+    order.subarray(start, end).sort((a, b) => centres[a * 3 + axis]! - centres[b * 3 + axis]!);
     const middle = (start + end) >> 1;
     const left = build(start, middle), right = build(middle, end);
     nodeLeft[id] = left; nodeRight[id] = right;

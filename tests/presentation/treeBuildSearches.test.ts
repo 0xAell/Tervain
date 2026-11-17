@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { mulberry32 } from '../../src/core/world/noise';
-import { boundsTree, boxPointDistance, closestPointOnTriangle, components, contactDistances, sortByKey, type Component, type LeafNode } from '../../src/diagnostics/canopyConnectivity';
+import { boundsTree, boxPointDistance, closestPointOnTriangle, components, contactDistances, type Component, type LeafNode } from '../../src/diagnostics/canopyConnectivity';
 import { woodAnchor } from '../../src/presentation/canopy';
 import { anchorLeafIslands } from '../../src/presentation/leafIslands';
 
@@ -128,51 +128,4 @@ it('finds each component\'s contact with the wood as the recursive search of thr
     expect(found.some(Number.isFinite) && found.some(d => d === Infinity)).toBe(true);
   }
   for (const g of [wood, leaf, ...cards]) g.dispose();
-});
-
-it('builds the bounding tree that unions of three\'s boxes built: the same boxes and the same ids at every node', () => {
-  // The tree as it was built before its boxes were taken from a flat array: each node's box the union of its boxes.
-  const before = (boxes: readonly THREE.Box3[]): LeafNode => {
-    const doubled = { x: boxes.map(b => b.min.x + b.max.x), y: boxes.map(b => b.min.y + b.max.y), z: boxes.map(b => b.min.z + b.max.z) };
-    const build = (ids: number[]): LeafNode => {
-      const box = new THREE.Box3(); for (const i of ids) box.union(boxes[i]!);
-      if (ids.length <= 8) return { box, ids, uniform: -1 };
-      const size = box.getSize(new THREE.Vector3()), axis = size.x >= size.y && size.x >= size.z ? 'x' : size.y >= size.z ? 'y' : 'z', centre = doubled[axis];
-      ids.sort((a, b) => centre[a]! - centre[b]!);
-      const middle = ids.length >> 1;
-      return { box, left: build(ids.slice(0, middle)), right: build(ids.slice(middle)), uniform: -1 };
-    };
-    return build(boxes.map((_, i) => i));
-  };
-  const flatten = (node: LeafNode): unknown[] => [node.box.min.toArray(), node.box.max.toArray(), node.ids ?? null, ...(node.left ? [flatten(node.left), flatten(node.right!)] : [])];
-  const random = mulberry32(19);
-  for (const count of [1, 8, 9, 300, 2000]) {
-    // Corners on a coarse grid, so many boxes share a centre and the sorts meet ties.
-    const boxes = Array.from({ length: count }, () => {
-      const at = () => Math.round(random() * 40) / 8 - 2.5;
-      return new THREE.Box3().setFromPoints([new THREE.Vector3(at(), at(), at()), new THREE.Vector3(at(), at(), at())]);
-    });
-    let charged = 0;
-    expect(flatten(boundsTree(boxes, () => { charged++; }))).toEqual(flatten(before(boxes)));
-    expect(charged).toBeGreaterThan(0);
-  }
-});
-
-it('orders ids by key as V8\'s stable sorts with a comparator do, equal keys staying in the order they came', () => {
-  const random = mulberry32(23);
-  for (const count of [0, 1, 7, 8, 9, 64, 1000, 5000]) {
-    // Keys on a coarse grid, with signed zeros among them, so most keys are shared by many ids.
-    const keys = new Float32Array(count * 3).map(() => (random() < 0.05 ? -0 : Math.round(random() * 60) / 4 - 7));
-    const scratch = new Int32Array(count);
-    for (let axis = 0; axis < 3; axis++) {
-      const start = count ? Math.floor(random() * count / 3) : 0, end = count ? start + Math.floor(random() * (count - start + 1)) : 0;
-      const typed = new Int32Array(count).map((_, i) => count - 1 - i), expected = typed.slice();
-      expected.subarray(start, end).sort((a, b) => keys[a * 3 + axis]! - keys[b * 3 + axis]!);
-      sortByKey(typed, start, end, keys, 3, axis, scratch);
-      expect(Array.from(typed)).toEqual(Array.from(expected));
-      const plain = Array.from({ length: count }, (_, i) => (i * 7919) % Math.max(1, count)), sorted = plain.slice().sort((a, b) => keys[a * 3 + axis]! - keys[b * 3 + axis]!);
-      sortByKey(plain, 0, count, keys, 3, axis, scratch);
-      expect(plain).toEqual(sorted);
-    }
-  }
 });

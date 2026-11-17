@@ -38,43 +38,6 @@ export function closestPointOnTriangle(corners: ArrayLike<number>, o: number, x:
   out[0] = ax + abx * v + acx * w; out[1] = ay + aby * v + acy * w; out[2] = az + abz * v + acz * w;
 }
 
-/**
- * Puts ids[start, end) in order of their keys, keys[id * stride + offset], keeping equal keys in the order they came:
- * the order a stable sort with the comparator (a, b) => key(a) - key(b) gives, as V8's sorts do, without calling a
- * comparator for every comparison. `scratch` holds at least end - start ids. No key may be NaN.
- */
-export function sortByKey(ids: Int32Array | number[], start: number, end: number, keys: ArrayLike<number>, stride: number, offset: number, scratch: Int32Array): void {
-  const length = end - start, key = (id: number) => keys[id * stride + offset]!;
-  // Runs of eight by insertion; each moves past only a strictly greater key, so equal keys keep their order.
-  for (let low = start; low < end; low += 8) {
-    const high = Math.min(end, low + 8);
-    for (let i = low + 1; i < high; i++) {
-      const id = ids[i]!, k = key(id);
-      let j = i - 1;
-      while (j >= low && key(ids[j]!) > k) { ids[j + 1] = ids[j]!; j--; }
-      ids[j + 1] = id;
-    }
-  }
-  // Then neighbouring runs merged, back and forth between the ids and the scratch: the right run's id goes first only
-  // when its key is strictly smaller.
-  let inScratch = false;
-  for (let width = 8; width < length; width *= 2) {
-    const from = inScratch ? scratch : ids, fromAt = inScratch ? 0 : start, to = inScratch ? ids : scratch, toAt = inScratch ? start : 0;
-    for (let low = 0; low < length; low += 2 * width) {
-      const middle = Math.min(length, low + width), high = Math.min(length, low + 2 * width);
-      let i = low, j = middle, k = low;
-      while (i < middle && j < high) {
-        const a = from[fromAt + i]!, b = from[fromAt + j]!;
-        if (key(b) < key(a)) { to[toAt + k++] = b; j++; } else { to[toAt + k++] = a; i++; }
-      }
-      while (i < middle) to[toAt + k++] = from[fromAt + i++]!;
-      while (j < high) to[toAt + k++] = from[fromAt + j++]!;
-    }
-    inScratch = !inScratch;
-  }
-  if (inScratch) for (let i = 0; i < length; i++) ids[start + i] = scratch[i]!;
-}
-
 /** A box's distance from a point: three's Box3.distanceToPoint (the point clamped into the box, and how far it moved), in scalars. */
 export function boxPointDistance(box: THREE.Box3, x: number, y: number, z: number): number {
   const dx = Math.max(box.min.x, Math.min(box.max.x, x)) - x, dy = Math.max(box.min.y, Math.min(box.max.y, y)) - y, dz = Math.max(box.min.z, Math.min(box.max.z, z)) - z;
@@ -175,15 +138,9 @@ export function boundsTree(boxes: readonly THREE.Box3[], charge: () => void): Le
   // Each box's centre, doubled, on each axis: the sorts read it from an array instead of from two boxes by axis name.
   const doubledCentre={x:new Float64Array(boxes.length),y:new Float64Array(boxes.length),z:new Float64Array(boxes.length)};
   boxes.forEach((b,i)=>{doubledCentre.x[i]=b.min.x+b.max.x;doubledCentre.y[i]=b.min.y+b.max.y;doubledCentre.z[i]=b.min.z+b.max.z;});
-  // Each box's corners in one array: a node's box is the least and greatest of its boxes' corners, as Box3.union takes them.
-  const bounds=new Float64Array(boxes.length*6),scratch=new Int32Array(boxes.length);
-  boxes.forEach((b,i)=>{b.min.toArray(bounds,i*6);b.max.toArray(bounds,i*6+3);});
-  const build=(ids:number[]):LeafNode=>{charge();
-    let x0=Infinity,y0=Infinity,z0=Infinity,x1=-Infinity,y1=-Infinity,z1=-Infinity;
-    for(const i of ids){const o=i*6;x0=Math.min(x0,bounds[o]!);y0=Math.min(y0,bounds[o+1]!);z0=Math.min(z0,bounds[o+2]!);x1=Math.max(x1,bounds[o+3]!);y1=Math.max(y1,bounds[o+4]!);z1=Math.max(z1,bounds[o+5]!);}
-    const box=new THREE.Box3(new THREE.Vector3(x0,y0,z0),new THREE.Vector3(x1,y1,z1));if(ids.length<=8)return{box,ids,uniform:-1};
+  const build=(ids:number[]):LeafNode=>{charge();const box=new THREE.Box3();for(const i of ids)box.union(boxes[i]!);if(ids.length<=8)return{box,ids,uniform:-1};
     const size=box.getSize(new THREE.Vector3()),axis=size.x>=size.y&&size.x>=size.z?'x':size.y>=size.z?'y':'z',centre=doubledCentre[axis];
-    sortByKey(ids,0,ids.length,centre,1,0,scratch);
+    ids.sort((a,b)=>centre[a]!-centre[b]!);
     const middle=ids.length>>1;return{box,left:build(ids.slice(0,middle)),right:build(ids.slice(middle)),uniform:-1};};
   if(!boxes.length)throw new Error('Missing support triangles');return build(boxes.map((_,i)=>i));
 }
@@ -212,13 +169,17 @@ export function spanningLeafEdges(parts: Component[], limit: number, charge: () 
 export function contactDistances(parts: readonly Component[], wood: THREE.BufferGeometry, maxGap: number, charge: () => void = () => {}): number[] {
   const p = wood.getAttribute('position'), index = wood.index;
   if (!p) throw new Error('Missing wood positions');
-  // Each triangle's corners in one array (a, b, c), as the vectors three's triangles held them, and its bounds.
-  const count = Math.floor((index?.count ?? p.count) / 3), corners = new Float64Array(count * 9), corner = new THREE.Vector3();
-  const woodBounds: THREE.Box3[] = [];
+  // Each triangle's corners in one array (a, b, c), as three's triangles held them, and its bounds (the least and the
+  // greatest of its corners, as Box3.expandByPoint takes them).
+  const count = Math.floor((index?.count ?? p.count) / 3), corners = new Float64Array(count * 9), woodBounds: THREE.Box3[] = [];
   for (let t = 0; t < count; t++) {
-    const box = new THREE.Box3();
-    for (let k = 0; k < 3; k++) { corner.fromBufferAttribute(p, index?.getX(t * 3 + k) ?? t * 3 + k).toArray(corners, t * 9 + k * 3); box.expandByPoint(corner); }
-    woodBounds.push(box);
+    let x0 = Infinity, y0 = Infinity, z0 = Infinity, x1 = -Infinity, y1 = -Infinity, z1 = -Infinity;
+    for (let k = 0; k < 3; k++) {
+      const v = index ? index.getX(t * 3 + k) : t * 3 + k, x = p.getX(v), y = p.getY(v), z = p.getZ(v), o = t * 9 + k * 3;
+      corners[o] = x; corners[o + 1] = y; corners[o + 2] = z;
+      x0 = Math.min(x0, x); y0 = Math.min(y0, y); z0 = Math.min(z0, z); x1 = Math.max(x1, x); y1 = Math.max(y1, y); z1 = Math.max(z1, z);
+    }
+    woodBounds.push(new THREE.Box3(new THREE.Vector3(x0, y0, z0), new THREE.Vector3(x1, y1, z1)));
   }
   const support = boundsTree(woodBounds, charge), nearest = new Float64Array(3);
   // A component's contact is the first triangle found within maxGap from any of its samples, searching the nearer half
