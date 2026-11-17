@@ -717,7 +717,7 @@
       "scale": 0.42275,
       "yaw": 3.92211,
       "radius": 0.5477,
-      "navigationRadius": 0.5477,
+      "navigationRadius": 1.2897,
       "asset": null
     },
     {
@@ -861,7 +861,7 @@
       "scale": 1.08788,
       "yaw": 2.85152,
       "radius": 8.3237,
-      "navigationRadius": 8.3881,
+      "navigationRadius": 8.3237,
       "asset": null
     },
     {
@@ -897,7 +897,7 @@
       "scale": 0.55567,
       "yaw": 3.03759,
       "radius": 0.7073,
-      "navigationRadius": 0.7073,
+      "navigationRadius": 0.9333,
       "asset": null
     },
     {
@@ -1204,7 +1204,7 @@
       "species": "oak",
       "variant": 2,
       "x": -59.3199,
-      "y": 4.9674,
+      "y": 4.9025,
       "z": -66.4964,
       "scale": 0.67096,
       "yaw": 5.52049,
@@ -1425,7 +1425,7 @@
       "scale": 0.5649,
       "yaw": 2.37843,
       "radius": 2.9683,
-      "navigationRadius": 2.9683,
+      "navigationRadius": 4.1498,
       "asset": null
     },
     {
@@ -1672,12 +1672,12 @@
       "species": "oak",
       "variant": 1,
       "x": -17.9887,
-      "y": 2.3868,
+      "y": 2.315,
       "z": -38.1858,
       "scale": 0.72012,
       "yaw": 2.70021,
       "radius": 3.1116,
-      "navigationRadius": 3.1116,
+      "navigationRadius": 3.7622,
       "asset": null
     },
     {
@@ -1857,7 +1857,7 @@
       "scale": 1.1203,
       "yaw": 4.68103,
       "radius": 4.8186,
-      "navigationRadius": 4.8186,
+      "navigationRadius": 5.8307,
       "asset": null
     },
     {
@@ -1936,12 +1936,12 @@
       "species": "oak",
       "variant": 1,
       "x": 119.9564,
-      "y": 1.5168,
+      "y": 1.5118,
       "z": -23.7148,
       "scale": 1.43745,
       "yaw": 2.70032,
       "radius": 6.1714,
-      "navigationRadius": 6.1714,
+      "navigationRadius": 7.47,
       "asset": null
     },
     {
@@ -2128,12 +2128,12 @@
       "species": "oak",
       "variant": 1,
       "x": -210.4654,
-      "y": 2.4268,
+      "y": 2.3147,
       "z": -9.1712,
       "scale": 1.07852,
       "yaw": 2.93905,
       "radius": 4.6404,
-      "navigationRadius": 4.6404,
+      "navigationRadius": 5.6148,
       "asset": null
     },
     {
@@ -2236,12 +2236,12 @@
       "species": "oak",
       "variant": 1,
       "x": -128.7979,
-      "y": 0.6982,
+      "y": 0.6867,
       "z": -7.46,
       "scale": 0.61426,
       "yaw": 4.04328,
       "radius": 2.6601,
-      "navigationRadius": 3.4398,
+      "navigationRadius": 3.2151,
       "asset": null
     },
     {
@@ -2265,7 +2265,7 @@
       "scale": 1.02105,
       "yaw": 2.92684,
       "radius": 4.3953,
-      "navigationRadius": 4.3953,
+      "navigationRadius": 5.3177,
       "asset": null
     },
     {
@@ -2385,7 +2385,7 @@
       "scale": 1.08129,
       "yaw": 4.91206,
       "radius": 2.5564,
-      "navigationRadius": 8.2735,
+      "navigationRadius": 2.5564,
       "asset": null
     },
     {
@@ -2397,7 +2397,7 @@
       "scale": 1.41649,
       "yaw": 1.7254,
       "radius": 3.3364,
-      "navigationRadius": 10.8055,
+      "navigationRadius": 3.3364,
       "asset": null
     },
     {
@@ -2409,7 +2409,7 @@
       "scale": 0.44187,
       "yaw": 1.30635,
       "radius": 0.5706,
-      "navigationRadius": 0.5706,
+      "navigationRadius": 1.0588,
       "asset": null
     },
     {
@@ -2469,7 +2469,7 @@
       "scale": 0.88998,
       "yaw": 4.39238,
       "radius": 3.8362,
-      "navigationRadius": 3.8362,
+      "navigationRadius": 4.6402,
       "asset": null
     },
     {
@@ -2548,7 +2548,7 @@
       "species": "oak",
       "variant": 2,
       "x": 97.167,
-      "y": 0.5603,
+      "y": 0.5508,
       "z": 13.2792,
       "scale": 0.59739,
       "yaw": 2.67415,
@@ -2956,12 +2956,12 @@
       "species": "oak",
       "variant": 1,
       "x": -153.8413,
-      "y": 11.3226,
+      "y": 11.0864,
       "z": 50.9776,
       "scale": 0.99971,
       "yaw": 0.87998,
       "radius": 4.3042,
-      "navigationRadius": 4.3042,
+      "navigationRadius": 5.2074,
       "asset": null
     },
     {
@@ -3004,7 +3004,7 @@
       "species": "oak",
       "variant": 2,
       "x": -138.012,
-      "y": 10.7037,
+      "y": 10.6435,
       "z": 55.4101,
       "scale": 0.26036,
       "yaw": 2.67011,
@@ -3016,12 +3016,12 @@
       "species": "oak",
       "variant": 1,
       "x": -121.2489,
-      "y": 4.2051,
+      "y": 4.0868,
       "z": 54.5413,
       "scale": 0.91809,
       "yaw": 6.22363,
       "radius": 3.9561,
-      "navigationRadius": 3.9561,
+      "navigationRadius": 4.7855,
       "asset": null
     },
     {
@@ -3100,12 +3100,12 @@
       "species": "oak",
       "variant": 1,
       "x": -149.3845,
-      "y": 11.9334,
+      "y": 11.7458,
       "z": 64.814,
       "scale": 0.80602,
       "yaw": 4.41314,
       "radius": 3.478,
-      "navigationRadius": 4.5011,
+      "navigationRadius": 4.2062,
       "asset": null
     },
     {
@@ -3136,12 +3136,12 @@
       "species": "oak",
       "variant": 1,
       "x": -33.1803,
-      "y": 1.439,
+      "y": 1.3664,
       "z": 66.6407,
       "scale": 0.94437,
       "yaw": 0.77307,
       "radius": 4.0682,
-      "navigationRadius": 4.0682,
+      "navigationRadius": 4.9214,
       "asset": null
     },
     {
@@ -3153,7 +3153,7 @@
       "scale": 1.11364,
       "yaw": 4.46974,
       "radius": 4.7902,
-      "navigationRadius": 4.7902,
+      "navigationRadius": 5.7963,
       "asset": null
     },
     {
@@ -3213,7 +3213,7 @@
       "scale": 0.36243,
       "yaw": 5.57517,
       "radius": 2.3862,
-      "navigationRadius": 2.5519,
+      "navigationRadius": 2.7645,
       "asset": null
     },
     {
@@ -3261,14 +3261,14 @@
       "scale": 0.48203,
       "yaw": 3.91579,
       "radius": 0.6189,
-      "navigationRadius": 0.6189,
+      "navigationRadius": 0.8149,
       "asset": null
     },
     {
       "species": "oak",
       "variant": 2,
       "x": -129.3118,
-      "y": 0.9478,
+      "y": 0.9224,
       "z": 79.6519,
       "scale": 0.27543,
       "yaw": 1.11837,
@@ -3280,12 +3280,12 @@
       "species": "oak",
       "variant": 1,
       "x": -92.319,
-      "y": 0.4985,
+      "y": 0.4983,
       "z": 82.3891,
       "scale": 0.55962,
       "yaw": 4.07701,
       "radius": 3.1374,
-      "navigationRadius": 3.2801,
+      "navigationRadius": 3.1374,
       "asset": null
     },
     {
@@ -3297,7 +3297,7 @@
       "scale": 1.18476,
       "yaw": 0.9429,
       "radius": 2.7971,
-      "navigationRadius": 9.0443,
+      "navigationRadius": 2.7971,
       "asset": null
     },
     {
@@ -3345,7 +3345,7 @@
       "scale": 0.7754,
       "yaw": 0.65961,
       "radius": 3.3474,
-      "navigationRadius": 3.3474,
+      "navigationRadius": 4.0479,
       "asset": null
     },
     {
@@ -3381,7 +3381,7 @@
       "scale": 0.33445,
       "yaw": 4.30271,
       "radius": 2.6442,
-      "navigationRadius": 2.6442,
+      "navigationRadius": 2.8445,
       "asset": null
     },
     {
@@ -3441,7 +3441,7 @@
       "scale": 0.80035,
       "yaw": 2.3376,
       "radius": 3.4539,
-      "navigationRadius": 3.4539,
+      "navigationRadius": 4.1769,
       "asset": null
     },
     {
@@ -3489,7 +3489,7 @@
       "scale": 0.30356,
       "yaw": 4.57347,
       "radius": 2.0051,
-      "navigationRadius": 2.0051,
+      "navigationRadius": 2.322,
       "asset": null
     },
     {

@@ -40,7 +40,7 @@ export const PLANTED_TRUNKS: readonly { x: number; z: number; radius: number }[]
  * The woodland floor as the game lays it among the planted forest (forestFloor.ts). Its rule asks how much shade the
  * drawn crowns cast at a place, which only the models answer, so it is kept here as the forest is; the same test lays
  * it again from the models and fails if the two part. Laid with an estimate of the shade from the trees' sizes, the
- * export had 296 pieces where the game lays 720.
+ * export had 296 pieces where the game lays 669.
  */
 export const PLANTED_FLOOR: readonly ForestFloorPiece[] = FLOOR_ROWS.map(([id, kind, x, y, z, nx, nz, yaw, scale, rank, variant, colonyId, parentLogId]) => ({
   id, kind, x, y, z, nx, nz, yaw, scale, rank, variant, ...(colonyId ? { colonyId } : {}), ...(parentLogId ? { parentLogId } : {}),
