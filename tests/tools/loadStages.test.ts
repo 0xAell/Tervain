@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 // @ts-expect-error Tool modules run directly in Node.
-import { median, stageTimes, summary } from '../../tools/load-stages.mjs';
+import { median, runResult, stageTimes, summary } from '../../tools/load-stages.mjs';
 
 type Stage = { phase: string; start: number; seconds: number };
 
@@ -14,6 +14,19 @@ it('times each stage from its first update to the next stage\'s, and the last to
   expect(stages.map((s) => s.phase)).toEqual(['prepare', 'residents', 'models', 'textures', 'terrain', 'graphics']);
   expect(stages.map((s) => s.start)).toEqual([0.01, 0.5, 1.6, 2, 4, 8]);
   expect(stages.map((s) => s.seconds)).toEqual([0.49, 1.1, 0.4, 2, 4, 3]);
+});
+
+it('ends a run at the first view\'s preparation when asked, leaving that stage out', () => {
+  const record = { clickAt: 1000, liftedAt: 70000, updates: [
+    { t: 1010, phase: 'prepare' }, { t: 5000, phase: 'woodland' }, { t: 19000, phase: 'graphics' }, { t: 60000, phase: 'graphics' },
+  ] };
+  const view = runResult(record, 'view'), lifted = runResult(record);
+  expect(view.total).toBe(18);
+  expect(view.stages.map((s: Stage) => [s.phase, s.seconds])).toEqual([['prepare', 3.99], ['woodland', 14]]);
+  expect(lifted.total).toBe(69);
+  expect(lifted.stages.map((s: Stage) => s.phase)).toEqual(['prepare', 'woodland', 'graphics']);
+  // A run that never reached the first view ends where the screen lifted.
+  expect(runResult({ ...record, updates: record.updates.slice(0, 2) }, 'view').total).toBe(69);
 });
 
 it('takes the middle of the runs, or the mean of the middle two, and skips runs without the value', () => {

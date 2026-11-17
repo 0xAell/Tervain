@@ -26,7 +26,7 @@ Use stable identifiers for quest facts and content once implementation begins. D
 - For a change to loading, `npm run perf:load -- --url <one build> --url <another>` times each stage of a journey's load in
   each, alternating between them (three runs each by default), and prints the medians: serve each build on its own port with
   `npx vite preview --outDir <its dist> --port <n>`. Without a GPU the last stage is mostly the software renderer compiling
-  shaders.
+  shaders: `--until view` ends each run where it begins.
 - After a merge, CI plays the published build once it is live (`live-smoke`: it must load, draw, take input and log no error). `npm run smoke:live` runs the same test against the live link from any machine with a browser.
 - Preserve required checks, workflow triggers, and deployment behavior. Passing local checks or pushing a commit does not establish that a release is live; verify the published build separately.
 

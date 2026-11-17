@@ -387,23 +387,29 @@ Improved:
   read from `bow`), the low arc that carries an arrow through its target, in double precision as the core computes it.
   It returns the core's direction within a millionth on 305 targets, from under the archer to beyond the bow's reach;
   `FMath::Sqrt` joins the register with the page that documents it ([#881](https://github.com/0xAell/Tervain/pull/881)).
+- `npm run perf:load -- --until view` ends a run where the first view's preparation begins, a third of the time
+  without a GPU, where the rest is the software renderer compiling shaders; the Loading item below gives today's
+  stages and the three overlaps tried and not taken ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
-- Loading: on the four-core test machine, without a GPU, `npm run perf:load` times a journey's stages after the paint
-  cap at 1.9 s for the residents, 0.8 s for the models, 1.7 s for the ground textures, 2.8 s for the terrain, 9.1 s for
-  the woodland, 2.5 s for paths and shelter and 53 s for the first view, nearly all of it the software renderer
-  compiling shaders. In a profiled run the drawn trees' models are most of the woodland and the leaf-island pass
-  (`anchorLeafIslands` in flora.ts) 1.8 s. The terrain and the woodland now overlap the ground textures' worker and the
-  shader compiles and slow down with them; the textures in several workers are worth measuring on a machine with a GPU. Past a few more small
-  gains, the step is to build the models in workers, or keep them between visits. Before the woodland the main thread
-  waits about 7 s, idle, for the ground's textures (painted in a worker), Rapier's compilation and the images' decoding;
-  building the terrain and the woodland meanwhile gained nothing measurable in five alternating pairs on that machine,
-  whose four cores the waits already kept busy. Worth measuring again on a machine with a GPU.
+- Loading: on the four-core test machine without a GPU, `npm run perf:load` times a journey from the click to its
+  first view's preparation at about 19 s: 2 s for the residents, under 1 s for the models, 1.7 s waiting for the
+  ground's textures (painted in a worker), 2.9 s for the terrain, 8.6 s for the woodland and 2.4 s for paths and
+  shelter; the first view then takes about 50 s more, nearly all of it the software renderer compiling shaders. The
+  drawn trees' models are most of the woodland, and the leaf-island pass (`anchorLeafIslands` in flora.ts) 1.8 s of it.
+  Three ways to overlap the work were tried and not taken, each within the noise on that machine, whose four cores the
+  work already fills: the ground's textures in three workers (0.2 s); the trees' models built while the textures are
+  painted (the woodland 1.0 s shorter, the wait for the textures 1.0 s longer: a model takes up to a second and runs
+  past them, and the worker slows); the terrain and the woodland built during the earlier waits. Each is worth
+  measuring again on a machine with a GPU, as is building the models in workers or keeping them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
   textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
   materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
-  depth and shade passes).
+  depth and shade passes). The captures alone add a program to nearly every lit material, for want of the main view's
+  six point lights; kept in the captures at no intensity, the lights would let them share the main view's programs, at
+  the cost of shading six dark lights in each capture: a trade to measure on a GPU, where each program costs real
+  compile time before the first view.
 - Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 448 MB. A heap snapshot
   names the largest holders left. Rapier's memory is 100 MB. Its 1,501 colliders include 517 triangle meshes, 991,000
   triangles, 840,000 of them the planted trees' contact wood (19 meshes, each copied for every tree that uses it); in
