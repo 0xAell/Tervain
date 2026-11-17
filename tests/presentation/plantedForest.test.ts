@@ -5,13 +5,17 @@ import { createFloraPopulation } from '../../src/core/world/flora';
 import { PLANTED_FOREST, type PlantedTree } from '../../src/core/world/plantedForest';
 import { Terrain } from '../../src/core/world/terrain';
 import { forestModels, plantedObstacleRadius, plantForest } from '../../src/presentation/flora';
+import { createHeroPineForest, HERO_PINE_DEFAULT } from '../../src/presentation/heroPine';
 import { createMeshyForest } from '../../src/presentation/meshyTrees';
 import { createPineForest } from '../../src/presentation/solitaryPine';
 import { meshyTreeTemplates } from './meshyTreeFixture';
-import { pineTemplates } from './pineFixture';
+import { heroPineFixtureTemplates, pineTemplates } from './pineFixture';
 
 // The core keeps the forest as the web build plants it (src/core/world/plantedForest.ts), so that the export carries
-// the trees that are played. Here it is planted exactly as the game plants it, from the shipped tree models; if the two
+// the trees that are played. Here it is planted exactly as the game plants it, from the shipped tree models, with the
+// generated hero pines whenever the game draws species 'pine' with them (HERO_PINE_DEFAULT): a pine's crown and its seat
+// on the ground are its drawing model's, so the hero pines change which trees fit as well as where the pines stand.
+// Planted without them, the copy had 453 trees where the game plants 451, and 307 of them in other places. If the two
 // part, the core's copy is out of date. Regenerate it with
 //   PLANTED_FOREST_WRITE=1 npx vitest run --project game tests/presentation/plantedForest.test.ts
 
@@ -36,10 +40,10 @@ function render(trees: readonly PlantedTree[]): string {
 
 describe('the forest the core exports', () => {
   it('is the forest the web build plants from its models, tree for tree', async () => {
-    const [meshySource, pineSource] = await Promise.all([meshyTreeTemplates(), pineTemplates()]);
-    const meshy = createMeshyForest(meshySource), pine = createPineForest(pineSource);
+    const [meshySource, pineSource, heroSource] = await Promise.all([meshyTreeTemplates(), pineTemplates(), HERO_PINE_DEFAULT ? heroPineFixtureTemplates() : null]);
+    const meshy = createMeshyForest(meshySource), pine = createPineForest(pineSource), hero = heroSource ? createHeroPineForest(heroSource) : null;
     try {
-      const terrain = new Terrain(), models = forestModels(pine, meshy);
+      const terrain = new Terrain(), models = forestModels(pine, meshy, hero);
       // As registerFloraColliders makes them: only a tree with an id and a footprint blocks, at its footprint, and the walk grid
       // keeps clear of the drawn wood where that reaches further.
       const planted = plantForest(terrain, new Exclusions(terrain), pine, meshy, models).map((tree): PlantedTree => {
@@ -55,6 +59,6 @@ describe('the forest the core exports', () => {
       // Fewer than the places the rule offers with the supplied trees' footprints: the drawn models are wider.
       const offered = createFloraPopulation(terrain, new Exclusions(terrain));
       expect(PLANTED_FOREST.length).toBeLessThan(offered.length);
-    } finally { meshy.dispose(); pine.dispose(); }
+    } finally { meshy.dispose(); pine.dispose(); hero?.dispose(); }
   }, 600_000);
 });

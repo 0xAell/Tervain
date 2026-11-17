@@ -283,11 +283,14 @@ Improved:
   already drawing, and reading back a GPU canvas waits for every frame queued before it: in the first minute of play on
   a software renderer the page was stalled for 46 s and drew a frame a second, now three, its main thread idle 90% of
   the time; on a GPU each read was a hitch ([#857](https://github.com/0xAell/Tervain/pull/857)).
+- The forest the core exports is the one the game plants. It was planted without the hero pines the game draws by
+  default, whose crowns and seats decide which trees fit: it had 453 trees where the game plants 451, 307 of them
+  elsewhere, and the woodland floor, the export's trees and the Unreal tables followed it (PR_FOREST).
 
 Next:
 
-- The forest the core exports is planted without the hero pines the game draws by default: it has 453 trees where the
-  game plants 451, and 307 of them stand elsewhere. Plant it as the game does.
+- The woodland floor the core exports is laid with an estimate of the crowns' shade, the game's with the drawn crowns
+  themselves; check whether the two agree, and export the one that is played.
 - Loading: building the 25 tree models is about 13 s of the woodland stage on a four-core machine without a GPU. The canopy atlas
   painter, the nearest-wood search and the procedural bark and water textures can do the same work in less time.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA, and compiles 230
