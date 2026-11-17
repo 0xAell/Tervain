@@ -73,6 +73,14 @@ export interface WorldBuildProgress {
   total?: number;
 }
 
+/**
+ * How long the world's cooperative construction (the terrain, its surface and tiles, the walking routes) works before it
+ * lets the browser paint, when the caller names no budget. The loading screen covers the build and its animations run
+ * on the compositor, so a longer slice only updates the progress text less often; the default 8 ms slices, each followed
+ * by a wait for a painted frame, left those stages idle about as long as they worked.
+ */
+export const WORLD_BUILD_SLICE_MS = 48;
+
 export interface WorldCreateOptions extends CooperativeOptions {
   onPhase?: (progress: WorldBuildProgress) => void;
   /** Open the world before the animals' models arrive; they move in afterwards (A70). */
@@ -179,6 +187,7 @@ export class WorldScene {
 
   /** Load, construct and activate in separate phases. No partial scene escapes this promise. */
   static async create(state: WorldState, settings: Settings, onProgress?: (p: LoadProgress) => void, npcAssets?: MeshyNpcCatalog, options: WorldCreateOptions = {}): Promise<WorldScene> {
+    options = { ...options, budgetMs: options.budgetMs ?? WORLD_BUILD_SLICE_MS };
     const yieldNow = options.yieldNow ?? yieldToBrowser;
     const phase = (stage: WorldBuildProgress['phase'], label: string, completed?: number, total?: number) => {
       checkCancelled(options.signal);
