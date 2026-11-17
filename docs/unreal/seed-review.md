@@ -303,11 +303,20 @@ Improved:
 - The README's account of the prototype (the region's size, the residents, the animals and their kinds, those hunted
   and those left alone, the hostiles, the hotbar) is checked against the exported data, as the porting docs' numbers
   already were ([#863](https://github.com/0xAell/Tervain/pull/863)).
+- The 36 generated hero tree files are compressed losslessly, as every other model already was: 29.3 MiB become
+  18.3 MiB, 11 MiB less for a first visit (the model host sends them uncompressed). The trees built from them hash the
+  same as before, and the generators' instructions now include the step ([#864](https://github.com/0xAell/Tervain/pull/864)).
 
 Next:
 
-- Loading: the tree models still take most of the woodland stage. The leaf-clump connectivity, the leaf islands, the
-  branch-wind search and the procedural bark and water textures are next; past them, building the models in workers or
-  keeping them between visits.
-- Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA, and compiles 230
-  shader programs before the first view.
+- Loading: the tree models are still most of the woodland stage, about 11 s of 17 on a four-core machine without a
+  GPU, spread over the nearest-wood index, the leaf-clump connectivity, the leaf islands and the branch wind. Past a
+  few more small gains, the step is to build the models in workers, or keep them between visits.
+- Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
+  textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
+  materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
+  depth and shade passes).
+- Memory: the page holds about 2 GB, a JavaScript heap near 0.9 GB of it, most of that in typed arrays rather than
+  objects; find what holds them with a full heap snapshot.
+- Draws: in the opening view the trees are 77% of the 11 million triangles, and the water's reflection pass a third
+  of the 744 draw calls. Trimming either changes the picture; measure it on a GPU first.

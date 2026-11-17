@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Offline generator for the hero pine: node tools/tree-gen-pine/generate.mjs [--out dir] [--only near,mid,far] [--debug dir]
- * Writes hero-pine-{near,mid,far}.glb (four seeded variants each) into public/models/flora/hero/.
+ * Writes hero-pine-{near,mid,far}.glb (four seeded variants each) into public/models/flora/hero/, with their geometry
+ * uncompressed: compress it and record the files as tools/tree-gen-pine/record.mjs says.
  * All geometry and textures are procedural; nothing is read from any third-party asset.
  */
 import fs from 'node:fs';

@@ -43,11 +43,11 @@
   "totals": {
     "all": {
       "files": 1670,
-      "bytes": 445022697
+      "bytes": 433480801
     },
     "shipped": {
       "files": 872,
-      "bytes": 310117825
+      "bytes": 298575929
     },
     "replaceBeforeShip": {
       "files": 5,
@@ -56,7 +56,7 @@
     "byPlan": {
       "replace": {
         "files": 188,
-        "bytes": 212685989
+        "bytes": 201144093
       },
       "keep": {
         "files": 595,
@@ -847,7 +847,7 @@
       },
       "replaceBeforeShip": null,
       "files": 36,
-      "bytes": 30693920
+      "bytes": 19152024
     },
     {
       "id": "trees-pine",
@@ -25190,8 +25190,8 @@
       "path": "public/models/flora/hero/hero-apple-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 214024,
-      "sha256": "520b5af4d9d3d7eabfb98b461d0b2bb1c07d92f1dbfd285326c6325e4f0681da",
+      "bytes": 108936,
+      "sha256": "4be8b69dfb753457e40097e210fa7abdfa8237d96faca8d4d03998ee7786778a",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25211,8 +25211,8 @@
       "path": "public/models/flora/hero/hero-apple-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 474892,
-      "sha256": "eeab37f1d5919165ea647957efd631c2f9994e77e4619bcaa2d56ddb51f53001",
+      "bytes": 237144,
+      "sha256": "ef84bb2f923440b09e388f521bdd8ab35aa2b87379248040f676d5165c49674b",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25232,8 +25232,8 @@
       "path": "public/models/flora/hero/hero-apple-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 633044,
-      "sha256": "ce15919af3a21b2a7beb7c3accefa1e4b7b10afc55f915e33a3a09df8d84558b",
+      "bytes": 312852,
+      "sha256": "94c02c9d14fc0f3c3fa82719d7f3f04d92a07e283c6373f9bc6ce605f12ccc6b",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25253,8 +25253,8 @@
       "path": "public/models/flora/hero/hero-birch-b-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 143796,
-      "sha256": "54d6ff423803173c4808e6bdf508dbfad4bb5116ffeff24e90147c8919787933",
+      "bytes": 76292,
+      "sha256": "ffd9f32170808239284060b03b138f2dcab966de2ae18bc1734ff5cffe1ea253",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25274,8 +25274,8 @@
       "path": "public/models/flora/hero/hero-birch-b-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 897880,
-      "sha256": "52b19fa00bbdc7ad9a1ebf66553d9d81bee1898dca0745e704d5699280e4b4ce",
+      "bytes": 450404,
+      "sha256": "0611772b69752fe4e7213b8185eb63a5f2703cdd203349b939ac5dfe05afcaf3",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25295,8 +25295,8 @@
       "path": "public/models/flora/hero/hero-birch-b-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 692736,
-      "sha256": "b598df9feb8d3065e25307f63046551115fd8b0c35e0feec60a8f7de16ba620a",
+      "bytes": 343176,
+      "sha256": "c21e5c3988e1c7b9db0945d2a27b814a7e6450c175a0422d8e93f6e7a4434748",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25316,8 +25316,8 @@
       "path": "public/models/flora/hero/hero-birch-c-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 149392,
-      "sha256": "7af3b3d321ddb3708409ce3515b94c9915b6cef6d27d296de57dde71bc5e00cd",
+      "bytes": 78688,
+      "sha256": "5f648bebccfacd4c934fed50a49ce8fec2c036298dd71437fe9fa773d1561e87",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25337,8 +25337,8 @@
       "path": "public/models/flora/hero/hero-birch-c-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 893296,
-      "sha256": "c5de54fdf536f09e5e2d977f5ae3459a80b1ebab4a58ab050c357480ebcbc165",
+      "bytes": 446808,
+      "sha256": "0c47234fe6242b6bf581f27121a608da27b9ef6a39df3a850ed034be87e8b5db",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25358,8 +25358,8 @@
       "path": "public/models/flora/hero/hero-birch-c-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 668072,
-      "sha256": "58e2192784fd0b3e98a3056ffe47fceed1d7114d0c52475916800e14a9f3d7e3",
+      "bytes": 330324,
+      "sha256": "9b6275021e7d8ecc90f5f70048eaf1ed3fb4395f4d3dbfc44cbda154ca478945",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25379,8 +25379,8 @@
       "path": "public/models/flora/hero/hero-birch-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 146820,
-      "sha256": "2ca4ff00ba5866d212876dcb0f13cea04ba8f3e827806d596a9ebf99bdf5ee22",
+      "bytes": 77724,
+      "sha256": "945c7590b90e9d3e8d142ff2bed59ca7e90a4d94bb447ea6d52b0340915851c9",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25400,8 +25400,8 @@
       "path": "public/models/flora/hero/hero-birch-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 864016,
-      "sha256": "ba106b73e4da978e9164d499658266ec258d072068757aba3134797398a9850f",
+      "bytes": 432804,
+      "sha256": "f14b75b4067915e7d5394bfeef65f199db8bf082a411c9c7e9e5c2127789f7bf",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25421,8 +25421,8 @@
       "path": "public/models/flora/hero/hero-birch-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 1303460,
-      "sha256": "bf5e0d3718d9d7b8c16e85159ee14fa95b1cc1ecdfe23a62041170ad6c06c36d",
+      "bytes": 943880,
+      "sha256": "dd7d8fbe5b25a235f74d3216572d6c02a416188e218e6920102d9553eac0cc3f",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25442,8 +25442,8 @@
       "path": "public/models/flora/hero/hero-bush-b-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 156588,
-      "sha256": "2be3b3d03a8b0eba00f24fb8ee0a212eec42141613b1b7da874556edbbd6fe81",
+      "bytes": 82752,
+      "sha256": "79e3506ef1f545b75d5a3f6677737fa2cee942de8de22dcbc03142c237129667",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25463,8 +25463,8 @@
       "path": "public/models/flora/hero/hero-bush-b-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 247156,
-      "sha256": "049d813608bddf6c9a8d78428299df170d787c9825e0f132c28f204bf0cb96c4",
+      "bytes": 128708,
+      "sha256": "0ca32d673729aaf002a1f1bf6cf2e217bc7a53dc43e39f29a80fdb5fe43b9c4f",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25484,8 +25484,8 @@
       "path": "public/models/flora/hero/hero-bush-b-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 410404,
-      "sha256": "38ea1ab45c2e5a8fb04d755009b2395bdbc4a680e00b08228fad847399c0640c",
+      "bytes": 210336,
+      "sha256": "a1c68a67bf38634a07464825395507a5126a625fec1cdfe672dba3ed3b384017",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25505,8 +25505,8 @@
       "path": "public/models/flora/hero/hero-bush-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 155760,
-      "sha256": "e8e73a717260b240797d68939c8f288e83e9bcfc7fd2383381cc10ab877a2b98",
+      "bytes": 82448,
+      "sha256": "d495b0693a3270c83535f2b687052ef8327603e84d05dfe716016b3a9cc7812f",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25526,8 +25526,8 @@
       "path": "public/models/flora/hero/hero-bush-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 246140,
-      "sha256": "3d180a046c6ea0e5d33f89623e88ef3a4ca5052a30cc650ccbb969e61ff06f88",
+      "bytes": 128780,
+      "sha256": "3379633b8f7735681cf1ad0c73ecc835bde207e46b420adcc4ba9511fff03150",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25547,8 +25547,8 @@
       "path": "public/models/flora/hero/hero-bush-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 437620,
-      "sha256": "3e3cd5ae5acf74585d78994e1ce2ee7cd494a288b2d0b28650744229ab48ce87",
+      "bytes": 225072,
+      "sha256": "07fe19712b07f36ef8718367566c482165bea2abe37193af02a86c0488a0a952",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25568,8 +25568,8 @@
       "path": "public/models/flora/hero/hero-oak-b-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 137360,
-      "sha256": "8faafa4ae6cb9679ead01504d703b5d4a68c3a1aa9502208347ca32e384a243e",
+      "bytes": 73212,
+      "sha256": "61b57101f4802bdcbb6e0aa99c6a131f0ef82687f7f78d59132c5ebec2995471",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25589,8 +25589,8 @@
       "path": "public/models/flora/hero/hero-oak-b-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 909640,
-      "sha256": "5ef45ff551fe0a1e5328450555d9d5814b8121ff4036f0ef30c1afe8e4564573",
+      "bytes": 453920,
+      "sha256": "fbd9a32e415d51167308e891ea0ca65059a0bb22377efffb42f97e5cd7efb4a0",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25610,8 +25610,8 @@
       "path": "public/models/flora/hero/hero-oak-b-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 1548964,
-      "sha256": "b78beefc5354a680fd97d29fae4a857995b4af774ceef043d9b3b75983ebe009",
+      "bytes": 764772,
+      "sha256": "f0dd926adcebea387be3e0eaaaad75bbb8c68bc30d39d299121a1e66fa9019fb",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25631,8 +25631,8 @@
       "path": "public/models/flora/hero/hero-oak-c-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 135700,
-      "sha256": "41d730e16b52552f89f0eec53916f271d288b51320c37eb03127663c71b63820",
+      "bytes": 72332,
+      "sha256": "7aab43afa24cb4f32c36a567541733f586ab5fb8d4db1a4d58eb4ee4a60225f9",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25652,8 +25652,8 @@
       "path": "public/models/flora/hero/hero-oak-c-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 934324,
-      "sha256": "11260abc513510d7e626ebeb2a6c9ddb813e0d926cd27eaa32dc3e5e631cc10b",
+      "bytes": 466604,
+      "sha256": "b7aa043b182e8f13c03264f9ff9893a054b4ff47e42b754747b7d05692ef8e82",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25673,8 +25673,8 @@
       "path": "public/models/flora/hero/hero-oak-c-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 1678868,
-      "sha256": "c9fba66e1d567f4f5e647a1dd7cd0f2f41f322e2d7fb6a1956d0016ad478ba7c",
+      "bytes": 828884,
+      "sha256": "334eee41c7fabae54312e09ad93b122407e190be2cae2ab75afce93f279c0160",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25694,8 +25694,8 @@
       "path": "public/models/flora/hero/hero-oak-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 145864,
-      "sha256": "af6ce28174517f19c0d80b37bed4ec4f19be1fc77f2e76cfedc35dc83f8f3214",
+      "bytes": 77748,
+      "sha256": "cb10e040afea1eac2c9ea12d674eca67d6764fd5cf16b134542734eaf9001c4c",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25715,8 +25715,8 @@
       "path": "public/models/flora/hero/hero-oak-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 1106052,
-      "sha256": "72307a4512fbed6a8c2c54c1dfa504379e0837bc399ffbf82c163bcabdbf8545",
+      "bytes": 552388,
+      "sha256": "2d8e7d1cbcfd737621f3ebeca9b0585c722f73b241bea9081facd76332053620",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25736,8 +25736,8 @@
       "path": "public/models/flora/hero/hero-oak-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 5209160,
-      "sha256": "6a15b829ace57e7ab6404460e540aa6409a1bcca4819967da5a630d432786b62",
+      "bytes": 4224588,
+      "sha256": "368282cc0bd642f206bb16657c80d33d3a8b843d1379d335c11fb7ae04b9ce2f",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25757,8 +25757,8 @@
       "path": "public/models/flora/hero/hero-pear-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 209996,
-      "sha256": "fa410e4945d2e334df07c37018e31db5fc732159d033a3822c16ee610ac34c30",
+      "bytes": 107024,
+      "sha256": "87df824ecc7c3de8be0d7bb4f7ece90fdb002cfbc481460b204b12c357127fff",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25778,8 +25778,8 @@
       "path": "public/models/flora/hero/hero-pear-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 465664,
-      "sha256": "a389aa922ebb6c373e3018e859bfa046bd9a386e104693da741dfdff837f78a7",
+      "bytes": 233516,
+      "sha256": "bb9f6d937b16ed0aca026d165ba871e85b8772f6599817a8e9c2ccffeffb522c",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25799,8 +25799,8 @@
       "path": "public/models/flora/hero/hero-pear-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 541240,
-      "sha256": "f9c2aa8262804a92a1920020620e9647f0785597de45d1cab516317d3f970de5",
+      "bytes": 269072,
+      "sha256": "84acfac42a40ecf40a19686aec285162a38c689c1b52344c37097fb8f1db83c6",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25820,8 +25820,8 @@
       "path": "public/models/flora/hero/hero-pine-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 318432,
-      "sha256": "b5d56506fde47541096367105e7e17df9470a7fc1f3309cfe698a78a3368b7db",
+      "bytes": 275340,
+      "sha256": "f462e4659ae769b6e95dd34ae5809459cb5d7e6a1da2ac4b7a2f316ff9bd580d",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25841,8 +25841,8 @@
       "path": "public/models/flora/hero/hero-pine-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 1964464,
-      "sha256": "255d59b04ef0e1939f265ca69e6bd506400455ee76b6e566000426d1c807392b",
+      "bytes": 1473628,
+      "sha256": "46a1af569c58383ced966e3efdd5f5643e2037d6e992aa0b9a755aa27d220a96",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25862,8 +25862,8 @@
       "path": "public/models/flora/hero/hero-pine-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 4655844,
-      "sha256": "d1a99215d8a69f35732e2d9dea64e06c9696e77b503b9f5cc5c7c60751d15ed4",
+      "bytes": 3592812,
+      "sha256": "f5f4b470d26aa5cc35c8e67787ee68729a0466298af5e92471051b340e22c8a1",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25883,8 +25883,8 @@
       "path": "public/models/flora/hero/hero-sentinel-far.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 282284,
-      "sha256": "17dfe76661a073b0d70192d098a9404c75cacb70d00ef77623b709fe31c15291",
+      "bytes": 142664,
+      "sha256": "144fa0a07260a6e96e11564f6e66137bc873ef65b5403c4f4141a73b5fb1ce5a",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25904,8 +25904,8 @@
       "path": "public/models/flora/hero/hero-sentinel-mid.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 858640,
-      "sha256": "4767ecd3d22851789e85148d495f22418e23e2891cd20856d2ed4797a6c8d999",
+      "bytes": 424900,
+      "sha256": "f4868452aa26380006a02aee82f4208b03df61255eda91a7a1ea52597fdffd2b",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
@@ -25925,8 +25925,8 @@
       "path": "public/models/flora/hero/hero-sentinel-near.glb",
       "group": "trees-generated",
       "kind": "model",
-      "bytes": 856328,
-      "sha256": "8d6bb1cbd894acc433b359303996ea946fd89eab38444424c85386de8b6638f8",
+      "bytes": 421492,
+      "sha256": "c10882a08c47c446eac188d53d9f8004dc97928cd640e09c891b4a66f805c848",
       "shipped": true,
       "sourceId": "tervain-hero-oak",
       "licence": {
