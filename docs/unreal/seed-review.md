@@ -334,7 +334,7 @@ Improved:
   would stand: most of the woodland stage of the load. The core keeps the planting to the bit, with the models and
   flags it was planted with; a world planted with those takes it, and any other plants as before. On the four-core
   test machine the woodland stage takes 11 to 12 s where it took 17 to 21 s, and every tree's world matrix, tree
-  collider and floor piece is the same, to the bit; the scripts are 40 KB (gzip) larger (PR_PLANT).
+  collider and floor piece is the same, to the bit; the scripts are 40 KB (gzip) larger ([#870](https://github.com/0xAell/Tervain/pull/870)).
 
 Next:
 
