@@ -1,5 +1,6 @@
 // Runs the seed's mirrored rules and unit conversions on cases read from standard input, one per line, and prints
 // one line of results for each. Driven by tests/tools/unrealRulesParity.test.ts.
+#include "Rules/TervainBowRules.h"
 #include "Rules/TervainHeroRules.h"
 #include "TervainUnits.h"
 
@@ -14,6 +15,7 @@ int main()
 	FTervainGuardTuning Guard;
 	FTervainGuardArms Arms[2];
 	FTervainWadeTuning Wade;
+	FTervainBowTuning Bow;
 	std::string Line;
 	while (std::getline(std::cin, Line))
 	{
@@ -63,6 +65,17 @@ int main()
 			float Depth = 0.f;
 			In >> Depth;
 			std::printf("%.9g\n", TervainRules::WadeFactor(Wade, Depth));
+		}
+		else if (Kind == "bow-tuning")
+		{
+			In >> Bow.ArrowSpeed >> Bow.Gravity;
+		}
+		else if (Kind == "bow")
+		{
+			double X = 0, Y = 0, Z = 0;
+			In >> X >> Y >> Z;
+			const FVector Direction = TervainRules::ArrowLaunchDirection(Bow, FVector(X, Y, Z));
+			std::printf("%.17g %.17g %.17g\n", Direction.X, Direction.Y, Direction.Z);
 		}
 		else if (Kind == "position")
 		{

@@ -9,8 +9,8 @@
     "contradicted": "A public page says otherwise."
   },
   "summary": {
-    "symbols": 200,
-    "verified": 190,
+    "symbols": 201,
+    "verified": 191,
     "partly": 8,
     "unverified": 1,
     "contradicted": 1
@@ -143,6 +143,7 @@
         "tests/tools/unreal-standin/CoreMinimal.h",
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
       ],
       "assumes": "USTRUCT(...) goes above a struct definition whose first line is GENERATED_BODY().",
@@ -196,6 +197,7 @@
         "tests/tools/unreal-standin/CoreMinimal.h",
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
@@ -229,11 +231,13 @@
       "kind": "macro",
       "usedIn": [
         "tests/tools/unreal-standin/CoreMinimal.h",
+        "tests/tools/unreal-standin/TervainBowRules.generated.h",
         "tests/tools/unreal-standin/TervainDataSubsystem.generated.h",
         "tests/tools/unreal-standin/TervainHeroRules.generated.h",
         "tests/tools/unreal-standin/TervainRows.generated.h",
         "tests/tools/unreal-standin/TervainSettings.generated.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
@@ -251,11 +255,13 @@
       "symbol": "<Header>.generated.h",
       "kind": "header",
       "usedIn": [
+        "tests/tools/unreal-standin/TervainBowRules.generated.h",
         "tests/tools/unreal-standin/TervainDataSubsystem.generated.h",
         "tests/tools/unreal-standin/TervainHeroRules.generated.h",
         "tests/tools/unreal-standin/TervainRows.generated.h",
         "tests/tools/unreal-standin/TervainSettings.generated.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
@@ -292,6 +298,7 @@
       "usedIn": [
         "tests/tools/unreal-standin/CoreMinimal.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/Tervain.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
@@ -311,6 +318,7 @@
       "kind": "type",
       "usedIn": [
         "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp",
         "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
         "unreal/Source/Tervain/Public/TervainUnits.h"
       ],
@@ -356,6 +364,22 @@
       },
       "passage": "static T Min ( T A, T B ) Returns lower value in a generic way",
       "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from."
+    },
+    {
+      "symbol": "FMath::Sqrt",
+      "kind": "function",
+      "usedIn": [
+        "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp"
+      ],
+      "assumes": "static double Sqrt(double Value) returns the square root of its argument; the seed's bow rule calls it with doubles, as the core computes in double precision.",
+      "status": "verified",
+      "source": {
+        "title": "Sqrt | Unreal Engine 5.8 Documentation | Epic Developer Community",
+        "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Runtime/Core/FGenericPlatformMath/Sqrt?application_version=5.8"
+      },
+      "passage": "static float Sqrt ( float Value ) GenericPlatform/GenericPlatformMath.h static double Sqrt ( double Value )",
+      "note": "Documented on FGenericPlatformMath, the generic base of the platform math classes FMath derives from (the FMath page says it \"inherits from platform math\"). The page lists both overloads with their header, and no remark on their behaviour beyond the name."
     },
     {
       "symbol": "FMath::RoundToInt32",
@@ -411,7 +435,9 @@
       "usedIn": [
         "tests/tools/unreal-standin/Math/Vector.h",
         "tests/tools/unreal-standin/parity.cpp",
+        "unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/TervainUnits.h"
       ],
       "assumes": "FVector is a double-precision 3-D vector since Unreal Engine 5.",
@@ -429,6 +455,7 @@
       "usedIn": [
         "tests/tools/unreal-standin/Math/Vector.h",
         "tests/tools/unreal-standin/parity.cpp",
+        "unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
         "unreal/Source/Tervain/Public/TervainUnits.h"
       ],
@@ -464,6 +491,7 @@
       "kind": "type",
       "usedIn": [
         "tests/tools/unreal-standin/CoreMinimal.h",
+        "unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp",
         "unreal/Source/Tervain/Public/TervainUnits.h"
       ],
       "assumes": "Public members X, Y and Z hold the components.",
@@ -1995,6 +2023,7 @@
         "tests/tools/unreal-standin/UObject/Object.h",
         "unreal/Source/Tervain/Public/Data/TervainIds.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/Tervain.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
@@ -2016,6 +2045,7 @@
       "usedIn": [
         "unreal/Source/Tervain/Public/Data/TervainIds.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/Tervain.h",
         "unreal/Source/Tervain/Public/TervainDataSubsystem.h",
@@ -2093,6 +2123,7 @@
       "kind": "header",
       "usedIn": [
         "tests/tools/unreal-standin/Math/UnrealMathUtility.h",
+        "unreal/Source/Tervain/Private/Rules/TervainBowRules.cpp",
         "unreal/Source/Tervain/Private/Rules/TervainHeroRules.cpp",
         "unreal/Source/Tervain/Public/TervainUnits.h"
       ],
@@ -2111,6 +2142,7 @@
       "usedIn": [
         "tests/tools/unreal-standin/Math/Vector.h",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/TervainUnits.h"
       ],
       "assumes": "#include \"Math/Vector.h\" declares FVector.",
@@ -2380,6 +2412,7 @@
         "tests/tools/unreal-standin/CoreMinimal.h",
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
@@ -2399,6 +2432,7 @@
         "tests/tools/unreal-standin/CoreMinimal.h",
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
@@ -2437,6 +2471,7 @@
         "tests/tools/unreal-standin/CoreMinimal.h",
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h",
         "unreal/Source/Tervain/Public/TervainSettings.h"
       ],
@@ -2494,6 +2529,7 @@
         "tests/tools/unreal-standin/CoreMinimal.h",
         "unreal/README.md",
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
       ],
       "assumes": "BlueprintType exposes a struct as a type usable for Blueprint variables.",
@@ -2575,6 +2611,7 @@
       "kind": "specifier",
       "usedIn": [
         "unreal/Source/Tervain/Public/Data/TervainRows.h",
+        "unreal/Source/Tervain/Public/Rules/TervainBowRules.h",
         "unreal/Source/Tervain/Public/Rules/TervainHeroRules.h"
       ],
       "assumes": "A float can be a UPROPERTY member.",

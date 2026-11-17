@@ -112,6 +112,10 @@ int main(int Count, char** Arguments)
 		// And the wade: the pace kept at the knee, 0.625 m deep.
 		const FTervainWadeTuning Wade = Data.GetWadeTuning();
 		std::printf("%.9g %.9g %.9g %.9g\n", Wade.From, Wade.Span, Wade.Slowest, TervainRules::WadeFactor(Wade, 0.625f));
+		// And the bow: the arc to a target 30 m south on the level.
+		const FTervainBowTuning Bow = Data.GetBowTuning();
+		const FVector Loose = TervainRules::ArrowLaunchDirection(Bow, FVector(0.0, 0.0, 30.0));
+		std::printf("%.9g %.9g %.17g %.17g %.17g\n", Bow.ArrowSpeed, Bow.Gravity, Loose.X, Loose.Y, Loose.Z);
 	}
 	else if (Mode == "settings")
 	{

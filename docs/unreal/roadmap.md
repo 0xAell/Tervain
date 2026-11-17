@@ -16,7 +16,7 @@ Done here, without the engine:
 - The game's data and rules are in an engine-agnostic core with a boundary CI enforces, and unit tests for its rules.
 - The core's data is exported as JSON with schemas, Landscape rasters and DataTable-shaped files in Unreal's units.
 - Every asset is listed with its source, licence and a plan.
-- A source-only Unreal project mirrors the data types, and three rules as a worked example.
+- A source-only Unreal project mirrors the data types, and four rules as a worked example.
 - Each system has a proposed Unreal counterpart ([system mapping](system-mapping.md)).
 
 Not done, and the first thing the next phase does: none of the Unreal code has been built by the engine (CI compiles
@@ -55,7 +55,8 @@ passes in 24 minutes; the measurements are written down with the machine they we
 1. Movement on the engine's character movement: paces, step height, jump, slopes, swimming and wading, from
    `tuning.json`. The pace kept wading is already mirrored (`TervainRules::WadeFactor`).
 2. The camera: boom, limits, aim view, room view, with the field of view converted.
-3. Stamina and combat on plain components, calling the mirrored rules; then the bow.
+3. Stamina and combat on plain components, calling the mirrored rules; then the bow, whose launch is mirrored too
+   (`TervainRules::ArrowLaunchDirection`).
 4. Riding.
 5. Mirror each ported rule's unit tests as automation tests. The player's action state machine is one description
    to port: `src/core/rules/wanderer.ts`, with its tests in `tests/core/rules/wanderer.test.ts`.

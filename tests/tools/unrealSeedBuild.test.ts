@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { arrowLaunchDirection, BOW } from '../../src/core/rules/bow';
 import { ACTION_COST, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STAMINA, staminaStep, WADE, wadeFactor } from '../../src/core/rules/hero';
 
 // Unreal Engine is not available to this repository's tests. This builds every source file of the Unreal seed with an
@@ -62,7 +63,7 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
 
   it('compiles every source file of the seed', () => {
     const names = seedSources.map((path) => path.slice(seed.length + 1).replace(/\\/g, '/')).sort();
-    expect(names).toEqual(['Private/Rules/TervainHeroRules.cpp', 'Private/Tervain.cpp', 'Private/TervainDataSubsystem.cpp', 'Private/TervainSettings.cpp']);
+    expect(names).toEqual(['Private/Rules/TervainBowRules.cpp', 'Private/Rules/TervainHeroRules.cpp', 'Private/Tervain.cpp', 'Private/TervainDataSubsystem.cpp', 'Private/TervainSettings.cpp']);
   });
 
   it.skipIf(!compiler)('reads every number of the exported tuning file to the same value', () => {
@@ -80,8 +81,8 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
     expect(values).toEqual(paths.map(() => '-12345'));
   });
 
-  it.skipIf(!compiler)('fills the stamina, guard and wade values from the file and runs the mirrored rules on them', () => {
-    const [stamina, guard, step, hit, wade] = run('structs').map((line) => line.split(' ').map(Number));
+  it.skipIf(!compiler)('fills the stamina, guard, wade and bow values from the file and runs the mirrored rules on them', () => {
+    const [stamina, guard, step, hit, wade, bow] = run('structs').map((line) => line.split(' ').map(Number));
     const expectStamina = [STAMINA.max, STAMINA.sprintPerSecond, STAMINA.sprintMin, STAMINA.swimSprintPerSecond, STAMINA.regen, STAMINA.regenWinded, STAMINA.regenGuarding, STAMINA.recoverAbove, STAMINA.pauseAfterSprint];
     stamina!.forEach((value, index) => near(value, expectStamina[index]!));
     const expectGuard = [ACTION_COST.blockHit, GUARD.steadyGuard, GUARD.heavyCost, GUARD.tiredBelow, PERFECT_BLOCK_WINDOW];
@@ -98,6 +99,10 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
     // The wade's three numbers, and the pace kept at the knee.
     expect(wade).toHaveLength(4);
     [WADE.from, WADE.span, WADE.slowest, wadeFactor(0.625)].forEach((value, index) => near(wade![index]!, value));
+    // The bow's two numbers, and the low arc to a target 30 m off on the level.
+    expect(bow).toHaveLength(5);
+    const level = arrowLaunchDirection(0, 0, 30);
+    [BOW.arrowSpeed, BOW.gravity, level.x, level.y, level.z].forEach((value, index) => near(bow![index]!, value));
   });
 
   it.skipIf(!compiler)('finds the data folder beside the project and names its settings and module', () => {

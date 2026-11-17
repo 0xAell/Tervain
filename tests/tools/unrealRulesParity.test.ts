@@ -5,10 +5,11 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import { toUnreal, yawToUnreal } from '../../src/core/export/unrealTables';
+import { arrowLaunchDirection, BOW } from '../../src/core/rules/bow';
 import { ENEMY_ARCHETYPES } from '../../src/core/content/enemies';
 import { ACTION_COST, BLADE, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STAMINA, staminaStep, SWIM_EXIT, WADE, wadeFactor, type Arms } from '../../src/core/rules/hero';
 
-// The Unreal seed mirrors three of the core's rules and its unit conversions in C++. Unreal Engine is not available to
+// The Unreal seed mirrors four of the core's rules and its unit conversions in C++. Unreal Engine is not available to
 // this repository's tests, so this compiles that plain C++ with an ordinary compiler against small stand-ins for the
 // few engine names it uses (tests/tools/unreal-standin) and checks that it returns what the TypeScript returns on the
 // same cases. It proves the mirrored logic, not that the project builds in the engine.
@@ -24,7 +25,7 @@ afterAll(() => { if (work) rmSync(work, { recursive: true, force: true }); });
 function build(): string {
   const binary = join(work!, 'parity');
   const result = spawnSync(compiler!, ['-std=c++20', '-Wall', '-Wextra', '-Werror', '-I', join(here, 'unreal-standin'), '-I', join(seed, 'Public'),
-    join(seed, 'Private', 'Rules', 'TervainHeroRules.cpp'), join(here, 'unreal-standin', 'parity.cpp'), '-o', binary], { encoding: 'utf8' });
+    join(seed, 'Private', 'Rules', 'TervainHeroRules.cpp'), join(seed, 'Private', 'Rules', 'TervainBowRules.cpp'), join(here, 'unreal-standin', 'parity.cpp'), '-o', binary], { encoding: 'utf8' });
   expect(result.stderr, 'the mirrored C++ compiles without warnings').toBe('');
   expect(result.status).toBe(0);
   return binary;
@@ -42,6 +43,7 @@ const tuning = [
   `guard-tuning ${[ACTION_COST.blockHit, GUARD.steadyGuard, GUARD.heavyCost, GUARD.tiredBelow, PERFECT_BLOCK_WINDOW].join(' ')}`,
   ...arms.map((a, index) => `arms ${index} ${a.guard.fresh} ${a.guard.tired} ${typeof a.guard.perfect === 'number' ? a.guard.perfect : 0} ${a.guard.perfect === 'parry' ? 1 : 0}`),
   `wade-tuning ${WADE.from} ${WADE.span} ${WADE.slowest}`,
+  `bow-tuning ${BOW.arrowSpeed} ${BOW.gravity}`,
 ];
 /** Single-precision results against double-precision ones. */
 const near = (actual: number, expected: number) => expect(Math.abs(actual - expected)).toBeLessThanOrEqual(1e-4 * Math.max(1, Math.abs(expected)));
@@ -115,6 +117,29 @@ describe('the Unreal seed\'s mirrored C++', () => {
       if (index > 0) expect(out[index]!, `${depth} m`).toBeLessThanOrEqual(out[index - 1]!);
     });
     expect(SWIM_EXIT).toBeCloseTo(WADE.from + WADE.span, 9);
+  });
+
+  it.skipIf(!compiler)('aims the bow as the core does: the low arc, and straight at a target above, below or out of reach', () => {
+    const binary = build();
+    const offsets: [number, number, number][] = [[0, 5, 0], [0, -5, 0], [0, 0, 10_000], [0, 0, 0], [0.004, 1, 0.003]];
+    for (const distance of [0.5, 1, 5, 12, 30, 60, 120, 250, 400, 1000]) for (const bearing of [0, 0.7, 2.1, -1.3, Math.PI]) {
+      for (const rise of [-40, -3, 0, 2.5, 15, 80]) offsets.push([distance * Math.sin(bearing), rise, distance * Math.cos(bearing)]);
+    }
+    const out = run(binary, [...tuning, ...offsets.map((o) => `bow ${o.join(' ')}`)]);
+    expect(out).toHaveLength(offsets.length);
+    const squared = BOW.arrowSpeed * BOW.arrowSpeed;
+    let arcs = 0, straight = 0;
+    offsets.forEach(([x, y, z], index) => {
+      const horizontal = Math.hypot(x, z), discriminant = squared * squared - BOW.gravity * (BOW.gravity * horizontal * horizontal + 2 * y * squared);
+      // At the edge of the bow's reach single-precision tuning may fall either side of it.
+      if (Math.abs(discriminant) < 1e-6 * squared * squared) return;
+      const expected = arrowLaunchDirection(x, y, z), [X, Y, Z] = out[index]!;
+      for (const [actual, wanted] of [[X!, expected.x], [Y!, expected.y], [Z!, expected.z]] as [number, number][]) expect(Math.abs(actual - wanted), JSON.stringify([x, y, z])).toBeLessThan(1e-6);
+      expect(Math.hypot(X!, Y!, Z!)).toBeCloseTo(Math.hypot(x, y, z) ? 1 : 0, 9);
+      if (horizontal >= 0.01 && discriminant >= 0) arcs++; else straight++;
+    });
+    expect(arcs).toBeGreaterThan(200);
+    expect(straight).toBeGreaterThan(20);
   });
 
   it.skipIf(!compiler)('converts positions and yaws as the exported tables do', () => {
