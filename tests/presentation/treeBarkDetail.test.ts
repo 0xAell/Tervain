@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { barkTextures, disposeTreeTextures } from '../../src/presentation/treeTextures';
+import { releaseBuildCaches } from '../../src/presentation/buildCaches';
+import * as procTex from '../../src/presentation/procTex';
 import { installBarkDetail } from '../../src/presentation/treeMaterials';
 import { attachInstanceDistanceVisibility } from '../../src/presentation/distanceVisibility';
 
@@ -107,5 +109,27 @@ describe('original bark surface detail', () => {
     expect(fixed.customProgramCacheKey()).toContain('-0.850-0.0350-m1.800');
     expect(fixed.customProgramCacheKey()).not.toBe(derived.customProgramCacheKey());
     derived.dispose(); fixed.dispose();
+  });
+});
+
+describe('the bark\'s noise fields', () => {
+  it('are made once a size for every kind of bark, and every kind is painted the same whichever came first', () => {
+    const bytes = (kind: 'oak' | 'dead' | 'pine' | 'birch') => { const t = barkTextures(kind, 48); return [Array.from(t.map.image.data as Uint8Array), Array.from(t.surface.image.data as Uint8Array)]; };
+    // Each kind painted alone, from fields made for it.
+    const alone = Object.fromEntries((['oak', 'dead', 'pine', 'birch'] as const).map((kind) => { disposeTreeTextures(); return [kind, bytes(kind)]; }));
+    disposeTreeTextures();
+    const fbm = vi.spyOn(procTex, 'fbmField');
+    try {
+      for (const kind of ['pine', 'birch', 'dead', 'oak'] as const) expect(bytes(kind), kind).toEqual(alone[kind]);
+      // The warp, the fine grain and the low mottling: three fields for the four kinds.
+      expect(fbm).toHaveBeenCalledTimes(3);
+      // A built world lets them go: a bark of that size painted after makes them again.
+      disposeTreeTextures();
+      barkTextures('oak', 48);
+      expect(fbm).toHaveBeenCalledTimes(6);
+      releaseBuildCaches();
+      barkTextures('dead', 48);
+      expect(fbm).toHaveBeenCalledTimes(9);
+    } finally { fbm.mockRestore(); }
   });
 });

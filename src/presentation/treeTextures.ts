@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { mulberry32 } from '../core/world/noise';
+import { buildCache } from './buildCaches';
 import { clamp01, fbmField, mixc, pnoise, rnd, sstep, voronoi, type RGB } from './procTex';
 
 /**
@@ -321,6 +322,24 @@ function heightToNormal(h: Float32Array, n: number, k: number): Uint8Array {
 const barkCache = new Map<string, BarkTextures>();
 const barkNormals = new WeakMap<BarkTextures, THREE.DataTexture>();
 
+/**
+ * The three noise fields every bark of one size is painted from: its warp, its fine grain and its low mottling. Each
+ * kind painted its own, the same fields to the bit (seeded noise), so a world's oak, dead wood and pine at 1024 px made
+ * them three times over. They are made once a size; only a build reads them (12 MB at 1024 px).
+ */
+const barkFields = new Map<number, { warp: Float32Array; fine: Float32Array; low: Float32Array }>();
+buildCache(() => barkFields.clear());
+function barkFieldsFor(n: number) {
+  let fields = barkFields.get(n);
+  if (!fields) {
+    // The close detail tile contains new, finer grain rather than a larger interpolation
+    // of the old 256px texture. Both resolutions are deterministic and periodic.
+    fields = { warp: fbmField(n, 4, 6, 3, 201), fine: fbmField(n, n >= 512 ? 128 : 40, n >= 512 ? 84 : 40, 3, 202), low: fbmField(n, 3, 5, 3, 203) };
+    barkFields.set(n, fields);
+  }
+  return fields;
+}
+
 /** Tileable bark (u around the trunk, v along it). Albedo is grey-brown and dark; the tree tints it with vertex colour. */
 export function barkTextures(kind: BarkKind, n = 256): BarkTextures {
   const key = `${kind}:${n}`;
@@ -328,11 +347,7 @@ export function barkTextures(kind: BarkKind, n = 256): BarkTextures {
   if (hit) return hit;
   const h = new Float32Array(n * n);
   const rgb = new Float32Array(n * n * 3);
-  const warp = fbmField(n, 4, 6, 3, 201);
-  // The close detail tile contains new, finer grain rather than a larger interpolation
-  // of the old 256px texture. Both resolutions are deterministic and periodic.
-  const fine = fbmField(n, n >= 512 ? 128 : 40, n >= 512 ? 84 : 40, 3, 202);
-  const low = fbmField(n, 3, 5, 3, 203);
+  const { warp, fine, low } = barkFieldsFor(n);
   const plates = kind === 'pine' ? voronoi(n, 5, 204, 0.9, 3) : null;
   for (let j = 0; j < n; j++) {
     const v = j / n;
@@ -429,4 +444,5 @@ export function disposeTreeTextures() {
     b.surface.dispose();
   }
   barkCache.clear();
+  barkFields.clear();
 }
