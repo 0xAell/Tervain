@@ -13,6 +13,7 @@ import type { Terrain } from '../../src/core/world/terrain';
 
 const material = new THREE.MeshBasicMaterial({ side: THREE.FrontSide });
 const flat = { heightAt: () => 0 } as unknown as Terrain;
+// Merging lets a region's building arrays go (Region.toGroup): its batches are read (validGeometry) before it is merged.
 const group = (r: Region) => { const g = r.toGroup({ get: () => material }); g.updateMatrixWorld(true); return g; };
 const hits = (g: THREE.Object3D, p: THREE.Vector3, d = new THREE.Vector3(0, -1, 0)) => new THREE.Raycaster(p, d).intersectObject(g);
 const dispose = (g: THREE.Group) => g.traverse((o) => { if (o instanceof THREE.Mesh) o.geometry.dispose(); });
@@ -34,6 +35,7 @@ describe('connected coast props', () => {
   it.each([[1, 0.6, 0.75], [1.9, 1, 0.9]])('a %s metre work table has a backed top, grounded trestles and open leg space', (w, d, height) => {
     const r = new Region('table', new Ctx());
     workTable(r, w, d, height, 0, 0, 0);
+    validGeometry(r);
     const g = group(r), bounds = new THREE.Box3().setFromObject(g);
     expect(bounds.min.x).toBeCloseTo(-w / 2, 6);
     expect(bounds.min.y).toBeCloseTo(0, 6);
@@ -51,13 +53,14 @@ describe('connected coast props', () => {
       const foot = hits(g, new THREE.Vector3(side * w * 0.36, -1, d * 0.3), new THREE.Vector3(0, 1, 0))[0];
       expect(foot).toBeDefined(); expect(foot!.point.y).toBeCloseTo(0, 6);
     }
-    validGeometry(r); expect(r.tris).toBeLessThan(260); dispose(g);
+    expect(r.tris).toBeLessThan(260); dispose(g);
   });
   it.each([1, 7, 18])('the well hood rests on its actual crossbeam and grounded posts (seed %i)', (seed) => {
     const random = mulberry32(seed);
     const yaw = random() * 0.5;
     const r = new Region('well', new Ctx());
     well(r, mulberry32(seed), 0, 0, 0);
+    validGeometry(r);
     const g = group(r);
     const roof = g.getObjectByName('well:thatch') as THREE.Mesh;
     const timber = g.getObjectByName('well:timber') as THREE.Mesh;
@@ -77,7 +80,6 @@ describe('connected coast props', () => {
       expect(post!.point.y).toBeLessThan(ring!.point.y);
       expect(hood!.point.y).toBeLessThanOrEqual(2.5);
     }
-    validGeometry(r);
     dispose(g);
   });
 
@@ -86,11 +88,6 @@ describe('connected coast props', () => {
     radialPlank(r.planks, 3.5, 4.85, 0.1, 0.18, 2.3, 0.14, 0xa28b6e);
     const b = r.planks;
     expect(b.tris).toBe(12);
-    const g = group(r);
-    const p = new THREE.Vector3(Math.cos(0.14) * 4.2, 3, Math.sin(0.14) * 4.2);
-    expect(hits(g, p)[0]!.point.y).toBeCloseTo(2.3, 5);
-    p.y = 1;
-    expect(hits(g, p, new THREE.Vector3(0, 1, 0))[0]!.point.y).toBeCloseTo(2.16, 5);
     const keys = new Map<string, { count: number; direction: number }>();
     const vertexKey = (i: number) => [b.p.a[i * 3]!, b.p.a[i * 3 + 1]!, b.p.a[i * 3 + 2]!].map((n) => Math.round(n * 1e5)).join(',');
     for (let i = 0; i < b.ix.n; i += 3) {
@@ -102,12 +99,18 @@ describe('connected coast props', () => {
       }
     }
     for (const edge of keys.values()) { expect(edge.count).toBe(2); expect(edge.direction).toBe(0); }
+    const g = group(r);
+    const p = new THREE.Vector3(Math.cos(0.14) * 4.2, 3, Math.sin(0.14) * 4.2);
+    expect(hits(g, p)[0]!.point.y).toBeCloseTo(2.3, 5);
+    p.y = 1;
+    expect(hits(g, p, new THREE.Vector3(0, 1, 0))[0]!.point.y).toBeCloseTo(2.16, 5);
     dispose(g);
   });
 
   it('wheels have genuine open spoke gaps, a connected hub and a rim perpendicular to the z axle', () => {
     const r = new Region('wheel', new Ctx());
     spokedWheel(r, mulberry32(2), 0, 0, 0, 1);
+    validGeometry(r);
     const g = group(r);
     const ray = (x: number, y: number) => hits(g, new THREE.Vector3(x, y, 2), new THREE.Vector3(0, 0, -1));
     const a = Math.PI / 10;
@@ -115,13 +118,13 @@ describe('connected coast props', () => {
     expect(ray(0.55, 0).length).toBeGreaterThan(0);
     expect(ray(0, 0).length).toBeGreaterThan(0);
     expect(ray(Math.cos(a) * 0.92, Math.sin(a) * 0.92).length).toBeGreaterThan(0);
-    validGeometry(r);
     dispose(g);
   });
 
   it('wagon axles run through all four hubs, the plank bed rests above the chassis, and shafts join the front bolster', () => {
     const r = new Region('wagon', new Ctx());
     wagon(r, mulberry32(7), 0, 0, 0, 0);
+    validGeometry(r);
     const g = group(r);
     expect(hits(g, new THREE.Vector3(0, 3, 0))[0]!.point.y).toBeCloseTo(W.bedTop, 5);
     for (const ax of W.axleXs) {
@@ -135,7 +138,6 @@ describe('connected coast props', () => {
     }
     const forward = hits(g, new THREE.Vector3(3.4, 1.5, 0.49));
     expect(forward[0]!.point.y).toBeGreaterThan(0.3);
-    validGeometry(r);
     expect(r.tris).toBeLessThan(6500);
     dispose(g);
   });
@@ -157,6 +159,7 @@ describe('connected coast props', () => {
     const r = new Region('lighthouse', new Ctx());
     const out = { lanterns: [] as THREE.Vector3[] };
     const result = authorLighthouse(r, flat, out);
+    validGeometry(r);
     const g = group(r);
     for (const i of [0, 12, 29, 47, 62, 79, 91]) {
       const a = L.stairStart + (i + 0.5) * LIGHTHOUSE_STAIR_ANGLE;
@@ -181,7 +184,6 @@ describe('connected coast props', () => {
     expect(out.lanterns).toHaveLength(2);
     expect(out.lanterns[0]!.toArray()).toEqual([LIGHTHOUSE.x + 1.7, 2.65, LIGHTHOUSE.z - 1]);
     expect(out.lanterns[1]!.toArray()).toEqual([LIGHTHOUSE.x + L.house.x - 1.65, 2.4, LIGHTHOUSE.z + L.house.d / 2 + 0.6]);
-    validGeometry(r);
     expect(r.tris).toBeLessThan(20000);
     dispose(g);
   });

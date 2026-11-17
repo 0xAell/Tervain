@@ -120,6 +120,8 @@ export class MaterialSet {
 /** A spatial chunk of the scenery: separate regions cull independently when far from the camera. */
 export class Region {
   readonly batches = new Map<MatKey, Batch>();
+  /** Merged into its meshes (toGroup): it takes no more geometry. */
+  private merged = false;
   constructor(
     readonly name: string,
     readonly ctx: Ctx,
@@ -128,6 +130,7 @@ export class Region {
   get(key: MatKey): Batch {
     let b = this.batches.get(key);
     if (!b) {
+      if (this.merged) throw new Error(`Region ${this.name} has been merged into its meshes and takes no more geometry.`);
       const textured = key in TILE_M;
       b = new Batch(this.ctx, key, textured ? 1 / TILE_M[key as TexKey] : 1);
       if (key === 'glow' || key === 'pane' || key === 'daylight' || key === 'glass' || key === 'nightGlow') b.amp = 0;
@@ -205,8 +208,13 @@ export class Region {
     return t;
   }
 
-  /** One mesh per material used. Static regions freeze their matrices. */
+  /**
+   * One mesh per material used. Static regions freeze their matrices. The meshes copy what they draw, and the batches
+   * then let go of their building arrays (Batch.release): the settlement's and the scatter's regions are kept by the
+   * closures of the world they were built for, and held 65 MB of them. A region is merged once.
+   */
   toGroup(mats: { get(key: MatKey): THREE.Material }, opts: { isStatic?: boolean; shadows?: boolean } = {}): THREE.Group {
+    if (this.merged) throw new Error(`Region ${this.name} has already been merged into its meshes.`);
     const g = new THREE.Group();
     g.name = this.name;
     for (const [key, b] of this.batches) {
@@ -224,6 +232,8 @@ export class Region {
       mesh.userData.tris = b.tris;
       g.add(mesh);
     }
+    for (const b of this.batches.values()) b.release();
+    this.merged = true;
     return g;
   }
 }

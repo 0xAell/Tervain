@@ -35,27 +35,35 @@ export function hash3(x: number, y: number, z: number): number {
   return (h >>> 0) / 4294967296;
 }
 
+// What a builder's array becomes once its geometry has been copied into a mesh (Batch.release): its count stays.
+const RELEASED_F = new Float32Array(0), RELEASED_U = new Uint32Array(0);
+const merged = () => new Error('This geometry has been merged into its mesh and has let go of its building arrays.');
 class GrowF {
   a = new Float32Array(4096);
   n = 0;
   ensure(extra: number) {
     if (this.n + extra > this.a.length) {
+      if (this.a === RELEASED_F) throw merged();
       const b = new Float32Array(Math.max(this.a.length * 2, this.n + extra));
       b.set(this.a.subarray(0, this.n));
       this.a = b;
     }
   }
+  release() { this.a = RELEASED_F; }
+  get released() { return this.a === RELEASED_F; }
 }
 class GrowU {
   a = new Uint32Array(4096);
   n = 0;
   ensure(extra: number) {
     if (this.n + extra > this.a.length) {
+      if (this.a === RELEASED_U) throw merged();
       const b = new Uint32Array(Math.max(this.a.length * 2, this.n + extra));
       b.set(this.a.subarray(0, this.n));
       this.a = b;
     }
   }
+  release() { this.a = RELEASED_U; }
 }
 
 /** Transform stack. Only translations and rotations, so normals rotate with the same matrix. */
@@ -662,8 +670,18 @@ export class Batch {
   }
 
   /** Build the merged geometry, or null when nothing was added. */
+  /**
+   * Lets go of the building arrays once a mesh has copied them (toGeometry slices what it draws). They grow by doubling,
+   * so they held up to twice the geometry, and a region kept by the closures of the world it was built for kept them
+   * for the life of the world. The counts stay (tris); building on, or merging again, throws.
+   */
+  release(): void {
+    this.p.release(); this.nr.release(); this.uv.release(); this.co.release(); this.ix.release();
+  }
+
   toGeometry(): THREE.BufferGeometry | null {
     if (this.nv === 0) return null;
+    if (this.p.released) throw merged();
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(this.p.a.slice(0, this.p.n), 3));
     g.setAttribute('normal', new THREE.BufferAttribute(this.nr.a.slice(0, this.nr.n), 3));

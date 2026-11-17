@@ -53,13 +53,7 @@ describe('hip roof wall joints', () => {
     const roof = roofFor(roofRegion, 'hip', 'slate', w, d, 3.5, 17, { pitch: 0.55 });
     const region = new Region('infill', new Ctx());
     roofWallInfill(region, 'hip', w, d, 3.5, roof, 'stone');
-    const group = groupOf(region);
-    for (const [x, z] of [[w / 2, 0], [-w / 2, 0], [0, d / 2], [0, -d / 2], [w / 2 - 0.07, d / 2 - 0.07], [-w / 2 - 0.07, -d / 2 - 0.07]]) {
-      const hits = new THREE.Raycaster(new THREE.Vector3(x!, 10, z!), new THREE.Vector3(0, -1, 0)).intersectObject(group);
-      const slopeHeight = 3.44 + Math.min(w / 2 + 0.6 - Math.abs(x!), d / 2 + 0.6 - Math.abs(z!)) * Math.tan(roof.pitch);
-      expect(hits.length).toBeGreaterThan(0);
-      expect(hits[0]!.point.y).toBeCloseTo(slopeHeight - 0.03, 5);
-    }
+    // Read as built, before the region is merged into its meshes and lets its building arrays go.
     const batch = region.stone;
     const edgeCounts = new Map<string, { count: number; orientation: number }>();
     const key = (id: number) => [0, 1, 2].map((axis) => Math.round(batch.p.a[id * 3 + axis]! * 1e5)).join(',');
@@ -87,6 +81,13 @@ describe('hip roof wall joints', () => {
     }
     expect(volume).toBeGreaterThan(0);
     for (const edge of edgeCounts.values()) expect(edge).toEqual({ count: 2, orientation: 0 });
+    const group = groupOf(region);
+    for (const [x, z] of [[w / 2, 0], [-w / 2, 0], [0, d / 2], [0, -d / 2], [w / 2 - 0.07, d / 2 - 0.07], [-w / 2 - 0.07, -d / 2 - 0.07]]) {
+      const hits = new THREE.Raycaster(new THREE.Vector3(x!, 10, z!), new THREE.Vector3(0, -1, 0)).intersectObject(group);
+      const slopeHeight = 3.44 + Math.min(w / 2 + 0.6 - Math.abs(x!), d / 2 + 0.6 - Math.abs(z!)) * Math.tan(roof.pitch);
+      expect(hits.length).toBeGreaterThan(0);
+      expect(hits[0]!.point.y).toBeCloseTo(slopeHeight - 0.03, 5);
+    }
     release(group);
     release(groupOf(roofRegion));
   });

@@ -348,6 +348,11 @@ Improved:
   empty its cache (`presentation/buildCaches.ts`), and the world empties them once built; a later build fills them
   again. A settled journey holds 515 MB of array buffers where it held 556 to 560 MB, and the world is the same
   ([#872](https://github.com/0xAell/Tervain/pull/872)).
+- Merged regions let go of their building arrays. The settlement's and the scatter's merged geometry is built in arrays
+  that grow by doubling, so they hold up to twice what is drawn; the meshes copy what they draw, but the regions were
+  kept by the closures of the world they were built for, and the arrays with them. A region lets its batches' arrays go
+  once merged (`Region.toGroup`), keeps their counts, and refuses more geometry or a second merge. A settled journey
+  holds 448 MB of array buffers where it held 515 to 516 MB: since the morning's 810 MB, 45% less (PR_REGIONS).
 
 Next:
 
@@ -358,13 +363,14 @@ Next:
   textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
   materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
   depth and shade passes).
-- Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 515 MB. A heap snapshot
-  names the largest holders left. Rapier's memory is 100 MB: every planted tree with a collision id gets its own copy
-  of its variant's near wood for contact (only trunk and roots for the hero pines), built again for each tree; how
-  much of the 100 MB that is is not yet measured, and a lighter contact mesh would change what can be stood on. The
-  geometry three keeps on the CPU after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB:
-  three needs both again only if a lost WebGL context is restored, which the game does not otherwise handle, so
-  freeing them trades that recovery for the memory. The procedural bark's cache (25 MB) is the same case: the pixels of
-  textures in use, which only a restored context would read again.
+- Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 448 MB. A heap snapshot
+  names the largest holders left. Rapier's memory is 100 MB. Its 1,501 colliders include 517 triangle meshes, 991,000
+  triangles, 840,000 of them the planted trees' contact wood (19 meshes, each copied for every tree that uses it); in
+  node Rapier keeps a triangle mesh in 20 to 45 bytes a triangle, so those take about 20 to 40 MB, and what holds the
+  rest is not yet known. A lighter contact mesh would change what can be stood on. The geometry three keeps on the CPU
+  after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB: three needs both again only if
+  a lost WebGL context is restored, which the game does not otherwise handle, so freeing them trades that recovery for
+  the memory. The procedural bark's cache (25 MB) is the same case: the pixels of textures in use, which only a
+  restored context would read again.
 - Draws: in the opening view the trees are 77% of the 11 million triangles, and the water's reflection pass a third
   of the 744 draw calls. Trimming either changes the picture; measure it on a GPU first.
