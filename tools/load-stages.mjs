@@ -3,14 +3,15 @@
  * How long each stage of a journey's load takes, from the click on New journey to the moment the loading screen lifts.
  *
  *   npm run perf:load -- --url http://127.0.0.1:4173/ [--url http://127.0.0.1:4174/] [--runs 3] [--title-wait 15]
- *                        [--headed] [--json results.json]
+ *                        [--until view] [--headed] [--json results.json]
  *
  * Each run opens a fresh browser (software rendering, unless --headed draws on this machine's GPU), waits on the title
  * menu for --title-wait seconds (the menu fetches the journey's files ahead, A86), clicks New journey and timestamps
  * every update of the loading screen and its lifting. A stage lasts from the first update that names it until the
  * first update of the next. With several URLs the runs alternate between them, so the machine's slow and fast spells
  * fall on each alike; compare two builds by serving each on its own port (`npx vite preview --outDir <dir> --port <n>`).
- * It prints every run, then each stage's median per URL.
+ * With --until view a run ends where the first view's preparation begins: without a GPU that stage is mostly the
+ * software renderer compiling shaders, and a run is a third as long. It prints every run, then each stage's median per URL.
  */
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -22,6 +23,12 @@ export function stageTimes(updates, clickAt, liftedAt) {
   for (const update of updates) if (update.t >= clickAt && !starts.has(update.phase)) starts.set(update.phase, update.t);
   const order = [...starts].sort((a, b) => a[1] - b[1]);
   return order.map(([phase, t], i) => ({ phase, start: (t - clickAt) / 1000, seconds: ((order[i + 1]?.[1] ?? liftedAt) - t) / 1000 }));
+}
+
+/** A run's stages and total: to the lifting of the loading screen, or with `until` 'view' to the first view's preparation. */
+export function runResult(record, until = 'lifted') {
+  const end = until === 'view' ? record.updates.find((update) => update.t >= record.clickAt && update.phase === 'graphics')?.t ?? record.liftedAt : record.liftedAt;
+  return { stages: stageTimes(record.updates.filter((update) => update.t < end), record.clickAt, end), total: (end - record.clickAt) / 1000 };
 }
 
 export function median(values) {
@@ -66,7 +73,7 @@ async function until(page, condition, seconds) {
   throw new Error(`timed out after ${seconds} s waiting for: ${condition.trim().slice(0, 80)}`);
 }
 
-async function measure(url, { titleWait, headed }) {
+async function measure(url, { titleWait, headed, until: stop }) {
   const page = await openPage(url, { w: 960, h: 540, headed });
   try {
     await until(page, `return window.tervain?.mode === 'title' && document.querySelectorAll('.menu-choices button').length > 0`, 600);
@@ -75,28 +82,31 @@ async function measure(url, { titleWait, headed }) {
     for (const type of ['mousePressed', 'mouseReleased']) {
       await page.cdp('Input.dispatchMouseEvent', { type, x, y, button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: 1 });
     }
-    await until(page, `return window.tervain?.mode === 'play' && window.__tervainLoad?.liftedAt !== null`, 1800);
+    await until(page, stop === 'view' ? `return !!window.__tervainLoad?.updates.some((u) => u.phase === 'graphics')`
+      : `return window.tervain?.mode === 'play' && window.__tervainLoad?.liftedAt !== null`, 1800);
     const record = await page.eval('return window.__tervainLoad');
-    return { url, stages: stageTimes(record.updates, record.clickAt, record.liftedAt), total: (record.liftedAt - record.clickAt) / 1000 };
+    return { url, ...runResult(record, stop) };
   } finally {
     await page.close();
   }
 }
 
 function options(argv) {
-  const out = { urls: [], runs: 3, titleWait: 15, headed: false, json: null };
+  const out = { urls: [], runs: 3, titleWait: 15, headed: false, json: null, until: 'lifted' };
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i], value = argv[i + 1];
     if (flag === '--url') { out.urls.push(value); i++; }
     else if (flag === '--runs') { out.runs = Number(value); i++; }
     else if (flag === '--title-wait') { out.titleWait = Number(value); i++; }
     else if (flag === '--json') { out.json = value; i++; }
+    else if (flag === '--until') { out.until = value; i++; }
     else if (flag === '--headed') out.headed = true;
     else throw new Error(`unknown option ${flag}`);
   }
   if (!out.urls.length) out.urls.push(process.env.TERVAIN_URL ?? 'http://127.0.0.1:4173/');
   if (!Number.isInteger(out.runs) || out.runs < 1) throw new Error('--runs takes a whole number of runs');
   if (!(out.titleWait >= 0)) throw new Error('--title-wait takes seconds');
+  if (!['lifted', 'view'].includes(out.until)) throw new Error('--until takes lifted or view');
   return out;
 }
 
