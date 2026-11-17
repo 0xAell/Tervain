@@ -389,7 +389,7 @@ Improved:
   `FMath::Sqrt` joins the register with the page that documents it ([#881](https://github.com/0xAell/Tervain/pull/881)).
 - `npm run perf:load -- --until view` ends a run where the first view's preparation begins, a third of the time
   without a GPU, where the rest is the software renderer compiling shaders; the Loading item below gives today's
-  stages and the three overlaps tried and not taken ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  stages and the three overlaps tried and not taken ([#883](https://github.com/0xAell/Tervain/pull/883)).
 
 Next:
 
