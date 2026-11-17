@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { createGltfLoader } from '../../src/presentation/assets/gltfLoader';
 
 // The shipped model files, read and decoded in node as the game decodes them. A binary glTF is a JSON chunk and a
@@ -38,6 +39,21 @@ export function packGlb(glb: Pick<Glb, 'bytes' | 'length'>, json: unknown): Arra
   out.writeUInt32LE(padded, 12); out.writeUInt32LE(JSON_CHUNK, 16); out.fill(0x20, 20, 20 + padded);
   text.copy(out, 20); rest.copy(out, 20 + padded);
   return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength) as ArrayBuffer;
+}
+
+/**
+ * A buffer view's bytes as a loader sees them. The models' geometry is compressed losslessly (EXT_meshopt_compression,
+ * tools/optimise-models.mjs): a compressed view is decoded with the decoder the game's loader carries, and an
+ * uncompressed one is read from the binary chunk as it stands.
+ */
+export async function bufferViewData(glb: Glb, index: number): Promise<Buffer> {
+  const view = glb.json.bufferViews[index], compressed = view.extensions?.EXT_meshopt_compression;
+  if (!compressed) return glb.binary.subarray(view.byteOffset ?? 0, (view.byteOffset ?? 0) + view.byteLength);
+  await MeshoptDecoder.ready;
+  const source = glb.binary.subarray(compressed.byteOffset ?? 0, (compressed.byteOffset ?? 0) + compressed.byteLength);
+  const out = new Uint8Array(compressed.count * compressed.byteStride);
+  MeshoptDecoder.decodeGltfBuffer(out, compressed.count, compressed.byteStride, source, compressed.mode, compressed.filter ?? 'NONE');
+  return Buffer.from(out.buffer, out.byteOffset, out.byteLength);
 }
 
 /** Decoded by the game's own loader, with the extensions it reads (meshopt compression among them). */

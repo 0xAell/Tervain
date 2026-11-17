@@ -4,7 +4,8 @@
  * Also grows birches, bushes, orchard trees and the sentinel: [--species oak|birch|bush|apple|pear|sentinel] [--name hero-birch] (SPECIES below).
  *
  * Grows a four-level oak skeleton (skeleton.mjs), meshes it as bark-relief tubes with buttress roots and a soil skirt
- * (mesh.mjs), places leaf clusters on the twig ends (leaves.mjs) and writes three GLBs: hero-oak-near / -mid / -far.
+ * (mesh.mjs), places leaf clusters on the twig ends (leaves.mjs) and writes three GLBs: hero-oak-near / -mid / -far,
+ * with their geometry uncompressed: compress it and record the files as tools/tree-gen/record.mjs says.
  * Original procedural work: no third-party geometry or images. The bark and the placeholder leaf atlas are generated
  * here (bark.mjs, leafAtlas.mjs); every oak draws the same ones, so only hero-oak-near carries them and every other file
  * names it in asset.extras.tervainSharedImages, borrowing its images when loaded.

@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { readGlb as readModel, type Glb } from './glbFixture';
+import { bufferViewData, readGlb as readModel, type Glb } from './glbFixture';
 import { activeMeshyTreeIds, HERO_BIRCH_IDS, heroBirchEnabled, MESHY_TREE_IDS, meshyTreeModelPath } from '../../src/presentation/meshyTrees';
 
 const readGlb = (name: string): Glb => readModel(`flora/hero/${name}`);
 const primitive = (glb: Glb, name: string) => glb.json.meshes.find((m: { name: string }) => m.name === name).primitives[0];
 const triangles = (glb: Glb, name: string) => glb.json.accessors[primitive(glb, name).indices].count / 3;
-function attribute(glb: Glb, accessorIndex: number, size: number): number[] {
-  const accessor = glb.json.accessors[accessorIndex], view = glb.json.bufferViews[accessor.bufferView];
-  const offset = (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0), out: number[] = [];
+async function attribute(glb: Glb, accessorIndex: number, size: number): Promise<number[]> {
+  const accessor = glb.json.accessors[accessorIndex], data = await bufferViewData(glb, accessor.bufferView);
+  const offset = accessor.byteOffset ?? 0, out: number[] = [];
   for (let i = 0; i < accessor.count * size; i++) {
-    out.push(accessor.componentType === 5126 ? glb.binary.readFloatLE(offset + i * 4) : glb.binary.readUInt8(offset + i) / (accessor.normalized ? 255 : 1));
+    out.push(accessor.componentType === 5126 ? data.readFloatLE(offset + i * 4) : data.readUInt8(offset + i) / (accessor.normalized ? 255 : 1));
   }
   return out;
 }
@@ -37,10 +37,10 @@ describe('generated hero birch (tools/tree-gen --species birch)', () => {
     }
   });
 
-  it('paints the white stem dark at its foot only', () => {
+  it('paints the white stem dark at its foot only', async () => {
     for (const id of HERO_BIRCH_IDS) {
       const glb = files[`${id}-near`]!, wood = primitive(glb, 'Wood');
-      const position = attribute(glb, wood.attributes.POSITION, 3), colour = attribute(glb, wood.attributes.COLOR_0, 4);
+      const position = await attribute(glb, wood.attributes.POSITION, 3), colour = await attribute(glb, wood.attributes.COLOR_0, 4);
       const red = (lo: number, hi: number) => { const v: number[] = []; for (let i = 0; i < position.length / 3; i++) { const y = position[i * 3 + 1]!; if (y >= lo && y < hi) v.push(colour[i * 4]!); } return v.reduce((s, x) => s + x, 0) / v.length; };
       expect(red(0, 0.8), id).toBeLessThan(0.3);
       expect(red(3, 4.5), id).toBeGreaterThan(0.65);

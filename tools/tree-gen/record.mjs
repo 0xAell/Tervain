@@ -2,7 +2,10 @@
 /**
  * Account for the generated hero-tree GLBs in the model ledger and the model-file table:
  *
- *   node tools/tree-gen/build.mjs && node tools/tree-gen/record.mjs
+ *   node tools/tree-gen/build.mjs && node tools/optimise-models.mjs --geometry flora/hero && node tools/tree-gen/record.mjs
+ *
+ * The middle step compresses the files' geometry losslessly (EXT_meshopt_compression, checked byte for byte when
+ * decoded), as every shipped model's is: the generator writes it uncompressed, a third more to download.
  *
  * The files are original procedural work (tools/tree-gen: generated geometry, generated bark and a generated placeholder
  * leaf atlas; no third-party model, image or Meshy output), so they are recorded under their own source, not a Meshy one.
