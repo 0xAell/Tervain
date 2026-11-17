@@ -375,7 +375,7 @@ Improved:
   view's preparation takes 12.5 to 12.7 s where it took 16.5 to 17.1 s, and the world is the same ([#878](https://github.com/0xAell/Tervain/pull/878)).
 - `npm run perf:load` times each stage of a journey's load from the loading screen's own updates (polling its text
   missed the short stages), alternating between builds served on two ports and printing each stage's median: the
-  measurements of this list's loading entries, made repeatable ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  measurements of this list's loading entries, made repeatable ([#879](https://github.com/0xAell/Tervain/pull/879)).
 
 Next:
 
