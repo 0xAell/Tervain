@@ -1,6 +1,6 @@
 # Contributing to Tervain
 
-The repository begins as a connected development outline. Contributions should make the next production decision or playable milestone more concrete.
+Tervain is a playable browser prototype and the seed of an Unreal Engine port ([README](README.md)). Contributions should make the next production decision or playable milestone more concrete.
 
 ## Read before working
 
@@ -25,6 +25,15 @@ Use stable identifiers for quest facts and content once implementation begins. D
 - For documentation-only changes, verify links, consistency, and clean diffs without pretending to run a game.
 - After a merge, CI plays the published build once it is live (`live-smoke`: it must load, draw, take input and log no error). `npm run smoke:live` runs the same test against the live link from any machine with a browser.
 - Preserve required checks, workflow triggers, and deployment behavior. Passing local checks or pushing a commit does not establish that a release is live; verify the published build separately.
+
+## Checks before a pull request
+
+CI runs these on every pull request; running them first saves a round trip.
+
+- `npm run typecheck:game` and `npm run test:game`: the game and the port seed. `npm run typecheck` and `npm test` add the separate Gothic 3 study and take much longer.
+- `npm run unreal:check`: the exported data matches the core, and the Unreal ids, row structs, mirrored rules and C++ seed agree with it. After changing the core's content, `npm run data:export` regenerates `data/`; after adding or changing a shipped file, `npm run assets:manifest` regenerates the asset manifest and `node tools/model-files.mjs` the model table.
+- `npm run hygiene:check -- --base origin/main`: nothing private in the new commits (below).
+- The play gate on the pull request's head, which branch protection requires: `npm run build`, `npm run preview`, then `npm run play-gate -- --budget-url https://0xaell.github.io/Tervain/ --url http://127.0.0.1:4173/ --head <head commit>`, and its last line, `play-gate: PASS <commit>`, in the pull request's description or a comment. [The play gate](docs/engineering/play-gate.md) says how to run it without a GPU.
 
 ## A public repository
 
