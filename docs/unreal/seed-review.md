@@ -395,6 +395,13 @@ Improved:
   `riding.stamina`). On 14,400 steps of speed, facing, reins, push, gait and time the C++ gives the core's speed, turn
   and facing within a ten-thousandth; `FMath::Atan2`, `Sin`, `Cos` and `Abs` join the register, every page of
   which was opened again and still holds its passage ([#884](https://github.com/0xAell/Tervain/pull/884)).
+- The trees are built faster a third time, to the same bytes: the canopy atlas skips the samples a leaf cannot
+  cover (nearly half of its 9.7 million), every bark of one size is painted from one set of noise fields (oak, dead
+  wood and pine each made the same three), and the searches for the nearest wood find a triangle's closest point with
+  three's arithmetic in scalars. Profiles of the load put it at about 0.4 s less work in the trees' build, which the
+  woodland stage's own time, varying as much between runs on the test machine, cannot show; every drawn tree level
+  and planted tree comes out the same (PR_X). A stable key sort and flat-array boxes for the two bounding trees were
+  measured too, saved nothing, and were not kept.
 
 Next:
 
@@ -402,7 +409,10 @@ Next:
   first view's preparation at about 19 s: 2 s for the residents, under 1 s for the models, 1.7 s waiting for the
   ground's textures (painted in a worker), 2.9 s for the terrain, 8.6 s for the woodland and 2.4 s for paths and
   shelter; the first view then takes about 50 s more, nearly all of it the software renderer compiling shaders. The
-  drawn trees' models are most of the woodland, and the leaf-island pass (`anchorLeafIslands` in flora.ts) 1.8 s of it.
+  drawn trees' models are most of the woodland, and the leaf-island pass (`anchorLeafIslands`, run by flora.ts) 1.7 s
+  of it. One tree level's wood is searched by three passes in turn (the clump snap, the card seat and the island
+  pass), each building its own bounding tree over it: building it once would save about 0.3 s if no pass changes the
+  wood in between, which is to be shown first.
   Three ways to overlap the work were tried and not taken, each within the noise on that machine, whose four cores the
   work already fills: the ground's textures in three workers (0.2 s); the trees' models built while the textures are
   painted (the woodland 1.0 s shorter, the wait for the textures 1.0 s longer: a model takes up to a second and runs
