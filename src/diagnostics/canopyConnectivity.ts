@@ -58,8 +58,8 @@ export function components(g: THREE.BufferGeometry, charge: () => void, cutout?:
       const samples=[nearest];
       for(let i=0;i<Math.min(8,points.length);i++)samples.push(points[Math.floor(i*points.length/Math.min(8,points.length))]!);return{box,samples};});}
   // Unmasked mode alone needs welded vertex connectivity. Alpha mode returns above.
-  const graph=union(p.count),weld=new Map<string,number>();
-  for(let i=0;i<p.count;i++){if(![p.getX(i),p.getY(i),p.getZ(i)].every(Number.isFinite))throw new Error('Nonfinite leaf positions');const key=`${Math.round(p.getX(i)*1e4)},${Math.round(p.getY(i)*1e4)},${Math.round(p.getZ(i)*1e4)}`,other=weld.get(key);if(other!==undefined)graph.join(i,other);else weld.set(key,i);}
+  const graph=union(p.count),weld=weldTable(p.count);
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(z))throw new Error('Nonfinite leaf positions');const other=weld(Math.round(x*1e4),Math.round(y*1e4),Math.round(z*1e4),i);if(other>=0)graph.join(i,other);}
   const used=new Set<number>();for(let i=0;i+2<(index?.count??p.count);i+=3){const a=index?.getX(i)??i,b=index?.getX(i+1)??i+1,c=index?.getX(i+2)??i+2;graph.join(a,b);graph.join(a,c);used.add(a);used.add(b);used.add(c);}
   const groups=new Map<number,number[]>();for(const i of used){const key=graph.find(i),group=groups.get(key)??[];group.push(i);groups.set(key,group);}
   // A bounding-box centre can sit in a hole, outside the actual leaf surface. Project it onto its component.
@@ -67,7 +67,7 @@ export function components(g: THREE.BufferGeometry, charge: () => void, cutout?:
   for(let i=0;i+2<(index?.count??p.count);i+=3){const key=graph.find(index?.getX(i)??i),list=triangles.get(key)??[];list.push(i);triangles.set(key,list);}
   const triangle=new THREE.Triangle(),point=new THREE.Vector3();
   return [...groups.entries()].map(([key,vertices])=>{
-    const box=new THREE.Box3();for(const i of vertices)box.expandByPoint(new THREE.Vector3().fromBufferAttribute(p,i));
+    const box=new THREE.Box3();for(const i of vertices)box.expandByPoint(point.fromBufferAttribute(p,i));
     const centre=box.getCenter(new THREE.Vector3()),surface=new THREE.Vector3();let distance=Infinity;
     for(const i of triangles.get(key)!){
       charge();triangle.a.fromBufferAttribute(p,index?.getX(i)??i);triangle.b.fromBufferAttribute(p,index?.getX(i+1)??i+1);triangle.c.fromBufferAttribute(p,index?.getX(i+2)??i+2);
@@ -80,11 +80,30 @@ export function components(g: THREE.BufferGeometry, charge: () => void, cutout?:
     return{box,samples,vertices};
   });
 }
+/**
+ * Welds vertices at the same position rounded to 0.1 mm: `weld(x, y, z, i)` gives the first index stored at that rounded
+ * position, or stores `i` there and gives -1. An open-addressed table over typed arrays, where a map keyed by the
+ * position as text built a string for every vertex.
+ */
+function weldTable(count: number): (x: number, y: number, z: number, index: number) => number {
+  const size = 2 ** Math.ceil(Math.log2(Math.max(2, count * 2))), mask = size - 1;
+  const held = new Int32Array(size).fill(-1), at = new Float64Array(size * 3);
+  return (x, y, z, index) => {
+    for (let slot = (Math.imul(x | 0, 73856093) ^ Math.imul(y | 0, 19349663) ^ Math.imul(z | 0, 83492791)) & mask; ; slot = (slot + 1) & mask) {
+      const first = held[slot]!;
+      if (first < 0) { held[slot] = index; at[slot * 3] = x; at[slot * 3 + 1] = y; at[slot * 3 + 2] = z; return -1; }
+      if (at[slot * 3] === x && at[slot * 3 + 1] === y && at[slot * 3 + 2] === z) return first;
+    }
+  };
+}
 export interface LeafNode { box: THREE.Box3; ids?: number[]; left?: LeafNode; right?: LeafNode; uniform: number }
 export function boundsTree(boxes: readonly THREE.Box3[], charge: () => void): LeafNode {
+  // Each box's centre, doubled, on each axis: the sorts read it from an array instead of from two boxes by axis name.
+  const doubledCentre={x:new Float64Array(boxes.length),y:new Float64Array(boxes.length),z:new Float64Array(boxes.length)};
+  boxes.forEach((b,i)=>{doubledCentre.x[i]=b.min.x+b.max.x;doubledCentre.y[i]=b.min.y+b.max.y;doubledCentre.z[i]=b.min.z+b.max.z;});
   const build=(ids:number[]):LeafNode=>{charge();const box=new THREE.Box3();for(const i of ids)box.union(boxes[i]!);if(ids.length<=8)return{box,ids,uniform:-1};
-    const size=box.getSize(new THREE.Vector3()),axis=size.x>=size.y&&size.x>=size.z?'x':size.y>=size.z?'y':'z';
-    ids.sort((a,b)=>(boxes[a]!.min[axis]+boxes[a]!.max[axis])-(boxes[b]!.min[axis]+boxes[b]!.max[axis]));
+    const size=box.getSize(new THREE.Vector3()),axis=size.x>=size.y&&size.x>=size.z?'x':size.y>=size.z?'y':'z',centre=doubledCentre[axis];
+    ids.sort((a,b)=>centre[a]!-centre[b]!);
     const middle=ids.length>>1;return{box,left:build(ids.slice(0,middle)),right:build(ids.slice(middle)),uniform:-1};};
   if(!boxes.length)throw new Error('Missing support triangles');return build(boxes.map((_,i)=>i));
 }
@@ -114,8 +133,9 @@ export function contactDistances(parts: readonly Component[], wood: THREE.Buffer
   const p = wood.getAttribute('position'), index = wood.index;
   if (!p) throw new Error('Missing wood positions');
   const triangles: THREE.Triangle[] = [];
-  for (let i = 0; i + 2 < (index?.count ?? p.count); i += 3) triangles.push(new THREE.Triangle(...[0, 1, 2].map(j => new THREE.Vector3().fromBufferAttribute(p, index?.getX(i + j) ?? i + j)) as [THREE.Vector3, THREE.Vector3, THREE.Vector3]));
-  const woodBounds = triangles.map(t => new THREE.Box3().setFromPoints([t.a, t.b, t.c]));
+  const corner = (i: number) => new THREE.Vector3().fromBufferAttribute(p, index?.getX(i) ?? i);
+  for (let i = 0; i + 2 < (index?.count ?? p.count); i += 3) triangles.push(new THREE.Triangle(corner(i), corner(i + 1), corner(i + 2)));
+  const woodBounds = triangles.map(t => new THREE.Box3().expandByPoint(t.a).expandByPoint(t.b).expandByPoint(t.c));
   const support = boundsTree(woodBounds, charge), nearest = new THREE.Vector3();
   const minGap = maxGap;
   return parts.map(c => {

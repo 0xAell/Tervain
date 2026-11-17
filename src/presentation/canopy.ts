@@ -199,16 +199,21 @@ function clumpCentres(leaf: THREE.BufferGeometry, crown: CanopyCrown, tips: THRE
   // Between the lobes only a few clumps stay (`between`), so the gaps open without a clean cut edge.
   const keeps = (q: THREE.Vector3) => !shape.length || lobeDepth(shape, q) <= 1 || random() < lobes!.between;
   const out = tips.filter(keeps).slice(0, count);
-  const cell = spacing, grid = new Map<string, THREE.Vector3[]>();
-  const key = (x: number, y: number, z: number) => `${x},${y},${z}`;
+  const cell = spacing, grid = new Map<number | string, THREE.Vector3[]>();
+  // A cell's key: one small integer within 512 cells of the crown's origin on every axis (where every crown is), its
+  // coordinates as text beyond, so that 27 cells are looked up per sample without building a string for each.
+  const key = (x: number, y: number, z: number) => x >= -512 && x < 512 && y >= -512 && y < 512 && z >= -512 && z < 512
+    ? ((x + 512) * 1024 + (y + 512)) * 1024 + (z + 512) : `${x},${y},${z}`;
   const add = (q: THREE.Vector3) => {
     const k = key(Math.floor(q.x / cell), Math.floor(q.y / cell), Math.floor(q.z / cell));
     let list = grid.get(k); if (!list) { list = []; grid.set(k, list); } list.push(q);
   };
   const near = (q: THREE.Vector3, d: number) => {
     const cx = Math.floor(q.x / cell), cy = Math.floor(q.y / cell), cz = Math.floor(q.z / cell);
-    for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) for (let z = -1; z <= 1; z++)
-      for (const o of grid.get(key(cx + x, cy + y, cz + z)) ?? []) if (o.distanceToSquared(q) < d * d) return true;
+    for (let x = -1; x <= 1; x++) for (let y = -1; y <= 1; y++) for (let z = -1; z <= 1; z++) {
+      const list = grid.get(key(cx + x, cy + y, cz + z));
+      if (list) for (const o of list) if (o.distanceToSquared(q) < d * d) return true;
+    }
     return false;
   };
   out.forEach(add);
@@ -272,11 +277,15 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
   const build = (start: number, end: number): number => {
     const id = nodeStart.length;
     nodeStart.push(start); nodeEnd.push(end); nodeLeft.push(-1); nodeRight.push(-1);
-    const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
-    for (let i = start; i < end; i++) { const t = order[i]!; for (let c = 0; c < 3; c++) { lo[c] = Math.min(lo[c]!, boxes[t * 6 + c]!); hi[c] = Math.max(hi[c]!, boxes[t * 6 + 3 + c]!); } }
-    nodeBox.push(...lo, ...hi);
+    let x0 = Infinity, y0 = Infinity, z0 = Infinity, x1 = -Infinity, y1 = -Infinity, z1 = -Infinity;
+    for (let i = start; i < end; i++) {
+      const o = order[i]! * 6;
+      x0 = Math.min(x0, boxes[o]!); y0 = Math.min(y0, boxes[o + 1]!); z0 = Math.min(z0, boxes[o + 2]!);
+      x1 = Math.max(x1, boxes[o + 3]!); y1 = Math.max(y1, boxes[o + 4]!); z1 = Math.max(z1, boxes[o + 5]!);
+    }
+    nodeBox.push(x0, y0, z0, x1, y1, z1);
     if (end - start <= 8) return id;
-    const axis = hi[0]! - lo[0]! >= hi[1]! - lo[1]! && hi[0]! - lo[0]! >= hi[2]! - lo[2]! ? 0 : hi[1]! - lo[1]! >= hi[2]! - lo[2]! ? 1 : 2;
+    const axis = x1 - x0 >= y1 - y0 && x1 - x0 >= z1 - z0 ? 0 : y1 - y0 >= z1 - z0 ? 1 : 2;
     order.subarray(start, end).sort((a, b) => centres[a * 3 + axis]! - centres[b * 3 + axis]!);
     const middle = (start + end) >> 1;
     const left = build(start, middle), right = build(middle, end);
@@ -286,30 +295,44 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
   build(0, count);
   // Boxes are compared by squared distance, which orders and prunes as the distance does without a square root (Math.hypot
   // was a fifth of the trees' build time).
-  const boxDistanceSq = (array: ArrayLike<number>, o: number, p: THREE.Vector3) => {
-    const dx = Math.max(array[o]! - p.x, 0, p.x - array[o + 3]!), dy = Math.max(array[o + 1]! - p.y, 0, p.y - array[o + 4]!), dz = Math.max(array[o + 2]! - p.z, 0, p.z - array[o + 5]!);
+  const boxDistanceSq = (array: ArrayLike<number>, o: number, x: number, y: number, z: number) => {
+    const dx = Math.max(array[o]! - x, 0, x - array[o + 3]!), dy = Math.max(array[o + 1]! - y, 0, y - array[o + 4]!), dz = Math.max(array[o + 2]! - z, 0, z - array[o + 5]!);
     return dx * dx + dy * dy + dz * dz;
   };
   const triangle = new THREE.Triangle(), near = new THREE.Vector3();
+  // The nodes still to visit, depth first, each with its box's squared distance. The tree halves at every level, so at
+  // most one sibling per level waits: 64 entries hold any tree of fewer than 2^31 triangles.
+  const pendingNode = new Int32Array(64), pendingDistance = new Float64Array(64);
+  // `p` and `hit` must be different vectors: the search reads `p` until it returns.
   return (p, hit, max = Infinity) => {
-    let best = max, bestSq = max * max, found = false;
-    const visit = (node: number) => {
-      if (boxDistanceSq(nodeBox, node * 6, p) > bestSq) return;
+    const x = p.x, y = p.y, z = p.z;
+    let best = max, bestSq = max * max, found = false, pending = 1;
+    pendingNode[0] = 0; pendingDistance[0] = boxDistanceSq(nodeBox, 0, x, y, z);
+    while (pending > 0) {
+      pending--;
+      const node = pendingNode[pending]!;
+      if (pendingDistance[pending]! > bestSq) continue;
       if (nodeLeft[node]! < 0) {
         for (let i = nodeStart[node]!; i < nodeEnd[node]!; i++) {
           const t = order[i]!;
-          if (boxDistanceSq(boxes, t * 6, p) > bestSq) continue;
+          if (boxDistanceSq(boxes, t * 6, x, y, z) > bestSq) continue;
           triangle.a.fromArray(corners, t * 9); triangle.b.fromArray(corners, t * 9 + 3); triangle.c.fromArray(corners, t * 9 + 6);
           triangle.closestPointToPoint(p, near);
           const d = near.distanceTo(p);
           if (d <= best) { best = d; bestSq = d * d; hit.copy(near); found = true; }
         }
-        return;
+        continue;
       }
-      const a = nodeLeft[node]!, b = nodeRight[node]!;
-      if (boxDistanceSq(nodeBox, a * 6, p) <= boxDistanceSq(nodeBox, b * 6, p)) { visit(a); visit(b); } else { visit(b); visit(a); }
-    };
-    visit(0);
+      // The nearer child first (pushed last); the other is tested against the best found by then, when its turn comes.
+      const a = nodeLeft[node]!, b = nodeRight[node]!, da = boxDistanceSq(nodeBox, a * 6, x, y, z), db = boxDistanceSq(nodeBox, b * 6, x, y, z);
+      if (da <= db) {
+        pendingNode[pending] = b; pendingDistance[pending++] = db;
+        pendingNode[pending] = a; pendingDistance[pending++] = da;
+      } else {
+        pendingNode[pending] = a; pendingDistance[pending++] = da;
+        pendingNode[pending] = b; pendingDistance[pending++] = db;
+      }
+    }
     return found ? best : Infinity;
   };
 }

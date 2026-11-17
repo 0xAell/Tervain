@@ -99,17 +99,55 @@ export function anchorLeafIslands(leaf: THREE.BufferGeometry, wood: THREE.Buffer
     }
     return d;
   };
-  // Parts in a grid by their boxes grown by half the gap: parts within `gap` share a cell.
+  // Parts in a grid by their boxes grown by half the gap: parts within `gap` share a cell. Each cell lists its parts in
+  // index order, as a linked list over typed arrays: a part taken into a chunk leaves every cell it is in at once, and
+  // the lists are walked without a lookup (a quarter of the pass went to finding and emptying cells in maps of sets).
   const sizes = list.map(part => Math.max(part.box.max.x - part.box.min.x, part.box.max.y - part.box.min.y, part.box.max.z - part.box.min.z)).sort((x, y) => x - y);
-  const cell = Math.max(gap, sizes[Math.floor(sizes.length / 2)]!), grid = new Map<number, Set<number>>(), half = gap / 2;
-  const cellsOf = list.map(part => {
-    const keys: number[] = [], lo = part.box.min, hi = part.box.max;
-    for (let x = Math.floor((lo.x - half) / cell); x <= Math.floor((hi.x + half) / cell); x++)
-      for (let y = Math.floor((lo.y - half) / cell); y <= Math.floor((hi.y + half) / cell); y++)
-        for (let z = Math.floor((lo.z - half) / cell); z <= Math.floor((hi.z + half) / cell); z++) keys.push(((x + 2048) * 4096 + (y + 2048)) * 4096 + (z + 2048));
-    return keys;
+  const cell = Math.max(gap, sizes[Math.floor(sizes.length / 2)]!), half = gap / 2;
+  // Each part's cells, as ranges of cell coordinates, and the ranges of all of them.
+  const span = new Float64Array(list.length * 6);
+  let x0 = Infinity, y0 = Infinity, z0 = Infinity, x1 = -Infinity, y1 = -Infinity, z1 = -Infinity;
+  list.forEach((part, i) => {
+    const lo = part.box.min, hi = part.box.max, o = i * 6;
+    span[o] = Math.floor((lo.x - half) / cell); span[o + 1] = Math.floor((lo.y - half) / cell); span[o + 2] = Math.floor((lo.z - half) / cell);
+    span[o + 3] = Math.floor((hi.x + half) / cell); span[o + 4] = Math.floor((hi.y + half) / cell); span[o + 5] = Math.floor((hi.z + half) / cell);
+    x0 = Math.min(x0, span[o]!); y0 = Math.min(y0, span[o + 1]!); z0 = Math.min(z0, span[o + 2]!);
+    x1 = Math.max(x1, span[o + 3]!); y1 = Math.max(y1, span[o + 4]!); z1 = Math.max(z1, span[o + 5]!);
   });
-  cellsOf.forEach((keys, i) => { for (const k of keys) { let set = grid.get(k); if (!set) { set = new Set(); grid.set(k, set); } set.add(i); } });
+  // A cell is named by its key below, which tells cells apart within 2048 of the origin on each axis; beyond that two
+  // cells can share a key, and so a list. A crown within that range, as every tree's is, numbers its cells in a table.
+  const nx = x1 - x0 + 1, ny = y1 - y0 + 1, nz = z1 - z0 + 1;
+  const table = x0 >= -2048 && y0 >= -2048 && z0 >= -2048 && x1 <= 2047 && y1 <= 2047 && z1 <= 2047 && nx * ny * nz <= 1 << 22
+    ? new Int32Array(nx * ny * nz).fill(-1) : null;
+  const cellIds = new Map<number, number>();
+  let cells = 0;
+  const memberCell: number[] = [], memberStart = new Int32Array(list.length + 1);
+  for (let i = 0; i < list.length; i++) {
+    const o = i * 6, first = memberStart[i] = memberCell.length;
+    for (let x = span[o]!; x <= span[o + 3]!; x++) for (let y = span[o + 1]!; y <= span[o + 4]!; y++) for (let z = span[o + 2]!; z <= span[o + 5]!; z++) {
+      if (table) {
+        const at = ((x - x0) * ny + (y - y0)) * nz + (z - z0);
+        let id = table[at]!;
+        if (id < 0) table[at] = id = cells++;
+        memberCell.push(id);
+        continue;
+      }
+      const key = ((x + 2048) * 4096 + (y + 2048)) * 4096 + (z + 2048);
+      let id = cellIds.get(key);
+      if (id === undefined) cellIds.set(key, id = cells++);
+      // Two cells sharing a key share a list: a part joins it once.
+      if (memberCell.indexOf(id, first) < 0) memberCell.push(id);
+    }
+  }
+  memberStart[list.length] = memberCell.length;
+  const head = new Int32Array(cells).fill(-1), tail = new Int32Array(cells).fill(-1);
+  const next = new Int32Array(memberCell.length).fill(-1), previous = new Int32Array(memberCell.length).fill(-1), memberPart = new Int32Array(memberCell.length);
+  for (let i = 0; i < list.length; i++) for (let m = memberStart[i]!; m < memberStart[i + 1]!; m++) {
+    const c = memberCell[m]!, last = tail[c]!;
+    memberPart[m] = i;
+    if (last < 0) head[c] = m; else { next[last] = m; previous[m] = last; }
+    tail[c] = m;
+  }
   const flat = new Float32Array(list.length * 6);
   list.forEach((part, i) => { part.box.min.toArray(flat, i * 6); part.box.max.toArray(flat, i * 6 + 3); });
   const gap2 = gap * gap;
@@ -122,7 +160,8 @@ export function anchorLeafIslands(leaf: THREE.BufferGeometry, wood: THREE.Buffer
     found.length = 0;
     const o = i * 6;
     const x0 = flat[o]!, y0 = flat[o + 1]!, z0 = flat[o + 2]!, x1 = flat[o + 3]!, y1 = flat[o + 4]!, z1 = flat[o + 5]!;
-    for (const k of cellsOf[i]!) for (const j of grid.get(k)!) {
+    for (let m = memberStart[i]!; m < memberStart[i + 1]!; m++) for (let e = head[memberCell[m]!]!; e >= 0; e = next[e]!) {
+      const j = memberPart[e]!;
       // A pair can share several cells; retain only its first visit and original ordering.
       if (visited[j] === visitId) continue;
       visited[j] = visitId;
@@ -132,12 +171,21 @@ export function anchorLeafIslands(leaf: THREE.BufferGeometry, wood: THREE.Buffer
     }
     return found;
   };
-  const left = new Set(list.map((_, i) => i));
-  const take = (i: number) => { if (!left.delete(i)) return false; for (const k of cellsOf[i]!) grid.get(k)!.delete(i); return true; };
+  const taken = new Uint8Array(list.length);
+  const take = (i: number) => {
+    if (taken[i]) return false;
+    taken[i] = 1;
+    for (let m = memberStart[i]!; m < memberStart[i + 1]!; m++) {
+      const before = previous[m]!, after = next[m]!;
+      if (before < 0) head[memberCell[m]!] = after; else next[before] = after;
+      if (after >= 0) previous[after] = before;
+    }
+    return true;
+  };
   // Chunks of linked parts (through opaque coverage), then each chunk tested for a part touching the wood: nearest the
   // trunk axis (the template's origin) first, so the crown's main chunk is settled in a few tests.
   const chunks: number[][] = [];
-  for (const i of [...left]) {
+  for (let i = 0; i < list.length; i++) {
     if (!take(i)) continue;
     const chunk = [i];
     for (let n = 0; n < chunk.length; n++) for (const j of neighbours(chunk[n]!)) if (take(j)) chunk.push(j);

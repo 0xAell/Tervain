@@ -358,11 +358,17 @@ Improved:
 - The Unreal seed mirrors a third rule, the first of movement: the pace kept wading (`TervainRules::WadeFactor`, its
   numbers read from `hero.wade`). It returns what the core's `wadeFactor` returns at every centimetre from half a metre
   out of the water to 3 m deep, and every wade key is read ([#875](https://github.com/0xAell/Tervain/pull/875)).
+- The trees are built faster again, to the same bytes. The leaf-island pass keeps each grid cell's parts in a linked
+  list over typed arrays, where it looked cells up in a map of sets for every part it linked and emptied; the leaf
+  sampler indexes pixels inside the image without wrapping them; the wood search runs from a stack; the clump search
+  welds leaf corners through a typed-array table and sorts its bounds tree on precomputed keys. In three alternating
+  pairs on the four-core test machine the woodland stage takes 7.6 s where it took 10.4 s (medians), and all 63 drawn
+  tree levels' wood and leaves, and every planted tree's matrix, hash the same ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
-- Loading: the drawn trees' models are now most of the woodland stage, about 7 s of its 14 in a profiled run on the
-  four-core test machine, and the leaf-island pass (`anchorLeafIslands` in flora.ts) about 4 more. Past a few more small
+- Loading: the woodland stage takes about 7.6 s on the four-core test machine; in a profiled run the drawn trees'
+  models are most of it and the leaf-island pass (`anchorLeafIslands` in flora.ts) about 1.9 s. Past a few more small
   gains, the step is to build the models in workers, or keep them between visits. Before the woodland the main thread
   waits about 7 s, idle, for the ground's textures (painted in a worker), Rapier's compilation and the images' decoding;
   building the terrain and the woodland meanwhile gained nothing measurable in five alternating pairs on that machine,
