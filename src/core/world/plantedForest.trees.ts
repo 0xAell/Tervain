@@ -2,9 +2,6 @@
 import type { Species, TreeAge } from './flora';
 import type { ForestFamilyRole } from './forestStands';
 
-/** The models and flags the web build plants with by default, as presentation/flora.ts names them (forestPlantingKey). */
-export const PLANTED_WITH = "generated pines; trees fir-spire hero-apple hero-birch hero-birch-b hero-birch-c hero-bush hero-bush-b hero-oak hero-oak-b hero-oak-c hero-pear hero-sentinel oak-elder palm-date palm-fan palm-lean tree-0208 tree-1505 tree-1521 tree-1527 tree-1537 tree-4815 tree-4949 verdant-sentinel";
-
 /**
  * Each tree as the web build plants it, to the bit: species, variant, x, y, z, scale, yaw, tint, radius as an obstacle (m),
  * collision id, decoration rank, the radius its drawn wood keeps the walk grid clear of (m; 0 for a tree that does not

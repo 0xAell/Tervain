@@ -20,8 +20,8 @@ import { attachCasterCoverage, attachInstanceDistanceVisibility, smoothDistanceF
 import type { PhysicalWoodGeometry } from '../core/world/physicsGeometry';
 import type { Terrain } from '../core/world/terrain';
 import type { Exclusions } from '../core/world/exclusions';
-import { PLANTED_FLORA, PLANTED_WITH } from '../core/world/plantedFlora';
-import { LEAF_ATLAS_DEFAULT } from './leafAtlas';
+import { PLANTED_DRAWS, PLANTED_FLORA } from '../core/world/plantedFlora';
+import { takesPlantedForest } from './forestPlanting';
 import { FOLIAGE_RESPONSE, type FoliageResponse } from './foliage/foliageWind';
 import { SHADER_CLOCK_WRAP } from './grass/wind';
 import { crownOf, foliageGeometryFeatures, installFoliage, installFoliageShadow, type FoliageLook, type InstalledFoliage } from './foliage/foliageMaterial';
@@ -172,19 +172,6 @@ export function plantForest(terrain: Terrain, excl: Pick<Exclusions, 'blocked'>,
   return population;
 }
 
-/**
- * What a forest is planted with: the generated pines or the supplied pine, the tree models loaded (their ids), and the
- * flags that change how those are built (`?leafatlas`, `?heronotrim=1`, `?heronotwigs=1`). The core's exact copy of the
- * forest records the web build's default (PLANTED_WITH, written by tests/presentation/plantedForest.test.ts).
- */
-export function forestPlantingKey(heroPines: boolean, treeIds: readonly string[], search = typeof location === 'undefined' ? '' : location.search): string {
-  let flags: URLSearchParams;
-  try { flags = new URLSearchParams(search); } catch { flags = new URLSearchParams(); }
-  const atlas = flags.get('leafatlas'), leafAtlas = atlas === '1' ? true : atlas === '0' ? false : LEAF_ATLAS_DEFAULT;
-  return [heroPines ? 'generated pines' : 'supplied pines', `trees ${[...treeIds].sort().join(' ')}`, ...(leafAtlas ? ['leaf atlas'] : []),
-    ...['heronotrim', 'heronotwigs'].filter((flag) => flags.get(flag) === '1')].join('; ');
-}
-
 /** A planted tree's radius as an obstacle: the wood actually drawn, measured after seating. */
 export function plantedObstacleRadius(terrain: Pick<Terrain, 'heightAt'>, models: ForestModels, tree: FloraTree): number {
   return models.usesPine(tree.sp) ? tree.radius : treeWoodCollisionRadius(models.variantFor(tree), tree.s, terrain.heightAt(tree.x, tree.z) - tree.y);
@@ -222,8 +209,9 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
   const { usesPine, variantFor, footprintFor, variants } = models;
   // The core keeps this forest to the bit, planted with the models and flags used by default (PLANTED_WITH). Planting it
   // again builds every supplied tree a generated one replaces, only to measure where it would stand: most of the
-  // woodland's load. A forest planted with anything else is planted here.
-  const population = forestPlantingKey(!!hero, meshyTemplates ? [...meshyTemplates.keys()] : []) === PLANTED_WITH
+  // woodland's load. A journey that takes it loads only the models its trees are drawn with (forestTreeIds); a forest
+  // planted with anything else, or without those models, is planted here.
+  const population = takesPlantedForest(!!hero) && !!meshyTemplates && PLANTED_DRAWS.every((id) => meshyTemplates.has(id))
     ? PLANTED_FLORA.map((tree) => ({ ...tree })) : plantForest(terrain, excl, pine, meshy, models);
   // Navigation uses the wood actually drawn after seating (a generated oak's flare and roots differ from the footprint that keeps placement).
   registerFloraColliders(population, colliders, undefined, (tree) => plantedObstacleRadius(terrain, models, tree));

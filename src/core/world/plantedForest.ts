@@ -3,7 +3,7 @@ import type { ForestFloorPiece } from './forestFloor';
 import { FLOOR_ROWS } from './plantedForest.floor';
 import { PLANTED_ROWS } from './plantedForest.trees';
 
-export { PLANTED_FLORA, PLANTED_WITH } from './plantedFlora';
+export { PLANTED_DRAWS, PLANTED_FLORA, PLANTED_WITH } from './plantedFlora';
 
 /**
  * The forest as the web build plants it. The planting rule is the core's (flora.ts: where trees may stand, how far
