@@ -286,12 +286,18 @@ Improved:
 - The forest the core exports is the one the game plants. It was planted without the hero pines the game draws by
   default, whose crowns and seats decide which trees fit: it had 453 trees where the game plants 451, 307 of them
   elsewhere, and the woodland floor, the export's trees and the Unreal tables followed it ([#858](https://github.com/0xAell/Tervain/pull/858)).
+- The trees are built faster, to the same bytes. The canopy atlas painter visits only the pixels a leaf can cover (a
+  fifth of what it visited), and the nearest-wood search compares squared distances instead of calling Math.hypot. In
+  node the 25 tree models take 10.2 s where they took 12.9 s and the atlas 1.2 s where it took 3.2 s; in the browser the
+  woodland stage is 2.6 s shorter. Every model, the atlas and both plantings hash the same as before, and tests hold the
+  painter and the search to the ones they replace ([#859](https://github.com/0xAell/Tervain/pull/859)).
 
 Next:
 
 - The woodland floor the core exports is laid with an estimate of the crowns' shade, the game's with the drawn crowns
   themselves; check whether the two agree, and export the one that is played.
-- Loading: building the 25 tree models is about 13 s of the woodland stage on a four-core machine without a GPU. The canopy atlas
-  painter, the nearest-wood search and the procedural bark and water textures can do the same work in less time.
+- Loading: the tree models still take most of the woodland stage. The leaf-clump connectivity, the leaf islands, the
+  branch-wind search and the procedural bark and water textures are next; past them, building the models in workers or
+  keeping them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA, and compiles 230
   shader programs before the first view.
