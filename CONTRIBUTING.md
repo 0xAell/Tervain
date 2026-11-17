@@ -28,7 +28,8 @@ Use stable identifiers for quest facts and content once implementation begins. D
 
 ## Checks before a pull request
 
-CI runs these on every pull request; running them first saves a round trip.
+CI runs these on every pull request; running them first saves a round trip. `npm run check` runs the game's typecheck
+and tests, the check of the exported data and the hygiene check in turn; the C++ check and the play gate are separate.
 
 - `npm run typecheck:game` and `npm run test:game`: the game and the port seed. `npm run typecheck` and `npm test` add the separate Gothic 3 study and take much longer.
 - `npm run unreal:check`: the exported data matches the core, and the Unreal ids, row structs, mirrored rules and C++ seed agree with it. After changing the core's content, `npm run data:export` regenerates `data/`; after adding or changing a shipped file, `npm run assets:manifest` regenerates the asset manifest and `node tools/model-files.mjs` the model table.
