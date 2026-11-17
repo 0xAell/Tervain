@@ -30,7 +30,7 @@ residents, 3 silent ones, 3 hostiles, 19 animals, 20 items, 98 dialogue nodes, 2
 
 | Web build | Data and rules | Unreal (proposal) | Carries over |
 | --- | --- | --- | --- |
-| **Movement.** Walk, run, guard pace, step height, slopes, jump, fence vault, wading and swimming. | `core/rules/hero.ts`, `heroLocomotion.ts`, and `core/rules/wanderer.ts`, everything he does as one state machine: footing, the fall, the vault, wading and swimming; `tuning.json`, `hero`. `presentation/player.ts` adds the body. | `ACharacter` with the **Character Movement** component (walking, falling and swimming modes); a vault as a root-motion or scripted move. Epic's page on the newer Mover plugin says "Learn to use this Experimental feature, but use caution when shipping with it.": do not build on it yet. | Every number. |
+| **Movement.** Walk, run, guard pace, step height, slopes, jump, fence vault, wading and swimming. | `core/rules/hero.ts` (`wadeFactor`, mirrored in `unreal/.../Rules/TervainHeroRules`), `heroLocomotion.ts`, and `core/rules/wanderer.ts`, everything he does as one state machine: footing, the fall, the vault, wading and swimming; `tuning.json`, `hero`. `presentation/player.ts` adds the body. | `ACharacter` with the **Character Movement** component (walking, falling and swimming modes); a vault as a root-motion or scripted move. Epic's page on the newer Mover plugin says "Learn to use this Experimental feature, but use caution when shipping with it.": do not build on it yet. | Every number. |
 | **Stamina and combat.** Light and heavy blows, dodge with a moment of invulnerability, guard, perfect block and parry, guard break; fists and a blade. | `core/rules/hero.ts` (`staminaStep`, `resolveGuardedHit`, the arms tables), mirrored in `unreal/.../Rules/TervainHeroRules`; `core/rules/wanderer.ts` runs the blow, the guard, the dodge, the flinch and dying, and tells the body what to show. | Two workable shapes: **plain components** on the character calling the mirrored rules, or the **Gameplay Ability System** ("a framework for building attributes, abilities, and interactions that an Actor can own and trigger") with health and stamina as attributes, blows, dodge and block as abilities, and costs and recovery as gameplay effects. | The rules and numbers. See the choice below. |
 | **The bow.** Draw, a low ballistic arc through the reticle, arrows that lodge, splash, sink and float. | `core/rules/bow.ts`; ranges and hunting in `core/game/hunting.ts`. | A projectile actor with its own gravity and a sweep each tick; Niagara for the trail and splash. | Speeds, times, limits and the launch formula. |
 | **Riding.** The saddled deer: reins with bounded turn and acceleration, gallop stamina, mounting and dismounting, doorways it will not enter. | `core/rules/riding.ts`. | A mount pawn the character attaches to and possesses or drives; the rules mirrored as functions. | Every number and the rules. |
@@ -84,7 +84,7 @@ numbers are in data either way.
 
 The core's tests are the specification of the rules: `tests/core` (rules, data, export) and `tests/scenarios` (whole
 quest and persistence paths, run without a renderer). Mirror them as Unreal **automation tests** as each rule is
-ported, starting with the two already mirrored in C++ (`tests/core/rules/hero.test.ts`). A rule is ported when its
+ported, starting with the three already mirrored in C++ (`tests/core/rules/hero.test.ts`). A rule is ported when its
 mirrored tests pass on the same numbers.
 
 ## Still in the scene layer

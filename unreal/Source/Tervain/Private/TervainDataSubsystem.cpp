@@ -109,6 +109,15 @@ FTervainGuardTuning UTervainDataSubsystem::GetGuardTuning() const
 	return Out;
 }
 
+FTervainWadeTuning UTervainDataSubsystem::GetWadeTuning() const
+{
+	FTervainWadeTuning Out;
+	Out.From = GetTuningNumber(TEXT("hero.wade.from"));
+	Out.Span = GetTuningNumber(TEXT("hero.wade.span"));
+	Out.Slowest = GetTuningNumber(TEXT("hero.wade.slowest"));
+	return Out;
+}
+
 UDataTable* UTervainDataSubsystem::LoadTable(const FSoftObjectPath& Path)
 {
 	return Path.IsNull() ? nullptr : Cast<UDataTable>(Path.TryLoad(nullptr, LOAD_None));

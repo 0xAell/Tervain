@@ -4,7 +4,7 @@
 #include "TervainHeroRules.generated.h"
 
 /**
- * Two of the wanderer's rules, mirrored from the web repository's core (src/core/rules/hero.ts) as a worked example
+ * Three of the wanderer's rules, mirrored from the web repository's core (src/core/rules/hero.ts) as a worked example
  * of how rules cross over: the numbers come from data/game/tuning.json, the logic is rewritten here line for line,
  * and the core's unit tests (tests/core/rules/hero.test.ts) say what each must do.
  */
@@ -147,6 +147,25 @@ struct TERVAIN_API FTervainGuardedHit
 	bool bGuardBroken = false;
 };
 
+/** How water slows the legs: "hero.wade" in tuning.json. */
+USTRUCT(BlueprintType)
+struct TERVAIN_API FTervainWadeTuning
+{
+	GENERATED_BODY()
+
+	/** Depth (m) at which the water starts to slow him. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
+	float From = 0.f;
+
+	/** Metres more over which the slowing eases in, to the waist, where the wade ends and the swim takes over. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
+	float Span = 1.f;
+
+	/** The share of the walking pace kept at the deepest wade. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tervain")
+	float Slowest = 1.f;
+};
+
 namespace TervainRules
 {
 	/**
@@ -157,4 +176,11 @@ namespace TervainRules
 
 	/** Settle a blow that lands on a raised guard. Mirrors resolveGuardedHit in src/core/rules/hero.ts. */
 	TERVAIN_API FTervainGuardedHit ResolveGuardedHit(const FTervainGuardTuning& Tuning, const FTervainGuardArms& Arms, int32 Damage, bool bHeavy, float BlockSeconds, float Stamina, bool bSteadyGuard);
+
+	/**
+	 * The share of the walking pace kept in water DepthMetres deep: the legs push water from the shins up, and a
+	 * waist-deep wade keeps Slowest of it. Depth in metres, as the core measures it (an engine depth in centimetres is
+	 * divided by TervainUnits::CentimetresPerMetre). Mirrors wadeFactor in src/core/rules/hero.ts.
+	 */
+	TERVAIN_API float WadeFactor(const FTervainWadeTuning& Tuning, float DepthMetres);
 }

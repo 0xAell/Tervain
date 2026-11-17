@@ -26,7 +26,7 @@ from Fab (`.gitignore` here ignores `Content/`).
 | `Source/Tervain/Public/TervainUnits.h` | Conversions between the core's units (metres, radians, x east, y up, z south) and Unreal's (centimetres, degrees, X east, Y south, Z up). |
 | `Source/Tervain/Public/TervainSettings.h` | Project settings: where the exported data folder is, and which DataTable asset holds each table. |
 | `Source/Tervain/Public/TervainDataSubsystem.h` | A game-instance subsystem that reads `data/game/tuning.json`, loads the tables the settings name when it starts and holds them for its lifetime, and finds rows in them. |
-| `Source/Tervain/Public/Rules/TervainHeroRules.h` | Two rules mirrored from the core as a worked example: the stamina meter's step and a blow on a raised guard. |
+| `Source/Tervain/Public/Rules/TervainHeroRules.h` | Three rules mirrored from the core as a worked example: the stamina meter's step, a blow on a raised guard, and the pace kept wading. |
 | `Config/` | Default configuration: the project's name and the data folder. |
 | `Content/` | Empty on purpose; see its README. |
 
@@ -70,9 +70,10 @@ agreeing, and the CI job *Unreal seed* (`.github/workflows/unreal-seed.yml`) run
   stale version) and requires each to be reported.
 - **Tables.** `tests/tools/unrealSkeleton.test.ts` checks that every row has exactly its struct's members with values
   of the declared types, that the settings name every table, and that no binary or content file is committed here.
-- **Tuning.** Every member of the two tuning structs is filled from a number that exists in `data/game/tuning.json`,
+- **Tuning.** Every member of the three tuning structs is filled from a number that exists in `data/game/tuning.json`,
   each from its own path, and the stamina and guard keys the C++ does not read are listed in the test, so a key added
-  to the core is noticed. `TervainUnits.h` uses the factor the exported tables were converted with.
+  to the core is noticed; every wade key is read. `TervainUnits.h` uses the factor the exported tables were converted
+  with.
 - **Rules and build.** The two tests described [above](#what-is-checked-without-the-engine).
 
 After changing ids, tables or tuning in the core: `npm run data:export`, then `npm run unreal:check`.
@@ -88,7 +89,7 @@ can. Both use an ordinary C++ compiler and small stand-ins for the engine names 
   `data/game/tuning.json` to the value in the file, give the default for a path that names no number, and
   log a warning when the data folder is not where the settings point. The settings must find `data/` beside the
   project, and a row must be found by name in the table the settings name. Every generated row struct is made.
-- `tests/tools/unrealRulesParity.test.ts` runs the two mirrored rules and the unit conversions on a few thousand
+- `tests/tools/unrealRulesParity.test.ts` runs the three mirrored rules and the unit conversions on a few thousand
   cases and compares every result with the TypeScript rule it mirrors.
 
 That shows the seed's C++ is well-formed and consistent with itself, and that its logic gives the right answers on

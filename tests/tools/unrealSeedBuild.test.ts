@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ACTION_COST, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STAMINA, staminaStep } from '../../src/core/rules/hero';
+import { ACTION_COST, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STAMINA, staminaStep, WADE, wadeFactor } from '../../src/core/rules/hero';
 
 // Unreal Engine is not available to this repository's tests. This builds every source file of the Unreal seed with an
 // ordinary C++ compiler against stand-ins for the engine names it uses (tests/tools/unreal-standin), links it, and
@@ -80,8 +80,8 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
     expect(values).toEqual(paths.map(() => '-12345'));
   });
 
-  it.skipIf(!compiler)('fills the stamina and guard values from the file and runs the mirrored rules on them', () => {
-    const [stamina, guard, step, hit] = run('structs').map((line) => line.split(' ').map(Number));
+  it.skipIf(!compiler)('fills the stamina, guard and wade values from the file and runs the mirrored rules on them', () => {
+    const [stamina, guard, step, hit, wade] = run('structs').map((line) => line.split(' ').map(Number));
     const expectStamina = [STAMINA.max, STAMINA.sprintPerSecond, STAMINA.sprintMin, STAMINA.swimSprintPerSecond, STAMINA.regen, STAMINA.regenWinded, STAMINA.regenGuarding, STAMINA.recoverAbove, STAMINA.pauseAfterSprint];
     stamina!.forEach((value, index) => near(value, expectStamina[index]!));
     const expectGuard = [ACTION_COST.blockHit, GUARD.steadyGuard, GUARD.heavyCost, GUARD.tiredBelow, PERFECT_BLOCK_WINDOW];
@@ -95,6 +95,9 @@ describe('the Unreal seed, built and run against stand-ins for the engine', () =
     const settled = resolveGuardedHit({ damage: 20, heavy: true, arms: FISTS, blockTime: 0.5, stamina: 100, steadyGuard: false });
     if (settled.parried) throw new Error('fists do not parry');
     expect(hit![0]).toBe(0); expect(hit![1]).toBe(settled.damage); near(hit![2]!, settled.cost); near(hit![3]!, settled.stamina); expect(hit![4]).toBe(settled.guardBroken ? 1 : 0);
+    // The wade's three numbers, and the pace kept at the knee.
+    expect(wade).toHaveLength(4);
+    [WADE.from, WADE.span, WADE.slowest, wadeFactor(0.625)].forEach((value, index) => near(wade![index]!, value));
   });
 
   it.skipIf(!compiler)('finds the data folder beside the project and names its settings and module', () => {

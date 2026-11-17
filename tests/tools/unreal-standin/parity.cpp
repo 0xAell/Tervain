@@ -13,6 +13,7 @@ int main()
 	FTervainStaminaTuning Stamina;
 	FTervainGuardTuning Guard;
 	FTervainGuardArms Arms[2];
+	FTervainWadeTuning Wade;
 	std::string Line;
 	while (std::getline(std::cin, Line))
 	{
@@ -52,6 +53,16 @@ int main()
 			In >> Index >> Damage >> Heavy >> BlockSeconds >> Meter >> Steady;
 			const FTervainGuardedHit Hit = TervainRules::ResolveGuardedHit(Guard, Arms[Index], Damage, Heavy != 0, BlockSeconds, Meter, Steady != 0);
 			std::printf("%d %d %.9g %.9g %d\n", Hit.bParried ? 1 : 0, Hit.Damage, Hit.Cost, Hit.Stamina, Hit.bGuardBroken ? 1 : 0);
+		}
+		else if (Kind == "wade-tuning")
+		{
+			In >> Wade.From >> Wade.Span >> Wade.Slowest;
+		}
+		else if (Kind == "wade")
+		{
+			float Depth = 0.f;
+			In >> Depth;
+			std::printf("%.9g\n", TervainRules::WadeFactor(Wade, Depth));
 		}
 		else if (Kind == "position")
 		{

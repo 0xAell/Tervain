@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import { toUnreal, yawToUnreal } from '../../src/core/export/unrealTables';
 import { ENEMY_ARCHETYPES } from '../../src/core/content/enemies';
-import { ACTION_COST, BLADE, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STAMINA, staminaStep, type Arms } from '../../src/core/rules/hero';
+import { ACTION_COST, BLADE, FISTS, GUARD, PERFECT_BLOCK_WINDOW, resolveGuardedHit, STAMINA, staminaStep, SWIM_EXIT, WADE, wadeFactor, type Arms } from '../../src/core/rules/hero';
 
-// The Unreal seed mirrors two of the core's rules and its unit conversions in C++. Unreal Engine is not available to
+// The Unreal seed mirrors three of the core's rules and its unit conversions in C++. Unreal Engine is not available to
 // this repository's tests, so this compiles that plain C++ with an ordinary compiler against small stand-ins for the
 // few engine names it uses (tests/tools/unreal-standin) and checks that it returns what the TypeScript returns on the
 // same cases. It proves the mirrored logic, not that the project builds in the engine.
@@ -41,6 +41,7 @@ const tuning = [
   `stamina-tuning ${[STAMINA.max, STAMINA.sprintPerSecond, STAMINA.sprintMin, STAMINA.swimSprintPerSecond, STAMINA.regen, STAMINA.regenWinded, STAMINA.regenGuarding, STAMINA.recoverAbove, STAMINA.pauseAfterSprint].join(' ')}`,
   `guard-tuning ${[ACTION_COST.blockHit, GUARD.steadyGuard, GUARD.heavyCost, GUARD.tiredBelow, PERFECT_BLOCK_WINDOW].join(' ')}`,
   ...arms.map((a, index) => `arms ${index} ${a.guard.fresh} ${a.guard.tired} ${typeof a.guard.perfect === 'number' ? a.guard.perfect : 0} ${a.guard.perfect === 'parry' ? 1 : 0}`),
+  `wade-tuning ${WADE.from} ${WADE.span} ${WADE.slowest}`,
 ];
 /** Single-precision results against double-precision ones. */
 const near = (actual: number, expected: number) => expect(Math.abs(actual - expected)).toBeLessThanOrEqual(1e-4 * Math.max(1, Math.abs(expected)));
@@ -98,6 +99,22 @@ describe('the Unreal seed\'s mirrored C++', () => {
       compared++;
     });
     expect(compared).toBeGreaterThan(800);
+  });
+
+  it.skipIf(!compiler)('slows a wade exactly as the core does, from dry ground to past the waist', () => {
+    const binary = build();
+    const depths: number[] = [];
+    for (let step = -50; step <= 300; step++) depths.push(step / 100);
+    const out = run(binary, [...tuning, ...depths.map((depth) => `wade ${depth}`)]).map(([factor]) => factor!);
+    expect(out).toHaveLength(depths.length);
+    depths.forEach((depth, index) => near(out[index]!, wadeFactor(depth)));
+    // Out of the water and in the shallows the full pace, past the waist exactly the slowest share, and never faster deeper.
+    depths.forEach((depth, index) => {
+      if (depth <= WADE.from) expect(out[index], `${depth} m`).toBe(1);
+      if (depth >= SWIM_EXIT + 0.01) expect(out[index], `${depth} m`).toBe(WADE.slowest);
+      if (index > 0) expect(out[index]!, `${depth} m`).toBeLessThanOrEqual(out[index - 1]!);
+    });
+    expect(SWIM_EXIT).toBeCloseTo(WADE.from + WADE.span, 9);
   });
 
   it.skipIf(!compiler)('converts positions and yaws as the exported tables do', () => {

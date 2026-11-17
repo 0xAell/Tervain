@@ -75,7 +75,7 @@ What is there:
   [#840](https://github.com/0xAell/Tervain/pull/840), [#841](https://github.com/0xAell/Tervain/pull/841), [#842](https://github.com/0xAell/Tervain/pull/842), [#843](https://github.com/0xAell/Tervain/pull/843), [#844](https://github.com/0xAell/Tervain/pull/844).
 
 What is missing from a ten: nothing the repository can do. Porting the rules to C++ is the port's work, phase by phase
-in the [roadmap](roadmap.md); the seed mirrors two of them as a worked example.
+in the [roadmap](roadmap.md); the seed mirrors three of them as a worked example.
 
 ## 2. Asset manifest
 
@@ -148,7 +148,7 @@ What is there:
 
 - [`unreal/`](../../unreal/README.md): a source-only project for Unreal Engine 5.9 with one module: row structs
   generated from the same definitions as the tables, the core's ids as generated constants, unit conversions, project
-  settings, a data subsystem that reads the tuning values, and two rules mirrored as a worked example.
+  settings, a data subsystem that reads the tuning values, and three rules mirrored as a worked example.
 - Every source file of the module compiles with warnings as errors, links and runs against stand-ins for the engine's
   headers ([`tests/tools/unrealSeedBuild.test.ts`](../../tests/tools/unrealSeedBuild.test.ts)); the mirrored rules
   return what the core returns on a few thousand cases
@@ -355,12 +355,18 @@ Improved:
   holds 448 MB of array buffers where it held 515 to 516 MB: since the morning's 810 MB, 45% less ([#873](https://github.com/0xAell/Tervain/pull/873)).
 - `npm run check` runs what a pull request needs before the play gate: the game's typecheck, the check of the exported
   data, the game's tests and the hygiene check, in turn. CONTRIBUTING and the README listed them one by one ([#874](https://github.com/0xAell/Tervain/pull/874)).
+- The Unreal seed mirrors a third rule, the first of movement: the pace kept wading (`TervainRules::WadeFactor`, its
+  numbers read from `hero.wade`). It returns what the core's `wadeFactor` returns at every centimetre from half a metre
+  out of the water to 3 m deep, and every wade key is read ([#875](https://github.com/0xAell/Tervain/pull/875)).
 
 Next:
 
 - Loading: the drawn trees' models are now most of the woodland stage, about 7 s of its 14 in a profiled run on the
   four-core test machine, and the leaf-island pass (`anchorLeafIslands` in flora.ts) about 4 more. Past a few more small
-  gains, the step is to build the models in workers, or keep them between visits.
+  gains, the step is to build the models in workers, or keep them between visits. Before the woodland the main thread
+  waits about 7 s, idle, for the ground's textures (painted in a worker), Rapier's compilation and the images' decoding;
+  building the terrain and the woodland meanwhile gained nothing measurable in five alternating pairs on that machine,
+  whose four cores the waits already kept busy. Worth measuring again on a machine with a GPU.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
   textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
   materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
