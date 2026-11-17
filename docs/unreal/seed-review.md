@@ -394,7 +394,7 @@ Improved:
   its paces, rates and back-up cone read from `riding.ride`) and its gallop's stamina (`MountStaminaStep`, from
   `riding.stamina`). On 14,400 steps of speed, facing, reins, push, gait and time the C++ gives the core's speed, turn
   and facing within a ten-thousandth; `FMath::Atan2`, `Sin`, `Cos` and `Abs` join the register, every page of
-  which was opened again and still holds its passage (PR_X).
+  which was opened again and still holds its passage ([#884](https://github.com/0xAell/Tervain/pull/884)).
 
 Next:
 
