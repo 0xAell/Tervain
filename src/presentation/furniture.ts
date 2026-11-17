@@ -329,7 +329,10 @@ function rugMaterial(pattern: number): THREE.MeshStandardMaterial {
   ][pattern % 4]!;
   const size = 256, canvas = document.createElement('canvas');
   canvas.width = canvas.height = size;
-  const g = canvas.getContext('2d')!;
+  // Read back below for the weave: a CPU canvas. The rugs arrive while the world is already drawing, and reading back a
+  // GPU canvas waits for the graphics process to finish every frame queued before it (a stall of seconds on a software
+  // renderer, a hitch on a GPU).
+  const g = canvas.getContext('2d', { willReadFrequently: true })!;
   g.fillStyle = palettes[0]!; g.fillRect(0, 0, size, size);
   // Border and bands.
   g.fillStyle = palettes[3]!; g.fillRect(0, 0, size, 14); g.fillRect(0, size - 14, size, 14); g.fillRect(0, 0, 14, size); g.fillRect(size - 14, 0, 14, size);

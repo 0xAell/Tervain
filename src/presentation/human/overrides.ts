@@ -39,7 +39,8 @@ export async function decodeSheetImage(url: string): Promise<{ pixels: Uint8Clam
   const size = Math.max(bmp.width, bmp.height);
   if (bmp.width !== bmp.height) console.warn(`people sheet ${url} is ${bmp.width}x${bmp.height}; sheets are square, so it is stretched to ${size}x${size}`);
   const canvas = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(size, size) : Object.assign(document.createElement('canvas'), { width: size, height: size });
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+  // Read back below: a CPU canvas, or the read waits for the graphics process to finish every frame queued before it.
+  const ctx = canvas.getContext('2d', { willReadFrequently: true }) as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
   ctx.drawImage(bmp, 0, 0, size, size);
   bmp.close();
   return { pixels: ctx.getImageData(0, 0, size, size).data, size };
