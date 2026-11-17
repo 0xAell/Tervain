@@ -353,6 +353,8 @@ Improved:
   kept by the closures of the world they were built for, and the arrays with them. A region lets its batches' arrays go
   once merged (`Region.toGroup`), keeps their counts, and refuses more geometry or a second merge. A settled journey
   holds 448 MB of array buffers where it held 515 to 516 MB: since the morning's 810 MB, 45% less ([#873](https://github.com/0xAell/Tervain/pull/873)).
+- `npm run check` runs what a pull request needs before the play gate: the game's typecheck, the check of the exported
+  data, the game's tests and the hygiene check, in turn. CONTRIBUTING and the README listed them one by one ([#874](https://github.com/0xAell/Tervain/pull/874)).
 
 Next:
 

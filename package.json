@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:game": "vitest run --project game",
     "test:gothic3": "vitest run --project gothic3",
+    "check": "npm run typecheck:game && npm run data:check && npm run test:game && npm run hygiene:check -- --base origin/main",
     "preview": "vite preview --host 127.0.0.1",
     "people:sheets": "node tools/export-people-sheets.mjs",
     "people:check": "node tools/export-people-sheets.mjs --check",
