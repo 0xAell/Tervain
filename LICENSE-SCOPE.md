@@ -47,6 +47,6 @@ Tervain's original art, music, models, story and setting text, visual identity, 
 
 ## Commercial permissions
 
-PolyForm Noncommercial 1.0.0 does not grant commercial permission for code it covers. Separate commercial permission may be requested at [ael.dev@proton.me](mailto:ael.dev@proton.me). Any permission would require separate authorization from the relevant rights holder; no rate, royalty, guarantee, or other commercial term is set by this notice.
+PolyForm Noncommercial 1.0.0 does not grant commercial permission for code it covers. Separate commercial permission may be requested at [ael@mail.grokbot.com](mailto:ael@mail.grokbot.com). Any permission would require separate authorization from the relevant rights holder; no rate, royalty, guarantee, or other commercial term is set by this notice.
 
 The application package remains marked private in `package.json`. It has no package-wide license metadata because the root license is deliberately narrower than the package and repository contents.
