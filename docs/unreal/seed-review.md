@@ -352,7 +352,7 @@ Improved:
   that grow by doubling, so they hold up to twice what is drawn; the meshes copy what they draw, but the regions were
   kept by the closures of the world they were built for, and the arrays with them. A region lets its batches' arrays go
   once merged (`Region.toGroup`), keeps their counts, and refuses more geometry or a second merge. A settled journey
-  holds 448 MB of array buffers where it held 515 to 516 MB: since the morning's 810 MB, 45% less (PR_REGIONS).
+  holds 448 MB of array buffers where it held 515 to 516 MB: since the morning's 810 MB, 45% less ([#873](https://github.com/0xAell/Tervain/pull/873)).
 
 Next:
 
