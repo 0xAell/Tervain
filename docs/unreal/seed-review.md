@@ -386,7 +386,7 @@ Improved:
 - The Unreal seed mirrors a fourth rule: the bow's launch (`TervainRules::ArrowLaunchDirection`, its speed and gravity
   read from `bow`), the low arc that carries an arrow through its target, in double precision as the core computes it.
   It returns the core's direction within a millionth on 305 targets, from under the archer to beyond the bow's reach;
-  `FMath::Sqrt` joins the register with the page that documents it ([PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  `FMath::Sqrt` joins the register with the page that documents it ([#881](https://github.com/0xAell/Tervain/pull/881)).
 
 Next:
 
