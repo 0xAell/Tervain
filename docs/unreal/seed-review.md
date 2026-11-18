@@ -468,6 +468,12 @@ Improved:
   programs at the first view where it found 181, and nine more during the tour, at noon as at night, all prepared
   ahead of their first draw. A transition test that failed when run on its own, because it counted a yield of the loading work
   as a frame of the main loop, now passes alone as in its file ([#901](https://github.com/0xAell/Tervain/pull/901)).
+- A preparation now waits for every shader program its materials hold. Three's wait (`compileAsync`) resolved once each
+  compiled material's latest program was linked, but a material drawn on several kinds of object, such as the shadow
+  warm-up's shared depth material on a static mesh and on a skinned animal, has a program for each, and a program's
+  first draw waits for its link. On 0.1.2 the first view's preparation left 10 of the 136 programs it made unwaited,
+  and a wild cat's arrival the program its skinned shadow is drawn with: the frame that first drew it in the sun's
+  shadow stalled (`compileWait.ts`) ([#902](https://github.com/0xAell/Tervain/pull/902)).
 
 Next:
 
@@ -509,5 +515,9 @@ Next:
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by
   a fifth). The residents' poses are nearly a third of it: the work reach, the feet planted, the hands kept out of the torso,
   the clips sampled, each 0.06 to 0.14 ms a step. The wanderer's own update is a fifth. The forest's per-step refresh
-  (`flora.ts`, 0.12 ms) and the groundcover's (0.1 ms) come next. The render's own JavaScript, about 6 ms a steady
-  frame at the landing, is still to be profiled by part.
+  (`flora.ts`, 0.12 ms) and the groundcover's (0.1 ms) come next. The render's own JavaScript, profiled on 0.1.2 over
+  eight steady frames at each of three route stops (480×300, so that the software renderer keeps up; the JavaScript does
+  not depend on the size): 10.5 ms a frame at the landing, 8.6 in the village, 11.5 with the sea in view. Three's work
+  for each draw is most of it: the colour passes' draws 55 to 65 % (choosing programs and uploading uniforms as the
+  material changes), the sun's shadow map about a fifth, the scene's traversal for culling about a tenth, the world's
+  matrices 7 %. Fewer draw calls and material changes are what cut it.

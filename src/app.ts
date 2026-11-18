@@ -62,6 +62,7 @@ import type { AnimalDefinition } from './core/content/animals';
 import type { ValleyAnimal } from './presentation/animals/valleyAnimals';
 import { WaterRenderPass } from './presentation/waterRenderPass';
 import { installDepthOnlyShadowPass } from './presentation/softShadows';
+import { installCompleteCompileWait } from './presentation/compileWait';
 import { setHighLodBands, setHighLodSpecies } from './presentation/floraPopulation';
 import type { CircleCollider } from './core/world/colliders';
 import { isNightHour } from './core/rules/dayNight';
@@ -227,6 +228,8 @@ export class App {
       // Checking each program's link status asks the GPU process to finish compiling there and then: a stall when a
       // material is first drawn in play (A115). Development builds keep the check and its error logs.
       if (import.meta.env.PROD) this.renderer.debug.checkShaderErrors = false;
+      // So that a preparation's wait covers every program its materials hold, not one each (compileWait.ts).
+      installCompleteCompileWait(this.renderer);
       this.perf = new PerfMeter(this.renderer);
     } catch {
       this.loadingScreen.fail({ message: S('menu.webgl'), retry: () => window.location.reload() });
@@ -1213,8 +1216,9 @@ export class App {
       const scene = this.world.scene;
       const world = this.world;
       this.world.warming.warm = (object) => this.warmShaders(object, scene, true, world);
-      // What the world holds hidden at first (rooms' furniture and clutter, shown as one comes near) is prepared the
-      // same way (A79): the renderer's own first-view preparation passes over hidden objects.
+      // What the world holds hidden at first (rooms' furniture and clutter, shown as one comes near) has its textures
+      // handed over the same way (A79). Its programs were made with the first view: three's compile walks hidden objects
+      // too, and on 0.1.2 this pass made none.
       void this.warmHidden(scene);
     }
     if (this.menuBackgroundActive) {
@@ -2753,7 +2757,7 @@ export class App {
     }
   }
 
-  /** `compileOnly`: the programs alone, for what is visible now (the first view): no hidden pieces, no uploads. */
+  /** `compileOnly`: the programs alone, no uploads or first draws (the first view). Three compiles hidden pieces too. */
   private warmShaders(object: THREE.Object3D, scene: THREE.Scene, draws = true, world = this.world, compileOnly = false): Promise<unknown> {
     // A hook set by a world since rebuilt prepares nothing against the new one (A87 scout).
     if (!this.stillWorld(world)) return Promise.resolve();
