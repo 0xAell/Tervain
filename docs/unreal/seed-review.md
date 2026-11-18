@@ -439,7 +439,7 @@ Improved:
   triangles, which the play gate refused ([#893](https://github.com/0xAell/Tervain/pull/893)).
 - The water's reflection draws the wanderer from the 15,000 triangles his shadow is drawn from, where it drew all
   150,000: at the route stop where he is reflected, the reflection draws 135,000 fewer skinned triangles a frame
-  and the frame drawn both ways is identical (PR_X).
+  and the frame drawn both ways is identical ([#894](https://github.com/0xAell/Tervain/pull/894)).
 
 Next:
 
