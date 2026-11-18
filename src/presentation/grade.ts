@@ -91,9 +91,11 @@ void main() {
   // Keep lens separation available to the developer benchmark, but off for the shipped natural image.
   vec2 d = vUv - 0.5;
   float r2 = dot(d, d);
-  vec2 off = d * r2 * uChromatic;
-  c.r = mix(c.r, texture2D(tScene, vUv + off).r, 0.6);
-  c.b = mix(c.b, texture2D(tScene, vUv - off).b, 0.6);
+  if (uChromatic > 0.0) {
+    vec2 off = d * r2 * uChromatic;
+    c.r = mix(c.r, texture2D(tScene, vUv + off).r, 0.6);
+    c.b = mix(c.b, texture2D(tScene, vUv - off).b, 0.6);
+  }
   if (uSharpen > 0.0 && uUnder < 0.5) {
     // Contrast-adaptive sharpen for a lowered drawing resolution: the four neighbours pull the pixel away from their mean,
     // held inside the neighbourhood's own range so an edge gains no halo. Flat areas and the noise floor are left alone.
@@ -103,12 +105,13 @@ void main() {
     float k = -0.18 * uSharpen;
     c = clamp((c + k * (sn + ss + sw + se)) / (1.0 + 4.0 * k), lo, hi);
   }
-  c += texture2D(tBloom, vUv).rgb * uBloom;
+  if (uBloom > 0.0) c += texture2D(tBloom, vUv).rgb * uBloom;
   if (uUnder > 0.5) {
     // Under the surface everything is seen through water: a slow refractive wobble, then absorption and in-scatter over
     // the real path to each pixel. The surface overhead ends that path; the sky beyond comes through Snell's window.
     vec2 wob = vec2(sin(vUv.y * 31.0 + uWaterTime * 1.9), cos(vUv.x * 27.0 + uWaterTime * 1.6)) * 0.0022;
-    c = texture2D(tScene, vUv + wob).rgb + texture2D(tBloom, vUv + wob).rgb * uBloom;
+    c = texture2D(tScene, vUv + wob).rgb;
+    if (uBloom > 0.0) c += texture2D(tBloom, vUv + wob).rgb * uBloom;
     vec4 far = uUnderInverseProjection * vec4(vUv * 2.0 - 1.0, 1.0, 1.0);
     vec3 ray = normalize(far.xyz / far.w);
     vec3 dir = mat3(uUnderCameraWorld) * ray;
@@ -139,20 +142,18 @@ void main() {
   float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
   // Cool shadows, warm lights.
   vec3 shadowTint = vec3(0.94, 0.99, 1.06);
-  // Warm sunlight remains selective. Moonlit highlights retain their cooler identity through the night cycle.
-  // A137: a touch warmer by day, now that the shade carries more blue sky.
-  vec3 lightTint = mix(vec3(1.08, 1.0, 0.87), vec3(0.97, 1.0, 1.04), clamp(uNight, 0.0, 1.0));
+  // Sunlit clay, straw and skin keep a little gold. The blue sky and silver stone
+  // already received their light in the scene and retain their local colour.
+  float warm = smoothstep(-0.015, 0.15, c.r - c.b);
+  vec3 lightTint = mix(mix(vec3(1.0), vec3(1.042, 1.0, 0.948), warm),
+                       vec3(0.97, 1.0, 1.04), clamp(uNight, 0.0, 1.0));
   c *= mix(shadowTint, lightTint, smoothstep(0.12, 0.7, l));
-  // Earthier greens and sky (A67): grass and leaves lean to olive and lose some chroma, the sky's blue is muted.
-  // Reds, golds and browns keep theirs, so the warm/cool contrast survives (this is not a blanket desaturation).
+  // Rein in the strongest leaf greens while keeping shaded turf and blue cloth distinct.
   l = dot(c, vec3(0.2126, 0.7152, 0.0722));
-  float chroma = max(c.r, max(c.g, c.b)) - min(c.r, min(c.g, c.b));
-  float leafy = smoothstep(0.0, 0.06, c.g - max(c.r, c.b)) * smoothstep(0.015, 0.08, chroma) * uEarth;
-  float skyish = smoothstep(0.0, 0.08, c.b - max(c.r, c.g)) * smoothstep(0.015, 0.08, chroma) * uEarth;
-  vec3 olive = vec3(l) + (c - vec3(l)) * 0.68;
-  olive.r += (olive.g - olive.r) * 0.32;
-  c = mix(c, olive * 0.96, leafy);
-  c = mix(c, vec3(l) + (c - vec3(l)) * 0.78, skyish);
+  float leafy = smoothstep(0.0, 0.075, c.g - max(c.r, c.b)) * uEarth;
+  vec3 olive = vec3(l) + (c - vec3(l)) * 0.84;
+  olive.r += (olive.g - olive.r) * 0.20;
+  c = mix(c, olive * 0.98, leafy);
   // Saturation, then the contrast curve.
   l = dot(c, vec3(0.2126, 0.7152, 0.0722));
   // A137: a little more colour by day keeps sunlit grass warm against the lifted shade.

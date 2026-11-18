@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { fbmField, pnoise } from '../../src/presentation/procTex';
+import { createHash } from 'node:crypto';
+import { fbmField, pnoise, voronoi } from '../../src/presentation/procTex';
 
 // fbmField hashes each lattice corner once for the rows that share it instead of four times a pixel. It must give the
 // field the per-pixel sum of pnoise gives, to the bit: the faces, the menu's materials, the bark and the ground are
@@ -36,5 +37,19 @@ describe('fractal noise fields', () => {
 
   it('keeps the per-pixel sum for periods that are not whole', () => {
     expect(same(fbmField(32, 2.5, 3.25, 2, 5), reference(32, 2.5, 3.25, 2, 5))).toBe(true);
+  });
+});
+
+describe('periodic Worley distances and site colours', () => {
+  // Reference bytes from the direct nine-neighbour calculation, including toroidal seams
+  // of a non-square field and exact nearest-site ties on a single-row lattice.
+  it.each([
+    { n: 37, x: 7, y: 10, seed: 126, jitter: 0.96, digest: 'cc010abae244b0e940006fd8119d001a384631ede772b7df76b741fd8ec0a024' },
+    { n: 36, x: 3, y: 1, seed: 13, jitter: 0, digest: 'b332b85b977f7654b4d16817175bfb571353037411b206c4901e65e68e3a9909' },
+  ])('preserves both distances and their site ID for $x × $y cells', ({ n, x, y, seed, jitter, digest }) => {
+    const field = voronoi(n, x, seed, jitter, y);
+    const hash = createHash('sha256');
+    for (const floats of [field.f1, field.f2, field.id]) hash.update(Buffer.from(floats.buffer));
+    expect(hash.digest('hex')).toBe(digest);
   });
 });

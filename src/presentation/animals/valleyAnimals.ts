@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../../core/content/animals';
-import { ellipsoid, Mesher, mul3, tube, type RGB, type V3, type WeightFn } from '../human/skin';
+import { ellipsoid, Mesher, mix3, mul3, tube, type RGB, type V3, type WeightFn } from '../human/skin';
 
 /** Proportions in metres. Hock height, long necks, muzzles and ears matter more at a distance than coat markings. */
 interface Shape {
@@ -20,7 +20,7 @@ const SHAPES: Record<AnimalSpecies, Shape> = {
   lion:  { ribs: [.32, .36, .79], hip: .87, cheek: .22, neck: .16, muzzle: .18, tail: .88, fur: 0xb49a67, bib: 0xd1ba8d },
   bear:  { ribs: [.45, .46, .74], hip: .83, cheek: .23, neck: .12, muzzle: .23, tail: .10, fur: 0x57483e, bib: 0x92785c },
   wolf:  { ribs: [.22, .255, .53], hip: .65, cheek: .145, neck: .15, muzzle: .25, tail: .48, fur: 0x837f73, bib: 0xcdc2a6 },
-  dog:   { ribs: [.174, .215, .41], hip: .49, cheek: .124, neck: .12, muzzle: .17, tail: .34, fur: 0xa87650, bib: 0xe4d4b0 },
+  dog:   { ribs: [.174, .215, .41], hip: .49, cheek: .124, neck: .12, muzzle: .17, tail: .34, fur: 0x96623e, bib: 0xc4b79e },
   boar:  { ribs: [.29, .34, .54], hip: .57, cheek: .179, neck: .025, muzzle: .30, tail: .205, fur: 0x5d4b42, bib: 0x97775d },
   cat:   { ribs: [.083, .115, .22], hip: .225, cheek: .075, neck: .05, muzzle: .051, tail: .30, fur: 0x888985, bib: 0xe5d7be },
 };
@@ -58,14 +58,30 @@ export function sculptValleyAnimal(def: AnimalDefinition): ValleyAnimal {
   const tail = joint('tail', [0, h+r[1]*.18, -r[2]*.80], trunk);
   body.name = 'Valley ' + sp;
   body.userData.animal = { motionSpeeds: { Walk: def.walk, Run: def.run } };
+  const canine = sp === 'dog' || sp === 'wolf';
+  const saddle = sp === 'dog' ? pigment(0x403831) : pigment(0x515451);
   const coat = ([x,y,z]: V3): RGB => {
+    if (canine) {
+      // A saddle tapers before the shoulders. The lighter guard hairs break at the
+      // flanks and throat, so the warm ribs and pale breast remain distinct in shade.
+      const edge = .15 + .90 * Math.max(0, z - .12) + .08 * Math.cos(11*z + 2*x);
+      const mantle = THREE.MathUtils.smoothstep(y, edge - .15, edge + .13);
+      const chest = THREE.MathUtils.smoothstep(-y + .61*z, .36, .87);
+      return mix3(mix3(fur, saddle, mantle), bib, chest * .92);
+    }
     if (y < -.44) return mul3(bib, .74 + .23 * Math.abs(x));
     if (sp === 'tiger' && Math.sin(z*24 + y*y*5 + Math.abs(x)*1.3) > .50 && y > -.26) return INK;
-    if ((sp === 'dog' || sp === 'wolf') && (y > .62 || (z < -.14 && Math.abs(x) > .62))) return dark;
     if (sp === 'cat' && Math.cos(z*24 + Math.abs(x)*2) > .64 && y > .05) return dark;
     return mul3(fur, .91 + .13*Math.abs(x) + .035*y);
   };
-  blob(trunk, [0, h, 0], r, coat, 30);
+  if (canine) {
+    // Deep brisket over the forelegs, tucked flank behind it, then a broader haunch.
+    ellipsoid(mesh, [0,h,0], r, coat, weight(trunk), { ws: 30, hs: 15, shape: ([x,y,z]) => {
+      const loin = Math.exp(-((z + .37) ** 2) * 13);
+      const shoulder = Math.exp(-((z - .42) ** 2) * 9);
+      return [x * (1 - .19*loin + .09*shoulder), y + Math.max(0,-y) * (.43*loin - .30*shoulder), z];
+    } });
+  } else blob(trunk, [0, h, 0], r, coat, 30);
   // A sitting cat carries its rump on the ground and holds its chest upright between its forelegs.
   if (seated) blob(trunk, [0, h*.68, -r[2]*.56], [r[0]*1.14,h*.68,r[2]*.64], fur, 18);
   stroke(neck, [at[neck]!, [0, (hy+h)*.5, r[2]*.83], at[head]!], [r[0]*.9, c*.84, c*.71], fur, 15);
@@ -80,10 +96,15 @@ export function sculptValleyAnimal(def: AnimalDefinition): ValleyAnimal {
     }
   }
   if (sp === 'bear' || boar) blob(trunk, [0, h+r[1]*.19, r[2]*.31], [r[0]*.95,r[1],r[2]*.62], fur, 18);
-  blob(head, at[head]!, [c, c*(deer ? 1.15 : 1), c*1.08], fur, 18);
+  const brow = ([x,y,z]: V3): RGB => {
+    const mask = THREE.MathUtils.smoothstep(z - y * .40, .34, .85);
+    const blaze = (1 - THREE.MathUtils.smoothstep(Math.abs(x), .10, .32)) * THREE.MathUtils.smoothstep(y, .22, .72);
+    return mix3(mix3(fur, saddle, mask * .78), bib, blaze * .48);
+  };
+  blob(head, at[head]!, [c, c*(deer ? 1.15 : 1), c*1.08], canine ? brow : fur, 18);
   const noseZ = hz + c*.67 + s.muzzle;
   blob(jaw, [0,hy-c*.38,hz+c*.69+s.muzzle*.32], [c*.52,c*.32,s.muzzle*.70], bib);
-  blob(head, [0,hy-c*.16,hz+c*.68+s.muzzle*.37], [c*(boar ? .64 : .56),c*.4,s.muzzle*.70], sp === 'tiger' || sp === 'cat' ? bib : fur);
+  blob(head, [0,hy-c*.16,hz+c*.68+s.muzzle*.37], [c*(boar ? .64 : .56),c*.4,s.muzzle*.70], sp === 'tiger' || sp === 'cat' ? bib : canine ? saddle : fur);
   blob(head, [0,hy-c*.15,noseZ], [c*(boar ? .55 : .34),c*(boar ? .35 : .22),c*.19], boar ? pigment(0x947669) : INK);
   for (const side of [-1,1]) {
     const eyeAt: V3 = [side*c*.80,hy+c*.17,hz+c*.56];
@@ -99,6 +120,10 @@ export function sculptValleyAnimal(def: AnimalDefinition): ValleyAnimal {
     const e: V3 = [side*c*.66,hy+c*.63,hz-c*.25];
     if (sp === 'bear' || sp === 'lion' || sp === 'tiger') {
       blob(head, [e[0]*1.1,e[1]+c*.25,e[2]], [c*.32,c*.39,c*.21], dark);
+    } else if (sp === 'dog') {
+      // Folded collie ears: one soft tip hangs a little lower than the other.
+      stroke(head, [e, [side*c*.87,e[1]+c*.55,e[2]-.12*c],
+        [side*c*1.06,e[1]+c*(side > 0 ? .24 : .12),e[2]+c*.31]], [c*.28,c*.28,c*.045], saddle);
     } else {
       const length = deer ? 1.55 : .92, sideways = deer || boar ? 1.70 : .97;
       stroke(head, [e,[e[0]*1.39,e[1]+c*.36,e[2]],[side*c*sideways,e[1]+c*length,e[2]-c*.28]], [c*.25,c*.32,c*.014], fur);

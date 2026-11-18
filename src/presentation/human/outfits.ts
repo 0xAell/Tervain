@@ -62,7 +62,8 @@ export function npcOutfit(id: NpcId, look: LookLike, seed: number): Outfit {
         feet: { kind: 'boots', color: LEATHER, cuff: true },
         outer: { kind: 'coat', color: pri, cloth: 'wool', hem: 0.56, sleeve: 'long', neck: 'high', open: true, trim: LEATHER_DARK },
         belt: { color: LEATHER_DARK, metal: IRON, pouch: LEATHER, knife: true },
-        hat: worn(0x3a2e24, 0.7),
+        hat: worn(0x584234, 0.78),
+        rainCape: { color: worn(0x995b35, 0.87), binding: worn(0xd1ae74, 0.87) },
       };
     case 'rillford_reeve':
       return {
@@ -270,7 +271,8 @@ export function playerOutfit(look: LookLike): Outfit {
     outer: { kind: 'tunic', color: pri, cloth: 'wool', hem: 0.24, sleeve: 'none', neck: 'open' },
     belt: { color: LEATHER_DARK, metal: IRON, pouch: LEATHER },
     bracers: LEATHER_DARK,
-    cloak: { color: worn(0x506f71), clasp: BRASS },
+    cloak: { color: worn(0x486f75, 0.9), clasp: BRASS },
+    rainCape: { color: worn(0x658b87, 0.92), binding: worn(0xc5a475, 0.9) },
     satchel: { color: worn(0x966344), strap: LEATHER_DARK },
   };
 }

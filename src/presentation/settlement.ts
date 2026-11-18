@@ -894,7 +894,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     g.position.set(pk.x, y, pk.z);
     pickups[pk.id] = g;
   }
-  // The quest's own pickups, built here; the loose ones below draw from their own instanced meshes.
+  // The quest's own pickups, built here; the loose provisions draw from their own material batches.
   const questPickups = Object.values(pickups);
   const loosePickups = buildWorldPickups(terrain, PICKUP_LOCATIONS, mats);
   group.add(loosePickups.group);
@@ -977,6 +977,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     },
     dispose() {
       doorBatch?.dispose();
+      loosePickups.dispose();
       mats.dispose();
     },
   };

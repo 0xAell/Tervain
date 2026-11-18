@@ -88,6 +88,20 @@ describe('the tree doorway aperture', () => {
 });
 
 describe('the native hinged tree door', () => {
+  it('sheds rain outwards across the cedar hood and clears the top of the open leaf', () => {
+    const f = fixture();
+    try {
+      const height = (x: number, z: number) => {
+        const hit = localRay(f.door, new THREE.Vector3(x, 2.65, z), new THREE.Vector3(0, -1, 0), 0.95).intersectObject(f.staticGroup)[0];
+        expect(hit).toBeDefined();
+        return f.door.worldToLocal(hit!.point.clone()).y;
+      };
+      expect(height(0.04, 0.2) - height(0.62, 0.2)).toBeGreaterThan(0.16);
+      expect(height(-0.3, 0.05) - height(-0.3, 0.33)).toBeGreaterThan(0.08);
+      expect(height(0.62, 0.3)).toBeGreaterThan(HERMIT_DOOR.height + 0.10);
+    } finally { f.cleanup(); }
+  });
+
   it('keeps the leaf, grille and its light together around the fixed left-post hinge', () => {
     const f = fixture();
     try {

@@ -331,9 +331,17 @@ export function buildHead(wd: Wardrobe, spec: HeadSpec, ctx: HeadContext): HeadF
       hair.tri(p0, p2, p3);
     }
   };
-  const cutT: Record<HairCut, number> = { short: 0.009, cropped: 0.0045, long: 0.008, tied: 0.008, bun: 0.008, bald: 0 };
+  const cutT: Record<HairCut, number> = { short: 0.013, cropped: 0.0045, long: 0.0095, tied: 0.009, bun: 0.009, bald: 0 };
   const T = (spec.covered ? Math.min(cutT[spec.cut], 0.004) : cutT[spec.cut]) * scale;
   if (spec.cut !== 'bald') {
+    // A combed side part curves back around the crown. Tied hair draws its lengths inwards
+    // toward the nape; cropped hair and hair under headwear keep the closer cut.
+    const waved = !spec.covered && spec.cut !== 'cropped';
+    const lock = (x: number, y: number, z: number) => {
+      const az = Math.atan2(x, z);
+      const sweep = (spec.cut === 'short' ? 1.1 : 0.72) * y + 0.32 * Math.sin(az - 1.7 * y);
+      return (0.5 + 0.5 * Math.cos(8 * (az + sweep))) ** 2;
+    };
     // The shell starts a little inside the painted hairline, so its edge always sinks into painted hair rather than skin.
     shell(
       wd.useHead(part('hair', 'hair')),
@@ -348,12 +356,14 @@ export function buildHead(wd: Wardrobe, spec: HeadSpec, ctx: HeadContext): HeadF
         const lump = 1 + (0.6 * valueNoise(ix * 0.9 + lumpPh, iy * 0.7, spec.seed) - 0.3 + 0.5 * (valueNoise(ix * 2.7 + lumpPh, iy * 0.22, spec.seed + 1) - 0.5)) * (1 - pole);
         const top = 0.75 + 0.45 * sstep(-0.2, 0.7, b.y);
         // Thin over a wide band toward the hairline, so the painted fringe, not the shell's edge, draws the line.
-        return T * k * k * lump * top - 0.0018 * scale * (1 - k);
+        const comb = waved ? 0.70 + 0.8 * lock(b.x, b.y, b.z) + 0.34 * sstep(0, 0.7, b.x) * sstep(0.18, 0.78, b.y) : 1;
+        return T * k * k * lump * top * comb - 0.0018 * scale * (1 - k);
       },
       (ix, iy, k) => {
         const b = bi(ix, iy);
         const st = 0.82 + 0.3 * valueNoise(ix * 2.3, iy * 0.35 + lumpPh, spec.seed + 3);
-        return mul3(hairC, st * (0.72 + 0.28 * k) * (1 - 0.18 * sstep(0.2, -0.6, b.y)));
+        const crest = waved ? 0.82 + 0.34 * lock(b.x, b.y, b.z) : 1;
+        return mul3(hairC, st * crest * (0.72 + 0.28 * k) * (1 - 0.18 * sstep(0.2, -0.6, b.y)));
       },
     );
   }

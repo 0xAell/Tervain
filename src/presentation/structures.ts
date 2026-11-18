@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Batch } from './buildKit';
-import { hash3, mulc, rgb, type BoxOpts, type Col, type RGB } from './buildKit';
+import { FACES, hash3, mulc, rgb, type BoxOpts, type Col, type RGB } from './buildKit';
 import type { Region } from './regions';
 import { hipRoof, gableRoof, leanRoof, ROOFS, type RoofResult } from './roofs';
 import { rockShapes } from './scatter';
@@ -322,6 +322,7 @@ export interface WindowOpts {
   /** Rotation of the window about y, in the caller's frame (0 faces +z). */
   ry?: number;
   shutters?: boolean;
+  shopWindow?: 'serving' | 'rear';
   /** The shutters' paint (A132), drawn with the same random sequence as plain wood. */
   shutterTint?: number;
   /** A real opening through the wall behind (A79): clear glass and a night glow instead of the dark backing and pane. */
@@ -345,30 +346,50 @@ export function windowAt(R: Region, rnd: Rnd, o: WindowOpts) {
   frame.box(w + 0.2, 0.11, 0.16, 0, h, 0.05, tint(), { jit: 0.1 });
   frame.box(0.1, h + 0.1, 0.14, -w / 2 - 0.05, -0.03, 0.05, tint(), { jit: 0.1, grain: 'y' });
   frame.box(0.1, h + 0.1, 0.14, w / 2 + 0.05, -0.03, 0.05, tint(), { jit: 0.1, grain: 'y' });
+  const paneBase = o.shopWindow === 'serving' ? h * 0.69 : 0;
   if (o.opening) {
     // A79: clear glass a little inside the wall's outer face, so the world is seen through it from the room and the room
     // from outside; after dark the room's lamplight shows over it from outside only (a plane facing out).
-    R.glass.box(w, h, 0.01, 0, 0, -0.07, 0xffffff, { jit: 0 });
-    R.nightGlow.quad([-w / 2, 0, -0.055, w / 2, 0, -0.055, w / 2, h, -0.055, -w / 2, h, -0.055], 0xffffff, { amp: 0 });
+    R.glass.box(w, h - paneBase, 0.01, 0, paneBase, -0.07, 0xffffff, { jit: 0 });
+    R.nightGlow.quad([-w / 2, paneBase, -0.055, w / 2, paneBase, -0.055, w / 2, h, -0.055, -w / 2, h, -0.055], 0xffffff, { amp: 0 });
   } else {
     R.glow.box(w, h, 0.03, 0, 0, 0.04, 0xffffff, { jit: 0 });
     R.pane.box(w, h, 0.04, 0, 0, 0.045, 0xffffff, { jit: 0 });
   }
-  R.timber.box(0.05, h, 0.06, 0, 0, 0.075, jitterTone(TINT.woodDark, rnd), { jit: 0.05 });
-  R.timber.box(w, 0.05, 0.06, 0, h * 0.5, 0.075, jitterTone(TINT.woodDark, rnd), { jit: 0.05 });
+  R.timber.box(0.05, h - paneBase, 0.06, 0, paneBase, 0.075, jitterTone(TINT.woodDark, rnd), { jit: 0.05 });
+  R.timber.box(w, 0.05, 0.06, 0, paneBase || h * 0.5, 0.075, jitterTone(TINT.woodDark, rnd), { jit: 0.05 });
   if (o.shutters ?? true) {
     for (const s of [-1, 1]) {
       const open = rnd() < 0.7 ? 0.9 + rnd() * 0.5 : 0.25 * rnd();
       // Open shutters swing out from the wall (A75): turned by +s·open they swung inward, through the wall and into the room.
-      ctx.push(s * (w / 2 + 0.04), 0, 0.08, -s * open + (rnd() - 0.5) * 0.06);
+      const angle = o.shopWindow ? 0.24 + 0.25 * open + (s > 0 ? 0.10 : 0) : open;
+      const pinX = s * (w / 2 + (o.shopWindow ? 0.095 : 0.04)), pinZ = o.shopWindow ? 0.16 : 0.08;
+      ctx.push(pinX, 0, pinZ, -s * angle + (rnd() - 0.5) * 0.06);
       const sh = h * (0.96 + rnd() * 0.06);
       const tint = jitterTone(o.shutterTint ?? TINT.wood, rnd, 0.09);
       const lean = (rnd() - 0.5) * 0.04;
-      ctx.push(s * w / 4, 0, 0, 0, 0, lean);
+      if (o.shopWindow) for (const y of [sh * 0.17, sh * 0.76]) {
+        R.vc.rod(0, y - 0.035, 0, 0, y + 0.065, 0, 0.018, 5, TINT.iron, { caps: false });
+        R.vc.bx(-0.025, y, -0.075, 0.025, y + 0.025, 0.008, TINT.iron, { skip: FACES.nz });
+      }
+      ctx.push(s * w / 4, 0, 0, 0, 0, o.shopWindow ? 0 : lean);
       const sw = w * 0.49;
-      for (let i = 0; i < 2; i++) R.planks.box(sw / 2 * 0.96, sh, 0.05, -sw / 2 + (i + 0.5) * sw / 2, 0, 0, mulc(tint, 0.96 + hash3(i, o.x, o.z) * 0.08), { grain: 'y', jit: 0.025, amp: 0.025 });
-      for (const y of [sh * 0.17, sh * 0.76]) R.timber.box(sw * 0.94, 0.065, 0.038, 0, y, 0.036, mulc(tint, 0.83), { grain: 'x', jit: 0.025, amp: 0.02 });
-      R.timber.box(0.048, Math.hypot(sw * 0.72, sh * 0.52), 0.035, -sw * 0.36, sh * 0.24, 0.053, mulc(tint, 0.82), { rz: -Math.atan2(sw * 0.72, sh * 0.52), grain: 'y', jit: 0.02, amp: 0.02 });
+      const boards = o.shopWindow ? R.vc : R.planks;
+      const pieces = o.shopWindow ? 3 : 2;
+      for (let i = 0; i < pieces; i++) boards.box(sw / pieces * 0.96, sh, 0.05, -sw / 2 + (i + 0.5) * sw / pieces, 0, 0,
+        mulc(tint, 0.96 + hash3(i, o.x, o.z) * 0.08), { grain: 'y', jit: 0.025, amp: 0.025 });
+      const ledges = o.shopWindow ? R.vc : R.timber;
+      for (const y of [sh * 0.17, sh * 0.76]) {
+        ledges.box(sw * 0.94, 0.065, 0.038, 0, y, 0.036, mulc(tint, o.shopWindow ? 0.68 : 0.83), { grain: 'x', jit: 0.025, amp: 0.02 });
+        if (o.shopWindow) {
+          const pin = -s * w / 4, tail = -pin * 0.46, z = 0.057;
+          R.vc.quad([Math.min(pin, tail), y + 0.018, z, Math.max(pin, tail), y + 0.018, z,
+            Math.max(pin, tail), y + 0.043, z, Math.min(pin, tail), y + 0.043, z], TINT.iron);
+        }
+      }
+      const hand = o.shopWindow ? s : 1;
+      ledges.box(0.048, Math.hypot(sw * 0.72, sh * 0.52), 0.035, -hand * sw * 0.36, sh * 0.24, 0.053, mulc(tint, 0.82),
+        { rz: -hand * Math.atan2(sw * 0.72, sh * 0.52), grain: 'y', jit: 0.02, amp: 0.02 });
       ctx.pop();
       ctx.pop();
     }
@@ -377,7 +398,7 @@ export function windowAt(R: Region, rnd: Rnd, o: WindowOpts) {
 }
 
 /** A rubble chimney stack rising through the roof. */
-export function chimney(R: Region, rnd: Rnd, x: number, z: number, y0: number, h: number, w = 0.75) {
+export function chimney(R: Region, rnd: Rnd, x: number, z: number, y0: number, h: number, w = 0.75, cowl?: 'kiln' | 'inn') {
   const B = R.stone;
   let y = y0;
   let course = 0;
@@ -390,7 +411,22 @@ export function chimney(R: Region, rnd: Rnd, x: number, z: number, y0: number, h
   }
   B.box(w + 0.16, 0.12, w + 0.16, x, y, z, jitterTone(TINT.stoneDark, rnd, 0.12), { jit: 0.1 });
   R.vc.box(w - 0.3, 0.04, w - 0.3, x, y + 0.1, z, 0x141210, { jit: 0 });
-  return R.ctx.toWorld(x, y + 0.14, z);
+  const lip = y + 0.14;
+  if (!cowl) return R.ctx.toWorld(x, lip, z);
+  // Open-sided cowls turn the hot flue gases under a rain cap. The kiln has a rounder
+  // buff-clay collar, the inn a squat, square, iron-rich chimney pot.
+  const kiln = cowl === 'kiln', sides = kiln ? 8 : 4;
+  const clay = kiln ? 0xb87c54 : 0x926959;
+  const foot = w * 0.40, neck = foot * 0.67, collar = kiln ? 0.31 : 0.19;
+  const cap = collar + 0.14, peak = cap + (kiln ? 0.12 : 0.17);
+  R.vc.lathe([foot, 0, foot * 0.94, 0.075, neck, collar - 0.04, neck * 1.14, collar,
+    neck * 0.78, collar, neck * 0.74, 0.02], sides, x, lip - 0.008, z, clay);
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 2, px = x + Math.cos(a) * neck * 0.9, pz = z + Math.sin(a) * neck * 0.9;
+    R.vc.rod(px, lip + collar - 0.014, pz, px, lip + cap + 0.025, pz, 0.027, 4, clay, { caps: false });
+  }
+  R.vc.lathe([0, cap, foot * 1.05, cap, foot, cap + 0.038, 0, peak], sides, x, lip, z, clay);
+  return R.ctx.toWorld(x, lip + peak, z);
 }
 
 export type RoofKind = 'thatch' | 'shingle' | 'slate' | 'tile';
@@ -404,14 +440,14 @@ export function roofFor(R: Region, kind: 'gable' | 'hip' | 'lean', style: RoofKi
 }
 
 /** The triangular fill of a gable end, in plank or plaster. */
-export function gableEnd(R: Region, side: 1 | -1, w: number, d: number, y: number, rise: number, mat: 'planks' | 'plaster' | 'stone', knee = 0, thickness = 0.24) {
+export function gableEnd(R: Region, side: 1 | -1, w: number, d: number, y: number, rise: number, mat: 'planks' | 'plaster' | 'stone', knee = 0, thickness = 0.24, lime: number = TINT.plaster) {
   const ctx = R.ctx;
   const hs = d / 2;
   ctx.push(side * (w / 2), y, 0, (side * Math.PI) / 2);
   const profile: [number, number][] = knee > 0 ? [[-hs, 0], [hs, 0], [hs, knee], [0, rise], [-hs, knee]] : [[-hs, 0], [hs, 0], [0, rise]];
   const batch = R.get(mat);
   const firstUV = batch.uv.n;
-  batch.prism(profile, -thickness * 0.5, thickness * 0.5, mulc(rgb(mat === 'stone' ? TINT.stone : mat === 'plaster' ? TINT.plaster : TINT.wood), TONE_GAIN), { jit: 0.06, amp: 0.1 });
+  batch.prism(profile, -thickness * 0.5, thickness * 0.5, mulc(rgb(mat === 'stone' ? TINT.stone : mat === 'plaster' ? lime : TINT.wood), TONE_GAIN), { jit: 0.06, amp: 0.1 });
   if (mat === 'planks') for (let i = firstUV; i < batch.uv.n; i += 2) {
     const u = batch.uv.a[i]!;
     batch.uv.a[i] = batch.uv.a[i + 1]!;
@@ -421,11 +457,11 @@ export function gableEnd(R: Region, side: 1 | -1, w: number, d: number, y: numbe
 }
 
 /** Structural wall infill follows the actual overhanging roof, including its raised wall/eave intersection. */
-export function roofWallInfill(R: Region, kind: 'gable' | 'hip' | 'lean', w: number, d: number, wallTop: number, roof: RoofResult, mat: 'planks' | 'plaster' | 'stone', thickness = 0.24) {
+export function roofWallInfill(R: Region, kind: 'gable' | 'hip' | 'lean', w: number, d: number, wallTop: number, roof: RoofResult, mat: 'planks' | 'plaster' | 'stone', thickness = 0.24, lime: number = TINT.plaster) {
   const base = wallTop - 0.04;
   const upper = roof.ridgeY - 0.03; // Meets the roof's structural shell inside its thickness.
   const slope = Math.tan(roof.pitch);
-  const tint = mulc(rgb(mat === 'stone' ? TINT.stone : mat === 'plaster' ? TINT.plaster : TINT.wood), TONE_GAIN);
+  const tint = mulc(rgb(mat === 'stone' ? TINT.stone : mat === 'plaster' ? lime : TINT.wood), TONE_GAIN);
   if (kind === 'hip') {
     const B = R.get(mat);
     const hw = w / 2, hd = d / 2, t = thickness / 2;
@@ -448,7 +484,7 @@ export function roofWallInfill(R: Region, kind: 'gable' | 'hip' | 'lean', w: num
   }
   if (kind === 'gable') {
     const knee = Math.max(0, upper - d / 2 * slope - base);
-    for (const side of [-1, 1] as const) gableEnd(R, side, w, d, base, upper - base, mat, knee, thickness);
+    for (const side of [-1, 1] as const) gableEnd(R, side, w, d, base, upper - base, mat, knee, thickness, lime);
     return;
   }
   const high = upper - (roof.halfSpan - d / 2) * slope;

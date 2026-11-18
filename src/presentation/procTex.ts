@@ -98,43 +98,45 @@ export function voronoi(n: number, cells: number, seed: number, jitter = 0.9, ce
   const f1 = new Float32Array(n * n);
   const f2 = new Float32Array(n * n);
   const id = new Float32Array(n * n);
-  const px = new Float32Array(cells * cellsY);
-  const py = new Float32Array(cells * cellsY);
-  for (let cy = 0; cy < cellsY; cy++)
-    for (let cx = 0; cx < cells; cx++) {
-      px[cy * cells + cx] = 0.5 + (hashi(cx, cy, seed) - 0.5) * jitter;
-      py[cy * cells + cx] = 0.5 + (hashi(cx, cy, seed + 7) - 0.5) * jitter;
+  // Padding by one repeated cell puts all nine neighbours at contiguous, valid
+  // offsets even at a tile seam. Preserve the original float32 jitter on each site.
+  const stride = cells + 2;
+  const sites = stride * (cellsY + 2);
+  const siteX = new Float64Array(sites), siteY = new Float64Array(sites);
+  const siteId = new Float32Array(sites);
+  for (let gy = -1; gy <= cellsY; gy++) {
+    const cy = (gy + cellsY) % cellsY;
+    for (let gx = -1; gx <= cells; gx++) {
+      const cx = (gx + cells) % cells;
+      const site = (gy + 1) * stride + gx + 1;
+      siteX[site] = gx + Math.fround(0.5 + (hashi(cx, cy, seed) - 0.5) * jitter);
+      siteY[site] = gy + Math.fround(0.5 + (hashi(cx, cy, seed + 7) - 0.5) * jitter);
+      siteId[site] = hashi(cy * cells + cx, 3, seed + 13);
     }
+  }
   for (let j = 0; j < n; j++) {
+    const y = (j / n) * cellsY;
+    const row = Math.floor(y) * stride;
     for (let i = 0; i < n; i++) {
       const x = (i / n) * cells;
-      const y = (j / n) * cellsY;
-      const cx = Math.floor(x);
-      const cy = Math.floor(y);
-      let d1 = 9;
-      let d2 = 9;
-      let best = 0;
-      for (let oy = -1; oy <= 1; oy++) {
-        for (let ox = -1; ox <= 1; ox++) {
-          const gx = cx + ox;
-          const gy = cy + oy;
-          const wx = ((gx % cells) + cells) % cells;
-          const wy = ((gy % cellsY) + cellsY) % cellsY;
-          const k = wy * cells + wx;
-          const dx = gx + px[k]! - x;
-          const dy = gy + py[k]! - y;
-          const d = Math.sqrt(dx * dx + dy * dy);
-          if (d < d1) {
-            d2 = d1;
-            d1 = d;
-            best = k;
-          } else if (d < d2) d2 = d;
+      const first = row + Math.floor(x);
+      let nearest = 81, second = 81, best = stride + 1;
+      for (let r = 0; r < 3; r++) {
+        const start = first + r * stride;
+        for (let site = start; site < start + 3; site++) {
+          const dx = siteX[site]! - x, dy = siteY[site]! - y;
+          const squared = dx * dx + dy * dy;
+          if (squared < nearest) {
+            second = nearest;
+            nearest = squared;
+            best = site;
+          } else if (squared < second) second = squared;
         }
       }
       const o = j * n + i;
-      f1[o] = d1;
-      f2[o] = d2;
-      id[o] = hashi(best, 3, seed + 13);
+      f1[o] = Math.sqrt(nearest);
+      f2[o] = Math.sqrt(second);
+      id[o] = siteId[best]!;
     }
   }
   return { f1, f2, id };

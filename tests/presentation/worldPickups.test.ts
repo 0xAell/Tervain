@@ -18,7 +18,7 @@ import { createScatterPopulation, registerScatterColliders } from '../../src/pre
 import { buildScenery, type SceneryHandles } from '../../src/presentation/settlement';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { WorldScene } from '../../src/presentation/world';
-import { pickupGeometry, pickupPlacement, setPickupVisible } from '../../src/presentation/worldPickups';
+import { buildWorldPickups, pickupGeometry, pickupPlacement, setPickupVisible } from '../../src/presentation/worldPickups';
 import { buildStaticColliders, Colliders, PROP_COLLIDER } from '../../src/core/world/colliders';
 import {
   ANCHORS, ARRIVAL_ROUTE, FIELDS, fieldFenceRuns, FOREST_WAYMARKERS, HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, KIT_TABLE, NOTICEBOARD, PICKUP_LOCATIONS,
@@ -47,10 +47,23 @@ vi.mock('../../src/presentation/regions', async (importOriginal) => {
 });
 
 const additions = PICKUP_LOCATIONS.filter((point) => isWorldPickupItem(point.item));
-type MeshLink = { mesh: THREE.InstancedMesh; index: number; matrix: THREE.Matrix4 };
+type MeshLink = { mesh: THREE.BatchedMesh; index: number };
 
 describe('original loose pickup geometry', () => {
   const terrain = new Terrain();
+  it('releases the batches once and leaves the settlement material with its owner', () => {
+    const material = new THREE.MeshStandardMaterial();
+    const loose = buildWorldPickups(terrain, additions.filter(point => point.item === 'bread'), { get: () => material });
+    const batch = loose.group.getObjectByName('loose-vc') as THREE.BatchedMesh;
+    const released = vi.fn(), releasedMaterial = vi.fn();
+    batch.geometry.addEventListener('dispose', released);
+    material.addEventListener('dispose', releasedMaterial);
+    loose.dispose(); loose.dispose();
+    expect(released).toHaveBeenCalledOnce();
+    expect(batch.parent).toBeNull();
+    expect(releasedMaterial).not.toHaveBeenCalled();
+    material.dispose();
+  });
   it.each(WORLD_PICKUP_ITEM_IDS)('gives %s a readable finite solid silhouette within its modest geometry budget', (item) => {
     const { geometry } = pickupGeometry(item);
     const position = geometry.getAttribute('position');
@@ -353,7 +366,7 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
     } finally { pose.mockRestore(); }
   });
 
-  it('keeps quest tools/rewards intact with 32 provisions and three one-time hunter supplies in eight batches', () => {
+  it('keeps 35 independent pickups and all eight silhouettes in the two material draws', () => {
     expect(additions).toHaveLength(35);
     expect(new Set(PICKUP_LOCATIONS.map((point) => point.id)).size).toBe(PICKUP_LOCATIONS.length);
     expect(PICKUP_LOCATIONS.filter((point) => !isWorldPickupItem(point.item)).map((point) => point.id)).toEqual(['quarry_brace', 'quarry_wrench', 'side_path_cache', 'wreck_blade']);
@@ -361,11 +374,22 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
       expect(point.qty, point.id).toBe(point.id === 'hunter_arrows' ? 24 : 1);
       expect(scenery.pickups[point.id]?.userData.pickupInstance, point.id).toBeDefined();
     }
-    const batches: THREE.InstancedMesh[] = [];
-    scenery.group.traverse((object) => { if (object instanceof THREE.InstancedMesh && object.name.startsWith('loose-')) batches.push(object); });
-    expect(batches).toHaveLength(8);
-    expect(batches.reduce((n, mesh) => n + mesh.count, 0)).toBe(35);
-    const triangles = batches.reduce((n, mesh) => n + (mesh.geometry.index?.count ?? mesh.geometry.getAttribute('position').count) / 3 * mesh.count, 0);
+    const batches: THREE.BatchedMesh[] = [];
+    scenery.group.traverse((object) => { if (object instanceof THREE.BatchedMesh && object.name.startsWith('loose-')) batches.push(object); });
+    expect(batches.map(batch => batch.name).sort()).toEqual(['loose-metal', 'loose-vc']);
+    expect(batches.reduce((n, batch) => n + batch.instanceCount, 0)).toBe(35);
+    let triangles = 0, models = 0;
+    for (const batch of batches) {
+      const shapes = new Set<number>();
+      for (let instance = 0; instance < batch.instanceCount; instance++) {
+        const shape = batch.getGeometryIdAt(instance);
+        triangles += batch.getGeometryRangeAt(shape)!.count / 3;
+        shapes.add(shape);
+      }
+      models += shapes.size;
+      expect(batch.perObjectFrustumCulled).toBe(true);
+    }
+    expect(models).toBe(8);
     expect(triangles).toBeLessThan(18000);
   });
 
@@ -524,7 +548,8 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
     expect(target.prompt()).not.toContain('prompt.');
     const object = scenery.pickups[point.id]!;
     const link = object.userData.pickupInstance as MeshLink;
-    const worldBox = link.mesh.geometry.boundingBox!.clone().applyMatrix4(link.matrix);
+    const shape = link.mesh.getGeometryIdAt(link.index);
+    const worldBox = link.mesh.getBoundingBoxAt(shape, new THREE.Box3())!.applyMatrix4(link.mesh.getMatrixAt(link.index, new THREE.Matrix4()));
     expect(colliders.blocked(point.x, point.z, 0.15, { minY: worldBox.min.y + 0.02, maxY: worldBox.max.y }), `${point.id} embedded in scenery`).toBe(false);
 
     // Demand a real standing endpoint plus the exact interaction ray, rather than accepting nearestOpen's substitution.
@@ -561,21 +586,26 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
     const neighbour = scenery.pickups[additions.find((other) => other.id !== point.id && other.item === point.item)!.id]!;
     const link = object.userData.pickupInstance as MeshLink;
     const otherLink = neighbour.userData.pickupInstance as MeshLink;
+    const original = link.mesh.getMatrixAt(link.index, new THREE.Matrix4());
+    const neighbourOriginal = otherLink.mesh.getMatrixAt(otherLink.index, new THREE.Matrix4());
     game.state.locationChanges[`pickup:${point.id}`] = 'taken';
     scene.syncStatic(game.state);
     const matrix = new THREE.Matrix4(), untouched = new THREE.Matrix4();
     link.mesh.getMatrixAt(link.index, matrix);
     otherLink.mesh.getMatrixAt(otherLink.index, untouched);
-    expect(matrix.determinant()).toBe(0);
+    expect(link.mesh.getVisibleAt(link.index)).toBe(false);
+    expect(matrix.elements).toEqual(original.elements);
     expect(object.visible).toBe(false);
     expect(target.enabled()).toBe(false);
-    expect(untouched.elements).toEqual(otherLink.matrix.elements.map(Math.fround));
+    expect(otherLink.mesh.getVisibleAt(otherLink.index)).toBe(true);
+    expect(untouched.elements).toEqual(neighbourOriginal.elements);
 
     const initial = new Game().state;
     scene.syncStatic(initial);
     link.mesh.getMatrixAt(link.index, matrix);
     expect(object.visible).toBe(true);
-    expect(matrix.elements).toEqual(link.matrix.elements.map(Math.fround));
+    expect(link.mesh.getVisibleAt(link.index)).toBe(true);
+    expect(matrix.elements).toEqual(original.elements);
     game.replaceState(initial);
     expect(target.enabled()).toBe(true);
   });

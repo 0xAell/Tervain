@@ -1,6 +1,16 @@
-# Art and sound in 0.1.1
+# Art and sound in the valley
 
 The playable game uses original 3D geometry. Model the forms, draw the material patterns and write the score for this valley. The reference film informs the sense of quiet and the room between sounds. Its pictures, recordings, score and effects belong to the film.
+
+## The valley in 0.1.2
+
+Rillford’s homes and workshops have painted loft boards under their eaves. The bakery opens onto the lane with a shuttered serving hatch. The broken hull at the ford has individual planks around the opening where the wanderer finds his first weapon. Morning light catches the warm side of the joinery while the shaded faces pick up the cooler coastal sky. Foot traffic exposes patches of flat stone through the earth along the roads.
+
+The wanderer wears a bound, asymmetric travelling cloak. His heel meets the ground first, his weight shifts over the planted foot, and his trailing heel lifts as he pushes off. The village dogs have a deeper chest, a tucked flank, folded ears and a charcoal saddle across the back. These shapes follow the existing skeletons in play.
+
+Near-grass rendering retains the clumps whose blades can reach the camera’s visible distance band. The terrain worker prepares periodic noise sites once and reuses them when painting each texel.
+
+## Original assets introduced in 0.1.1
 
 | In the game | How it is made |
 | --- | --- |

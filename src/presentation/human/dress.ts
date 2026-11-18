@@ -4,7 +4,7 @@ import type { HeadFit } from './head';
 import type { ClothKind } from './humanTex';
 import type { PaintSpec, Surface } from './paint';
 import type { Wardrobe } from './person';
-import { box, ellipsoid, loft, mix3, mul3, sstep, tube, type Mesher, type Ring, type RGB, type V3, type WeightFn } from './skin';
+import { box, ellipsoid, loft, mix3, mul3, ringPoint, sstep, tube, type Mesher, type Ring, type RGB, type V3, type WeightFn } from './skin';
 
 /**
  * Clothes as layers over the body, the way Gothic 3 dresses its people: a shirt, trousers tucked into boots or bound with
@@ -39,6 +39,7 @@ export interface Outfit {
   helmet?: RGB;
   scarf?: RGB;
   cloak?: { color: RGB; clasp: RGB };
+  rainCape?: { color: RGB; binding: RGB };
   pack?: { color: RGB; roll: RGB };
   satchel?: { color: RGB; strap: RGB };
   ledger?: RGB;
@@ -499,7 +500,7 @@ export function dress(f: Frame, o: Outfit, wd: Wardrobe): Fit {
     const c = mul3(o.shawl, 1.05);
     // A triangle of wool round the shoulders: its point hangs down the back, its two ends cross over the breast and
     // are tucked into the belt.
-    const ys = [1.34, 1.39, 1.43, 1.465, 1.495, 1.525].map((k) => k * H);
+    const ys = [1.34, 1.349, 1.359, 1.372, 1.39, 1.43, 1.465, 1.495, 1.525].map((k) => k * H);
     const g = outerGrow + 0.012;
     loft(
       m,
@@ -507,7 +508,8 @@ export function dress(f: Frame, o: Outfit, wd: Wardrobe): Fit {
         const r = f.trunkRing(y, g, c);
         const k = sstep(1.525 * H, 1.47 * H, y);
         const w = r.w * (1 - k) + (f.shoulderX + 0.026) * k;
-        return { ...r, w: Math.max(r.w, w), f: r.f + 0.008, b: r.b + 0.01, p: 2.2 };
+        return { ...r, w: Math.max(r.w, w), f: r.f + 0.008, b: r.b + 0.01, p: 2.2,
+          c: y > 1.345 * H && y < 1.36 * H ? mix3(c, [0.52, 0.39, 0.21], 0.60) : c };
       }),
       {
         sides: 32,
@@ -516,50 +518,78 @@ export function dress(f: Frame, o: Outfit, wd: Wardrobe): Fit {
         tile: 0.2,
         wobble: 0.02,
         seed: o.seed + 21,
-        lift: (th, y) => (y < 1.36 * H ? -0.2 * H * Math.max(0, -Math.cos(th)) ** 3 - (1.34 * H - fit.beltY) * Math.max(0, Math.cos(th)) ** 10 : 0),
+        lift: (th, y) => sstep(1.51 * H, 1.34 * H, y) * (-0.23 * H * Math.max(0, -Math.cos(th - 0.37)) ** 3 - (1.34 * H - fit.beltY) * Math.max(0, Math.cos(th + 0.27)) ** 8),
         push: (th, y) => folds(0.005, 1.48 * H, 1.34 * H, 11)(th, y) + (y < 1.36 * H ? 0.02 * Math.max(0, Math.cos(th)) ** 10 : 0),
         shade: wear(1.2 * H),
       },
     );
   }
 
-  /* ---------------------------------------------------------------- cloak */
+  /* ---------------------------------------------------------------- traveller's cloak and rain cape */
   if (o.cloak) {
-    const m = wd.use(P('wool', 'cloak', { hemY: f.hipY - 0.66 * H, dirt: Math.min(1, o.dirt + 0.2) }));
-    const c = mul3(o.cloak.color, 1.02);
-    const hemY = f.hipY - 0.66 * H;
-    const secs: Ring[] = [];
-    const n = 12;
-    for (let i = 0; i <= n; i++) {
-      const y = hemY + ((1.515 * H - hemY) * i) / n;
-      const shoulders = f.shoulderX + f.armR(0.05 * H) + outerGrow + 0.03;
-      let r: Ring;
-      if (y > 1.4 * H) {
-        const t = f.trunkRing(y, outerGrow + 0.028, c);
-        const k = sstep(1.515 * H, 1.44 * H, y);
-        r = { ...t, w: Math.max(t.w, shoulders * k + t.w * (1 - k)) };
-      } else if (y > f.hipY) {
-        const t = f.trunkRing(y, outerGrow + 0.03, c);
-        r = { ...t, w: Math.max(t.w, shoulders * 0.98), b: t.b + 0.02 };
-      } else {
-        const t = { ...fit.skirt(y, 0.03), c };
-        r = { ...t, w: Math.max(t.w, shoulders), b: t.b + 0.05 + 0.05 * sstep(f.hipY, hemY, y) };
-      }
-      secs.push({ ...r, c: mul3(c, 0.78 + 0.22 * (i / n)) });
+    const c = o.cloak.color, hemY = f.hipY - 0.53 * H;
+    const binding = o.rainCape?.binding ?? mul3(c, 1.42);
+    const shoulders = f.shoulderX + f.armR(0.05 * H) + outerGrow;
+    // Eight gores hang from the neck. The front panels cut away on the satchel side;
+    // the left side of the back has a high hand-clearance hem and the other a long tail.
+    const ring = (y: number, color: RGB): Ring => {
+      const r = y > f.hipY ? f.trunkRing(y, outerGrow + 0.027, color) : { ...fit.skirt(y, 0.029), c: color };
+      const neck = sstep(1.515 * H, 1.435 * H, y);
+      const flare = sstep(1.29 * H, hemY, y);
+      return { ...r, w: Math.max(r.w, (shoulders * (0.83 + 0.23 * flare)) * neck + r.w * (1 - neck)),
+        b: r.b + (0.014 + 0.088 * flare) * neck, c: color };
+    };
+    const drape = (th: number, y: number) => {
+      const drop = sstep(1.46 * H, hemY, y);
+      const pleat = Math.exp(-(((th - Math.PI - 0.17 * drop) / 0.23) ** 2));
+      return (0.003 + drop * 0.018) * Math.cos(8 * th + 0.78 * drop + 0.46 * Math.sin(2 * th)) + 0.027 * drop * pleat;
+    };
+    const lift = (th: number, y: number) => sstep(1.34 * H, hemY, y) ** 1.4 *
+      (0.11 * Math.sin(th) + 0.14 * Math.max(0, Math.sin(th)) ** 2 + 0.014 * Math.cos(8 * th)) * H;
+    const options = {
+      sides: 32, wf: (x: number, y: number, z: number) => y > f.hipY ? trunkW(x, y, z) : skirtW(x, y, z),
+      arc: [1.05, Math.PI * 2 - 0.64] as [number, number], tile: 0.3, lift, push: drape,
+    };
+    const bands = [0, 0.013, 0.025, 0.055, 0.070, 0.095, 0.18, 0.30, 0.44, 0.58, 0.72, 0.84, 0.94, 1];
+    loft(wd.use(P('wool', 'cloak', { hemY, stitch: 0.008, seams: [2.26, 3.63, 4.8] })),
+      bands.map((t, i) => ring(hemY + (1.515 * H - hemY) * t, i === 2 || i === 4 ? binding : mul3(c, 0.78 + 0.28 * t))),
+      { ...options, lipBottom: 0.008, shade: wear(hemY) });
+    // A worn travelling coat gets repaired at the corner caught by its satchel. Cut the
+    // patch and its three bars to the same curve and weights as the panel it mends.
+    const patch = wd.use(P('wool', 'cloak darn', { stitch: 0.004, dirt: 0.45 }));
+    const patchColor = mix3(c, [0.16, 0.20, 0.16], 0.50);
+    const mendArc: [number, number] = [2.46, 2.98];
+    const patchRows = [0.84, 0.856, 0.91, 0.983, 1.00].map(t => ring(t * H, patchColor));
+    loft(patch, patchRows, { ...options, sides: 5, arc: mendArc,
+      push: (th, y) => drape(th, y) + 0.010 * H, lipBottom: 0.002 });
+    const thread = wd.use(P('linen', 'cloak repair thread'));
+    for (const row of [0.877, 0.905, 0.933]) {
+      const stitches = [2.53, 2.64, 2.75, 2.86].map(th => {
+        const y = (row + 0.07 * (th - 2.53)) * H;
+        const [x, z] = ringPoint(ring(y, patchColor), th, drape(th, y) + 0.015 * H);
+        return [x, y + lift(th, y), z] as V3;
+      });
+      tube(thread, stitches, 0.0026 * H, mix3(patchColor, binding, 0.60), { sides: 4, wf: options.wf });
     }
-    loft(m, secs, {
-      sides: 24,
-      wf: (x, y, z) => (y > f.hipY ? trunkW(x, y, z) : skirtW(x, y, z)),
-      arc: [0.62, Math.PI * 2 - 0.62],
-      lipBottom: 0.004,
-      wobble: 0.03,
-      seed: o.seed + 23,
-      tile: 0.3,
-      push: folds(0.01, 1.3 * H, hemY, 8),
-      shade: wear(hemY, o.dirt + 0.2),
+    const r = f.trunkRing(1.5 * H, outerGrow + 0.038, c);
+    ellipsoid(wd.use(P('metal', 'clasp')), [0.04, 1.48 * H, r.f + 0.015], [0.020, 0.022, 0.008], o.cloak.clasp, trunkW, { ws: 10, hs: 6 });
+  }
+  if (o.rainCape) {
+    // A second, short shoulder piece sheds water over the coat's armholes. The back dips
+    // to a shallow V between the shoulder blades, with two contrasting woven edges.
+    const { color, binding } = o.rainCape;
+    const m = wd.use(P('wool', 'bound shoulder cape', { stitch: 0.005, seams: [2.15, 4.12] }));
+    const rings = [0, 0.07, 0.15, 0.21, 0.40, 0.63, 0.84, 1].map((t, i) => {
+      const y = (1.345 + 0.188 * t) * H;
+      const r = f.trunkRing(y, outerGrow + 0.045, color);
+      const widen = sstep(1.52 * H, 1.42 * H, y);
+      return { ...r, w: r.w + Math.max(0, f.shoulderX + f.armR(0.05 * H) + 0.043 - r.w) * widen,
+        b: r.b + 0.030 * (1 - t), f: r.f + 0.007 * (1 - t),
+        c: i === 1 || i === 3 ? binding : mul3(color, 0.84 + 0.28 * t) };
     });
-    const r = f.trunkRing(1.5 * H, outerGrow + 0.03, c);
-    ellipsoid(wd.use(P('metal', 'clasp')), [0, 1.5 * H, r.f + 0.004], [0.018, 0.018, 0.006], o.cloak.clasp, trunkW, { ws: 8, hs: 6 });
+    loft(m, rings, { sides: 26, arc: [0.36, Math.PI * 2 - 0.12], wf: trunkW, tile: 0.23, lipBottom: 0.006,
+      lift: (th, y) => sstep(1.53 * H, 1.345 * H, y) * H * (-0.075 * Math.max(0, -Math.cos(th)) ** 2 + 0.022 * Math.sin(th)),
+      push: (th, y) => (0.003 + 0.008 * sstep(1.53 * H, 1.345 * H, y)) * Math.cos(th * 9 + 0.55) });
   }
 
   /* ---------------------------------------------------------------- fur, neck cloth */
@@ -826,7 +856,8 @@ export function dressHead(f: Frame, o: Outfit, wd: Wardrobe, head: HeadFit, oute
     ellipsoid(m, [0, y0, midZ], [head.halfW + 0.09, 0.008, halfD + 0.09], (d) => mul3(c, d[1] > 0 ? 1 : 0.7), headW, {
       ws: 22,
       hs: 4,
-      shape: (d) => [d[0], d[1] - 3.2 * d[2] * d[2] + 0.7 * d[0] * d[0], d[2]],
+      shape: (d) => [d[0] * (1 - 0.13 * Math.max(0, d[0]) ** 2),
+        d[1] - 3.2 * d[2] * d[2] + 0.7 * d[0] * d[0] + 5.2 * Math.max(0, d[0]) ** 3, d[2]],
     });
     const ys = [y0, y0 + 0.035, (y0 + head.crownY) / 2 + 0.02, head.crownY + 0.014, head.crownY + 0.026];
     loft(
