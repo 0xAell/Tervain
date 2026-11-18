@@ -117,9 +117,9 @@ export class App {
   private menuScene!: MenuScene;
   private menuVisitActive = false;
   private menuVisitCounter = 0;
-  cam = new CameraRig();
-  private readonly heroFade = new NearFade();
   player = new Player();
+  cam = new CameraRig(this.player.rig.root.position);
+  private readonly heroFade = new NearFade();
   /** Stable gameplay identities used to verify the complete cast against the models actually built. */
   readonly castRoles = [...Object.keys(NPCS).map(id => 'named:' + id), ...AMBIENT_RESIDENTS.map(npc => 'ambient:' + npc.id),
     ...ENEMY_SPAWNS.map(spawn => 'enemy:' + spawn.id)];
@@ -1188,10 +1188,13 @@ export class App {
     this.updateDebug(this.lastFrameDt);
     this.motion.apply(alpha, this.simStep);
     try {
+      // Body and equipment share one fade at the actual drawn distance, even if the boom moved sharply this step.
+      this.heroFade.setCoverage(this.player.group, this.cam.bodyCoverage);
       this.updateHud(this.lastFrameDt);
       this.render();
     } finally {
       this.motion.restore();
+      this.heroFade.setCoverage(this.player.group, this.cam.bodyCoverage);
     }
   }
 
