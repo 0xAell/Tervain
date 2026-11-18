@@ -8,7 +8,6 @@ import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js
 import type { Collider } from '../core/world/colliders';
 import type { PhysicalActor } from '../physics/physics';
 import type { BuildContext, FrameContext, SceneModule } from './context';
-import { modelAssetUrl } from './assets/modelUrl';
 import { matteHide } from './matte';
 import { ANIMAL_CALL_EVENT, type AnimalCall } from './sound/animalAudio';
 import { ANIMALS, ANIMAL_HOME_MARGIN, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
@@ -26,10 +25,6 @@ export { ANIMAL_CALL_EVENT } from './sound/animalAudio';
 const pending = new Map<string, Promise<ValleyAnimal>>();
 const PAWS = new Set(['frontPawL', 'frontPawR', 'hindPawL', 'hindPawR']);
 const SOLE_SAMPLES_PER_PAW = 12;
-
-export function animalModelUrl(definition: AnimalDefinition, base = import.meta.env.BASE_URL, page = document.baseURI): URL {
-  return modelAssetUrl(`animals/${definition.file}`, base, page);
-}
 
 function boneTrack(track: THREE.KeyframeTrack, bones: ReadonlySet<string>): boolean {
   const binding = THREE.PropertyBinding.parseTrackName(track.name);

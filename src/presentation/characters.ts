@@ -181,8 +181,6 @@ export interface Rig {
   materials: THREE.MeshStandardMaterial[];
   hitFlash: number;
   kind: 'humanoid' | 'thornback';
-  /** Whether the rig currently casts shadows (see setRigShadow). */
-  shadowOn?: boolean;
   /** A person's skinned mesh, its sheet and how the sheet was laid out (people only). */
   person?: PersonRigInfo;
 }
@@ -1654,15 +1652,6 @@ export function mergeRigMeshes(root: THREE.Object3D) {
       g.add(mesh);
     }
   }
-}
-
-/** Shadows only matter close up: far people stop casting so the shadow pass does not pay for them. */
-export function setRigShadow(rig: Rig, cast: boolean) {
-  if (rig.shadowOn === cast) return;
-  rig.shadowOn = cast;
-  rig.root.traverse((o) => {
-    if ((o as THREE.Mesh).isMesh) o.castShadow = cast;
-  });
 }
 
 /** Tint the rig briefly when hit (called every frame with the flash amount). */
