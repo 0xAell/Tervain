@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { playableModel } from '../../src/presentation/assets/playableModels';
 
 const root = process.cwd();
 const ledger = JSON.parse(readFileSync(join(root, 'public/model-licenses.json'), 'utf8'));
@@ -21,6 +22,9 @@ describe('distributed model source notices', () => {
       if (asset.file.startsWith('public/models/')) expect(ledger.sources[asset.sourceId], asset.file).toBeDefined();
     }
     expect(ledger.summary.publicModelFiles).toBe(glbs('public/models').length);
+    expect(ledger.summary.publicModelBytes).toBe(ledger.assets
+      .filter((asset: { file: string }) => asset.file.startsWith('public/models/'))
+      .reduce((sum: number, asset: { bytes: number }) => sum + asset.bytes, 0));
     expect(ledger.summary.archivedWarpkeepFiles).toBe(glbs('assets/warpkeep').length);
   }, 60_000);
 
@@ -31,6 +35,43 @@ describe('distributed model source notices', () => {
       expect(sourceId, `${file} has no ledger entry`).toBeTruthy();
       expect(ledger.sources[sourceId!], file).toBeDefined();
       expect(ledger.sources[sourceId!].license, file).toBeDefined();
+    }
+  });
+
+  it('identifies playable geometry separately from the archives and records its editable sources', () => {
+    const prefix = 'public/models/';
+    const playable = glbs('public/models').filter(file => playableModel(file.slice(prefix.length))).sort();
+    expect(ledger.playable.files).toEqual(playable);
+    const entries = ledger.assets.filter((asset: { file: string }) => playable.includes(asset.file));
+    const counts: Record<string, number> = {};
+    for (const asset of entries) {
+      const source = ledger.sources[asset.sourceId];
+      expect(source.provenance.classification, asset.file).toBe('tervain-original-procedural');
+      counts[asset.sourceId] = (counts[asset.sourceId] ?? 0) + 1;
+      const bytes = readFileSync(join(root, asset.file));
+      const glb = JSON.parse(bytes.subarray(20, 20 + bytes.readUInt32LE(12)).toString());
+      if (asset.file.startsWith(prefix + 'flora/hero/')) {
+        const pine = asset.file.startsWith(prefix + 'flora/hero/hero-pine-');
+        expect(asset.sourceId, asset.file).toBe(pine ? 'tervain-hero-pine' : 'tervain-hero-oak');
+        expect(glb.asset.generator, asset.file).toBe(pine ? 'tools/tree-gen-pine' : 'Tervain tools/tree-gen');
+        continue;
+      }
+      expect(glb.asset.generator, asset.file).toBe('Tervain tools/craft-environment/build.mjs');
+      const shared = glb.asset.extras.tervainSharedImages;
+      const dependency = shared ? asset.file.replace(/[^/]+$/, shared) : null;
+      expect(asset.externalDependencies, asset.file).toEqual(dependency ? [dependency] : []);
+      if (dependency) expect(playable, asset.file).toContain(dependency);
+    }
+    expect(counts).toEqual({
+      'tervain-hero-oak': 33, 'tervain-hero-pine': 3, 'tervain-coastal-woodland': 15,
+      'tervain-valley-furniture': 29, 'tervain-intertidal-schist': 1,
+    });
+    for (const id of ['tervain-coastal-woodland', 'tervain-intertidal-schist', 'tervain-valley-furniture']) {
+      const source = ledger.sources[id];
+      const inputs = source.provenance.inputs as { file: string; sha256: string }[];
+      expect(inputs.map(input => input.file), id).toContain(source.sourceRecord);
+      for (const input of inputs)
+        expect(createHash('sha256').update(readFileSync(join(root, input.file))).digest('hex'), input.file).toBe(input.sha256);
     }
   });
 
@@ -88,11 +129,11 @@ describe('distributed model source notices', () => {
     const publicFiles = ledger.assets.filter((asset: { file: string }) => asset.file.startsWith('public/models/'));
     for (const asset of publicFiles) {
       const source = sources[asset.sourceId];
-      // Original procedural output (tools/tree-gen) has its own source: no Meshy or third-party input at all.
+      // Procedural environment and hero-tree generators have their own source records.
       if (source?.generationService === 'Tervain procedural generator') {
         expect(asset.license.evidenceStatus, asset.file).toBe('tervain-original-procedural');
         expect(source.license.evidenceStatus, asset.file).toBe('tervain-original-procedural');
-        expect(asset.file, asset.file).toMatch(/^public\/models\/flora\/hero\/hero-.*\.glb$/);
+        expect(playableModel(asset.file.slice('public/models/'.length)), asset.file).toBe(true);
         continue;
       }
       expect(source?.generationService, asset.file).toBe('Meshy');

@@ -1,0 +1,19 @@
+{
+  "title": "The Ford at First Light",
+  "meter": "3/4",
+  "openingSeconds": 0.45,
+  "tonicMidi": 62,
+  "scale": [0, 2, 3, 5, 7, 9, 10],
+  "description": "The ferryman's three-beat call rises a fifth, hangs on the sixth and steps back to its mooring. A second voice answers in the lower register. Degrees are zero-based; offsets and lengths are quarter notes.",
+  "melodies": {
+    "call": [[[0,0,1],[1,4,1.4],[2.5,5,0.42]],[[0,3,1.85],[2,2,0.8]],[[0,1,0.65],[0.75,3,0.65],[1.5,2,1.25]],[[0,0,2.5]]],
+    "answer": [[[0,4,1.4],[1.5,6,0.4],[2,7,0.75]],[[0,5,1.9],[2,3,0.8]],[[0,4,0.9],[1,2,0.5],[1.75,1,0.45],[2.4,-1,0.45]],[[0,0,2.7]]],
+    "bridge": [[[0,2,1.45],[1.5,1,1.3]],[[0,-1,0.8],[1,2,0.8],[2,4,0.8]],[[0,5,1],[1.2,4,0.65],[2,3,0.9]],[[0,1,2.7]]],
+    "home": [[[0,4,1.4],[1.5,2,1.2]],[[0,0,0.9],[1,-1,0.65],[2,-3,0.9]],[[0,-1,1.35],[1.5,1,1.25]],[[0,0,2.8]]]
+  },
+  "sections": [
+    ["call", 72, [0,3,4,0]], ["answer", 76, [0,5,4,0]],
+    ["bridge", 82, [2,6,3,4]], ["call", 79, [5,3,4,0]],
+    ["answer", 77, [0,5,4,0]], ["home", 69, [3,5,4,0]]
+  ]
+}

@@ -43,7 +43,7 @@ describe('delivered Solitary Pine forest', () => {
   });
 
   it('uses locally hosted, complete GLB files with embedded standard textures and a subdirectory-safe URL', () => {
-    expect(solitaryPineUrl(PINE_FILES[0], './', 'https://0xaell.github.io/Tervain/index.html').href).toBe('https://0xaell.github.io/Tervain/models/flora/solitary-pine-under-10k.glb');
+    expect(solitaryPineUrl(PINE_FILES[0], './', 'https://0xaell.github.io/Tervain/index.html').href).toBe('https://0xaell.github.io/Tervain/models/flora/craft/shore-pine-near.glb');
     for (const file of PINE_FILES) {
       const { bytes, json } = pineBinary(file);
       expect(bytes.readUInt32LE(8)).toBe(bytes.length);
@@ -64,9 +64,9 @@ describe('delivered Solitary Pine forest', () => {
         const tree = forest.variant(species, seed);
         expect(forest.variant(species, seed)).toBe(tree);
         expect(tree.lods[0].tris).toBeLessThan(10000);
-        expect(tree.lods[0].tris).toBeGreaterThan(9000);
+        expect(tree.lods[0].tris).toBeGreaterThan(tree.lods[1].tris);
         expect(tree.lods[1].tris).toBeLessThan(4000);
-        expect(tree.lods[2].tris).toBe(48);
+        expect(tree.lods[2].tris).toBeLessThan(tree.lods[1].tris);
         const nearHeight = Math.max(tree.lods[0].wood!.boundingBox!.max.y, tree.lods[0].leaf!.boundingBox!.max.y);
         const scale = nearHeight / sourceHeight;
         for (const [level, template] of templates.entries()) {

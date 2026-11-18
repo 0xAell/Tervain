@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import type { WorkGesture } from '../npcStyle';
-import type { ResidentBones, ResidentJoint } from './residentRig';
 import { createWorkProp, type WorkPropKind } from './workProps';
+
+type WorkJoint = 'LeftHand' | 'RightHand' | 'LeftForeArm' | 'RightForeArm';
 
 /**
  * The tools a resident holds while working, on their own rig (A65). A tool rides its hand from the palm: each is
@@ -64,14 +65,14 @@ export interface ResidentTools { props: THREE.Object3D[]; materials: THREE.MeshS
  * Build a resident's tools for `gesture` onto its rig, hidden until it works. `palm` gives each hand's palm centre in the
  * model's bind space; the rig must still stand in its bind pose.
  */
-export function createResidentTools(gesture: WorkGesture | undefined, bones: ResidentBones, scene: THREE.Object3D,
+export function createResidentTools(gesture: WorkGesture | undefined, bones: Record<WorkJoint, THREE.Object3D>, scene: THREE.Object3D,
   palm: (side: 'LeftHand' | 'RightHand') => THREE.Vector3): ResidentTools {
   const out: ResidentTools = { props: [], materials: [], triangles: 0, points: {}, grips: [] };
   const placements = gesture ? TOOLS[gesture] : undefined;
   if (!placements) return out;
   scene.updateMatrixWorld(true);
   const toScene = new THREE.Matrix4().copy(scene.matrixWorld).invert();
-  const at = (joint: ResidentJoint) => new THREE.Vector3().setFromMatrixPosition(bones[joint].matrixWorld).applyMatrix4(toScene);
+  const at = (joint: WorkJoint) => new THREE.Vector3().setFromMatrixPosition(bones[joint].matrixWorld).applyMatrix4(toScene);
   for (const placement of placements) {
     const built = createWorkProp(placement.kind, placement.length);
     const side = placement.holder;

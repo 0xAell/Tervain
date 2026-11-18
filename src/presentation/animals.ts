@@ -2,14 +2,13 @@ import { rideable, STANDING_BODY } from '../core/rules/session';
 import * as THREE from 'three';
 import { prepareActorShadow } from './actorShadow';
 import { compactAnimalBoneTexture } from './animals/boneTexture';
-import { parseModel, type ModelGltf } from './assets/gltfLoader';
+import type { ModelGltf } from './assets/gltfLoader';
+import { sculptValleyAnimal, type ValleyAnimal } from './animals/valleyAnimals';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import type { Collider } from '../core/world/colliders';
 import type { PhysicalActor } from '../physics/physics';
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { modelAssetUrl } from './assets/modelUrl';
-import { withModelLoadSlot } from './assets/modelLoadQueue';
-import { downloadAsset } from './assets/download';
 import { matteHide } from './matte';
 import { ANIMAL_CALL_EVENT, type AnimalCall } from './sound/animalAudio';
 import { ANIMALS, ANIMAL_HOME_MARGIN, ANIMAL_TRIANGLE_LIMIT, requiredAnimalClips, type AnimalClip, type AnimalDefinition, type AnimalSpecies } from '../core/content/animals';
@@ -21,10 +20,10 @@ import { finishCooperatively, type CooperativeOptions } from '../platform/cooper
 import { AnimalMind, Wildlife } from '../core/rules/animalMind';
 
 export { ANIMALS, ANIMAL_TRIANGLE_LIMIT } from '../core/content/animals';
-export type AnimalTemplates = ReadonlyMap<string, ModelGltf>;
+export type AnimalTemplates = ReadonlyMap<string, ValleyAnimal>;
 export type AnimalCallEvent = AnimalCall;
 export { ANIMAL_CALL_EVENT } from './sound/animalAudio';
-const pending = new Map<string, Promise<ModelGltf>>();
+const pending = new Map<string, Promise<ValleyAnimal>>();
 const PAWS = new Set(['frontPawL', 'frontPawR', 'hindPawL', 'hindPawR']);
 const SOLE_SAMPLES_PER_PAW = 12;
 
@@ -139,7 +138,7 @@ export function validateAnimalTemplateAsync(template: Pick<ModelGltf, 'scene' | 
   return finishCooperatively(animalValidationSteps(template, definition), { ...options, budgetMs: options.budgetMs ?? 2 });
 }
 
-function releaseRejectedTemplate(template: ModelGltf) {
+function releaseRejectedTemplate(template: ValleyAnimal) {
   const geometry = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(), textures = new Set<THREE.Texture>();
   template.scene.traverse(object => {
     const mesh = object as THREE.Mesh;
@@ -156,18 +155,11 @@ function releaseRejectedTemplate(template: ModelGltf) {
   images.forEach(value => value.close?.());
 }
 
-function loadAnimal(definition: AnimalDefinition): Promise<ModelGltf> {
+function loadAnimal(definition: AnimalDefinition): Promise<ValleyAnimal> {
   const cached = pending.get(definition.id);
   if (cached) return cached;
-  const request = withModelLoadSlot(async () => {
-    const url = animalModelUrl(definition);
-    const bytes = await downloadAsset(url, { label: `The ${definition.species} model`, model: `animals/${definition.file}` });
-    if (bytes.byteLength < 12) throw new Error('The animal model download is incomplete.');
-    const header = new DataView(bytes);
-    if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(4, true) !== 2 || header.getUint32(8, true) !== bytes.byteLength) {
-      throw new Error('The animal model download is not a complete GLB 2 file.');
-    }
-    const template = await parseModel(bytes, new URL('.', url).href);
+  const request = Promise.resolve().then(async () => {
+    const template = sculptValleyAnimal(definition);
     try { await validateAnimalTemplateAsync(template, definition); } catch (error) { releaseRejectedTemplate(template); throw error; }
     return template;
   }).catch(error => { pending.delete(definition.id); throw error; });
@@ -175,11 +167,10 @@ function loadAnimal(definition: AnimalDefinition): Promise<ModelGltf> {
   return request;
 }
 
-/** Required source animals load through the production commit pin, with three bounded concurrent downloads.
- * Rejected art reaches the existing loading Retry; completed CPU templates survive a world reload. */
+/** Sculpt and validate at most three templates at once. Each persistent animal keeps its own skin and gait. */
 export async function loadAnimalTemplates(progress?: (loaded: number, total: number) => void,
   definitions: readonly AnimalDefinition[] = ANIMALS): Promise<AnimalTemplates> {
-  const templates = new Map<string, ModelGltf>();
+  const templates = new Map<string, ValleyAnimal>();
   let next = 0, loaded = 0, failed = false;
   progress?.(0, definitions.length);
   await Promise.all(Array.from({ length: Math.min(3, definitions.length) }, async () => {
@@ -266,7 +257,7 @@ interface AnimalBody {
   animation: AnimalAnimation;
 }
 
-function cloneAnimal(template: ModelGltf, definition: AnimalDefinition, validated = validateAnimalTemplate(template, definition), worldShadow = false): AnimalBody {
+function cloneAnimal(template: ValleyAnimal, definition: AnimalDefinition, validated = validateAnimalTemplate(template, definition), worldShadow = false): AnimalBody {
   const scene = cloneSkinned(template.scene) as THREE.Group;
   const geometries = new Map<THREE.BufferGeometry, THREE.BufferGeometry>(), materials = new Map<THREE.Material, THREE.Material>(), textures = new Map<THREE.Texture, THREE.Texture>();
   const skeletons = new Set<THREE.Skeleton>(), paws: AnimalBody['paws'] = [];
@@ -349,7 +340,7 @@ export interface AnimalFigure {
   dispose(): void;
 }
 
-export function createAnimalFigure(template: ModelGltf, definition: AnimalDefinition): AnimalFigure {
+export function createAnimalFigure(template: ValleyAnimal, definition: AnimalDefinition): AnimalFigure {
   const body = cloneAnimal(template, definition);
   let disposed = false;
   return {
@@ -455,7 +446,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
   const facingScratch = new THREE.Vector3();
   // Fit every habitat before allocating disposable copies, so a bad placement cannot strand a partial set of GPU resources.
   // Reuse validation only within this build; a subsequent build still checks its source anew.
-  const fitted: { definition: AnimalDefinition; template: ModelGltf; home: AnimalSite; validated: ReturnType<typeof validateAnimalTemplate> }[] = [];
+  const fitted: { definition: AnimalDefinition; template: ValleyAnimal; home: AnimalSite; validated: ReturnType<typeof validateAnimalTemplate> }[] = [];
   for (const definition of definitions) {
     const template = templates.get(definition.id);
     if (!template) throw new Error(`The ${definition.species} source model was not loaded.`);

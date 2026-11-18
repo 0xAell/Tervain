@@ -9,8 +9,8 @@ import { villageCover } from './soundscape';
  * a low pulsing loop, a fight the battle loop, and when it is over the world falls quiet again. Short stings mark a
  * discovered place, a step of the story, a victory and a fall.
  *
- * Each exploration mood opens with a different movement of Alderweir. Later visits vary the score with Tervain's
- * other composed and generated pieces. A fight keeps one voice from warning to battle, and each region announces
+ * Each exploration mood opens with a different movement of the ford suite. Later visits vary the score with Tervain's
+ * other original pieces. A fight keeps one voice from warning to battle, and each region announces
  * itself with its own discovery motif.
  *
  * Moods: `vale` (Rillford and the hamlet, the ford, the mill, the sluice, the quarry by day), `wild` (the strand, the
@@ -45,7 +45,7 @@ type Origin = MusicOrigin;
 
 // The first visit to each kind of place opens with a movement from the same chamber performance.
 const OPENING_PIECES = {
-  vale: 'alder_landing', wild: 'alder_ash_trees', sacred: 'alder_bridge', night: 'alder_coda',
+  vale: 'ford_lanterns', wild: 'bough_watch', sacred: 'spring_stones', night: 'banked_embers',
 } as const satisfies Record<Mood, MusicId>;
 
 const entries = Object.entries(MUSIC) as [MusicId, MusicEntry][];
@@ -147,7 +147,7 @@ export class MusicDirector {
   private last: MusicId | null = null;
   private readonly heard = new Set<Mood>();
   /** Flips at each encounter; the first fight of a session hears the composed music. */
-  private fightVoice: Origin = 'generated';
+  private fightVoice: Origin = 'ensemble';
   private readonly random: () => number;
 
   constructor(random: () => number = Math.random) {
@@ -204,7 +204,7 @@ export class MusicDirector {
     if (ctx.threat !== 'none') {
       if (st.s !== 'threat') {
         // Each new encounter alternates the voice of its fight music.
-        this.fightVoice = this.fightVoice === 'composed' ? 'generated' : 'composed';
+        this.fightVoice = this.fightVoice === 'composed' ? 'ensemble' : 'composed';
         const combat = ctx.threat === 'combat';
         out.push({ t: 'loop', id: this.loopFor(combat ? 'combat' : 'alert'), fadeIn: combat ? MUSIC_PACING.fade.combat : MUSIC_PACING.fade.alert });
         this.state = { s: 'threat', level: ctx.threat, calm: 0 };
@@ -261,9 +261,9 @@ export class MusicDirector {
     return out;
   }
 
-  /** The composed form two times in three; the generated one keeps some variety. */
-  private either(composed: MusicId, generated: MusicId): MusicId {
-    return this.random() < MUSIC_PACING.composedShare ? composed : generated;
+  /** The composed form two times in three; the ensemble one keeps some variety. */
+  private either(composed: MusicId, ensemble: MusicId): MusicId {
+    return this.random() < MUSIC_PACING.composedShare ? composed : ensemble;
   }
 
   /** A sting over the quiet: never over a fight. A discovery names its place, so its region can answer. */

@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import { CLUSTER_SCALE, MESHY_TREE_IDS, MESHY_TREE_LODS, createMeshyForest, meshyTreeParts, shrinkClusters, meshyTreeUrl, type MeshyTreeTemplates } from '../../src/presentation/meshyTrees';
-import { meshyTreeBinary, meshyTreeTemplates } from './meshyTreeFixture';
+import { meshyTreeBinary, archivedTreeTemplates } from './meshyTreeFixture';
 import { buildAncientTree } from '../../src/presentation/menu/menuTree';
 import { MENU_TREE_SOURCE, assertMenuTreeBudget, createMenuTreeRemix } from '../../src/presentation/menu/menuTreeRemix';
 import { HERMIT_DOOR } from '../../src/presentation/menu/menuCamp';
@@ -16,7 +16,7 @@ import { menuResourceFixture } from './menuResourceFixture';
 
 const preparedIds = [...MESHY_TREE_IDS, 'tree-3106', 'tree-1459'];
 let templates: MeshyTreeTemplates;
-beforeAll(async () => { templates = await meshyTreeTemplates(preparedIds); }, 30_000);
+beforeAll(async () => { templates = await archivedTreeTemplates(preparedIds); }, 30_000);
 afterAll(() => {
   // Test fixture owns image-free original GPU handles; production forests must never dispose them.
   for (const source of templates?.values() ?? []) for (const gltf of source) gltf.scene.traverse(object => {
@@ -26,7 +26,7 @@ afterAll(() => {
   });
 });
 
-describe('actual supplied Meshy tree catalog', () => {
+describe('archived tree adapter compatibility', () => {
   it('keeps the built orchard crown within the audit reach at the largest supported instance scale', () => {
     const forest = createMeshyForest(templates);
     try {
@@ -51,7 +51,7 @@ describe('actual supplied Meshy tree catalog', () => {
   });
   it('resolves asset URLs under the deployed repository prefix', () => {
     expect(meshyTreeUrl('oak-elder', 'near', '/Tervain/', 'https://example.test/Tervain/').href)
-      .toBe('https://example.test/Tervain/models/flora/meshy-012/oak-elder-near.glb');
+      .toBe('https://example.test/Tervain/models/flora/hero/hero-oak-near.glb');
   });
 
   it('decodes every active source level with finite actual wood/foliage, valid triangles/UVs/normals and a strict complete under-20k count', () => {
@@ -224,14 +224,14 @@ describe('actual supplied Meshy tree catalog', () => {
   });
 
   it('keeps the actual complete installed menu tree below 20k and score/choreography stable across presets', () => {
-    const high = new MenuScene({ quality: 'high', resources: menuResourceFixture(), treeTemplates: templates });
+    const high = new MenuScene({ quality: 'high', resources: menuResourceFixture() });
     let low: MenuScene | undefined;
     try {
       expect(high.stats.treeTriangles).toBeGreaterThan(10_000); expect(high.stats.treeTriangles).toBeLessThan(20_000);
-      expect(high.stats.treeSource).toBe('tree-0208:LOD0');
+      expect(high.stats.treeSource).toBe('original-hermitage');
       high.update(0.04, false, { time: 35, duration: 214.2, playing: true, gain: 0.352 });
       expect(high.doorOpening).toBeGreaterThan(0);
-      low = new MenuScene({ quality: 'low', resources: menuResourceFixture(), treeTemplates: templates,
+      low = new MenuScene({ quality: 'low', resources: menuResourceFixture(),
         awakening: high.awakeningState, grove: high.grove });
       expect(low.stats.treeTriangles).toBe(high.stats.treeTriangles); expect(low.stats.treeSource).toBe(high.stats.treeSource);
       expect(low.grove).toBe(high.grove); expect(low.awakeningState).toEqual(high.awakeningState);

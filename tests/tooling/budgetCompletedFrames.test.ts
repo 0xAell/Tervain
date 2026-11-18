@@ -9,7 +9,7 @@ it('CLI uses completed-frame maxima and still rejects budget, console and revisi
   const dir = mkdtempSync(join(tmpdir(), 'budget-completed-'));
   try {
     installPopulationProbe(dir);
-    for (const name of ['play-gate.mjs', 'budget-frame-samples.mjs', 'webgl-upload-bytes.mjs', 'budget-probe.mjs']) writeFileSync(join(dir, name), readFileSync(`tools/${name}`));
+    for (const name of ['play-gate.mjs', 'budget-frame-samples.mjs', 'webgl-upload-bytes.mjs', 'hero-draw-observer.mjs', 'budget-probe.mjs']) writeFileSync(join(dir, name), readFileSync(`tools/${name}`));
     // The live deployment is not what this test is about: it is reported whole at once.
     writeFileSync(join(dir, 'live-deploy.mjs'), `export async function waitForSettledDeploy() { return { ok: true, unreachable: false, revision: '1234567', files: 1, waitedMs: 0, problems: [] }; }`);
     writeFileSync(join(dir, 'cdp.mjs'), `export const NO_GPU_WATCHDOG = '--disable-gpu-watchdog';

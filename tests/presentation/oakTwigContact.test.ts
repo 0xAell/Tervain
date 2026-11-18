@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { expect, it, vi } from 'vitest';
 import * as C from '../../src/presentation/canopy';
 import { createMeshyForest } from '../../src/presentation/meshyTrees';
-import { meshyTreeTemplates } from './meshyTreeFixture';
+import { archivedTreeTemplates } from './meshyTreeFixture';
 
 function rootGaps(wood: THREE.BufferGeometry, twigs: readonly C.CanopyTwig[]) {
   const ringVertices=wood.hasAttribute('uv')||wood.hasAttribute('tangent')?4:3;
@@ -25,7 +25,7 @@ function rootGaps(wood: THREE.BufferGeometry, twigs: readonly C.CanopyTwig[]) {
 }
 
 it('reconnects oak twig roots orphaned by linking without moving leaves or changing triangle counts',async()=>{
-  const ids=['verdant-sentinel','tree-1505','oak-elder'], templates=await meshyTreeTemplates(ids),real=C.growTwigs;
+  const ids=['verdant-sentinel','tree-1505','oak-elder'], templates=await archivedTreeTemplates(ids),real=C.growTwigs;
   let enabled=false;
   const spy=vi.spyOn(C,'growTwigs').mockImplementation((wood,twigs,reconnect)=>real(wood,twigs,enabled&&reconnect));
   // Far-card seating (heroOakSeatedCards.test.ts) measures against the final wood; hold it still so only the roots differ.

@@ -1,59 +1,75 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
-import { loadAnimalTemplates } from '../../src/presentation/animals';
-import { ANIMALS, type AnimalDefinition } from '../../src/core/content/animals';
-import { animalFixture } from './animalFixture';
+import { loadAnimalTemplates, validateAnimalTemplate } from '../../src/presentation/animals';
+import { ANIMALS, requiredAnimalClips } from '../../src/core/content/animals';
+import { sculptValleyAnimal } from '../../src/presentation/animals/valleyAnimals';
+import { AnimalArrowSurface } from '../../src/presentation/animals/hunting/hit';
+import { ANIMAL_IDS } from '../../src/core/game/hunting';
 
-function bytes() {
-  const buffer = new ArrayBuffer(12), view = new DataView(buffer);
-  view.setUint32(0, 0x46546c67, true); view.setUint32(4, 2, true); view.setUint32(8, 12, true); return buffer;
-}
-const definition = (id: string): AnimalDefinition => ({ ...ANIMALS.find(animal => animal.species === 'dog')!, id, file: `${id}.glb` });
-beforeEach(() => vi.stubGlobal('document', { baseURI: 'https://example.test/Tervain/' }));
-afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => vi.unstubAllGlobals());
 
-describe('required animal model loading', () => {
-  it.each([
-    ['http', () => new Response('', { status: 404 }), /HTTP 404/],
-    ['html', () => new Response('<html>wrong</html>', { headers: { 'content-type': 'text/html' } }), /page instead/],
-    ['short', () => new Response(new ArrayBuffer(8)), /incomplete/],
-    ['header', () => new Response(new ArrayBuffer(12)), /complete GLB/],
-  ] as const)('rejects %s downloads before parsing, then permits retry and caches accepted source art', async (name, failure, error) => {
-    const fetcher = vi.fn(async () => failure()); vi.stubGlobal('fetch', fetcher);
-    const parse = vi.spyOn(GLTFLoader.prototype, 'parseAsync').mockImplementation(async () => animalFixture()), animal = definition(`animal-load-${name}`);
-    await expect(loadAnimalTemplates(undefined, [animal])).rejects.toThrow(error); expect(parse).not.toHaveBeenCalled();
-    fetcher.mockImplementation(async () => new Response(bytes()));
-    const accepted = await loadAnimalTemplates(undefined, [animal]); expect(accepted.get(animal.id)).toBeTruthy();
-    const cached = await loadAnimalTemplates(undefined, [animal]); expect(cached.get(animal.id)).toBe(accepted.get(animal.id));
-    expect(fetcher).toHaveBeenCalledTimes(2); expect(parse).toHaveBeenCalledTimes(1);
+describe('valley animal sculptures', () => {
+  it('builds all nineteen persistent animals and their full repertoire offline, in one draw per animal', async () => {
+    const fetcher = vi.fn(() => { throw Error('Unexpected network request'); });
+    vi.stubGlobal('fetch', fetcher);
+    const progress = vi.fn(), models = await loadAnimalTemplates(progress);
+    expect(models.size).toBe(19);
+    expect(progress).toHaveBeenLastCalledWith(19,19);
+    for (const def of ANIMALS) {
+      const model = models.get(def.id)!, valid = validateAnimalTemplate(model, def);
+      expect(valid.triangles).toBeGreaterThan(1300);
+      expect(valid.triangles).toBeLessThan(6500);
+      const meshes: THREE.Mesh[] = [];
+      model.scene.traverse(o => { if (o instanceof THREE.Mesh) meshes.push(o); });
+      expect(meshes).toHaveLength(1);
+      const skin = meshes[0] as THREE.SkinnedMesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
+      expect(skin.material.vertexColors).toBe(true);
+      expect(skin.material.map).toBeNull();
+      expect(model.animations.map(c => c.name)).toEqual(requiredAnimalClips(def));
+      expect(model.animations.every(c => c.tracks.every(t => t.name.endsWith('.quaternion')))).toBe(true);
+    }
+    expect((await loadAnimalTemplates()).get(ANIMALS[0]!.id)).toBe(models.get(ANIMALS[0]!.id));
+    expect(fetcher).not.toHaveBeenCalled();
   });
 
-  it('releases rejected decoded art and stops queued downloads/progress after a required skin fails', async () => {
-    const waiting: (() => void)[] = [], requested: string[] = [];
-    vi.stubGlobal('fetch', vi.fn((url: URL) => {
-      requested.push(url.pathname);
-      if (url.pathname.includes('missing-call')) return Promise.resolve(new Response(bytes()));
-      return new Promise<Response>(resolve => waiting.push(() => resolve(new Response(bytes()))));
-    }));
-    const rejected = animalFixture(); rejected.animations = rejected.animations.filter(clip => clip.name !== 'Call');
-    const mesh = rejected.scene.children.find(object => 'geometry' in object)! as import('three').Mesh, dispose = vi.spyOn(mesh.geometry, 'dispose');
-    const parse = vi.spyOn(GLTFLoader.prototype, 'parseAsync').mockResolvedValueOnce(rejected).mockImplementation(async () => animalFixture());
-    const progress = vi.fn(), animals = ['missing-call', 'inflight-one', 'inflight-two', 'must-not-start'].map(name => definition(`animal-${name}`));
-    await expect(loadAnimalTemplates(progress, animals)).rejects.toThrow(/Call/);
-    expect(dispose).toHaveBeenCalledTimes(1); expect(waiting).toHaveLength(2); waiting.forEach(resolve => resolve());
-    await loadAnimalTemplates(undefined, animals.slice(1, 3));
-    expect(requested).toHaveLength(3); expect(progress.mock.calls).toEqual([[0, 4]]); expect(parse).toHaveBeenCalledTimes(3);
+  it('reconstructs identical skins and clips with independent bones and distinct species silhouettes', () => {
+    const silhouettes = new Set<string>();
+    for (const sp of new Set(ANIMALS.map(d => d.species))) {
+      const def = ANIMALS.find(d => d.species === sp)!, a = sculptValleyAnimal(def), b = sculptValleyAnimal(def);
+      const skin = (asset: typeof a) => asset.scene.getObjectByName(sp + ' / hide') as THREE.SkinnedMesh;
+      const first = skin(a), second = skin(b);
+      expect(first.geometry.attributes.position!.array).toEqual(second.geometry.attributes.position!.array);
+      expect(a.animations[0]!.tracks[0]!.values).toEqual(b.animations[0]!.tracks[0]!.values);
+      expect(first.skeleton.bones[0]).not.toBe(second.skeleton.bones[0]);
+      silhouettes.add(validateAnimalTemplate(a,def).bounds.getSize(new THREE.Vector3()).toArray().map(v=>v.toFixed(2)).join('/'));
+    }
+    expect(silhouettes.size).toBe(8);
   });
 
-  it('rejects undecoded embedded pixels, disposes them once, and permits the same required animal to retry', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response(bytes())));
-    const source = animalFixture(), image = { width: 0, height: 2, close: vi.fn() }, texture = new THREE.Texture(image as unknown as HTMLImageElement);
-    const material = (source.scene.children.find(object => 'geometry' in object)! as THREE.Mesh).material as THREE.MeshStandardMaterial; material.map = texture;
-    const dispose = vi.spyOn(texture, 'dispose'), parse = vi.spyOn(GLTFLoader.prototype, 'parseAsync').mockResolvedValueOnce(source).mockImplementation(async () => animalFixture());
-    const animal = definition('animal-undecoded-pixels');
-    await expect(loadAnimalTemplates(undefined, [animal])).rejects.toThrow(/could not be decoded/);
-    expect(dispose).toHaveBeenCalledTimes(1); expect(image.close).toHaveBeenCalledTimes(1);
-    expect((await loadAnimalTemplates(undefined, [animal])).get(animal.id)).toBeTruthy(); expect(parse).toHaveBeenCalledTimes(2);
+  it('tests arrows against the actual coloured skin including the nose, ribs and antler tines', () => {
+    const def = ANIMALS.find(d => d.tame)!, model = sculptValleyAnimal(def);
+    const mesh = model.scene.getObjectByName('deer / hide') as THREE.SkinnedMesh;
+    model.scene.updateMatrixWorld(true);
+    mesh.geometry.computeBoundingSphere();
+    const surface = new AnimalArrowSurface({id:ANIMAL_IDS[0]!,species:'deer'}, model.scene);
+    const shoot = (joint: string) => {
+      const bone = mesh.skeleton.bones.findIndex(b=>b.name === joint), index = mesh.geometry.index!;
+      const pts = mesh.geometry.getAttribute('position'), weights = mesh.geometry.getAttribute('skinIndex');
+      // Shoot inward from the centre of a real triangle on the named anatomy.
+      for (let k=0; k<index.count; k+=3) {
+        const ids=[index.getX(k),index.getX(k+1),index.getX(k+2)];
+        if (!ids.every(i=>weights.getX(i)===bone)) continue;
+        const [a,b,c]=ids.map(i=>new THREE.Vector3().fromBufferAttribute(pts,i)) as [THREE.Vector3,THREE.Vector3,THREE.Vector3];
+        const normal = THREE.Triangle.getNormal(a,b,c,new THREE.Vector3());
+        if (normal.lengthSq()<.9) continue;
+        const centre=a.add(b).add(c).multiplyScalar(1/3);
+        const hit=surface.trace(centre.addScaledVector(normal,.002),normal.negate(),.006);
+        if(hit) return hit.zone;
+      }
+      throw Error('No surface hit for ' + joint);
+    };
+    expect(shoot('head')).toBe('head');
+    expect(shoot('body')).toBe('body');
+    expect(shoot('antlers')).toBeNull();
   });
 });

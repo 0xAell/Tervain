@@ -23,7 +23,7 @@ describe('the score’s catalogue', () => {
     expect(entries.length).toBeGreaterThanOrEqual(30);
     for (const [id, entry] of entries) {
       expect(['piece', 'loop', 'sting'], id).toContain(entry.kind);
-      expect(['generated', 'composed'], id).toContain(entry.origin);
+      expect(['ensemble', 'composed'], id).toContain(entry.origin);
       expect(entry.duration, id).toBeGreaterThan(3);
       // A piece is for a place's mood, a loop for a threat, a sting for a moment or a place.
       if (entry.kind === 'piece') expect(['vale', 'wild', 'sacred', 'night'], id).toContain(entry.mood);
@@ -39,7 +39,7 @@ describe('the score’s catalogue', () => {
     }
     for (const level of ['alert', 'combat'] as const) {
       expect(THREAT_LOOPS[level].some((id) => MUSIC[id].origin === 'composed'), level).toBe(true);
-      expect(THREAT_LOOPS[level].some((id) => MUSIC[id].origin === 'generated'), level).toBe(true);
+      expect(THREAT_LOOPS[level].some((id) => MUSIC[id].origin === 'ensemble'), level).toBe(true);
     }
     for (const place of Object.keys(PLACES) as (keyof typeof PLACES)[]) expect(MUSIC[REGION_STING[PLACE_REGION[place]]].mood, place).toBe('place');
   });
@@ -63,7 +63,7 @@ describe('the score’s pacing', () => {
     // With the random source at 0, the first wait is its shortest.
     expect(director.update(MUSIC_PACING.firstWait[0] - 0.2, ctx)).toEqual([]);
     const started = director.update(0.3, ctx);
-    expect(started).toEqual([{ t: 'piece', id: 'alder_landing', fadeIn: MUSIC_PACING.fade.piece }]);
+    expect(started).toEqual([{ t: 'piece', id: 'ford_lanterns', fadeIn: MUSIC_PACING.fade.piece }]);
     // The piece runs its length, then the quiet lasts at least the shortest span before the next.
     expect(director.update(MUSIC[director.current!].duration + 0.1, ctx)).toEqual([]);
     expect(director.phase).toBe('wait');

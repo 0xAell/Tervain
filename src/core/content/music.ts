@@ -1,4 +1,4 @@
-import { ALDERWEIR_MUSIC } from './alderweirMusic';
+import { FORD_MUSIC } from './fordMusic';
 
 /**
  * The pieces of the in-world score, as the music director sees them: what each is for, where it came from and how long
@@ -10,33 +10,33 @@ import { ALDERWEIR_MUSIC } from './alderweirMusic';
 export type MusicKind = 'piece' | 'loop' | 'sting';
 /** What a piece is for: the mood of a place, a threat or a fight, a moment of the story, a place first seen. */
 export type MusicMood = 'vale' | 'wild' | 'sacred' | 'night' | 'danger' | 'combat' | 'sting' | 'place';
-/** Generated from a prompt, or composed in code around the Tervain theme. */
-export type MusicOrigin = 'generated' | 'composed';
+/** Two original arrangement families: the ford ensemble and the earlier Tervain themes. */
+export type MusicOrigin = 'ensemble' | 'composed';
 
 export interface MusicEntry { kind: MusicKind; mood: MusicMood; origin: MusicOrigin; /** Seconds. */ duration: number; title?: string }
 
 export const MUSIC = {
-  vale_1: { kind: 'piece', mood: 'vale', origin: 'generated', duration: 74.184 },
-  vale_2: { kind: 'piece', mood: 'vale', origin: 'generated', duration: 73.7627 },
-  wild_1: { kind: 'piece', mood: 'wild', origin: 'generated', duration: 73.9253 },
-  wild_2: { kind: 'piece', mood: 'wild', origin: 'generated', duration: 73.9067 },
-  wild_3: { kind: 'piece', mood: 'wild', origin: 'generated', duration: 71.936 },
-  night_1: { kind: 'piece', mood: 'night', origin: 'generated', duration: 72.856 },
-  night_2: { kind: 'piece', mood: 'night', origin: 'generated', duration: 70.9013 },
-  sacred: { kind: 'piece', mood: 'sacred', origin: 'generated', duration: 72.8533 },
-  danger: { kind: 'loop', mood: 'danger', origin: 'generated', duration: 38.18 },
-  combat: { kind: 'loop', mood: 'combat', origin: 'generated', duration: 36.8 },
-  sting_discover: { kind: 'sting', mood: 'sting', origin: 'generated', duration: 5.1707 },
-  sting_victory: { kind: 'sting', mood: 'sting', origin: 'generated', duration: 5.2293 },
-  sting_death: { kind: 'sting', mood: 'sting', origin: 'generated', duration: 4.8933 },
-  sting_quest: { kind: 'sting', mood: 'sting', origin: 'generated', duration: 5.5787 },
-  sting_lute: { kind: 'sting', mood: 'sting', origin: 'generated', duration: 7.0533 },
-  vale_3: { kind: 'piece', mood: 'vale', origin: 'generated', duration: 72.488 },
-  wild_4: { kind: 'piece', mood: 'wild', origin: 'generated', duration: 71.4293 },
-  night_3: { kind: 'piece', mood: 'night', origin: 'generated', duration: 71.1413 },
-  sacred_2: { kind: 'piece', mood: 'sacred', origin: 'generated', duration: 72.4373 },
-  danger_2: { kind: 'loop', mood: 'danger', origin: 'generated', duration: 27.5 },
-  combat_2: { kind: 'loop', mood: 'combat', origin: 'generated', duration: 32 },
+  vale_1: { kind: 'piece', mood: 'vale', origin: 'ensemble', duration: 74.184 },
+  vale_2: { kind: 'piece', mood: 'vale', origin: 'ensemble', duration: 73.7627 },
+  wild_1: { kind: 'piece', mood: 'wild', origin: 'ensemble', duration: 73.9253 },
+  wild_2: { kind: 'piece', mood: 'wild', origin: 'ensemble', duration: 73.9067 },
+  wild_3: { kind: 'piece', mood: 'wild', origin: 'ensemble', duration: 71.936 },
+  night_1: { kind: 'piece', mood: 'night', origin: 'ensemble', duration: 72.856 },
+  night_2: { kind: 'piece', mood: 'night', origin: 'ensemble', duration: 70.9013 },
+  sacred: { kind: 'piece', mood: 'sacred', origin: 'ensemble', duration: 72.8533 },
+  danger: { kind: 'loop', mood: 'danger', origin: 'ensemble', duration: 38.18 },
+  combat: { kind: 'loop', mood: 'combat', origin: 'ensemble', duration: 36.8 },
+  sting_discover: { kind: 'sting', mood: 'sting', origin: 'ensemble', duration: 5.1707 },
+  sting_victory: { kind: 'sting', mood: 'sting', origin: 'ensemble', duration: 5.2293 },
+  sting_death: { kind: 'sting', mood: 'sting', origin: 'ensemble', duration: 4.8933 },
+  sting_quest: { kind: 'sting', mood: 'sting', origin: 'ensemble', duration: 5.5787 },
+  sting_lute: { kind: 'sting', mood: 'sting', origin: 'ensemble', duration: 7.0533 },
+  vale_3: { kind: 'piece', mood: 'vale', origin: 'ensemble', duration: 72.488 },
+  wild_4: { kind: 'piece', mood: 'wild', origin: 'ensemble', duration: 71.4293 },
+  night_3: { kind: 'piece', mood: 'night', origin: 'ensemble', duration: 71.1413 },
+  sacred_2: { kind: 'piece', mood: 'sacred', origin: 'ensemble', duration: 72.4373 },
+  danger_2: { kind: 'loop', mood: 'danger', origin: 'ensemble', duration: 27.5 },
+  combat_2: { kind: 'loop', mood: 'combat', origin: 'ensemble', duration: 32 },
   theme_vale: { kind: 'piece', mood: 'vale', origin: 'composed', duration: 84.232, title: "Rillford at Work" },
   theme_wild: { kind: 'piece', mood: 'wild', origin: 'composed', duration: 72.3467, title: "The Deepwood" },
   theme_night: { kind: 'piece', mood: 'night', origin: 'composed', duration: 66.768, title: "Embers" },
@@ -52,7 +52,7 @@ export const MUSIC = {
   place_stone: { kind: 'sting', mood: 'place', origin: 'composed', duration: 10.688, title: "Cut Stone" },
   place_sacred: { kind: 'sting', mood: 'place', origin: 'composed', duration: 10.7333, title: "Holy Water" },
   place_light: { kind: 'sting', mood: 'place', origin: 'composed', duration: 5.6373, title: "Lantern Point" },
-  ...ALDERWEIR_MUSIC,
+  ...FORD_MUSIC,
 } as const satisfies Record<string, MusicEntry>;
 
 export type MusicId = keyof typeof MUSIC;

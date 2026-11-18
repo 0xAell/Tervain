@@ -8,7 +8,7 @@ import * as THREE from 'three';
  *
  * Returns a function that removes both hooks again (dispose in reverse order of installation, as the world does).
  */
-export function installShadowOnlyGroup(scene: THREE.Scene, light: THREE.DirectionalLight, group: THREE.Object3D): () => void {
+export function installShadowOnlyGroup(scene: THREE.Scene, light: THREE.DirectionalLight, group: THREE.Object3D, afterUpdate?: (frustum: THREE.Frustum) => void): () => void {
   const previousRender = scene.onBeforeRender;
   scene.onBeforeRender = function (this: THREE.Scene, renderer, s, camera, geometry, material, g) {
     group.visible = false;
@@ -19,7 +19,9 @@ export function installShadowOnlyGroup(scene: THREE.Scene, light: THREE.Directio
   const previousUpdate = shadow.updateMatrices;
   shadow.updateMatrices = function (this: THREE.LightShadow<THREE.Camera>, ...args: Parameters<THREE.LightShadow<THREE.Camera>['updateMatrices']>) {
     group.visible = true;
-    return previousUpdate.apply(this, args);
+    const result = previousUpdate.apply(this, args);
+    afterUpdate?.(this.getFrustum());
+    return result;
   };
   group.visible = false;
   let removed = false;

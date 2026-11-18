@@ -10,12 +10,12 @@ describe('packaged hunting recordings', () => {
     const published = readFileSync(resolve('public/assets/audio/hunting/manifest.json'));
     expect(published.equals(docs)).toBe(true);
     const manifest = JSON.parse(docs.toString('utf8')) as {
-      status: string; modelId: string;
-      assets: { id: string; path: string; modelId: string; sha256: string; bytes: number;
+      status: string; renderer: string;
+      assets: { id: string; path: string; sha256: string; bytes: number;
         durationSeconds: number; peakDbfs: number; channels: number; sampleRate: number; loop: boolean }[];
     };
     expect(manifest.status).toBe('complete');
-    expect(manifest.modelId).toBe('eleven_text_to_sound_v2');
+    expect(manifest.renderer).toBe('ford_foley.py');
     expect(manifest.assets.map((asset) => asset.id).sort()).toEqual([...HUNTING_SOUND_ASSETS].sort());
     expect(new Set(manifest.assets.map((asset) => asset.sha256)).size).toBe(6);
     for (const asset of manifest.assets) {
@@ -24,7 +24,6 @@ describe('packaged hunting recordings', () => {
       expect(createHash('sha256').update(data).digest('hex')).toBe(asset.sha256);
       expect(data.length).toBe(asset.bytes);
       expect(asset.bytes).toBeLessThan(120_000);
-      expect(asset.modelId).toBe(manifest.modelId);
       expect(asset.channels).toBe(1);
       expect(asset.sampleRate).toBe(44100);
       expect(asset.durationSeconds).toBeGreaterThanOrEqual(0.4);

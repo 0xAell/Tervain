@@ -69,7 +69,11 @@ This product includes material from the Warpkeep project (https://github.com/ael
 
 Warpkeep names, logos and the Hegemony identity are not licensed by this notice.
 
-The generated sound effects, ambience, score, songs and voices were generated with
+Active Tervain audio since 0.1.1 is composed and synthesized in code. The Ford at
+First Light, regional arrangements, ambient beds, foley and character gestures
+are documented in docs/engineering/ford-audio.md and tervain-audio.json.
+
+Historical audio credits for the archived prototype follow. Its effects, ambience, score, songs and voices were made with
 ElevenLabs (https://elevenlabs.io) from original descriptions, lyrics and lines.
 Published world/voice sources record paid-generation provenance and replace earlier free-plan
 outputs. Effects and speech follow the applicable general service terms; Eleven
@@ -81,7 +85,7 @@ See docs/engineering/world-audio.md, world-audio-assets.json and voice-assets.js
 in that directory for source records and hashes. Animal calls have their own
 animal-audio-assets.json record: Sound Effects v2, paid Creator generation on
 6 October 2026, with source/derivative fingerprints. The six imported hunting
-effects retain separate records in hunting-sounds.json; their generation-time
+effects retain separate records in hunting-sounds-archive.json; their generation-time
 subscription evidence is pending and commercial clearance is not established.
 Seventeen water sounds (Sound Effects v2, 6 October 2026) are recorded in
 world-audio-assets.json without generation-time subscription evidence; their
@@ -97,7 +101,7 @@ This product uses the official @dimforge/rapier3d-compat 0.21.0 physics engine
 unmodified licence is retained in public/third-party-notices.txt above the Three.js
 MIT notice. Tervain's integration does not include Valve game code or assets.
 
-Rowan Vale’s hunter greeting was generated offline with ElevenLabs eleven_v4 on
+The archived recording of Rowan Vale’s hunter greeting was generated offline with ElevenLabs eleven_v4 on
 6 October 2026 under a generation-time verified paid Creator plan, using an
 existing original text-designed voice. Its source, processing and packaged
 hashes are recorded in docs/engineering/voice-assets.json. The recording

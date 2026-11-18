@@ -5,7 +5,7 @@ import {
   MENU_SCORE_RHYTHM_INFO,
 } from './menuScoreRhythmData';
 
-/** Rubato from the original 6/8 score, with accents and frequency bands measured in the rendered title audio. */
+/** Rubato from the original 3/4 score, with accents and frequency bands measured in the rendered title audio. */
 const INFO = MENU_SCORE_RHYTHM_INFO;
 const decode = (base64: string) => Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 
@@ -61,7 +61,7 @@ export function menuBeatTime(beat: number): number {
   return beatTimes[index]! + (beat - index) * (beatTimes[index + 1]! - beatTimes[index]!);
 }
 
-/** Fractional pulse at a song time. Interpolate between its two MIDI timestamps. */
+/** Fractional pulse at a song time. Interpolate between its two score timestamps. */
 export function menuBeatAt(time: number): number {
   let lo = 0, hi = beatTimes.length - 1;
   while (hi - lo > 1) {

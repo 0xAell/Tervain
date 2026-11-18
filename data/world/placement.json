@@ -30,32 +30,6 @@
   "stoneShapes": 6,
   "woodlandFloor": [
     {
-      "id": "floor:shrub:-275.8549:-123.9033",
-      "kind": "shrub",
-      "x": -275.854858,
-      "y": 13.088491,
-      "z": -123.903297,
-      "yaw": 5.72061,
-      "scale": 0.821506,
-      "rank": 0.036952,
-      "variant": 0,
-      "colony": "floor-colony:-274.2:-126.6",
-      "onLog": null
-    },
-    {
-      "id": "floor:litter:-281.8602:-114.2531",
-      "kind": "litter",
-      "x": -281.860212,
-      "y": 12.041541,
-      "z": -114.253055,
-      "yaw": 0.534931,
-      "scale": 1.459698,
-      "rank": 0.929472,
-      "variant": 2,
-      "colony": "floor-colony:-283.8:-112.2",
-      "onLog": null
-    },
-    {
       "id": "floor:litter:-285.1010:-108.1215",
       "kind": "litter",
       "x": -285.100973,
@@ -95,30 +69,17 @@
       "onLog": null
     },
     {
-      "id": "floor:log:-277.2735:-104.2490",
-      "kind": "log",
-      "x": -277.273548,
-      "y": 11.994615,
-      "z": -104.248979,
-      "yaw": 2.812066,
-      "scale": 0.693183,
-      "rank": 0.994404,
-      "variant": 1,
-      "colony": "floor-colony:-279.0:-102.6",
+      "id": "floor:litter:-283.9421:-101.0443",
+      "kind": "litter",
+      "x": -283.942071,
+      "y": 11.949803,
+      "z": -101.044297,
+      "yaw": 2.857071,
+      "scale": 1.58178,
+      "rank": 0.554344,
+      "variant": 2,
+      "colony": "floor-colony:-283.8:-102.6",
       "onLog": null
-    },
-    {
-      "id": "floor:fungi:-277.4649:-103.6896",
-      "kind": "fungi",
-      "x": -277.464851,
-      "y": 11.993634,
-      "z": -103.689608,
-      "yaw": 3.587687,
-      "scale": 0.857122,
-      "rank": 0.994404,
-      "variant": 0,
-      "colony": "floor-colony:-279.0:-102.6",
-      "onLog": "floor:log:-277.2735:-104.2490"
     },
     {
       "id": "floor:litter:-266.3715:-103.2232",
@@ -147,19 +108,6 @@
       "onLog": null
     },
     {
-      "id": "floor:litter:-254.7669:-102.3867",
-      "kind": "litter",
-      "x": -254.766942,
-      "y": 12.078105,
-      "z": -102.386729,
-      "yaw": 1.515671,
-      "scale": 1.364797,
-      "rank": 0.02952,
-      "variant": 2,
-      "colony": "floor-colony:-255.0:-102.6",
-      "onLog": null
-    },
-    {
       "id": "floor:shrub:3.8291:-102.7071",
       "kind": "shrub",
       "x": 3.829128,
@@ -183,19 +131,6 @@
       "rank": 0.545648,
       "variant": 0,
       "colony": "floor-colony:4.2:-102.6",
-      "onLog": null
-    },
-    {
-      "id": "floor:litter:-252.1959:-98.2235",
-      "kind": "litter",
-      "x": -252.195871,
-      "y": 11.942295,
-      "z": -98.223527,
-      "yaw": 3.087594,
-      "scale": 1.255938,
-      "rank": 0.527275,
-      "variant": 2,
-      "colony": "floor-colony:-255.0:-97.8",
       "onLog": null
     },
     {
@@ -274,19 +209,6 @@
       "rank": 0.633118,
       "variant": 0,
       "colony": "floor-colony:13.8:-97.8",
-      "onLog": null
-    },
-    {
-      "id": "floor:litter:-293.2781:-91.4337",
-      "kind": "litter",
-      "x": -293.278071,
-      "y": 12.019702,
-      "z": -91.433705,
-      "yaw": 5.41377,
-      "scale": 1.55513,
-      "rank": 0.221435,
-      "variant": 2,
-      "colony": "floor-colony:-293.4:-93.0",
       "onLog": null
     },
     {
@@ -381,58 +303,6 @@
       "onLog": null
     },
     {
-      "id": "floor:fern:-179.5486:-82.0991",
-      "kind": "fern",
-      "x": -179.548642,
-      "y": 8.727525,
-      "z": -82.099052,
-      "yaw": 4.998546,
-      "scale": 0.8696,
-      "rank": 0.000709,
-      "variant": 2,
-      "colony": "floor-colony:-178.2:-83.4",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-179.6847:-80.2534",
-      "kind": "fern",
-      "x": -179.684686,
-      "y": 8.400943,
-      "z": -80.253422,
-      "yaw": 0.206771,
-      "scale": 0.89672,
-      "rank": 0.703234,
-      "variant": 2,
-      "colony": "floor-colony:-178.2:-83.4",
-      "onLog": null
-    },
-    {
-      "id": "floor:moss:-178.9123:-83.3763",
-      "kind": "moss",
-      "x": -178.91229,
-      "y": 8.969157,
-      "z": -83.37628,
-      "yaw": 2.117459,
-      "scale": 0.682403,
-      "rank": 0.726884,
-      "variant": 0,
-      "colony": "floor-colony:-178.2:-83.4",
-      "onLog": null
-    },
-    {
-      "id": "floor:litter:-180.2112:-82.4864",
-      "kind": "litter",
-      "x": -180.211208,
-      "y": 8.756992,
-      "z": -82.486407,
-      "yaw": 2.350471,
-      "scale": 1.3938,
-      "rank": 0.565408,
-      "variant": 2,
-      "colony": "floor-colony:-178.2:-83.4",
-      "onLog": null
-    },
-    {
       "id": "floor:fern:-150.0095:-84.0725",
       "kind": "fern",
       "x": -150.009502,
@@ -469,97 +339,6 @@
       "rank": 0.058238,
       "variant": 1,
       "colony": "floor-colony:23.4:-83.4",
-      "onLog": null
-    },
-    {
-      "id": "floor:litter:-284.5744:-79.8754",
-      "kind": "litter",
-      "x": -284.574388,
-      "y": 11.967772,
-      "z": -79.87538,
-      "yaw": 2.952009,
-      "scale": 1.470756,
-      "rank": 0.853312,
-      "variant": 2,
-      "colony": "floor-colony:-283.8:-78.6",
-      "onLog": null
-    },
-    {
-      "id": "floor:shrub:-190.5186:-78.4396",
-      "kind": "shrub",
-      "x": -190.518578,
-      "y": 8.250069,
-      "z": -78.439613,
-      "yaw": 1.574211,
-      "scale": 0.838958,
-      "rank": 0.624036,
-      "variant": 1,
-      "colony": "floor-colony:-192.6:-78.6",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-184.6039:-79.2241",
-      "kind": "fern",
-      "x": -184.603929,
-      "y": 8.629518,
-      "z": -79.224125,
-      "yaw": 4.280243,
-      "scale": 1.049097,
-      "rank": 0.240392,
-      "variant": 2,
-      "colony": "floor-colony:-183.0:-78.6",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-178.0163:-78.4870",
-      "kind": "fern",
-      "x": -178.01628,
-      "y": 7.763939,
-      "z": -78.487024,
-      "yaw": 1.871865,
-      "scale": 1.228784,
-      "rank": 0.256291,
-      "variant": 2,
-      "colony": "floor-colony:-178.2:-78.6",
-      "onLog": null
-    },
-    {
-      "id": "floor:moss:-179.6388:-78.4103",
-      "kind": "moss",
-      "x": -179.638806,
-      "y": 7.829208,
-      "z": -78.410262,
-      "yaw": 1.501588,
-      "scale": 0.733456,
-      "rank": 0.309056,
-      "variant": 0,
-      "colony": "floor-colony:-178.2:-78.6",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-173.8542:-76.7069",
-      "kind": "fern",
-      "x": -173.854183,
-      "y": 7.233693,
-      "z": -76.70685,
-      "yaw": 0.972677,
-      "scale": 0.987096,
-      "rank": 0.774572,
-      "variant": 1,
-      "colony": "floor-colony:-173.4:-78.6",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-174.3200:-78.6820",
-      "kind": "fern",
-      "x": -174.320042,
-      "y": 7.642724,
-      "z": -78.681958,
-      "yaw": 5.341397,
-      "scale": 0.412539,
-      "rank": 0.051441,
-      "variant": 0,
-      "colony": "floor-colony:-173.4:-78.6",
       "onLog": null
     },
     {
@@ -615,45 +394,6 @@
       "onLog": null
     },
     {
-      "id": "floor:moss:-175.2395:-74.2050",
-      "kind": "moss",
-      "x": -175.239497,
-      "y": 6.948306,
-      "z": -74.205035,
-      "yaw": 3.391087,
-      "scale": 1.055652,
-      "rank": 0.699971,
-      "variant": 0,
-      "colony": "floor-colony:-173.4:-73.8",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-153.2523:-72.8829",
-      "kind": "fern",
-      "x": -153.252312,
-      "y": 6.730318,
-      "z": -72.88285,
-      "yaw": 0.52463,
-      "scale": 0.97593,
-      "rank": 0.708824,
-      "variant": 0,
-      "colony": "floor-colony:-154.2:-73.8",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-154.3958:-73.7014",
-      "kind": "fern",
-      "x": -154.395831,
-      "y": 6.77387,
-      "z": -73.701405,
-      "yaw": 5.910016,
-      "scale": 0.643909,
-      "rank": 0.900077,
-      "variant": 0,
-      "colony": "floor-colony:-154.2:-73.8",
-      "onLog": null
-    },
-    {
       "id": "floor:fern:-149.1698:-73.6999",
       "kind": "fern",
       "x": -149.169783,
@@ -675,19 +415,6 @@
       "yaw": 1.70256,
       "scale": 0.767807,
       "rank": 0.281394,
-      "variant": 0,
-      "colony": "floor-colony:-149.4:-73.8",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-150.0092:-72.3204",
-      "kind": "fern",
-      "x": -150.009231,
-      "y": 6.803297,
-      "z": -72.320366,
-      "yaw": 5.498937,
-      "scale": 0.7938,
-      "rank": 0.178341,
       "variant": 0,
       "colony": "floor-colony:-149.4:-73.8",
       "onLog": null
@@ -732,45 +459,6 @@
       "onLog": null
     },
     {
-      "id": "floor:fern:-157.7224:-69.9320",
-      "kind": "fern",
-      "x": -157.722408,
-      "y": 6.562016,
-      "z": -69.931981,
-      "yaw": 3.298614,
-      "scale": 0.781617,
-      "rank": 0.377712,
-      "variant": 2,
-      "colony": "floor-colony:-159.0:-69.0",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-140.6772:-68.6152",
-      "kind": "fern",
-      "x": -140.677228,
-      "y": 5.71066,
-      "z": -68.615194,
-      "yaw": 5.337625,
-      "scale": 1.193161,
-      "rank": 0.749837,
-      "variant": 0,
-      "colony": "floor-colony:-139.8:-69.0",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-140.6210:-63.9823",
-      "kind": "fern",
-      "x": -140.620951,
-      "y": 5.377674,
-      "z": -63.982321,
-      "yaw": 0.486235,
-      "scale": 0.993027,
-      "rank": 0.589388,
-      "variant": 0,
-      "colony": "floor-colony:-139.8:-64.2",
-      "onLog": null
-    },
-    {
       "id": "floor:fern:22.9066:-65.2357",
       "kind": "fern",
       "x": 22.906644,
@@ -781,32 +469,6 @@
       "rank": 0.379024,
       "variant": 2,
       "colony": "floor-colony:23.4:-64.2",
-      "onLog": null
-    },
-    {
-      "id": "floor:fern:-138.3906:-59.4682",
-      "kind": "fern",
-      "x": -138.390616,
-      "y": 4.778932,
-      "z": -59.4682,
-      "yaw": 4.290809,
-      "scale": 1.099151,
-      "rank": 0.998941,
-      "variant": 0,
-      "colony": "floor-colony:-139.8:-59.4",
-      "onLog": null
-    },
-    {
-      "id": "floor:shrub:-126.5848:-59.7643",
-      "kind": "shrub",
-      "x": -126.584807,
-      "y": 4.197168,
-      "z": -59.764315,
-      "yaw": 5.859899,
-      "scale": 0.924072,
-      "rank": 0.320903,
-      "variant": 0,
-      "colony": "floor-colony:-125.4:-59.4",
       "onLog": null
     },
     {
@@ -3007,32 +2669,6 @@
       "onLog": null
     },
     {
-      "id": "floor:fern:-24.9351:-24.6704",
-      "kind": "fern",
-      "x": -24.935103,
-      "y": 1.127879,
-      "z": -24.67043,
-      "yaw": 1.259491,
-      "scale": 0.806456,
-      "rank": 0.305581,
-      "variant": 2,
-      "colony": "floor-colony:-24.6:-25.8",
-      "onLog": null
-    },
-    {
-      "id": "floor:moss:-25.6577:-24.8079",
-      "kind": "moss",
-      "x": -25.657711,
-      "y": 1.148125,
-      "z": -24.807949,
-      "yaw": 5.597532,
-      "scale": 1.106136,
-      "rank": 0.485198,
-      "variant": 0,
-      "colony": "floor-colony:-24.6:-25.8",
-      "onLog": null
-    },
-    {
       "id": "floor:fern:-210.3162:-19.5339",
       "kind": "fern",
       "x": -210.316232,
@@ -3407,32 +3043,6 @@
       "rank": 0.077688,
       "variant": 0,
       "colony": "floor-colony:-29.4:-21.0",
-      "onLog": null
-    },
-    {
-      "id": "floor:moss:-25.6075:-19.6850",
-      "kind": "moss",
-      "x": -25.607488,
-      "y": 0.980882,
-      "z": -19.684998,
-      "yaw": 2.788208,
-      "scale": 1.009935,
-      "rank": 0.542511,
-      "variant": 0,
-      "colony": "floor-colony:-24.6:-21.0",
-      "onLog": null
-    },
-    {
-      "id": "floor:litter:-25.3217:-20.4774",
-      "kind": "litter",
-      "x": -25.321672,
-      "y": 0.974643,
-      "z": -20.477381,
-      "yaw": 0.115022,
-      "scale": 1.230734,
-      "rank": 0.873909,
-      "variant": 2,
-      "colony": "floor-colony:-24.6:-21.0",
       "onLog": null
     },
     {
@@ -6140,19 +5750,6 @@
       "onLog": null
     },
     {
-      "id": "floor:litter:157.1671:9.7981",
-      "kind": "litter",
-      "x": 157.167097,
-      "y": 7.185488,
-      "z": 9.798098,
-      "yaw": 1.211151,
-      "scale": 0.974747,
-      "rank": 0.539235,
-      "variant": 2,
-      "colony": "floor-colony:157.8:12.6",
-      "onLog": null
-    },
-    {
       "id": "floor:shrub:-207.2355:17.1019",
       "kind": "shrub",
       "x": -207.235484,
@@ -8711,19 +8308,6 @@
       "rank": 0.105151,
       "variant": 2,
       "colony": "floor-colony:-111.0:113.4",
-      "onLog": null
-    },
-    {
-      "id": "floor:litter:-280.8150:141.0952",
-      "kind": "litter",
-      "x": -280.815039,
-      "y": 0.856929,
-      "z": 141.095193,
-      "yaw": 1.177788,
-      "scale": 1.310236,
-      "rank": 0.677858,
-      "variant": 2,
-      "colony": "floor-colony:-279.0:142.2",
       "onLog": null
     }
   ],

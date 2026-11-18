@@ -32,8 +32,6 @@ export function menuResourceFixture(): MenuResources {
     leaf: () => new THREE.Texture(),
     canvas: {
       canvas: (width, height) => ({ width, height, getContext: () => context() }) as unknown as HTMLCanvasElement,
-      image: async () => null,
     },
-    emblemUrl: 'emblem.png',
   };
 }

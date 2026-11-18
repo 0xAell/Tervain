@@ -1,6 +1,8 @@
 import { buildFenceRun } from './fenceContacts';
 import * as THREE from 'three';
 import { batchParts, type PartBatch } from './partBatch';
+import { buildRegionSun } from './regionSun';
+import { installShadowOnlyGroup } from './foliage/shadowCasters';
 import { addCartColliders, PROP_COLLIDER, type Colliders, type VerticalBounds } from '../core/world/colliders';
 import {
   ANCHORS,
@@ -132,6 +134,8 @@ export interface SceneryHandles {
    * drawn: one batch per material, each part following what holds it (partBatch.ts). Update it once they have moved.
    */
   doorBatch?: PartBatch | null;
+  /** Draw structural materials together only during the sun's shadow pass. */
+  installRegionSun?(scene: THREE.Scene, light: THREE.DirectionalLight): () => void;
   lanternPositions: THREE.Vector3[];
   chimneyOutlets: THREE.Vector3[];
   millWheel: THREE.Object3D;
@@ -897,7 +901,8 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
   Object.assign(pickups, loosePickups.objects);
 
   /* ---------------- Merge the regions ---------------- */
-  for (const R of regions.values()) group.add(R.toGroup(mats, { isStatic: true, shadows: true }));
+  const fixed = [...regions.values()].map(region => region.toGroup(mats, { isStatic: true, shadows: true }));
+  group.add(...fixed);
   // The parts that move or come and go drawn in one batch per material, each following what holds it: the rooms' door
   // leaves on their pivots, the signs swinging on their brackets, the archive's door and shutter, the bell, the mill and
   // sluice wheels, the sluice gate, brace and cracks, the shortcut gate and lever, the schedule board's posts, the guard's
@@ -928,6 +933,12 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     daylightMat: mats.daylightMat,
     doors,
     doorBatch,
+    installRegionSun(scene, light) {
+      const batch = buildRegionSun(fixed);
+      group.add(batch.group);
+      const detach = installShadowOnlyGroup(scene, light, batch.group, batch.update);
+      return () => { detach(); batch.dispose(); };
+    },
     lanternPositions, chimneyOutlets,
     millWheel,
     bell,

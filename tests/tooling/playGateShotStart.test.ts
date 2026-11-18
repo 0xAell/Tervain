@@ -9,7 +9,7 @@ function run(failure = '') {
   const fixture = mkdtempSync(join(tmpdir(), 'tervain-budget-start-'));
   try {
     installPopulationProbe(fixture);
-    for (const name of ['play-gate.mjs', 'webgl-upload-bytes.mjs', 'budget-frame-samples.mjs', 'budget-probe.mjs']) writeFileSync(join(fixture, name), readFileSync(`tools/${name}`));
+    for (const name of ['play-gate.mjs', 'webgl-upload-bytes.mjs', 'budget-frame-samples.mjs', 'hero-draw-observer.mjs', 'budget-probe.mjs']) writeFileSync(join(fixture, name), readFileSync(`tools/${name}`));
     // The live deployment is whole unless the scenario says otherwise.
     writeFileSync(join(fixture, 'live-deploy.mjs'), `export async function waitForSettledDeploy() {
       const fail = process.env.GATE_FIXTURE_FAIL;

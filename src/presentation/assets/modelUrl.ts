@@ -1,3 +1,5 @@
+import { playableModel } from './playableModels';
+
 /** Resolve original model bytes locally, or from the exact commit used by a hosted production build. */
 export function modelAssetUrl(
   file: string,
@@ -15,6 +17,7 @@ export function modelAssetUrl(
       return true;
     }
   })) throw new Error(`Invalid model asset path: ${file}`);
+  if (!playableModel(file)) throw new Error(`Model is outside the playable art collection: ${file}`);
   if (modelBase) {
     if (!/^https:\/\/raw\.githubusercontent\.com\/0xAell\/Tervain\/[0-9a-f]{40}\/public\/models\/$/.test(modelBase)) {
       throw new Error('Hosted model delivery requires the exact production commit.');

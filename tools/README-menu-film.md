@@ -24,7 +24,7 @@ Open **http://127.0.0.1:5180/tools/menu-film.html**. The server binds only to `1
 Hegemony emblem, shaders, and sky lighting finish preparing, the page exposes two buttons:
 
 - **Record 5-second wisp test**: inspect image composition, actual animation, dimensions, and frame pacing before a full run.
-- **Record full song**: record **237 seconds** of menu motion, leaving room for the complete Alderweir recording.
+- **Record full song**: record **120 seconds** of menu motion, leaving room for the complete ford theme.
 
 The test starts at song time **0:40**, during the wisp sequence. The full recording always starts at **0:00**, even
 after running a test. The recorder passes elapsed song time to the native menu animation, so the tree door and wisps
@@ -55,18 +55,18 @@ recording progress; recording write endpoints accept requests only from this rec
 ## Add the complete song
 
 The captured WebM has no audio. After the full recording completes, mux the **complete approved AAC score** separately.
-FFprobe reports **11,304,000 samples at 48 kHz** for Alderweir’s AAC track. Its **235.5 seconds**
-fill exactly **7,065 frames at 30 fps**. The command below trims the video to that frame count, encodes
+FFprobe reports **3,792,000 samples at 32 kHz** for the ford theme’s AAC track. Its **118.5 seconds**
+fill exactly **3,555 frames at 30 fps**. The command below trims the video to that frame count, encodes
 it to H.264 and copies the full AAC stream.
 
 ```sh
 ffmpeg -i '/absolute/path/menu-motion-UUID.webm' \
-  -i 'public/assets/audio/world/alderweir/title.m4a' \
+  -i 'public/assets/audio/world/ford/title.m4a' \
   -map 0:v:0 -map 1:a:0 \
-  -vf 'fps=30,trim=end_frame=7065,setpts=PTS-STARTPTS' \
+  -vf 'fps=30,trim=end_frame=3555,setpts=PTS-STARTPTS' \
   -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p \
   -c:a copy -movflags +faststart \
-  '/absolute/path/Tervain-menu-Alderweir.mp4'
+  '/absolute/path/Tervain-menu-Ford.mp4'
 ```
 
 The recorder takes its timeline from the game’s score data. When the music changes, read the new AAC
@@ -75,5 +75,5 @@ frame count. Verify the encoded file’s stream durations and video frame count 
 
 ```sh
 ffprobe -v error -show_entries stream=codec_name,duration,nb_frames -of compact \
-  '/absolute/path/Tervain-menu-Alderweir.mp4'
+  '/absolute/path/Tervain-menu-Ford.mp4'
 ```

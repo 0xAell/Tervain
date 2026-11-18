@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { artifactBytes, finalizePagesModelArtifact, omitPagesModelCopies, PAGES_SITE_BYTE_LIMIT, pagesModelArtifactTarget, productionModelAssetBase } from '../../tools/modelAssetDelivery';
+import { omitArchiveModels, artifactBytes, finalizePagesModelArtifact, omitPagesModelCopies, PAGES_SITE_BYTE_LIMIT, pagesModelArtifactTarget, productionModelAssetBase } from '../../tools/modelAssetDelivery';
 
 const SHA = '0123456789abcdef0123456789abcdef01234567';
 
@@ -45,6 +45,16 @@ describe('Pages model artifact scope', () => {
     expect(fs.readFileSync(path.join(root, 'dist/gothic3/reference.bin'))).toEqual(study);
     expect(fs.readFileSync(path.join(root, 'dist/assets/game.js'), 'utf8')).toBe('original game');
     expect(omitPagesModelCopies(root, 'dist')).toBe(0);
+  });
+
+  it('limits a standalone artifact to playable models and retains the source fixture', () => {
+    const model = 'flora/hero/hero-oak-mid.glb';
+    fs.mkdirSync(path.dirname(path.join(root, 'dist/models', model)), { recursive: true });
+    fs.writeFileSync(path.join(root, 'dist/models', model), 'oak');
+    omitArchiveModels(root, 'dist');
+    expect(fs.readFileSync(path.join(root, 'dist/models', model), 'utf8')).toBe('oak');
+    expect(fs.existsSync(path.join(root, 'dist/models/source.glb'))).toBe(false);
+    expect(fs.existsSync(path.join(root, 'public/models/source.glb'))).toBe(true);
   });
 
   it('rejects a source directory or an output outside this project before deleting anything', () => {

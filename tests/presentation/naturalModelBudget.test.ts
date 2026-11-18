@@ -29,7 +29,7 @@ describe('complete natural model triangle budget', () => {
     try {
       for (const species of ['pine', 'fir', 'shorepine'] as const) for (let seed = 1; seed <= 3; seed++) {
         const model = forest.variant(species, seed);
-        expect(model.lods.map(lod => assertNaturalModelBudget(`${species}:${seed}`, [lod.wood, lod.leaf]))).toEqual([9706, 3610, 48]);
+        expect(model.lods.map(lod => assertNaturalModelBudget(`${species}:${seed}`, [lod.wood, lod.leaf]))).toEqual([8260, 3564, 1748]);
         expect(model.lods[0].tris + model.lods[1].tris).toBeLessThan(20_000);
       }
     } finally { forest.dispose(); }
@@ -57,7 +57,7 @@ describe('complete natural model triangle budget', () => {
     const template = await rockPileTemplate();
     const meshes: THREE.BufferGeometry[] = [];
     template.scene.traverse(object => { if ((object as THREE.Mesh).isMesh) meshes.push((object as THREE.Mesh).geometry); });
-    expect(assertNaturalModelBudget('Rock pile', meshes)).toBe(5220);
+    expect(assertNaturalModelBudget('Rock pile', meshes)).toBe(740);
     meshes.forEach(geometry => geometry.dispose());
   });
 

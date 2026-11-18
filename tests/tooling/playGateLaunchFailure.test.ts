@@ -13,7 +13,7 @@ it('records browser launch failure for every profile and exits without a PASS re
     // The gate's own helper modules travel with it; only the browser is replaced.
     writeFileSync(join(fixture, 'budget-frame-samples.mjs'), readFileSync('tools/budget-frame-samples.mjs'));
     writeFileSync(join(fixture, 'webgl-upload-bytes.mjs'), readFileSync('tools/webgl-upload-bytes.mjs'));
-    for (const name of ['budget-probe.mjs', 'live-deploy.mjs']) writeFileSync(join(fixture, name), readFileSync(`tools/${name}`));
+    for (const name of ['hero-draw-observer.mjs', 'budget-probe.mjs', 'live-deploy.mjs']) writeFileSync(join(fixture, name), readFileSync(`tools/${name}`));
     writeFileSync(join(fixture, 'cdp.mjs'), 'export const NO_GPU_WATCHDOG = "--disable-gpu-watchdog"; export async function openPage() { throw new Error("browser did not start"); }');
     const out = join(fixture, 'reports');
     const run = spawnSync(process.execPath, [join(fixture, 'play-gate.mjs'),

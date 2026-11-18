@@ -55,8 +55,8 @@ beforeAll(async () => {
   for (const variant of variants.values()) if (!isPineSpecies(variant.species)) for (const lod of variant.lods) { lod.wood?.dispose(); lod.leaf?.dispose(); }
 });
 
-describe('historical source-Pine component render substitution without the Meshy catalog', () => {
-  it('selects the requested root LOD and keeps omitted far wood visible as a coverage deficit', () => {
+describe('coastal pine component without the species catalog', () => {
+  it('selects the requested root LOD and retains far wood at every planted position', () => {
     vi.stubGlobal('location', { search: '' });
     const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality: 'low', settings: { ...defaultSettings(), quality: 'low' }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);
     try {
@@ -66,13 +66,14 @@ describe('historical source-Pine component render substitution without the Meshy
         const expected = forest.canopyAuditTargets!(lod).filter(t => t.wood).map(t => ({ label: t.label, geometry: t.wood!.uuid, matrix: t.matrix.elements }));
         expect(records(forest.placementAuditTargets!(lod))).toEqual(expected);
       }
-      expect(forest.placementAuditTargets!(2).length).toBeLessThan(forest.placementAuditTargets!(0).length);
+      expect(forest.placementAuditTargets!(2).map(t => t.label)).toEqual(forest.placementAuditTargets!(0).map(t => t.label));
       for (const lod of [-1, .5, 3, NaN]) expect(() => forest.placementAuditTargets!(lod)).toThrow('Invalid placement LOD');
     } finally { forest.dispose!(); vi.unstubAllGlobals(); }
   });
 
   it('exports exact complete woody contact for canonical trees with shared buffers, uniform planted transforms and no leaf cards', () => {
     vi.stubGlobal('location', { search: '' });
+    const nativeWood = templates[0].scene.getObjectByName('Trunk_Wood') as THREE.Mesh;
     let firstTransforms: unknown;
     for (const quality of ['low', 'medium', 'high'] as const) {
       const colliders = new Colliders();
@@ -96,7 +97,7 @@ describe('historical source-Pine component render substitution without the Meshy
         let topologyErrors = 0;
         for (let i = 0; i < contact.indices.length; i++) if (contact.indices[i] !== (index ? index.getX(i) : i)) topologyErrors++;
         expect(topologyErrors).toBe(0);
-        if (isPineSpecies(tree.sp)) expect(contact.indices.length / 3).toBe(4378);
+        if (isPineSpecies(tree.sp)) expect(contact.indices.length).toBe(nativeWood.geometry.index!.count);
         const key = `${tree.sp}:${tree.v}:${tree.assetId ?? ''}`, previous = variantBuffers.get(key);
         if (previous) { expect(contact.positions).toBe(previous.positions); expect(contact.indices).toBe(previous.indices); }
         else variantBuffers.set(key, contact);
@@ -122,9 +123,14 @@ describe('historical source-Pine component render substitution without the Meshy
       expect(forest.stats!().solitaryPines).toBe(selectedPopulation.filter(tree => isPineSpecies(tree.sp)).length);
       const imported = forest.group.children.filter((object) => object.name.startsWith('solitary-pine:')) as THREE.InstancedMesh[];
       const batches = new Set(selectedPopulation.filter((tree) => isPineSpecies(tree.sp)).map((tree) => `${tree.sp}:${tree.v}`));
-      // Every populated source batch owns two near parts, two middle parts and one far card mesh.
-      expect(imported).toHaveLength(batches.size * 5);
-      expect(imported.filter((mesh) => mesh.name === 'solitary-pine:2:foliage').every((mesh) => mesh.geometry.index!.count / 3 === 48)).toBe(true);
+      // Compare every color batch to the delivered indexed wood and folded-needle geometry.
+      expect(imported).toHaveLength(batches.size * 6);
+      for (const level of [0, 1, 2]) for (const [part, name] of [['wood', 'Trunk_Wood'], ['foliage', 'Crown_Foliage']] as const) {
+        const source = templates[level]!.scene.getObjectByName(name) as THREE.Mesh;
+        const meshes = imported.filter(mesh => mesh.name === `solitary-pine:${level}:${part}`);
+        expect(meshes).toHaveLength(batches.size);
+        for (const mesh of meshes) expect(mesh.geometry.index!.count).toBe(source.geometry.index!.count);
+      }
       const camera = new THREE.OrthographicCamera(-800, 800, 800, -800, 0.1, 1800);
       camera.position.set(0, 1000, 0); camera.lookAt(0, 0, 0); camera.updateMatrixWorld();
       const frame: FrameContext = { camera, quality, time: 1, focus: camera.position.clone(), nightness: 0, sunDir: new THREE.Vector3(1, 1, 1), reducedMotion: false, hour: 11, view: worldView(createInitialState()) };
@@ -393,7 +399,7 @@ describe('historical source-Pine component render substitution without the Meshy
   });
 });
 
-it('retains every far-LOD pine in audit coverage when its delivered card has no wood', () => {
+it('retains woody supports and leaves for every far-LOD pine', () => {
   vi.stubGlobal('location', { search: '' });
   const quality = 'low';
   const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality,
@@ -402,10 +408,9 @@ it('retains every far-LOD pine in audit coverage when its delivered card has no 
     const near = forest.canopyAuditTargets!(0), far = forest.canopyAuditTargets!(2);
     expect(far).toHaveLength(forest.counts.trees);
     expect(far.map(t => t.label).sort()).toEqual(near.map(t => t.label).sort());
-    const unsupported = far.filter(t => !t.wood && t.leaves);
-    expect(unsupported.length).toBeGreaterThan(0);
-    expect(unsupported.some(t => t.species === 'pine')).toBe(true);
-    expect(unsupported.every(t => ['pine', 'fir', 'shorepine'].includes(t.species ?? '') && t.lod === 2)).toBe(true);
+    const pines = far.filter(t => ['pine', 'fir', 'shorepine'].includes(t.species ?? ''));
+    expect(pines.length).toBeGreaterThan(0);
+    expect(pines.every(t => t.wood && t.leaves && t.lod === 2)).toBe(true);
   } finally { forest.dispose!(); vi.unstubAllGlobals(); }
 });
 

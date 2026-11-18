@@ -6,12 +6,12 @@ import { forestTreeIds } from '../../src/presentation/forestPlanting';
 import { MESHY_TREE_LODS, meshyTreeModelPath } from '../../src/presentation/meshyTrees';
 
 describe('the journey files fetched ahead from the menu (A86)', () => {
-  it('names only shipped model files, each once: the wanderer first, then every tree near file before any mid or far', () => {
+  it('names only shipped model files, each once: the woodland near files before their mid or far levels', () => {
     expect(JOURNEY_MODEL_FILES.length).toBeGreaterThan(40);
     expect(new Set(JOURNEY_MODEL_FILES).size).toBe(JOURNEY_MODEL_FILES.length);
     for (const file of JOURNEY_MODEL_FILES) expect(MODEL_FILES[file], file).toBeDefined();
-    expect(JOURNEY_MODEL_FILES[0]).toMatch(/^hero\//);
-    const trees = JOURNEY_MODEL_FILES.filter((file) => file.startsWith('flora/meshy-012/'));
+    expect(JOURNEY_MODEL_FILES.some(file => file.startsWith('hero/'))).toBe(false);
+    const trees = JOURNEY_MODEL_FILES.filter((file) => forestTreeIds().some(id => MESHY_TREE_LODS.some(lod => file === meshyTreeModelPath(id, lod))));
     const lastNear = trees.map((file) => file.endsWith('-near.glb')).lastIndexOf(true);
     const firstOther = trees.findIndex((file) => !file.endsWith('-near.glb'));
     expect(lastNear).toBeLessThan(firstOther);

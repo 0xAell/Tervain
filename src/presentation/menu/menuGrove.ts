@@ -46,11 +46,11 @@ const TAU = Math.PI * 2;
 const GOLDEN = 2.399963229728653;
 
 /** The first spirit steps out on a downstroke once the door has opened. */
-export const GROVE_RELEASE_BEAT = 23;
-/** The final return begins in “Evening on the landing”. Allow a sixteenth note between arrivals. */
-const RETURN_BEAT = 167;
-const ENTRY_BEAT = 169;
-const CLOSE_BEAT = 178;
+export const GROVE_RELEASE_BEAT = 42;
+/** The final return starts in the home phrase. Every spirit reaches the hollow before the last cadence. */
+const RETURN_BEAT = 128;
+const ENTRY_BEAT = 131;
+const CLOSE_BEAT = 142;
 export const GROVE_HOMECOMING = menuBeatTime(RETURN_BEAT);
 export const GROVE_CLOSE = menuBeatTime(CLOSE_BEAT);
 
@@ -85,12 +85,7 @@ const PHRASE_FORMATIONS: readonly GroveFormation[] = [
   GroveFormation.Helix,
   GroveFormation.Rings,
   GroveFormation.Maypole,
-  GroveFormation.Rings,
   GroveFormation.Fireflies,
-  GroveFormation.Helix,
-  GroveFormation.Maypole,
-  GroveFormation.Rings,
-  GroveFormation.Maypole,
   GroveFormation.Helix,
 ];
 

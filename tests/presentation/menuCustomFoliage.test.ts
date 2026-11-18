@@ -8,14 +8,14 @@ import { HERMIT_DOOR } from '../../src/presentation/menu/menuCamp';
 import { MENU_TREE_SOURCE, createMenuTreeRemix } from '../../src/presentation/menu/menuTreeRemix';
 import { createWispLighting } from '../../src/presentation/menu/menuWispLight';
 import { MenuScene } from '../../src/presentation/menuScene';
-import { meshyTreeTemplates } from './meshyTreeFixture';
+import { archivedTreeTemplates } from './meshyTreeFixture';
 import { menuResourceFixture } from './menuResourceFixture';
 
 interface Sprig { vertexStart: number; vertexCount: number; stemRootVertexIndices: number[] }
 interface Attachments { sourceVertices: number; sprigs: Sprig[] }
 let source: readonly [ModelGltf, ModelGltf, ModelGltf];
 const owned: { dispose(): void }[] = [];
-beforeAll(async () => { source = (await meshyTreeTemplates([MENU_TREE_SOURCE])).get(MENU_TREE_SOURCE)!; });
+beforeAll(async () => { source = (await archivedTreeTemplates([MENU_TREE_SOURCE])).get(MENU_TREE_SOURCE)!; });
 afterEach(() => { for (const item of owned.splice(0)) item.dispose(); });
 afterAll(() => {
   for (const gltf of source) gltf.scene.traverse(object => {
@@ -133,28 +133,32 @@ describe('actual custom foliage bound to the carved menu tree', () => {
     expect(originalPositions.array).toEqual(before); expect(original.geometry.getAttribute('uv').array).toEqual(beforeUv);
   });
 
-  it('uses the same connected custom crown and complete under-20k tree on every real menu preset, with reduced motion frozen', () => {
-    const templates = new Map([[MENU_TREE_SOURCE, source]]), details = metadata();
-    let referencePositions: Float32Array | undefined, referenceCount = 0;
+  it('pins the original live crown to branch tips across presets and freezes its wind in Reduced Motion', () => {
+    let reference: Float32Array | undefined;
     for (const quality of ['high', 'medium', 'low'] as const) {
-      const scene = new MenuScene({ quality, resources: menuResourceFixture(), treeTemplates: templates });
+      const scene = new MenuScene({ quality, resources: menuResourceFixture() });
       owned.push(scene);
-      const root = scene.scene.getObjectByName('Menu_Ancient_Tree')!, wood = root.getObjectByName('Menu_Ancient_Tree_Wood') as THREE.Mesh;
-      const leaves = root.getObjectByName('Menu_Ancient_Tree_Leaves') as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
-      expect(scene.stats.treeSource).toBe(`${MENU_TREE_SOURCE}:LOD0`);
-      expect(scene.stats.treeTriangles).toBeLessThan(20_000); expect(scene.stats.treeTriangles).toBeGreaterThan(18_333);
-      const positions = leaves.geometry.getAttribute('position');
-      for (const sprig of details.sprigs) expect(woodDistance(rootOf(positions, sprig), wood.geometry)).toBeLessThan(0.000006);
-      if (referencePositions) {
-        expect(positions.array).toEqual(referencePositions); expect(scene.stats.treeTriangles).toBe(referenceCount);
-      } else { referencePositions = new Float32Array(positions.array); referenceCount = scene.stats.treeTriangles; }
-      scene.update(0.04, false, { time: 35, duration: 214.2, playing: true, gain: 0.352 });
-      // The crown keeps the heath's wind clock: Reduced Motion holds it exactly where it was.
-      const shader = compile(leaves.material), frozen = shader.uniforms.uGrassTime!.value;
-      const awakening = scene.awakeningState;
-      scene.update(12, true, { time: 90, duration: 214.2, playing: true, gain: 0.352 });
-      expect(shader.uniforms.uGrassTime!.value).toBe(frozen); expect(scene.awakeningState).toEqual(awakening);
-      expect(positions.array).toEqual(referencePositions);
+      const leaves = scene.scene.getObjectByName('Menu_Ancient_Tree_Leaves') as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
+      const geometry = leaves.geometry, p = geometry.getAttribute('position'), weight = geometry.getAttribute('menuCrownWindWeight');
+      expect(scene.stats.treeSource).toBe('original-hermitage'); expect(scene.stats.treeTriangles).toBeLessThan(20_000);
+      expect(scene.stats.leafCards).toBeGreaterThan(1000);
+      const tips = scene.grove.leafSites, bases = new Set(tips.map(([x,y,z]) => [x,y,z].map(v=>v.toFixed(3)).join(',')));
+      let anchored = 0;
+      for (let i = 0; i < p.count; i += 4) {
+        expect([weight.getX(i),weight.getX(i+1),weight.getX(i+2),weight.getX(i+3)]).toEqual([0,0,1,1]);
+        const a=new THREE.Vector3().fromBufferAttribute(p,i), b=new THREE.Vector3().fromBufferAttribute(p,i+1);
+        const base=a.lerp(b,.5).toArray().map(v=>v.toFixed(3)).join(',');
+        if (bases.has(base)) anchored++;
+      }
+      expect(anchored / (p.count / 4)).toBeGreaterThan(.98);
+      expect(leaves.customDepthMaterial).toBeDefined();
+      if (reference) expect(p.array).toEqual(reference); else reference = Float32Array.from(p.array);
+      const shader = compile(leaves.material);
+      expect(shader.vertexShader).toContain('menuCrownWindWeight');
+      scene.update(.04, false, { time: 35, duration: 214.2, playing: true, gain: .35 });
+      const frozen = shader.uniforms.uGrassTime!.value, pose = scene.awakeningState;
+      scene.update(12, true, { time: 90, duration: 214.2, playing: true, gain: .35 });
+      expect(shader.uniforms.uGrassTime!.value).toBe(frozen); expect(scene.awakeningState).toEqual(pose);
     }
   });
 

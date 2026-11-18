@@ -140,6 +140,12 @@ export class AnimalArrowSurface {
 
   private classify(surface: Surface, intersection: THREE.Intersection): 'head' | 'body' | null {
     const { mesh, bounds, headJoints } = surface, face = intersection.face!;
+    if (mesh.userData.anatomicalSkin) {
+      // Each triangle of the sculpt belongs to a single anatomical joint, including the rigid crown.
+      const joint = mesh.geometry.getAttribute('skinIndex').getX(face.a);
+      if (mesh.skeleton.bones[joint]?.name === 'antlers') return null;
+      return headJoints.has(joint) ? 'head' : 'body';
+    }
     this.posedVertex(surface, face.a, this.a); this.posedVertex(surface, face.b, this.b); this.posedVertex(surface, face.c, this.c);
     THREE.Triangle.getBarycoord(intersection.point, this.a, this.b, this.c, this.barycentric);
     this.rest.set(0, 0, 0);

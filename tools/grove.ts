@@ -1,6 +1,6 @@
 /**
  * Developer preview of the menu grove: the real MenuScene and Grade, the real title overlay, and a song clock you can
- * scrub or play with the Alderweir title score. Served by `npm run dev` at /tools/grove.html.
+ * scrub or play with the original ford title score. Served by `npm run dev` at /tools/grove.html.
  *
  *   ?t=40        start at this song time (seconds)
  *   ?q=medium    menu quality (low | medium | high)

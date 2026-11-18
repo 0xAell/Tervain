@@ -41,25 +41,17 @@ afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 /* ------------------------------------------------------------------ files and provenance */
 
-interface Provenance {
-  generator: { service: string };
-  terms: { attribution: string };
-  assets: {
-    id: string; prompt: string; seconds: number; model: string;
-    source: { path: string; bytes: number; sha256: string };
-    use: { type: string };
-    derivatives: { path: string; bytes: number; sha256: string }[];
-  }[];
-  composed: { id: string; title: string; render: string; pcmSha256: string; use: { type: string }; derivatives: { path: string; sha256: string }[] }[];
-}
-const provenance = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/world-audio-assets.json'), 'utf8')) as Provenance;
+interface FileReceipt { path: string; bytes: number; sha256: string }
+const provenance = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/tervain-audio.json'), 'utf8')) as {
+  title: string; editableScore: FileReceipt; renderSources: FileReceipt[]; derivatives: Record<string, FileReceipt[]>;
+};
 
 describe('prepared world audio', () => {
   const portable = (file: string) => file.split(path.sep).join('/');
   const shipped = fs.readdirSync(OUT, { recursive: true, encoding: 'utf8' })
     .filter((file) => fs.statSync(path.join(OUT, file)).isFile()).map(portable).sort();
   const files = [
-    'alderweir/title',
+    'ford/title',
     ...Object.values(WORLD_AUDIO.banks).map((b) => b.file),
     ...Object.values(WORLD_AUDIO.loops).map((l) => l.file),
     ...Object.values(WORLD_AUDIO.music).map((m) => m.file),
@@ -77,53 +69,24 @@ describe('prepared world audio', () => {
     expect(shipped).toEqual(files.flatMap((f) => [`${f}.m4a`, `${f}.ogg`]).sort());
   });
 
-  // Hashing every source and derivative is bound by the disk, which other workers reading models and audio share.
-  it('records the prompt, the unchanged source and every derivative by hash', () => {
-    const sources = fs.readdirSync(path.join(ROOT, 'assets/audio/source/world')).sort();
-    expect(provenance.assets.map((a) => path.basename(a.source.path)).sort()).toEqual(sources);
-    const derived = new Set<string>();
-    for (const a of provenance.assets) {
-      expect(a.prompt.length, a.id).toBeGreaterThan(20);
-      // Effects and beds from the sound-effects model; the score from the music model (A53).
-      // The hero's pain and breath are generic takes performed again in his designed voice (voice changer).
-      const model = ['piece', 'musicLoop', 'sting', 'song'].includes(a.use.type) ? 'music_v2_5' : (a as { from?: string }).from ? 'eleven_multilingual_sts_v2' : 'eleven_text_to_sound_v2';
-      expect(a.model, a.id).toBe(model);
-      expect(sha256(path.join(ROOT, a.source.path)), a.id).toBe(a.source.sha256);
-      expect(a.derivatives.length, a.id).toBe(2);
-      for (const d of a.derivatives) {
-        if (derived.has(d.path)) continue;
-        derived.add(d.path);
-        expect(sha256(path.join(ROOT, d.path)), d.path).toBe(d.sha256);
-      }
+  it('verifies every playable recording and rejects retired source and service derivatives', () => {
+    const forbidden = new Set<string>();
+    for (const record of ['world-audio-assets', 'voice-assets', 'animal-audio-assets', 'alderweir-audio', 'hunting-sounds-archive', 'menu-audio-assets']) {
+      const archive = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering', record + '.json'), 'utf8'));
+      if (record === 'world-audio-assets') delete archive.composed; // The earlier original Tervain suite remains playable.
+      for (const match of JSON.stringify(archive).matchAll(/"([a-f0-9]{64})"/g)) forbidden.add(match[1]!);
     }
-    // Every shipped file comes from a recorded source or from a render of the composer, each recorded by hash.
-    for (const c of provenance.composed) {
-      expect(c.render, c.id).toBe(`tools/world-audio/compose/index.mjs#${c.id}`);
-      expect(c.pcmSha256, c.id).toMatch(/^[0-9a-f]{64}$/);
-      for (const d of c.derivatives) {
-        if (derived.has(d.path)) continue;
-        derived.add(d.path);
-        expect(sha256(path.join(ROOT, d.path)), d.path).toBe(d.sha256);
-      }
+    const derivatives = Object.values(provenance.derivatives).flat();
+    const allAudio = ['public/assets/audio', 'public/audio'].flatMap((dir) => fs.readdirSync(path.join(ROOT, dir), { recursive: true, encoding: 'utf8' })
+      .filter((name) => /\.(ogg|m4a|mp3|wav|flac)$/i.test(name)).map((name) => portable(path.join(dir, name))));
+    expect(derivatives.map((f) => f.path).sort()).toEqual(allAudio.sort());
+    for (const file of [...derivatives, provenance.editableScore, ...provenance.renderSources]) {
+      expect(fs.statSync(path.join(ROOT, file.path)).size, file.path).toBe(file.bytes);
+      expect(sha256(path.join(ROOT, file.path)), file.path).toBe(file.sha256);
+      expect(forbidden.has(file.sha256), file.path).toBe(false);
     }
-    const chamber = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/alderweir-audio.json'), 'utf8')) as {
-      derivatives: Record<string, { path: string; sha256: string }[]>;
-    };
-    for (const pair of Object.values(chamber.derivatives)) {
-      expect(pair).toHaveLength(2);
-      for (const file of pair) {
-        expect(sha256(path.join(ROOT, file.path)), file.path).toBe(file.sha256);
-        derived.add(file.path);
-      }
-    }
-    expect([...derived].map((p) => portable(path.relative(OUT, path.join(ROOT, p)))).sort()).toEqual(shipped);
+    expect(S('about.body')).toContain(provenance.title);
   }, 30_000);
-
-  it('records the length of every generation and credits ElevenLabs in the game', () => {
-    for (const a of provenance.assets) expect(a.seconds, a.id).toBeGreaterThan(0);
-    expect(provenance.terms.attribution).toContain('ElevenLabs (elevenlabs.io)');
-    expect(S('about.body')).toContain('ElevenLabs (elevenlabs.io)');
-  });
 
   it('cuts every variant inside its sprite, in order, with silence between neighbours', () => {
     for (const [name, bank] of Object.entries(WORLD_AUDIO.banks)) {
@@ -508,7 +471,7 @@ describe('music director', () => {
   it('brings in danger, then battle in the same voice, never steps back down mid-fight, and calms afterwards', () => {
     const d = new MusicDirector(rng(2));
     step(d, 20, ctx());
-    // The first fight of a session hears the composed music; the next encounter the generated one.
+    // The first fight of a session hears the composed music; the next encounter the ensemble one.
     expect(step(d, 0.05, ctx({ threat: 'alert' }))).toEqual([{ t: 'loop', id: 'danger_watch', fadeIn: 2.2 }]);
     expect(step(d, 0.05, ctx({ threat: 'combat' }))).toEqual([{ t: 'loop', id: 'battle_ford', fadeIn: 0.8 }]);
     expect(step(d, 2, ctx({ threat: 'alert' }))).toEqual([]);
@@ -523,8 +486,8 @@ describe('music director', () => {
   it('opens each mood with its own arrangement of the theme, then varies', () => {
     const d = new MusicDirector(rng(12));
     const first = step(d, 20, ctx())[0]!;
-    expect(first).toEqual({ t: 'piece', id: 'alder_landing', fadeIn: 2.5 });
-    for (const [mood, id] of [['wild', 'alder_ash_trees'], ['night', 'alder_coda'], ['sacred', 'alder_bridge']] as const) {
+    expect(first).toEqual({ t: 'piece', id: 'ford_lanterns', fadeIn: 2.5 });
+    for (const [mood, id] of [['wild', 'bough_watch'], ['night', 'banked_embers'], ['sacred', 'spring_stones']] as const) {
       expect(PLAYLISTS[mood]).toContain(id);
       expect(WORLD_AUDIO.music[id].origin).toBe('composed');
     }
@@ -974,7 +937,7 @@ describe('world sound runtime', () => {
     expect(FakeMedia.made).toHaveLength(probes + 1);
     const media = FakeMedia.made.at(-1)!;
     // The vale's first piece is its own arrangement of the theme.
-    expect(media.src).toMatch(/\/tervain\/assets\/audio\/world\/alderweir\/landing\.ogg$/);
+    expect(media.src).toMatch(/\/tervain\/assets\/audio\/world\/ford\/lanterns\.ogg$/);
     expect(media.play).toHaveBeenCalledOnce();
     expect(world.musicState.phase).toBe('piece');
     // A hidden tab pauses the stream rather than letting it run on unheard.
@@ -984,7 +947,7 @@ describe('world sound runtime', () => {
     expect(media.play).toHaveBeenCalledTimes(2);
     // A stream the browser cannot play switches to the AAC fallback in place.
     media.listeners.get('error')!();
-    expect(media.src).toMatch(/alderweir\/landing\.m4a$/);
+    expect(media.src).toMatch(/ford\/lanterns\.m4a$/);
     expect(media.play).toHaveBeenCalledTimes(3);
     world.update(0.05, frame(PLACES.rillford, { threat: 'combat' }));
     await flush();
@@ -995,7 +958,7 @@ describe('world sound runtime', () => {
     expect(media.paused).toBe(true);
     world.sting('victory');
     await flush();
-    // One victory sting, in either voice (the generated and the composed take turns at random).
+    // One victory sting, in either voice (the ensemble and earlier suite take turns at random).
     expect(playing(ctx, 'music-sting_victory').length + playing(ctx, 'music-sting_victory_theme').length).toBe(1);
     vi.advanceTimersByTime(3000);
     expect(playing(ctx, 'music-battle_ford')).toHaveLength(0);

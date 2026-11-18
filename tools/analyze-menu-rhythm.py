@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Prepare the original MIDI tempo map, rendered accents and six-band spectrum for the grove.
+"""Prepare the original score tempo map, rendered accents and six-band spectrum for the grove.
 
-Requires existing Python 3, NumPy, Mido and FFmpeg; this script never installs packages.
+Requires existing Python 3, NumPy and FFmpeg; this script never installs packages.
 Run from any directory:  python3 tools/analyze-menu-rhythm.py [--check]
-The editable MIDI and primary title encoding are verified against the Alderweir source record.
+The editable score and primary title encoding are verified against the Tervain source record.
 No audio samples, lyrics, timed text, metadata prompts or artwork enter the generated module; runtime never runs an FFT.
 """
 
@@ -19,7 +19,7 @@ import shutil
 import subprocess
 import textwrap
 
-import mido
+import sys
 import numpy as np
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -40,7 +40,7 @@ BANDS = ((40, 90), (90, 200), (200, 500), (500, 1200), (1200, 2800), (2800, 5800
 BAND_NAMES = ("sub", "bass", "lowMid", "mid", "highMid", "presence")
 BAND_ATTACK = 0.04
 BAND_RELEASE = 0.16
-BEATS_PER_BAR = 2
+BEATS_PER_BAR = 3
 BARS_PER_PHRASE = 8
 
 
@@ -96,39 +96,14 @@ def onset_envelopes(pcm: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray
 
 
 def authored_beats(duration: float) -> list[float]:
-    """Dotted-quarter pulses from Alderweir's 6/8 conductor track, including its rubato."""
-    record = json.loads((ROOT / "docs/engineering/alderweir-audio.json").read_text(encoding="utf-8"))["editableScore"]
-    midi_path = ROOT / record["path"]
-    if score.sha256(midi_path) != record["sha256"]:
-        raise SystemExit("Editable score differs from the Alderweir source record.")
-    midi = mido.MidiFile(midi_path)
-    tick = 0
-    seconds = 0.0
-    tempo = 500000
-    tempos = [(tick, seconds, tempo)]
-    first = None
-    for event in midi.tracks[0]:
-        seconds += mido.tick2second(event.time, midi.ticks_per_beat, tempo)
-        tick += event.time
-        if event.type == "set_tempo":
-            tempo = event.tempo
-            tempos.append((tick, seconds, tempo))
-        elif event.type == "marker" and event.text == "The landing":
-            first = tick
-        elif event.type == "time_signature" and (event.numerator, event.denominator) != (6, 8):
-            raise ValueError("Alderweir's grove expects compound duple metre")
-    if first is None:
-        raise ValueError("Opening downbeat missing from the MIDI conductor track")
-    times = []
-    target = first
-    index = 0
-    while not times or times[-1] < duration:
-        while index + 1 < len(tempos) and tempos[index + 1][0] <= target:
-            index += 1
-        at, start, tempo = tempos[index]
-        times.append(round(start + mido.tick2second(target - at, midi.ticks_per_beat, tempo), 6))
-        target += midi.ticks_per_beat * 3 // 2
-    return times
+    """Use the same tempo and rubato that governed the rendered note events."""
+    sys.path.insert(0, str(ROOT / "tools/world-audio"))
+    from ford_score import title_beats
+    beats = title_beats()
+    last_span = beats[-1] - beats[-2]
+    while beats[-1] < duration:
+        beats.append(beats[-1] + last_span)
+    return [round(beat, 6) for beat in beats]
 
 
 def bar_levels(beats: list[float], rms: np.ndarray, duration: float) -> np.ndarray:
@@ -205,7 +180,7 @@ def module(source: dict, runtime: dict, beats: list[float], bars: np.ndarray, ac
         "runtimeReference": runtime["path"], "runtimeSha256": runtime["sha256"],
         "duration": source["durationSeconds"],
         "beat": {"times": beats, "beatsPerBar": BEATS_PER_BAR, "barsPerPhrase": BARS_PER_PHRASE,
-                 "meter": "6/8", "scoreSha256": score.sha256(ROOT / "tools/world-audio/alderweir.mid")},
+                 "meter": "3/4", "scoreSha256": score.sha256(ROOT / "tools/world-audio/ford-score.json")},
         "bands": {"rate": BAND_RATE, "frames": int(len(bands)), "names": list(BAND_NAMES), "hz": [list(b) for b in BANDS],
                   "referenceAmplitudes": references, "attackSeconds": BAND_ATTACK, "releaseSeconds": BAND_RELEASE},
         "accents": {"count": int(len(times)), **accent_settings},
@@ -214,7 +189,7 @@ def module(source: dict, runtime: dict, beats: list[float], bars: np.ndarray, ac
         "analysis": {
             "onset": {"sampleRate": ONSET_SR, "channels": 2, "windowSamples": ONSET_WINDOW, "frameHz": ONSET_RATE,
                       "bands": "40 log-spaced, 30 Hz-10 kHz", "flux": "positive log-power difference; one-second detrend",
-                      "tempo": "Dotted-quarter beats from the original MIDI tempo map and first movement marker."},
+                      "tempo": "Quarter-note beats from the score renderer’s original tempo map."},
             "spectrum": {"sampleRate": BAND_SR, "channels": 2, "windowSamples": BAND_WINDOW, "window": "symmetric Hann",
                          "timeAlignment": "window centered on source time; zero-padding at ends; not calibrated display/audio latency",
                          "noiseFloorDbfs": -65, "referencePercentile": 95, "compression": "square root"},
@@ -222,11 +197,11 @@ def module(source: dict, runtime: dict, beats: list[float], bars: np.ndarray, ac
                             "bars: uint8 bar RMS relative to the 95th percentile",
             "numpyVersion": np.__version__,
         },
-        "credit": "Alderweir. Original chamber score performed with VSCO 2 Community Edition samples (CC0).",
+        "credit": "The Ford at First Light. Original Tervain composition and instrumental synthesis.",
     }
     return f'''// Generated by tools/analyze-menu-rhythm.py; do not hand-edit the payloads.
-// The original 6/8 pulse and measured spectrum drive the grove’s dance.
-// Source authority/provenance: docs/engineering/alderweir-audio.json. No audio samples are embedded here.
+// The original 3/4 pulse and measured spectrum drive the grove’s dance.
+// Source authority/provenance: docs/engineering/tervain-audio.json. No audio samples are embedded here.
 export const MENU_SCORE_RHYTHM_INFO = {json.dumps(info, indent=2)} as const;
 
 /** Six bands per 20 Hz frame (sub, bass, low-mid, mid, high-mid, presence), unsigned 8-bit. */

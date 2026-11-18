@@ -6,12 +6,9 @@ import { PLANTED_ROWS } from './plantedForest.trees';
 export { PLANTED_DRAWS, PLANTED_FLORA, PLANTED_WITH } from './plantedFlora';
 
 /**
- * The forest as the web build plants it. The planting rule is the core's (flora.ts: where trees may stand, how far
- * apart, which kind where). The web build tells it each tree's footprint, its seat on the ground and its crown's reach
- * from the models that draw it, and those are wider than the supplied trees' footprints the rule uses on its own, so it
- * keeps fewer trees than the rule offers. This is that result, tree for tree, so that the export carries the forest
- * that is played; tests/presentation/plantedForest.test.ts plants it again from the models and fails if the two part.
- * A port that plants with its own trees' footprints goes through the same rule.
+ * The saved woodland layout is shared by the game and its portable export. The 451 tree identities, positions, headings
+ * and ground-plane footprints survive changes to their art. The standing clearance and forest floor are measured from
+ * the actual models by tests/presentation/plantedForest.test.ts.
  */
 export interface PlantedTree {
   sp: Species;
