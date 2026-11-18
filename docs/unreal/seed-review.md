@@ -502,6 +502,13 @@ Improved:
   its shadows. The thornback's two batches have no owner but the world, so every world it stood in kept their four
   textures and two depth materials after it was torn down. In a loaded journey the teardown now leaves none of the
   batches' data textures and shadow materials behind, where it left those six (`disposeScene.ts`) ([#909](https://github.com/0xAell/Tervain/pull/909)).
+- A resident's pose brings the figure's matrices up to date once where it did so three times over: the whole figure
+  at the end of the pose right after keeping the hands out of the torso had done it, each turned joint's subtree as the
+  head and chest led a turn, and each two-joint reach walking its chain up from the world seven times. Over the twelve
+  residents at work, turning, walking, running, seated at two heights, talking, fighting and fallen, a resident's step
+  composes 144 matrices where it composed 304 and multiplies 101 where it multiplied 252, and posing all twelve takes
+  0.22 ms a step where it took 0.36 (in Node on the test machine); every matrix after every step is the same to the
+  bit, and a test refreshes the figure after each pose and finds nothing moved ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
@@ -546,8 +553,9 @@ Next:
   the next draws to batch. The cuts that keep the picture, and those a GPU must judge, are in
   [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by
-  a fifth). The residents' poses are nearly a third of it: the work reach, the feet planted, the hands kept out of the torso,
-  the clips sampled, each 0.06 to 0.14 ms a step. The wanderer's own update is a fifth. The forest's per-step refresh
+  a fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the
+  torso, the clips sampled, each 0.06 to 0.14 ms a step; most of that was bringing the same matrices up to date again,
+  and the pose now does it once (0.36 to 0.22 ms a step for all twelve in Node). The wanderer's own update is a fifth. The forest's per-step refresh
   (`flora.ts`, 0.12 ms) and the groundcover's (0.1 ms) come next. The render's own JavaScript, profiled on 0.1.2 over
   eight steady frames at each of three route stops (480×300, so that the software renderer keeps up; the JavaScript does
   not depend on the size): 10.5 ms a frame at the landing, 8.6 in the village, 11.5 with the sea in view. Three's work
