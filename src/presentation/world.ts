@@ -864,6 +864,8 @@ export class WorldScene {
 
   /** Swing the rooms' doors for the wanderer and residents near them (A66); returns door sounds to play. */
   updateDoors(dt: number, visitors: readonly { x: number; z: number }[]): DoorEvent[] {
-    return this.doorSwings.update(dt, visitors);
+    const events = this.doorSwings.update(dt, visitors);
+    this.scenery.doorBatch?.update();
+    return events;
   }
 }
