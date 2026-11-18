@@ -497,6 +497,11 @@ Improved:
   surfaces meet at the same depth and draw order decides. `npm run perf:frame` now redraws the water's reflection in
   every frame it counts, as play does while the camera moves: counted after the camera had come to rest, the frame at
   stops 7 and 8 left the whole pass out in one run and not in another ([#908](https://github.com/0xAell/Tervain/pull/908)).
+- A world's teardown lets go of everything three keeps outside a mesh's materials: a batch's own data textures (its
+  instances' matrices, its list of what to draw, their colours) and the depth and distance materials a mesh carries for
+  its shadows. The thornback's two batches have no owner but the world, so every world it stood in kept their four
+  textures and two depth materials after it was torn down. In a loaded journey the teardown now leaves none of the
+  batches' data textures and shadow materials behind, where it left those six (`disposeScene.ts`) ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
