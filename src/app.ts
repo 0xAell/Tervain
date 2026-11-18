@@ -663,6 +663,8 @@ export class App {
     this.cam.follow(1, this.player.x, this.player.y, this.player.z, this.world.terrain, this.world.colliders, true, 0);
     this.world.update(0, this.game.state, new THREE.Vector3(this.player.x, this.player.y, this.player.z),
       this.settings, hourOfDay(this.game.state.clock), this.cam.camera, false);
+    // The sky's light is filtered before the first view's programs are compiled: they are made with it (see renderWorld).
+    this.world.prepareSkyLight(this.renderer);
     // Initial reflection/window captures pause regular shadow updates too. Let the
     // first pass initialize the sun's comparison texture before any receiver draws.
     if (this.renderer.shadowMap.enabled && this.world.sky.sun.shadow.map === null) this.renderer.shadowMap.needsUpdate = true;
@@ -1507,6 +1509,7 @@ export class App {
       this.worldLook = null;
     }
     this.grade.setLook({ night: this.world.sky.state.nightness });
+    this.world.prepareSkyLight(this.renderer);
     this.world.prepareGrass(this.renderer, this.lastFrameDt);
     // The frame draws the world several times (reflection, water depth, the picture, light probes) and three walks
     // the whole scene graph for matrices before each. Nothing moves between those passes: walk it once (A113).

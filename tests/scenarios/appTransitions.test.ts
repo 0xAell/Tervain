@@ -846,7 +846,10 @@ describe('actual application world transitions', () => {
     Reflect.set(app, 'quietStart', true);
     Reflect.set(app, 'prepareMainHero', vi.fn().mockResolvedValue(undefined));
     const prepareSpray = vi.fn((draw: () => void) => draw());
-    const staged = { ...nextWorld(), colliders: [], update: vi.fn(), water: { splashes: { prepareFirstDraw: prepareSpray } } };
+    // The sky's light is filtered before the first view is compiled, so its programs are made with the light they draw with.
+    const skyLightBeforeCompile: boolean[] = [];
+    const prepareSkyLight = vi.fn(() => { skyLightBeforeCompile.push(compileAsync.mock.calls.length === 0); });
+    const staged = { ...nextWorld(), colliders: [], update: vi.fn(), prepareSkyLight, water: { splashes: { prepareFirstDraw: prepareSpray } } };
     Reflect.set(app, 'buildWorld', vi.fn(async () => Reflect.set(app, 'world', staged)));
     const compiled = deferred<void>();
     // A108: the first view is compiled into the grade's target, as it is drawn: compiled for the canvas, every program was
@@ -866,6 +869,8 @@ describe('actual application world transitions', () => {
     vi.stubGlobal('requestAnimationFrame', vi.fn((callback: FrameRequestCallback) => { paints.push(callback); return paints.length; }));
     call('startNew');
     await vi.waitFor(() => expect(compileAsync).toHaveBeenCalledWith(staged.scene, camera, staged.scene));
+    expect(skyLightBeforeCompile).toEqual([true]);
+    expect(prepareSkyLight).toHaveBeenCalledWith(Reflect.get(app, 'renderer'));
     expect(targets).toEqual([gradeTarget]);
     expect(target).toBeNull();
     expect(staged.update).toHaveBeenCalledWith(0, app.game.state, expect.any(THREE.Vector3), app.settings, expect.any(Number), camera, false);
@@ -1288,7 +1293,7 @@ describe('world matrices shared with window captures', () => {
       samples.push(child.matrixWorld.elements.slice(12, 15));
     } };
     const camera = new THREE.PerspectiveCamera();
-    const world = { scene, sky: { state: { nightness: 0 } }, prepareGrass: vi.fn(),
+    const world = { scene, sky: { state: { nightness: 0 } }, prepareSkyLight: vi.fn(), prepareGrass: vi.fn(),
       prepareInterior: vi.fn(() => renderer.render(scene)), waterRenderInputs: () => undefined };
     const grade = { setLook: vi.fn(), render: vi.fn(() => renderer.render(scene)) };
     Object.assign(app, { renderer, world, grade, cam: { camera, mode: 'follow', manual: false }, lastFrameDt: 1 / 60 });
@@ -1298,6 +1303,13 @@ describe('world matrices shared with window captures', () => {
     const { call, scene, update, samples } = matrixFixture();call('renderWorld');
     expect(update).toHaveBeenCalledOnce();expect(samples).toEqual([[8, 10, 12], [8, 10, 12]]);
     expect(scene.matrixWorldAutoUpdate).toBe(true);
+  });
+  it('filters the sky\'s light before the window capture and the main pass draw the world', () => {
+    const { call, world, grade } = matrixFixture();call('renderWorld');
+    expect(world.prepareSkyLight).toHaveBeenCalledOnce();
+    const [skyLight] = world.prepareSkyLight.mock.invocationCallOrder;
+    expect(skyLight).toBeLessThan(world.prepareInterior.mock.invocationCallOrder[0]!);
+    expect(skyLight).toBeLessThan(grade.render.mock.invocationCallOrder[0]!);
   });
   it.each([true, false])('restores the original auto-update flag (%s) if a window capture fails', auto => {
     const { call, scene, world } = matrixFixture();scene.matrixWorldAutoUpdate = auto;
