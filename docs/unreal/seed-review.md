@@ -519,7 +519,7 @@ Improved:
 - The woodland's waymarkers and roadside ruin are drawn as one batch per surface: their stone and moss were a draw
   call each per landmark in every pass that drew them, the sun's shadow map along the track, the main view and the
   water's reflection at the sea. On 0.1.3 they draw 39 calls over the route where they drew 102: 22 to 10 at the
-  landing, 24 to 9 at the sea's stop, the triangles the same ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  landing, 24 to 9 at the sea's stop, the triangles the same ([#912](https://github.com/0xAell/Tervain/pull/912)).
 
 Next:
 
