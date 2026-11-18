@@ -5,6 +5,7 @@ import { RESIDENT_JOINTS, type ResidentBones, type ResidentJoint, type ResidentR
 import type { ToolPoints } from './residentProps';
 import type { WorkSite } from './workSites';
 import { buildTurnClips, TurnLead, SIDES, TURN_STEP, TurnSteps, type Legs } from '../turnSteps';
+import { PosedVertices } from '../posedVertices';
 
 export type RestPose = Map<ResidentJoint, { position: THREE.Vector3; quaternion: THREE.Quaternion }>;
 export interface ResidentMotionLibrary { rest: RestPose; clips: Map<string, THREE.AnimationClip> }
@@ -430,6 +431,7 @@ const FADE = 0.35, FIGHT_FADE = 0.12, IDLE_TURN = 9;
 export const RESIDENT_TURN = { stepped: 0.6, arc: 1.2, finish: 0.8, ahead: 0.2 } as const;
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const _v0 = new THREE.Vector3(), _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3(), _v3 = new THREE.Vector3(), _m3 = new THREE.Matrix3();
+const _toFrame = new THREE.Matrix4();
 const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3(), _n = new THREE.Vector3();
 const _qa = new THREE.Quaternion(), _qb = new THREE.Quaternion(), _qc = new THREE.Quaternion(), _qp = new THREE.Quaternion(), _turn = new THREE.Quaternion();
 
@@ -605,6 +607,8 @@ export class ResidentMotion {
   private readonly turnLead = new TurnLead();
   /** The torso capsule's radius at rest (model metres): see {@link keepHandsOut}. */
   private readonly torsoRadius: number;
+  /** The skinned body's vertices as posed, for the hands' lowest points (A70). */
+  private skin: PosedVertices | null = null;
 
   constructor(private readonly scene: THREE.Group, private readonly body: THREE.Group, private readonly bones: ResidentBones,
     private readonly clips: ResidentClips, private readonly options: ResidentMotionOptions) {
@@ -915,14 +919,20 @@ export class ResidentMotion {
     const frame = this.body.parent!, contacts = this.options.contacts!;
     if (name === 'LeftHand' || name === 'RightHand') out.setFromMatrixPosition(this.bones[name].matrixWorld);
     else if (name === 'lowL' || name === 'lowR') {
-      // The hand's skin as drawn, not as a rigid hand: the wrist's vertices share the forearm's turn.
-      const hand = name === 'lowL' ? 'LeftHand' : 'RightHand', surface = contacts.hands[hand], mesh = contacts.mesh;
-      mesh.skeleton.update();
-      let lowest = Infinity;
-      for (const vertex of surface?.vertices ?? []) {
-        mesh.localToWorld(mesh.getVertexPosition(vertex, _v0));
-        _v1.copy(_v0); frame.worldToLocal(_v1);
-        if (_v1.y < lowest) { lowest = _v1.y; out.copy(_v0); }
+      // The hand's skin as drawn, not as a rigid hand: the wrist's vertices share the forearm's turn. A query runs up to
+      // ten times a frame at a counter, over a few dozen vertices: the mesh's and the frame's matrices and each bone's
+      // skinning matrix are worked out once for it, not for every vertex, and give the same points.
+      const hand = name === 'lowL' ? 'LeftHand' : 'RightHand', vertices = contacts.hands[hand]?.vertices, mesh = contacts.mesh;
+      if (vertices?.length) {
+        mesh.updateWorldMatrix(true, false);
+        frame.updateWorldMatrix(true, false);
+        const toFrame = _toFrame.copy(frame.matrixWorld).invert(), skin = (this.skin ??= new PosedVertices(mesh)).pose();
+        let lowest = Infinity;
+        for (const vertex of vertices) {
+          skin.at(vertex, _v0).applyMatrix4(mesh.matrixWorld);
+          _v1.copy(_v0).applyMatrix4(toFrame);
+          if (_v1.y < lowest) { lowest = _v1.y; out.copy(_v0); }
+        }
       }
     } else if (name === 'palmL' || name === 'palmR') {
       const hand = name === 'palmL' ? 'LeftHand' : 'RightHand';
