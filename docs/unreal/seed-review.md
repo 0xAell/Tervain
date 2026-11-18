@@ -498,13 +498,12 @@ Next:
   past them, and the worker slows); the terrain and the woodland built during the earlier waits. Each is worth
   measuring again on a machine with a GPU, as is building the models in workers or keeping them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
-  textures (KTX2) would cut that several times. 134 shader programs are compiled before the first view (0.1.2 with
-  the shadow warm-up compiling the casters alone): the world's materials under its lights, the sun's shadow pass, the
+  textures (KTX2) would cut that several times. 134 shader programs are compiled before the first view (0.1.2, the
+  shadow warm-up compiling the casters alone): the world's materials under its lights, the sun's shadow pass, the
   menu's lights, the leaves' depth and shade passes and the shrine hall's panes as its window capture shows them. On a
-  tour of the route and two
-  rooms (`npm run perf:programs`) nine more are compiled, at noon as at night, all by the preparation of pieces that
-  arrive after the world opens, before they are first drawn; none inside a draw. Fewer programs would need fewer
-  distinct materials or light sets.
+  tour of the route and two rooms at noon (`npm run perf:programs`) ten more are compiled, all by the preparation of
+  pieces that arrive after the world opens, before they are first drawn; none inside a draw. Fewer programs would need
+  fewer distinct materials or light sets.
 - Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 448 MB. A heap snapshot
   names the largest holders left. Rapier's memory is 100 MB. Its 1,501 colliders include 517 triangle meshes, 991,000
   triangles, 840,000 of them the planted trees' contact wood (19 meshes, each copied for every tree that uses it); in
