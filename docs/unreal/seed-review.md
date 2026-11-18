@@ -453,7 +453,7 @@ Improved:
   without them, and none of those 62 programs was ever drawn with. A tour of the route's 13 stops and two rooms, at
   noon and at night, compiles nothing the old build had prepared, and one program fewer during play. On the software
   renderer a journey loads 2.6 s sooner (78.4 → 75.8 s, medians of three alternating runs); on a GPU each program is
-  driver compile time and memory ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  driver compile time and memory ([#896](https://github.com/0xAell/Tervain/pull/896)).
 
 Next:
 
