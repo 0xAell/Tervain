@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { createBanditRig, createPlayerRig, personBuildOptions } from '../../src/presentation/characters';
+import { createBanditRig, createPlayerRig, createThornback, personBuildOptions } from '../../src/presentation/characters';
 import { disposeSceneResources } from '../../src/presentation/disposeScene';
 
 // These tests check people's geometry, projection and paint logic, not texture resolution: paint small sheets inline.
@@ -19,6 +19,25 @@ const rigSkeleton = (root: THREE.Object3D) => {
   // required to exercise its real ownership and dispose-event lifecycle.
   skeleton.computeBoneTexture();
   return skeleton;
+};
+
+/** A batch's own data textures, where three keeps them (none once the batch is disposed). */
+const batchTextures = (batch: THREE.BatchedMesh) => {
+  const own = batch as unknown as Record<'_matricesTexture' | '_indirectTexture' | '_colorsTexture', THREE.Texture | null>;
+  return [own._matricesTexture, own._indirectTexture, own._colorsTexture].filter((texture): texture is THREE.Texture => !!texture);
+};
+
+/** Two boxes drawn as one batch, coloured, with the batch's own depth material, as partBatch.ts gives one. */
+const boxBatch = () => {
+  const box = new THREE.BoxGeometry();
+  const batch = new THREE.BatchedMesh(2, box.getAttribute('position').count, box.index!.count, new THREE.MeshStandardMaterial());
+  const geometry = batch.addGeometry(box);
+  batch.addInstance(geometry);
+  batch.addInstance(geometry);
+  batch.setColorAt(1, new THREE.Color(0.6, 0.4, 0.2));
+  batch.customDepthMaterial = new THREE.MeshDepthMaterial();
+  box.dispose();
+  return batch;
 };
 
 describe('scene resource ownership', () => {
@@ -168,5 +187,54 @@ describe('scene resource ownership', () => {
     expect(disposeSkeleton).toHaveBeenCalledTimes(1);
     expect(disposeTexture).toHaveBeenCalledTimes(1);
     expect(skeleton.boneTexture).toBeNull();
+  });
+
+  it('releases a batch\'s own data textures and the shadow materials meshes carry for themselves, once each', () => {
+    const scene = new THREE.Scene();
+    const batch = boxBatch();
+    const mask = new THREE.Texture();
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial({ alphaMap: mask }));
+    leaf.customDepthMaterial = new THREE.MeshDepthMaterial({ alphaMap: mask });
+    leaf.customDistanceMaterial = new THREE.MeshDistanceMaterial({ alphaMap: mask });
+    scene.add(batch, leaf);
+    // The instances' matrices, the draw list and the colours.
+    expect(batchTextures(batch)).toHaveLength(3);
+    const spies = [...batchTextures(batch), batch.customDepthMaterial!, leaf.customDepthMaterial, leaf.customDistanceMaterial, mask].map((resource) => vi.spyOn(resource, 'dispose'));
+    disposeSceneResources(scene, () => {});
+    for (const spy of spies) expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes over a batch its owner let go while it still stands in the scene (the terrain\'s tiles)', () => {
+    const scene = new THREE.Scene();
+    const batch = boxBatch();
+    scene.add(batch);
+    const spies = [...batchTextures(batch), batch.geometry, batch.customDepthMaterial!].map((resource) => vi.spyOn(resource, 'dispose'));
+    expect(() => disposeSceneResources(scene, () => batch.dispose())).not.toThrow();
+    for (const spy of spies) expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a retained batch whole', () => {
+    const held = new THREE.Group(), batch = boxBatch();
+    held.add(batch);
+    const scene = new THREE.Scene();
+    scene.add(held, new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial()));
+    const textures = batchTextures(batch);
+    const spies = [...textures, batch.customDepthMaterial!].map((resource) => vi.spyOn(resource, 'dispose'));
+    disposeSceneResources(scene, () => {}, [held]);
+    for (const spy of spies) expect(spy).not.toHaveBeenCalled();
+    expect(batchTextures(batch)).toEqual(textures);
+  });
+
+  it('lets a thornback\'s two batches go with the world it stood in: their matrices, draw lists and depth materials', () => {
+    const rig = createThornback();
+    const scene = new THREE.Scene();
+    scene.add(rig.root);
+    const batches = rig.parts!.meshes;
+    expect(batches).toHaveLength(2);
+    const spies = batches.flatMap((batch) => [...batchTextures(batch), batch.customDepthMaterial!].map((resource) => vi.spyOn(resource, 'dispose')));
+    // Two data textures and a depth material for each batch; no colours.
+    expect(spies).toHaveLength(6);
+    disposeSceneResources(scene, () => {});
+    for (const spy of spies) expect(spy).toHaveBeenCalledTimes(1);
   });
 });
