@@ -6,6 +6,7 @@ import { Ctx } from './buildKit';
 import type { BuildContext, SceneModule } from './context';
 import { makeTexPair } from './buildingTextures';
 import { Region, type MatKey } from './regions';
+import { batchParts } from './partBatch';
 import { rockShapes } from './rockGeometry';
 import { attachGroundedRockSurface } from './rockSurface';
 export { rockShapes } from './rockGeometry';
@@ -15,9 +16,8 @@ import { buildForestLeafTexture } from './forestFloor';
 
 /**
  * Stones and the things the sea leaves: boulders and scree, pebbles at the tide line, driftwood, wrack (weed), reeds by the
- * water, and the sea stacks off Lantern Point. The rocks are merged into 96 m chunks that cull on their own, the shore's and the
- * streams' small things into one piece each, and every rock is its own shape: an icosphere pushed out by ridged noise and then
- * cut by a few planes, so faces are flat and edges are sharp.
+ * water, and the sea stacks off Lantern Point. Everything is merged into 96 m chunks that cull on their own, and every rock is its
+ * own shape: an icosphere pushed out by ridged noise and then cut by a few planes, so faces are flat and edges are sharp.
  */
 
 type RGB = [number, number, number];
@@ -54,7 +54,8 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
   // Debris has its own random stream; visual density never affects rock obstacle authoring.
   const rng = mulberry32(8081);
   const regions = new Map<string, Region>();
-  const regionNamed = (key: string) => {
+  const region = (x: number, z: number) => {
+    const key = `${Math.floor(x / 96)}:${Math.floor(z / 96)}`;
     let r = regions.get(key);
     if (!r) {
       r = new Region(`scatter:${key}`, new Ctx());
@@ -62,11 +63,6 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
     }
     return r;
   };
-  const region = (x: number, z: number) => regionNamed(`${Math.floor(x / 96)}:${Math.floor(z / 96)}`);
-  // The shore's driftwood, scrub and wrack and the streams' reeds are a few dozen triangles to a 96 m chunk (3,500 in
-  // all), and each chunk was a draw call for each of their materials in every pass. They are drawn as two pieces, the
-  // coast's and the streams', each culled as one; the rocks keep their chunks.
-  const sparse = (x: number) => regionNamed(x < -150 ? 'coast' : 'streams');
   const density = quality === 'low' ? 0.55 : quality === 'medium' ? 0.8 : 1;
   const shapes = rockShapes();
   const trunks = colliders.all.filter((c) => c.kind === 'circle' && c.id.startsWith('tree:')).map((c) => ({ x: c.x, z: c.z, radius: c.kind === 'circle' ? c.r : 0 }));
@@ -89,7 +85,7 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
 
   /* ---- Driftwood, wrack and reeds ---- */
   const drift = (detail: ShoreDetail) => {
-    const R = sparse(detail.x), woodRandom = mulberry32(detail.seed ^ 8191);
+    const R = region(detail.x, detail.z), woodRandom = mulberry32(detail.seed ^ 8191);
     const tint: RGB = [0.25 + woodRandom() * 0.08, 0.225 + woodRandom() * 0.06, 0.18 + woodRandom() * 0.045];
     for (const segment of createShoreWoodSegments(detail, (x, z) => terrain.heightAt(x, z))) {
       R.get('bark').rod(...segment.a, ...segment.b, segment.radius, 6, tint, { rEnd: segment.endRadius, jit: 0.14 });
@@ -98,7 +94,7 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
   // Wind-shaped, knee-high shore scrub stays on the dry shelf. Its static woody fans all start
   // in the terrain, with individually attached painted leaves; the open central sand stays empty.
   const scrub = (detail: ShoreDetail) => {
-    const R = sparse(detail.x), sr = mulberry32(detail.seed), leaves = R.get('cloth');
+    const R = region(detail.x, detail.z), sr = mulberry32(detail.seed), leaves = R.get('cloth');
     leaves.uvScale = 1; // Leaf charts occupy 0..1; the cloth key only reserves a separate local material batch.
     const y = terrain.heightAt(detail.x, detail.z) - 0.025;
     const leaf = (root: THREE.Vector3, direction: THREE.Vector3, length: number, tint: RGB) => {
@@ -143,7 +139,7 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
     const xs = coastX(zz) + sd;
     const y = terrain.heightAt(xs, zz);
     if (y < -0.25 || y > 1.3) continue;
-    const R = sparse(xs);
+    const R = region(xs, zz);
     const B = R.get('leaf');
     const n = 3 + Math.floor(rng() * 4);
     const tint: RGB = [0.24 + rng() * 0.08, 0.22 + rng() * 0.06, 0.1 + rng() * 0.04];
@@ -166,7 +162,7 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
     const d = streamDistance(x, z);
     if (d > 6 || d < 1.3 || terrain.carveAt(x, z) > 0.4) continue;
     if (clearanceAt(x, z) < 0.05 && d > 2.5) continue;
-    const R = sparse(x);
+    const R = region(x, z);
     const B = R.get('leaf');
     const n = 4 + Math.floor(rng() * 5);
     for (let k = 0; k < n; k++) {
@@ -213,17 +209,24 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
     get: (k: MatKey): THREE.Material => (k === 'cloth' ? matShoreLeaf : k === 'leaf' ? matLeaf : k === 'bark' ? matBark : k === 'rock' ? matRock : matVc),
   };
   let pieces = 0;
+  const chunks: THREE.Object3D[] = [];
   for (const R of regions.values()) {
     const g = R.toGroup(lite, { isStatic: true, shadows: true });
     pieces += R.tris;
     group.add(g);
+    chunks.push(g);
   }
+  // Each material's chunks drawn as one batch (partBatch.ts): a chunk is an instance there, still culled on its own by
+  // its own bounds, so every pass draws the same triangles in one call a material. The chunks stand at the origin, so an
+  // instance's matrix is the identity and its vertices are drawn exactly as before.
+  const batch = batchParts(chunks, group, { name: 'scatter', copyMaterials: false });
   return {
     group,
     counts: { rocks, pieces, driftwood, shoreScrub },
     update() {},
     stats: () => ({ rocks, scatterTris: pieces, driftwood, shoreScrub }),
     dispose() {
+      batch?.dispose();
       barkTex.map.dispose();
       barkTex.normal.dispose();
       matVc.dispose();

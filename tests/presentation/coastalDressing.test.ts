@@ -23,7 +23,8 @@ describe('original coastal dressing render contract', () => {
       expect(view.counts.driftwood).toBe(details.filter(detail => detail.kind === 'driftwood').length);
       expect(view.counts.shoreScrub).toBe(details.filter(detail => detail.kind === 'scrub').length);
       const leafMeshes: THREE.Mesh[] = [];
-      view.group.traverse(object => { if (object instanceof THREE.Mesh && object.name.endsWith(':cloth')) leafMeshes.push(object); });
+      // The chunks' own meshes (each is drawn by its material's batch, which shares their geometry and material).
+      view.group.traverse(object => { if (object instanceof THREE.Mesh && !(object instanceof THREE.BatchedMesh) && object.name.endsWith(':cloth')) leafMeshes.push(object); });
       expect(leafMeshes.length).toBeGreaterThan(0);
       let leafTriangles = 0;
       for (const mesh of leafMeshes) {
@@ -52,26 +53,40 @@ describe('original coastal dressing render contract', () => {
     } finally { view.dispose?.(); }
   });
 
-  it('draws the shore\'s and the streams\' small things as one piece each, and the rocks in their 96 m chunks', () => {
+  it('draws each material\'s chunks as one batch, every chunk culled on its own and drawn exactly where it was', () => {
     const view = build('high');
     try {
-      const pieces = new Map<string, { meshes: number; triangles: number }>();
+      const chunks = new Map<string, THREE.Mesh[]>();
       view.group.traverse(object => {
-        if (!(object instanceof THREE.Mesh)) return;
-        const [, chunk, material] = /^scatter:(.+):([a-z]+)$/.exec(object.name)!;
-        const kind = material === 'rock' ? 'rock' : `${chunk}:${material}`;
-        const entry = pieces.get(kind) ?? { meshes: 0, triangles: 0 };
-        entry.meshes++; entry.triangles += object.geometry.getIndex()!.count / 3;
-        pieces.set(kind, entry);
+        if (!(object instanceof THREE.Mesh) || object instanceof THREE.BatchedMesh) return;
+        const material = object.name.split(':').pop()!;
+        (chunks.get(material) ?? chunks.set(material, []).get(material)!).push(object);
       });
-      // The driftwood and scrub (bark, leaves) and the wrack lie on the coast; the reeds and cattails along the streams.
-      expect([...pieces.keys()].sort()).toEqual(['coast:bark', 'coast:cloth', 'coast:leaf', 'rock', 'streams:leaf', 'streams:vc']);
-      for (const [kind, entry] of pieces) if (kind !== 'rock') expect(entry.meshes, kind).toBe(1);
-      expect(pieces.get('rock')!.meshes).toBeGreaterThan(10);
-      // The same triangles as when they were cut into the rocks' chunks: 3,460 for the small things, 117,800 for the rocks.
-      expect(pieces.get('coast:bark')!.triangles + pieces.get('coast:cloth')!.triangles + pieces.get('coast:leaf')!.triangles
-        + pieces.get('streams:leaf')!.triangles + pieces.get('streams:vc')!.triangles).toBe(3460);
-      expect(pieces.get('rock')!.triangles).toBe(117800);
+      const batches = view.group.children.filter((o): o is THREE.BatchedMesh => o instanceof THREE.BatchedMesh);
+      // Rocks, the driftwood's and scrub's bark and leaves, the wrack and reeds, the cattails: one batch each.
+      expect(batches.map(b => b.name).sort()).toEqual(['scatter:bark', 'scatter:cloth', 'scatter:leaf', 'scatter:rock', 'scatter:vc']);
+      let rock = 0, small = 0;
+      for (const batch of batches) {
+        const meshes = chunks.get(batch.name.split(':')[1]!)!;
+        expect(batch.instanceCount, batch.name).toBe(meshes.length);
+        expect(batch.perObjectFrustumCulled).toBe(true);
+        for (const mesh of meshes) {
+          expect(mesh.visible).toBe(false);
+          expect(mesh.userData.batchedInto).toBe(batch);
+          // The chunk stands at the origin: its instance's matrix is the identity, so its vertices are drawn as before,
+          // and it is culled by the same bounds.
+          const instance = mesh.userData.batchedInstance as number;
+          const matrix = batch.getMatrixAt(instance, new THREE.Matrix4()).premultiply(batch.matrix);
+          expect(matrix.equals(new THREE.Matrix4())).toBe(true);
+          const sphere = batch.getBoundingSphereAt(batch.getGeometryIdAt(instance), new THREE.Sphere())!;
+          mesh.geometry.computeBoundingSphere();
+          expect(sphere.center.distanceTo(mesh.geometry.boundingSphere!.center)).toBeLessThan(1e-4);
+          expect(Math.abs(sphere.radius - mesh.geometry.boundingSphere!.radius)).toBeLessThan(1e-4);
+          const triangles = mesh.geometry.getIndex()!.count / 3;
+          if (batch.name === 'scatter:rock') rock += triangles; else small += triangles;
+        }
+      }
+      expect([rock, small]).toEqual([117800, 3460]);
     } finally { view.dispose?.(); }
   });
 

@@ -80,6 +80,12 @@ export class WaterRenderPass {
   private detailAge = Infinity;
   private detailScene: THREE.Scene | null = null;
   private readonly detailBounds = new ReflectionBounds();
+  /** The batched meshes (partBatch.ts) whose instances hideTinyDetail tests one by one, and the instances it hid. */
+  private batched: THREE.BatchedMesh[] = [];
+  private readonly hiddenInstances: [THREE.BatchedMesh, number][] = [];
+  private readonly instanceSphere = new THREE.Sphere();
+  private readonly instanceBox = new THREE.Box3();
+  private readonly instanceMatrix = new THREE.Matrix4();
   private mirroredEye = new THREE.Vector3();
 
   constructor() {
@@ -97,7 +103,7 @@ export class WaterRenderPass {
     this.reflector?.geometry.dispose(); this.reflector = null;
     this.reflectionAge = Infinity; this.reflectionValid = false; this.reflectionScene = null;
     // The gathered detail holds the scene's meshes: let a disposed world go with it (A87 scout).
-    this.detail = []; this.detailScene = null; this.detailAge = Infinity;
+    this.detail = []; this.batched = []; this.detailScene = null; this.detailAge = Infinity;
     this.copyMaterial.uniforms.tColor!.value = null;
     this.copyMaterial.uniforms.tDepth!.value = null;
   }
@@ -156,10 +162,12 @@ export class WaterRenderPass {
     this.detailAge += Number.isFinite(dt) && dt > 0 ? dt : 0;
     if (this.detailScene === scene && this.detailAge <= 2) return;
     this.detail = [];
+    this.batched = [];
     scene.traverse((object) => {
       if ((object as THREE.Light).isLight) { object.layers.enable(1); return; }
       const mesh = object as THREE.Mesh;
-      if (mesh.isMesh && mesh.visible && !(mesh as THREE.InstancedMesh).isInstancedMesh && !(mesh as THREE.BatchedMesh).isBatchedMesh && mesh.frustumCulled) this.detail.push(mesh);
+      if ((mesh as THREE.BatchedMesh).isBatchedMesh) { if (mesh.visible && mesh.frustumCulled) this.batched.push(mesh as THREE.BatchedMesh); return; }
+      if (mesh.isMesh && mesh.visible && !(mesh as THREE.InstancedMesh).isInstancedMesh && mesh.frustumCulled) this.detail.push(mesh);
     });
     this.detailScene = scene; this.detailAge = 0;
   }
@@ -184,6 +192,21 @@ export class WaterRenderPass {
         hide = this.detailBounds.box(geometry.boundingBox!, mesh.matrixWorld).max.y < plane - 0.01;
       }
       if (hide) { mesh.visible = false; hidden.push(mesh); }
+    }
+    // A batch's instances were single meshes before they were batched (the doors, the props, the scatter's chunks): each
+    // is tested the same way, by its own bounds, and hidden in the batch for the reflection alone.
+    for (const batch of this.batched) {
+      if (!batch.visible || !batch.parent) continue;
+      for (let i = 0; i < batch.instanceCount; i++) {
+        if (!batch.getVisibleAt(i)) continue;
+        const geometry = batch.getGeometryIdAt(i);
+        const matrix = batch.getMatrixAt(i, this.instanceMatrix).premultiply(batch.matrixWorld);
+        const sphere = batch.getBoundingSphereAt(geometry, this.instanceSphere)!.applyMatrix4(matrix);
+        const distance = sphere.center.distanceTo(this.mirroredEye) - sphere.radius;
+        let hide = distance > 0 && sphere.radius / distance * pixelsPerRadian < REFLECTION_DETAIL_PX;
+        if (!hide && sphere.center.y - sphere.radius < plane) hide = batch.getBoundingBoxAt(geometry, this.instanceBox)!.applyMatrix4(matrix).max.y < plane - 0.01;
+        if (hide) { batch.setVisibleAt(i, false); this.hiddenInstances.push([batch, i]); }
+      }
     }
     return hidden;
   }
@@ -261,6 +284,8 @@ export class WaterRenderPass {
         unreflected.forEach((object, i) => { object.visible = shown[i]!; });
         restoreDetail?.();
         for (const object of hiddenDetail) object.visible = true;
+        for (const [batch, i] of this.hiddenInstances) batch.setVisibleAt(i, true);
+        this.hiddenInstances.length = 0;
         renderer.autoClear = oldAutoClear; renderer.shadowMap.autoUpdate = oldShadow; renderer.shadowMap.needsUpdate = oldShadowUpdate; renderer.xr.enabled = oldXr;
         renderer.setRenderTarget(oldTarget);
       }

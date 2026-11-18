@@ -432,9 +432,11 @@ Improved:
   timber, the schedule board's posts, the guard's pole and the quest's pickups, each following what holds it and
   hiding with it. The five village stops draw 19 to 40 fewer calls again; with the doors and the props, 15 to 24 %
   fewer than 0.0.49 there, for the same triangles ([#892](https://github.com/0xAell/Tervain/pull/892)).
-- The shore's driftwood, scrub and wrack and the streams' reeds are drawn as one piece each, where they were cut into
-  the rocks' 96 m chunks: 20 meshes of a few dozen triangles each became five. Six route stops draw 2 to 22 fewer
-  calls a frame, for at most 3,000 triangles more where a piece is drawn whole ([#893](https://github.com/0xAell/Tervain/pull/893)).
+- The scatter's chunks (rocks, the shore's driftwood, scrub and wrack, the streams' reeds) are drawn as one batch per
+  material, each chunk still culled on its own: six route stops draw 15 to 63 fewer calls a frame for the same
+  triangles. The water's reflection again hides batched parts too small to see in it, as it did before they were
+  batched. A first version that merged the small things into two pieces saved fewer calls and drew up to 3,000 more
+  triangles, which the play gate refused ([#893](https://github.com/0xAell/Tervain/pull/893)).
 
 Next:
 
