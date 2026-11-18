@@ -524,7 +524,7 @@ Improved:
   batch draws (the settlement's shells, its doors and other moving parts, the pushable barrels and crates, the
   scatter's chunks, the woodland's landmarks and the thornback's parts: 191 at the first view) had its own programs
   made, though no pass draws it: five colour programs and a depth program were made for those parts alone. The first view is prepared with 130 programs where it took 136
-  ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  ([#913](https://github.com/0xAell/Tervain/pull/913)).
 
 Next:
 
