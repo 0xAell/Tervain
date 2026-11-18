@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import type { DoorLeaf } from '../../src/presentation/buildings';
-import { batchDoorLeaves } from '../../src/presentation/doorBatch';
+import { batchParts } from '../../src/presentation/partBatch';
+import { buildPhysicalProps } from '../../src/presentation/physicalProps';
+import type { RealmPhysics } from '../../src/physics/physics';
 import { buildScenery } from '../../src/presentation/settlement';
 import { buildStaticColliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';
@@ -68,12 +70,12 @@ function street() {
   return { parent, planks, iron, doors };
 }
 
-describe('the doors drawn as one batch per material', () => {
+describe('moving parts drawn as one batch per material: the doors', () => {
   it('draws every leaf where its own meshes stood, one batch for the planks and one for the iron, the meshes hidden', () => {
     const { parent, planks, iron, doors } = street();
     const leaves = doors.map((d) => { const meshes: THREE.Mesh[] = []; d.pivot.traverse((o) => { if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh); }); return meshes; });
     const before = leaves.map((meshes) => meshes.map(drawnAlone));
-    const batch = batchDoorLeaves(doors, parent)!;
+    const batch = batchParts(doors.map((d) => d.pivot), parent, { name: 'doors', copyMaterials: true })!;
     expect(batch.meshes.map((m) => [m.name, m.instanceCount, m.castShadow, m.receiveShadow, m.parent === parent])).toEqual([
       ['doors:planks', 3, true, true, true], ['doors:metal', 3, true, true, true],
     ]);
@@ -95,7 +97,7 @@ describe('the doors drawn as one batch per material', () => {
 
   it('follows a leaf as its door swings, and its material as the set takes up baked surfaces', () => {
     const { parent, planks, doors } = street();
-    const batch = batchDoorLeaves(doors, parent)!;
+    const batch = batchParts(doors.map((d) => d.pivot), parent, { name: 'doors', copyMaterials: true })!;
     const [boards] = batch.meshes as THREE.BatchedMesh[];
     const board = doors[1]!.pivot.children[0]!.children[0] as THREE.Mesh;
     doors[1]!.pivot.rotation.y += Math.PI / 2;
@@ -120,9 +122,9 @@ describe('the doors drawn as one batch per material', () => {
 
   it('leaves a lone leaf as it is, and lets go of its batches, copies and depth materials', () => {
     const { parent, doors } = street();
-    expect(batchDoorLeaves(doors.slice(0, 1), parent)).toBeNull();
+    expect(batchParts(doors.slice(0, 1).map((d) => d.pivot), parent, { name: 'doors', copyMaterials: true })).toBeNull();
     expect(parent.children.some((o) => (o as THREE.BatchedMesh).isBatchedMesh)).toBe(false);
-    const batch = batchDoorLeaves(doors, parent)!;
+    const batch = batchParts(doors.map((d) => d.pivot), parent, { name: 'doors', copyMaterials: true })!;
     const released = vi.fn();
     for (const mesh of batch.meshes) {
       mesh.geometry.addEventListener('dispose', released);
@@ -172,5 +174,75 @@ describe('the doors drawn as one batch per material', () => {
       expectClose(drawnInBatch(mesh.userData.batchedInto as THREE.BatchedMesh, index, mesh.geometry), drawnAlone(mesh), 1e-4);
     });
     scenery.dispose();
+  });
+});
+
+describe('moving parts drawn as one batch per material: the pushable props', () => {
+  it('follows each prop as its body moves and turns, hides a hidden one, and draws with the props\' own materials', () => {
+    const parent = new THREE.Group(), wood = new THREE.MeshStandardMaterial({ name: 'planks' });
+    const props = [0, 1, 2].map((i) => {
+      const holder = new THREE.Group();
+      holder.position.set(i * 3 - 3, 0.5, i * 2);
+      const staves = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 1, 12), wood);
+      staves.name = `barrel_${i}:planks`; staves.castShadow = staves.receiveShadow = true;
+      staves.matrixAutoUpdate = false; staves.updateMatrix();
+      holder.add(staves);
+      parent.add(holder);
+      return { holder, staves };
+    });
+    parent.updateMatrixWorld(true);
+    const batch = batchParts(props.map((p) => p.holder), parent, { name: 'supplies', copyMaterials: false })!;
+    const [barrels] = batch.meshes as THREE.BatchedMesh[];
+    expect(barrels!.name).toBe('supplies:planks');
+    expect(barrels!.material).toBe(wood);
+    // A barrel knocked over and rolled: its instance follows position and rotation together.
+    props[2]!.holder.position.set(1.4, 0.38, 5.2);
+    props[2]!.holder.quaternion.setFromEuler(new THREE.Euler(Math.PI / 2, 0.4, 0));
+    batch.update();
+    props[2]!.holder.updateMatrixWorld(true);
+    expectClose(drawnInBatch(barrels!, 2, props[2]!.staves.geometry), drawnAlone(props[2]!.staves), 1e-5);
+    expectClose(drawnInBatch(barrels!, 0, props[0]!.staves.geometry), drawnAlone(props[0]!.staves), 1e-5);
+    // A hidden holder hides its parts in the batch, and shows them again.
+    props[1]!.holder.visible = false;
+    batch.update();
+    expect(barrels!.getVisibleAt(1)).toBe(false);
+    props[1]!.holder.visible = true;
+    batch.update();
+    expect(barrels!.getVisibleAt(1)).toBe(true);
+  });
+
+  it('draws the world\'s barrels and crates in one batch per material, each where its body stands', () => {
+    const specs = [
+      { id: 'a', kind: 'barrel', width: 0.76, height: 1, depth: 0.76 },
+      { id: 'b', kind: 'barrel', width: 0.68, height: 0.9, depth: 0.68 },
+      { id: 'c', kind: 'crate', width: 0.86, height: 0.57, depth: 0.62 },
+      { id: 'd', kind: 'crate', width: 0.66, height: 0.47, depth: 0.52 },
+    ];
+    let poses = specs.map((spec, i) => ({ id: spec.id, position: { x: i * 2, y: 0.5, z: -i }, rotation: { x: 0, y: 0, z: 0, w: 1 } }));
+    const physics = { props: specs.map((spec) => ({ spec })), poses: () => poses, stats: () => ({ hz: 60, bodies: 4, awake: 0, held: null, steps: 0 }) } as unknown as RealmPhysics;
+    const supplies = buildPhysicalProps(physics, 'low');
+    const batches = supplies.group.children.filter((o) => (o as THREE.BatchedMesh).isBatchedMesh) as THREE.BatchedMesh[];
+    expect(batches.map((b) => b.name).sort()).toEqual(expect.arrayContaining(['supplies:metal', 'supplies:planks']));
+    let parts = 0;
+    for (const holder of supplies.movers()) holder.traverse((o) => { if ((o as THREE.Mesh).isMesh) { parts++; expect(o.visible).toBe(false); } });
+    expect(parts).toBeGreaterThan(4);
+    // The crate thrown across the camp: its parts are drawn where its own meshes would be.
+    poses = poses.map((pose) => pose.id === 'c' ? { ...pose, position: { x: 4, y: 1.2, z: 3 }, rotation: { x: 0.2, y: 0.3, z: 0.1, w: Math.sqrt(1 - 0.14) } } : pose);
+    supplies.update();
+    const crate = supplies.movers()[2]!;
+    crate.updateMatrixWorld(true);
+    crate.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      const owner = mesh.userData.batchedInto as THREE.BatchedMesh;
+      let instance = -1;
+      // Instances are added prop by prop, so the crate's part is the one whose geometry this mesh gave.
+      for (let i = 0; i < owner.instanceCount; i++) {
+        const drawn = drawnInBatch(owner, i, mesh.geometry), alone = drawnAlone(mesh);
+        if (drawn.every((v, k) => Math.abs(v - alone[k]!) < 1e-4)) { instance = i; break; }
+      }
+      expect(instance, mesh.name).toBeGreaterThanOrEqual(0);
+    });
+    supplies.dispose();
   });
 });
