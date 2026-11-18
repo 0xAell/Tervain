@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { installSkinDetail } from './skinDetail';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import type { Pose, Rig } from '../characters';
+import type { Rig } from '../characters';
 import { roughnessFloor } from '../matte';
 import { installDualQuaternionSkinning } from '../npc/dualQuaternionSkinning';
 import { HeroAnimationController } from './animation';
@@ -75,11 +75,4 @@ export function createHeroRig(asset: HeroAsset): MainHeroRig {
     sash: attachments.sash, shield: null, grip: 'none', height: 1.899, hipY: bones['mixamorig:Hips'].position.y,
     cur: {}, materials, hitFlash: 0, kind: 'humanoid', hero,
   };
-}
-
-/** Return true when the authored hero handled the pose, so the legacy procedural poser can return early. */
-export function poseHeroRig(rig: Rig & { hero?: HeroAnimationController }, pose: Pose, dt: number): boolean {
-  if (!rig.hero) return false;
-  rig.hero.pose(pose, dt, rig.grip === 'blade');
-  return true;
 }
