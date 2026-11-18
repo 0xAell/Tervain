@@ -8,6 +8,7 @@
     "play-gate": "node tools/play-gate.mjs",
     "perf:load": "node tools/load-stages.mjs",
     "perf:frame": "node tools/frame-passes.mjs",
+    "perf:programs": "node tools/shader-programs.mjs",
     "dev": "vite --host 127.0.0.1",
     "build": "npm run typecheck && vite build",
     "typecheck": "npm run typecheck:game && npm run typecheck:gothic3",

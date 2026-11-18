@@ -18,6 +18,18 @@ import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { openPage } from './cdp.mjs';
 
+/**
+ * The benchmark route's stops (App.startBenchmark), from the landing through the woodland and Rillford to the hill: where
+ * the wanderer stands and the point he faces, each [x, z, metres above the ground].
+ */
+export const ROUTE_STOPS = [
+  [[-268, 27, 3], [-243, 22, 2]],
+  [[-224, 22, 2.6], [-202, 12, 3]], [[-178, 12, 2.6], [-150, 24, 3]], [[-128, 22, 3], [-90, 18, 2]],
+  [[-60, 16, 2.5], [0, 8, 2]], [[-8, 20, 2.2], [10, 4, 2]], [[24, -10, 2.5], [6, -50, 2]],
+  [[0, -52, 2.5], [-12, -90, 4]], [[-6, -80, 3], [-26, -104, 5]], [[30, 6, 3], [80, -20, 3]],
+  [[80, -12, 3], [96, -32, 4]], [[70, 30, 3], [30, 12, 2]], [[-70, 30, 12], [20, -30, 4]],
+];
+
 /** Totals of the records by a key: { key: { calls, triangles } }, largest triangle count first. */
 export function totals(records, key) {
   const out = new Map();
@@ -121,14 +133,7 @@ const INSTALL = `
   });
   const T = world.terrain, V = app.cam.camera.position.constructor;
   const H = (x, z, up) => new V(x, T.heightAt(x, z) + up, z);
-  // The benchmark route's stops (App.startBenchmark), from the landing through the woodland and Rillford to the hill.
-  state.route = [
-    [H(-268, 27, 3), H(-243, 22, 2)],
-    [H(-224, 22, 2.6), H(-202, 12, 3)], [H(-178, 12, 2.6), H(-150, 24, 3)], [H(-128, 22, 3), H(-90, 18, 2)],
-    [H(-60, 16, 2.5), H(0, 8, 2)], [H(-8, 20, 2.2), H(10, 4, 2)], [H(24, -10, 2.5), H(6, -50, 2)],
-    [H(0, -52, 2.5), H(-12, -90, 4)], [H(-6, -80, 3), H(-26, -104, 5)], [H(30, 6, 3), H(80, -20, 3)],
-    [H(80, -12, 3), H(96, -32, 4)], [H(70, 30, 3), H(30, 12, 2)], [H(-70, 30, 12), H(20, -30, 4)],
-  ];
+  state.route = ${JSON.stringify(ROUTE_STOPS)}.map(([at, look]) => [H(...at), H(...look)]);
   // As in play (and the play gate's budget view): the wanderer stands at the stop, facing along the route, and the
   // camera follows him. The sun's shadow is centred on him, so a camera sent ahead alone would see no shadows drawn.
   state.view = (i) => {
