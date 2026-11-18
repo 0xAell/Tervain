@@ -47,6 +47,47 @@ beforeAll(() => {
 });
 
 describe('quiet landing and deepwood arrival', () => {
+  it('draws the landmarks\' shared surfaces as one batch each, every landmark an instance standing where it was built', () => {
+    vi.stubGlobal('document', {
+      createElement: () => {
+        const canvas = { width: 0, height: 0, getContext: () => ({ canvas, clearRect() {}, fillText() {} }) };
+        return canvas;
+      },
+    });
+    try {
+      const built = forestLandmarkGeometry(terrain, buildStaticColliders());
+      const handle = buildForestLandmarks(terrain, buildStaticColliders(), 'medium');
+      const batches: THREE.BatchedMesh[] = [], parts: THREE.Mesh[] = [];
+      handle.group.traverse((object) => {
+        if ((object as THREE.BatchedMesh).isBatchedMesh) batches.push(object as THREE.BatchedMesh);
+        else if (object.userData.batchedInto) parts.push(object as THREE.Mesh);
+      });
+      // Each surface more than one landmark has is one batch, a landmark an instance; the rest stay meshes.
+      const counts = new Map<string, number>();
+      for (const region of built) for (const key of region.batches.keys()) counts.set(key, (counts.get(key) ?? 0) + 1);
+      const shared = [...counts].filter(([, n]) => n > 1);
+      expect(batches.map((batch) => [batch.name.split(':')[1], batch.instanceCount]).sort()).toEqual(shared.map(([key, n]) => [key, n]).sort());
+      expect(parts).toHaveLength(shared.reduce((sum, [, n]) => sum + n, 0));
+      // Built in place: the batch at the origin and every instance at the identity, so every vertex is its mesh's own.
+      for (const batch of batches) {
+        expect(batch.position.toArray()).toEqual([0, 0, 0]);
+        expect(batch.castShadow).toBe(true);
+        for (let i = 0; i < batch.instanceCount; i++) expect(batch.getMatrixAt(i, new THREE.Matrix4()).equals(new THREE.Matrix4())).toBe(true);
+      }
+      handle.group.updateMatrixWorld(true);
+      for (const part of parts) {
+        expect(part.visible).toBe(false);
+        expect(part.matrixWorld.equals(new THREE.Matrix4())).toBe(true);
+      }
+      // The meshes as drawn.
+      expect(handle.stats.meshes).toBe(built.reduce((sum, region) => sum + region.batches.size, 0) + 2 - parts.length + batches.length);
+      handle.dispose();
+      expect(handle.group.children).toHaveLength(0);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('releases its native landmark geometry, sign surfaces and owned textures once, clearing the scene before fallback cleanup', () => {
     vi.stubGlobal('document', {
       createElement: () => {
@@ -59,8 +100,11 @@ describe('quiet landing and deepwood arrival', () => {
       const geometries = new Set<THREE.BufferGeometry>();
       const materials = new Set<THREE.Material>();
       const textures = new Set<THREE.Texture>();
+      let drawn = 0;
       handle.group.traverse((object) => {
         if (!(object instanceof THREE.Mesh)) return;
+        // The batches' parts stay in the group, hidden, holding their own geometry: released with the rest.
+        if (object.visible) drawn++;
         geometries.add(object.geometry);
         for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
           materials.add(material);
@@ -69,7 +113,7 @@ describe('quiet landing and deepwood arrival', () => {
           if (textured.normalMap) textures.add(textured.normalMap);
         }
       });
-      expect(geometries.size).toBe(handle.stats.meshes);
+      expect(drawn).toBe(handle.stats.meshes);
       expect(textures.size).toBe(6);
       const disposals = [...geometries, ...materials, ...textures].map((resource) => vi.spyOn(resource, 'dispose'));
       handle.dispose();
