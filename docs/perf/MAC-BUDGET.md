@@ -36,4 +36,6 @@ These apply on the gate machine, at the mac profile and the High preset. They sh
 
 Serve the build, then run `tools/bench.mjs --headed --quality high --size 1440x900` with device scale factor 2. It reports CPU and GPU time per segment, draw calls and triangles.
 
+Without a GPU, `npm run perf:frame -- --url <build>` counts one frame's draw calls and triangles at each stop of the route, by pass (main view, the leaves' depth pre-pass, the sun's shadow map, the water's reflection and composite) and by part of the world, with the wanderer at each stop as in play; [AIR-CUTS.md](AIR-CUTS.md) has the live build's.
+
 Cuts must keep or improve the look. Each one should be shown with before/after GPU numbers per segment and the same capture from the visual gate.
