@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { MeshoptSimplifier } from 'meshoptimizer/simplifier';
 import { MAIN_HERO_FILE } from '../../src/presentation/assets/heroFile';
-import { castShadowFrom, castShadowFromFewerTriangles, HERO_SHADOW_ERROR, HERO_SHADOW_TRIANGLES, shadowIndex } from '../../src/presentation/hero/shadowCaster';
+import { castShadowFrom, castShadowFromFewerTriangles, drawFromFewerTriangles, HERO_SHADOW_ERROR, HERO_SHADOW_TRIANGLES, shadowIndex } from '../../src/presentation/hero/shadowCaster';
 import { bufferViewData, readGlb } from './glbFixture';
 
 afterEach(() => { vi.unstubAllGlobals(); });
@@ -51,6 +51,29 @@ describe('the wanderer\'s shadow from fewer of his own triangles', () => {
     expect(after).toHaveBeenCalledOnce();
     undo();
     expect([mesh.onBeforeShadow, mesh.onAfterShadow]).toEqual([before, after]);
+    geometry.dispose();
+  });
+
+  it('lends the water\'s reflection the same triangles until it is done, and forgets a mesh undone or let go of', () => {
+    const geometry = new THREE.BoxGeometry(1, 1, 1, 4, 4, 4), full = geometry.index!, coarse = new THREE.BufferAttribute(new Uint32Array([0, 1, 2]), 1);
+    const mesh = new THREE.Mesh(geometry);
+    const undo = castShadowFrom(mesh, coarse);
+    const restore = drawFromFewerTriangles();
+    expect(geometry.index).toBe(coarse);
+    restore();
+    expect(geometry.index).toBe(full);
+    undo();
+    drawFromFewerTriangles()();
+    const lent = drawFromFewerTriangles();
+    expect(geometry.index).toBe(full);
+    lent();
+    // A mesh whose geometry is disposed (a rig rebuilt for a new journey) is no longer lent anything.
+    const other = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 4, 4, 4)), otherFull = other.geometry.index!;
+    castShadowFrom(other, coarse);
+    other.geometry.dispose();
+    const after = drawFromFewerTriangles();
+    expect(other.geometry.index).toBe(otherFull);
+    after();
     geometry.dispose();
   });
 

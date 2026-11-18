@@ -7,6 +7,7 @@ import { WINDOW_VIEW_SIZE, WindowView } from './windowView';
 import { smoothDistanceFade } from './distanceVisibility';
 import type { InteriorSpec } from '../core/world/interiors';
 import { DoorSwings, type DoorEvent } from './doors';
+import { drawFromFewerTriangles } from './hero/shadowCaster';
 import * as THREE from 'three';
 import { buildHunterSupplies, disposeHunterSupplies } from './hunterSupplies';
 import { buildAnimalCamp } from './animalCamp';
@@ -672,9 +673,18 @@ export class WorldScene {
       this.unreflected = [];
       this.scene.traverse((o) => { if (o.name === 'grass-near' || o.name === 'grass-far' || o.name === 'deepwood_forest_floor') this.unreflected.push(o); });
     }
-    const forest = this.modules.find((m) => m.name === 'forest')?.module as { lighterForReflection?: () => () => void } | undefined;
-    return { ...inputs, unreflected: this.unreflected, lighten: forest?.lighterForReflection, sunShadowReady: this.sky.sun.shadow.map !== null };
+    return { ...inputs, unreflected: this.unreflected, lighten: this.lightenReflection, sunShadowReady: this.sky.sun.shadow.map !== null };
   }
+
+  /**
+   * What the water's reflection draws lighter, until the returned function is called: the trees with their middle models
+   * (A76), and the wanderer from the 15,000 triangles his shadow is drawn from (hero/shadowCaster.ts).
+   */
+  private readonly lightenReflection = (): (() => void) => {
+    const forest = this.modules.find((m) => m.name === 'forest')?.module as { lighterForReflection?: () => () => void } | undefined;
+    const trees = forest?.lighterForReflection?.() ?? null, figures = drawFromFewerTriangles();
+    return () => { figures(); trees?.(); };
+  };
   private unreflected: THREE.Object3D[] = [];
   private unreflectedLook = 0;
 
