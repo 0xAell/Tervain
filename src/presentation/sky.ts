@@ -148,16 +148,18 @@ void main() {
     float c1 = cloudEdge(thr, 0.12, n1);
     if (c1 > 0.002) {
       float n2 = cumulusField(bank * vec2(0.82, 1.36) + uSunDir.xz * 0.12);
-      float lightT = clamp(0.56 + (n1 - n2) * 2.8, 0.0, 1.0);
+      float lightT = clamp(0.54 + (n1 - n2) * 4.4, 0.0, 1.0);
       float thick = smoothstep(thr, thr + 0.24, n1);
       vec3 ambient = mix(uHorizon, uTop, 0.35);
-      vec3 shade = ambient * (0.55 + 0.20 * day) + vec3(0.024, 0.026, 0.032);
+      vec3 shade = mix(ambient, uTop, 0.34 * day) * (0.53 + 0.15 * day) + vec3(0.024, 0.026, 0.032);
       // The directional light already carries the sunlight. Painted cloud bodies
       // stay pearl/slate rather than producing white HDR sheets across the bay.
       vec3 lit = (uSunColor * min(uSunI, 2.8) * 0.24 + ambient * 0.68) * (1.0 + 0.28 * lowSun * pow(sd, 3.0));
       lit += uSunColor * pow(sd, 8.0) * (1.0 - thick) * 0.24 * uSunI;
       vec3 moonLit = vec3(0.5, 0.6, 0.9) * (0.18 + 0.5 * pow(max(dot(d, uMoonDir), 0.0), 6.0)) * uNight;
-      vec3 cc = mix(shade, lit, lightT * (0.4 + 0.6 * (1.0 - thick * 0.5))) + moonLit * 0.55;
+      // The sun-facing shoulders catch light while the dense belly sees open sky.
+      float shoulder = lightT * (1.0 - 0.42 * thick);
+      vec3 cc = mix(shade, lit, shoulder) + moonLit * 0.55;
       col = mix(col, cc, c1 * horizonFade * (0.86 - 0.12 * uNight));
     }
     // High layer: thin, stretched cirrus.

@@ -9,6 +9,9 @@ export interface FrameSample { interval: number; cpu: number; gpu: number | null
 
 interface TimerExt { TIME_ELAPSED_EXT: number; GPU_DISJOINT_EXT: number }
 
+const GPU_COLLECT_BATCH = 4;
+const MAX_PENDING_QUERIES = 6;
+
 export class PerfMeter {
   /** The most recent samples (about 15 s at 60 Hz). */
   readonly samples: FrameSample[] = [];
@@ -29,7 +32,7 @@ export class PerfMeter {
   }
 
   /** Called as the frame begins, before any simulation step. */
-  begin() {
+  begin(immediate = true) {
     this.started = performance.now();
     this.renderer.info.reset?.();
     // A frame that threw never reached end(): its query is still open, and a second one cannot begin while it is (A90
@@ -39,8 +42,10 @@ export class PerfMeter {
       this.gl.deleteQuery(this.open);
       this.open = null;
     }
-    this.collect();
-    if (this.gl && this.ext && this.pending.length < 6) {
+    // Collect finished timings together unless someone is watching them. The disjoint flag is sticky
+    // until read: a reset discards the whole outstanding batch before any result can be accepted.
+    if (immediate || this.pending.length === 0 || this.pending.length >= GPU_COLLECT_BATCH) this.collect();
+    if (this.gl && this.ext && this.pending.length < MAX_PENDING_QUERIES) {
       this.open = this.gl.createQuery();
       if (this.open) this.gl.beginQuery(this.ext.TIME_ELAPSED_EXT, this.open);
     }

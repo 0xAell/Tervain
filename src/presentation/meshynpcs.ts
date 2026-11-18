@@ -3,7 +3,7 @@ import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { NPCS } from '../core/content/npcs';
 import type { NpcId } from '../core/game/types';
-import { createNpcAttachments, createStandInRig, setArmed, type Grip, type Rig, type NpcEquipment, type Mode, type Pose } from './characters';
+import { ANGLE_KEYS, createNpcAttachments, createStandInRig, setArmed, type Grip, type Rig, type NpcEquipment, type Mode, type Pose } from './characters';
 import { BONES, type BoneName } from './human/skin';
 import { repairNpcSurfaceGeometry, repairNpcSurfaceMaterial } from './npcSurface';
 import { prepareActorShadow } from './actorShadow';
@@ -64,7 +64,6 @@ const PARENT: Record<BoneName, BoneName | null> = {
   hips: null, torso: 'hips', head: 'torso', armL: 'torso', elbowL: 'armL',
   armR: 'torso', elbowR: 'armR', legL: 'hips', kneeL: 'legL', legR: 'hips', kneeR: 'legR',
 };
-const ANGLES = ['legL', 'legR', 'armLx', 'armLy', 'armLz', 'armRx', 'armRy', 'armRz', 'torsoX', 'torsoZ', 'headX', 'headY', 'lower', 'bodyX', 'bodyY', 'kneeL', 'kneeR', 'elbowL', 'elbowR'];
 
 /** Relative to the served page: works under /Tervain/ and another PC host. */
 export function meshyNpcUrl(file = 'manifest.json', base = import.meta.env.BASE_URL, page = document.baseURI): URL {
@@ -546,7 +545,7 @@ export function* createMeshyNpcRigSteps(asset: Pick<ModelGltf, 'scene' | 'animat
     }),
     weapon: attachments?.weapon ?? null, shield: null, scabbard: attachments?.scabbard ?? null, sheathed: attachments?.sheathed ?? null, sash: null,
     grip, height: entry.height * heightScale, hipY: own ? own.Hips.position.y : bones.hips.position.y,
-    cur: Object.fromEntries(ANGLES.map(key => [key, 0])), materials: paint, hitFlash: 0, kind: 'humanoid',
+    cur: Object.fromEntries(ANGLE_KEYS.map(key => [key, 0])), materials: paint, hitFlash: 0, kind: 'humanoid',
   };
   let residentWork: { gesture: WorkGesture; props: THREE.Object3D[] } | undefined;
   let handsDriver: ((p: Pose, dt: number, working: boolean) => void) | undefined;

@@ -167,6 +167,7 @@ export function createGrassField(terrain: Terrain, habitat: Habitat, quality: Qu
       name, tileSize: T, capacity, geometry: createGrassClump(level.clump), material: material.material,
       writesSlope: true,
       trimFadedTail: true,
+      compactOuterBand: name === 'grass-near',
       fadeStart: level.fade.start, fadeEnd: level.fade.end, power: level.fade.power,
       ...grassReach(level), receiveShadow: spec.shadows,
       // Do not submit the blade tail that the shader already collapses to zero-width triangles.

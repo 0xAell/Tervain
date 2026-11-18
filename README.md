@@ -5,17 +5,17 @@ A single-player fantasy RPG, playable in the browser today and on its way to Unr
 **[Launch Tervain](https://0xaell.github.io/Tervain/)** · [Documentation](docs/README.md)
 
 <p align="center">
-  <a href="https://0xaell.github.io/Tervain/"><img src="docs/media/screenshots/rillford-craft.jpg" width="100%" alt="The wanderer reads the noticeboard with a villager among the timber houses of Rillford."></a>
+  <a href="https://0xaell.github.io/Tervain/"><img src="docs/media/screenshots/rillford-craft.jpg" width="100%" alt="The wanderer approaches the bakery and the village noticeboard on Rillford’s stone-studded lane."></a>
 </p>
 
 You start on a grey beach with no name and no explanation, walk inland through old woodland, and reach a village that was managing fine without you. The browser build is the prototype, where the design is tried out. The destination is Unreal Engine (5.9 first, 6 when it arrives), and this repository is being reworked into the seed for that port: the game's rules and data are kept apart from the renderer so they can move.
 
 ## Status
 
-- **Version.** The current patch is `0.1.1` in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is `0.1.2` in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** Playable and deployed. Every merge to `main` is built, tested and published, and the published build is then loaded and played by a smoke test. It is a prototype: it still contains prototype geometry, and nothing has been measured on reference hardware.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
-- **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Art and sound in 0.1.1](docs/art/valley-craft.md).
+- **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
 - **Not started.** A desktop package, and anything to do with a store release.
 
 At Lantern Point the keeper’s tide bell hangs beside the tower. You see the same piece up close as you enter the valley. An original waltz, *The Ford at First Light*, opens the journey.

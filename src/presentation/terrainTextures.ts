@@ -327,7 +327,7 @@ function path(n: number): Layer {
   const low = fbmField(n, 4, 4, 4, 121);
   const mid = fbmField(n, 11, 11, 3, 124);
   const grit = voronoi(n, 22, 122, 0.85);
-  const big = voronoi(n, 9, 126, 0.9);
+  const slabs = voronoi(n, 7, 126, 0.96, 10);
   const fine = fbmField(n, 64, 64, 2, 123);
   for (let o = 0; o < n * n; o++) {
     // Trodden earth in blotches of damp dark and dry pale, with stones pressed in.
@@ -335,11 +335,19 @@ function path(n: number): Layer {
     const peb = 1 - sstep(0.02, 0.28, grit.f1[o]!);
     const pl = 0.26 + grit.id[o]! * 0.2;
     c = mixc(c, [pl * 1.03, pl, pl * 0.91], peb * 0.54 * (grit.id[o]! > 0.68 ? 1 : 0));
-    const stone = 1 - sstep(0.0, 0.18, big.f1[o]!);
-    if (big.id[o]! > 0.82) c = mixc(c, [0.32, 0.3, 0.265], stone * 0.65);
-    const k = 0.9 + fine[o]! * 0.19;
+    // Footfall exposes patches of flat local stone. Their irregular edges roll into
+    // the soil, and grading the exposure across the tile leaves breaks of plain dirt.
+    const face = slabs.id[o]!;
+    const joint = slabs.f2[o]! - slabs.f1[o]!;
+    const exposed = sstep(0.46, 0.62, low[o]! * 0.69 + face * 0.31);
+    const lip = sstep(0.075, 0.24, joint + (fine[o]! - 0.5) * 0.09);
+    const cover = exposed * lip * (1 - sstep(0.40, 0.73, slabs.f1[o]!));
+    const slate = mixc([0.255, 0.27, 0.265], [0.475, 0.45, 0.385], face);
+    c = mixc(c, slate, cover * 0.90);
+    const seam = exposed * (1 - sstep(0.01, 0.14, joint));
+    const k = (0.9 + fine[o]! * 0.19) * (1 - 0.10 * seam);
     c = [c[0] * k, c[1] * k, c[2] * k];
-    put(L, o, c, clamp01(0.41 + peb * (grit.id[o]! > 0.68 ? 0.13 : 0) + stone * (big.id[o]! > 0.82 ? 0.12 : 0) + fine[o]! * 0.1));
+    put(L, o, c, clamp01(0.41 + peb * (grit.id[o]! > 0.68 ? 0.13 : 0) + cover * 0.12 - seam * 0.035 + fine[o]! * 0.1));
   }
   groundThreads(L, n, 128, 210, 0.95);
   groundDebris(L, n, 129, 25);

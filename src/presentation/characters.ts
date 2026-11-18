@@ -8,6 +8,7 @@ import { npcStyle, type WorkGesture } from './npcStyle';
 import type { NpcPoseFit } from './npc/poseFit';
 import { seatLegs } from '../core/rules/seat';
 import { Frame } from './human/frame';
+import { RUN_STEP, WALK_STEP, walkingFoot } from './human/gait';
 import { buildHead, type HairCut, type HeadFit } from './human/head';
 import { makeFaceShape, type BeardStyle, type Build, type FaceShape } from './human/headShape';
 import { dress, dressHead, sashBand, type Outfit } from './human/dress';
@@ -219,7 +220,7 @@ export interface Look {
   accent?: number;
 }
 
-export const ANGLE_KEYS = ['legL', 'legR', 'armLx', 'armLy', 'armLz', 'armRx', 'armRy', 'armRz', 'torsoX', 'torsoZ', 'headX', 'headY', 'lower', 'bodyX', 'bodyY', 'kneeL', 'kneeR', 'elbowL', 'elbowR'] as const;
+export const ANGLE_KEYS = ['legL', 'legR', 'armLx', 'armLy', 'armLz', 'armRx', 'armRy', 'armRz', 'torsoX', 'torsoZ', 'headX', 'headY', 'lower', 'bodyX', 'bodyY', 'hipSide', 'hipYaw', 'shoulderYaw', 'stepL', 'stepR', 'soleL', 'soleR', 'kneeL', 'kneeR', 'elbowL', 'elbowR'] as const;
 
 /* ================================================================ people */
 
@@ -1013,23 +1014,43 @@ export function poseRig(rig: Rig, p: Pose, dt: number) {
       }
       case 'walk':
       case 'run': {
-        const run = p.mode === 'run' ? 1 : 0;
-        const swing = (0.55 + run * 0.35) * speed * amp;
-        a.legL = sw * swing;
-        a.legR = -sw * swing;
-        a.armLx = -sw * swing * 0.8 * armSwing;
-        a.armRx = sw * swing * 0.8 * armSwing;
-        // The fitted lift, plus what a swinging hand needs to pass a flared skirt or coat at either end of its arc.
-        const reach = Math.min(1, swing / 0.43);
-        a.armLz = 0.1 + hangL + (fit ? (fit.swing[0][0] * Math.max(0, sw) + fit.swing[0][1] * Math.max(0, -sw)) * reach : 0);
-        a.armRz = -0.1 - hangR - (fit ? (fit.swing[1][0] * Math.max(0, -sw) + fit.swing[1][1] * Math.max(0, sw)) * reach : 0);
-        a.torsoX = 0.06 + run * 0.14;
-        a.torsoZ = sw * 0.03 * amp;
-        a.lower = -Math.abs(sw) * 0.035 * amp;
-        a.kneeL = 0.1 + swing * 1.1 * Math.max(0, -cw);
-        a.kneeR = 0.1 + swing * 1.1 * Math.max(0, cw);
-        a.elbowL = -0.24 - swing * 0.9 * Math.max(0, sw);
-        a.elbowR = -0.24 - swing * 0.9 * Math.max(0, -sw);
+        const running = p.mode === 'run', scale = rig.hipY / 0.95;
+        const active = speed * amp;
+        const phase = TAU * p.time;
+        // At full pace the support foot sweeps back 0.82 m per walking stance or 0.94 m per
+        // running stance, matching the distance the controller covers in that part of the cycle.
+        const step = running ? RUN_STEP : WALK_STEP;
+        const reach = step.reach * scale * Math.min(1, speed / 0.78) * amp;
+        // At a walk the hips rise over the planted foot. At a run the knee flexes under
+        // load and the body rises in flight. The controller still owns the root.
+        a.lower = -active * (running
+          ? 0.152 + 0.040 * Math.cos(2 * (phase - TAU * step.contact / 2))
+          : 0.069 + 0.060 * Math.cos(2 * phase));
+        const heading = Number.isFinite(p.heading) ? p.heading! : 0;
+        const left = walkingFoot(p.time, step, reach, a.lower * scale, heading, scale);
+        const right = walkingFoot(p.time + 0.5, step, reach, a.lower * scale, heading, scale);
+        a.legL = left.hip;
+        a.legR = right.hip;
+        a.kneeL = left.knee;
+        a.kneeR = right.knee;
+        a.stepL = left.side;
+        a.stepR = right.side;
+        a.soleL = left.pitch * active - left.hip - left.knee;
+        a.soleR = right.pitch * active - right.hip - right.knee;
+        a.hipSide = 0.024 * sw * active;
+        a.hipYaw = -0.085 * cw * active;
+        a.shoulderYaw = 0.16 * cw * active;
+        const swing = (running ? 0.82 : 0.60) * active;
+        const armPhase = Math.cos(phase - 0.14);
+        a.armLx = armPhase * swing * armSwing;
+        a.armRx = -a.armLx;
+        a.armLz = 0.1 + hangL + (fit ? (fit.swing[0][0] * Math.max(0, -armPhase) + fit.swing[0][1] * Math.max(0, armPhase)) * active : 0);
+        a.armRz = -0.1 - hangR - (fit ? (fit.swing[1][0] * Math.max(0, armPhase) + fit.swing[1][1] * Math.max(0, -armPhase)) * active : 0);
+        a.torsoX = 0.05 + (running ? 0.14 : 0.03) * active;
+        a.torsoZ = -sw * 0.040 * active;
+        a.headY = -0.06 * cw * active;
+        a.elbowL = -0.23 - (running ? 0.67 : 0.20) * active - swing * 0.28 * Math.max(0, -armPhase);
+        a.elbowR = -0.23 - (running ? 0.67 : 0.20) * active - swing * 0.28 * Math.max(0, armPhase);
         if (blade) {
           a.armRx = -0.25 + sw * swing * 0.3;
           a.armRz = 0.12;
@@ -1345,24 +1366,27 @@ export function poseRig(rig: Rig, p: Pose, dt: number) {
   }
   const k = 1 - Math.exp(-frameDt * fast);
   const peaceful = rig.kind === 'humanoid' && ['idle', 'walk', 'run', 'work', 'sit', 'talk'].includes(p.mode);
-  const seatTransition = peaceful && (a.lower! <= -.1 || rig.cur.lower! <= -.1);
+  const gait = p.mode === 'walk' || p.mode === 'run';
+  const authoredGait = gait && !!rig.person;
+  const seatTransition = peaceful && ((!gait && a.lower! <= -.1) || rig.cur.lower! <= -.22);
   let supportK = k;
   if (seatTransition) {
     // Hips and both legs fold together. Independent joint caps would tuck the feet away
     // before the body has lowered, or straighten the knees while the pelvis is still seated.
     for (const key of ['lower', 'legL', 'legR', 'kneeL', 'kneeR']) {
-      const difference = Math.abs(a[key]! - rig.cur[key]!);
+      const difference = Math.abs(a[key]! - (rig.cur[key] ?? 0));
       if (difference > 1e-8) supportK = Math.min(supportK, (key === 'lower' ? .72 : 2.6) * frameDt / difference);
     }
   }
   for (const key of ANGLE_KEYS) {
-    const previous = rig.cur[key]!;
+    // Partial and older rigs acquire a new channel at its neutral angle on first use.
+    const previous = rig.cur[key] ?? 0;
     const supported = seatTransition && ['lower', 'legL', 'legR', 'kneeL', 'kneeR'].includes(key);
     let change = (a[key]! - previous) * (supported ? supportK : k);
     // Peaceful transitions cannot fling a shoulder or drop the hips when a task changes.
     // Attack/hurt/death timing and the imported hero controller retain their own authored response.
     if (peaceful) {
-      const limit = (key === 'lower' ? .72 : key.startsWith('head') ? 1.5 : 4) * frameDt;
+      const limit = (key === 'lower' ? (authoredGait ? 1.7 : .72) : key.startsWith('head') ? 1.5 : authoredGait ? 10 : 4) * frameDt;
       change = Math.max(-limit, Math.min(limit, change));
     }
     rig.cur[key] = previous + change;
@@ -1371,8 +1395,8 @@ export function poseRig(rig: Rig, p: Pose, dt: number) {
     applyRigAngles(rig, rig.cur);
     const m = p.straddle ? THREE.MathUtils.clamp(p.mountSwing ?? 1, 0, 1) : 0;
     const lift = Math.sin(m * Math.PI);
-    rig.legL.rotation.z = .46 * m;
-    rig.legR.rotation.z = -.46 * m - .68 * lift;
+    rig.legL.rotation.z = rig.cur.stepL! * (1 - m) + .46 * m;
+    rig.legR.rotation.z = rig.cur.stepR! * (1 - m) - .46 * m - .68 * lift;
     if (p.straddle) {
       // The root already follows the moving seat; bring the hips to the pad and the right boot over its edge.
       rig.hips.position.y = rig.hipY * (1 - m) + .075 * m;
@@ -1399,7 +1423,15 @@ export function applyRigAngles(rig: Rig, angles: Readonly<Record<string, number>
   // y turns the arm about its own length (the forearm folds across the body, not forward).
   rig.armL.rotation.set(c.armLx, c.armLy, c.armLz);
   rig.armR.rotation.set(c.armRx, c.armRy, c.armRz);
-  rig.torso.rotation.set(c.torsoX, c.bodyY * 0.6, c.torsoZ);
+  if (rig.person) {
+    rig.hips.rotation.y = c.hipYaw;
+    rig.hips.position.x = c.hipSide * scale;
+  }
+  rig.torso.rotation.set(c.torsoX, c.bodyY * 0.6 + c.shoulderYaw, c.torsoZ);
+  if (rig.extremities) {
+    rig.extremities.LeftFoot.rotation.x = c.soleL;
+    rig.extremities.RightFoot.rotation.x = c.soleR;
+  }
   rig.head.rotation.set(c.headX, c.headY, 0);
   if (rig.kneeL) rig.kneeL.rotation.x = c.kneeL;
   if (rig.kneeR) rig.kneeR.rotation.x = c.kneeR;
@@ -1566,7 +1598,7 @@ function poseCreature(rig: Rig, p: Pose, a: Record<string, number>) {
   // The creature's rig writes onto its own joints directly (creature poses are coarse).
   const c = rig.cur;
   const k = 0.35;
-  for (const key of ANGLE_KEYS) c[key] = lerpA(c[key]!, a[key]!, k);
+  for (const key of ANGLE_KEYS) c[key] = lerpA(c[key] ?? 0, a[key]!, k);
   rig.armL.rotation.x = c.armLx!;
   rig.armR.rotation.x = c.armRx!;
   rig.legL.rotation.x = c.legL!;

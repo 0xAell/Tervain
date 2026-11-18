@@ -1,4 +1,4 @@
-import { asRGB, hash3, mulc, type Batch, type Col, type RGB } from './buildKit';
+import { FACES, asRGB, hash3, mulc, type Batch, type Col, type RGB } from './buildKit';
 import type { Region } from './regions';
 
 /**
@@ -25,10 +25,10 @@ export interface RoofStyle {
 }
 
 export const ROOFS: Record<'tile' | 'slate' | 'thatch' | 'shingle', RoofStyle> = {
-  tile: { key: 'tile', ch: 0.31, t: 0.075, pw: 0.41, pitch: 0.62, colors: [0xa25b41, 0x9b583f, 0xa76145, 0x94533d], jit: 0.045, wiggle: 0.026 },
+  tile: { key: 'tile', ch: 0.32, t: 0.052, pw: 0.43, pitch: 0.62, colors: [0xa25b41, 0x9b583f, 0xa76145, 0x94533d], jit: 0.045, wiggle: 0.026 },
   slate: { key: 'slate', ch: 0.32, t: 0.06, pw: 0.39, pitch: 0.66, colors: [0x61635c, 0x5b605b, 0x686b63, 0x5c615e], jit: 0.04, wiggle: 0.024 },
-  thatch: { key: 'thatch', ch: 0.42, t: 0.22, pw: 0.76, pitch: 0.86, colors: [0xb39a60, 0xad945b, 0xb9a16a, 0xa58d57], jit: 0.055, wiggle: 0.07 },
-  shingle: { key: 'planks', ch: 0.43, t: 0.105, pw: 0.34, pitch: 0.6, colors: [0x84715a, 0x7c6b55, 0x89765e, 0x76654f], jit: 0.045, wiggle: 0.035 },
+  thatch: { key: 'thatch', ch: 0.45, t: 0.19, pw: 0.83, pitch: 0.86, colors: [0xb39a60, 0xad945b, 0xb9a16a, 0xa58d57], jit: 0.055, wiggle: 0.07 },
+  shingle: { key: 'planks', ch: 0.43, t: 0.062, pw: 0.37, pitch: 0.6, colors: [0x84715a, 0x7c6b55, 0x89765e, 0x76654f], jit: 0.045, wiggle: 0.035 },
 };
 
 const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
@@ -132,7 +132,7 @@ export function roofPlane(B: Batch, st: RoofStyle, O: V3, A: V3, Sv: V3, S: numb
       // Riser: the free edge's thickness, darker because it is in the shadow of the course above.
       const q0 = P(bottom0, s0 + chip0, lift);
       const q1 = P(bottom1, s0 + chip1, lift);
-      B.quad([...q0, ...q1, ...p1, ...p0], mulc(base, 0.57), { uv: UV([bottom0, s0, bottom1, s0, bottom1, s0 + t, bottom0, s0 + t]), k: k * 0.92, flip, amp: 0.015 });
+      B.quad([...q0, ...q1, ...p1, ...p0], mulc(base, thatch ? 0.65 : 0.80), { uv: UV([bottom0, s0, bottom1, s0, bottom1, s0 + t, bottom0, s0 + t]), k: k * 0.92, flip, amp: 0.015 });
     }
   }
 }
@@ -195,7 +195,7 @@ export function gableRoof(R: Region, o: GableOpts): RoofResult {
   const ey = o.y - 0.06;
   roofPlane(B, st, [-len / 2, ey, hs], [1, 0, 0], [0, sn, -cs], S, () => 0, () => len, seed, o.palette);
   roofPlane(B, st, [len / 2, ey, -hs], [-1, 0, 0], [0, sn, cs], S, () => 0, () => len, seed + 17, o.palette);
-  const dark = o.timber ?? 0x4b3826;
+  const dark = o.timber ?? 0x82705d;
   // Ridge cap and barge boards.
   const ry = ey + rise;
   const frontL: V3 = [-len / 2, ey, hs], frontR: V3 = [len / 2, ey, hs];
@@ -206,6 +206,14 @@ export function gableRoof(R: Region, o: GableOpts): RoofResult {
   const rc = o.ridgeColor ?? (o.style === 'thatch' ? 0xa08a48 : o.style === 'slate' ? 0x4c535c : 0x87432f);
   if (o.style === 'thatch') {
     R.thatch.rod(-len / 2 - 0.05, ry + 0.02, 0, len / 2 + 0.05, ry + 0.02, 0, 0.26, 7, rc, { jit: 0.1 });
+    // Crossed hazel spars pin down each vulnerable end of the ridge roll. The trimmed ends
+    // project past the braid so a reed roof is distinct on the skyline even in silhouette.
+    for (const end of [-1, 1]) for (const across of [-1, 1]) {
+      const x = end * (len / 2 - 0.10 + across * 0.035);
+      const reach = 0.68, height = reach * Math.tan(pitch);
+      R.timber.rod(x, ry - height + 0.15, across * reach, x + end * 0.045, ry + 0.45, -across * 0.30,
+        0.059, 5, end > 0 ? 0xaa9675 : 0xb5a183, { rEnd: 0.035, jit: 0.04 });
+    }
   } else {
     R.get(st.key).rod(-len / 2 - 0.02, ry + 0.03, 0, len / 2 + 0.02, ry + 0.03, 0, 0.11, 6, rc);
   }
@@ -222,7 +230,7 @@ export function gableRoof(R: Region, o: GableOpts): RoofResult {
     const n = Math.max(3, Math.round(len / 0.62));
     for (let i = 0; i <= n; i++) {
       const x = -len / 2 + (i * len) / n;
-      R.timber.bx(x - 0.065, ey - 0.2, sz * (hs - 0.34), x + 0.065, ey - 0.06, sz * hs, dark, { jit: 0.025, amp: 0.025, grain: 'z' });
+      R.timber.bx(x - 0.065, ey - 0.2, sz * (hs - 0.34), x + 0.065, ey - 0.06, sz * hs, dark, { jit: 0.025, amp: 0.025, grain: 'z', skip: sz > 0 ? FACES.pz : FACES.nz }); // End buried inside the fascia.
     }
   }
   return { rise, ridgeY: ry, halfSpan: hs, pitch, slope: S };
