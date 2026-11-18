@@ -432,6 +432,9 @@ Improved:
   timber, the schedule board's posts, the guard's pole and the quest's pickups, each following what holds it and
   hiding with it. The five village stops draw 19 to 40 fewer calls again; with the doors and the props, 15 to 24 %
   fewer than 0.0.49 there, for the same triangles ([#892](https://github.com/0xAell/Tervain/pull/892)).
+- The shore's driftwood, scrub and wrack and the streams' reeds are drawn as one piece each, where they were cut into
+  the rocks' 96 m chunks: 20 meshes of a few dozen triangles each became five. Six route stops draw 2 to 22 fewer
+  calls a frame, for at most 3,000 triangles more where a piece is drawn whole (PR_X).
 
 Next:
 

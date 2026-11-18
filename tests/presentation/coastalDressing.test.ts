@@ -52,6 +52,29 @@ describe('original coastal dressing render contract', () => {
     } finally { view.dispose?.(); }
   });
 
+  it('draws the shore\'s and the streams\' small things as one piece each, and the rocks in their 96 m chunks', () => {
+    const view = build('high');
+    try {
+      const pieces = new Map<string, { meshes: number; triangles: number }>();
+      view.group.traverse(object => {
+        if (!(object instanceof THREE.Mesh)) return;
+        const [, chunk, material] = /^scatter:(.+):([a-z]+)$/.exec(object.name)!;
+        const kind = material === 'rock' ? 'rock' : `${chunk}:${material}`;
+        const entry = pieces.get(kind) ?? { meshes: 0, triangles: 0 };
+        entry.meshes++; entry.triangles += object.geometry.getIndex()!.count / 3;
+        pieces.set(kind, entry);
+      });
+      // The driftwood and scrub (bark, leaves) and the wrack lie on the coast; the reeds and cattails along the streams.
+      expect([...pieces.keys()].sort()).toEqual(['coast:bark', 'coast:cloth', 'coast:leaf', 'rock', 'streams:leaf', 'streams:vc']);
+      for (const [kind, entry] of pieces) if (kind !== 'rock') expect(entry.meshes, kind).toBe(1);
+      expect(pieces.get('rock')!.meshes).toBeGreaterThan(10);
+      // The same triangles as when they were cut into the rocks' chunks: 3,460 for the small things, 117,800 for the rocks.
+      expect(pieces.get('coast:bark')!.triangles + pieces.get('coast:cloth')!.triangles + pieces.get('coast:leaf')!.triangles
+        + pieces.get('streams:leaf')!.triangles + pieces.get('streams:vc')!.triangles).toBe(3460);
+      expect(pieces.get('rock')!.triangles).toBe(117800);
+    } finally { view.dispose?.(); }
+  });
+
   it('gives rebuilt coastal scrub its own disposable leaf texture without invalidating another world', () => {
     const first = build('low'), second = build('high');
     const material = (view: ReturnType<typeof build>) => {
