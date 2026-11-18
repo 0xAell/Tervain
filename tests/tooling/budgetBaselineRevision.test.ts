@@ -1,3 +1,4 @@
+import { installPopulationProbe, installFixtureWorld } from './fixtures/budgetPopulation';
 import { expect, it } from 'vitest';
 import { existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,6 +8,7 @@ import { spawnSync } from 'node:child_process';
 it('rejects changed or unavailable live baselines while preserving cost and head checks', () => {
   const dir=mkdtempSync(join(tmpdir(),'budget-baseline-'));
   try {
+    installPopulationProbe(dir);
     for(const name of ['play-gate.mjs','webgl-upload-bytes.mjs','budget-frame-samples.mjs','budget-probe.mjs']) {
       if(existsSync('tools/'+name))writeFileSync(join(dir,name),readFileSync('tools/'+name));
     }
@@ -29,7 +31,8 @@ export async function openPage(url) {
  const calls=(lower?226:285)+ +(candidate&&scenario==='draw'),triangles=(lower?2414180:3061335)+ +(candidate&&scenario==='tri');
  const T={mode:'title',world:{terrain:{}},loadingEl:{classList:{contains:(name)=>name==='off'}},hud:{show(){}},player:{setPosition(){}},cam:{},renderer:{info:{render:{calls,triangles}}},perf:{end(){return{calls,triangles};}}};
  const window={tervain:T},document={baseURI:url,querySelectorAll:()=>[{textContent:'New',getBoundingClientRect:()=>({x:0,y:0,width:1,height:1})}]};
- return {cdp:async()=>{},wait:async()=>{T.mode='play';if(window.__budgetFrames)T.perf.end();},
+ ${installFixtureWorld}
+      return {cdp:async()=>{},wait:async()=>{T.mode='play';if(window.__budgetFrames)T.perf.end();},
  eval:async(source)=>new Function('window','document','fetch',source)(window,document,async()=>({json:async()=>({revision})})),
  console:()=>candidate&&scenario==='console'?['[error] test']:[],close(){}};
 }`);

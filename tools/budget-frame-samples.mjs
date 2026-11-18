@@ -1,5 +1,5 @@
 /** Record distinct completed game frames, never repeated wall-clock reads of renderer.info. */
-export function recordBudgetFrames(app, limit = 4) {
+export function recordBudgetFrames(app, limit = 4, population = null) {
   if (!Number.isInteger(limit) || limit < 1 || !app?.perf || typeof app.perf.end !== 'function') throw new Error('Budget recorder requires a frame meter and a positive sample limit');
   const meter = app.perf, original = meter.end, samples = [];
   let active = true;
@@ -7,7 +7,9 @@ export function recordBudgetFrames(app, limit = 4) {
     const result = original.apply(this, args);
     if (active && samples.length < limit) {
       if (!Number.isFinite(result?.calls) || !Number.isFinite(result?.triangles)) throw new Error('Invalid completed-frame budget');
-      samples.push([result.calls, result.triangles]);
+      const row = [result.calls, result.triangles];
+      if (population) row.push(population(app));
+      samples.push(row);
     }
     return result;
   }

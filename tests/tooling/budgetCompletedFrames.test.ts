@@ -1,3 +1,4 @@
+import { installPopulationProbe, installFixtureWorld } from './fixtures/budgetPopulation';
 import { it, expect } from 'vitest';
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,6 +8,7 @@ import { spawnSync } from 'node:child_process';
 it('CLI uses completed-frame maxima and still rejects budget, console and revision regressions', () => {
   const dir = mkdtempSync(join(tmpdir(), 'budget-completed-'));
   try {
+    installPopulationProbe(dir);
     for (const name of ['play-gate.mjs', 'budget-frame-samples.mjs', 'webgl-upload-bytes.mjs', 'budget-probe.mjs']) writeFileSync(join(dir, name), readFileSync(`tools/${name}`));
     // The live deployment is not what this test is about: it is reported whole at once.
     writeFileSync(join(dir, 'live-deploy.mjs'), `export async function waitForSettledDeploy() { return { ok: true, unreachable: false, revision: '1234567', files: 1, waitedMs: 0, problems: [] }; }`);
@@ -20,6 +22,7 @@ it('CLI uses completed-frame maxima and still rejects budget, console and revisi
         perf:{end(){ frame++; return {calls:285 + +(candidate && failure==='draw'),triangles:3061335 + +(candidate && failure==='tri')};}} };
       const window={tervain:T}, document={baseURI:url,querySelectorAll:()=>[{textContent:'New',getBoundingClientRect:()=>({x:0,y:0,width:1,height:1})}]};
       const fetch=async()=>({json:async()=>({revision:candidate?(failure==='head'?'bad':'abcdef0'):'1234567'})});
+      ${installFixtureWorld}
       return { cdp:async(method)=>{if(method==='Input.dispatchMouseEvent')T.mode='play';},
         wait:async()=>{ if(window.__budgetFrames && failure!=='missing')T.perf.end(); },
         eval:async(source)=>new Function('window','document','fetch',source)(window,document,fetch),

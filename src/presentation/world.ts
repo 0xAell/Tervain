@@ -2,6 +2,7 @@ import { loadBakedTextures } from './bakedTextures';
 import type { CameraCrown } from '../core/rules/cameraCrowns';
 import { buildFurniture, deferredFurniture, loadFurniture, type FurnitureTemplates } from './furniture';
 import { InteriorLight } from './interiorLight';
+import { sunCasterFrustum } from './softShadows';
 import { buildHearthFires } from './hearthFire';
 import { WINDOW_VIEW_SIZE, WindowView } from './windowView';
 import { smoothDistanceFade } from './distanceVisibility';
@@ -771,7 +772,7 @@ export class WorldScene {
       // shadow volume now, so off-screen trees that shade visible ground remain submitted.
       this.sky.sun.updateMatrixWorld(); this.sky.sun.target.updateMatrixWorld();
       this.sky.sun.shadow.updateMatrices(this.sky.sun);
-      shadowFrustum = this.sky.sun.shadow.getFrustum();
+      shadowFrustum = sunCasterFrustum(this.sky.sun, this.casterFrustum);
     }
     const frame: FrameContext = { time: this.time, camera, focus, nightness: night, sunDir: this.sky.state.sunDir, shadowFrustum, shadowsForViewOnly: indoor <= 0 && !this.windowShown, reducedMotion: reduced, hour, view: v, quality: settings.quality, treeDetailByDistance: settings.treeDetailByDistance, wildlifeActive };
     this.animals.setRunning(wildlifeActive);
@@ -835,6 +836,7 @@ export class WorldScene {
   }
 
   private readonly doorSwings: DoorSwings;
+  private readonly casterFrustum = new THREE.Frustum();
   private readonly interiorLight: InteriorLight;
   private readonly windowView: WindowView;
   private readonly letIn: () => void;

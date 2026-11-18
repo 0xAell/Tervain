@@ -1,5 +1,7 @@
 # The Sovereign's Oath — menu score source record
 
+Historical record of the 0.0.x title score. The 0.1.x title plays [Alderweir](alderweir-audio.json).
+
 Recorded 30 September 2026 for Tervain `0.0.5` ([A28](../decisions.md)). The owner supplied **The Sovereign's Oath.m4a**, requested its use in the menu, authorized merging that addition into the main game, and requested a menu video covering the complete song. This is a specific project-use instruction, not a new open-content license or an independent authorship review.
 
 The archive preserves the supplied file byte for byte outside the runtime build. The runtime receives audio-only derivatives in two browser-compatible containers. No Warpkeep score, Gothic 3 recording, lyrics, timed subtitle stream, or artwork is substituted for the supplied track.

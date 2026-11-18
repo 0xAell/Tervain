@@ -1,6 +1,6 @@
 /**
  * Developer preview of the menu grove: the real MenuScene and Grade, the real title overlay, and a song clock you can
- * scrub or play with the actual score. Served by `npm run dev` at /tools/grove.html; not part of the build.
+ * scrub or play with the Alderweir title score. Served by `npm run dev` at /tools/grove.html.
  *
  *   ?t=40        start at this song time (seconds)
  *   ?q=medium    menu quality (low | medium | high)
@@ -17,14 +17,17 @@ import { createMenuScreen } from '../src/presentation/ui/menuView';
 import { h } from '../src/presentation/ui/dom';
 import { MENU_MUSIC_SOURCES } from '../src/presentation/audio';
 import { GAME_VERSION } from '../src/version';
+import { MENU_LOOK } from '../src/core/content/look';
+import { MENU_SCORE_FEATURE_INFO } from '../src/presentation/menu/menuScoreFeatures';
 
 const q = new URLSearchParams(location.search);
 const quality = (['low', 'medium', 'high'] as const).find((v) => v === q.get('q')) ?? 'high';
-const DURATION = 214.2;
+const DURATION = MENU_SCORE_FEATURE_INFO.duration;
 const canvas = document.querySelector<HTMLCanvasElement>('#view')!;
 const ui = document.querySelector<HTMLElement>('#ui')!;
 const controls = document.querySelector<HTMLElement>('#grove-controls')!;
 const slider = document.querySelector<HTMLInputElement>('#grove-time')!;
+slider.max = String(DURATION);
 const clock = document.querySelector<HTMLOutputElement>('#grove-clock')!;
 const playButton = document.querySelector<HTMLButtonElement>('#grove-play')!;
 if (q.get('controls') === '0') controls.hidden = true;
@@ -37,8 +40,7 @@ renderer.shadowMap.enabled = quality !== 'low';
 renderer.shadowMap.type = THREE.PCFShadowMap;
 const grade = new Grade(renderer, { msaa: quality !== 'low' });
 grade.bloom = quality !== 'low';
-// The app's menu look (App.MENU_LOOK).
-grade.setLook({ saturation: 0.9, contrast: 1.07, vignette: 0.3, grain: 0.03, chromatic: 0.0012, night: 0 });
+grade.setLook({ ...MENU_LOOK, night: 0 });
 
 let menu = new MenuScene({ quality: quality as MenuQuality });
 let time = Math.max(0, Math.min(DURATION, Number(q.get('t') ?? 40) || 0));
@@ -114,7 +116,8 @@ let audio: HTMLAudioElement | null = null;
 let playing = false;
 playButton.addEventListener('click', () => {
   if (!audio) {
-    audio = new Audio(new Audio().canPlayType('audio/ogg; codecs="opus"') ? MENU_MUSIC_SOURCES.opus : MENU_MUSIC_SOURCES.aac);
+    audio = new Audio();
+    audio.src = audio.canPlayType('audio/ogg; codecs="opus"') ? MENU_MUSIC_SOURCES.opus : MENU_MUSIC_SOURCES.aac;
     audio.loop = true;
   }
   if (playing) {

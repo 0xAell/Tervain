@@ -1,3 +1,4 @@
+import { installPopulationProbe, fullPopulation } from './fixtures/budgetPopulation';
 import { expect, it } from 'vitest';
 import { existsSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,6 +8,7 @@ import { spawnSync } from 'node:child_process';
 function run(failure = '') {
   const fixture = mkdtempSync(join(tmpdir(), 'tervain-budget-start-'));
   try {
+    installPopulationProbe(fixture);
     for (const name of ['play-gate.mjs', 'webgl-upload-bytes.mjs', 'budget-frame-samples.mjs', 'budget-probe.mjs']) writeFileSync(join(fixture, name), readFileSync(`tools/${name}`));
     // The live deployment is whole unless the scenario says otherwise.
     writeFileSync(join(fixture, 'live-deploy.mjs'), `export async function waitForSettledDeploy() {
@@ -31,9 +33,13 @@ function run(failure = '') {
             if (js.includes('menu-choices')) return [0, 0]; // Hidden button remains in the live DOM.
             if (js.includes('loading-failed')) return { booted: true, ready: fail !== 'not-ready' && !failedLoad, failed: failedLoad,
               text: failedLoad ? 'The journey could not be prepared. Resident fisher could not load (HTTP 404).' : 'Preparing the view 3 of 79', bad: failedLoad ? ['404 public/models/npcs/fisher.glb'] : [], resources: [], rejections: [] };
+            if (js.includes('window.__readBudgetPopulation =')) return { figures: ${JSON.stringify(fullPopulation.figures)} };
+            if (js.includes('T.arrivals.count')) return {population:${JSON.stringify(fullPopulation)}, pending:0, settled:'done'};
+            if (js.includes('return [T.player.x')) return [0,0,0,0];
+            if (js.includes('window.requestAnimationFrame')) return 1;
             if (js.includes('__budgetFrames.samples.length')) return true;
             if (js.includes('return r.samples')) { trace.samples += 4; return Array.from({ length: 4 }, () =>
-              [242 + Number(head && fail === 'draws'), 2874566 + Number(head && fail === 'triangles')]); }
+              [242 + Number(head && fail === 'draws'), 2874566 + Number(head && fail === 'triangles'), ${JSON.stringify(fullPopulation)}]); }
             if (js.includes('version.json')) return { revision: head ? (fail === 'revision' ? 'badcafe' : 'abcdef0') : '1234567' };
             if (js.includes('T.hud.show')) return 1;
             throw Error('Unexpected probe operation');
@@ -59,14 +65,14 @@ it('probes an already-started shot world without waiting for or clicking its hid
   const { result, trace } = run();
   expect(result.error).toBeUndefined(); expect(result.status).toBe(0);
   expect(result.stdout).toContain('play-gate: PASS abcdef0');
-  expect(trace.reduce((n, p) => n + p.samples, 0)).toBe(12);
+  expect(trace.reduce((n, p) => n + p.samples, 0)).toBe(24);
   expect(result.stderr).toBe('');
   expect(trace).toHaveLength(3); // Two live probes and the candidate remain required.
   // Every probe's browser is started without the GPU watchdog: a software renderer's first view can outlast it.
   for (const probe of trace) expect(probe.flags).toEqual(['--disable-gpu-watchdog']);
   expect(trace.reduce((n, p) => n + p.titlePolls, 0)).toBe(0);
   expect(trace.reduce((n, p) => n + p.mouseEvents, 0)).toBe(0);
-  expect(trace.reduce((n, p) => n + p.waitMs, 0)).toBe(63000); // Same settle delays; completed frames replace the four wall-clock reads.
+  expect(trace.reduce((n, p) => n + p.waitMs, 0)).toBe(81000); // Each visit has 15 s to stream and two four-frame samples.
 });
 
 it('fails without a receipt when shot gameplay never becomes ready', () => {
