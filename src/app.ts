@@ -2891,22 +2891,17 @@ export class App {
       });
       if (!restore.length) return colour.then(after);
       // The shadow pass draws with no scene, so without fog (its programs key on the fog's kind even where a depth material
-      // ignores it), under the lighting left from the previous pass, with or without the point lights: the depth programs
-      // are prepared under both, fog-free.
-      const lit = new THREE.Scene(), daylight = new THREE.Scene();
-      scene.traverseVisible((o) => {
-        const light = o as THREE.Light;
-        if (!light.isLight) return;
-        lit.add(light.clone());
-        if (!(light as THREE.PointLight).isPointLight) daylight.add(light.clone());
-      });
+      // ignores it), under the lighting left from the world's previous pass: the depth programs are prepared fog-free,
+      // under the world's lights.
+      const lit = new THREE.Scene();
+      scene.traverseVisible((o) => { if ((o as THREE.Light).isLight) lit.add((o as THREE.Light).clone()); });
       // Lights inside the object itself (the world's, when the whole world is prepared) would be counted on top of the
-      // stand-in scenes' and make programs no shadow pass uses: they are out of these two compiles.
+      // stand-in scene's and make programs no shadow pass uses: they are out of this compile.
       const own: THREE.Object3D[] = [];
       object.traverse((o) => { if ((o as THREE.Light).isLight && o.visible) { o.visible = false; own.push(o); } });
-      let shadows: Promise<unknown>[];
-      try { shadows = [r.compileAsync(object, this.cam.camera, lit), r.compileAsync(object, this.cam.camera, daylight)]; } finally { for (const o of own) o.visible = true; }
-      return Promise.all([colour, ...shadows]).then(after);
+      let shadows: Promise<unknown>;
+      try { shadows = r.compileAsync(object, this.cam.camera, lit); } finally { for (const o of own) o.visible = true; }
+      return Promise.all([colour, shadows]).then(after);
     } finally {
       for (const [mesh, material] of restore) mesh.material = material;
       for (const o of hidden) o.visible = false;

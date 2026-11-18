@@ -447,6 +447,13 @@ Improved:
   profiled at a village spot, the hand queries took 39 and 43 ms where they took 266 and 293 (0.07 ms a step where
   they took 0.44 to 0.49). The route's frames were also counted again on the live build after this round of cuts: 293
   draw calls a frame where 0.0.49 drew 385 ([AIR-CUTS.md](../perf/AIR-CUTS.md)) ([#895](https://github.com/0xAell/Tervain/pull/895)).
+- The first view is prepared with 182 shader programs where it took 244. Preparing the sun's shadow programs compiled the
+  whole world a third time, under a stand-in light set without the point lights, for a shadow pass drawn after a pass
+  without them. Every pass now sees every light, and a dark lamp stays in the scene at no intensity, so no pass is
+  without them, and none of those 62 programs was ever drawn with. A tour of the route's 13 stops and two rooms, at
+  noon and at night, compiles nothing the old build had prepared, and one program fewer during play. On the software
+  renderer a journey loads 2.6 s sooner (78.4 → 75.8 s, medians of three alternating runs); on a GPU each program is
+  driver compile time and memory ([#896](https://github.com/0xAell/Tervain/pull/896)).
 
 Next:
 
@@ -465,12 +472,11 @@ Next:
   past them, and the worker slows); the terrain and the woodland built during the earlier waits. Each is worth
   measuring again on a machine with a GPU, as is building the models in workers or keeping them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
-  textures (KTX2) would cut that several times. The 230 shader programs compiled before the first view are 84
-  materials across their passes (the main view, the captures without point lights, the menu's lights, the leaves'
-  depth and shade passes). The captures alone add a program to nearly every lit material, for want of the main view's
-  six point lights; kept in the captures at no intensity, the lights would let them share the main view's programs, at
-  the cost of shading six dark lights in each capture: a trade to measure on a GPU, where each program costs real
-  compile time before the first view.
+  textures (KTX2) would cut that several times. 182 shader programs are compiled before the first view: the world's
+  materials under its lights, the sun's shadow pass, the menu's lights and the leaves' depth and shade passes. Eleven
+  more are compiled during play on a tour of the route and two rooms, the same at noon and at night: instanced and
+  room-floor variants of the world's materials that the first view's preparation does not reach, each a stall on a
+  GPU the first time it is drawn.
 - Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 448 MB. A heap snapshot
   names the largest holders left. Rapier's memory is 100 MB. Its 1,501 colliders include 517 triangle meshes, 991,000
   triangles, 840,000 of them the planted trees' contact wood (19 meshes, each copied for every tree that uses it); in
