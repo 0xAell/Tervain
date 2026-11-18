@@ -406,7 +406,7 @@ Improved:
   pre-pass, the sun's shadow map, the water's reflection and composite) and by part of the world, at the benchmark
   route's stops with the wanderer standing at each as in play. [AIR-CUTS.md](../perf/AIR-CUTS.md) gives the live
   build's frame at High and its three largest costs: the forest at full detail, the water's reflection when the sea is
-  in view, and the sun's shadow map (PR_X).
+  in view, and the sun's shadow map ([#887](https://github.com/0xAell/Tervain/pull/887)).
 
 Next:
 
