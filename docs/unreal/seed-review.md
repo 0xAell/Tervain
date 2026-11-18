@@ -454,6 +454,13 @@ Improved:
   noon and at night, compiles nothing the old build had prepared, and one program fewer during play. On the software
   renderer a journey loads 2.6 s sooner (78.4 → 75.8 s, medians of three alternating runs); on a GPU each program is
   driver compile time and memory ([#896](https://github.com/0xAell/Tervain/pull/896)).
+- `npm run perf:programs` lists the shader programs compiled for the first view, by shader and by the lights each was
+  made for, then stands the wanderer at the route's 13 stops and in two rooms at noon and at night and counts each
+  program compiled meanwhile: by a preparation, ahead of the first draw of what it is for, or inside a draw, which
+  stalls that frame. A fresh material shown at the end must be caught inside its draw, or the run fails. On 0.1.1, 181
+  programs are compiled for the first view and ten more during the tour, at noon as at night: nine by the arrivals'
+  preparation, and one inside a draw, the shrine hall's panes the first time they show the view its window capture took
+  ([#898](https://github.com/0xAell/Tervain/pull/898)).
 
 Next:
 
@@ -472,11 +479,12 @@ Next:
   past them, and the worker slows); the terrain and the woodland built during the earlier waits. Each is worth
   measuring again on a machine with a GPU, as is building the models in workers or keeping them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
-  textures (KTX2) would cut that several times. 182 shader programs are compiled before the first view: the world's
-  materials under its lights, the sun's shadow pass, the menu's lights and the leaves' depth and shade passes. Eleven
-  more are compiled during play on a tour of the route and two rooms, the same at noon and at night: instanced and
-  room-floor variants of the world's materials that the first view's preparation does not reach, each a stall on a
-  GPU the first time it is drawn.
+  textures (KTX2) would cut that several times. 181 shader programs are compiled before the first view (0.1.1): the world's
+  materials under its lights, the sun's shadow pass, the menu's lights and the leaves' depth and shade passes. On a
+  tour of the route and two rooms (`npm run perf:programs`) ten more are compiled, at noon as at night: nine by the
+  preparation of pieces that arrive after the world opens, before they are first drawn, and one inside a draw. That one
+  is the shrine hall's panes, the first time they show its window capture's view (a cube map, A70): a stall on a GPU,
+  to be prepared with the first view.
 - Memory: at a settled journey the JavaScript heap is about 49 MB and its array buffers about 448 MB. A heap snapshot
   names the largest holders left. Rapier's memory is 100 MB. Its 1,501 colliders include 517 triangle meshes, 991,000
   triangles, 840,000 of them the planted trees' contact wood (19 meshes, each copied for every tree that uses it); in

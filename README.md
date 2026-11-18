@@ -82,7 +82,8 @@ It typechecks the game and the port seed, checks the exported data against the c
 
 `npm run perf:load -- --url http://127.0.0.1:4173/` times each stage of a journey's load in a served build; given a
 second `--url`, it alternates between the two and compares their medians. `npm run perf:frame` counts where a frame's
-draw calls and triangles go, pass by pass, at the benchmark route's stops.
+draw calls and triangles go, pass by pass, at the benchmark route's stops. `npm run perf:programs` lists the shader
+programs compiled before the first view and finds any compiled inside a draw during play.
 
 ## Repository map
 
