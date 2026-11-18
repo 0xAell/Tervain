@@ -2803,8 +2803,19 @@ export class App {
       // stand-in scene's and make programs no shadow pass uses: they are out of this compile.
       const own: THREE.Object3D[] = [];
       object.traverse((o) => { if ((o as THREE.Light).isLight && o.visible) { o.visible = false; own.push(o); } });
+      // The shadow pass draws the casters alone. Everything else is out of this compile too, for the length of the call:
+      // compiled here, fog-free, each would make a copy of its colour program that no pass draws, the world being fogged.
+      const casters = new Set<THREE.Object3D>(restore.map(([mesh]) => mesh));
+      const others: [THREE.Object3D & { material?: unknown }, unknown][] = [];
+      object.traverse((o) => {
+        const drawn = o as THREE.Object3D & { material?: unknown };
+        if (drawn.material && !casters.has(o)) { others.push([drawn, drawn.material]); drawn.material = null; }
+      });
       let shadows: Promise<unknown>;
-      try { shadows = r.compileAsync(object, this.cam.camera, lit); } finally { for (const o of own) o.visible = true; }
+      try { shadows = r.compileAsync(object, this.cam.camera, lit); } finally {
+        for (const o of own) o.visible = true;
+        for (const [drawn, material] of others) drawn.material = material;
+      }
       return Promise.all([colour, shadows]).then(after);
     } finally {
       for (const [mesh, material] of restore) mesh.material = material;
