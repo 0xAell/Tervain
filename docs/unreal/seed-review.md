@@ -474,6 +474,12 @@ Improved:
   first draw waits for its link. On 0.1.2 the first view's preparation left 10 of the 136 programs it made unwaited,
   and a wild cat's arrival the program its skinned shadow is drawn with: the frame that first drew it in the sun's
   shadow stalled (`compileWait.ts`) ([#902](https://github.com/0xAell/Tervain/pull/902)).
+- The first view is prepared with 134 shader programs where it took 181. The sun's shadow warm-up compiled the whole
+  world under a fog-free stand-in scene, so every mesh that casts no shadow got a fog-free copy of its colour program,
+  which no pass draws: the world always has fog. It now compiles the casters' depth programs alone (17 where it made
+  64). On the software renderer the first view's preparation takes 44.6 s where it took 47.2, and a journey loads in
+  62.1 s where it took 65.1 (medians of three alternating runs); on a GPU each program is driver compile time and
+  memory (PR_X).
 
 Next:
 
@@ -492,9 +498,10 @@ Next:
   past them, and the worker slows); the terrain and the woodland built during the earlier waits. Each is worth
   measuring again on a machine with a GPU, as is building the models in workers or keeping them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
-  textures (KTX2) would cut that several times. 182 shader programs are compiled before the first view (0.1.1 with
-  the panes prepared): the world's materials under its lights, the sun's shadow pass, the menu's lights, the leaves'
-  depth and shade passes and the shrine hall's panes as its window capture shows them. On a tour of the route and two
+  textures (KTX2) would cut that several times. 134 shader programs are compiled before the first view (0.1.2 with
+  the shadow warm-up compiling the casters alone): the world's materials under its lights, the sun's shadow pass, the
+  menu's lights, the leaves' depth and shade passes and the shrine hall's panes as its window capture shows them. On a
+  tour of the route and two
   rooms (`npm run perf:programs`) nine more are compiled, at noon as at night, all by the preparation of pieces that
   arrive after the world opens, before they are first drawn; none inside a draw. Fewer programs would need fewer
   distinct materials or light sets.
