@@ -40,6 +40,29 @@ At a quarter of the resolution the leaves, trunks and settlement cost nearly the
 
 The final build is about 5 ms over the 2.0 ms median and 7 ms over the 3.0 ms p95; triangles (5.1 M) and draws (340) are over too.
 
+## A frame by pass, live 0.0.49 (November 2026)
+
+Counted with `npm run perf:frame` on the live build (db16661) at High, 1440×900 at 2× (the Mac profile), 11:00. At each of the benchmark route's 13 stops the wanderer stands, facing along the route, and the camera follows him as in play. The sun's shadow is centred on him: the benchmark route itself (`tools/bench.mjs`) moves the camera alone, so its frames draw the landing's surroundings into the shadow map wherever the camera is. Draw calls and triangles are as three counts them; they need no GPU to measure, and they are what this machine-independent budget can be held to.
+
+| Pass | Draws (median) | Triangles (median) | At its largest |
+| --- | ---: | ---: | --- |
+| Main view | 218 | 3.22 M | 330 draws, 4.70 M (the landing) |
+| Leaves' depth pre-pass (the near leaves a second time) | 18 | 0.94 M | 2.07 M |
+| Sun's shadow map, 4096², every daytime frame | 126 | 0.75 M | 148 draws, 1.11 M |
+| Water's planar reflection, 512² (only with the sea in view) | none | none | 259 draws, 2.52 M, and 0.96 M more for its leaves' depth pass |
+| Water composite (the sea's projected grid and inland water) | 6 | 0.11 M | |
+| The frame | 385 | 5.10 M | 746 draws, 10.4 M |
+
+By part of the world, over all passes (medians): forest 110 draws and 2.85 M triangles; scenery 141 draws and 0.68 M; groundcover 19 and 0.53 M; the wanderer 2 and 0.30 M; terrain 28 and 0.21 M; the sea's grid 0.09 M; scatter 28 and 0.06 M; every other part under 0.05 M.
+
+The three largest costs, on a GPU the leaves, trunks and settlement leave bound by their triangles (above):
+
+1. **The forest**, more than half of every frame's triangles. High draws every tree's full model at every distance on purpose (`floraPopulation.ts`: no lighter model may change a silhouette as you move), and lighter models at High were tried and seen (batch 10, below). Near the landing a hero pine's wood is about 0.5 M triangles and its needles 0.5 M twice (the depth pre-pass and the colour pass); the fir spires alike.
+2. **The water's reflection**, when the sea is in view: up to a third of a frame's draws and triangles for a 512 px image of a rippled surface, after its trees have already been swapped for their middle models (A76). At one stop the sea shows at the edge of the view and the whole reflection is drawn for it.
+3. **The sun's shadow map**: a third of all draw calls and 0.75 M triangles, redrawn every daytime frame (moving trees and people cast it). The wanderer's 150,000-triangle skinned mesh is a fifth of its triangles; the village's merged regions most of the rest.
+
+Cuts that leave the picture as it is, to measure next with the same counts: drawing into the reflection only what can appear in the part of the screen where the sea shows (its sample is moved by up to 0.045 for ripples and smeared by up to 0.11 along the view, which the margin must cover); casting the wanderer's shadow from a coarser set of his own triangles over the same vertices and skeleton, so no file is added, once its shadow is shown to match. Lighter trees at High, and the leaves' pre-pass skipped for distant trees, are trades a GPU must judge.
+
 ## Batch 10 findings (tried, measured, not kept)
 
 Same route and profile; each A/B pair run back to back, three laps each. The machine was shared with other GPU work during these runs, so laps with a CPU median above about 9 ms are contended and their GPU time is not comparable.

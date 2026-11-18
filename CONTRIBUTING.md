@@ -27,6 +27,9 @@ Use stable identifiers for quest facts and content once implementation begins. D
   each, alternating between them (three runs each by default), and prints the medians: serve each build on its own port with
   `npx vite preview --outDir <its dist> --port <n>`. Without a GPU the last stage is mostly the software renderer compiling
   shaders: `--until view` ends each run where it begins.
+- For a change to what a frame draws, `npm run perf:frame -- --url <build>` counts one frame's draw calls and triangles at
+  each stop of the benchmark route, by pass and by part of the world, before and after: the numbers a pull request's cost
+  table can give without a GPU.
 - After a merge, CI plays the published build once it is live (`live-smoke`: it must load, draw, take input and log no error). `npm run smoke:live` runs the same test against the live link from any machine with a browser.
 - Preserve required checks, workflow triggers, and deployment behavior. Passing local checks or pushing a commit does not establish that a release is live; verify the published build separately.
 

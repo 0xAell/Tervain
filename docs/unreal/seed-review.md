@@ -402,6 +402,11 @@ Improved:
   woodland stage's own time, varying as much between runs on the test machine, cannot show; every drawn tree level
   and planted tree comes out the same ([#886](https://github.com/0xAell/Tervain/pull/886)). A stable key sort and flat-array boxes for the two bounding trees were
   measured too, saved nothing, and were not kept.
+- `npm run perf:frame` counts where a frame's draw calls and triangles go, by pass (the main view and its leaf depth
+  pre-pass, the sun's shadow map, the water's reflection and composite) and by part of the world, at the benchmark
+  route's stops with the wanderer standing at each as in play. [AIR-CUTS.md](../perf/AIR-CUTS.md) gives the live
+  build's frame at High and its three largest costs: the forest at full detail, the water's reflection when the sea is
+  in view, and the sun's shadow map (PR_X).
 
 Next:
 
@@ -435,5 +440,7 @@ Next:
   a lost WebGL context is restored, which the game does not otherwise handle, so freeing them trades that recovery for
   the memory. The procedural bark's cache (25 MB) is the same case: the pixels of textures in use, which only a
   restored context would read again.
-- Draws: in the opening view the trees are 77% of the 11 million triangles, and the water's reflection pass a third
-  of the 744 draw calls. Trimming either changes the picture; measure it on a GPU first.
+- Draws: at High the live build's frame is 385 draw calls and 5.1 M triangles (medians over the benchmark route's
+  stops, the wanderer at each): the forest at full detail is more than half its triangles, the water's reflection up
+  to a third of a frame when the sea is in view, the sun's shadow map a third of its draw calls. The cuts that keep the
+  picture, and those a GPU must judge, are in [AIR-CUTS.md](../perf/AIR-CUTS.md).
