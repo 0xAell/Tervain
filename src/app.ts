@@ -585,7 +585,12 @@ export class App {
     });
     // Compiled as the first view will draw them (A108): into the grade's linear target, and the sun's shadow programs too.
     // Compiled for the canvas instead, every scene program was made again inside the first draw, a 6 s frozen frame.
-    if (typeof (this.renderer as Partial<THREE.WebGLRenderer>).compileAsync === 'function') await this.warmShaders(this.world.scene, this.world.scene, false, this.world, true);
+    if (typeof (this.renderer as Partial<THREE.WebGLRenderer>).compileAsync === 'function') {
+      await this.warmShaders(this.world.scene, this.world.scene, false, this.world, true);
+      // Issued now, so the programs exist before anything is drawn; the first view does not wait on them, as nobody
+      // reaches the shrine hall before they are long finished.
+      void this.compileCapturedPanes().catch(() => {});
+    }
     this.world.warmPasses?.(this.renderer);
     this.loadingScreen?.update({ phase: 'graphics', completed: textureCount + 1, total: textureCount + 3, detail: 'Preparing the first view…' });
     this.world.water.splashes.prepareFirstDraw(() => this.renderWorld());
@@ -2731,6 +2736,21 @@ export class App {
       if (this.grade?.enabled) r.setRenderTarget(this.grade.target);
       return r.compileAsync(scene, camera);
     } finally { r.setRenderTarget?.(previous); }
+  }
+
+  /**
+   * The shrine hall's panes as they look once its window capture is whole, compiled as the first view draws them (into the
+   * grade's target, under the world's lights): showing the capture made their program inside a frame otherwise.
+   */
+  private compileCapturedPanes(): Promise<unknown> {
+    const r = this.renderer, world = this.world;
+    const previous = r.getRenderTarget();
+    try {
+      if (this.grade?.enabled) r.setRenderTarget(this.grade.target);
+      return Promise.all(world.compileCapturedPanes?.((pane) => r.compileAsync(pane, this.cam.camera, world.scene)) ?? []);
+    } finally {
+      r.setRenderTarget(previous);
+    }
   }
 
   /** `compileOnly`: the programs alone, for what is visible now (the first view): no hidden pieces, no uploads. */

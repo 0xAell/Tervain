@@ -629,6 +629,15 @@ export class WorldScene {
   }
 
   /** Draw the grass and water fields' passes once before the world opens (A81): they are drawn off the scene. */
+  /**
+   * Compile, with `compile`, what the shrine hall's panes draw once its window capture is whole (WindowView.asCaptured):
+   * the first view's preparation makes it, or three made it inside the frame that first showed the capture.
+   */
+  compileCapturedPanes(compile: (pane: THREE.Object3D) => unknown): unknown[] {
+    const panes = this.windowView.panesIn(this.scene);
+    return panes.length ? this.windowView.asCaptured(() => panes.map(compile)) : [];
+  }
+
   warmPasses(renderer: THREE.WebGLRenderer) {
     this.groundcover?.warm(renderer);
     this.water.warm(renderer);
