@@ -263,6 +263,8 @@ export class EnemyActor extends HostileActor {
       this.rig.body.rotation.z = this.rig.kind === 'thornback' ? k * 1.4 : 0;
       this.rig.body.rotation.x = this.rig.kind === 'humanoid' ? -1.5 * k : 0;
     }
+    // The batched parts follow the pose and the fall.
+    this.rig.parts?.update();
     applyFlash(this.rig, this.rig.hitFlash);
     if (this.rig.hitFlash > 0) this.rig.hitFlash = Math.max(0, this.rig.hitFlash - dt * 4);
   }

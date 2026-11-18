@@ -88,7 +88,7 @@ export function batchParts(holders: readonly THREE.Object3D[], parent: THREE.Obj
     holder.traverse((object) => {
       const mesh = object as THREE.Mesh;
       if (!mesh.isMesh || claimed.has(mesh) || (mesh as THREE.InstancedMesh).isInstancedMesh || (mesh as THREE.SkinnedMesh).isSkinnedMesh || (mesh as THREE.BatchedMesh).isBatchedMesh) return;
-      if (!mesh.visible || Array.isArray(mesh.material) || mesh.morphTargetInfluences || !mesh.geometry.index || !mesh.parent) return;
+      if (!mesh.visible || Array.isArray(mesh.material) || mesh.morphTargetInfluences || !mesh.parent) return;
       let anchor = anchors.get(mesh.parent);
       if (!anchor) {
         const chain: THREE.Object3D[] = [];
@@ -99,7 +99,8 @@ export function batchParts(holders: readonly THREE.Object3D[], parent: THREE.Obj
         anchors.set(mesh.parent, anchor);
       }
       const geometry = mesh.geometry;
-      const layout = Object.keys(geometry.attributes).sort().map((name) => `${name}${geometry.attributes[name]!.itemSize}`).join(',');
+      // A batch holds indexed geometry or unindexed geometry, not both (a creature's merged parts are unindexed).
+      const layout = (geometry.index ? 'indexed:' : 'unindexed:') + Object.keys(geometry.attributes).sort().map((name) => `${name}${geometry.attributes[name]!.itemSize}`).join(',');
       const key = `${mesh.material.uuid}|${mesh.castShadow}|${mesh.receiveShadow}|${layout}`;
       const bucket = buckets.get(key) ?? buckets.set(key, { material: mesh.material, cast: mesh.castShadow, receive: mesh.receiveShadow, parts: [] }).get(key)!;
       bucket.parts.push({ mesh, anchor });
@@ -119,7 +120,7 @@ export function batchParts(holders: readonly THREE.Object3D[], parent: THREE.Obj
     }
     middle.divideScalar(parts.length);
     let vertices = 0, indices = 0;
-    for (const { mesh } of parts) { vertices += mesh.geometry.getAttribute('position').count; indices += mesh.geometry.index!.count; }
+    for (const { mesh } of parts) { vertices += mesh.geometry.getAttribute('position').count; indices += mesh.geometry.index?.count ?? 0; }
     const copy = options.copyMaterials ? followingCopy(material) : null;
     const batch = new THREE.BatchedMesh(parts.length, vertices, indices, copy?.material ?? material);
     batch.name = `${options.name}:${material.name || (parts[0]!.mesh.name.split(':').pop() ?? 'part')}`;

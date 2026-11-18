@@ -158,6 +158,20 @@ describe('humanoid enemy movement presentation', () => {
     expect(Math.hypot(s.enemy.x, s.enemy.z)).toBeCloseTo(0.9 / 60, 8);
     expect(s.enemy.hp).toBe(110); expect(s.enemy.radius).toBe(0.85);
   });
+
+  it('puts the Thornback\'s batched parts where each step\'s pose and fall left its joints', () => {
+    const s = setup('thornback'), order: string[] = [];
+    const update = vi.fn(() => { order.push(`parts at fall ${s.enemy.rig.body.rotation.z.toFixed(2)}`); });
+    s.enemy.rig.parts = { meshes: [], update, dispose: vi.fn() };
+    vi.mocked(poseRig).mockImplementation(() => { order.push('posed'); });
+    s.tick();
+    expect(order).toEqual(['posed', 'parts at fall 0.00']);
+    // Fallen: the body's tilt is set after the pose, and the parts follow it in the same step.
+    s.enemy.state = 'dead'; Reflect.set(s.enemy, 't', 0.3); order.length = 0;
+    s.tick();
+    expect(order.at(-1)).toMatch(/^parts at fall 0\.[1-9]/);
+    expect(update).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe('hostile navigation with real finite swept contacts', () => {

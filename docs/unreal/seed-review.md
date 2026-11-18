@@ -482,6 +482,11 @@ Improved:
   memory ([#903](https://github.com/0xAell/Tervain/pull/903)).
 - Three functions nothing called are gone: `setRigShadow` (and the rig's `shadowOn` flag it kept), `animalModelUrl`
   and `poseHeroRig` had no caller in the game, its tests or its tools ([#904](https://github.com/0xAell/Tervain/pull/904)).
+- The thornback, the creature at the cut, is drawn in two batches, its hide and its bone, where it took twelve meshes: a
+  draw call each in every pass that drew it, for about 2,500 triangles. It is in the main view at nine of the route's
+  13 stops, even 380 m off at the landing, and in the sun's shadow map near the cut: 10 draws fewer at each of those
+  stops and 20 at the nearest, 100 over the route, the triangles the same. Each part follows its joint through the pose
+  and the fall, every vertex where its own mesh put it ([#906](https://github.com/0xAell/Tervain/pull/906)).
 
 Next:
 
@@ -515,10 +520,12 @@ Next:
   a lost WebGL context is restored, which the game does not otherwise handle, so freeing them trades that recovery for
   the memory. The procedural bark's cache (25 MB) is the same case: the pixels of textures in use, which only a
   restored context would read again.
-- Draws: at High the live build's frame is 293 draw calls and 4.97 M triangles (medians over the benchmark route's
-  stops, the wanderer at each; 385 and 5.10 M in 0.0.49): the forest at full detail is 57 % of its triangles, the
-  water's reflection up to a third of a frame when the sea is in view (182 draws and 2.39 M at stop 11), the sun's
-  shadow map 27 % of its draw calls. The cuts that keep the picture, and those a GPU must judge, are in
+- Draws: at High the frame on 0.1.2 is 272 draw calls and 4.71 M triangles (medians over the benchmark route's 13
+  stops, the wanderer at each; 293 and 4.97 M after October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws
+  and 2.61 M triangles, 55 % of them; the main view 157 draws, the sun's shadow map 76, the leaves' depth pass 18. The
+  water's reflection, with the sea in view, makes stop 11 the largest frame: 533 draws and 9.39 M. The settlement's
+  merged shells, a mesh per region and material, are the next draws to batch: up to 41 a frame in the main view and 37
+  more in the reflection. The cuts that keep the picture, and those a GPU must judge, are in
   [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by
   a fifth). The residents' poses are nearly a third of it: the work reach, the feet planted, the hands kept out of the torso,
