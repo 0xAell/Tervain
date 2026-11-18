@@ -127,7 +127,10 @@ export interface SceneryHandles {
   daylightMat: THREE.MeshBasicMaterial;
   /** Every room's door leaf (A66), hinged in its doorway. */
   doors: DoorLeaf[];
-  /** The leaves as drawn: one batch per material, following the pivots (partBatch.ts). Update it after the doors swing. */
+  /**
+   * The doors' leaves and the other parts that move or come and go (signs, gates, wheels, the bell, the quest's pickups) as
+   * drawn: one batch per material, each part following what holds it (partBatch.ts). Update it once they have moved.
+   */
   doorBatch?: PartBatch | null;
   lanternPositions: THREE.Vector3[];
   millWheel: THREE.Object3D;
@@ -886,15 +889,23 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     g.position.set(pk.x, y, pk.z);
     pickups[pk.id] = g;
   }
+  // The quest's own pickups, built here; the loose ones below draw from their own instanced meshes.
+  const questPickups = Object.values(pickups);
   const loosePickups = buildWorldPickups(terrain, PICKUP_LOCATIONS, mats);
   group.add(loosePickups.group);
   Object.assign(pickups, loosePickups.objects);
 
   /* ---------------- Merge the regions ---------------- */
   for (const R of regions.values()) group.add(R.toGroup(mats, { isStatic: true, shadows: true }));
-  // Every room's door leaf drawn in one batch per material, each following its pivot as it swings. The planks and iron
-  // are the merged shells' own materials, so the batches draw with copies of them.
-  const doorBatch = batchParts(doors.map((leaf) => leaf.pivot), group, { name: 'doors', copyMaterials: true });
+  // The parts that move or come and go drawn in one batch per material, each following what holds it: the rooms' door
+  // leaves on their pivots, the signs swinging on their brackets, the archive's door and shutter, the bell, the mill and
+  // sluice wheels, the sluice gate, brace and cracks, the shortcut gate and lever, the schedule board's posts, the guard's
+  // pole and the quest's pickups. Their materials are the merged shells' own, so the batches draw with copies of them.
+  const movingParts: THREE.Object3D[] = [
+    ...doors.map((leaf) => leaf.pivot), ...swinging.map((part) => part.pivot), archiveDoor, archiveShutter, bell, millWheel,
+    sluiceGate, sluiceBrace, sluiceCracks, sluiceWheel, shortcutGate, shortcutLever, scheduleBoard, contractGuardPost, ...questPickups,
+  ];
+  const doorBatch = batchParts(movingParts, group, { name: 'parts', copyMaterials: true });
 
   const setNight = (n: number) => {
     const c = new THREE.Color(0x30302a).lerp(new THREE.Color(0xffb85a), Math.min(1, n * 1.2));

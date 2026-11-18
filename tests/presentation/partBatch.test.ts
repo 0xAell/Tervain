@@ -136,7 +136,7 @@ describe('moving parts drawn as one batch per material: the doors', () => {
     expect(parent.children.some((o) => (o as THREE.BatchedMesh).isBatchedMesh)).toBe(false);
   });
 
-  it('batches all eighteen of the settlement\'s leaves into two draws, each exactly where its leaf hangs', () => {
+  it('batches the settlement\'s moving parts, each following what holds it, and hides what is hidden or taken', () => {
     vi.stubGlobal('document', { createElement: () => {
       const canvas = { width: 0, height: 0, getContext: () => context };
       const context = new Proxy<Record<string, unknown>>({ canvas, measureText: (t: string) => ({ width: t.length * 7 }),
@@ -148,32 +148,65 @@ describe('moving parts drawn as one batch per material: the doors', () => {
     const scenery = buildScenery(terrain, buildStaticColliders(terrain), 'low');
     scenery.group.updateMatrixWorld(true);
     expect(scenery.doors).toHaveLength(18);
-    const batches = scenery.doorBatch!.meshes;
-    expect(batches.map((m) => [m.name, m.instanceCount])).toEqual([['doors:planks', 18], ['doors:metal', 18]]);
-    let leaves = 0;
-    for (const { pivot } of scenery.doors) {
-      pivot.traverse((o) => {
-        const mesh = o as THREE.Mesh;
-        if (!mesh.isMesh) return;
-        leaves++;
+    const batch = scenery.doorBatch!, batches = batch.meshes;
+    expect(batches.map((m) => m.name)).toEqual(expect.arrayContaining(['parts:planks', 'parts:metal', 'parts:timber']));
+    const partsOf = (holder: THREE.Object3D) => { const out: THREE.Mesh[] = []; holder.traverse((o) => { if ((o as THREE.Mesh).isMesh && o.userData.batchedInto) out.push(o as THREE.Mesh); }); return out; };
+    const followed = (holder: THREE.Object3D) => {
+      holder.updateMatrixWorld(true);
+      for (const mesh of partsOf(holder)) {
         expect(mesh.visible).toBe(false);
-        const owner = mesh.userData.batchedInto as THREE.BatchedMesh;
-        expect(batches).toContain(owner);
-      });
-    }
+        expectClose(drawnInBatch(mesh.userData.batchedInto as THREE.BatchedMesh, mesh.userData.batchedInstance as number, mesh.geometry), drawnAlone(mesh), 1e-4);
+      }
+    };
+    // Every door leaf is batched; so are the wheels, the bell, the gates and the lever.
+    let leaves = 0;
+    for (const { pivot } of scenery.doors) leaves += partsOf(pivot).length;
     expect(leaves).toBe(36);
-    // The doors swing as residents pass: the reeve's door opened halfway is drawn where its own meshes would be.
+    for (const holder of [scenery.millWheel, scenery.bell, scenery.archiveDoor, scenery.archiveShutter, scenery.sluiceGate, scenery.sluiceWheel, scenery.shortcutGate, scenery.shortcutLever]) expect(partsOf(holder).length).toBeGreaterThan(0);
+    // They move as the world moves them, and the batch follows: a door opening, the wheel turning, the bell swinging, the
+    // sluice gate lifting askew.
     const reeve = scenery.doors.find((d) => d.pivot.name === 'Door / reeve_house')!;
     reeve.pivot.rotation.y += 0.8;
-    scenery.doorBatch!.update();
-    reeve.pivot.updateMatrixWorld(true);
-    const index = scenery.doors.indexOf(reeve);
-    reeve.pivot.traverse((o) => {
-      const mesh = o as THREE.Mesh;
-      if (!mesh.isMesh) return;
-      expectClose(drawnInBatch(mesh.userData.batchedInto as THREE.BatchedMesh, index, mesh.geometry), drawnAlone(mesh), 1e-4);
-    });
+    scenery.millWheel.rotation.x += 1.3;
+    scenery.bell.rotation.z = 0.4;
+    scenery.sluiceGate.rotation.z = 0.22; scenery.sluiceGate.position.y += 0.5;
+    batch.update();
+    for (const holder of [reeve.pivot, scenery.millWheel, scenery.bell, scenery.sluiceGate]) followed(holder);
+    // The brace stands hidden until the gate is stabilised; a quest pickup is hidden once taken.
+    const brace = partsOf(scenery.sluiceBrace);
+    expect(brace.length).toBeGreaterThan(0);
+    const shown = (mesh: THREE.Mesh) => (mesh.userData.batchedInto as THREE.BatchedMesh).getVisibleAt(mesh.userData.batchedInstance as number);
+    expect(brace.map(shown)).toEqual(brace.map(() => false));
+    scenery.sluiceBrace.visible = true;
+    const pickup = Object.values(scenery.pickups).find((o) => partsOf(o).length > 0)!;
+    pickup.visible = false;
+    batch.update();
+    expect(brace.map(shown)).toEqual(brace.map(() => true));
+    expect(partsOf(pickup).map(shown)).toEqual(partsOf(pickup).map(() => false));
     scenery.dispose();
+  });
+
+  it('follows a part on a swing hung from a pivot, as a sign swings on its bracket', () => {
+    const parent = new THREE.Group(), boards = new THREE.MeshStandardMaterial({ name: 'planks' });
+    const signs = [0, 1].map((i) => {
+      const pivot = new THREE.Group(), swing = new THREE.Group(), hung = new THREE.Group();
+      pivot.position.set(10 + i * 30, 3.2, -4 - i * 12); pivot.rotation.y = 0.6 * i;
+      const board = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.64, 0.05), boards);
+      board.position.set(0, -0.62, 0); board.name = `sign-${i}:planks`;
+      hung.add(board); swing.add(hung); pivot.add(swing); parent.add(pivot);
+      return { pivot, swing, board };
+    });
+    const batch = batchParts(signs.map((s) => s.pivot), parent, { name: 'parts', copyMaterials: false })!;
+    const [drawn] = batch.meshes as THREE.BatchedMesh[];
+    signs[1]!.swing.rotation.x = 0.31;
+    batch.update();
+    expectClose(drawnInBatch(drawn!, 1, signs[1]!.board.geometry), drawnAlone(signs[1]!.board), 1e-5);
+    expectClose(drawnInBatch(drawn!, 0, signs[0]!.board.geometry), drawnAlone(signs[0]!.board), 1e-5);
+    // Hidden anywhere between the part and the batch's parent, the part is hidden.
+    signs[0]!.swing.visible = false;
+    batch.update();
+    expect(drawn!.getVisibleAt(0)).toBe(false);
+    expect(drawn!.getVisibleAt(1)).toBe(true);
   });
 });
 
