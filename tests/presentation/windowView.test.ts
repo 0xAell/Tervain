@@ -22,6 +22,36 @@ const room = { building: { x: 0, z: 0, yaw: 0, w: 6, d: 5 }, wall: 0.24, floorTo
 const rooms = { within: () => room, base: () => 0 } as unknown as RoomLocator;
 
 describe('window view capture (A77, A78)', () => {
+  it('shows the panes as a whole capture shows them while their program is prepared, then puts them back', () => {
+    const { renderer } = stubRenderer();
+    const pane = new THREE.MeshBasicMaterial({ color: 0xd2d8dc });
+    const view = new WindowView(rooms, pane, 16, 3);
+    const scene = new THREE.Scene(), other = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial());
+    const panes = [0, 1].map(() => new THREE.Mesh(new THREE.PlaneGeometry(1, 1), pane));
+    scene.add(other, ...panes);
+    expect(view.panesIn(scene)).toEqual(panes);
+    const before = { envMap: pane.envMap, combine: pane.combine, reflectivity: pane.reflectivity, refractionRatio: pane.refractionRatio, color: pane.color.getHex(), version: pane.version };
+    let seen: unknown = null;
+    const result = view.asCaptured(() => {
+      seen = { envMap: pane.envMap?.mapping, combine: pane.combine, refractionRatio: pane.refractionRatio, color: pane.color.r };
+      return 'compiled';
+    });
+    expect(result).toBe('compiled');
+    // As the panes look once the capture is whole: refracted through the cube, tempered a little.
+    expect(seen).toEqual({ envMap: THREE.CubeRefractionMapping, combine: THREE.MultiplyOperation, refractionRatio: 0.995, color: 0.9 });
+    expect({ envMap: pane.envMap, combine: pane.combine, reflectivity: pane.reflectivity, refractionRatio: pane.refractionRatio, color: pane.color.getHex() })
+      .toEqual({ envMap: before.envMap, combine: before.combine, reflectivity: before.reflectivity, refractionRatio: before.refractionRatio, color: before.color });
+    expect(pane.version).toBeGreaterThan(before.version);
+    // The capture itself, when whole, shows the same.
+    for (let i = 0; i < 6; i++) view.update(renderer, scene, new THREE.Vector3(), 1 / 60, true);
+    expect({ envMap: pane.envMap?.mapping, combine: pane.combine, refractionRatio: pane.refractionRatio, color: pane.color.r }).toEqual(seen);
+    // A failed preparation puts them back too.
+    expect(() => view.asCaptured(() => { throw new Error('no context'); })).toThrow('no context');
+    expect(pane.envMap?.mapping).toBe(THREE.CubeRefractionMapping);
+    view.dispose();
+    pane.dispose();
+  });
+
   it('never samples the capture texture while writing a cube face, and restores panes after capture', () => {
     const { renderer } = stubRenderer();
     const pane = new THREE.MeshBasicMaterial();

@@ -113,16 +113,48 @@ export class WindowView {
         renderer.setRenderTarget(oldTarget);
       }
       if (this.face < 0) this.captured = here;
-      if (this.face < 0 && this.pane.envMap !== this.target.texture) {
-        this.pane.envMap = this.target.texture;
-        this.pane.combine = THREE.MultiplyOperation;
-        this.pane.reflectivity = 1;
-        this.pane.refractionRatio = 0.995;
-        this.pane.needsUpdate = true;
-        this.pane.color.setScalar(0.9);
-      }
+      if (this.face < 0 && this.pane.envMap !== this.target.texture) this.showCapture();
     }
     return true;
+  }
+
+  /** The panes look out through the cube: refracted through it, tempered a little (they had plain daylight before). */
+  private showCapture() {
+    this.pane.envMap = this.target.texture;
+    this.pane.combine = THREE.MultiplyOperation;
+    this.pane.reflectivity = 1;
+    this.pane.refractionRatio = 0.995;
+    this.pane.needsUpdate = true;
+    this.pane.color.setScalar(0.9);
+  }
+
+  /**
+   * Run `fn` with the panes as they look once a capture is whole, then put them back as they were. Showing the cube makes
+   * the panes' program another one, which three made inside the frame that first showed it, the first time the shrine
+   * hall was entered; the first view's preparation compiles it this way (A78). Three keeps every program a material has
+   * used, so it is still there when the capture comes.
+   */
+  asCaptured<T>(fn: () => T): T {
+    const pane = this.pane;
+    const was = { envMap: pane.envMap, combine: pane.combine, reflectivity: pane.reflectivity, refractionRatio: pane.refractionRatio, color: pane.color.clone() };
+    this.showCapture();
+    try {
+      return fn();
+    } finally {
+      pane.envMap = was.envMap;
+      pane.combine = was.combine;
+      pane.reflectivity = was.reflectivity;
+      pane.refractionRatio = was.refractionRatio;
+      pane.color.copy(was.color);
+      pane.needsUpdate = true;
+    }
+  }
+
+  /** The meshes drawn with the panes' material, under `root`. */
+  panesIn(root: THREE.Object3D): THREE.Mesh[] {
+    const panes: THREE.Mesh[] = [];
+    root.traverse((object) => { if ((object as THREE.Mesh).isMesh && (object as THREE.Mesh).material === this.pane) panes.push(object as THREE.Mesh); });
+    return panes;
   }
 
   dispose() { this.target.dispose(); }

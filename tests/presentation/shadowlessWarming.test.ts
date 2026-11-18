@@ -90,3 +90,21 @@ describe('the sun\'s shadow programs prepared with the colour ones', () => {
     s.colour.resolve(); await pending;
   });
 });
+
+describe('the shrine hall\'s panes prepared with the first view', () => {
+  it('compiles the panes as a whole capture shows them, into the grade\'s target under the world\'s lights, and puts the target back', async () => {
+    const scene = new THREE.Scene(), target = new THREE.WebGLRenderTarget(1, 1), previous = new THREE.WebGLRenderTarget(1, 1);
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial());
+    let current: THREE.WebGLRenderTarget | null = previous;
+    const compiled: [THREE.Object3D, THREE.Scene, THREE.WebGLRenderTarget | null][] = [];
+    const renderer = {
+      getRenderTarget: () => current, setRenderTarget: (t: THREE.WebGLRenderTarget | null) => { current = t; },
+      compileAsync: (object: THREE.Object3D, _camera: THREE.Camera, into: THREE.Scene) => { compiled.push([object, into, current]); return Promise.resolve(); },
+    };
+    const world = { scene, compileCapturedPanes: (compile: (pane: THREE.Object3D) => unknown) => [compile(pane)] };
+    const app = Object.assign(Object.create(App.prototype), { renderer, world, grade: { enabled: true, target }, cam: { camera: new THREE.PerspectiveCamera() } });
+    await (Reflect.apply(Reflect.get(App.prototype, 'compileCapturedPanes'), app, []) as Promise<unknown>);
+    expect(compiled).toEqual([[pane, scene, target]]);
+    expect(current).toBe(previous);
+  });
+});
