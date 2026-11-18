@@ -7,6 +7,7 @@ import { installDualQuaternionSkinning } from '../npc/dualQuaternionSkinning';
 import { HeroAnimationController } from './animation';
 import { createHeroAttachments } from './attachments';
 import { bindHeroBones } from './bones';
+import { castShadowFromFewerTriangles } from './shadowCaster';
 
 export interface HeroAsset {
   scene: THREE.Group;
@@ -61,6 +62,8 @@ export function createHeroRig(asset: HeroAsset): MainHeroRig {
   scene.traverse((object) => {
     if ((object as THREE.SkinnedMesh).isSkinnedMesh) installDualQuaternionSkinning(object as THREE.SkinnedMesh);
   });
+  // His shadow from a coarser set of his own triangles, within 2 mm of his surface, once a worker has chosen them.
+  scene.traverse((object) => { if ((object as THREE.SkinnedMesh).isSkinnedMesh) void castShadowFromFewerTriangles(object as THREE.Mesh); });
   const hero = new HeroAnimationController(scene, body, bones, asset.animations);
   const attachments = createHeroAttachments(bones);
   materials.push(...attachments.materials);
