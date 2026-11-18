@@ -5,6 +5,7 @@ import { HERO_BONES, HERO_FINGERS, type HeroBoneName, type HeroBones } from './b
 import { HERO_RUN_CYCLE, HERO_RUN_SPEED, HERO_WALK_CYCLE, HERO_WALK_SPEED } from '../../core/rules/heroLocomotion';
 import { HERO_SWIM_CYCLE, HERO_SWIM_RATE, heroSwimClips, heroTurnClips } from './swim';
 import { buildTurnClips, TurnLead, SIDES, TURN_STEP, TurnSteps, type Legs, type Side } from '../turnSteps';
+import { PosedVertices } from '../posedVertices';
 
 export interface HeroPose extends Pose {
   grounded?: boolean;
@@ -25,6 +26,17 @@ export interface HeroPose extends Pose {
  * lowered to the lower foot by at most `drop`, the knees bent to match. `rate` eases the plant in and out.
  */
 export const HERO_FOOT_PLANT = { reach: 0.28, drop: 0.3, rate: 12 } as const;
+
+/**
+ * For carrying a skinned mesh's posed vertices into `frame`'s space: brings both up to date from the world down as
+ * `localToWorld` and `worldToLocal` would for each point, once, and returns `frame`'s inverse world matrix, which those
+ * calls would work out again for every point. The mesh's own world matrix is then current.
+ */
+function bodyFrame(mesh: THREE.Object3D, frame: THREE.Object3D): THREE.Matrix4 {
+  mesh.updateWorldMatrix(true, false);
+  frame.updateWorldMatrix(true, false);
+  return new THREE.Matrix4().copy(frame.matrixWorld).invert();
+}
 
 /**
  * Turning on the spot with steps (A71): once the twist passes HERO_LEG_TWIST.step the hero plays his turn clip
@@ -138,7 +150,7 @@ export class HeroAnimationController {
   private readonly actions = new Map<string, THREE.AnimationAction>();
   private readonly rest = new Map<THREE.Bone, Transform>();
   private readonly sampled = new Map<THREE.Bone, Transform>();
-  private readonly soleSamples: { mesh: THREE.SkinnedMesh; vertices: number[] }[] = [];
+  private readonly soleSamples: { mesh: THREE.SkinnedMesh; vertices: number[]; skin: PosedVertices }[] = [];
   private readonly gripPose = new Map<HeroBoneName, THREE.Quaternion>();
   private readonly angles = new Map<string, number>();
   private readonly turnUp = new THREE.Vector3();
@@ -214,7 +226,7 @@ export class HeroAnimationController {
         for (let slot = 0; slot < 4; slot++) if (joints.has(skinIndex!.getComponent(vertex, slot))) weight += skinWeight!.getComponent(vertex, slot);
         if (weight >= 0.6) vertices.push(vertex);
       }
-      this.soleSamples.push({ mesh, vertices });
+      this.soleSamples.push({ mesh, vertices, skin: new PosedVertices(mesh) });
     });
     this.mixer = new THREE.AnimationMixer(scene);
     const source = (name: string) => {
@@ -250,9 +262,11 @@ export class HeroAnimationController {
     scene.traverse((object) => {
       const mesh = object as THREE.SkinnedMesh;
       if (!mesh.isSkinnedMesh) return;
+      // Every vertex in the visual pivot's frame: the matrices each one passes through worked out once (posedVertices.ts),
+      // as nothing moves meanwhile; the same points.
+      const toBody = bodyFrame(mesh, body), skin = new PosedVertices(mesh).pose();
       for (let vertex = 0; vertex < mesh.geometry.attributes.position!.count; vertex++) {
-        mesh.getVertexPosition(vertex, point);
-        body.worldToLocal(mesh.localToWorld(point));
+        skin.at(vertex, point).applyMatrix4(mesh.matrixWorld).applyMatrix4(toBody);
         lowest = Math.min(lowest, point.y);
       }
     });
@@ -494,10 +508,14 @@ export class HeroAnimationController {
       this.body.updateMatrixWorld(true);
       let lowest = Infinity;
       const point = new THREE.Vector3();
-      for (const { mesh, vertices } of this.soleSamples) for (const vertex of vertices) {
-        mesh.getVertexPosition(vertex, point);
-        this.body.worldToLocal(mesh.localToWorld(point));
-        lowest = Math.min(lowest, point.y);
+      for (const { mesh, vertices, skin } of this.soleSamples) {
+        // The matrices each sole point passes through worked out once a frame, not for every point: the same points.
+        const toBody = bodyFrame(mesh, this.body);
+        skin.pose();
+        for (const vertex of vertices) {
+          skin.at(vertex, point).applyMatrix4(mesh.matrixWorld).applyMatrix4(toBody);
+          lowest = Math.min(lowest, point.y);
+        }
       }
       support = clamp(-finite(lowest), 0, 0.08);
     }
@@ -653,6 +671,8 @@ export class HeroAnimationController {
       if (!mesh.isSkinnedMesh) return;
       const indices = mesh.geometry.attributes.skinIndex!, weights = mesh.geometry.attributes.skinWeight!;
       const positions = mesh.geometry.attributes.position!;
+      // The matrices each sole point passes through worked out once, as nothing moves meanwhile: the same points.
+      const toScene = bodyFrame(mesh, this.scene), skin = new PosedVertices(mesh).pose();
       for (const [i, side] of (['Left', 'Right'] as const).entries()) {
         const joints = new Set(['Foot', 'ToeBase', 'Toe_End'].map((part) => mesh.skeleton.bones.indexOf(this.bones[`mixamorig:${side}${part}` as HeroBoneName])));
         const point = new THREE.Vector3();
@@ -661,8 +681,7 @@ export class HeroAnimationController {
           let weight = 0;
           for (let slot = 0; slot < 4; slot++) if (joints.has(indices.getComponent(vertex, slot))) weight += weights.getComponent(vertex, slot);
           if (weight < 0.6) continue;
-          mesh.getVertexPosition(vertex, point);
-          this.scene.worldToLocal(mesh.localToWorld(point));
+          skin.at(vertex, point).applyMatrix4(mesh.matrixWorld).applyMatrix4(toScene);
           soles[i] = Math.min(soles[i]!, point.y);
         }
       }
