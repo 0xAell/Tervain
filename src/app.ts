@@ -2781,14 +2781,25 @@ export class App {
     if (!compileOnly) object.traverse((o) => { if (!o.visible && !o.userData.batchedInto) { hidden.push(o); o.visible = true; } });
     try {
       if (this.grade?.enabled) r.setRenderTarget(this.grade.target);
-      const colour = r.compileAsync(object, this.cam.camera, scene);
+      // Three compiles hidden meshes too, so a part drawn by a batch is out of the compile for the length of the call, its
+      // material set aside as for the shadow programs below: compiled, its own programs would be made and never drawn.
+      const batched: [THREE.Object3D & { material?: unknown }, unknown][] = [];
+      object.traverse((o) => {
+        const part = o as THREE.Object3D & { material?: unknown };
+        if (part.material && part.userData.batchedInto) { batched.push([part, part.material]); part.material = null; }
+      });
+      let colour: Promise<unknown>;
+      try { colour = r.compileAsync(object, this.cam.camera, scene); } finally {
+        for (const [part, material] of batched) part.material = material;
+      }
       const after = () => compileOnly ? undefined : this.uploadTextures(object, draws, world);
       // The sun's shadow pass draws casters with their depth material: its own, or three's packed depth material on the
       // side opposite the surface, depth unpacked (as WebGLShadowMap picks it). Compiled the same way, so the first shadow does not stall.
       if (!r.shadowMap.enabled) return colour.then(after);
       object.traverse((o) => {
         const mesh = o as THREE.Mesh;
-        if (!mesh.isMesh || !mesh.castShadow || Array.isArray(mesh.material)) return;
+        // A part drawn by a batch casts through its batch: the shadow pass never draws the hidden part itself.
+        if (!mesh.isMesh || !mesh.castShadow || Array.isArray(mesh.material) || mesh.userData.batchedInto) return;
         const source = mesh.material as THREE.MeshStandardMaterial;
         // As WebGLShadowMap.getDepthMaterial sets it up for a PCF shadow.
         const side = source.shadowSide ?? (source.side === THREE.FrontSide ? THREE.BackSide : source.side === THREE.BackSide ? THREE.FrontSide : THREE.DoubleSide);
