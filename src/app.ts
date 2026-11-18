@@ -2860,9 +2860,10 @@ export class App {
     const r = this.renderer, previous = r.getRenderTarget();
     const restore: [THREE.Mesh, THREE.Material | THREE.Material[]][] = [];
     // Pieces held hidden until needed (a room's furniture and clutter, an animal not yet out) are prepared too: shown
-    // only while their programs are compiled, synchronously, so nothing is drawn meanwhile.
+    // only while their programs are compiled, synchronously, so nothing is drawn meanwhile. A part drawn by a batch
+    // (partBatch.ts) stays hidden for good: its batch is what draws it, and its own programs would never be used.
     const hidden: THREE.Object3D[] = [];
-    if (!compileOnly) object.traverse((o) => { if (!o.visible) { hidden.push(o); o.visible = true; } });
+    if (!compileOnly) object.traverse((o) => { if (!o.visible && !o.userData.batchedInto) { hidden.push(o); o.visible = true; } });
     try {
       if (this.grade?.enabled) r.setRenderTarget(this.grade.target);
       const colour = r.compileAsync(object, this.cam.camera, scene);

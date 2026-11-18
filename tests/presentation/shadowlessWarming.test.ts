@@ -39,6 +39,18 @@ describe('graphics preparation without shadow maps', () => {
     expect(s.uploadTextures).not.toHaveBeenCalled();
     expect(s.object.visible).toBe(false); expect(s.mesh.visible).toBe(false);
   });
+  it('leaves a part a batch draws hidden while it shows the other hidden pieces for their programs', async () => {
+    const s = fixture(false);
+    const batched = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshBasicMaterial());
+    batched.visible = false; batched.userData.batchedInto = {};
+    s.object.add(batched);
+    const seen: boolean[][] = [];
+    s.renderer.compileAsync.mockImplementation(() => { seen.push([s.mesh.visible, batched.visible]); return s.colour.promise; });
+    const pending = s.warm();
+    expect(seen).toEqual([[true, false]]);
+    s.colour.resolve(); s.uploads.resolve(); await pending;
+    expect([s.mesh.visible, batched.visible]).toEqual([false, false]);
+  });
   it('passes the no-first-draw option through the shadowless upload path', async () => {
     const s = fixture(false), pending = s.warm(false);
     s.colour.resolve(); await Promise.resolve();

@@ -19,6 +19,9 @@ export function attachGroundedRockSurface(material: THREE.MeshStandardMaterial, 
     shader.vertexShader = shader.vertexShader.replace('#include <common>', `#include <common>\nvarying vec3 vRockWorld;\nvarying float vRockUp;`)
       .replace('#include <project_vertex>', `#include <project_vertex>
 vec4 rockWorld = vec4(transformed, 1.0);
+#ifdef USE_BATCHING
+  rockWorld = batchingMatrix * rockWorld;
+#endif
 #ifdef USE_INSTANCING
   rockWorld = instanceMatrix * rockWorld;
 #endif

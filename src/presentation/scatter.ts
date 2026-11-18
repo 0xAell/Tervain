@@ -6,6 +6,7 @@ import { Ctx } from './buildKit';
 import type { BuildContext, SceneModule } from './context';
 import { makeTexPair } from './buildingTextures';
 import { Region, type MatKey } from './regions';
+import { batchParts } from './partBatch';
 import { rockShapes } from './rockGeometry';
 import { attachGroundedRockSurface } from './rockSurface';
 export { rockShapes } from './rockGeometry';
@@ -208,17 +209,24 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
     get: (k: MatKey): THREE.Material => (k === 'cloth' ? matShoreLeaf : k === 'leaf' ? matLeaf : k === 'bark' ? matBark : k === 'rock' ? matRock : matVc),
   };
   let pieces = 0;
+  const chunks: THREE.Object3D[] = [];
   for (const R of regions.values()) {
     const g = R.toGroup(lite, { isStatic: true, shadows: true });
     pieces += R.tris;
     group.add(g);
+    chunks.push(g);
   }
+  // Each material's chunks drawn as one batch (partBatch.ts): a chunk is an instance there, still culled on its own by
+  // its own bounds, so every pass draws the same triangles in one call a material. The chunks stand at the origin, so an
+  // instance's matrix is the identity and its vertices are drawn exactly as before.
+  const batch = batchParts(chunks, group, { name: 'scatter', copyMaterials: false });
   return {
     group,
     counts: { rocks, pieces, driftwood, shoreScrub },
     update() {},
     stats: () => ({ rocks, scatterTris: pieces, driftwood, shoreScrub }),
     dispose() {
+      batch?.dispose();
       barkTex.map.dispose();
       barkTex.normal.dispose();
       matVc.dispose();

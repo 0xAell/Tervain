@@ -720,3 +720,23 @@ it('does not retransform unchanged reflection detail bounds on camera-only movem
     expect(sphere).toHaveBeenCalledTimes(2);
   } finally { sphere.mockRestore(); box.mockRestore(); detail.reflector = null; }
 });
+
+it('hides a batch\'s sub-pixel and drowned instances from the reflection alone, as it hides single meshes', () => {
+  const f = setup(); coastalView(f);
+  const box = new THREE.BoxGeometry(1, 1, 1), batch = new THREE.BatchedMesh(3, 100, 200, new THREE.MeshBasicMaterial());
+  const near = batch.addInstance(batch.addGeometry(box)), far = batch.addInstance(batch.addGeometry(box)), under = batch.addInstance(batch.addGeometry(box));
+  batch.setMatrixAt(near, new THREE.Matrix4().makeTranslation(-300, 1, -2));
+  // Some 900 m from the mirrored eye: a third of a pixel in the reflection.
+  batch.setMatrixAt(far, new THREE.Matrix4().makeTranslation(-300, 1, -900));
+  // Wholly below the water plane, which the reflection clips away.
+  batch.setMatrixAt(under, new THREE.Matrix4().makeTranslation(-300, -3, -2));
+  f.scene.add(batch); f.scene.updateMatrixWorld(true);
+  const seen: boolean[][] = [];
+  f.renderer.render.mockImplementation(() => { seen.push([near, far, under].map(i => batch.getVisibleAt(i))); });
+  f.render();
+  // The reflection drew the near one only; every other pass, and the frame after, all three.
+  expect(seen).toContainEqual([true, false, false]);
+  expect(seen).toContainEqual([true, true, true]);
+  expect([near, far, under].map(i => batch.getVisibleAt(i))).toEqual([true, true, true]);
+  batch.dispose(); box.dispose();
+});
