@@ -508,7 +508,7 @@ Improved:
   residents at work, turning, walking, running, seated at two heights, talking, fighting and fallen, a resident's step
   composes 144 matrices where it composed 304 and multiplies 101 where it multiplied 252, and posing all twelve takes
   0.22 ms a step where it took 0.36 (in Node on the test machine); every matrix after every step is the same to the
-  bit, and a test refreshes the figure after each pose and finds nothing moved ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  bit, and a test refreshes the figure after each pose and finds nothing moved ([#910](https://github.com/0xAell/Tervain/pull/910)).
 
 Next:
 
