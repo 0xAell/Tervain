@@ -419,6 +419,10 @@ Improved:
   takes 0.8 ms where it took 1.9, to the same half floats; the same frame lit both ways is identical ([#889](https://github.com/0xAell/Tervain/pull/889)). Drawing
   into the water's reflection only what can appear where the sea shows was measured too: on the route the sea's part
   of the screen is the whole screen whenever it shows, so it would leave nothing out.
+- The rooms' doors are drawn as one batch per material: three's batched mesh holds the 18 leaves, each following its
+  hinge as the door swings, where each leaf was two meshes and two draw calls in every pass that drew it. At the
+  route's five village stops a frame makes 26 to 78 fewer draw calls (377 to 327 at the median) with the same
+  triangles, and the same frame drawn both ways differs in 2 of 1.3 million pixels, by 1/255 ([#890](https://github.com/0xAell/Tervain/pull/890)).
 
 Next:
 

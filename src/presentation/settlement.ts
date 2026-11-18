@@ -1,5 +1,6 @@
 import { buildFenceRun } from './fenceContacts';
 import * as THREE from 'three';
+import { batchDoorLeaves, type DoorBatch } from './doorBatch';
 import { addCartColliders, PROP_COLLIDER, type Colliders, type VerticalBounds } from '../core/world/colliders';
 import {
   ANCHORS,
@@ -126,6 +127,8 @@ export interface SceneryHandles {
   daylightMat: THREE.MeshBasicMaterial;
   /** Every room's door leaf (A66), hinged in its doorway. */
   doors: DoorLeaf[];
+  /** The leaves as drawn: one batch per material, following the pivots (doorBatch.ts). Update it after the doors swing. */
+  doorBatch?: DoorBatch | null;
   lanternPositions: THREE.Vector3[];
   millWheel: THREE.Object3D;
   bell: THREE.Object3D;
@@ -889,6 +892,8 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
 
   /* ---------------- Merge the regions ---------------- */
   for (const R of regions.values()) group.add(R.toGroup(mats, { isStatic: true, shadows: true }));
+  // Every room's door leaf drawn in one batch per material, each following its pivot as it swings.
+  const doorBatch = batchDoorLeaves(doors, group);
 
   const setNight = (n: number) => {
     const c = new THREE.Color(0x30302a).lerp(new THREE.Color(0xffb85a), Math.min(1, n * 1.2));
@@ -908,6 +913,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     lanternMat: mats.lanternMat,
     daylightMat: mats.daylightMat,
     doors,
+    doorBatch,
     lanternPositions,
     millWheel,
     bell,
@@ -945,6 +951,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
       if (fade > 0) beam.rotation.y += dt * (reducedMotion ? 0.12 : 0.78);
     },
     dispose() {
+      doorBatch?.dispose();
       mats.dispose();
     },
   };
