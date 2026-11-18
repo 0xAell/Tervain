@@ -515,7 +515,7 @@ Improved:
   every skinning matrix again for every weight, the chain of world matrices walked up again twice, the frame's matrix
   inverted again. Building the wanderer takes 25 ms in Node where it took 76; a frame of his fall that measures the
   support 0.6 ms where it took 2.5 to 3; building the twelve residents composes 501,169 matrices where it composed
-  1,119,066 and inverts 26,321 where it inverted 114,592. Every point is the same to the bit ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  1,119,066 and inverts 26,321 where it inverted 114,592. Every point is the same to the bit ([#911](https://github.com/0xAell/Tervain/pull/911)).
 
 Next:
 
