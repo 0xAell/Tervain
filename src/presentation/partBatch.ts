@@ -26,6 +26,8 @@ export interface PartBatchOptions {
    * drawn as they are.
    */
   copyMaterials: boolean;
+  /** Which meshes under the holders to batch (all by default). */
+  include?: (mesh: THREE.Mesh) => boolean;
 }
 
 /**
@@ -89,6 +91,7 @@ export function batchParts(holders: readonly THREE.Object3D[], parent: THREE.Obj
       const mesh = object as THREE.Mesh;
       if (!mesh.isMesh || claimed.has(mesh) || (mesh as THREE.InstancedMesh).isInstancedMesh || (mesh as THREE.SkinnedMesh).isSkinnedMesh || (mesh as THREE.BatchedMesh).isBatchedMesh) return;
       if (!mesh.visible || Array.isArray(mesh.material) || mesh.morphTargetInfluences || !mesh.parent) return;
+      if (options.include && !options.include(mesh)) return;
       let anchor = anchors.get(mesh.parent);
       if (!anchor) {
         const chain: THREE.Object3D[] = [];

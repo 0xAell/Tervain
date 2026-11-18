@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
+import { batchParts } from '../../src/presentation/partBatch';
 import { buildRegionSun } from '../../src/presentation/regionSun';
 
 function triangle(x: number, material = new THREE.MeshStandardMaterial()) {
@@ -60,5 +61,30 @@ describe('settlement sun depth runs', () => {
     expect(sun.group.children.map(object => (object as THREE.Mesh).geometry.index!.version)).toEqual(indexVersions);
     sun.dispose();
     expect(sources.every(mesh => mesh.castShadow)).toBe(true);
+  });
+
+  it('packs the same triangles when the shells are drawn by a batch, their own meshes hidden', () => {
+    const root = new THREE.Group(), village = new THREE.Group(), quarry = new THREE.Group();
+    root.add(village, quarry);
+    const plaster = new THREE.MeshStandardMaterial();
+    const sources = [triangle(-24, plaster), triangle(6, plaster), triangle(-12, plaster), triangle(3, plaster)];
+    village.add(sources[0]!, sources[1]!); quarry.add(sources[2]!, sources[3]!);
+    root.updateMatrixWorld(true);
+    const sun = buildRegionSun([village, quarry]);
+    root.add(sun.group);
+    // As the settlement does once the casters are packed: the shells drawn in colour by a batch.
+    const shells = batchParts([village, quarry], root, { name: 'shells', copyMaterials: false })!;
+    expect(sources.every(mesh => !mesh.visible && mesh.userData.batchedInto)).toBe(true);
+    const frustum = sunFrustum(0, 60);
+    sun.update(frustum);
+    const drawn = sun.group.children.filter(mesh => mesh.visible) as THREE.Mesh[];
+    expect(drawn.flatMap(mesh => corners(mesh, true)).sort()).toEqual(sources.flatMap(mesh => corners(mesh, false)).sort());
+    // A region hidden is out of the sun's runs, as when its meshes were drawn alone.
+    quarry.visible = false;
+    shells.update();
+    sun.update(frustum);
+    const left = (sun.group.children.filter(mesh => mesh.visible) as THREE.Mesh[]).flatMap(mesh => corners(mesh, true)).sort();
+    expect(left).toEqual(sources.slice(0, 2).flatMap(mesh => corners(mesh, false)).sort());
+    shells.dispose(); sun.dispose();
   });
 });

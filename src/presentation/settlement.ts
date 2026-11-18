@@ -39,7 +39,7 @@ import { buildArchiveShell, buildLighthouse, buildStandard, DOOR_LEAF_INSET, gro
 import { roomOf } from '../core/world/interiors';
 import { FURNITURE } from '../core/world/furniture';
 import { benchSet, campfire, cart, palisade, pot, ropeCoil, stockadeGate, wagon, watchtower, well, workTable, wreck } from './props';
-import { MaterialSet, Region } from './regions';
+import { LIT_SURFACES, MaterialSet, Region, type MatKey } from './regions';
 import { signSway, type SwingingPart } from './innSign';
 import { TINT, buildShrineHallShell, crate, door, fieldstone, jitterTone, roofFor, sack, villageBell, windowAt, woodpile, type Rnd } from './structures';
 import { buildWorldPickups, isWorldPickupItem } from './worldPickups';
@@ -135,6 +135,11 @@ export interface SceneryHandles {
    * drawn: one batch per material, each part following what holds it (partBatch.ts). Update it once they have moved.
    */
   doorBatch?: PartBatch | null;
+  /**
+   * The regions' merged shells as drawn once the sun's casters are packed (installRegionSun): one batch per surface, each
+   * region an instance. Updated each step with the doors' batch, so its copies of the materials follow their sources.
+   */
+  readonly shellBatch?: PartBatch | null;
   /** Draw structural materials together only during the sun's shadow pass. */
   installRegionSun?(scene: THREE.Scene, light: THREE.DirectionalLight): () => void;
   lanternPositions: THREE.Vector3[];
@@ -914,6 +919,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     sluiceGate, sluiceBrace, sluiceCracks, sluiceWheel, shortcutGate, shortcutLever, scheduleBoard, contractGuardPost, ...questPickups,
   ];
   const doorBatch = batchParts(movingParts, group, { name: 'parts', copyMaterials: true });
+  let shellBatch: PartBatch | null = null;
 
   const unlitGlass = new THREE.Color(0x464338), lamplight = new THREE.Color(0xffba69);
   const setNight = (n: number) => {
@@ -939,8 +945,29 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
       const batch = buildRegionSun(fixed);
       group.add(batch.group);
       const detach = installShadowOnlyGroup(scene, light, batch.group, batch.update);
-      return () => { detach(); batch.dispose(); };
+      // With their shadows packed above, the regions' shells are drawn in colour as one batch per surface: each region was
+      // a mesh per material, a draw call each in every colour pass, up to 41 in the main view and 37 more in the water's
+      // reflection on the benchmark route. Each region's shell is an instance culled on its own, as its mesh was; merged
+      // at the settlement's origin, every instance stands at the identity, so every vertex is where it was. A part whose
+      // shadow is packed is drawn here without one; a part still casting its own stays apart or in a batch that casts it.
+      // Glass, the panes and the glows stay meshes of their own: glass is sorted by its distance, and the others are
+      // recoloured every frame (setNight), which a batch's copy would not follow.
+      shellBatch = batchParts(fixed, group, { name: 'shells', copyMaterials: true, include: (mesh) => !LIT_SURFACES.has(mesh.userData.surface as MatKey) });
+      return () => {
+        const shells = shellBatch;
+        shellBatch = null;
+        if (shells) {
+          for (const region of fixed) region.traverse((o) => {
+            if (!shells.meshes.includes(o.userData.batchedInto)) return;
+            o.visible = true;
+            delete o.userData.batchedInto; delete o.userData.batchedInstance;
+          });
+          shells.dispose();
+        }
+        detach(); batch.dispose();
+      };
     },
+    get shellBatch() { return shellBatch; },
     lanternPositions, chimneyOutlets,
     millWheel,
     bell,
@@ -979,6 +1006,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     },
     dispose() {
       doorBatch?.dispose();
+      shellBatch?.dispose();
       loosePickups.dispose();
       mats.dispose();
     },

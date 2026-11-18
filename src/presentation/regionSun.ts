@@ -6,6 +6,16 @@ import * as THREE from 'three';
  * their unmodified triangles once. Each shadow pass selects contiguous index ranges
  * using exactly the original part spheres, so a culled building costs no triangles.
  */
+/**
+ * Whether a shell part is drawn: by its own mesh, or once the settlement has batched its shells (partBatch.ts) by its
+ * batch's instance, its own mesh hidden.
+ */
+function drawn(mesh: THREE.Mesh): boolean {
+  if (mesh.visible) return true;
+  const batch = mesh.userData.batchedInto as THREE.BatchedMesh | undefined;
+  return !!batch && batch.visible && batch.getVisibleAt(mesh.userData.batchedInstance as number);
+}
+
 export function buildRegionSun(regions: readonly THREE.Group[]) {
   const group = new THREE.Group();
   group.name = 'Settlement sun casters';
@@ -74,7 +84,7 @@ export function buildRegionSun(regions: readonly THREE.Group[]) {
       let count = 0, open = -1, end = 0;
       for (const span of spans) {
         const mesh = span.mesh;
-        if (mesh.visible && mesh.parent!.visible && mesh.material.visible &&
+        if (drawn(mesh) && mesh.parent!.visible && mesh.material.visible &&
             frustum.intersectsSphere(sphere.copy(span.bound).applyMatrix4(mesh.matrixWorld))) {
           if (open < 0) open = span.first;
           end = span.end;
