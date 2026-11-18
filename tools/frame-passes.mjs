@@ -13,6 +13,11 @@
  * one is counted, so its captures and levels of detail have caught up with the camera. The defaults are the play gate's
  * Mac profile: 1440×900 at a device pixel ratio of 2, High. --records writes every draw of every view counted, with its
  * material, for a closer look at one part of the world.
+ *
+ * The water's reflection is redrawn when the camera moves and otherwise at most 15 times a second (waterRenderPass.ts),
+ * so a frame counted after the camera has come to rest could leave the whole pass out by timing alone (stops 7 and 8
+ * drew 80 and 65 of their draws there in one run and none in another). Each counted frame redraws it, as every frame
+ * of play does while the camera moves. Compare runs made at one size and quality.
  */
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -125,6 +130,10 @@ const INSTALL = `
   };
   const renderWorld = Object.getPrototypeOf(app).renderWorld;
   state.frame = (record) => new Promise((resolve) => {
+    // The water's reflection is redrawn when the camera moves, otherwise at most 15 times a second: a counted frame after
+    // the camera has come to rest could leave the whole pass out, or not, by timing alone. Counted, it is redrawn, as it
+    // is in every frame of play while the camera moves.
+    if (record && app.grade?.waterPass) app.grade.waterPass.reflectionValid = false;
     app.renderWorld = function () {
       state.recording = record; state.records = [];
       try { return renderWorld.apply(this, arguments); }
