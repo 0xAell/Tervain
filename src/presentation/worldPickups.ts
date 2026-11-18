@@ -8,8 +8,7 @@ import { Region, type MatKey } from './regions';
 import { hunterTableSurfaceY } from './hunterSupplies';
 
 type PickupPoint = typeof PICKUP_LOCATIONS[number];
-type MeshLink = { mesh: THREE.InstancedMesh; index: number; matrix: THREE.Matrix4 };
-const hiddenMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+type MeshLink = { mesh: THREE.BatchedMesh; index: number };
 
 // Authored meshes were enlarged for spotting them from afar. Keep their rich silhouettes,
 // but use hand-sized food and plants alongside the 1.90 m Wanderer. Interaction still uses
@@ -157,32 +156,56 @@ export function pickupPlacement(geometry: THREE.BufferGeometry, terrain: Pick<Te
   return matrix;
 }
 
-/** One draw per pickup item silhouette, while each persistent placement retains its individual identity. */
+/** Share a draw per material while keeping each item's silhouette, bounds and collection state. */
 export function buildWorldPickups(terrain: Pick<Terrain, 'heightAt' | 'normalAt'>, points: readonly PickupPoint[], mats: { get(key: MatKey): THREE.Material }) {
   const group = new THREE.Group(); group.name = 'loose-world-pickups';
   const objects: Record<string, THREE.Object3D> = {};
+  const shapes = new Map<MatKey, { geometry: THREE.BufferGeometry; locations: PickupPoint[] }[]>();
   for (const item of WORLD_PICKUP_ITEM_IDS) {
     const locations = points.filter((point) => point.item === item);
     if (!locations.length) continue;
     const { geometry, material } = pickupGeometry(item);
-    const mesh = new THREE.InstancedMesh(geometry, mats.get(material), locations.length);
-    mesh.name = `loose-${item}`; mesh.castShadow = true; mesh.receiveShadow = true;
-    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    for (const [index, point] of locations.entries()) {
-      const matrix = pickupPlacement(geometry, terrain, point);
-      mesh.setMatrixAt(index, matrix);
-      const object = new THREE.Object3D(); object.name = `pickup-${point.id}`;
-      object.position.set(point.x, matrix.elements[13]!, point.z);
-      object.userData.pickupInstance = { mesh, index, matrix } satisfies MeshLink;
-      const centre = geometry.boundingBox!.getCenter(new THREE.Vector3()).applyMatrix4(matrix);
-      object.userData.pickupTargetY = centre.y;
-      objects[point.id] = object;
-      group.add(object);
+    const bucket = shapes.get(material) ?? [];
+    bucket.push({ geometry, locations });
+    shapes.set(material, bucket);
+  }
+  const batches: THREE.BatchedMesh[] = [];
+  for (const [material, models] of shapes) {
+    const instances = models.reduce((sum, model) => sum + model.locations.length, 0);
+    const vertices = models.reduce((sum, model) => sum + model.geometry.getAttribute('position').count, 0);
+    const indices = models.reduce((sum, model) => sum + model.geometry.index!.count, 0);
+    const mesh = new THREE.BatchedMesh(instances, vertices, indices, mats.get(material));
+    mesh.name = `loose-${material}`; mesh.castShadow = true; mesh.receiveShadow = true;
+    for (const { geometry, locations } of models) {
+      const shape = mesh.addGeometry(geometry);
+      for (const point of locations) {
+        const matrix = pickupPlacement(geometry, terrain, point);
+        const index = mesh.addInstance(shape);
+        mesh.setMatrixAt(index, matrix);
+        const object = new THREE.Object3D(); object.name = `pickup-${point.id}`;
+        object.position.set(point.x, matrix.elements[13]!, point.z);
+        object.userData.pickupInstance = { mesh, index } satisfies MeshLink;
+        const centre = geometry.boundingBox!.getCenter(new THREE.Vector3()).applyMatrix4(matrix);
+        object.userData.pickupTargetY = centre.y;
+        objects[point.id] = object;
+        group.add(object);
+      }
+      geometry.dispose();
     }
     mesh.computeBoundingBox(); mesh.computeBoundingSphere();
+    batches.push(mesh);
     group.add(mesh);
   }
-  return { group, objects };
+  return {
+    group, objects,
+    dispose() {
+      for (const batch of batches) {
+        batch.removeFromParent();
+        batch.dispose();
+      }
+      batches.length = 0;
+    },
+  };
 }
 
 /** Immediately hides a taken instance; legacy quest pickup groups follow their existing visibility contract. */
@@ -190,9 +213,7 @@ export function setPickupVisible(object: THREE.Object3D, visible: boolean): void
   if (object.visible === visible) return;
   object.visible = visible;
   const link = object.userData.pickupInstance as MeshLink | undefined;
-  if (!link) return;
-  link.mesh.setMatrixAt(link.index, visible ? link.matrix : hiddenMatrix);
-  link.mesh.instanceMatrix.needsUpdate = true;
+  link?.mesh.setVisibleAt(link.index, visible);
 }
 
 export function worldPickupTargetY(object: THREE.Object3D | undefined): number | undefined {
