@@ -3,12 +3,34 @@ import { HERO_SHADOW_TRIANGLES } from './shadowTriangles';
 
 export { HERO_SHADOW_ERROR, HERO_SHADOW_TRIANGLES, shadowIndex, type ShadowSimplifier } from './shadowTriangles';
 
+/** The meshes that have fewer triangles to draw from, and those triangles (castShadowFrom). */
+const fewer = new Map<THREE.Mesh, THREE.BufferAttribute>();
+
+/**
+ * Draw every mesh that has fewer triangles to draw from (the wanderer's) from them until the returned function is called:
+ * for the water's planar reflection, a 512 px image of a rippled surface, where triangles within 2 mm of his skin are his
+ * skin. Over the same vertices, so his skeleton, skin weights and materials draw them as they draw the full mesh.
+ */
+export function drawFromFewerTriangles(): () => void {
+  const swapped: [THREE.BufferGeometry, THREE.BufferAttribute | null][] = [];
+  for (const [mesh, index] of fewer) {
+    swapped.push([mesh.geometry, mesh.geometry.index]);
+    mesh.geometry.index = index;
+  }
+  return () => { for (let i = swapped.length - 1; i >= 0; i--) swapped[i]![0].index = swapped[i]![1]; };
+}
+
 /**
  * Draw `mesh`'s shadows from `index`, over its own vertices: three calls these hooks around each shadow draw, so the
- * full index is back before anything else draws the mesh. Returns how to undo it.
+ * full index is back before anything else draws the mesh. The water's reflection draws from it too (drawFromFewerTriangles).
+ * Returns how to undo it.
  */
 export function castShadowFrom(mesh: THREE.Mesh, index: THREE.BufferAttribute): () => void {
   const before = mesh.onBeforeShadow, after = mesh.onAfterShadow;
+  fewer.set(mesh, index);
+  // A mesh let go of (a rig rebuilt for a new journey) is forgotten with its geometry.
+  const forget = () => { if (fewer.get(mesh) === index) fewer.delete(mesh); };
+  mesh.geometry.addEventListener('dispose', forget);
   let full: THREE.BufferAttribute | null = null;
   mesh.onBeforeShadow = function (renderer, object, camera, shadowCamera, geometry, depthMaterial, group) {
     full = geometry.index; geometry.index = index;
@@ -18,7 +40,7 @@ export function castShadowFrom(mesh: THREE.Mesh, index: THREE.BufferAttribute): 
     after.call(this, renderer, object, camera, shadowCamera, geometry, depthMaterial, group);
     geometry.index = full; full = null;
   };
-  return () => { mesh.onBeforeShadow = before; mesh.onAfterShadow = after; };
+  return () => { mesh.onBeforeShadow = before; mesh.onAfterShadow = after; forget(); mesh.geometry.removeEventListener('dispose', forget); };
 }
 
 type ShadowWorkerReply = { type: 'complete'; indices: Uint32Array; error: number } | { type: 'error'; message: string };
