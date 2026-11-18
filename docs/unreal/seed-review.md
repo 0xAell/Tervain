@@ -467,7 +467,7 @@ Improved:
   panes in that look as well, as the view draws them, and puts them back. On 0.1.1, `npm run perf:programs` finds 182
   programs at the first view where it found 181, and nine more during the tour, at noon as at night, all prepared
   ahead of their first draw. A transition test that failed when run on its own, because it counted a yield of the loading work
-  as a frame of the main loop, now passes alone as in its file (PR_X).
+  as a frame of the main loop, now passes alone as in its file ([#901](https://github.com/0xAell/Tervain/pull/901)).
 
 Next:
 
