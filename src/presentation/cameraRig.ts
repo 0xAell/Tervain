@@ -6,7 +6,7 @@ import { CAMERA_CLEARANCE, cameraColliderEntry, type CameraPoint } from '../core
 import { RIDE_CAMERA } from '../core/rules/riding';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../core/rules/camera';
 import { crownBoom, type CameraCrown } from '../core/rules/cameraCrowns';
-import { heroNearCoverage } from './nearFade';
+import { heroDrawnAtCoverage, heroNearCoverage } from './nearFade';
 
 const MAX_RECOIL = CAMERA.maxRecoil;
 /** Inside a room the lens stays this far under the wall top (the tie beams and rafters), never floating up among them. */
@@ -42,6 +42,9 @@ function entry(a: CameraPoint, b: CameraPoint, c: Collider, terrain: Pick<Terrai
 export { AIM_VIEW };
 
 export class CameraRig {
+  /** The hero rig is placed in world space and interpolated with the eye between simulation steps. */
+  constructor(private readonly bodyAnchor?: THREE.Vector3) {}
+
   readonly camera = new THREE.PerspectiveCamera(CAMERA.fov, 1, CAMERA.near, CAMERA.far);
   yaw = 0;
   pitch: number = CAMERA.pitch;
@@ -83,8 +86,11 @@ export class CameraRig {
   private waterTerrain: Pick<Terrain, 'groundAt'> | null = null;
   private waterColliders: Collider[] = [];
   /** Measure from the final eye, including shoulder, water and recoil offsets. */
-  get bodyCoverage() { return this.manual !== null || !this.initialized ? 1 : heroNearCoverage(this.camera.position, this.playerFeet); }
-  get bodyVisible() { return this.bodyCoverage > 0; }
+  get bodyCoverage() {
+    return this.mode !== 'follow' || this.manual || !this.initialized ? 1
+      : heroNearCoverage(this.camera.position, this.bodyAnchor ?? this.playerFeet);
+  }
+  get bodyVisible() { return heroDrawnAtCoverage(this.bodyCoverage); }
 
   /** Teleports, respawns and loads must never inherit the previous pivot or a compressed boom. */
   reset() {

@@ -17,22 +17,24 @@ export function heroNearCoverage(eye: { x: number; y: number; z: number }, feet:
   return t * t * (3 - 2 * t);
 }
 
+/** Draw the residual dither only while more than two percent of the body is covered. */
+export function heroDrawnAtCoverage(coverage: number) { return coverage > 0.02; }
+
 /** One coverage value shared by every material of the faded group. */
 export class NearFade {
   readonly uniform = { value: 1 };
   private readonly patched = new WeakSet<THREE.Material>();
 
+  setCoverage(group: THREE.Object3D, coverage: number) {
+    this.uniform.value = coverage;
+    group.visible = heroDrawnAtCoverage(coverage);
+  }
+
   /** Set the group's coverage, patching any material it shows that is not yet patched (equipment can change). */
   apply(group: THREE.Object3D, coverage: number) {
-    this.uniform.value = coverage;
-    group.visible = coverage > 0.02;
+    this.setCoverage(group, coverage);
     // Patched while still fully drawn too, so the program is compiled before the first close approach needs it.
-    group.traverse((object) => {
-      const mesh = object as THREE.Mesh;
-      if (!mesh.isMesh) return;
-      if (Array.isArray(mesh.material)) for (const material of mesh.material) this.patch(material);
-      else this.patch(mesh.material);
-    });
+    this.patchAll(group);
   }
 
   /** Patch every material under `object` without changing coverage or visibility. Gear that leaves the hero (a loosed
