@@ -2806,7 +2806,7 @@ export class App {
       // The shadow pass draws the casters alone. Everything else is out of this compile too, for the length of the call:
       // compiled here, fog-free, each would make a copy of its colour program that no pass draws, the world being fogged.
       const casters = new Set<THREE.Object3D>(restore.map(([mesh]) => mesh));
-      const others: [{ material: unknown }, unknown][] = [];
+      const others: [THREE.Object3D & { material?: unknown }, unknown][] = [];
       object.traverse((o) => {
         const drawn = o as THREE.Object3D & { material?: unknown };
         if (drawn.material && !casters.has(o)) { others.push([drawn, drawn.material]); drawn.material = null; }
