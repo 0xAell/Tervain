@@ -423,6 +423,10 @@ Improved:
   hinge as the door swings, where each leaf was two meshes and two draw calls in every pass that drew it. At the
   route's five village stops a frame makes 26 to 78 fewer draw calls (377 to 327 at the median) with the same
   triangles, and the same frame drawn both ways differs in 2 of 1.3 million pixels, by 1/255 ([#890](https://github.com/0xAell/Tervain/pull/890)).
+- The pushable barrels and crates are drawn as batches as well, by the doors' batch made general: each prop's parts
+  follow its body as the physics moves it, where each prop was two or three meshes and as many draw calls in every
+  pass. With the doors' batch, the route's five village stops draw 6 to 22 fewer calls again (308 at the median); the
+  same frame drawn both ways differs only on one stretch of a barrel's shadow edge (PR_X).
 
 Next:
 

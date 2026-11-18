@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { batchParts, type PartBatch } from './partBatch';
 import { RealmPhysics } from '../physics/physics';
 import { mulberry32 } from '../core/world/noise';
 import { makeTexPair } from './buildingTextures';
@@ -25,6 +26,7 @@ export function buildPhysicalProps(physics: RealmPhysics, quality: 'low' | 'medi
     const mesh = region.toGroup({ get: key => materials.get(key)! });
     meshes.set(spec.id, mesh); group.add(mesh);
   }
+  let batch: PartBatch | null = null;
   const update = () => {
     // Stepped once per fixed simulation step, the current pose is the one to show: the accumulator's blend (alpha 0 right
     // after each step) drew every barrel a whole step behind. The app draws them between steps with everything else (A94).
@@ -33,9 +35,13 @@ export function buildPhysicalProps(physics: RealmPhysics, quality: 'low' | 'medi
       mesh.position.set(pose.position.x, pose.position.y, pose.position.z);
       mesh.quaternion.set(pose.rotation.x, pose.rotation.y, pose.rotation.z, pose.rotation.w);
     }
+    batch?.update();
   };
   update();
+  // Drawn as one batch per material, each prop's parts following its body (partBatch.ts). Only the props use these
+  // materials, so the batches draw with them as they are.
+  batch = batchParts([...meshes.values()], group, { name: 'supplies', copyMaterials: false });
   return { group, update, movers: () => [...meshes.values()], stats: () => { const s = physics.stats(); return { hz: s.hz, bodies: s.bodies, awake: s.awake, held: s.held ? 1 : 0, steps: s.steps }; }, dispose() {
-    disposeGroup(group); for (const m of materials.values()) m.dispose(); for (const t of textures) t.dispose();
+    batch?.dispose(); disposeGroup(group); for (const m of materials.values()) m.dispose(); for (const t of textures) t.dispose();
   } };
 }

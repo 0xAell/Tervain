@@ -1,6 +1,6 @@
 import { buildFenceRun } from './fenceContacts';
 import * as THREE from 'three';
-import { batchDoorLeaves, type DoorBatch } from './doorBatch';
+import { batchParts, type PartBatch } from './partBatch';
 import { addCartColliders, PROP_COLLIDER, type Colliders, type VerticalBounds } from '../core/world/colliders';
 import {
   ANCHORS,
@@ -127,8 +127,8 @@ export interface SceneryHandles {
   daylightMat: THREE.MeshBasicMaterial;
   /** Every room's door leaf (A66), hinged in its doorway. */
   doors: DoorLeaf[];
-  /** The leaves as drawn: one batch per material, following the pivots (doorBatch.ts). Update it after the doors swing. */
-  doorBatch?: DoorBatch | null;
+  /** The leaves as drawn: one batch per material, following the pivots (partBatch.ts). Update it after the doors swing. */
+  doorBatch?: PartBatch | null;
   lanternPositions: THREE.Vector3[];
   millWheel: THREE.Object3D;
   bell: THREE.Object3D;
@@ -892,8 +892,9 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
 
   /* ---------------- Merge the regions ---------------- */
   for (const R of regions.values()) group.add(R.toGroup(mats, { isStatic: true, shadows: true }));
-  // Every room's door leaf drawn in one batch per material, each following its pivot as it swings.
-  const doorBatch = batchDoorLeaves(doors, group);
+  // Every room's door leaf drawn in one batch per material, each following its pivot as it swings. The planks and iron
+  // are the merged shells' own materials, so the batches draw with copies of them.
+  const doorBatch = batchParts(doors.map((leaf) => leaf.pivot), group, { name: 'doors', copyMaterials: true });
 
   const setNight = (n: number) => {
     const c = new THREE.Color(0x30302a).lerp(new THREE.Color(0xffb85a), Math.min(1, n * 1.2));
