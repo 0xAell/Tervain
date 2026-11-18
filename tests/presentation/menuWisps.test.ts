@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import { MENU_CAMERA } from '../../src/presentation/menu/menuLayout';
-import { GROVE_MAX_SPIRITS, createMenuGrove, groveSpiritBand, type MenuGrove } from '../../src/presentation/menu/menuGrove';
+import { GROVE_CLOSE, GROVE_CUE, GROVE_HOMECOMING, GROVE_MAX_SPIRITS, createMenuGrove, groveSpiritBand, type MenuGrove } from '../../src/presentation/menu/menuGrove';
 import { WISP_COLOURS, WISP_COUNTS, buildMenuWisps, type MenuWisps } from '../../src/presentation/menu/menuWisps';
 import { sampleMenuRhythm } from '../../src/presentation/menu/menuScoreRhythm';
 import { menuGroveFixture } from './groveFixture';
@@ -61,16 +61,20 @@ describe('the hermitage spirits as lights', () => {
   it('shows the spirits only while the score plays, the hollow is awake and its door open', () => {
     const w = wisps();
     const g = grove();
-    g.advanceTo(29);
+    g.advanceTo(GROVE_CUE - 1);
     w.update(g, 0.352, camera);
     expect(w.group.visible).toBe(false);
-    g.advanceTo(31);
+    g.advanceTo(GROVE_CUE + 1);
     w.update(g, 0.352, camera);
     expect(w.group.visible).toBe(true);
     w.update(g, 0, camera);
     expect(w.group.visible).toBe(false);
     for (const c of w.lights.uniforms.uWispColours.value) expect(c.lengthSq()).toBe(0);
-    g.advanceTo(213.9);
+    g.advanceTo(GROVE_CLOSE - 1);
+    w.update(g, 0.352, camera);
+    expect(w.group.visible).toBe(true);
+    g.advanceTo(GROVE_CLOSE + 3);
+    expect(g.doorAngle).toBe(0);
     w.update(g, 0.352, camera);
     expect(w.group.visible).toBe(false);
   });
@@ -169,7 +173,7 @@ describe('the dance as seen from the menu', () => {
       const p = new THREE.Vector3();
       const s = new THREE.Vector3();
       const g = grove();
-      for (let t = 40; t < 202; t += 3.19) {
+      for (let t = 40; t < GROVE_HOMECOMING; t += 3.19) {
         g.advanceTo(t);
         const seen = { low: 0, medium: 0, high: 0 };
         for (let i = 0; i < g.count; i++) {

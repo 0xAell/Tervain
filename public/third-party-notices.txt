@@ -50,6 +50,11 @@ their own terms. See package manifests, lockfiles, ASSETS-LICENSE.md, and the
 dated provenance records for applicable notices and exceptions.
 
 Warpkeep names, logos and the Hegemony identity are not granted by this notice.
+Alderweir uses instrument samples from Versilian Studios Community Orchestra 2,
+Community Edition (CC0 1.0). Original chamber music, synthesized river and
+woodland ambience, and interaction sounds are documented in the source record.
+https://github.com/sgossner/VSCO-2-CE/tree/440300901dfe9275fd84e0b7763af1f8443ae62e
+
 The approved menu emblem and The Sovereign's Oath are used under the project
 owner's specific instruction; neither is assigned an open-content license here.
 Their source records are docs/engineering/menu-assets.json and

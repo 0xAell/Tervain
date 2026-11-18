@@ -38,6 +38,8 @@ const STEP: Record<SurfaceKind, ClipId> = {
 export function stepCue(surface: SurfaceKind, running: boolean, random: () => number = Math.random): Cue {
   let clip = STEP[surface];
   if (surface === 'road' && random() < 0.35) clip = 'step.gravel';
+  if (!running && surface === 'deck') clip = 'step.plank';
+  if (!running && surface === 'water') clip = 'step.shallows';
   if (running && (surface === 'grass' || surface === 'road')) clip = 'step.run';
   return { clip, gain: running ? 0.45 : 0.3, pitch: running ? 0.05 : 0.035 };
 }
@@ -122,7 +124,7 @@ export type WorldAction = 'door' | 'gate' | 'shutter' | 'lever' | 'sluice' | 'sl
 export function worldCues(action: WorldAction): Cue[] {
   switch (action) {
     case 'door':
-      return [{ clip: 'door.open', gain: 0.6, pitch: 0.03 }];
+      return [{ clip: 'door.latch', gain: 0.55, pitch: 0.035 }, { clip: 'door.open', gain: 0.48, pitch: 0.03, delay: 0.1 }];
     case 'gate':
       return [{ clip: 'gate', gain: 0.65, pitch: 0.03 }];
     case 'shutter':

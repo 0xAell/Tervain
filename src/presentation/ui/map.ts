@@ -18,7 +18,9 @@ type MapOptions = { state: WorldState; terrain: Terrain; player: { x: number; z:
 /** A hand-drawn-style regional map built from what the player has seen and been told. */
 export class MapView {
   private bg: HTMLCanvasElement | null = null;
+  private inkReadyAt = 0;
   private terrain: Terrain | null = null;
+  private wash: Generator<void, HTMLCanvasElement> | null = null;
   onMarker: ((marker: MapMarker | null) => void) | null = null;
   private view: MapViewport = fullMapView();
   private target: MapViewport = fullMapView();
@@ -59,7 +61,7 @@ export class MapView {
     if (this.status && this.status.textContent !== text) this.status.textContent = text;
   }
 
-  private buildBackground(terrain: Terrain) {
+  private *paintBackground(terrain: Terrain): Generator<void, HTMLCanvasElement> {
     const w = Math.round(MAP_W / 2);
     const hgt = Math.round(MAP_H / 2);
     const c = document.createElement('canvas');
@@ -94,10 +96,30 @@ export class MapView {
         img.data[idx + 2] = Math.max(0, Math.min(255, b * k));
         img.data[idx + 3] = 255;
       }
+      yield;
     }
     ctx.putImageData(img, 0, 0);
-    this.bg = c;
-    this.terrain = terrain;
+    return c;
+  }
+
+  /** Routes and controls appear on the first frame. Ink the terrain a few rows per frame while the map is open. */
+  private prepareBackground(terrain: Terrain) {
+    if (terrain !== this.terrain) {
+      this.terrain = terrain;
+      this.bg = null;
+      this.wash = this.paintBackground(terrain);
+    }
+    if (!this.wash) return;
+    const deadline = performance.now() + 3;
+    do {
+      const row = this.wash.next();
+      if (row.done) {
+        this.bg = row.value;
+        this.inkReadyAt = performance.now();
+        this.wash = null;
+        return;
+      }
+    } while (performance.now() < deadline);
   }
 
   render(canvas: HTMLCanvasElement, opts: MapOptions) {
@@ -108,7 +130,7 @@ export class MapView {
     const blend = opts.reducedMotion ? 1 : 1 - Math.exp(-dt * 18);
     this.view = clampMapView({ x: this.view.x + (this.target.x - this.view.x) * blend, y: this.view.y + (this.target.y - this.view.y) * blend, zoom: this.view.zoom + (this.target.zoom - this.view.zoom) * blend });
     this.syncControls(opts);
-    if (!this.bg || this.terrain !== opts.terrain) this.buildBackground(opts.terrain);
+    this.prepareBackground(opts.terrain);
     if (canvas.width !== MAP_W) canvas.width = MAP_W;
     if (canvas.height !== MAP_H) canvas.height = MAP_H;
     const ctx = canvas.getContext('2d')!;
@@ -117,7 +139,16 @@ export class MapView {
     ctx.translate(MAP_W / 2, MAP_H / 2);
     ctx.scale(this.view.zoom, this.view.zoom);
     ctx.translate(-this.view.x, -this.view.y);
-    ctx.drawImage(this.bg!, 0, 0, MAP_W, MAP_H);
+    const ink = opts.reducedMotion ? 1 : Math.min(1, Math.max(0, (now - this.inkReadyAt) / 220));
+    if (!this.bg || ink < 1) {
+      ctx.fillStyle = '#d4bf94';
+      ctx.fillRect(0, 0, MAP_W, MAP_H);
+    }
+    if (this.bg) {
+      ctx.globalAlpha = ink;
+      ctx.drawImage(this.bg, 0, 0, MAP_W, MAP_H);
+      ctx.globalAlpha = 1;
+    }
     const view = worldView(opts.state);
 
     // Roads

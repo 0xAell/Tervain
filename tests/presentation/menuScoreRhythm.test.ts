@@ -3,8 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   MENU_ACCENT_COUNT,
   MENU_BAND_COUNT,
-  MENU_BEAT,
-  MENU_FIRST_BEAT,
+  MENU_BEATS_PER_BAR,
   forEachMenuAccent,
   menuBarLevel,
   menuBeatTime,
@@ -22,19 +21,18 @@ import { MENU_SCORE_FEATURE_INFO } from '../../src/presentation/menu/menuScoreFe
 const bytes = (b64: string) => Buffer.from(b64, 'base64');
 
 describe('measured rhythm of the menu score', () => {
-  it('records the approved source, a constant grid that fits the tracked beats, and an intact payload', () => {
+  it('records the approved source, the authored 6/8 tempo map and an intact spectral payload', () => {
     const info = MENU_SCORE_RHYTHM_INFO;
     expect(info.sourceSha256).toBe(MENU_SCORE_FEATURE_INFO.sourceSha256);
     expect(info.runtimeSha256).toBe(MENU_SCORE_FEATURE_INFO.runtimeSha256);
     expect(info.duration).toBe(MENU_SCORE_FEATURE_INFO.duration);
-    expect(info.beat.bpm).toBeGreaterThan(105);
-    expect(info.beat.bpm).toBeLessThan(109);
-    expect(MENU_BEAT).toBeCloseTo(60 / info.beat.bpm, 4);
-    expect(MENU_FIRST_BEAT).toBeGreaterThanOrEqual(0);
-    expect(MENU_FIRST_BEAT).toBeLessThan(MENU_BEAT);
-    // The tracked beats sit close to one isochronous grid, and the grid sits on onsets far better than chance.
-    expect(info.beat.trackedRmsResidualSeconds).toBeLessThan(0.02);
-    expect(info.beat.gridAlignment).toBeGreaterThan(3 * info.beat.randomGridAlignment);
+    expect(info.beat.meter).toBe('6/8');
+    expect(MENU_BEATS_PER_BAR).toBe(2);
+    expect(menuBeatTime(0)).toBe(4.5);
+    const spans = info.beat.times.slice(1).map((t, i) => t - info.beat.times[i]!);
+    expect(Math.min(...spans)).toBeGreaterThan(0);
+    expect(Math.max(...spans) - Math.min(...spans)).toBeGreaterThan(0.4);
+    expect(info.beat.times.at(-1)).toBeGreaterThanOrEqual(info.duration);
     const payload = Buffer.concat([bytes(MENU_SCORE_BANDS_BASE64), bytes(MENU_SCORE_ACCENTS_BASE64), bytes(MENU_SCORE_BARS_BASE64)]);
     expect(createHash('sha256').update(payload).digest('hex')).toBe(info.payloadSha256);
     expect(bytes(MENU_SCORE_BANDS_BASE64).length).toBe(info.bands.frames * MENU_BAND_COUNT);
@@ -45,20 +43,18 @@ describe('measured rhythm of the menu score', () => {
   it('counts beats, bars and phrases linearly from source time without random sampling', () => {
     const random = vi.spyOn(Math, 'random').mockImplementation(() => { throw new Error('rhythm must not sample random'); });
     try {
-      for (const beat of [0, 1, 53, 100.5, 300]) {
+      for (const beat of [0, 1, 53, 100.5, 181]) {
         const s = sampleMenuRhythm(menuBeatTime(beat));
         expect(s.beat).toBeCloseTo(beat, 9);
         expect(s.beatPhase).toBeGreaterThanOrEqual(0);
         expect(s.beatPhase).toBeLessThan(1);
-        expect(s.bar).toBeCloseTo((beat - MENU_SCORE_RHYTHM_INFO.beat.downbeatBeat) / 4, 9);
+        expect(s.bar).toBeCloseTo(beat / MENU_BEATS_PER_BAR, 9);
       }
       // Phrase n starts exactly where the phrase counter reaches n.
       for (const p of [1, 2, 5, 10]) expect(sampleMenuRhythm(menuPhraseTime(p) + 1e-6).phrase).toBeCloseTo(p, 4);
-      // The 30-second entrance falls in the phrase before the one at 33.9 s, and the grid has a beat within 0.1 s of it.
-      const at30 = sampleMenuRhythm(30);
-      expect(at30.phrase).toBeGreaterThan(0);
-      expect(at30.phrase).toBeLessThan(1);
-      expect(Math.min(at30.beatPhase, 1 - at30.beatPhase) * MENU_BEAT).toBeLessThan(0.1);
+      // The first two movement boundaries are downbeats in the original marked-up score.
+      expect(menuPhraseTime(1)).toBeCloseTo(24.966, 3);
+      expect(menuPhraseTime(3)).toBeCloseTo(63.905, 3);
       const a = sampleMenuRhythm(77.7);
       const b = sampleMenuRhythm(77.7);
       expect(a).toEqual(b);
@@ -93,7 +89,7 @@ describe('measured rhythm of the menu score', () => {
 
   it('delivers each accent exactly once across adjacent half-open windows, and accents decay after a hit', () => {
     const seen: number[] = [];
-    for (let t = 0; t < 215; t += 1 / 60) forEachMenuAccent(t, t + 1 / 60, (time) => seen.push(time));
+    for (let t = 0; t < MENU_SCORE_RHYTHM_INFO.duration; t += 1 / 60) forEachMenuAccent(t, t + 1 / 60, (time) => seen.push(time));
     expect(seen.length).toBe(MENU_ACCENT_COUNT);
     expect(seen.every((time, i) => i === 0 || time > seen[i - 1]!)).toBe(true);
     // Right after a strong accent the accent level is high; across a quiet gap after an accent, it has decayed.
@@ -102,7 +98,7 @@ describe('measured rhythm of the menu score', () => {
     expect(strong).toBeGreaterThan(0);
     expect(sampleMenuRhythm(strong + 0.01).accent).toBeGreaterThan(0.8);
     const list: [number, number][] = [];
-    forEachMenuAccent(0, 215, (time, s) => list.push([time, s]));
+    forEachMenuAccent(0, MENU_SCORE_RHYTHM_INFO.duration, (time, s) => list.push([time, s]));
     const gap = list.findIndex(([time, s], i) => s > 0.4 && i + 1 < list.length && list[i + 1]![0] - time > 1.2);
     expect(gap).toBeGreaterThanOrEqual(0);
     const [quiet] = list[gap]!;

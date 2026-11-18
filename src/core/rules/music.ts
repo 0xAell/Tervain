@@ -9,9 +9,9 @@ import { villageCover } from './soundscape';
  * a low pulsing loop, a fight the battle loop, and when it is over the world falls quiet again. Short stings mark a
  * discovered place, a step of the story, a victory and a fall.
  *
- * Two voices share the score: pieces generated from prompts, and pieces composed in code around one Tervain theme
- * (`origin: 'composed'`). The first time a mood is heard, its own arrangement of the theme plays; a fight keeps one
- * voice from warning to battle; each region announces itself with the theme's opening in its own instruments.
+ * Each exploration mood opens with a different movement of Alderweir. Later visits vary the score with Tervain's
+ * other composed and generated pieces. A fight keeps one voice from warning to battle, and each region announces
+ * itself with its own discovery motif.
  *
  * Moods: `vale` (Rillford and the hamlet, the ford, the mill, the sluice, the quarry by day), `wild` (the strand, the
  * deepwood, the overlook, Lantern Point, the Cut), `sacred` (the spring shrine and the archive), `night` (anywhere after
@@ -42,6 +42,11 @@ export type MusicAction =
   | { t: 'sting'; id: MusicId };
 
 type Origin = MusicOrigin;
+
+// The first visit to each kind of place opens with a movement from the same chamber performance.
+const OPENING_PIECES = {
+  vale: 'alder_landing', wild: 'alder_ash_trees', sacred: 'alder_bridge', night: 'alder_coda',
+} as const satisfies Record<Mood, MusicId>;
 
 const entries = Object.entries(MUSIC) as [MusicId, MusicEntry][];
 const ids = (pick: (e: MusicEntry) => boolean) => entries.filter(([, e]) => pick(e)).map(([id]) => id);
@@ -164,11 +169,9 @@ export class MusicDirector {
   private pick(mood: Mood): MusicId | null {
     const list = PLAYLISTS[mood].length ? PLAYLISTS[mood] : PLAYLISTS.wild;
     if (!list.length) return null;
-    // The first time a mood is heard, its own arrangement of the theme: the place's voice before its variations.
     if (!this.heard.has(mood)) {
       this.heard.add(mood);
-      const own = list.find((id) => MUSIC[id].origin === 'composed');
-      if (own) return own;
+      return OPENING_PIECES[mood];
     }
     const choices = list.length > 1 ? list.filter((id) => id !== this.last) : list;
     return choices[Math.floor(this.random() * choices.length)] ?? null;

@@ -82,8 +82,7 @@ step, as the scenario tests describe; every resident is where their schedule say
    manifest names a first choice for each, with a brief and the other candidates; check each listing's licence, LODs
    and engine version first.
 2. Replace the grey stand-ins family by family, keeping the placements.
-3. Import the kept sound: voice takes and world clips. The title music comes from the pack the manifest names.
-   Rebuild the ambience and the music director.
+3. Import the voice takes, world clips and Alderweir score. Rebuild the ambience and the music director around the same cues.
 4. Interface in UMG; effects in Niagara; grass and ground cover.
 
 **Holds when:** no asset marked `replace` in the manifest is still in the build; every asset in the build has a clear

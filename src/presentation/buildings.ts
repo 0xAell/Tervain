@@ -42,6 +42,8 @@ export function groundOf(terrain: Terrain, b: { x: number; z: number; w: number;
 export interface BuildOut {
   /** World-space positions of lanterns (they get real light at night when the player is near). */
   lanterns: THREE.Vector3[];
+  /** Mouths of the completed chimney stacks. */
+  chimneys?: THREE.Vector3[];
   /** Door leaves that swing (A66): built apart from the merged shell, each about its hinge. */
   doors?: DoorLeaf[];
   /** Builds a region of its own, apart from the merged shell, for a part that moves. */
@@ -587,13 +589,14 @@ function buildStandardPass(R: Region, terrain: Terrain, b: BuildingSpec, out: Bu
   // as a stone breast proud of the wall, then on up through the roof, on the centre the room's breast is built on.
   const chimneyAt = chimneyOf(b), hearthWall = hearthOf(room)?.wall;
   if (chimneyAt && hearthWall) {
-    const cw = look?.chimneyW ?? 0.75, out = 0.06 + cw / 2;
-    const [x0, x1, z0, z1] = hearthWall === 'back' ? [chimneyAt.x - cw / 2, chimneyAt.x + cw / 2, chimneyAt.z - out + 0.06, -b.d / 2 + 0.04]
-      : hearthWall === 'left' ? [chimneyAt.x - out + 0.06, -b.w / 2 + 0.04, chimneyAt.z - cw / 2, chimneyAt.z + cw / 2]
-      : [b.w / 2 - 0.04, chimneyAt.x + out - 0.06, chimneyAt.z - cw / 2, chimneyAt.z + cw / 2];
+    const cw = look?.chimneyW ?? 0.75, extent = 0.06 + cw / 2;
+    const [x0, x1, z0, z1] = hearthWall === 'back' ? [chimneyAt.x - cw / 2, chimneyAt.x + cw / 2, chimneyAt.z - extent + 0.06, -b.d / 2 + 0.04]
+      : hearthWall === 'left' ? [chimneyAt.x - extent + 0.06, -b.w / 2 + 0.04, chimneyAt.z - cw / 2, chimneyAt.z + cw / 2]
+      : [b.w / 2 - 0.04, chimneyAt.x + extent - 0.06, chimneyAt.z - cw / 2, chimneyAt.z + cw / 2];
     const tone = jitterTone(TINT.stone, rnd, 0.1);
     R.stone.bx(Math.min(x0, x1), -sink, Math.min(z0, z1), Math.max(x0, x1), y0 + wallH + 0.05, Math.max(z0, z1), tone, { sub: 0.5, jit: 0.08, amp: 0.06 });
-    chimney(R, rnd, chimneyAt.x, chimneyAt.z, y0 + wallH + 0.05, roof.rise + 1.05 + (look?.chimneyUp ?? 0), look?.chimneyW);
+    const outlet = chimney(R, rnd, chimneyAt.x, chimneyAt.z, y0 + wallH + 0.05, roof.rise + 1.05 + (look?.chimneyUp ?? 0), look?.chimneyW);
+    out.chimneys?.push(outlet);
   }
 
   // Lantern and the small litter of a used doorway.

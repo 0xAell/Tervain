@@ -40,6 +40,36 @@ function mapInput() {
 
 afterEach(() => vi.unstubAllGlobals());
 
+it('yields during the first map wash, drops superseded terrain and reuses the completed canvas', () => {
+  const commitPixels = vi.fn();
+  const surfaces: object[] = [];
+  vi.stubGlobal('document', { createElement: () => {
+    const surface = { getContext: () => ({
+      createImageData: (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4) }),
+      putImageData: commitPixels,
+    }) };
+    surfaces.push(surface);
+    return surface;
+  } });
+  let time = 0;
+  vi.stubGlobal('performance', { now: () => time += 4 });
+  const view = new MapView();
+  const prepare = Reflect.get(view, 'prepareBackground').bind(view);
+  const terrain = () => ({ heightAt: () => 0, valleyRadius: () => .5 });
+  const first = terrain(), second = terrain();
+  prepare(first);
+  expect(commitPixels).not.toHaveBeenCalled();
+  prepare(second);
+  expect(surfaces).toHaveLength(2);
+  expect(Reflect.get(view, 'bg')).toBeNull();
+  for (let row = 0; row < Math.round(MAP_H / 2); row++) prepare(second);
+  expect(commitPixels).toHaveBeenCalledOnce();
+  expect(Reflect.get(view, 'bg')).toBe(surfaces[1]);
+  prepare(second);
+  expect(surfaces).toHaveLength(2);
+  expect(commitPixels).toHaveBeenCalledOnce();
+});
+
 describe('regional map pointer input', () => {
   it('keeps Show place and Pin place disabled until a place is chosen (A98)', () => {
     const { view } = mapInput();

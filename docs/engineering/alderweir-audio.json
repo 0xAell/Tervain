@@ -1,0 +1,114 @@
+{
+  "title": "Alderweir",
+  "titleDurationSeconds": 235.5,
+  "sourceStemSha256": {
+    "Chamber ensemble.flac": "bd520b9c62e77da8c2fe5c02f88db23484bcd7c6ee8bdbe13ca1372b007ac2ba",
+    "River and woodland.flac": "cbf3b92cc4e4f044755fcc09e191800ceea90c362dd476d65b32830c965131ea"
+  },
+  "editableScore": {
+    "path": "tools/world-audio/alderweir.mid",
+    "sha256": "b72cd988b08d34f18329865c1fd372b2b986077ad59e1c775f0af012cf1d4178"
+  },
+  "instrumentSamples": "Versilian Studios Community Orchestra 2, Community Edition (CC0 1.0)",
+  "sampleSource": "https://github.com/sgossner/VSCO-2-CE/tree/440300901dfe9275fd84e0b7763af1f8443ae62e",
+  "authorship": "Original chamber score, synthesized river and woodland, and procedural interaction sounds.",
+  "preparation": "tools/world-audio/prepare-alderweir.py",
+  "derivatives": {
+    "title": [
+      {
+        "path": "public/assets/audio/world/alderweir/title.ogg",
+        "bytes": 4010381,
+        "sha256": "4d256a32afee0eaef849cfe355527f11a92e302b918b8992bb9b2a1dae9cfd71"
+      },
+      {
+        "path": "public/assets/audio/world/alderweir/title.m4a",
+        "bytes": 3589584,
+        "sha256": "d807d3eae195fa06b4e41c83b85c28a58828efa15eb27a491967d950542ddb23"
+      }
+    ],
+    "landing": [
+      {
+        "path": "public/assets/audio/world/alderweir/landing.ogg",
+        "bytes": 935014,
+        "sha256": "e737875b5dfbf8f0849eb28cf69720a0650dc8ddf71d0477ee7ed566a2c50274"
+      },
+      {
+        "path": "public/assets/audio/world/alderweir/landing.m4a",
+        "bytes": 847667,
+        "sha256": "46ae5812d80c75e70478d134de14a452da87421b81fcdedfaf4db290f2db8894"
+      }
+    ],
+    "ash-trees": [
+      {
+        "path": "public/assets/audio/world/alderweir/ash-trees.ogg",
+        "bytes": 936224,
+        "sha256": "359084c8072e8d0ba85d5d584c13d45291bac0c01a93ab5f2f0735af20bfde80"
+      },
+      {
+        "path": "public/assets/audio/world/alderweir/ash-trees.m4a",
+        "bytes": 841669,
+        "sha256": "34fc73c256d646d8671df4546dda0d4f942c3f6b422b2b9f585c73de48d3ad44"
+      }
+    ],
+    "bridge": [
+      {
+        "path": "public/assets/audio/world/alderweir/bridge.ogg",
+        "bytes": 641656,
+        "sha256": "a148bb6e7f4064eb4c7449d3cc41a11c03b8fe85f645fbb24e920dffe693c450"
+      },
+      {
+        "path": "public/assets/audio/world/alderweir/bridge.m4a",
+        "bytes": 525432,
+        "sha256": "688437ee24e9e26fab619c810e0cf9ab76c0ee58e3babbfad5f38ccb4bb58992"
+      }
+    ],
+    "coda": [
+      {
+        "path": "public/assets/audio/world/alderweir/coda.ogg",
+        "bytes": 1042264,
+        "sha256": "ebae7be2bad65b085458ef21d88776ead81cd3417557a1f954f4ee35dbab1720"
+      },
+      {
+        "path": "public/assets/audio/world/alderweir/coda.m4a",
+        "bytes": 929117,
+        "sha256": "b0e07760096585233d9491913c795bf3ae61396821d013475d8f4f077f898be9"
+      }
+    ],
+    "riverbank": [
+      {
+        "path": "public/assets/audio/world/alderweir/riverbank.ogg",
+        "bytes": 136141,
+        "sha256": "bd34b321927ac11dd9e1385ef6f87353c607da213251f4d35adaedf8d0433385"
+      },
+      {
+        "path": "public/assets/audio/world/alderweir/riverbank.m4a",
+        "bytes": 157094,
+        "sha256": "6d7a650b7af0721769b6cb6db0f50231b0b67b0f5050df688fb89b903a1e4f10"
+      }
+    ],
+    "low-weir": [
+      {
+        "path": "public/assets/audio/world/alderweir/low-weir.ogg",
+        "bytes": 93958,
+        "sha256": "184232ddb2bdfb371b2d3fa112868a1466cdda184534da65eec69fe7f6c34165"
+      },
+      {
+        "path": "public/assets/audio/world/alderweir/low-weir.m4a",
+        "bytes": 107747,
+        "sha256": "c114a5fe07543d84785fc414a2930500ff933649de0cd96b1046f29749dccb87"
+      }
+    ],
+    "foley": [
+      {
+        "path": "public/assets/audio/world/alderweir/foley.ogg",
+        "bytes": 45832,
+        "sha256": "18b809177b90fe92a4e648708acdf4a5abecaa0f0094ce8262a5becc71088a3a"
+      },
+      {
+        "path": "public/assets/audio/world/alderweir/foley.m4a",
+        "bytes": 58192,
+        "sha256": "5911d6802d2fdceddd3e55eb1e482087378ce9b02332584fba91a7e121de0c1e"
+      }
+    ]
+  }
+}

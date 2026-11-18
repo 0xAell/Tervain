@@ -26,7 +26,7 @@ import { distToPolyline, roadWeight, type Terrain } from '../world/terrain';
 export const BEDS = [
   'sea',   'forest_day',   'forest_night',   'meadow_day',   'village_day',   'village_night',   'cliff_wind',   'interior',
   'cut',   'brook',   'mill',   'quarry',   'spring',   'marsh',   'fire',   'hall_drone',
-  'surf',   'surf_rocks',   'sea_far',   'lap',   'rapids',   'underwater',
+  'surf',   'surf_rocks',   'sea_far',   'lap',   'rapids',   'underwater', 'riverbank', 'low_weir',
 ] as const;
 export type BedId = (typeof BEDS)[number];
 
@@ -173,6 +173,10 @@ export function bedTargets(l: ListenerState, w: WorldSoundState, water?: WaterSo
   const stream = nearestStream(l.x, l.z, w.flows);
   const ford = Math.max(within(dist2(FORD, l.x, l.z), 8, 48), within(dist2(WETLAND, l.x, l.z), 6, 40));
   const fordAt = dist2(FORD, l.x, l.z) < dist2(WETLAND, l.x, l.z) ? FORD : WETLAND;
+  // The daylight field take contains a bird answering across the bank. At night
+  // the close brook carries on alone. The heavier weir is downstream of the active wheel.
+  const brook = stream ? out(0.9 * stream.flow * within(stream.d, 2, 38)) : 0;
+  const wheelWater = w.millTurning ? out(w.flows.village * within(dist2(MILL_SOUND, l.x, l.z), 3, 32)) : 0;
   return {
     sea: { gain: out(0.9 * sea), at: { x: coastX(l.z) - 14, y: 0, z: l.z } },
     cliff_wind: { gain: out(0.8 * cliff) },
@@ -184,7 +188,9 @@ export function bedTargets(l: ListenerState, w: WorldSoundState, water?: WaterSo
     cut: { gain: out(0.75 * cut) },
     interior: { gain: l.indoors ? 0.85 : 0 },
     hall_drone: { gain: 0.42 * within(dist2(SHRINE_HALL, l.x, l.z), 5, 20) * (0.55 + 0.45 * night) },
-    brook: stream ? { gain: out(0.9 * stream.flow * within(stream.d, 2, 38)), at: { x: stream.at.x, y: 0, z: stream.at.z } } : { gain: 0 },
+    brook: stream ? { gain: brook * (1 - 0.62 * day), at: { x: stream.at.x, y: 0, z: stream.at.z } } : { gain: 0 },
+    riverbank: stream ? { gain: brook * day * 0.85, at: { x: stream.at.x, y: 0, z: stream.at.z } } : { gain: 0 },
+    low_weir: { gain: wheelWater * 0.82, at: { x: MILL_SOUND.x, y: 0, z: MILL_SOUND.z } },
     marsh: { gain: out(0.75 * ford * (0.3 + 0.7 * night)), at: { x: fordAt.x, y: 0, z: fordAt.z } },
     mill: { gain: w.millTurning ? out(0.9 * within(dist2(MILL_SOUND, l.x, l.z), 5, 60)) : 0, at: { x: MILL_SOUND.x, y: 1.5, z: MILL_SOUND.z } },
     quarry: { gain: w.quarryWorking ? out(0.85 * within(dist2(QUARRY_SOUND, l.x, l.z), 14, 140)) : 0, at: { x: QUARRY_SOUND.x, y: 2, z: QUARRY_SOUND.z } },

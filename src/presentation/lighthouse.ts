@@ -108,7 +108,7 @@ function keeperFoundation(R: Region, rnd: Rnd, sink: number) {
 }
 
 /** Heavy stone tower, connected timber stair and keeper's house. All geometry is original and batched by material. */
-export function authorLighthouse(R: Region, terrain: Terrain, out: { lanterns: THREE.Vector3[] }): { lampY: number; lampWorld: THREE.Vector3; base: number } {
+export function authorLighthouse(R: Region, terrain: Terrain, out: { lanterns: THREE.Vector3[]; chimneys?: THREE.Vector3[] }): { lampY: number; lampWorld: THREE.Vector3; base: number } {
   const { x, z, r } = LIGHTHOUSE;
   const base = terrain.heightAt(x, z);
   const rnd = mulberry32(90210);
@@ -253,7 +253,8 @@ export function authorLighthouse(R: Region, terrain: Terrain, out: { lanterns: T
   windowAt(R, rnd, { x: -2.7, y: 2.7, z: house.d / 2 + 0.035, w: 1.05, h: 1.05 });
   windowAt(R, rnd, { x: 2, y: 2.7, z: house.d / 2 + 0.035, w: 0.85, h: 1.05 });
   windowAt(R, rnd, { x: -house.w / 2 - 0.035, y: house.wallTop + 0.6, z: 0, ry: -Math.PI / 2, w: 1.15, h: 1.1 });
-  chimney(R, rnd, -1.3, -1.2, house.wallTop - 0.2, roof.rise + 0.95, 0.8);
+  const outlet = chimney(R, rnd, -1.3, -1.2, house.wallTop - 0.2, roof.rise + 0.95, 0.8);
+  out.chimneys?.push(outlet);
   lantern(R, -1.65, 2.7, house.d / 2 + 0.2);
   out.lanterns.push(ctx.toWorld(-1.65, 2.4, house.d / 2 + 0.6));
   woodpile(R, rnd, -house.w / 2 + 0.8, house.d / 2 + 0.7, 0, 1.5, 3);

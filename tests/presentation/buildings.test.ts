@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { ARCHIVE_ROOM, BUILDINGS, bySpec } from '../../src/core/world/layout';
 import type { Terrain } from '../../src/core/world/terrain';
-import { buildArchiveShell, buildStandard } from '../../src/presentation/buildings';
+import { buildArchiveShell, buildStandard, chimneyOf } from '../../src/presentation/buildings';
 import { Ctx } from '../../src/presentation/buildKit';
 import { Region } from '../../src/presentation/regions';
 import { ROOFS } from '../../src/presentation/roofs';
@@ -23,8 +23,19 @@ describe('complete building shells', () => {
     it(`${spec.id} joins walls to the roof and keeps a backed foundation`, () => {
       const b = { ...spec, x: 0, z: 0, yaw: 0 };
       const r = new Region(b.id, new Ctx());
-      buildStandard(r, flatGround, b, { lanterns: [] });
+      const outlets: THREE.Vector3[] = [];
+      buildStandard(r, flatGround, b, { lanterns: [], chimneys: outlets });
       const g = makeGroup(r);
+      const stack = chimneyOf(b);
+      expect(outlets).toHaveLength(stack ? 1 : 0);
+      if (stack) {
+        // A plume starts at the stone cap, also on a hipped roof or a side-wall hearth.
+        const outlet = outlets[0]!;
+        expect(outlet.x).toBeCloseTo(stack.x);
+        expect(outlet.z).toBeCloseTo(stack.z);
+        const cap = cast(g, [outlet.x, outlet.y + 0.5, outlet.z], [0, -1, 0])[0]!;
+        expect(cap.point.y).toBeCloseTo(outlet.y, 2);
+      }
       const top = b.h + 0.4;
       const look = lookOf(b), roofKind = look?.roof ?? b.roof;
       if (roofKind === 'hip') {

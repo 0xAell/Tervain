@@ -42,12 +42,12 @@
   },
   "totals": {
     "all": {
-      "files": 1670,
-      "bytes": 433480801
+      "files": 1688,
+      "bytes": 448871513
     },
     "shipped": {
-      "files": 872,
-      "bytes": 298575929
+      "files": 890,
+      "bytes": 313966641
     },
     "replaceBeforeShip": {
       "files": 5,
@@ -59,8 +59,8 @@
         "bytes": 201144093
       },
       "keep": {
-        "files": 595,
-        "bytes": 108822005
+        "files": 613,
+        "bytes": 124212717
       },
       "rework": {
         "files": 0,
@@ -1134,6 +1134,19 @@
       "bytes": 4737254
     },
     {
+      "id": "alderweir-landscapes",
+      "title": "Alderweir landscape paintings",
+      "role": "interface-art",
+      "plan": "keep",
+      "why": "Two original landscape plates from the Alderweir film used during arrival and view changes.",
+      "source": "Original AI-assisted landscape paintings from the owner-supplied Alderweir project, resized for the game.",
+      "fab": null,
+      "replaceWith": null,
+      "replaceBeforeShip": null,
+      "files": 2,
+      "bytes": 492740
+    },
+    {
       "id": "emblem",
       "title": "Hegemony emblem",
       "role": "identity",
@@ -1148,10 +1161,10 @@
     },
     {
       "id": "menu-music",
-      "title": "Title music: The Sovereign’s Oath",
+      "title": "Archived 0.0.x title music: The Sovereign’s Oath",
       "role": "music",
       "plan": "replace",
-      "why": "The title theme the menu’s grove is choreographed to. The terms of the service it was made with are not settled, so it is replaced before anything is released; until then it stands in for length and mood.",
+      "why": "The archived title theme from the 0.0.x grove. Retain this source record and its commercial-release restriction for the historical encodings.",
       "source": "Supplied by the project owner; see docs/engineering/menu-score.md and menu-audio-assets.json.",
       "fab": "audio",
       "replaceWith": {
@@ -1166,7 +1179,7 @@
         },
         "verified": "listing page",
         "checked": "2026-11-15",
-        "reason": "The music listing among the candidates: 32 tracks, an hour of music with full pieces, loops and diegetic pieces, so a title theme and quiet loops come from one set under one licence. The menu’s grove is choreographed to the present theme’s timing and is re-timed to the piece chosen.",
+        "reason": "The music listing among the candidates: 32 tracks, an hour of music with full pieces, loops and diegetic pieces, so a title theme and quiet loops come from one set under one licence. This was the replacement proposed for the earlier prototype. The grove now uses the original Alderweir score.",
         "with": [],
         "webTarget": null
       },
@@ -1203,6 +1216,19 @@
       "replaceBeforeShip": null,
       "files": 444,
       "bytes": 60107053
+    },
+    {
+      "id": "alderweir-audio",
+      "title": "Alderweir chamber score, river ambience and interaction sounds",
+      "role": "sound",
+      "plan": "keep",
+      "why": "Original music and sound from the Alderweir project. Each cue has two browser encodings and a single import identity.",
+      "source": "Original score with VSCO 2 Community Edition instrument samples (CC0), synthesized ambience and foley. See docs/engineering/alderweir-audio.json.",
+      "fab": null,
+      "replaceWith": null,
+      "replaceBeforeShip": null,
+      "files": 16,
+      "bytes": 14897972
     },
     {
       "id": "world-audio-web",
@@ -15425,6 +15451,44 @@
       "unreal": null
     },
     {
+      "path": "public/assets/alderweir/landing.webp",
+      "group": "alderweir-landscapes",
+      "kind": "image",
+      "bytes": 244348,
+      "sha256": "63bf7347bfe8117857edfaa02d57ece4c18f96bcebd27f86c75321be82938a88",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "Texture",
+        "folder": "/Game/Tervain/UI/Textures",
+        "name": "T_UI_AlderweirLanding",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/alderweir/low-weir.webp",
+      "group": "alderweir-landscapes",
+      "kind": "image",
+      "bytes": 248392,
+      "sha256": "24282d72ccf789c3a7d93c688ec85d732ac463b780ca59ad7ce44e26df9d3f08",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "Texture",
+        "folder": "/Game/Tervain/UI/Textures",
+        "name": "T_UI_AlderweirLowWeir",
+        "lod": null
+      }
+    },
+    {
       "path": "public/assets/audio/hunting/arrow_flesh.mp3",
       "group": "hunting-audio",
       "kind": "audio",
@@ -22303,6 +22367,270 @@
       },
       "plan": "drop",
       "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/ash-trees.m4a",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 841669,
+      "sha256": "34fc73c256d646d8671df4546dda0d4f942c3f6b422b2b9f585c73de48d3ad44",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/ash-trees.ogg",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 936224,
+      "sha256": "359084c8072e8d0ba85d5d584c13d45291bac0c01a93ab5f2f0735af20bfde80",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Alderweir",
+        "name": "SW_Alderweir_AshTrees",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/bridge.m4a",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 525432,
+      "sha256": "688437ee24e9e26fab619c810e0cf9ab76c0ee58e3babbfad5f38ccb4bb58992",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/bridge.ogg",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 641656,
+      "sha256": "a148bb6e7f4064eb4c7449d3cc41a11c03b8fe85f645fbb24e920dffe693c450",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Alderweir",
+        "name": "SW_Alderweir_Bridge",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/coda.m4a",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 929117,
+      "sha256": "b0e07760096585233d9491913c795bf3ae61396821d013475d8f4f077f898be9",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/coda.ogg",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 1042264,
+      "sha256": "ebae7be2bad65b085458ef21d88776ead81cd3417557a1f954f4ee35dbab1720",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Alderweir",
+        "name": "SW_Alderweir_Coda",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/foley.m4a",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 58192,
+      "sha256": "5911d6802d2fdceddd3e55eb1e482087378ce9b02332584fba91a7e121de0c1e",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/foley.ogg",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 45832,
+      "sha256": "18b809177b90fe92a4e648708acdf4a5abecaa0f0094ce8262a5becc71088a3a",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Alderweir",
+        "name": "SW_Alderweir_Foley",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/landing.m4a",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 847667,
+      "sha256": "46ae5812d80c75e70478d134de14a452da87421b81fcdedfaf4db290f2db8894",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/landing.ogg",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 935014,
+      "sha256": "e737875b5dfbf8f0849eb28cf69720a0650dc8ddf71d0477ee7ed566a2c50274",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Alderweir",
+        "name": "SW_Alderweir_Landing",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/low-weir.m4a",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 107747,
+      "sha256": "c114a5fe07543d84785fc414a2930500ff933649de0cd96b1046f29749dccb87",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/low-weir.ogg",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 93958,
+      "sha256": "184232ddb2bdfb371b2d3fa112868a1466cdda184534da65eec69fe7f6c34165",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Alderweir",
+        "name": "SW_Alderweir_LowWeir",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/riverbank.m4a",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 157094,
+      "sha256": "6d7a650b7af0721769b6cb6db0f50231b0b67b0f5050df688fb89b903a1e4f10",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/riverbank.ogg",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 136141,
+      "sha256": "bd34b321927ac11dd9e1385ef6f87353c607da213251f4d35adaedf8d0433385",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Alderweir",
+        "name": "SW_Alderweir_Riverbank",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/title.m4a",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 3589584,
+      "sha256": "d807d3eae195fa06b4e41c83b85c28a58828efa15eb27a491967d950542ddb23",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/world/alderweir/title.ogg",
+      "group": "alderweir-audio",
+      "kind": "audio",
+      "bytes": 4010381,
+      "sha256": "4d256a32afee0eaef849cfe355527f11a92e302b918b8992bb9b2a1dae9cfd71",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Alderweir",
+        "name": "SW_Alderweir_Title",
+        "lod": null
+      }
     },
     {
       "path": "public/assets/audio/world/bank-combat.m4a",

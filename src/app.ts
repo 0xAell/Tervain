@@ -230,7 +230,7 @@ export class App {
     this.input = new Input(this.canvas, () => this.settings);
     this.applyUiSettings();
     this.buildShell();
-    // The menu surfaces (dust, leather, bronze, parchment) also dress the loading screen, so make them first.
+    // Install the menu materials before showing the first view.
     installMenuMaterials();
     this.loadingScreen.start({ mode: 'initial', phase: 'prepare' });
     void this.checkLiveBuild(true);
@@ -242,7 +242,7 @@ export class App {
       if (import.meta.env.PROD) this.renderer.debug.checkShaderErrors = false;
       this.perf = new PerfMeter(this.renderer);
     } catch {
-      this.loadingEl.textContent = S('menu.webgl');
+      this.loadingScreen.fail({ message: S('menu.webgl'), retry: () => window.location.reload() });
       return;
     }
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -1269,7 +1269,7 @@ export class App {
     this.motion.capture(this.simStep, objects);
   }
 
-  /** Draw the frame: the HUD from the latest step, the world between its last two steps. */
+  /** World-space HUD anchors and the scene share the same camera and actor positions for each draw. */
   private present(alpha: number) {
     if (this.worldPaused || this.mode === 'loading') return;
     if (this.menuBackgroundActive) {
@@ -1277,12 +1277,12 @@ export class App {
       this.render();
       return;
     }
-    this.updateHud(this.lastFrameDt);
     this.hunting.updateHud();
     if (this.panelKind === 'map' && this.mapCanvas) this.renderMap();
     this.updateDebug(this.lastFrameDt);
     this.motion.apply(alpha, this.simStep);
     try {
+      this.updateHud(this.lastFrameDt);
       this.render();
     } finally {
       this.motion.restore();
@@ -2619,8 +2619,8 @@ export class App {
 
   /* ==================================== HUD ==================================== */
 
-  private project(v: THREE.Vector3): { x: number; y: number; on: boolean } {
-    const p = v.clone().project(this.cam.camera);
+  private project(head: THREE.Vector3, root: THREE.Object3D): { x: number; y: number; on: boolean } {
+    const p = this.motion.alignAnchor(head, root).project(this.cam.camera);
     return { x: (p.x * 0.5 + 0.5) * window.innerWidth, y: (-p.y * 0.5 + 0.5) * window.innerHeight, on: p.z >= -1 && p.z <= 1 && Math.abs(p.x) < 1.1 && Math.abs(p.y) < 1.1 };
   }
 
@@ -2657,7 +2657,7 @@ export class App {
       }
       const npc = this.npcs.find((n) => n.id === id);
       if (!npc || npc.hidden) continue;
-      const pr = this.project(npc.headPosition);
+      const pr = this.project(npc.headPosition, npc.rig.root);
       if (pr.on) bubbles.push({ id, x: pr.x, y: pr.y - 6, text: b.text });
     }
     this.hud.setBubbles(bubbles);
@@ -2665,14 +2665,14 @@ export class App {
     if (this.target && this.target.id.startsWith('npc:') && this.overlay === 'none') {
       const npc = this.npcs.find((n) => `npc:${n.id}` === this.target!.id);
       if (npc) {
-        const pr = this.project(npc.headPosition);
+        const pr = this.project(npc.headPosition, npc.rig.root);
         if (pr.on) tags.push({ id: npc.id, x: pr.x, y: pr.y - 22, text: NPCS[npc.id].name });
       }
     }
     let threat: string | null = null;
     for (const e of this.enemies) {
       if (!e.alive || !e.engaged) continue;
-      const pr = this.project(e.headPosition);
+      const pr = this.project(e.headPosition, e.rig.root);
       if (pr.on) tags.push({ id: e.id, x: pr.x, y: pr.y - 6, text: e.name, frac: e.hp / e.maxHp });
       if (e.telegraphing) threat = S('hud.threat');
     }

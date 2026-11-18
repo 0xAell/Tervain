@@ -341,7 +341,7 @@ export class WorldScene {
       await checkpoint('woodland', 'Grass and undergrowth');
       addModule('groundcover', buildGroundcover(ctx));
       await checkpoint('woodland', 'Woodland atmosphere');
-      addModule('wildlife', buildWildlife(ctx));
+      addModule('wildlife', buildWildlife(ctx, scenery.chimneyOutlets));
       addModule('woodland air', buildWoodlandAir(ctx, sky.fog));
       addModule('coastal promontory', buildCoastalBackdrop(terrainTex));
       // Retain the original module update/draw ordering while still attaching each allocation immediately for cleanup.

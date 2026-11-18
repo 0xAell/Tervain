@@ -55,14 +55,15 @@ export const FOLIAGE_LOOK: FoliageLook = {
   // A76: the crown shades more as one mass, and light through the leaves is weaker and less yellow (no lime highlights).
   crownNormal: 0.85,
   translucency: 0.55,
-  transTint: new THREE.Color(0.9, 0.95, 0.7),
+  // Thin tips facing the sun pick up amber. The existing shell and light masks keep shaded wood cool.
+  transTint: new THREE.Color(1.03, 0.94, 0.65),
   // A75: the heart of a near crown and its leaves in their own shadow went near-black, so a crown read as blotchy dark
   // clumps between bright cards (owner playtest). Gothic 3's crowns stay soft and evenly lit inside.
   // A133: depth again: a crown's heart falls to 0.72 of the open ambient (with the crown normal's sky bias it never goes
   // black), so the crown reads as a volume rather than one evenly lit sheet of cards.
   innerShade: 0.72,
-  // A76: muted toward Gothic 3's olive greens.
-  saturation: 0.7,
+  // Alder green stays visible through the final olive grade, especially on the shaded side.
+  saturation: 0.77,
   variation: 1,
   shadeThrough: 0.8,
   // A79: the shell's gaps between masses and the roughened card cut made near crowns noisy and blotchy, with dark clumps

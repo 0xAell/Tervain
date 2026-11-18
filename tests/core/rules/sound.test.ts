@@ -63,7 +63,7 @@ describe('the score’s pacing', () => {
     // With the random source at 0, the first wait is its shortest.
     expect(director.update(MUSIC_PACING.firstWait[0] - 0.2, ctx)).toEqual([]);
     const started = director.update(0.3, ctx);
-    expect(started).toEqual([{ t: 'piece', id: 'theme_vale', fadeIn: MUSIC_PACING.fade.piece }]);
+    expect(started).toEqual([{ t: 'piece', id: 'alder_landing', fadeIn: MUSIC_PACING.fade.piece }]);
     // The piece runs its length, then the quiet lasts at least the shortest span before the next.
     expect(director.update(MUSIC[director.current!].duration + 0.1, ctx)).toEqual([]);
     expect(director.phase).toBe('wait');

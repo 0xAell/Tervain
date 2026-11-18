@@ -68,8 +68,11 @@ describe('shared woodland habitat and atmosphere', () => {
     points.geometry.addEventListener('dispose', () => geometryDisposes++);
     points.material.addEventListener('dispose', () => materialDisposes++);
     air.update(1, frame(-182, 14));
-    const before = [...points.geometry.getAttribute('position').array];
+    const position = points.geometry.attributes.position as THREE.BufferAttribute;
+    const version = position.version;
+    const before = [...position.array];
     air.update(10, frame(-182, 14, true));
+    expect(position.version).toBe(version);
     expect([...points.geometry.getAttribute('position').array]).toEqual(before);
     air.update(1, frame(-182, 14));
     expect([...points.geometry.getAttribute('position').array]).not.toEqual(before);
