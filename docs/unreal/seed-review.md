@@ -479,7 +479,7 @@ Improved:
   which no pass draws: the world always has fog. It now compiles the casters' depth programs alone (17 where it made
   64). On the software renderer the first view's preparation takes 44.6 s where it took 47.2, and a journey loads in
   62.1 s where it took 65.1 (medians of three alternating runs); on a GPU each program is driver compile time and
-  memory (PR_X).
+  memory ([#903](https://github.com/0xAell/Tervain/pull/903)).
 
 Next:
 
