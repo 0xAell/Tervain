@@ -159,9 +159,9 @@ The [0.0.5 menu score source record](../engineering/menu-score.md) pins hashes, 
 
 Provide independent master, music, effects, ambience, and dialogue levels, with useful captions for essential nonverbal cues. Avoid making information depend exclusively on stereo direction or a subtle pitch difference. The previously supplied `Mesure Avancée.m4a` is a candidate reference or licensed-use candidate only; its availability in earlier Warpkeep work does not establish Tervain distribution rights. Track its actual author, source, and permitted uses before inclusion, as required for every shared asset.
 
-### Alderweir, 0.1.0
+### Art and sound in 0.1.1
 
-The title uses the original chamber recording from Alderweir. Its 6/8 tempo map sets the timing of the spirits’ dance, and the spectral accents come from the played recording. Shorter movements and river sounds accompany exploration. [Alderweir score and sources](../engineering/alderweir-audio.json).
+The playable world uses original 3D geometry and the score composed for Tervain. The fog bell, standard, figures, forest and sound sources are indexed in [Art and sound in 0.1.1](valley-craft.md). The 0.1.0 film plates and score belong to the earlier build.
 
 ## Provisional production budgets and acceptance
 

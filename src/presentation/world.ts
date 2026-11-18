@@ -332,7 +332,8 @@ export class WorldScene {
       addModule('source rock piles', buildSourceRockPiles(ctx, rockPile));
       // The residents' footprints precede grass placement, as in the original construction order.
       await checkpoint('woodland', 'Hamlet neighbours');
-      addModule('ambient', buildAmbient(ctx));
+      const neighbours = addModule('ambient', buildAmbient(ctx));
+      await neighbours.ready;
       // The hunter's camp and the caravan rest register their solid props before grass is sown around them: built after,
       // grass grew through the trough, the panniers and the notice board (A105 scout). They join the scene below.
       const hunterSupplies = buildHunterSupplies(terrain, colliders), animalCamp = buildAnimalCamp(terrain, colliders, settings.quality !== 'low');
@@ -353,6 +354,7 @@ export class WorldScene {
       await checkpoint('settlement', 'Buildings and supplies');
       const environment = own(buildEnvironment(scene, settings.quality));
       scene.add(scenery.group);
+      if (settings.quality !== 'low' && scenery.installRegionSun) own({ dispose: scenery.installRegionSun(scene, sky.sun) });
       // A room's furniture shows only while someone can see into it (A66): see WorldScene.roomOpen.
       let roomOpen: (room: InteriorSpec) => number = () => 1;
       // What arrives after the world opens is asked for only once it has opened, so it never competes with what the

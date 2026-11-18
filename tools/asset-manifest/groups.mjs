@@ -44,6 +44,9 @@ const texture = (folder, name) => (path) => {
   const base = stem(path), kind = Object.keys(TEXTURE_SUFFIX).find((key) => base.endsWith(`-${key}`));
   return { type: 'Texture', folder, name: `${UNREAL_PREFIX.Texture}${name(kind ? base.slice(0, -kind.length - 1) : base)}${kind ? TEXTURE_SUFFIX[kind] : ''}`, lod: null };
 };
+// Two browser encodings describe one sound for import. Each Opus file names its one engine asset.
+const playableSound = (folder, prefix) => (file) => file.endsWith('.ogg')
+  ? sound(`/Game/Tervain/Audio/${folder}`, (base) => `${prefix}_${pascal(base)}`)(file) : null;
 const none = () => null;
 const treeName = (base) => pascal(base.replace(/-(near|mid|far)$/, '').replace(/-under-\d+k$/, ''));
 
@@ -55,6 +58,34 @@ const TREES_WHY = 'The exact species of the game’s woods (oak, with birch, pin
  * that file would produce, or returns null when nothing is imported from it.
  */
 export const GROUPS = [
+  {
+    id: 'craft-trees', title: 'Silver fir, shore pine and three coastal palms', kind: 'model', role: 'tree',
+    match: /^public\/models\/flora\/craft\/[^/]+\.glb$/, plan: 'keep', fab: null,
+    why: 'Three original levels of detail preserve whorled branches, needle clusters and palm fronds.',
+    source: 'tools/craft-environment/woodland.mjs and tools/leaf-atlas/conifer.mjs',
+    licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
+    unreal: mesh('StaticMesh', '/Game/Tervain/Flora/Trees', base => `Tree_${treeName(base)}`),
+  },
+  {
+    id: 'craft-furniture', title: 'Original village furniture', kind: 'model', role: 'furniture',
+    match: /^public\/models\/craft\/furniture\/[^/]+\.glb$/, plan: 'keep', fab: null,
+    why: 'Original joinery, ironwork, woven cloth and pottery fit the furnishing and room-collision plans.',
+    source: 'tools/craft-environment/furniture.mjs', licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
+    unreal: mesh('StaticMesh', '/Game/Tervain/Interiors', base => `Furniture_${pascal(base)}`),
+  },
+  {
+    id: 'craft-furniture-manifest', title: 'Original furnishings inventory', kind: 'data', role: 'furniture',
+    match: /^public\/models\/craft\/furniture\/manifest\.json$/, plan: 'drop', fab: null,
+    why: 'The browser uses these dimensions, byte counts and hashes.', source: 'tools/craft-environment/build.mjs',
+    licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' }, unreal: none,
+  },
+  {
+    id: 'craft-schist', title: 'Intertidal schist outcrop', kind: 'model', role: 'scenery',
+    match: /^public\/models\/scenery\/intertidal-schist\.glb$/, plan: 'keep', fab: null,
+    why: 'The visible bedding planes form the walkable surface.', source: 'tools/craft-environment/woodland.mjs',
+    licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
+    unreal: mesh('StaticMesh', '/Game/Tervain/Scenery', () => 'IntertidalSchist'),
+  },
   {
     id: 'hero', title: 'The wanderer (hero body and animation)', kind: 'model', role: 'hero', match: /^public\/models\/hero\//,
     plan: 'replace', fab: 'characters', pack: 'Modular Medieval NPC V2 - Metahuman', webTarget: 'Medieval NPC Pack v1',
@@ -161,10 +192,9 @@ export const GROUPS = [
   },
   {
     id: 'leaf-atlas-fir', title: 'Fir leaf atlas', kind: 'texture', role: 'foliage-texture', match: /^public\/textures\/leaf\/fir-/,
-    plan: 'replace', fab: 'trees', pack: 'Megaplants: English Oak', webTarget: 'European Beech', packWhy: TREES_WHY,
-    why: 'The supplied fir’s needle sheet redrawn needle by needle in its own layout, inside its alpha mask and from its colour, for the web build’s fir crowns. Replaced together with the trees.',
-    source: 'Built by tools/leaf-atlas from the needle sheet of the supplied fir model (public/models/flora/meshy-012/fir-spire-near.glb), whose licence it carries.',
-    licence: { id: 'CC0-1.0', status: 'meshy-community-cc0' },
+    plan: 'keep', fab: null, why: 'Sixty-four needle sprays follow the whorled branches of the original silver fir.',
+    source: 'tools/leaf-atlas/build.mjs and tools/leaf-atlas/conifer.mjs',
+    licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
     unreal: texture('/Game/Tervain/Flora/Textures', (base) => `Leaf_${pascal(base)}`),
   },
   {
@@ -175,72 +205,56 @@ export const GROUPS = [
     unreal: texture('/Game/Tervain/Flora/Textures', (base) => `Leaf_${pascal(base)}`),
   },
   {
-    id: 'alderweir-landscapes', title: 'Alderweir landscape paintings', kind: 'image', role: 'interface-art', match: /^public\/assets\/alderweir\/.*\.webp$/,
-    plan: 'keep', fab: null, why: 'Two original landscape plates from the Alderweir film used during arrival and view changes.',
-    source: 'Original AI-assisted landscape paintings from the owner-supplied Alderweir project, resized for the game.',
-    licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
-    unreal: texture('/Game/Tervain/UI/Textures', (base) => `UI_Alderweir${pascal(base)}`),
-  },
-  {
-    id: 'emblem', title: 'Hegemony emblem', kind: 'image', role: 'identity', match: /^public\/assets\/menu\//,
-    plan: 'keep', fab: null, why: 'The approved faction emblem of the title screen: part of the game’s identity. Import the PNG; the WebP is the web build’s smaller copy.',
-    source: 'Approved identity artwork from the Warpkeep-Assets repository; see docs/engineering/menu-assets.json.', licence: { id: 'LicenseRef-Tervain-Identity', status: 'project-owned' },
-    unreal: (path) => (path.endsWith('.png') ? { type: 'Texture', folder: '/Game/Tervain/UI/Textures', name: 'T_UI_HegemonyEmblem', lod: null } : null),
-  },
-  {
-    id: 'menu-music', title: 'Archived 0.0.x title music: The Sovereign’s Oath', kind: 'audio', role: 'music', match: /^(public\/assets\/audio\/the-sovereigns-oath\.|assets\/audio\/source\/the-sovereigns-oath)/,
+    id: 'menu-music', title: 'Archived 0.0.x title music: The Sovereign’s Oath', kind: 'audio', role: 'archive', match: /^assets\/audio\/source\/the-sovereigns-oath/,
     plan: 'replace', fab: 'audio', pack: 'Medieval Fantasy Game Music Pack',
-    packWhy: 'The music listing among the candidates: 32 tracks, an hour of music with full pieces, loops and diegetic pieces, so a title theme and quiet loops come from one set under one licence. This was the replacement proposed for the earlier prototype. The grove now uses the original Alderweir score.',
-    why: 'The archived title theme from the 0.0.x grove. Retain this source record and its commercial-release restriction for the historical encodings.',
+    packWhy: 'The historical port proposal selected 32 instrumental tracks, including full pieces, loops and diegetic music. The active game now uses the original Tervain ford score.',
+    why: 'Preserve the source for attribution and history. The web game and future ports use the original Tervain score.',
     source: 'Supplied by the project owner; see docs/engineering/menu-score.md and menu-audio-assets.json.', licence: { id: 'LicenseRef-Service-Terms', status: 'unresolved' },
-    beforeShip: 'Whether the terms of the service the theme was made with allow a commercial release is not settled.',
-    unreal: (path) => (path.startsWith('assets/') ? { type: 'SoundWave', folder: '/Game/Tervain/Audio/Music', name: 'SW_Music_TheSovereignsOath', lod: null } : null),
+    beforeShip: 'Whether the terms of the service the archived theme was made with allow a commercial release is not settled.',
+    unreal: none,
   },
   {
-    id: 'voice-web', title: 'Spoken lines, web sprites (240 sprite files in two encodings)', kind: 'audio', role: 'voice', match: /^public\/assets\/audio\/voice\//,
-    plan: 'drop', fab: null, why: 'Each speaker’s lines joined end to end for the browser. A port imports the single takes from the source archive.',
-    source: 'Cut from assets/audio/source/voice by tools/world-audio/prepare.mjs.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' }, unreal: none,
+    id: 'voice-web', title: 'Tervain speaker gestures, Opus and AAC', kind: 'audio', role: 'voice', match: /^public\/assets\/audio\/voice\//,
+    plan: 'keep', fab: null, why: 'Each bank carries a distinct character’s nonverbal gestures. The dialogue is written on screen.',
+    source: 'Tervain synthesis. See tools/world-audio/ford_foley.py and docs/engineering/tervain-audio.json.',
+    licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' }, unreal: playableSound('Voices', 'Voice'),
   },
   {
-    id: 'voice-source', title: 'Spoken lines, single takes', kind: 'audio', role: 'voice', match: /^assets\/audio\/source\/voice\//,
-    plan: 'keep', fab: null, why: 'The game’s own dialogue, one file a line, keyed as data/game/voice.json. Synthetic voices: keep as the working track and decide on recorded actors before release.',
-    source: 'ElevenLabs text to speech with designed voices; see docs/engineering/voice-assets.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' },
-    unreal: sound('/Game/Tervain/Audio/Voice', (base) => `Voice_${pascal(base)}`),
+    id: 'voice-source', title: 'Historical ElevenLabs spoken lines', kind: 'audio', role: 'archive', match: /^assets\/audio\/source\/voice\//,
+    plan: 'drop', fab: null, why: 'Historical actor takes, excluded from playable content and port imports since 0.1.1.',
+    source: 'ElevenLabs text to speech; see the historical docs/engineering/voice-assets.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' }, unreal: none,
   },
   {
-    id: 'alderweir-audio', title: 'Alderweir chamber score, river ambience and interaction sounds', kind: 'audio', role: 'sound', match: /^public\/assets\/audio\/world\/alderweir\//,
-    plan: 'keep', fab: null, why: 'Original music and sound from the Alderweir project. Each cue has two browser encodings and a single import identity.',
-    source: 'Original score with VSCO 2 Community Edition instrument samples (CC0), synthesized ambience and foley. See docs/engineering/alderweir-audio.json.',
+    id: 'ford-audio', title: 'The Ford at First Light and regional opening arrangements', kind: 'audio', role: 'sound', match: /^public\/assets\/audio\/world\/ford\//,
+    plan: 'keep', fab: null, why: 'The Tervain theme, regional cues, rivers and timber foley are original score and synthesis.',
+    source: 'tools/world-audio/ford-score.json, ford_score.py and ford_foley.py. See docs/engineering/tervain-audio.json.',
     licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
-    unreal: (file) => file.endsWith('.ogg') ? { type: 'SoundWave', folder: '/Game/Tervain/Audio/Alderweir', name: `SW_Alderweir_${pascal(stem(file))}`, lod: null } : null,
+    unreal: (file) => file.endsWith('.ogg') ? { type: 'SoundWave', folder: '/Game/Tervain/Audio/Ford', name: `SW_Ford_${pascal(stem(file))}`, lod: null } : null,
   },
   {
-    id: 'world-audio-web', title: 'World sound, web banks and loops', kind: 'audio', role: 'sound', match: /^public\/assets\/audio\/world\//,
-    plan: 'drop', fab: null, why: 'Effects packed into banks, and loops and music re-encoded, for the browser. A port imports the source clips.',
-    source: 'Packed from assets/audio/source/world by tools/world-audio/prepare.mjs.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' }, unreal: none,
+    id: 'world-audio-web', title: 'Tervain sound effects, ambient beds and adaptive score', kind: 'audio', role: 'sound', match: /^public\/assets\/audio\/world\//,
+    plan: 'keep', fab: null, why: 'The active game score, region ambience and world interaction sounds.',
+    source: 'Tervain composition and synthesis. See docs/engineering/tervain-audio.json.', licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' }, unreal: playableSound('World', 'World'),
   },
   {
-    id: 'world-audio-source', title: 'World sound, source clips (effects, ambience beds, music)', kind: 'audio', role: 'sound', match: /^assets\/audio\/source\/world\//,
-    plan: 'keep', fab: 'audio',
-    why: 'Foley, ambience and the adaptive score, generated for this world and already balanced against each other. Keep them; where a bed or effect is weak, a sound library from Fab fills the gap.',
-    source: 'ElevenLabs Sound Effects and Eleven Music; see docs/engineering/world-audio-assets.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' },
-    unreal: sound('/Game/Tervain/Audio/World', (base) => `World_${pascal(base)}`),
+    id: 'world-audio-source', title: 'Historical ElevenLabs world recordings', kind: 'audio', role: 'archive', match: /^assets\/audio\/source\/world\//,
+    plan: 'drop', fab: null, why: 'Historical generations excluded from the playable build and future port imports.',
+    source: 'ElevenLabs Sound Effects and Eleven Music; see the historical docs/engineering/world-audio-assets.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' }, unreal: none,
   },
   {
-    id: 'animal-audio-web', title: 'Animal calls, web encodings', kind: 'audio', role: 'sound', match: /^public\/audio\/animals\//,
-    plan: 'drop', fab: null, why: 'Browser encodings of the calls in the source archive.',
-    source: 'Encoded from assets/audio/source/animals.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' }, unreal: none,
+    id: 'animal-audio-web', title: 'Synthesized animal calls, Opus and AAC', kind: 'audio', role: 'sound', match: /^public\/audio\/animals\//,
+    plan: 'keep', fab: null, why: 'Two original, spatializable calls for every animal species.',
+    source: 'Tervain species profiles in tools/world-audio/ford_foley.py.', licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' }, unreal: playableSound('Animals', 'Animal'),
   },
   {
-    id: 'animal-audio-source', title: 'Animal calls, source clips', kind: 'audio', role: 'sound', match: /^assets\/audio\/source\/animals\//,
-    plan: 'keep', fab: 'audio', why: 'Two generated calls per kind, made for these animals. Keep them: no Fab library with the calls of all of them was found. Where the chosen animal pack brings recorded calls for an animal, use those.',
-    source: 'ElevenLabs Sound Effects; see docs/engineering/animal-audio-assets.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' },
-    unreal: sound('/Game/Tervain/Audio/Animals', (base) => `Animal_${pascal(base)}`),
+    id: 'animal-audio-source', title: 'Historical ElevenLabs animal calls', kind: 'audio', role: 'archive', match: /^assets\/audio\/source\/animals\//,
+    plan: 'drop', fab: null, why: 'Historical generations excluded from the playable build and future port imports.',
+    source: 'ElevenLabs Sound Effects; see the historical docs/engineering/animal-audio-assets.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' }, unreal: none,
   },
   {
-    id: 'hunting-audio', title: 'Hunting sounds (bow, arrow, skinning)', kind: 'audio', role: 'sound', match: /^public\/assets\/audio\/hunting\/[^/]+\.mp3$/,
-    plan: 'keep', fab: 'audio', why: 'Six effects made for the bow and the knife. Keep; a weapon foley library can replace any that read as synthetic.',
-    source: 'ElevenLabs Sound Effects; see docs/engineering/hunting-sounds.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' },
+    id: 'hunting-audio', title: 'Tervain bow, arrow and skinning sound effects', kind: 'audio', role: 'sound', match: /^public\/assets\/audio\/hunting\/[^/]+\.mp3$/,
+    plan: 'keep', fab: null, why: 'The six synthesized effects for drawing, releasing, striking and using tools.',
+    source: 'Original material foley. See tools/world-audio/ford_foley.py and docs/engineering/hunting-sounds.json.', licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' },
     unreal: sound('/Game/Tervain/Audio/Hunting', (base) => `Hunting_${pascal(base)}`),
   },
   {

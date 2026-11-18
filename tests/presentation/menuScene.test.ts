@@ -43,12 +43,10 @@ class CanvasStub {
 
 interface Fixture {
   menu: MenuScene;
-  resolveEmblem(img: unknown): void;
 }
 
-function resources(): { res: MenuResources; resolveEmblem(img: unknown): void; materials: Map<MatKey, THREE.Material> } {
+function resources(): { res: MenuResources; materials: Map<MatKey, THREE.Material> } {
   const materials = new Map<MatKey, THREE.Material>();
-  let resolveEmblem: (img: unknown) => void = () => {};
   const res: MenuResources = {
     noise: () => new THREE.DataTexture(new Uint8Array(4 * 4 * 4), 4, 4),
     materials: () => ({
@@ -69,11 +67,9 @@ function resources(): { res: MenuResources; resolveEmblem(img: unknown): void; m
     leaf: () => new THREE.Texture(),
     canvas: {
       canvas: (w, h) => Object.assign(new CanvasStub(), { width: w, height: h }) as unknown as HTMLCanvasElement,
-      image: () => new Promise((r) => (resolveEmblem = r as (img: unknown) => void)),
     },
-    emblemUrl: 'emblem.png',
   };
-  return { res, resolveEmblem: (img) => resolveEmblem(img), materials };
+  return { res, materials };
 }
 
 const built: MenuScene[] = [];
@@ -81,7 +77,7 @@ function fixture(quality: 'low' | 'medium' | 'high' = 'high', trafficSeed = 0, t
   const r = resources();
   const menu = new MenuScene({ quality, resources: r.res, trafficSeed, trafficTime, awakening });
   built.push(menu);
-  return { menu, resolveEmblem: r.resolveEmblem };
+  return { menu };
 }
 
 function meshes(scene: THREE.Scene) {
@@ -411,21 +407,10 @@ describe('menu vigil scene', () => {
     expect(a.stats.wisps).toBe(40);
   });
 
-  it('prints the emblem when it arrives and stays usable when it never does', async () => {
-    const ok = fixture();
-    const missing = fixture();
-    ok.resolveEmblem({ naturalWidth: 64, naturalHeight: 64 });
-    missing.resolveEmblem(null);
-    await new Promise((r) => setTimeout(r, 0));
-    const banner = (m: MenuScene) => (m as unknown as { banner: { printed(): boolean } }).banner;
-    expect(banner(ok.menu).printed()).toBe(true);
-    expect(banner(missing.menu).printed()).toBe(false);
-    missing.menu.update(0.05, false);
-    expect(snapshot(missing.menu).every(Number.isFinite)).toBe(true);
-  });
-
-  it('disposes once, ignores a late emblem, and stops updating', async () => {
+  it('builds the dyed standard immediately and disposes its geometry once', () => {
     const f = fixture();
+    const standard = f.menu.scene.getObjectByName('Menu_Hegemony_Standard_Cloth') as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
+    expect(standard.material.map).toBeInstanceOf(THREE.CanvasTexture);
     const geos = new Set<THREE.BufferGeometry>();
     for (const o of meshes(f.menu.scene)) geos.add(o.geometry);
     const spies = [...geos].map((g) => vi.spyOn(g, 'dispose'));
@@ -433,8 +418,6 @@ describe('menu vigil scene', () => {
     f.menu.dispose();
     for (const s of spies) expect(s.mock.calls.length).toBeLessThanOrEqual(1);
     expect(spies.filter((s) => s.mock.calls.length === 1).length).toBeGreaterThan(geos.size * 0.9);
-    f.resolveEmblem({ naturalWidth: 8, naturalHeight: 8 });
-    await new Promise((r) => setTimeout(r, 0));
     expect(() => f.menu.update(0.1, false)).not.toThrow();
     expect(f.menu.scene.children).toHaveLength(0);
   });

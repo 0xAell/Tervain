@@ -1,4 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Only this archival transport fixture can resolve these files. The playable resolver and its tests reject them.
+vi.mock('../../src/presentation/assets/playableModels', () => ({
+  playableModel: (file: string) => file === 'hero/weathered-wanderer-hero-sealed.glb',
+}));
+
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const loaderMock = vi.hoisted(() => ({
@@ -68,7 +74,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('main hero transport and loading-screen retry', () => {
+describe('archived hero fixture transport and retry', () => {
   it('resolves the relative production base inside the Pages repository subdirectory', () => {
     expect(subject.mainHeroUrl().href).toBe('https://0xaell.github.io/Tervain/models/hero/weathered-wanderer-hero-sealed.glb');
     expect(subject.mainHeroUrl('/Tervain/', 'https://0xaell.github.io/Tervain/').href)

@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import { expect, it } from 'vitest';
+// @ts-expect-error Standalone browser tool.
+import { observeHeroDraws } from '../../tools/hero-draw-observer.mjs';
 
 it('timing-only sampling skips readback and encoding; recorded sampling keeps stills', () => {
   const source = readFileSync('tools/play-gate.mjs', 'utf8');
@@ -27,7 +29,7 @@ it('timing-only sampling skips readback and encoding; recorded sampling keeps st
       performance: { now: () => 100 },
       document: { timeline: { currentTime: 100 }, createElement: () => ({ getContext: () => ({ drawImage: () => { readbacks++; } }), toDataURL: () => { encodes++; return 'data:image/jpeg;base64,'; } }) },
     });
-    vm.runInContext(`(() => { ${sampler.replaceAll('${VIDEO}', String(video)).replaceAll('${textureUploadBytes.toString()}', '() => 0')} })()`, context);
+    vm.runInContext(`(() => { ${sampler.replaceAll('${VIDEO}', String(video)).replaceAll('${textureUploadBytes.toString()}', '() => 0').replaceAll('${observeHeroDraws.toString()}', observeHeroDraws.toString())} })()`, context);
     vm.runInContext('window.__gate.phase = "inside-window"; window.__gate.last = 50; window.tervain.renderer.render({}, {});', context);
     expect(readbacks).toBe(video ? 1 : 0);
     expect(encodes).toBe(video ? 1 : 0);

@@ -1,0 +1,354 @@
+{
+  "schema": 1,
+  "generator": "Tervain tools/craft-environment/build.mjs",
+  "pieces": [
+    {
+      "id": "altar",
+      "file": "altar.glb",
+      "bytes": 26744,
+      "sha256": "ab5a2ca768031154fe3604e6c48bf8f0605c86d6d7c9d6e17590df118b448cb9",
+      "triangles": 392,
+      "size": [
+        1.1412,
+        1.05,
+        0.75
+      ]
+    },
+    {
+      "id": "antlers",
+      "file": "antlers.glb",
+      "bytes": 36232,
+      "sha256": "46cac14cba7e2f56db02f3ab1195da4d3800c9a3c98e2ab3707cd79f58acb332",
+      "triangles": 504,
+      "size": [
+        0.7383,
+        0.6,
+        0.3
+      ]
+    },
+    {
+      "id": "barrel",
+      "file": "barrel.glb",
+      "bytes": 29652,
+      "sha256": "96d9971a4a1c0ab400c5d704e08dc7b2cac1c2b0efc73e9c8a21782cc05338ce",
+      "triangles": 636,
+      "size": [
+        0.875,
+        0.85,
+        0.8778
+      ]
+    },
+    {
+      "id": "bed",
+      "file": "bed.glb",
+      "bytes": 39784,
+      "sha256": "76375bf152fb935d72aa1b99240c9d0caec3cf2f746686176019085a4f1fcb76",
+      "triangles": 552,
+      "size": [
+        2.05,
+        1.05,
+        1.1186
+      ]
+    },
+    {
+      "id": "bookshelf",
+      "file": "bookshelf.glb",
+      "bytes": 66448,
+      "sha256": "2505d3ecefcb277714cdc95006b69a8266113788194479b069a85b091e236e83",
+      "triangles": 756,
+      "size": [
+        1.0729,
+        1.85,
+        0.4
+      ]
+    },
+    {
+      "id": "bread",
+      "file": "bread.glb",
+      "bytes": 23420,
+      "sha256": "dfecd891892305555ef9fefe61f5a175d93a198ff896ce0ed07462ac4a28d6c1",
+      "triangles": 480,
+      "size": [
+        0.5,
+        0.18,
+        0.32
+      ]
+    },
+    {
+      "id": "bunk",
+      "file": "bunk.glb",
+      "bytes": 77196,
+      "sha256": "de736aad9f39ccb2d6fc34400a378fb98d3673e70c8067215057502c0cbd09ed",
+      "triangles": 1208,
+      "size": [
+        2.05,
+        1.75,
+        1.1732
+      ]
+    },
+    {
+      "id": "candle",
+      "file": "candle.glb",
+      "bytes": 15416,
+      "sha256": "393d2bc0da67159982f124359f84b085a430ab0b3c5033e99dab9f20574ee74b",
+      "triangles": 192,
+      "size": [
+        0.1574,
+        0.38,
+        0.1576
+      ]
+    },
+    {
+      "id": "cauldron",
+      "file": "cauldron.glb",
+      "bytes": 42124,
+      "sha256": "434c72cabb7add162bfee494e623dc01a800a2f4af69fa39d92dadccfae3e05a",
+      "triangles": 704,
+      "size": [
+        0.5,
+        0.42,
+        0.4512
+      ]
+    },
+    {
+      "id": "chair",
+      "file": "chair.glb",
+      "bytes": 25436,
+      "sha256": "150bdbfb9663d03182918141cdea709465ee277e4040c4255f466944e8b6340c",
+      "triangles": 264,
+      "size": [
+        0.5,
+        0.98,
+        0.6595
+      ]
+    },
+    {
+      "id": "chest",
+      "file": "chest.glb",
+      "bytes": 31800,
+      "sha256": "b2c8b6f5b7d41908f00114b9d153a9b77055ee213ce2238a0ac27fdeaf48ef11",
+      "triangles": 312,
+      "size": [
+        0.95,
+        0.58,
+        0.52
+      ]
+    },
+    {
+      "id": "counter",
+      "file": "counter.glb",
+      "bytes": 28044,
+      "sha256": "854205322715e46353c4829b523c0e83355b3948d5d78433081a8c0f27ec8a27",
+      "triangles": 264,
+      "size": [
+        1.4722,
+        1,
+        0.5432
+      ]
+    },
+    {
+      "id": "crate",
+      "file": "crate.glb",
+      "bytes": 31756,
+      "sha256": "fbc14a191cf1f5120716cd180fc8cc5ae9a504111bb844c9c76b97dbaf716d11",
+      "triangles": 312,
+      "size": [
+        0.7,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "cupboard",
+      "file": "cupboard.glb",
+      "bytes": 42576,
+      "sha256": "0d6d0acd566a2633462b0aa449e2254e4592eecd9116ced9ff10fa22d500e392",
+      "triangles": 588,
+      "size": [
+        1,
+        1.85,
+        0.6815
+      ]
+    },
+    {
+      "id": "desk",
+      "file": "desk.glb",
+      "bytes": 29352,
+      "sha256": "33463d9521025680b04131ee74f3585f3001ae1df6f2d0d038c0b2dddda02878",
+      "triangles": 468,
+      "size": [
+        1.0817,
+        1.1,
+        0.7424
+      ]
+    },
+    {
+      "id": "firewood",
+      "file": "firewood.glb",
+      "bytes": 44612,
+      "sha256": "87b72e40a5b924aaeda8252c66dce14a07289df390387474c86605a3a49614ce",
+      "triangles": 576,
+      "size": [
+        1.278,
+        0.75,
+        0.6546
+      ]
+    },
+    {
+      "id": "herbs",
+      "file": "herbs.glb",
+      "bytes": 81252,
+      "sha256": "30d67dcdff094e4439e2a881f2bb730345864920bf6ea6a6037a601b73a16acb",
+      "triangles": 1616,
+      "size": [
+        0.5722,
+        0.6,
+        0.3434
+      ]
+    },
+    {
+      "id": "jug",
+      "file": "jug.glb",
+      "bytes": 20700,
+      "sha256": "c71ff59d689688f7ee7d57bc084abe2d113efc24b64018196281e4f9ad128d81",
+      "triangles": 352,
+      "size": [
+        0.4071,
+        0.3,
+        0.3771
+      ]
+    },
+    {
+      "id": "loom",
+      "file": "loom.glb",
+      "bytes": 96392,
+      "sha256": "dcb4bbf3b38cb55efb2f01bf9a8a8e0fe627276a860a899d9269b967bacedc46",
+      "triangles": 1356,
+      "size": [
+        1.9456,
+        1.9,
+        0.5651
+      ]
+    },
+    {
+      "id": "oven",
+      "file": "oven.glb",
+      "bytes": 26684,
+      "sha256": "ddeead189bf47a1f97a549da133c54a66ea082d537bb8ed0f7764c59c5af2695",
+      "triangles": 384,
+      "size": [
+        1.35,
+        1.35,
+        1.5599
+      ]
+    },
+    {
+      "id": "pelt",
+      "file": "pelt.glb",
+      "bytes": 12452,
+      "sha256": "ab413971b205e89d190a981a40c8d9c0f1bd75874c31f6efe028b1d3f1134389",
+      "triangles": 143,
+      "size": [
+        1.2,
+        1.4,
+        0.1679
+      ]
+    },
+    {
+      "id": "pots",
+      "file": "pots.glb",
+      "bytes": 31012,
+      "sha256": "95f5cb491ce283c8d064774da2d866b6e72c31e66d1c8a5a3ae643718ab9ef1b",
+      "triangles": 864,
+      "size": [
+        0.7716,
+        0.42,
+        0.6967
+      ]
+    },
+    {
+      "id": "rack",
+      "file": "rack.glb",
+      "bytes": 31100,
+      "sha256": "dd305f53dbdecc11b7ba4b95cb0a069102f48e204eb1fd296d2dfc9eb3847f39",
+      "triangles": 360,
+      "size": [
+        1.3253,
+        1.75,
+        0.3791
+      ]
+    },
+    {
+      "id": "sacks",
+      "file": "sacks.glb",
+      "bytes": 29964,
+      "sha256": "22e7aa35cad6288342ada36f314003f7a9015a447cb8b1ecb68cbdfd34b9ce16",
+      "triangles": 672,
+      "size": [
+        1.0506,
+        0.7,
+        0.85
+      ]
+    },
+    {
+      "id": "shelf",
+      "file": "shelf.glb",
+      "bytes": 44688,
+      "sha256": "2d26f23fe0a2e90175efd379cc2ebc6ac5cd83f29aa5b2120a80d99f97e678e4",
+      "triangles": 852,
+      "size": [
+        1.5556,
+        1.65,
+        0.38
+      ]
+    },
+    {
+      "id": "stool",
+      "file": "stool.glb",
+      "bytes": 19460,
+      "sha256": "0ac8b4a0d7a2f10478c1d38f32f3246c3af63041a02db6929a9d4ec2669c2610",
+      "triangles": 176,
+      "size": [
+        0.4416,
+        0.46,
+        0.4366
+      ]
+    },
+    {
+      "id": "table",
+      "file": "table.glb",
+      "bytes": 19628,
+      "sha256": "1230e31f9820183b09c1a3f03bf01185e2646bf61773191bf4a9c4593ea4c985",
+      "triangles": 156,
+      "size": [
+        1.7,
+        0.78,
+        0.9342
+      ]
+    },
+    {
+      "id": "tools",
+      "file": "tools.glb",
+      "bytes": 23628,
+      "sha256": "27d8f6aa3b03cdb6bb20997b2097f94c36f3393cbe590df97dd5277224d2a066",
+      "triangles": 264,
+      "size": [
+        0.4864,
+        1.7,
+        0.3
+      ]
+    },
+    {
+      "id": "workbench",
+      "file": "workbench.glb",
+      "bytes": 26384,
+      "sha256": "5d619135df49e6de3fdeb7c92d46c9dc43d9d263f8e0225381d11af63f1af4bc",
+      "triangles": 248,
+      "size": [
+        1.6975,
+        0.9,
+        0.773
+      ]
+    }
+  ]
+}

@@ -369,6 +369,8 @@ export class PlayerHuntingVisual {
   }
 
   private joint(part: string): THREE.Object3D | null {
+    const ends = this.rig.extremities;
+    if (ends && (part === 'LeftHand' || part === 'RightHand' || part === 'LeftFoot' || part === 'RightFoot')) return ends[part];
     if (!this.joints.has(part)) this.joints.set(part, this.rig.root.getObjectByName(`mixamorig${part}`) ?? this.rig.root.getObjectByName(`mixamorig:${part}`) ?? null);
     return this.joints.get(part)!;
   }
@@ -378,7 +380,7 @@ export class PlayerHuntingVisual {
     socket.name = `Hunting / ${side.toLowerCase()} palm equipment socket`;
     const middle = this.joint(`${side}HandMiddle1`), pinky = this.joint(`${side}HandPinky1`);
     if (middle && pinky) socket.position.copy(middle.position).lerp(pinky.position, .5);
-    else socket.position.set(0, -.25, 0);
+    else socket.position.set(0, this.rig.extremities ? -.054 * this.rig.height / 1.8 : -.25, 0);
     hand.add(socket);
     return socket;
   }

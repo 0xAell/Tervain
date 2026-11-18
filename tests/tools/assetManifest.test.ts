@@ -115,9 +115,9 @@ describe('the asset manifest', () => {
 
   it('marks every file with an open question replace-before-ship, with a named pack, and keeps none of them', () => {
     const open = committed.assets.filter((asset) => /^unresolved/.test(asset.licence.status));
-    // The hero's two sources of unsettled origin, and the title theme in its three encodings.
+    // The hero's two sources of unsettled origin, and the archived title master.
     expect(open.map((asset) => asset.path)).toEqual([
-      'assets/audio/source/the-sovereigns-oath-original.m4a', 'public/assets/audio/the-sovereigns-oath.m4a', 'public/assets/audio/the-sovereigns-oath.ogg',
+      'assets/audio/source/the-sovereigns-oath-original.m4a',
       'public/models/hero/weathered-wanderer-animated-hero.glb', 'public/models/hero/weathered-wanderer-hero-50k.glb',
     ]);
     expect(committed.assets.filter((asset) => asset.replaceBeforeShip).map((asset) => asset.path)).toEqual(open.map((asset) => asset.path));
@@ -142,7 +142,7 @@ describe('the asset manifest', () => {
       ['hero', 'Modular Medieval NPC V2 - Metahuman'], ['menu-music', 'Medieval Fantasy Game Music Pack'],
     ]);
     expect(committed.replaceBeforeShip).toMatchObject({ decided: '2026-11-15', by: 'the project owner' });
-    expect(committed.totals.replaceBeforeShip).toEqual({ files: 5, bytes: open.reduce((total, asset) => total + asset.bytes, 0) });
+    expect(committed.totals.replaceBeforeShip).toEqual({ files: open.length, bytes: open.reduce((total, asset) => total + asset.bytes, 0) });
   });
 
   it('rejects in its schema a file marked replace-before-ship that is kept', () => {
@@ -153,6 +153,17 @@ describe('the asset manifest', () => {
     expect(validate({ ...committed, assets: [marked] })).toBe(true);
     expect(validate({ ...committed, assets: [{ ...kept, plan: 'keep' }] })).toBe(false);
     expect(validate({ ...committed, assets: [{ ...marked, replaceBeforeShip: false }] })).toBe(false);
+  });
+
+  it('ships only assets with original Tervain provenance in the playable build', () => {
+    const shipped = committed.assets.filter((asset) => asset.shipped);
+    for (const asset of shipped) {
+      expect(asset.licence.status, asset.path).toMatch(/^(project-original|tervain-original-procedural)$/);
+      expect(asset.replaceBeforeShip, asset.path).toBeFalsy();
+    }
+    const archives = committed.assets.filter((asset) => asset.path.startsWith('public/models/npcs/') || asset.path.startsWith('public/models/animals/'));
+    expect(archives.length).toBeGreaterThan(0);
+    expect(archives.every((asset) => !asset.shipped)).toBe(true);
   });
 
   it('adds up', () => {
@@ -173,7 +184,9 @@ describe('Unreal conventions in the manifest', () => {
   });
 
   it('names every imported asset with its type’s prefix, in PascalCase, under the content root', () => {
-    expect(imported.length).toBeGreaterThan(700);
+    const audioMasters = committed.assets.filter((asset) => asset.shipped && asset.path.endsWith('.ogg'));
+    expect(audioMasters.length).toBeGreaterThan(300);
+    for (const asset of audioMasters) expect(asset.unreal?.type, asset.path).toBe('SoundWave');
     for (const asset of imported) {
       const { type, name, folder } = asset.unreal!;
       expect(name.startsWith(committed.unrealConventions.prefixes[type]!), `${asset.path} -> ${name}`).toBe(true);

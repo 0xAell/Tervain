@@ -9,7 +9,7 @@ it('rejects changed or unavailable live baselines while preserving cost and head
   const dir=mkdtempSync(join(tmpdir(),'budget-baseline-'));
   try {
     installPopulationProbe(dir);
-    for(const name of ['play-gate.mjs','webgl-upload-bytes.mjs','budget-frame-samples.mjs','budget-probe.mjs']) {
+    for(const name of ['play-gate.mjs','webgl-upload-bytes.mjs','budget-frame-samples.mjs','hero-draw-observer.mjs', 'budget-probe.mjs']) {
       if(existsSync('tools/'+name))writeFileSync(join(dir,name),readFileSync('tools/'+name));
     }
     writeFileSync(join(dir,'live-deploy.mjs'),`export async function waitForSettledDeploy(){return{ok:true,revision:'1111111',files:7,waitedMs:0,problems:[]};}`);

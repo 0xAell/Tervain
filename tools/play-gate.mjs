@@ -26,6 +26,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { NO_GPU_WATCHDOG, openPage } from './cdp.mjs';
 import { textureUploadBytes } from './webgl-upload-bytes.mjs';
+import { observeHeroDraws } from './hero-draw-observer.mjs';
 import { recordBudgetFrames } from './budget-frame-samples.mjs';
 import { comparePopulatedBudgets, completePopulation, expectedPopulation, maximumBudget, populationLabel, readPopulation, servedRoster, waitForPopulation } from './budget-population.mjs';
 import { LoadFailure, PROBE_INIT, waitUntilReady } from './budget-probe.mjs';
@@ -187,7 +188,7 @@ async function staleCheck() {
 const quantile = (v, q) => { if (!v.length) return 0; const s = [...v].sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.floor(q * s.length))]; };
 
 const SAMPLER = `
-  const T = window.tervain, R = T.renderer, render = R.render.bind(R), P = T.player;
+  const T = window.tervain, R = T.renderer, render = R.render.bind(R);
   const V = T.world.scene.position.constructor, Q = T.world.scene.quaternion.constructor;
   const hips = new V(), head = new V(), root = new V(), up = new V(), q = new Q(), ndc = new V();
   window.__gate = { samples: [], longTasks: [], phase: 'setup', shots: [], upload: 0, frameStart: performance.now(), afterShot: false, last: 0 };
@@ -202,15 +203,16 @@ const SAMPLER = `
     gl[name] = (...a) => { window.__gate.upload += textureUploadBytes(name, a); return f(...a); }; }
   const shotCanvas = document.createElement('canvas'); shotCanvas.width = 480; shotCanvas.height = 270; const shotCtx = shotCanvas.getContext('2d');
   try { new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__gate.longTasks.push([e.startTime, e.duration, window.__gate.phase]); }).observe({ type: 'longtask', buffered: false }); } catch {}
-  const shown = (o) => { for (let x = o; x; x = x.parent) if (!x.visible) return false; return true; };
-  let body = null; P.group.traverse((o) => { if (o.isSkinnedMesh) body = o; });
+  const hero = (${observeHeroDraws.toString()})(T);
   R.render = function (scene, camera) {
+    if (scene === T.world.scene && camera === T.cam.camera) hero.beforeWorld();
     const out = render(scene, camera);
     if (R.getRenderTarget() === null) {
+      const P = T.player;
       const cam = T.cam.camera; P.rig.hips.getWorldPosition(hips); P.rig.head.getWorldPosition(head); P.rig.root.getWorldPosition(root);
       P.rig.root.getWorldQuaternion(q); up.set(0, 1, 0).applyQuaternion(q);
       ndc.copy(hips).project(cam);
-      window.__gate.samples.push([document.timeline.currentTime ?? performance.now(), window.__gate.phase, shown(body) ? 1 : 0, +(T.cam.curDist ?? 0).toFixed(3), +up.y.toFixed(3),
+      window.__gate.samples.push([document.timeline.currentTime ?? performance.now(), window.__gate.phase, hero.presented() ? 1 : 0, +(T.cam.curDist ?? 0).toFixed(3), +up.y.toFixed(3),
         +(head.y - root.y).toFixed(3), +ndc.x.toFixed(3), +ndc.y.toFixed(3), T.simStep, P.swimming ? 1 : 0, R.getPixelRatio(), T.cam.bodyVisible ? 1 : 0,
         +(performance.now() - window.__gate.frameStart).toFixed(2), window.__gate.upload, window.__gate.afterShot ? 1 : 0, (window.__gate.settle > 0 ? (window.__gate.settle--, 1) : 0) || (T.cam.aimBlend > 0.001 && T.cam.aimBlend < 0.999 ? 1 : 0)]);
       const g = window.__gate, now = g.samples.at(-1)[0], interval = g.last ? now - g.last : 0;

@@ -3,7 +3,7 @@ import { downloadAsset } from './assets/download';
 
 /**
  * Leaf atlases (B12), made offline by tools/leaf-atlas into public/textures/leaf: the broadleaf and conifer leaves drawn
- * in code, the fir's needles redrawn from the supplied fir model's own needle sheet.
+ * in code, the fir's individually drawn silver-green needle sprays.
  *
  * Each atlas is 2048 x 2048, 4 x 4 cells of 512 px; cell i is column i % 4, row floor(i / 4), rows counted from the top
  * of the image (v = 0 is the top row, the glTF convention, texture.flipY = false). Two files per atlas: `*-color.webp`
@@ -16,8 +16,7 @@ import { downloadAsset } from './assets/download';
  * CONIFER cells (individually drawn needles; a pad's base is on the left edge for rows 0-1, at the bottom for the rest):
  *   row 0: fir sprays 0-3        row 1: spruce sprigs 4-7        row 2: pine pads 8-11 (one whole branchlet each)
  *   row 3: 12 fir whorl, 13 pine tuft (radial), 14 fir leader, 15 pine leader (stem vertical)
- * FIR sheet (`fir-*.webp`): the fir model's own 8 x 8 sprig layout (256 px cells, same cell positions and silhouettes as the
- * source sheet its cards were cut from), redrawn needle by needle; no UV change is needed. The 4 x 4 CONIFER atlas serves
+ * FIR sheet (`fir-*.webp`): 64 individually grown fir sprays (8 x 8, 256 px each). The 4 x 4 CONIFER atlas serves
  * the pine's cards (remapped cell by cell) and is the one new generators should sample.
  * Other generators that sample these atlases should keep to this layout (the manifest lists it too).
  */

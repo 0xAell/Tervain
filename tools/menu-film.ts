@@ -241,16 +241,7 @@ const resources: MenuResources = {
   leaf: () => leafTexture('oak').clone(),
   canvas: {
     canvas: (w, h) => { const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h; return canvas; },
-    image: (url) => {
-      const promise = new Promise<HTMLImageElement | null>((resolve) => {
-        const image = new Image();
-        image.onload = () => resolve(image); image.onerror = () => resolve(null); image.src = url;
-      });
-      pending.push(promise);
-      return promise;
-    },
   },
-  emblemUrl: '/assets/menu/hegemony-emblem-512.webp',
 };
 
 let renderer: THREE.WebGLRenderer;
@@ -400,7 +391,7 @@ async function boot() {
     grade.setSize(WIDTH, HEIGHT);
     grade.setLook({ ...MENU_LOOK, night: 0 });
     const assets = await Promise.all(pending);
-    if (assets.some((asset) => asset === null)) throw new Error('A menu texture or the Hegemony emblem could not load.');
+    if (assets.some((asset) => asset === null)) throw new Error('A menu texture could not load.');
     await document.fonts.ready;
     menu.prepare(renderer);
     await renderer.compileAsync(menu.scene, menu.camera);

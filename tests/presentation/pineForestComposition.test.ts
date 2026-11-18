@@ -74,8 +74,15 @@ describe('source pine footprints in the regional forest composition', () => {
     }
   });
 
-  it('separates all accepted source roots with symmetric claims spanning the required bucket radius', () => {
-    const claims = population.map((tree) => ({ tree, radius: footprintFor(tree, tree.sp === 'shrub' ? 0.4 * tree.s : tree.radius) }));
+  for (const wideRoots of [false, true]) it(`separates accepted roots with ${wideRoots ? 'multi-bucket' : 'delivered'} footprints`, () => {
+    const claims: { tree: Readonly<FloraTree>; radius: number }[] = [];
+    createFloraPopulation(terrain, exclusions, (tree, fallback) => {
+      const radius = footprintFor(tree, fallback);
+      return wideRoots && isPineSpecies(tree.sp) ? Math.max(radius, 5) : radius;
+    }, groundFor, claim => {
+      if (claim.outcome === 'accepted') claims.push({ tree: claim.tree, radius: claim.footprint });
+    });
+    expect(claims.length).toBeGreaterThan(100);
     const conflicts: string[] = [];
     for (let i = 0; i < claims.length; i++) for (let j = i + 1; j < claims.length; j++) {
       const a = claims[i]!, b = claims[j]!;
@@ -84,10 +91,9 @@ describe('source pine footprints in the regional forest composition', () => {
       }
     }
     expect(conflicts).toEqual([]);
-    const maximum = Math.max(...claims.map((claim) => claim.radius));
-    // A one-bucket search misses some large horizon-root claims; the full reach remains local.
-    expect(maximum * 2 + FLORA_TRUNK_GAP).toBeGreaterThan(8);
-    expect(maximum * 2 + FLORA_TRUNK_GAP).toBeLessThan(FLORA_EDIT_INFLUENCE);
+    const maximumReach = 2 * Math.max(...claims.map(claim => claim.radius)) + FLORA_TRUNK_GAP;
+    if (wideRoots) expect(maximumReach).toBeGreaterThan(8);
+    expect(maximumReach).toBeLessThan(FLORA_EDIT_INFLUENCE);
   });
 
   it('keeps continuous road centers and pickup/interaction approaches clear at .55m padding', () => {

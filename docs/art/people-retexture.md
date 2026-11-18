@@ -1,8 +1,8 @@
 # Retexturing people
 
-**Status:** implemented in `0.0.8` under [A36](../decisions.md). The export, the template, the fit check, the install folder and the drop preview are working tools; the [0.0.8 notes](../production/releases/0.0.8.md) record what was tested. No sheet made by an image-generation model has been tried yet, and none is installed. Every replacement sheet needs the owner's approval and an inventory record before it ships.
+The playable cast in 0.1.1 uses the valley’s own figure, wardrobe and face sculptors. Each person has one skinned body with a square sheet painted from the surfaces. The [art overview](valley-craft.md) links their source.
 
-The owner asked for NPC models whose shapes are easy to retexture with image generation. Since `0.0.8` each person is **one skinned mesh with one square texture**, and that texture is laid out as a **character model sheet**: the whole figure from the front, the right, the back and the left, and the head large from the front and small from the sides, the back and above. An image model, a painter or a script can repaint it as a picture of the person. Then it goes in a folder, and the game wears it.
+The sheet workshop first shipped in [0.0.8](../production/releases/0.0.8.md). It exports views of the figure and face for an artist to study or repaint. External sheets can be previewed in that workshop.
 
 ![A painted sheet and its template](previews/0.0.8-people-sheet.jpg)
 
@@ -70,7 +70,7 @@ Whichever way, the image must be **square**, with the **same layout as the expor
 
    Over 1% holes or 3% stray paint, it reports **MAY NOT FIT** and exits with 1. Edges that miss by a few pixels are repaired and not counted, and thin guide lines or labels left from a template do not count as stray paint. With no file named it checks everything installed. Only PNG is checked in Node; preview JPEG and WebP.
 2. **Preview.** Run `npm run dev` and open `http://127.0.0.1:5173/tools/people.html?only=<id>`. Choose the person in the list at the top left and drop the image onto the page: they wear it at once. Drag to orbit and use the wheel to zoom; check the front, the sides, the back and the face.
-3. **Install.** Save it as `src/assets/people/<id>.png` (or `.jpg`, `.jpeg`, `.webp`). Vite lists the folder when it builds, so the game and the people tool use the file from the next reload. Add `?painted=1` to the people tool to compare with the painted sheet. Delete the file to go back. The game makes the same fit check when it loads a sheet and warns in the browser console when it fails.
+3. **Preview in the workshop.** Save it as `src/assets/people/<id>.png` (or `.jpg`, `.jpeg`, `.webp`). Vite lists the folder when it builds, so the people tool can preview the file on the next reload. Add `?painted=1` to the people tool to compare with the painted sheet. Delete the file to go back. The workshop logs a fit warning in the browser console when the check fails.
 4. **Record it.** Add a row to the [people sheets inventory](../engineering/asset-inventory.md#replacement-people-sheets-008) before committing: id, file, size and SHA-256, the date, how it was made (the tool or model and its version when known, the prompt, which exported files it started from), who made it, and the owner's approval. Image-generation services have their own terms; record what applies rather than assuming a rights review.
 
 A replacement sheet is used at its own size on every graphics preset. Painted sheets are 1024 px, or 512 px on Low; the player's stays 1024 px because the wanderer is built once at start and is always nearest the camera.

@@ -35,3 +35,10 @@ export async function meshyTreeTemplates(ids: readonly string[] = MESHY_TREE_IDS
   }
   return result;
 }
+
+/** Historical compatibility tests exercise the archived adapter against its original, never shipped inputs. */
+export async function archivedTreeTemplates(ids: readonly string[]): Promise<MeshyTreeTemplates> {
+  const result = new Map<string, readonly [GLTF, GLTF, GLTF]>();
+  for (const id of ids) result.set(id, await Promise.all(MESHY_TREE_LODS.map(lod => meshyTreeTemplate(`${id}-${lod}.glb`))) as unknown as readonly [GLTF, GLTF, GLTF]);
+  return result;
+}

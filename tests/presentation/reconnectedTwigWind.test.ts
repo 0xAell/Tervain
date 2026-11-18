@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import { expect, it, vi } from 'vitest';
 import * as C from '../../src/presentation/canopy';
 import { createMeshyForest } from '../../src/presentation/meshyTrees';
-import { meshyTreeTemplates } from './meshyTreeFixture';
+import { archivedTreeTemplates } from './meshyTreeFixture';
 
 it('keeps a reconnected birch graft on its supporting limb while preserving tip motion', async () => {
-  const templates = await meshyTreeTemplates(['verdant-sentinel']);
+  const templates = await archivedTreeTemplates(['verdant-sentinel']);
   const real = C.growTwigs, abandoned = new THREE.Vector3(-5.0707892141, 6.6291712046, -2.0677109921);
   let checked = false;
   const spy = vi.spyOn(C, 'growTwigs').mockImplementation((wood, twigs, reconnect) => {

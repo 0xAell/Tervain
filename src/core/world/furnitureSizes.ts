@@ -1,4 +1,4 @@
-/** Prepared furniture sizes (width, height, depth; metres, front towards +z). Written by tools/prepare-meshy-furniture.py. */
+/** Furniture placement and collider sizes (width, height, depth; metres, front towards +z). The model builder fits original furnishings to these dimensions. */
 export const FURNITURE_SIZES = {
   altar: [1.1412, 1.05, 0.75],
   antlers: [0.7383, 0.6, 0.3],

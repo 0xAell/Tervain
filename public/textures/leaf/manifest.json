@@ -24,13 +24,13 @@
   },
   "fir.color": {
    "file": "fir-color.webp",
-   "bytes": 1056284,
-   "sha256": "34575e89397403c70b4c4dd43e03cdcef493f4660f5186986625b33704dd8cf4"
+   "bytes": 1238526,
+   "sha256": "d85406bb23872dfcaeb97cf506164e199fa54cb9caa7ebf45e413cfe87c6e047"
   },
   "fir.data": {
    "file": "fir-data.webp",
-   "bytes": 2844292,
-   "sha256": "7ebe9a27cd93c64728ff83da7dc051520f15ae40c11628e15c6c30186f028fc8"
+   "bytes": 2951136,
+   "sha256": "c61e1b95e395a5fe0cafa5506191b26a89c3dd7547d42e1616379042368ed731"
   }
  },
  "layout": {
@@ -350,452 +350,516 @@
      "index": 0,
      "col": 0,
      "row": 0,
-     "name": "fir-source-cell-0"
+     "name": "silver-fir-1",
+     "kind": "fir"
     },
     {
      "index": 1,
      "col": 1,
      "row": 0,
-     "name": "fir-source-cell-1"
+     "name": "silver-fir-2",
+     "kind": "fir"
     },
     {
      "index": 2,
      "col": 2,
      "row": 0,
-     "name": "fir-source-cell-2"
+     "name": "silver-fir-3",
+     "kind": "spruce"
     },
     {
      "index": 3,
      "col": 3,
      "row": 0,
-     "name": "fir-source-cell-3"
+     "name": "silver-fir-4",
+     "kind": "fir"
     },
     {
      "index": 4,
      "col": 4,
      "row": 0,
-     "name": "fir-source-cell-4"
+     "name": "silver-fir-5",
+     "kind": "fir"
     },
     {
      "index": 5,
      "col": 5,
      "row": 0,
-     "name": "fir-source-cell-5"
+     "name": "silver-fir-6",
+     "kind": "fir"
     },
     {
      "index": 6,
      "col": 6,
      "row": 0,
-     "name": "fir-source-cell-6"
+     "name": "silver-fir-7",
+     "kind": "spruce"
     },
     {
      "index": 7,
      "col": 7,
      "row": 0,
-     "name": "fir-source-cell-7"
+     "name": "silver-fir-8",
+     "kind": "fir"
     },
     {
      "index": 8,
      "col": 0,
      "row": 1,
-     "name": "fir-source-cell-8"
+     "name": "silver-fir-9",
+     "kind": "fir"
     },
     {
      "index": 9,
      "col": 1,
      "row": 1,
-     "name": "fir-source-cell-9"
+     "name": "silver-fir-10",
+     "kind": "fir"
     },
     {
      "index": 10,
      "col": 2,
      "row": 1,
-     "name": "fir-source-cell-10"
+     "name": "silver-fir-11",
+     "kind": "spruce"
     },
     {
      "index": 11,
      "col": 3,
      "row": 1,
-     "name": "fir-source-cell-11"
+     "name": "silver-fir-12",
+     "kind": "fir"
     },
     {
      "index": 12,
      "col": 4,
      "row": 1,
-     "name": "fir-source-cell-12"
+     "name": "silver-fir-13",
+     "kind": "fir"
     },
     {
      "index": 13,
      "col": 5,
      "row": 1,
-     "name": "fir-source-cell-13"
+     "name": "silver-fir-14",
+     "kind": "fir"
     },
     {
      "index": 14,
      "col": 6,
      "row": 1,
-     "name": "fir-source-cell-14"
+     "name": "silver-fir-15",
+     "kind": "spruce"
     },
     {
      "index": 15,
      "col": 7,
      "row": 1,
-     "name": "fir-source-cell-15"
+     "name": "silver-fir-16",
+     "kind": "fir"
     },
     {
      "index": 16,
      "col": 0,
      "row": 2,
-     "name": "fir-source-cell-16"
+     "name": "silver-fir-17",
+     "kind": "fir"
     },
     {
      "index": 17,
      "col": 1,
      "row": 2,
-     "name": "fir-source-cell-17"
+     "name": "silver-fir-18",
+     "kind": "fir"
     },
     {
      "index": 18,
      "col": 2,
      "row": 2,
-     "name": "fir-source-cell-18"
+     "name": "silver-fir-19",
+     "kind": "spruce"
     },
     {
      "index": 19,
      "col": 3,
      "row": 2,
-     "name": "fir-source-cell-19"
+     "name": "silver-fir-20",
+     "kind": "fir"
     },
     {
      "index": 20,
      "col": 4,
      "row": 2,
-     "name": "fir-source-cell-20"
+     "name": "silver-fir-21",
+     "kind": "fir"
     },
     {
      "index": 21,
      "col": 5,
      "row": 2,
-     "name": "fir-source-cell-21"
+     "name": "silver-fir-22",
+     "kind": "fir"
     },
     {
      "index": 22,
      "col": 6,
      "row": 2,
-     "name": "fir-source-cell-22"
+     "name": "silver-fir-23",
+     "kind": "spruce"
     },
     {
      "index": 23,
      "col": 7,
      "row": 2,
-     "name": "fir-source-cell-23"
+     "name": "silver-fir-24",
+     "kind": "fir"
     },
     {
      "index": 24,
      "col": 0,
      "row": 3,
-     "name": "fir-source-cell-24"
+     "name": "silver-fir-25",
+     "kind": "fir"
     },
     {
      "index": 25,
      "col": 1,
      "row": 3,
-     "name": "fir-source-cell-25"
+     "name": "silver-fir-26",
+     "kind": "fir"
     },
     {
      "index": 26,
      "col": 2,
      "row": 3,
-     "name": "fir-source-cell-26"
+     "name": "silver-fir-27",
+     "kind": "spruce"
     },
     {
      "index": 27,
      "col": 3,
      "row": 3,
-     "name": "fir-source-cell-27"
+     "name": "silver-fir-28",
+     "kind": "fir"
     },
     {
      "index": 28,
      "col": 4,
      "row": 3,
-     "name": "fir-source-cell-28"
+     "name": "silver-fir-29",
+     "kind": "fir"
     },
     {
      "index": 29,
      "col": 5,
      "row": 3,
-     "name": "fir-source-cell-29"
+     "name": "silver-fir-30",
+     "kind": "fir"
     },
     {
      "index": 30,
      "col": 6,
      "row": 3,
-     "name": "fir-source-cell-30"
+     "name": "silver-fir-31",
+     "kind": "spruce"
     },
     {
      "index": 31,
      "col": 7,
      "row": 3,
-     "name": "fir-source-cell-31"
+     "name": "silver-fir-32",
+     "kind": "fir"
     },
     {
      "index": 32,
      "col": 0,
      "row": 4,
-     "name": "fir-source-cell-32"
+     "name": "silver-fir-33",
+     "kind": "fir"
     },
     {
      "index": 33,
      "col": 1,
      "row": 4,
-     "name": "fir-source-cell-33"
+     "name": "silver-fir-34",
+     "kind": "fir"
     },
     {
      "index": 34,
      "col": 2,
      "row": 4,
-     "name": "fir-source-cell-34"
+     "name": "silver-fir-35",
+     "kind": "spruce"
     },
     {
      "index": 35,
      "col": 3,
      "row": 4,
-     "name": "fir-source-cell-35"
+     "name": "silver-fir-36",
+     "kind": "fir"
     },
     {
      "index": 36,
      "col": 4,
      "row": 4,
-     "name": "fir-source-cell-36"
+     "name": "silver-fir-37",
+     "kind": "fir"
     },
     {
      "index": 37,
      "col": 5,
      "row": 4,
-     "name": "fir-source-cell-37"
+     "name": "silver-fir-38",
+     "kind": "fir"
     },
     {
      "index": 38,
      "col": 6,
      "row": 4,
-     "name": "fir-source-cell-38"
+     "name": "silver-fir-39",
+     "kind": "spruce"
     },
     {
      "index": 39,
      "col": 7,
      "row": 4,
-     "name": "fir-source-cell-39"
+     "name": "silver-fir-40",
+     "kind": "fir"
     },
     {
      "index": 40,
      "col": 0,
      "row": 5,
-     "name": "fir-source-cell-40"
+     "name": "silver-fir-41",
+     "kind": "fir"
     },
     {
      "index": 41,
      "col": 1,
      "row": 5,
-     "name": "fir-source-cell-41"
+     "name": "silver-fir-42",
+     "kind": "fir"
     },
     {
      "index": 42,
      "col": 2,
      "row": 5,
-     "name": "fir-source-cell-42"
+     "name": "silver-fir-43",
+     "kind": "spruce"
     },
     {
      "index": 43,
      "col": 3,
      "row": 5,
-     "name": "fir-source-cell-43"
+     "name": "silver-fir-44",
+     "kind": "fir"
     },
     {
      "index": 44,
      "col": 4,
      "row": 5,
-     "name": "fir-source-cell-44"
+     "name": "silver-fir-45",
+     "kind": "fir"
     },
     {
      "index": 45,
      "col": 5,
      "row": 5,
-     "name": "fir-source-cell-45"
+     "name": "silver-fir-46",
+     "kind": "fir"
     },
     {
      "index": 46,
      "col": 6,
      "row": 5,
-     "name": "fir-source-cell-46"
+     "name": "silver-fir-47",
+     "kind": "spruce"
     },
     {
      "index": 47,
      "col": 7,
      "row": 5,
-     "name": "fir-source-cell-47"
+     "name": "silver-fir-48",
+     "kind": "fir"
     },
     {
      "index": 48,
      "col": 0,
      "row": 6,
-     "name": "fir-source-cell-48"
+     "name": "silver-fir-49",
+     "kind": "fir"
     },
     {
      "index": 49,
      "col": 1,
      "row": 6,
-     "name": "fir-source-cell-49"
+     "name": "silver-fir-50",
+     "kind": "fir"
     },
     {
      "index": 50,
      "col": 2,
      "row": 6,
-     "name": "fir-source-cell-50"
+     "name": "silver-fir-51",
+     "kind": "spruce"
     },
     {
      "index": 51,
      "col": 3,
      "row": 6,
-     "name": "fir-source-cell-51"
+     "name": "silver-fir-52",
+     "kind": "fir"
     },
     {
      "index": 52,
      "col": 4,
      "row": 6,
-     "name": "fir-source-cell-52"
+     "name": "silver-fir-53",
+     "kind": "fir"
     },
     {
      "index": 53,
      "col": 5,
      "row": 6,
-     "name": "fir-source-cell-53"
+     "name": "silver-fir-54",
+     "kind": "fir"
     },
     {
      "index": 54,
      "col": 6,
      "row": 6,
-     "name": "fir-source-cell-54"
+     "name": "silver-fir-55",
+     "kind": "spruce"
     },
     {
      "index": 55,
      "col": 7,
      "row": 6,
-     "name": "fir-source-cell-55"
+     "name": "silver-fir-56",
+     "kind": "fir"
     },
     {
      "index": 56,
      "col": 0,
      "row": 7,
-     "name": "fir-source-cell-56"
+     "name": "silver-fir-57",
+     "kind": "fir"
     },
     {
      "index": 57,
      "col": 1,
      "row": 7,
-     "name": "fir-source-cell-57"
+     "name": "silver-fir-58",
+     "kind": "fir"
     },
     {
      "index": 58,
      "col": 2,
      "row": 7,
-     "name": "fir-source-cell-58"
+     "name": "silver-fir-59",
+     "kind": "spruce"
     },
     {
      "index": 59,
      "col": 3,
      "row": 7,
-     "name": "fir-source-cell-59"
+     "name": "silver-fir-60",
+     "kind": "fir"
     },
     {
      "index": 60,
      "col": 4,
      "row": 7,
-     "name": "fir-source-cell-60"
+     "name": "silver-fir-61",
+     "kind": "fir"
     },
     {
      "index": 61,
      "col": 5,
      "row": 7,
-     "name": "fir-source-cell-61"
+     "name": "silver-fir-62",
+     "kind": "fir"
     },
     {
      "index": 62,
      "col": 6,
      "row": 7,
-     "name": "fir-source-cell-62"
+     "name": "silver-fir-63",
+     "kind": "spruce"
     },
     {
      "index": 63,
      "col": 7,
      "row": 7,
-     "name": "fir-source-cell-63"
+     "name": "silver-fir-64",
+     "kind": "fir"
     }
    ],
    "coverage": [
-    0.24,
-    0.17,
-    0.148,
-    0.25,
-    0.335,
-    0.177,
-    0.162,
-    0.238,
-    0.318,
-    0.247,
-    0.339,
-    0.318,
-    0.159,
-    0.133,
-    0.168,
-    0.186,
-    0.4,
-    0.393,
-    0.247,
+    0.311,
+    0.288,
+    0.336,
+    0.283,
+    0.305,
+    0.284,
     0.332,
-    0.318,
     0.319,
-    0.285,
-    0.356,
-    0.412,
-    0.187,
-    0.172,
-    0.304,
-    0.115,
-    0.111,
-    0.382,
-    0.334,
-    0.244,
-    0.207,
+    0.296,
+    0.318,
     0.339,
-    0.182,
-    0.187,
-    0.33,
-    0.199,
-    0.23,
-    0.212,
-    0.332,
-    0.204,
-    0.217,
-    0.36,
-    0.195,
-    0.256,
-    0.32,
-    0.399,
-    0.278,
-    0.264,
-    0.322,
-    0.269,
-    0.277,
-    0.403,
-    0.243,
-    0.193,
-    0.229,
-    0.385,
-    0.286,
-    0.344,
-    0.354,
     0.303,
-    0.28
+    0.296,
+    0.304,
+    0.324,
+    0.309,
+    0.307,
+    0.29,
+    0.347,
+    0.302,
+    0.295,
+    0.3,
+    0.316,
+    0.305,
+    0.313,
+    0.277,
+    0.334,
+    0.306,
+    0.311,
+    0.3,
+    0.343,
+    0.305,
+    0.316,
+    0.296,
+    0.326,
+    0.296,
+    0.306,
+    0.295,
+    0.342,
+    0.294,
+    0.305,
+    0.295,
+    0.323,
+    0.301,
+    0.293,
+    0.32,
+    0.337,
+    0.325,
+    0.302,
+    0.304,
+    0.329,
+    0.31,
+    0.296,
+    0.308,
+    0.331,
+    0.283,
+    0.305,
+    0.302,
+    0.337,
+    0.296,
+    0.298,
+    0.288,
+    0.338,
+    0.314
    ]
   }
  }

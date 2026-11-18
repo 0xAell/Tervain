@@ -1,6 +1,6 @@
 # Version policy
 
-The owner authorized **0.1.0** for the Alderweir patch, led by Astra 6.2 Ultra. All Astra 6.2 development takes place on `0.1.x`. Subsequent patches use `0.1.1`, `0.1.2` and so on. **Moving to `0.2.0` or any later series requires the project owner’s explicit authorization.**
+The owner authorized **0.1.0** for the Alderweir patch, led by Astra 6.2 Ultra. All Astra 6.2 development takes place on `0.1.x`. The original-art rebuild is `0.1.1`. Further patches continue with `0.1.2` and so on. **Moving to `0.2.0` or any later series requires the project owner’s explicit authorization.**
 
 ## Builds and releases
 

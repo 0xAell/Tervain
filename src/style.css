@@ -1351,21 +1351,13 @@ body.high-contrast.tv-materials .panel.surface-paper {
   pointer-events: auto;
 }
 
-.loading[data-journey], #ui:empty::before {
-  background-image: linear-gradient(0deg, #0a110ee6, #11190f24 55%), url('/assets/alderweir/landing.webp');
-  background-size: cover;
-  background-position: 54% 50%;
-}
-
-#ui:empty::before { content: ''; position: absolute; inset: 0; }
-
-.loading[data-journey="rebuild"] {
-  background-image: linear-gradient(0deg, #0a110ee6, #11190f24 55%), url('/assets/alderweir/low-weir.webp');
-}
-
+#ui:empty::before { content: ''; position: absolute; inset: 0; background: #18272a; }
+.journey-bell { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.loading-failed { background: #18272a; }
 .loading.off { display: none; }
 
 .loading-page {
+  position: relative;
   width: min(33rem, 100%);
   max-height: 100%;
   overflow: auto;

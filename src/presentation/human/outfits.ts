@@ -270,6 +270,8 @@ export function playerOutfit(look: LookLike): Outfit {
     outer: { kind: 'tunic', color: pri, cloth: 'wool', hem: 0.24, sleeve: 'none', neck: 'open' },
     belt: { color: LEATHER_DARK, metal: IRON, pouch: LEATHER },
     bracers: LEATHER_DARK,
+    cloak: { color: worn(0x506f71), clasp: BRASS },
+    satchel: { color: worn(0x966344), strap: LEATHER_DARK },
   };
 }
 

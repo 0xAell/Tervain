@@ -1,5 +1,11 @@
 import * as THREE from 'three';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Only this archival transport fixture can resolve these files. The playable resolver and its tests reject them.
+vi.mock('../../src/presentation/assets/playableModels', () => ({
+  playableModel: (file: string) => file.startsWith('npcs/'),
+}));
+
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { NPC_LIST } from '../../src/core/content/npcs';
 import { poseRig, type Rig } from '../../src/presentation/characters';
@@ -362,7 +368,7 @@ function glb(): ArrayBuffer {
   return bytes;
 }
 
-describe('Meshy resident transport, selective loading and retry', () => {
+describe('archived resident fixture transport, selective loading and retry', () => {
   const fetchMock = vi.fn<typeof fetch>();
   let subject: typeof import('../../src/presentation/meshynpcs');
   beforeEach(async () => {

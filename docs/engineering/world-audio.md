@@ -1,5 +1,7 @@
 # World sound: effects, ambience, score and voices
 
+Historical production notes. The 0.1.1 soundtrack and sound effects are documented in [The Ford at First Light](ford-audio.md).
+
 Recorded 5 October 2026 for two owner requests and extended on 6 October 2026 for a third.
 
 - The first ([A56](../decisions.md)) asked for custom music, sound effects and ambience for every NPC, every item interaction and every part of the world, generated with ElevenLabs.

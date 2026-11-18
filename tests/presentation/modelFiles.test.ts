@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { playableModel } from '../../src/presentation/assets/playableModels';
 import { MODEL_FILES } from '../../src/presentation/assets/modelFiles';
 
 const models = fileURLToPath(new URL('../../public/models/', import.meta.url));
@@ -10,8 +11,8 @@ const glbs = (dir: string): string[] => readdirSync(dir, { withFileTypes: true }
   entry.isDirectory() ? glbs(join(dir, entry.name)) : entry.name.endsWith('.glb') ? [join(dir, entry.name)] : []);
 
 describe('the model file table (A68)', () => {
-  it('lists every GLB under public/models with its exact size and SHA-256 (run `node tools/model-files.mjs` after changing a model)', () => {
-    const files = glbs(models).map((file) => relative(models, file).split(sep).join('/')).sort();
+  it('lists every playable GLB with its exact size and SHA-256 (run `node tools/model-files.mjs` after changing a model)', () => {
+    const files = glbs(models).map((file) => relative(models, file).split(sep).join('/')).filter(playableModel).sort();
     expect(Object.keys(MODEL_FILES).sort()).toEqual(files);
     for (const file of files) {
       const data = readFileSync(join(models, file));

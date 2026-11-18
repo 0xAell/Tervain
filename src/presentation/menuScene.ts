@@ -13,12 +13,14 @@ import { buildMenuGroundGeometry, buildPuddles, restHeight } from './menu/menuLa
 import { buildMenuMeadow, type MenuMeadow } from './menu/menuMeadow';
 import { GrassTrample, type GrassMover } from './grass/trample';
 import { GrassWind, type GrassWindOptions } from './grass/wind';
-import { createFoliageField, type FoliageField } from './foliage/foliageWind';
+import { FOLIAGE_RESPONSE, createFoliageField, type FoliageField } from './foliage/foliageWind';
+import { crownOf, installFoliage, installFoliageShadow } from './foliage/foliageMaterial';
+import { shadowDepthMaterial } from './foliage/shadowCasters';
 import { buildMenuDeer, type MenuDeer } from './menu/menuDeer';
 import { buildMenuFluff, type MenuFluff } from './menu/menuFluff';
 import { createAnimalFigure } from './animals';
 import type { AnimalDefinition } from '../core/content/animals';
-import type { ModelGltf } from './assets/gltfLoader';
+import type { ValleyAnimal } from './animals/valleyAnimals';
 import { TREE_HOLLOW, buildAncientTree } from './menu/menuTree';
 import { buildMenuFire } from './menu/menuFire';
 import { buildMenuBanner, type CanvasSource } from './menu/menuBanner';
@@ -33,8 +35,7 @@ import { GROVE_DOOR_OPEN, GROVE_MAX_SPIRITS, createMenuGrove, type MenuGrove } f
 import { MENU_SCORE_FEATURE_INFO } from './menu/menuScoreFeatures';
 import type { MenuMusicPlayback } from './audio';
 import type { Rig } from './characters';
-import type { MeshyTreeTemplates } from './meshyTrees';
-import { MENU_TREE_SOURCE, assertMenuTreeBudget, createMenuTreeRemix } from './menu/menuTreeRemix';
+import { assertMenuTreeBudget } from './menu/menuTreeRemix';
 
 export type MenuQuality = 'low' | 'medium' | 'high';
 export interface MenuAwakeningState { time: number; duration: number; gain: number }
@@ -55,7 +56,6 @@ export interface MenuResources {
   bark(): { map: THREE.Texture; normal: THREE.Texture };
   leaf(): THREE.Texture;
   canvas: CanvasSource;
-  emblemUrl: string;
 }
 
 function browserResources(): MenuResources {
@@ -76,15 +76,7 @@ function browserResources(): MenuResources {
         c.height = h;
         return c;
       },
-      image: (url) =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve(img);
-          img.onerror = () => resolve(null);
-          img.src = url;
-        }),
     },
-    emblemUrl: `${import.meta.env.BASE_URL}assets/menu/hegemony-emblem-512.webp`,
   };
 }
 
@@ -155,7 +147,7 @@ export class MenuScene {
   private readonly baseFov = MENU_CAMERA.fov;
   static readonly MAX_FOV = 76;
 
-  constructor(opts: { quality?: MenuQuality; resources?: MenuResources; trafficSeed?: number; trafficTime?: number; awakening?: MenuAwakeningState; grove?: MenuGrove; wardenRig?: Rig; treeTemplates?: MeshyTreeTemplates; deer?: { template: ModelGltf; definition: AnimalDefinition }; clock?: MenuClockState } = {}) {
+  constructor(opts: { quality?: MenuQuality; resources?: MenuResources; trafficSeed?: number; trafficTime?: number; awakening?: MenuAwakeningState; grove?: MenuGrove; wardenRig?: Rig; deer?: { template: ValleyAnimal; definition: AnimalDefinition }; clock?: MenuClockState } = {}) {
     this.quality = opts.quality ?? 'high';
     // A scene rebuilt (a quality change) goes on from the old one's moment: the fire, the clouds and the stag where they
     // were rather than all from the start (A91 scout).
@@ -240,11 +232,8 @@ export class MenuScene {
     };
     const doorYaw = Math.atan2(MENU_CAMERA.x - MENU_TREE.x, MENU_CAMERA.z - MENU_TREE.z) - 0.27;
     const doorDir = new THREE.Vector3(Math.sin(doorYaw), 0, Math.cos(doorYaw)).applyAxisAngle(UP, -treeRoot.rotation.y);
-    const suppliedTree = opts.treeTemplates?.get(MENU_TREE_SOURCE);
-    if (opts.treeTemplates && !suppliedTree) throw new Error(`Menu tree source ${MENU_TREE_SOURCE} is unavailable.`);
     const tree = buildAncientTree(1207, {
-      leafCards: suppliedTree ? 0 : q === 'low' ? 900 : q === 'medium' ? 1500 : 2200,
-      woodDetail: suppliedTree ? 0.8 : 1,
+      leafCards: 1850, woodDetail: 0.8,
       door: { az: Math.atan2(doorDir.z, doorDir.x), halfWidth: HERMIT_DOOR.faceHalfWidth, height: HERMIT_DOOR.faceTop,
         opening: { width: HERMIT_DOOR.width, height: HERMIT_DOOR.height } },
       ground: groundLocal,
@@ -261,49 +250,25 @@ export class MenuScene {
     // The sea wind exists before the tree: the crown sways in the same gusts that roll over the heath.
     this.meadowWind = new GrassWind(MENU_WIND);
     this.foliage = createFoliageField(this.meadowWind);
-    const remix = suppliedTree ? createMenuTreeRemix(suppliedTree, tree, this.foliage, wispLight.lights) : null;
-    if (remix) {
-      tree.crown = remix.crown; tree.leafSites = remix.leafSites;
-      tree.height = Math.max(tree.height, remix.crown.top);
-      this.stats.treeSource = `${MENU_TREE_SOURCE}:LOD${remix.sourceLod}`;
-      this.owned.push(remix);
-    }
-    const leafTex = remix ? null : this.res.leaf();
-    const leafMat = remix ? null : new THREE.MeshStandardMaterial({ map: leafTex, vertexColors: true, roughness: 0.92, metalness: 0, side: THREE.DoubleSide, alphaTest: 0.42, alphaToCoverage: true });
-    if (leafMat) leafMat.onBeforeCompile = (sh) => {
-      // Same treatment as the playable leaves: never flip the crown-shaped normals for back faces, and let the low sun
-      // shine through the leaves on the edge of the crown.
-      sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_begin>', THREE.ShaderChunk.normal_fragment_begin.replace('gl_FrontFacing ? 1.0 : - 1.0', '1.0'));
-      sh.fragmentShader = sh.fragmentShader.replace(
-        '#include <lights_fragment_begin>',
-        `#include <lights_fragment_begin>
-        #if NUM_DIR_LIGHTS > 0
-        {
-          vec3 tvL = normalize(directionalLights[0].direction);
-          float tvBack = pow(clamp(-dot(normalize(vViewPosition), tvL), 0.0, 1.0), 3.0);
-          reflectedLight.indirectDiffuse += diffuseColor.rgb * directionalLights[0].color * tvBack * 0.35;
-        }
-        #endif`,
-      );
-      wispLight.lights.patch(sh);
-    };
-    if (leafMat) leafMat.customProgramCacheKey = () => `tervain-menu-leaf-${wispLight.lights.key}`;
+    const leafTex = this.res.leaf();
+    const leafMat = new THREE.MeshStandardMaterial({ map: leafTex, vertexColors: true, roughness: 0.92, metalness: 0,
+      side: THREE.DoubleSide, alphaTest: 0.42, alphaToCoverage: true });
+    const response = { ...FOLIAGE_RESPONSE.broadleaf, height: tree.height, trunk: 0 };
+    const leafOptions = { field: this.foliage, response, leaf: true, weight: 'menuCrownWindWeight' };
+    const installed = installFoliage(leafMat, { ...leafOptions, crown: crownOf(tree.leaves) });
+    const depth = shadowDepthMaterial(leafMat);
+    installFoliageShadow(depth, leafOptions, installed);
+    const compileLeaf = leafMat.onBeforeCompile, leafKey = leafMat.customProgramCacheKey;
+    leafMat.onBeforeCompile = function (shader, renderer) { compileLeaf.call(this, shader, renderer); wispLight.lights.patch(shader); };
+    leafMat.customProgramCacheKey = function () { return `${leafKey.call(this)}-${wispLight.lights.key}`; };
     const woodMesh = new THREE.Mesh(tree.wood, woodMat);
     woodMesh.castShadow = woodMesh.receiveShadow = true;
     woodMesh.name = 'Menu_Ancient_Tree_Wood';
     treeRoot.add(woodMesh);
-    if (remix) {
-      remix.parts.forEach((part, i) => {
-        const mesh = new THREE.Mesh(part.geometry, part.material);
-        if (part.depth) mesh.customDepthMaterial = part.depth;
-        mesh.name = i === 0 ? 'Menu_Ancient_Tree_Leaves' : `Menu_Ancient_Tree_Leaves_${i}`;
-        mesh.castShadow = q !== 'low'; mesh.receiveShadow = true; treeRoot.add(mesh);
-      });
-    } else {
-      const leafMesh = new THREE.Mesh(tree.leaves, leafMat!);
-      leafMesh.castShadow = q !== 'low'; leafMesh.name = 'Menu_Ancient_Tree_Leaves'; treeRoot.add(leafMesh);
-      this.owned.push(leafMat!, leafTex!);
-    }
+    const leafMesh = new THREE.Mesh(tree.leaves, leafMat);
+    leafMesh.customDepthMaterial = depth; leafMesh.receiveShadow = true;
+    leafMesh.castShadow = q !== 'low'; leafMesh.name = 'Menu_Ancient_Tree_Leaves'; treeRoot.add(leafMesh);
+    this.owned.push(leafMat, leafTex, depth);
     this.scene.add(treeRoot);
     treeRoot.updateMatrixWorld(true);
     this.treeMatrix.copy(treeRoot.matrixWorld);
@@ -407,12 +372,12 @@ export class MenuScene {
     const rags = buildRibbons(anchors, this.ribbonTime);
     this.scene.add(rags.mesh);
     this.owned.push(rags);
-    if (remix) {
+    {
       const ragTriangles = (rags.mesh.geometry.index?.count ?? rags.mesh.geometry.getAttribute('position').count) / 3;
       this.stats.treeTriangles = assertMenuTreeBudget(treeRoot, this.camp.group.getObjectByName('Menu_Tree_Door'),
         this.camp.doorStaticTriangles + R.tris - beforeBoughHardware + ragTriangles);
     }
-    this.banner = buildMenuBanner(this.res.canvas, this.res.emblemUrl, (x, z) => restHeight(x, z, 0.5), buildBannerHardware(R, mulberry32(77)));
+    this.banner = buildMenuBanner(this.res.canvas, (x, z) => restHeight(x, z, 0.5), buildBannerHardware(R, mulberry32(77)));
     this.banner.group.position.set(MENU_BANNER.x, restHeight(MENU_BANNER.x, MENU_BANNER.z, 0.8), MENU_BANNER.z);
     const staticGroup = R.toGroup(this.mats, { isStatic: true, shadows: q !== 'low' });
     this.scene.add(staticGroup, this.camp.group, this.banner.group);
@@ -556,7 +521,7 @@ export class MenuScene {
    * Lets the stag into the heath (once; its model may arrive after the scene is built). Whenever it joins, it starts its
    * round out of sight beyond the stones rather than appearing in the middle of the meadow.
    */
-  addDeer(template: ModelGltf, definition: AnimalDefinition): boolean {
+  addDeer(template: ValleyAnimal, definition: AnimalDefinition): boolean {
     if (this.disposed || this.deer) return false;
     this.deer = buildMenuDeer(createAnimalFigure(template, definition), { shadows: this.quality !== 'low' });
     this.deerStart = this.time - (this.deerRound ?? 0);

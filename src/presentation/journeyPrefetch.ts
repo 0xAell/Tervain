@@ -8,7 +8,6 @@ import { loadMeshyTrees, MESHY_TREE_LODS, meshyTreeModelPath } from './meshyTree
 import { forestTreeIds } from './forestPlanting';
 import { loadSolitaryPine, PINE_FILES } from './solitaryPine';
 import { loadSourceRockPile, ROCK_PILE_FILE } from './sourceRockPile';
-import { MAIN_HERO_FILE } from './assets/heroFile';
 import { prefetchTerrainTextureData, TERRAIN_TEXTURE_SIZE } from './terrainTextures';
 
 /**
@@ -29,20 +28,13 @@ export function prefetchJourney(quality: Quality, options: { deferFurniture?: bo
   quiet(loadBakedTextures(quality));
 }
 
-/**
- * The largest files a journey downloads before its world opens, in the order it needs them (A86): the wanderer, every
- * tree the forest loads (near files first), the conifers and the rock pile. The trees are the ones the world asks for
- * (forestTreeIds): by default the models the core's planted forest is drawn with, the generated families among them, with
- * the generated pines; a journey planted afresh needs every supplied model as well. The list named the supplied trees
- * alone until 17 November 2026, so the generated ones, 18 MiB, were downloaded only once a journey had begun.
- */
-export const JOURNEY_MODEL_FILES: readonly string[] = [
-  MAIN_HERO_FILE,
+/** Files shared with the world. Native characters are built in memory. Planting aliases can share an original model. */
+export const JOURNEY_MODEL_FILES: readonly string[] = [...new Set([
   ...MESHY_TREE_LODS.flatMap((lod) => forestTreeIds().map((id) => meshyTreeModelPath(id, lod))),
   ...PINE_FILES.map((file) => `flora/${file}`),
   ...(heroPineEnabled() ? HERO_PINE_FILES.map((file) => `flora/${file}`) : []),
   `scenery/${ROCK_PILE_FILE}`,
-];
+])];
 
 /**
  * While the title menu is idle, fetch the journey's largest files into the content cache (A86). Before this they were

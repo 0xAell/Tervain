@@ -16,15 +16,9 @@ const ROOT = path.resolve(__dirname, '../..');
 const hashes = new Map<string, string>();
 /** A bank's hash is checked once for every line in it; each file is read and hashed only once. */
 const sha256 = (file: string) => hashes.get(file) ?? hashes.set(file, createHash('sha256').update(fs.readFileSync(file)).digest('hex')).get(file)!;
-const plan = JSON.parse(fs.readFileSync(path.join(ROOT, 'tools/world-audio/voices.json'), 'utf8')) as {
-  voices: Record<string, { description: string; voiceId: string }>;
-  lines: Record<string, { speaker: string; text: string; model: string; transcript: string }>;
-  story: Record<string, { speaker: string; text: string; transcript?: string; same?: string }>;
-  terms: { summary: string; attribution: string };
-};
-const provenance = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/voice-assets.json'), 'utf8')) as {
-  lines: { id: string; text: string; source: { path: string; sha256: string }; derivatives: { path: string; sha256: string }[] }[];
-};
+const original = (JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/tervain-audio.json'), 'utf8')) as {
+  derivatives: Record<string, { path: string; sha256: string }[]>;
+}).derivatives;
 
 describe('spoken lines', () => {
   it('voices every line, for every person and the hero, with the text the game shows', () => {
@@ -32,13 +26,10 @@ describe('spoken lines', () => {
     for (const [id, line] of Object.entries(VOICE_LINES)) {
       expect(speakers.has(line.speaker), id).toBe(true);
       expect(VOICE_AUDIO.lines[id as keyof typeof VOICE_AUDIO.lines], id).toBeDefined();
-      // The audio was generated from exactly this text.
-      expect(plan.lines[id]?.text, id).toBe(line.text);
-      expect(plan.lines[id]?.speaker, id).toBe(line.speaker);
+      expect(VOICE_AUDIO.lines[id as keyof typeof VOICE_AUDIO.lines][3], id).toBe(line.speaker);
     }
-    expect(Object.keys(plan.lines).sort()).toEqual(Object.keys(VOICE_LINES).sort());
+    expect(Object.keys(VOICE_AUDIO.lines).sort()).toEqual(Object.keys(VOICE_LINES).sort());
     for (const s of speakers) {
-      expect(plan.voices[s]?.description.length, s).toBeGreaterThan(40);
       expect(SPEAKER_NAMES[s], s).toBeTruthy();
     }
   });
@@ -80,17 +71,16 @@ describe('spoken lines', () => {
     }
   });
 
-  it('voices the whole of the text-first dialogue for a future conversation window, word for word', () => {
+  it('pairs each authored story line with the gesture bank of its speaker', () => {
     for (const node of Object.values(DIALOGUE_NODES)) {
       for (const [key, speaker] of [[node.text, node.speaker], ...node.choices.map((c) => [c.text, 'hero'] as const)] as const) {
-        expect(plan.story[key]?.text, key).toBe(DIALOGUE_STRINGS[key]);
-        expect(plan.story[key]?.speaker, key).toBe(speaker);
-        expect(VOICE_AUDIO.story[key as keyof typeof VOICE_AUDIO.story], key).toBeDefined();
+        expect(DIALOGUE_STRINGS[key], key).toBeTruthy();
+        expect(VOICE_AUDIO.story[key as keyof typeof VOICE_AUDIO.story][3], key).toBe(speaker);
       }
     }
   });
 
-  it('ships each speaker\'s lines as one Opus sprite with an AAC fallback, recorded by hash and checked by ear-less transcription', () => {
+  it('ships each speaker\'s lines as one Opus sprite with an AAC fallback, verified by hash', () => {
     const out = path.join(ROOT, 'public', VOICE_AUDIO.base);
     const files = Object.values(VOICE_AUDIO.banks).flatMap((b) => [`${b.file}.ogg`, `${b.file}.m4a`]);
     expect(fs.readdirSync(out).sort()).toEqual(files.sort());
@@ -112,13 +102,11 @@ describe('spoken lines', () => {
         expect(b, id).toBeLessThanOrEqual(bank.duration);
       });
     }
-    for (const r of provenance.lines) {
-      expect(sha256(path.join(ROOT, r.source.path)), r.id).toBe(r.source.sha256);
-      for (const d of r.derivatives) expect(sha256(path.join(ROOT, d.path)), d.path).toBe(d.sha256);
-      expect((plan.lines[r.id] ?? plan.story[r.id])!.transcript!.length, r.id).toBeGreaterThan(0);
+    for (const bank of Object.keys(VOICE_AUDIO.banks)) {
+      const pair = original[`voice/${bank}`]!;
+      expect(pair, bank).toHaveLength(2);
+      for (const file of pair) expect(sha256(path.join(ROOT, file.path)), file.path).toBe(file.sha256);
     }
-    expect(plan.terms.attribution).toContain('ElevenLabs (elevenlabs.io)');
-    // Reads and hashes about 86 MB of recordings and banks.
   }, 30000);
 });
 

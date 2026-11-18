@@ -540,6 +540,7 @@ export const VILLAGE_HANDCART = { x: 21, z: 24, yaw: 0.7 } as const;
 export const LIGHTHOUSE = { x: -324, z: 104, r: 3.3, h: 17, rockH: 12, rockR: 44 } as const;
 /** The original keeper compound and stair use the same measurements for rendering, standing support and collision. */
 export const LIGHTHOUSE_CONSTRUCTION = {
+  fogBell: { x: 4.2, z: 5.5, postOffset: .98 },
   shaftTop: 15.8, shaftTopRadius: 2.94,
   stairInner: 3.48, stairOuter: 4.84, stairStart: -Math.PI / 2,
   stairBottom: 0.38, stairTop: 15.8, stairSteps: 92, treadThickness: 0.14,

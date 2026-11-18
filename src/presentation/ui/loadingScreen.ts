@@ -1,5 +1,6 @@
 import { S } from '../../core/content/strings';
 import { clear, h } from './dom';
+import { mountJourneyBell } from './journeyBell';
 import { LOADING_PHASES, LoadingProgress } from './loadingProgress';
 import type { LoadingPhase, LoadingUpdate } from './loadingProgress';
 
@@ -25,7 +26,7 @@ export interface LoadingFailure {
 
 let screenId = 0;
 
-/** Painted journey screen with a progress rail driven by the work actually completed. */
+/** Lighthouse bell study with a progress rail driven by the work actually completed. */
 export class LoadingScreen {
   readonly el: HTMLElement;
   readonly progress: LoadingProgress;
@@ -38,6 +39,7 @@ export class LoadingScreen {
   private bar!: HTMLElement;
   private segments: HTMLElement[] = [];
   private failed = false;
+  private stopBell?: () => void;
   private retry: HTMLButtonElement | null = null;
   private controls: HTMLButtonElement[] = [];
   private errorCard: HTMLElement | null = null;
@@ -67,7 +69,11 @@ export class LoadingScreen {
     this.el.removeAttribute('aria-labelledby');
     this.el.setAttribute('aria-label', S(`loading.title.${this.mode}`));
     this.el.setAttribute('aria-busy', 'true');
+    this.stopBell?.();
     clear(this.el);
+    const bell = h('canvas', { class: 'journey-bell', 'aria-hidden': 'true' });
+    this.el.append(bell);
+    this.stopBell = mountJourneyBell(bell, options.mode === 'rebuild');
     const title = h('h1', { class: 'loading-title', id: `${this.id}-title` }, S('game.title'));
     this.status = h('p', { class: 'loading-status', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' });
     this.detail = h('p', { class: 'loading-detail' });
@@ -91,6 +97,8 @@ export class LoadingScreen {
 
   /** Returns Retry for the app's existing controller navigation and held-confirmation guard. */
   fail(options: LoadingFailure): HTMLButtonElement | null {
+    this.stopBell?.();
+    this.stopBell = undefined;
     this.failed = true;
     this.el.classList.remove('off');
     this.el.classList.add('loading-failed');
@@ -148,6 +156,8 @@ export class LoadingScreen {
   }
 
   finish(restoreFocus = true) {
+    this.stopBell?.();
+    this.stopBell = undefined;
     this.el.classList.add('off');
     this.el.setAttribute('aria-busy', 'false');
     this.el.removeAttribute('role');

@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import { ENEMY_SPAWNS, SPAWN } from '../../src/core/world/layout';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../../src/app';
-import { ResidentArrivals } from '../../src/presentation/residentArrivals';
 import { Game } from '../../src/core/game/game';
 import { createInitialState } from '../../src/core/game/state';
 import { Input } from '../../src/platform/input';
@@ -67,6 +66,7 @@ vi.mock('../../src/presentation/menuScene', () => ({
     grove = {};
     dispose = vi.fn();
     resize = vi.fn();
+    addDeer = vi.fn(() => false);
     constructor(options: { quality: string }) {
       if (menuFailure.next) { menuFailure.next = false; throw new Error('menu allocation'); }
       this.quality = options.quality;
@@ -130,12 +130,12 @@ function fixture() {
   // Exercise App's actual lifecycle methods without starting a renderer or constructing another scene.
   const app = Object.assign(Object.create(App.prototype) as object, {
     mode: 'play', settings, input, canvas, game: new Game(createInitialState()),
-    arrivals: new ResidentArrivals(), heroFade: new NearFade(), npcAssetsLoad: null, castLoad: null, enemies: [],
+    heroFade: new NearFade(), enemies: [],
     panels: { isOpen: false, closeAll: vi.fn(), el: new ElementFixture('DIV') },
     titleEl: new ElementFixture('DIV'), loadingEl: new ElementFixture('DIV'), debugEl: new ElementFixture('DIV'),
     hud: { el: { inert: true }, show: vi.fn(), showFade: vi.fn(), toast: vi.fn(), caption: vi.fn() },
     player: {
-      x: 0, y: 0, z: 0, yaw: 0, alive: true, state: 'free', group: new THREE.Group(), setPosition: vi.fn(),
+      x: 0, y: 0, z: 0, yaw: 0, alive: true, state: 'free', rig: {}, group: new THREE.Group(), setPosition: vi.fn(),
       channel: null as { kind?: 'skinning'; t: number; dur: number; cancelled?: () => void } | null,
       bowEquipped: vi.fn((game: Game) => game.state.equippedWeapon === 'hunting_bow' && (game.state.inventory.hunting_bow ?? 0) > 0),
       setBowAim: vi.fn(), cancelSkinning: vi.fn(),
@@ -210,70 +210,50 @@ function rebuildFixture() {
 async function finishReload(app: object) { await Reflect.get(app, 'qualityReload'); }
 
 describe('actual application world transitions', () => {
-  it('keeps residents uninstalled on download failure and installs the playable catalog once without rebuilding the menu', async () => {
-    const { app, call } = rebuildFixture();
-    Reflect.set(app, 'npcAssets', null);
-    const previousMenu = Reflect.get(app, 'menuScene') as MenuScene;
-    const models = { has: () => true, create: vi.fn(() => undefined) };
-    const failure = new Error('Resident model download failed its integrity check.');
-    npcCatalog.load.mockRejectedValueOnce(failure).mockResolvedValueOnce(models);
-    await expect(call('prepareNpcAssets')).rejects.toBe(failure);
-    expect(previousMenu.dispose).not.toHaveBeenCalled();
-    expect(Reflect.get(app, 'npcAssets')).toBeNull();
-    expect(Reflect.get(app, 'menuScene')).toBe(previousMenu);
-    await call('prepareNpcAssets');
-    expect(previousMenu.dispose).not.toHaveBeenCalled();
-    expect(models.create).not.toHaveBeenCalled();
-    expect(Reflect.get(app, 'npcAssets')).toBe(models);
-    const installed = Reflect.get(app, 'menuScene');
-    await call('prepareNpcAssets');
-    expect(Reflect.get(app, 'menuScene')).toBe(installed);
-    expect(npcCatalog.load).toHaveBeenCalledTimes(2);
-    expect(treeCatalog.load).not.toHaveBeenCalled();
-    expect(models.create).not.toHaveBeenCalled();
+  it('builds the available cast directly from the world definitions without a remote roster', async () => {
+    const { app, call, nextWorld } = rebuildFixture();
+    const next = nextWorld();
+    vi.spyOn(WorldScene, 'create').mockResolvedValue(next as unknown as WorldScene);
+    await call('buildWorld');
+    const npcs = Reflect.get(app, 'npcs') as App['npcs'];
+    expect(npcs.length).toBeGreaterThan(0);
+    expect(app.enemies).toHaveLength(ENEMY_SPAWNS.length);
+    for (const actor of [...npcs, ...app.enemies]) expect(actor.rig.root.parent).toBe(next.scene);
+    expect(npcCatalog.load).not.toHaveBeenCalled();
   });
 
-  it('loads only the menu resident and grove, keeps the old menu on failure, and retries without loading the playable cast', async () => {
+  it('keeps the sculpted vigil through a failed preparation and retries its graphics in place', async () => {
     const { app, call } = rebuildFixture();
-    Reflect.set(app, 'npcAssets', null);
-    const previousMenu = Reflect.get(app, 'menuScene') as MenuScene;
-    const failure = new Error('Required grove texture could not be decoded.');
-    const trees = new Map(), residents = { create: vi.fn(() => undefined) };
-    treeCatalog.load.mockRejectedValueOnce(failure).mockResolvedValueOnce(trees);
-    npcCatalog.load.mockResolvedValue(residents);
+    const menu = Reflect.get(app, 'menuScene') as MenuScene;
+    const failure = new Error('Menu graphics unavailable.');
+    const prepare = vi.fn().mockRejectedValueOnce(failure).mockResolvedValueOnce(undefined);
+    Reflect.set(app, 'prepareMenuGraphics', prepare);
     await expect(call('prepareMenuAssets')).rejects.toBe(failure);
-    expect(previousMenu.dispose).not.toHaveBeenCalled();
-    expect(npcCatalog.load).toHaveBeenCalledExactlyOnceWith(undefined, ['menu:warden']);
-    expect(Reflect.get(app, 'npcAssets')).toBeNull();
-    expect(Reflect.get(app, 'treeTemplates')).toBeUndefined();
     await call('prepareMenuAssets');
-    expect(Reflect.get(app, 'treeTemplates')).toBe(trees);
-    expect(Reflect.get(app, 'npcAssets')).toBeNull();
-    expect(Reflect.get(app, 'menuAssets')).toBe(residents);
-    expect(previousMenu.dispose).toHaveBeenCalledOnce();
-    expect(treeCatalog.load).toHaveBeenCalledTimes(2);
-    expect(residents.create).toHaveBeenCalledExactlyOnceWith('menu:warden');
+    expect(Reflect.get(app, 'menuScene')).toBe(menu);
+    expect(menu.dispose).not.toHaveBeenCalled();
+    expect(prepare).toHaveBeenCalledTimes(2);
+    expect(treeCatalog.load).not.toHaveBeenCalled();
+    expect(npcCatalog.load).not.toHaveBeenCalled();
   });
 
-  it('shares concurrent menu preparation so a first journey and menu recovery do not replace the backdrop twice', async () => {
+  it('shares concurrent menu preparation on the original scene', async () => {
     const { app, call } = rebuildFixture();
-    const pending = deferred<{ create: ReturnType<typeof vi.fn> }>();
-    const assets = { create: vi.fn(() => undefined) };
-    npcCatalog.load.mockImplementation(() => pending.promise);
-    const previousMenu = Reflect.get(app, 'menuScene') as MenuScene;
+    const pending = deferred<void>();
+    const prepare = vi.fn(() => pending.promise);
+    Reflect.set(app, 'prepareMenuGraphics', prepare);
+    const menu = Reflect.get(app, 'menuScene') as MenuScene;
     const first = call('prepareMenuAssets') as Promise<void>;
     const duplicate = call('prepareMenuAssets') as Promise<void>;
     expect(duplicate).toBe(first);
-    expect(npcCatalog.load).toHaveBeenCalledExactlyOnceWith(undefined, ['menu:warden']);
-    expect(treeCatalog.load).toHaveBeenCalledOnce();
-    pending.resolve(assets);
+    expect(prepare).toHaveBeenCalledOnce();
+    pending.resolve();
     await Promise.all([first, duplicate]);
-    expect(previousMenu.dispose).toHaveBeenCalledOnce();
-    expect(assets.create).toHaveBeenCalledExactlyOnceWith('menu:warden');
+    expect(menu.dispose).not.toHaveBeenCalled();
     expect(Reflect.get(app, 'menuLoad')).toBeNull();
   });
 
-  it('waits for the replacement menu graphics when imported assets replace the scene during compilation', async () => {
+  it('waits for the replacement menu graphics when a quality change replaces the scene during compilation', async () => {
     const { app, call } = rebuildFixture();
     Reflect.deleteProperty(app, 'prepareMenuGraphics');
     const first = deferred<void>(), second = deferred<void>();
@@ -299,18 +279,17 @@ describe('actual application world transitions', () => {
     expect(compileAsync).toHaveBeenCalledTimes(2);
   });
 
-  it('resident download failure keeps a graphics rebuild paused and presents the existing Retry affordance', async () => {
+  it('a world construction failure keeps a graphics rebuild paused and presents Retry', async () => {
     const { app, call, oldWorld } = rebuildFixture();
     Reflect.set(app, 'npcAssets', null);
-    npcCatalog.load.mockRejectedValue(new Error('Resident models could not load (HTTP 503).'));
-    const create = vi.spyOn(WorldScene, 'create');
+    const create = vi.spyOn(WorldScene, 'create').mockRejectedValue(new Error('World setup failed.'));
     call('applySettings', true);
     await finishReload(app);
-    expect(create).not.toHaveBeenCalled();
+    expect(create).toHaveBeenCalledOnce();
     expect(oldWorld.dispose).toHaveBeenCalledOnce();
     expect(Reflect.get(app, 'worldBuildFailed')).toBe(true);
     expect(app.loadingEl.textContent).toContain('Try again');
-    expect(console.error).toHaveBeenCalledWith('Graphics rebuild failed', expect.objectContaining({ message: 'Resident models could not load (HTTP 503).' }));
+    expect(console.error).toHaveBeenCalledWith('Graphics rebuild failed', expect.objectContaining({ message: 'World setup failed.' }));
     expect(app.titleEl.inert).toBe(true);
   });
 
@@ -643,7 +622,7 @@ describe('actual application world transitions', () => {
     const audio = { ...app.audio, resume: vi.fn(), setPageHidden: vi.fn() };
     const menuReady = deferred<void>();
     Object.assign(app, {
-      canvas, audio, buildShell: vi.fn(), prepareMainHero: vi.fn().mockResolvedValue(undefined), applyPixelRatio: vi.fn(), onResize: vi.fn(),
+      canvas, audio, buildShell: vi.fn(), applyPixelRatio: vi.fn(), onResize: vi.fn(),
       enterTitle: vi.fn(() => Reflect.set(app, 'mode', 'title')), applyShotParams: vi.fn(),
       prepareMenuAssets: vi.fn(() => menuReady.promise), quietStart: true,
     });
@@ -653,7 +632,6 @@ describe('actual application world transitions', () => {
     const boot = call('init') as Promise<void>;
     await boot;
     expect(create).not.toHaveBeenCalled();
-    expect(Reflect.get(app, 'prepareMainHero')).not.toHaveBeenCalled();
     expect(Reflect.get(app, 'prepareMenuAssets')).toHaveBeenCalledOnce();
     expect(app.mode).toBe('title');
     expect(Reflect.get(window, 'tervain')).toBe(app);
@@ -705,7 +683,6 @@ describe('actual application world transitions', () => {
     Object.assign(chosen.player, { x: 12, y: 26.2, z: 34, yaw: .6 });
     const load = vi.fn(() => ({ ok: true, state: chosen, recovered: 'previous' }));
     Reflect.set(app, 'saves', { load });
-    Reflect.set(app, 'prepareMainHero', vi.fn().mockResolvedValue(undefined));
     const first = deferred<WorldScene>(), retry = deferred<WorldScene>(), graphics = deferred<void>();
     const create = vi.spyOn(WorldScene, 'create').mockImplementationOnce(() => first.promise).mockImplementationOnce(() => retry.promise);
     Reflect.set(app, 'prepareWorldGraphics', vi.fn(() => graphics.promise));
@@ -749,7 +726,6 @@ describe('actual application world transitions', () => {
     const selected = createInitialState('slot-2');
     selected.inventory.arrow = 19;
     Reflect.set(app, 'saves', { load: vi.fn(() => ({ ok: true, state: selected, recovered: null })) });
-    Reflect.set(app, 'prepareMainHero', vi.fn().mockResolvedValue(undefined));
     Reflect.set(app, 'prepareWorldGraphics', vi.fn().mockRejectedValue(new Error('The first view could not compile.')));
     Reflect.set(app, 'buildTitle', vi.fn());
     Reflect.set(app, 'focusTitle', vi.fn());
@@ -776,7 +752,6 @@ describe('actual application world transitions', () => {
     const { app, call, nextWorld } = rebuildFixture();
     Reflect.deleteProperty(app, 'world');
     app.mode = 'title';
-    Reflect.set(app, 'prepareMainHero', vi.fn().mockResolvedValue(undefined));
     Reflect.set(app, 'prepareWorldGraphics', vi.fn().mockRejectedValue(new Error('The first view could not compile.')));
     vi.spyOn(WorldScene, 'create').mockImplementation(async () => nextWorld() as unknown as WorldScene);
     call('startNew');
@@ -844,7 +819,6 @@ describe('actual application world transitions', () => {
     Reflect.deleteProperty(app, 'prepareWorldGraphics');
     app.mode = 'title';
     Reflect.set(app, 'quietStart', true);
-    Reflect.set(app, 'prepareMainHero', vi.fn().mockResolvedValue(undefined));
     const prepareSpray = vi.fn((draw: () => void) => draw());
     // The sky's light is filtered before the first view is compiled, so its programs are made with the light they draw with.
     const skyLightBeforeCompile: boolean[] = [];
@@ -1244,17 +1218,6 @@ describe('tenth scout fixes in the shell (A103)', () => {
 });
 
 describe('eleventh scout fixes in the shell (A104)', () => {
-  it('asks again for residents a new start needs that an earlier, failed journey did not load', async () => {
-    const { app, call } = fixture();
-    const partial = { has: (role: string) => role === 'named:mill_hand' }, fuller = { has: (role: string) => role === 'named:mill_hand' || role === 'ambient:fisher' };
-    Reflect.set(app, 'npcAssets', partial);
-    npcCatalog.load.mockResolvedValueOnce(fuller);
-    await call('prepareNpcAssets', ['ambient:fisher']);
-    expect(npcCatalog.load).toHaveBeenCalledOnce();
-    expect(npcCatalog.load.mock.calls[0]![1]).toEqual(expect.arrayContaining(['ambient:fisher', 'named:mill_hand']));
-    expect(Reflect.get(app, 'npcAssets')).toBe(fuller);
-  });
-
   it('lets no bell strike from one journey ring into the next', () => {
     vi.useFakeTimers();
     const { app, call } = fixture();

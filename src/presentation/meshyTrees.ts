@@ -336,7 +336,18 @@ function thicken(leaf: THREE.BufferGeometry | null, enabled: boolean, room: numb
 export function meshyTreeUrl(id: string, lod: typeof MESHY_TREE_LODS[number], base = import.meta.env.BASE_URL, page = document.baseURI): URL {
   return modelAssetUrl(`${meshyTreeModelPath(id, lod)}`, base, page);
 }
-export const meshyTreeModelPath = (id: string, lod: typeof MESHY_TREE_LODS[number]): string => `flora/${isHeroTree(id) ? 'hero' : 'meshy-012'}/${id}-${lod}.glb`;
+// Save files and authored placements keep their original planting keys. Every key resolves to a model built for Tervain.
+const authoredTreePaths: Readonly<Record<string, string>> = {
+  'fir-spire': 'craft/silver-fir', 'palm-date': 'craft/date-palm', 'palm-lean': 'craft/wind-palm', 'palm-fan': 'craft/fan-palm',
+  'oak-elder': 'hero/hero-oak', 'tree-0208': 'hero/hero-oak', 'tree-1505': 'hero/hero-oak-c',
+  'tree-1527': 'hero/hero-birch', 'tree-4815': 'hero/hero-birch-b', 'tree-1521': 'hero/hero-bush',
+  'tree-4949': 'hero/hero-apple', 'tree-1537': 'hero/hero-birch-c', 'verdant-sentinel': 'hero/hero-sentinel',
+};
+export function meshyTreeModelPath(id: string, lod: typeof MESHY_TREE_LODS[number]): string {
+  if (!/^[a-z0-9-]+$/.test(id)) throw new Error(`Invalid woodland model ${id}.`);
+  const path = isHeroTree(id) ? `hero/${id}` : authoredTreePaths[id] ?? `craft/${id}`;
+  return `flora/${path}-${lod}.glb`;
+}
 interface Part { geometry: THREE.BufferGeometry; material: THREE.MeshStandardMaterial; matrix: THREE.Matrix4 }
 interface Parts { wood: Part | null; leaf: Part | null }
 /** Only a rejected, not-yet-pooled parse owns these images; accepted templates stay immutable and cached. */
@@ -437,7 +448,7 @@ async function imageOwner(id: string, near: ModelGltf): Promise<ModelGltf> {
 }
 
 async function load(id: string, lod: typeof MESHY_TREE_LODS[number]): Promise<ModelGltf> {
-  const key = `${id}:${lod}`, existing = pending.get(key);
+  const key = meshyTreeModelPath(id, lod), existing = pending.get(key);
   if (existing) return existing;
   const request = withModelLoadSlot(async () => {
     const url = meshyTreeUrl(id, lod);
@@ -521,10 +532,6 @@ export interface MeshyForest {
   materialsFor(variant: TreeVariant): readonly { wood: THREE.Material | null; leaf: THREE.Material | null }[];
   dispose(): void;
 }
-/** Albedo lift of a conifer's source needle sheet (measured texture means; see cloneMaterial). */
-export const CONIFER_LEAF_LIFT: Partial<Record<Species, THREE.Color>> = {
-  fir: new THREE.Color(2.3, 2.45, 2.2), shorepine: new THREE.Color(2.3, 2.45, 2.2),
-};
 /**
  * The fir's attached leaf atlas (8×8 cells) keeps a pale blue-green fern sheet in its top-right cell, unlike every other
  * cell's dark needles; near firs mapped about a thousand card vertices onto it and, once conifers were lit (0.0.16), it
@@ -563,10 +570,8 @@ export function createMeshyForest(templates: MeshyTreeTemplates): MeshyForest {
     if (wood && treeCutoutIsRedundant(source, geometry)) material.alphaTest = 0;
     material.transparent = false;
     if (!wood) { material.side = THREE.DoubleSide; material.shadowSide = THREE.DoubleSide; }
-    // Playtest 7: the fir sheet's needles average a linear albedo of about 0.035 (broadleaf sheets 0.10-0.15), so firs
-    // read near-black at dusk beside lit broadleaf crowns. Lift them to a dark but lit green (~0.085).
-    if (!wood && species && CONIFER_LEAF_LIFT[species]) {
-      // B12: the procedural needle pads are painted at the lifted mean, so they take no lift and keep their own mips.
+    // The embedded and full-resolution fir sprays share a palette. An optional atlas replaces the embedded sheet.
+    if (!wood && species && CONIFER.has(species)) {
       const pads = leafAtlasInUse();
       if (pads) {
         const cutoff = Math.max(0.05, material.alphaTest) / 1.3, key = cutoff.toFixed(3);
@@ -574,7 +579,7 @@ export function createMeshyForest(templates: MeshyTreeTemplates): MeshyForest {
         if (!needles) { needles = leafAtlasTexture(pads.fir, 'fir', cutoff, 'fir-needle-sheet'); conifers.set(key, needles); }
         material.map = needles; material.color.set(0xffffff);
         material.defines = { ...material.defines, TV_COVERAGE_MIPS: '' };
-      } else material.color.multiply(CONIFER_LEAF_LIFT[species]!);
+      }
     }
     // A133: a broadleaf trunk's source atlas is soft and has no normal map, so close up it read flat and untextured. It
     // takes metre-scale triplanar oak bark with relief (the procedural trees' and pines' detail), deeper than theirs.
@@ -609,12 +614,15 @@ export function createMeshyForest(templates: MeshyTreeTemplates): MeshyForest {
       const id = superseding && templates.has(superseding) ? superseding : family && templates.has(family[0]!) ? heroFamilyId(species, seed)! : meshyTreeId(species, seed, explicit), key = `${species}:${id}`;
       // How the drawn model's crown is handled follows the species it was grown as (the sentinel's as a birch's: no lobes);
       // its size and placement follow the slot.
-      const hero = isHeroTree(id), model = HERO_MODEL[id] ?? species;
       const cached = variants.get(key); if (cached) return cached;
       const source = templates.get(id); if (!source) throw new Error(`Required tree ${id} is missing from the art catalog.`);
+      const grownAs = authoredTreePaths[id]?.startsWith('hero/') ? authoredTreePaths[id]!.slice(5) : id;
+      const hero = !!source[0].parser?.json?.asset?.extras?.tervainHeroTree || isHeroTree(id);
+      const model = hero ? HERO_MODEL[grownAs] ?? species : species;
       const decoded = source.map(meshyTreeParts), bounds = new THREE.Box3().setFromObject(source[0].scene);
       // A170: a far file whose trunk was decimated into holes draws its middle file's wood (the same shared images).
-      if (FAR_WOOD_FROM_MIDDLE.has(id)) decoded[2] = { ...decoded[2]!, wood: decoded[1]!.wood };
+      const nativeCraft = source[0].parser?.json?.asset?.extras?.artwork === 'Tervain original procedural model';
+      if (!nativeCraft && !hero && FAR_WOOD_FROM_MIDDLE.has(id)) decoded[2] = { ...decoded[2]!, wood: decoded[1]!.wood };
       // A generated tree's roots and trunk foot are modelled below its ground plane (y = 0): that plane stays the ground.
       const bottom = hero ? 0 : bounds.min.y, nativeHeight = bounds.max.y - bottom;
       if (!(nativeHeight > 0)) throw new Error(`Tree ${id} has no height.`);
@@ -623,7 +631,7 @@ export function createMeshyForest(templates: MeshyTreeTemplates): MeshyForest {
       const prepare = (part: Part | null, leaf: boolean) => {
         if (!part || leaf && species === 'dead') return null;
         const geometry = part.geometry.clone().applyMatrix4(part.matrix);
-        if (leaf && (species === 'fir' || species === 'shorepine')) remapStrayFernCell(geometry);
+        if (!nativeCraft && leaf && (species === 'fir' || species === 'shorepine')) remapStrayFernCell(geometry);
         // A hero tree's branch pivots (_pivot, see foliageWind.ts) are points in the model's space: they follow it.
         const pivot = geometry.getAttribute('_pivot') as THREE.BufferAttribute | undefined;
         if (pivot) {

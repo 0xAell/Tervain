@@ -21,17 +21,17 @@ import { MENU_SCORE_FEATURE_INFO } from '../../src/presentation/menu/menuScoreFe
 const bytes = (b64: string) => Buffer.from(b64, 'base64');
 
 describe('measured rhythm of the menu score', () => {
-  it('records the approved source, the authored 6/8 tempo map and an intact spectral payload', () => {
+  it('records the approved source, the authored 3/4 tempo map and an intact spectral payload', () => {
     const info = MENU_SCORE_RHYTHM_INFO;
     expect(info.sourceSha256).toBe(MENU_SCORE_FEATURE_INFO.sourceSha256);
     expect(info.runtimeSha256).toBe(MENU_SCORE_FEATURE_INFO.runtimeSha256);
     expect(info.duration).toBe(MENU_SCORE_FEATURE_INFO.duration);
-    expect(info.beat.meter).toBe('6/8');
-    expect(MENU_BEATS_PER_BAR).toBe(2);
-    expect(menuBeatTime(0)).toBe(4.5);
+    expect(info.beat.meter).toBe('3/4');
+    expect(MENU_BEATS_PER_BAR).toBe(3);
+    expect(menuBeatTime(0)).toBe(0.45);
     const spans = info.beat.times.slice(1).map((t, i) => t - info.beat.times[i]!);
     expect(Math.min(...spans)).toBeGreaterThan(0);
-    expect(Math.max(...spans) - Math.min(...spans)).toBeGreaterThan(0.4);
+    expect(Math.max(...spans) - Math.min(...spans)).toBeGreaterThan(0.15);
     expect(info.beat.times.at(-1)).toBeGreaterThanOrEqual(info.duration);
     const payload = Buffer.concat([bytes(MENU_SCORE_BANDS_BASE64), bytes(MENU_SCORE_ACCENTS_BASE64), bytes(MENU_SCORE_BARS_BASE64)]);
     expect(createHash('sha256').update(payload).digest('hex')).toBe(info.payloadSha256);
@@ -43,7 +43,7 @@ describe('measured rhythm of the menu score', () => {
   it('counts beats, bars and phrases linearly from source time without random sampling', () => {
     const random = vi.spyOn(Math, 'random').mockImplementation(() => { throw new Error('rhythm must not sample random'); });
     try {
-      for (const beat of [0, 1, 53, 100.5, 181]) {
+      for (const beat of [0, 1, 53, 100.5, 141]) {
         const s = sampleMenuRhythm(menuBeatTime(beat));
         expect(s.beat).toBeCloseTo(beat, 9);
         expect(s.beatPhase).toBeGreaterThanOrEqual(0);
@@ -51,10 +51,10 @@ describe('measured rhythm of the menu score', () => {
         expect(s.bar).toBeCloseTo(beat / MENU_BEATS_PER_BAR, 9);
       }
       // Phrase n starts exactly where the phrase counter reaches n.
-      for (const p of [1, 2, 5, 10]) expect(sampleMenuRhythm(menuPhraseTime(p) + 1e-6).phrase).toBeCloseTo(p, 4);
-      // The first two movement boundaries are downbeats in the original marked-up score.
-      expect(menuPhraseTime(1)).toBeCloseTo(24.966, 3);
-      expect(menuPhraseTime(3)).toBeCloseTo(63.905, 3);
+      for (const p of [1, 2, 3, 5]) expect(sampleMenuRhythm(menuPhraseTime(p) + 1e-6).phrase).toBeCloseTo(p, 4);
+      // The first two movement boundaries are downbeats in the ford score.
+      expect(menuPhraseTime(1)).toBeCloseTo(20.542, 3);
+      expect(menuPhraseTime(3)).toBeCloseTo(57.217, 3);
       const a = sampleMenuRhythm(77.7);
       const b = sampleMenuRhythm(77.7);
       expect(a).toEqual(b);

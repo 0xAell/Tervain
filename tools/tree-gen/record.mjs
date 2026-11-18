@@ -15,14 +15,13 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { writeLedger } from '../model-ledger/meshy.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ledgerPath = path.join(root, 'public/model-licenses.json');
 const ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
 const SOURCE_ID = 'tervain-hero-oak';
 const dir = 'public/models/flora/hero';
-const files = fs.readdirSync(path.join(root, dir)).filter((f) => f.endsWith('.glb')).sort();
+const files = fs.readdirSync(path.join(root, dir)).filter((f) => f.endsWith('.glb') && !f.startsWith('hero-pine-')).sort();
 
 ledger.sources[SOURCE_ID] = {
   filename: 'tools/tree-gen (procedural generator, no input files)',

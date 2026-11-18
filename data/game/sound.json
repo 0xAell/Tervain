@@ -7,7 +7,7 @@
       "title": null,
       "kind": "piece",
       "mood": "vale",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 74.184
     },
     {
@@ -15,7 +15,7 @@
       "title": null,
       "kind": "piece",
       "mood": "vale",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 73.7627
     },
     {
@@ -23,7 +23,7 @@
       "title": null,
       "kind": "piece",
       "mood": "wild",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 73.9253
     },
     {
@@ -31,7 +31,7 @@
       "title": null,
       "kind": "piece",
       "mood": "wild",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 73.9067
     },
     {
@@ -39,7 +39,7 @@
       "title": null,
       "kind": "piece",
       "mood": "wild",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 71.936
     },
     {
@@ -47,7 +47,7 @@
       "title": null,
       "kind": "piece",
       "mood": "night",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 72.856
     },
     {
@@ -55,7 +55,7 @@
       "title": null,
       "kind": "piece",
       "mood": "night",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 70.9013
     },
     {
@@ -63,7 +63,7 @@
       "title": null,
       "kind": "piece",
       "mood": "sacred",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 72.8533
     },
     {
@@ -71,7 +71,7 @@
       "title": null,
       "kind": "loop",
       "mood": "danger",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 38.18
     },
     {
@@ -79,7 +79,7 @@
       "title": null,
       "kind": "loop",
       "mood": "combat",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 36.8
     },
     {
@@ -87,7 +87,7 @@
       "title": null,
       "kind": "sting",
       "mood": "sting",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 5.1707
     },
     {
@@ -95,7 +95,7 @@
       "title": null,
       "kind": "sting",
       "mood": "sting",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 5.2293
     },
     {
@@ -103,7 +103,7 @@
       "title": null,
       "kind": "sting",
       "mood": "sting",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 4.8933
     },
     {
@@ -111,7 +111,7 @@
       "title": null,
       "kind": "sting",
       "mood": "sting",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 5.5787
     },
     {
@@ -119,7 +119,7 @@
       "title": null,
       "kind": "sting",
       "mood": "sting",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 7.0533
     },
     {
@@ -127,7 +127,7 @@
       "title": null,
       "kind": "piece",
       "mood": "vale",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 72.488
     },
     {
@@ -135,7 +135,7 @@
       "title": null,
       "kind": "piece",
       "mood": "wild",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 71.4293
     },
     {
@@ -143,7 +143,7 @@
       "title": null,
       "kind": "piece",
       "mood": "night",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 71.1413
     },
     {
@@ -151,7 +151,7 @@
       "title": null,
       "kind": "piece",
       "mood": "sacred",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 72.4373
     },
     {
@@ -159,7 +159,7 @@
       "title": null,
       "kind": "loop",
       "mood": "danger",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 27.5
     },
     {
@@ -167,7 +167,7 @@
       "title": null,
       "kind": "loop",
       "mood": "combat",
-      "origin": "generated",
+      "origin": "ensemble",
       "duration": 32
     },
     {
@@ -291,32 +291,32 @@
       "duration": 5.6373
     },
     {
-      "id": "alder_landing",
-      "title": "The Landing",
+      "id": "ford_lanterns",
+      "title": "Lanterns at the Ford",
       "kind": "piece",
       "mood": "vale",
       "origin": "composed",
       "duration": 59.48
     },
     {
-      "id": "alder_ash_trees",
-      "title": "Under the Ash Trees",
+      "id": "bough_watch",
+      "title": "The Bough Watch",
       "kind": "piece",
       "mood": "wild",
       "origin": "composed",
       "duration": 59.13
     },
     {
-      "id": "alder_bridge",
-      "title": "The Road over the Bridge",
+      "id": "spring_stones",
+      "title": "Three Spring Stones",
       "kind": "piece",
       "mood": "sacred",
       "origin": "composed",
       "duration": 36.92
     },
     {
-      "id": "alder_coda",
-      "title": "Evening on the Landing",
+      "id": "banked_embers",
+      "title": "Banked Embers",
       "kind": "piece",
       "mood": "night",
       "origin": "composed",
@@ -329,7 +329,7 @@
       "vale_2",
       "vale_3",
       "theme_vale",
-      "alder_landing"
+      "ford_lanterns"
     ],
     "wild": [
       "wild_1",
@@ -337,20 +337,20 @@
       "wild_3",
       "wild_4",
       "theme_wild",
-      "alder_ash_trees"
+      "bough_watch"
     ],
     "sacred": [
       "sacred",
       "sacred_2",
       "theme_sacred",
-      "alder_bridge"
+      "spring_stones"
     ],
     "night": [
       "night_1",
       "night_2",
       "night_3",
       "theme_night",
-      "alder_coda"
+      "banked_embers"
     ]
   },
   "threatLoops": {

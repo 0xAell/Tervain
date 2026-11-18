@@ -3,11 +3,11 @@
   "reviewedAt": "2026-10-06",
   "auditedModelRevision": "dbb4e8e296e1f4aa5adca5e4b01d83ad98ea828b",
   "summary": {
-    "publicModelFiles": 154,
-    "publicModelBytes": 183338756,
+    "publicModelFiles": 199,
+    "publicModelBytes": 176766376,
     "archivedWarpkeepFiles": 209,
     "archivedWarpkeepBytes": 23676804,
-    "hashesMatchedExistingSourceRecords": 363,
+    "hashesMatchedExistingSourceRecords": 408,
     "modelsWithEmbeddedCcDeclaration": 0,
     "licenseClassification": "Meshy sources are classified by recorded evidence (A73, correcting A72; A75 applies the owner's answer). 32 sources the project generated through its own Meshy API calls, with task ids recorded (the 29 furniture pieces, the 17 resident rigs, the resident motion library and the wanderer’s Meshy 7.1 body), are paid-plan Customer Output (Meshy terms, Last Updated 19 September 2026, section 3.2). 51 supplied sources are classified as Meshy Community downloads, 3D models under CC0 1.0 (section 3.3(a)), on the owner's answer of 2026-10-09 that they are probably all Community downloads: provenance basis “owner recollection, not individually verified”, creators and listing URLs not recorded. 2 supplied sources stay unresolved because repository records contradict that recollection (wanderer-historical, wanderer-animated). No commercial-clearance certificate is asserted. The animated hero’s Mixamo-named skeleton/animation content matches Meshy rigging and its animation library by public evidence and follows that source’s unresolved Meshy provenance; the Warpkeep archive has its own per-set records.",
     "meshyProvenance": {
@@ -2463,6 +2463,155 @@
         "evidence": "The files are the deterministic output of tools/tree-gen-pine/generate.mjs (variant seeds fixed in tools/tree-gen-pine/lib/skeleton.mjs); the generator and every texture it writes are original code in this repository.",
         "creator": "Tervain project",
         "listingUrl": null
+      }
+    },
+    "tervain-valley-furniture": {
+      "sourceRecord": "tools/craft-environment/furniture.mjs",
+      "sourceAssetUrl": null,
+      "recordedSupplier": "Tervain project",
+      "creator": "Tervain project",
+      "generationService": "Tervain procedural generator",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project",
+        "terms": "Original model artwork by the Tervain project. Rights are reserved. See LICENSE-SCOPE.md for the scope of the software license."
+      },
+      "credit": "Tervain project. Valley furniture shaped from measured joinery, turned profiles and fitted components.",
+      "provenance": {
+        "classification": "tervain-original-procedural",
+        "creator": "Tervain project",
+        "listingUrl": null,
+        "evidence": "Editable construction code and direct art inputs are fingerprinted below. Run node tools/craft-environment/build.mjs with the locked dependencies to rebuild the GLBs.",
+        "inputs": [
+          {
+            "file": "tools/craft-environment/build.mjs",
+            "sha256": "2e5185bfdf01cb7b651fa504e59f2b3572c703796ef8be8e13bd552715b3c5b1"
+          },
+          {
+            "file": "tools/craft-environment/furniture.mjs",
+            "sha256": "4cdf69e79e10737cd4aa7ae4d180277cfe194cb583290dfd7ce02cd2c8e5b37f"
+          },
+          {
+            "file": "tools/craft-environment/kit.mjs",
+            "sha256": "944d7871e9be6ff3316e841267fe75f82a4e1e9ed65caae2343f8460810836dd"
+          },
+          {
+            "file": "tools/tree-gen/lib/glb.mjs",
+            "sha256": "5ddf6f9095db2bf0e0a0707f568dfbbf42c95b4c087f2af3040070bd7ab9f5d6"
+          },
+          {
+            "file": "src/core/world/furnitureSizes.ts",
+            "sha256": "2693af7895bee3eafd62f073cf6a1c62d94c49b75469e4fc7b153d2628f12f9f"
+          }
+        ]
+      }
+    },
+    "tervain-coastal-woodland": {
+      "sourceRecord": "tools/craft-environment/woodland.mjs",
+      "sourceAssetUrl": null,
+      "recordedSupplier": "Tervain project",
+      "creator": "Tervain project",
+      "generationService": "Tervain procedural generator",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project",
+        "terms": "Original model artwork by the Tervain project. Rights are reserved. See LICENSE-SCOPE.md for the scope of the software license."
+      },
+      "credit": "Tervain project. Fir and pine whorls, segmented palm fronds and three levels of detail for each species.",
+      "provenance": {
+        "classification": "tervain-original-procedural",
+        "creator": "Tervain project",
+        "listingUrl": null,
+        "evidence": "Editable construction code and direct art inputs are fingerprinted below. Run node tools/craft-environment/build.mjs with the locked dependencies to rebuild the GLBs.",
+        "inputs": [
+          {
+            "file": "tools/craft-environment/build.mjs",
+            "sha256": "2e5185bfdf01cb7b651fa504e59f2b3572c703796ef8be8e13bd552715b3c5b1"
+          },
+          {
+            "file": "tools/craft-environment/woodland.mjs",
+            "sha256": "1fd117bc6cf726e97eb50e5f58b92494bbbf33c22125a12a88cbb1e227a54e08"
+          },
+          {
+            "file": "tools/craft-environment/kit.mjs",
+            "sha256": "944d7871e9be6ff3316e841267fe75f82a4e1e9ed65caae2343f8460810836dd"
+          },
+          {
+            "file": "tools/tree-gen/lib/glb.mjs",
+            "sha256": "5ddf6f9095db2bf0e0a0707f568dfbbf42c95b4c087f2af3040070bd7ab9f5d6"
+          },
+          {
+            "file": "tools/leaf-atlas/build.mjs",
+            "sha256": "804f038d1d78367e8a6376dae85d3f2afcffb23e47ee5a86d3b4eb4fa913cb82"
+          },
+          {
+            "file": "tools/leaf-atlas/conifer.mjs",
+            "sha256": "b37d2cd1227f75142416622afbf25d3f1ea02fded9e0c8a0e09e692960f85d5d"
+          },
+          {
+            "file": "tools/leaf-atlas/raster.mjs",
+            "sha256": "dbe378257354cce73715d167092cc6937b11124070fbc9401440d1c15614097e"
+          },
+          {
+            "file": "public/textures/leaf/fir-color.webp",
+            "sha256": "d85406bb23872dfcaeb97cf506164e199fa54cb9caa7ebf45e413cfe87c6e047"
+          },
+          {
+            "file": "public/textures/leaf/fir-data.webp",
+            "sha256": "c61e1b95e395a5fe0cafa5506191b26a89c3dd7547d42e1616379042368ed731"
+          },
+          {
+            "file": "public/textures/leaf/conifer-color.webp",
+            "sha256": "c6b92eda9a9f1f98fd8902186dcb4416dacb4c0dd19f4e3f5365b9252e97aaf2"
+          },
+          {
+            "file": "public/textures/leaf/conifer-data.webp",
+            "sha256": "59f758cc8e065a7373d837a749391a717c86d79ed06c5c5b1c07429fd84c3dbb"
+          }
+        ]
+      }
+    },
+    "tervain-intertidal-schist": {
+      "sourceRecord": "tools/craft-environment/woodland.mjs",
+      "sourceAssetUrl": null,
+      "recordedSupplier": "Tervain project",
+      "creator": "Tervain project",
+      "generationService": "Tervain procedural generator",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project",
+        "terms": "Original model artwork by the Tervain project. Rights are reserved. See LICENSE-SCOPE.md for the scope of the software license."
+      },
+      "credit": "Tervain project. Intertidal schist formed from layered beds with offset edges and a project-made mineral surface.",
+      "provenance": {
+        "classification": "tervain-original-procedural",
+        "creator": "Tervain project",
+        "listingUrl": null,
+        "evidence": "Editable construction code and direct art inputs are fingerprinted below. Run node tools/craft-environment/build.mjs with the locked dependencies to rebuild the GLBs.",
+        "inputs": [
+          {
+            "file": "tools/craft-environment/build.mjs",
+            "sha256": "2e5185bfdf01cb7b651fa504e59f2b3572c703796ef8be8e13bd552715b3c5b1"
+          },
+          {
+            "file": "tools/craft-environment/woodland.mjs",
+            "sha256": "1fd117bc6cf726e97eb50e5f58b92494bbbf33c22125a12a88cbb1e227a54e08"
+          },
+          {
+            "file": "tools/craft-environment/kit.mjs",
+            "sha256": "944d7871e9be6ff3316e841267fe75f82a4e1e9ed65caae2343f8460810836dd"
+          },
+          {
+            "file": "tools/tree-gen/lib/glb.mjs",
+            "sha256": "5ddf6f9095db2bf0e0a0707f568dfbbf42c95b4c087f2af3040070bd7ab9f5d6"
+          }
+        ]
       }
     }
   },
@@ -7807,6 +7956,770 @@
       "modified": true
     },
     {
+      "file": "public/models/craft/furniture/altar.glb",
+      "bytes": 26744,
+      "sha256": "ab5a2ca768031154fe3604e6c48bf8f0605c86d6d7c9d6e17590df118b448cb9",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/antlers.glb",
+      "bytes": 36232,
+      "sha256": "46cac14cba7e2f56db02f3ab1195da4d3800c9a3c98e2ab3707cd79f58acb332",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/barrel.glb",
+      "bytes": 29652,
+      "sha256": "96d9971a4a1c0ab400c5d704e08dc7b2cac1c2b0efc73e9c8a21782cc05338ce",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/bed.glb",
+      "bytes": 39784,
+      "sha256": "76375bf152fb935d72aa1b99240c9d0caec3cf2f746686176019085a4f1fcb76",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/bookshelf.glb",
+      "bytes": 66448,
+      "sha256": "2505d3ecefcb277714cdc95006b69a8266113788194479b069a85b091e236e83",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/bread.glb",
+      "bytes": 23420,
+      "sha256": "dfecd891892305555ef9fefe61f5a175d93a198ff896ce0ed07462ac4a28d6c1",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/bunk.glb",
+      "bytes": 77196,
+      "sha256": "de736aad9f39ccb2d6fc34400a378fb98d3673e70c8067215057502c0cbd09ed",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/candle.glb",
+      "bytes": 15416,
+      "sha256": "393d2bc0da67159982f124359f84b085a430ab0b3c5033e99dab9f20574ee74b",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/cauldron.glb",
+      "bytes": 42124,
+      "sha256": "434c72cabb7add162bfee494e623dc01a800a2f4af69fa39d92dadccfae3e05a",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/chair.glb",
+      "bytes": 25436,
+      "sha256": "150bdbfb9663d03182918141cdea709465ee277e4040c4255f466944e8b6340c",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/chest.glb",
+      "bytes": 31800,
+      "sha256": "b2c8b6f5b7d41908f00114b9d153a9b77055ee213ce2238a0ac27fdeaf48ef11",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/counter.glb",
+      "bytes": 28044,
+      "sha256": "854205322715e46353c4829b523c0e83355b3948d5d78433081a8c0f27ec8a27",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/crate.glb",
+      "bytes": 31756,
+      "sha256": "fbc14a191cf1f5120716cd180fc8cc5ae9a504111bb844c9c76b97dbaf716d11",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/cupboard.glb",
+      "bytes": 42576,
+      "sha256": "0d6d0acd566a2633462b0aa449e2254e4592eecd9116ced9ff10fa22d500e392",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/desk.glb",
+      "bytes": 29352,
+      "sha256": "33463d9521025680b04131ee74f3585f3001ae1df6f2d0d038c0b2dddda02878",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/firewood.glb",
+      "bytes": 44612,
+      "sha256": "87b72e40a5b924aaeda8252c66dce14a07289df390387474c86605a3a49614ce",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/herbs.glb",
+      "bytes": 81252,
+      "sha256": "30d67dcdff094e4439e2a881f2bb730345864920bf6ea6a6037a601b73a16acb",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/jug.glb",
+      "bytes": 20700,
+      "sha256": "c71ff59d689688f7ee7d57bc084abe2d113efc24b64018196281e4f9ad128d81",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/loom.glb",
+      "bytes": 96392,
+      "sha256": "dcb4bbf3b38cb55efb2f01bf9a8a8e0fe627276a860a899d9269b967bacedc46",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/oven.glb",
+      "bytes": 26684,
+      "sha256": "ddeead189bf47a1f97a549da133c54a66ea082d537bb8ed0f7764c59c5af2695",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/pelt.glb",
+      "bytes": 12452,
+      "sha256": "ab413971b205e89d190a981a40c8d9c0f1bd75874c31f6efe028b1d3f1134389",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/pots.glb",
+      "bytes": 31012,
+      "sha256": "95f5cb491ce283c8d064774da2d866b6e72c31e66d1c8a5a3ae643718ab9ef1b",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/rack.glb",
+      "bytes": 31100,
+      "sha256": "dd305f53dbdecc11b7ba4b95cb0a069102f48e204eb1fd296d2dfc9eb3847f39",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/sacks.glb",
+      "bytes": 29964,
+      "sha256": "22e7aa35cad6288342ada36f314003f7a9015a447cb8b1ecb68cbdfd34b9ce16",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/shelf.glb",
+      "bytes": 44688,
+      "sha256": "2d26f23fe0a2e90175efd379cc2ebc6ac5cd83f29aa5b2120a80d99f97e678e4",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/stool.glb",
+      "bytes": 19460,
+      "sha256": "0ac8b4a0d7a2f10478c1d38f32f3246c3af63041a02db6929a9d4ec2669c2610",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/table.glb",
+      "bytes": 19628,
+      "sha256": "1230e31f9820183b09c1a3f03bf01185e2646bf61773191bf4a9c4593ea4c985",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/tools.glb",
+      "bytes": 23628,
+      "sha256": "27d8f6aa3b03cdb6bb20997b2097f94c36f3393cbe590df97dd5277224d2a066",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/craft/furniture/workbench.glb",
+      "bytes": 26384,
+      "sha256": "5d619135df49e6de3fdeb7c92d46c9dc43d9d263f8e0225381d11af63f1af4bc",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-valley-furniture",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/date-palm-far.glb",
+      "bytes": 99288,
+      "sha256": "00f83bde5c6b8590c7e557f8809d8e9cd3af5603c899562de15763a479db0bbb",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [
+        "public/models/flora/craft/date-palm-near.glb"
+      ],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/date-palm-mid.glb",
+      "bytes": 166084,
+      "sha256": "5248ef2c04af6d7a60989298a946cbf8bbbde0fa9b9fc8a0d44651c5fc219967",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [
+        "public/models/flora/craft/date-palm-near.glb"
+      ],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/date-palm-near.glb",
+      "bytes": 330920,
+      "sha256": "2a789a1068796ac720385b2229274d5266137a22878526fab412ee48986a8e1b",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/fan-palm-far.glb",
+      "bytes": 77080,
+      "sha256": "ef13e0459920b8bacd9180e21bbf21d71149e7f5a0c45c43be98f3b0c89075c2",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [
+        "public/models/flora/craft/fan-palm-near.glb"
+      ],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/fan-palm-mid.glb",
+      "bytes": 137204,
+      "sha256": "cb63536e7447a5b982c5431386d59a07d287e496e951a1d6bacfe1a0fd29b9a1",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [
+        "public/models/flora/craft/fan-palm-near.glb"
+      ],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/fan-palm-near.glb",
+      "bytes": 274928,
+      "sha256": "bfadb2de7bf61f03503233bb85f81c7a3622f5810f13f6f8952a3935a2f35e59",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/shore-pine-far.glb",
+      "bytes": 237944,
+      "sha256": "2de293f6ae8250f883fd43689ae432e511c8c3233ae78e2815acf9d796bbf73b",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/shore-pine-mid.glb",
+      "bytes": 335396,
+      "sha256": "1c92ec16235d3d6d1d0d18ab9f94e1410ff5130ba98e38fa07d6e684a6315f84",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/shore-pine-near.glb",
+      "bytes": 586204,
+      "sha256": "f0e30ae689bccbd4cb635ef472383f1d0dcf81055f62c58fc55dd10f9e9e5fef",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/silver-fir-far.glb",
+      "bytes": 104768,
+      "sha256": "657d9f2132ca1d7762a0476b5919706216e43e4eac73b86f7ff3d93e01e7d5e8",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [
+        "public/models/flora/craft/silver-fir-near.glb"
+      ],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/silver-fir-mid.glb",
+      "bytes": 202216,
+      "sha256": "7e70d721a208abc9a80b952d22aff9921436764d80569c25432da0331913b293",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [
+        "public/models/flora/craft/silver-fir-near.glb"
+      ],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/silver-fir-near.glb",
+      "bytes": 768820,
+      "sha256": "af67974e7a8a52bb17c8a6644421f1dc94f4d7f9284667223528f7767e21a732",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/wind-palm-far.glb",
+      "bytes": 99288,
+      "sha256": "87f80eeaa4d4d438fdf6cd5323e609b741318338ef9250ea6a92a3d5f536503f",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [
+        "public/models/flora/craft/wind-palm-near.glb"
+      ],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/wind-palm-mid.glb",
+      "bytes": 166084,
+      "sha256": "ba0944dcbfa88f8ad2c076fa1569d9c4dd10afe2f4fd88fd0941eb841965d8d9",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [
+        "public/models/flora/craft/wind-palm-near.glb"
+      ],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
+      "file": "public/models/flora/craft/wind-palm-near.glb",
+      "bytes": 330924,
+      "sha256": "2afed572dc84d45c7229ef90d57cf08110caf20555308e07990f289f42b13c4b",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-coastal-woodland",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
       "file": "public/models/flora/hero/hero-apple-far.glb",
       "bytes": 108936,
       "sha256": "4be8b69dfb753457e40097e210fa7abdfa8237d96faca8d4d03998ee7786778a",
@@ -8324,7 +9237,7 @@
       "embeddedCcDeclaration": false,
       "externalDependencies": [],
       "scope": "original-game-model-catalog",
-      "sourceId": "tervain-hero-oak",
+      "sourceId": "tervain-hero-pine",
       "license": {
         "spdx": null,
         "version": null,
@@ -8341,7 +9254,7 @@
       "embeddedCcDeclaration": false,
       "externalDependencies": [],
       "scope": "original-game-model-catalog",
-      "sourceId": "tervain-hero-oak",
+      "sourceId": "tervain-hero-pine",
       "license": {
         "spdx": null,
         "version": null,
@@ -8358,7 +9271,7 @@
       "embeddedCcDeclaration": false,
       "externalDependencies": [],
       "scope": "original-game-model-catalog",
-      "sourceId": "tervain-hero-oak",
+      "sourceId": "tervain-hero-pine",
       "license": {
         "spdx": null,
         "version": null,
@@ -10083,6 +10996,23 @@
       "modified": true
     },
     {
+      "file": "public/models/scenery/intertidal-schist.glb",
+      "bytes": 60540,
+      "sha256": "79bcc4d2c906d7403ee3c6d3898b3ccf2be9754f27e01d4ae47f2afd2b73a6f1",
+      "embeddedCopyright": null,
+      "embeddedCcDeclaration": false,
+      "externalDependencies": [],
+      "scope": "playable-game-model",
+      "sourceId": "tervain-intertidal-schist",
+      "license": {
+        "spdx": null,
+        "version": null,
+        "evidenceStatus": "tervain-original-procedural",
+        "creator": "Tervain project"
+      },
+      "modified": false
+    },
+    {
       "file": "public/models/scenery/weathered-rock-pile-under-20k.glb",
       "bytes": 1202464,
       "sha256": "fd885874c8a4ca49a75b4f75e0e4405362c4709c100a3c994f9a1dbcf2f4ce52",
@@ -10508,5 +11438,93 @@
       "filename": "Meshy_AI_Deer_1005232341_texture.glb",
       "verify": "Classified a Meshy Community download (CC0 1.0) on the owner's recollection; a listing URL and creator would verify it."
     }
-  ]
+  ],
+  "playable": {
+    "sinceVersion": "0.1.1",
+    "selection": "src/presentation/assets/playableModels.ts",
+    "scope": "File-backed GLBs used in the game. Other asset entries are retained for historical provenance. Inline geometry is defined in the game source.",
+    "files": [
+      "public/models/craft/furniture/altar.glb",
+      "public/models/craft/furniture/antlers.glb",
+      "public/models/craft/furniture/barrel.glb",
+      "public/models/craft/furniture/bed.glb",
+      "public/models/craft/furniture/bookshelf.glb",
+      "public/models/craft/furniture/bread.glb",
+      "public/models/craft/furniture/bunk.glb",
+      "public/models/craft/furniture/candle.glb",
+      "public/models/craft/furniture/cauldron.glb",
+      "public/models/craft/furniture/chair.glb",
+      "public/models/craft/furniture/chest.glb",
+      "public/models/craft/furniture/counter.glb",
+      "public/models/craft/furniture/crate.glb",
+      "public/models/craft/furniture/cupboard.glb",
+      "public/models/craft/furniture/desk.glb",
+      "public/models/craft/furniture/firewood.glb",
+      "public/models/craft/furniture/herbs.glb",
+      "public/models/craft/furniture/jug.glb",
+      "public/models/craft/furniture/loom.glb",
+      "public/models/craft/furniture/oven.glb",
+      "public/models/craft/furniture/pelt.glb",
+      "public/models/craft/furniture/pots.glb",
+      "public/models/craft/furniture/rack.glb",
+      "public/models/craft/furniture/sacks.glb",
+      "public/models/craft/furniture/shelf.glb",
+      "public/models/craft/furniture/stool.glb",
+      "public/models/craft/furniture/table.glb",
+      "public/models/craft/furniture/tools.glb",
+      "public/models/craft/furniture/workbench.glb",
+      "public/models/flora/craft/date-palm-far.glb",
+      "public/models/flora/craft/date-palm-mid.glb",
+      "public/models/flora/craft/date-palm-near.glb",
+      "public/models/flora/craft/fan-palm-far.glb",
+      "public/models/flora/craft/fan-palm-mid.glb",
+      "public/models/flora/craft/fan-palm-near.glb",
+      "public/models/flora/craft/shore-pine-far.glb",
+      "public/models/flora/craft/shore-pine-mid.glb",
+      "public/models/flora/craft/shore-pine-near.glb",
+      "public/models/flora/craft/silver-fir-far.glb",
+      "public/models/flora/craft/silver-fir-mid.glb",
+      "public/models/flora/craft/silver-fir-near.glb",
+      "public/models/flora/craft/wind-palm-far.glb",
+      "public/models/flora/craft/wind-palm-mid.glb",
+      "public/models/flora/craft/wind-palm-near.glb",
+      "public/models/flora/hero/hero-apple-far.glb",
+      "public/models/flora/hero/hero-apple-mid.glb",
+      "public/models/flora/hero/hero-apple-near.glb",
+      "public/models/flora/hero/hero-birch-b-far.glb",
+      "public/models/flora/hero/hero-birch-b-mid.glb",
+      "public/models/flora/hero/hero-birch-b-near.glb",
+      "public/models/flora/hero/hero-birch-c-far.glb",
+      "public/models/flora/hero/hero-birch-c-mid.glb",
+      "public/models/flora/hero/hero-birch-c-near.glb",
+      "public/models/flora/hero/hero-birch-far.glb",
+      "public/models/flora/hero/hero-birch-mid.glb",
+      "public/models/flora/hero/hero-birch-near.glb",
+      "public/models/flora/hero/hero-bush-b-far.glb",
+      "public/models/flora/hero/hero-bush-b-mid.glb",
+      "public/models/flora/hero/hero-bush-b-near.glb",
+      "public/models/flora/hero/hero-bush-far.glb",
+      "public/models/flora/hero/hero-bush-mid.glb",
+      "public/models/flora/hero/hero-bush-near.glb",
+      "public/models/flora/hero/hero-oak-b-far.glb",
+      "public/models/flora/hero/hero-oak-b-mid.glb",
+      "public/models/flora/hero/hero-oak-b-near.glb",
+      "public/models/flora/hero/hero-oak-c-far.glb",
+      "public/models/flora/hero/hero-oak-c-mid.glb",
+      "public/models/flora/hero/hero-oak-c-near.glb",
+      "public/models/flora/hero/hero-oak-far.glb",
+      "public/models/flora/hero/hero-oak-mid.glb",
+      "public/models/flora/hero/hero-oak-near.glb",
+      "public/models/flora/hero/hero-pear-far.glb",
+      "public/models/flora/hero/hero-pear-mid.glb",
+      "public/models/flora/hero/hero-pear-near.glb",
+      "public/models/flora/hero/hero-pine-far.glb",
+      "public/models/flora/hero/hero-pine-mid.glb",
+      "public/models/flora/hero/hero-pine-near.glb",
+      "public/models/flora/hero/hero-sentinel-far.glb",
+      "public/models/flora/hero/hero-sentinel-mid.glb",
+      "public/models/flora/hero/hero-sentinel-near.glb",
+      "public/models/scenery/intertidal-schist.glb"
+    ]
+  }
 }

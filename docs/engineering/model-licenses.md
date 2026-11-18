@@ -1,8 +1,16 @@
 # 3D model licenses and provenance
 
+## Playable model files in 0.1.1
+
+The [model ledger](../../public/model-licenses.json) lists 81 playable GLBs in `playable.files`. These include 36 hero-tree models, 29 pieces of furniture, five coastal tree species at three levels of detail, and one schist outcrop. The cast and wildlife are drawn from geometry in the game code.
+
+Rebuild the 45 environment models with `node tools/craft-environment/build.mjs`. Run `node tools/model-ledger/record-environment.mjs --check` to verify the ledger, or omit `--check` to refresh it after an intentional change. The 118 earlier public-directory models and 209 Warpkeep archive models retain their historical source notices.
+
+## Historical review
+
 Reviewed 6 October 2026 against the actual original-game GLBs and historical Warpkeep archive. The [built-site credits page](../../public/model-licenses.html) and [machine-readable ledger](../../public/model-licenses.json) preserve model credits, source hashes, changes and license classifications, including the records that remain unresolved. They do not create a new content license or certify all models as CC-compliant.
 
-## Inventory and evidence
+### Inventory and evidence
 
 | Set | Files | Bytes | Recorded source and scope |
 | --- | ---: | ---: | --- |

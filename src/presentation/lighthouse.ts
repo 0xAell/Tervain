@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { makeStrandBell } from './strandBell';
 import { LANTERN_ROUTE, LANTERN_TRAIL_WIDTH, LIGHTHOUSE, LIGHTHOUSE_CONSTRUCTION as L } from '../core/world/layout';
 import { LIGHTHOUSE_DOOR_OUTER_WIDTH, LIGHTHOUSE_STAIR_ANGLE, lighthouseTreadTop, lighthouseWallSectors } from '../core/world/lighthouse';
 import { mulberry32 } from '../core/world/noise';
@@ -116,6 +117,10 @@ export function authorLighthouse(R: Region, terrain: Terrain, out: { lanterns: T
   const stone = () => jitterTone(TINT.stone, rnd, 0.11);
   const dark = () => jitterTone(TINT.woodDark, rnd, 0.11);
   keeperTrackEdges(R, terrain, rnd);
+  const bellX = x + L.fogBell.x, bellZ = z + L.fogBell.z;
+  ctx.push(bellX, terrain.heightAt(bellX, bellZ), bellZ);
+  for (const face of makeStrandBell()) R[face.material].quad(face.points.flat(), face.color);
+  ctx.pop();
   ctx.push(x, base, z);
   // The connected rubble plinth sinks below the lowest local sample instead of perching on boulders.
   let lowest = base;
@@ -171,10 +176,14 @@ export function authorLighthouse(R: Region, terrain: Terrain, out: { lanterns: T
     const top = lighthouseTreadTop(i);
     radialPlank(R.planks, L.stairInner, L.stairOuter, a0, a1, top, L.treadThickness, jitterTone(TINT.woodPale, rnd, 0.12));
     const mid = (a0 + a1) / 2;
-    innerStringer.push(radial(L.stairInner + 0.08, mid, top - 0.19));
-    outerStringer.push(radial(L.stairOuter - 0.12, mid, top - 0.19));
-    lowerRail.push(radial(L.stairOuter - 0.02, mid, top + 0.46));
-    upperRail.push(radial(L.stairOuter - 0.02, mid, top + L.railHeight));
+    // Two treads per rail segment, with both end points. Every post still meets its rail.
+    // At this radius the difference from the arc is about a centimetre.
+    if (i % 2 === 0 || i === L.stairSteps - 1) {
+      innerStringer.push(radial(L.stairInner + 0.08, mid, top - 0.19));
+      outerStringer.push(radial(L.stairOuter - 0.12, mid, top - 0.19));
+      lowerRail.push(radial(L.stairOuter - 0.02, mid, top + 0.46));
+      upperRail.push(radial(L.stairOuter - 0.02, mid, top + L.railHeight));
+    }
     // Closely spaced joists and wall corbels visually bear the stair into the stone.
     if (i % 4 === 0) {
       const inP = radial(radiusAt(top) - 0.15, mid, top - 0.34);

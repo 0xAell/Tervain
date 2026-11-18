@@ -2,23 +2,23 @@
 
 A single-player fantasy RPG, playable in the browser today and on its way to Unreal Engine.
 
-**[Launch Tervain](https://0xaell.github.io/Tervain/)** · [Teaser (45 s, 42 MB)](docs/media/teaser/tervain-teaser-presentable.mp4) · [Documentation](docs/README.md)
+**[Launch Tervain](https://0xaell.github.io/Tervain/)** · [Documentation](docs/README.md)
 
 <p align="center">
-  <a href="https://0xaell.github.io/Tervain/"><img src="docs/media/screenshots/village-road.jpg" width="100%" alt="Tervain: the wanderer walks down the road into the village, between timber houses, with the stream on his right."></a>
+  <a href="https://0xaell.github.io/Tervain/"><img src="docs/media/screenshots/rillford-craft.jpg" width="100%" alt="The wanderer reads the noticeboard with a villager among the timber houses of Rillford."></a>
 </p>
 
 You start on a grey beach with no name and no explanation, walk inland through old woodland, and reach a village that was managing fine without you. The browser build is the prototype, where the design is tried out. The destination is Unreal Engine (5.9 first, 6 when it arrives), and this repository is being reworked into the seed for that port: the game's rules and data are kept apart from the renderer so they can move.
 
 ## Status
 
-- **Version.** The Alderweir patch opens the `0.1.x` series under Astra 6.2 Ultra. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is `0.1.1` in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** Playable and deployed. Every merge to `main` is built, tested and published, and the published build is then loaded and played by a smoke test. It is a prototype: it still contains prototype geometry, and nothing has been measured on reference hardware.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
-- **Assets.** Most models and building surfaces are stand-ins. The Alderweir score and river sound are original to the project. The [asset manifest](data/assets/README.md) names what replaces each in the port.
+- **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Art and sound in 0.1.1](docs/art/valley-craft.md).
 - **Not started.** A desktop package, and anything to do with a store release.
 
-In the Alderweir patch, two river paintings frame the journey into the valley. The opening chamber piece follows you into the world in shorter movements. The score makes room for river water, footsteps on the planks and the sound of a door latch. Hearth smoke drifts over the village.
+At Lantern Point the keeper’s tide bell hangs beside the tower. You see the same piece up close as you enter the valley. An original waltz, *The Ford at First Light*, opens the journey.
 
 ## What is in the prototype
 
@@ -38,10 +38,8 @@ The prototype is one small region, 580 m by 340 m: a coast, a wood, a waystation
 Not in it yet: dialogue choices. The first quest exists as rules, data and scenario tests, not as something you can play to its end.
 
 <p align="center">
-  <img src="docs/media/screenshots/meadow-evening.jpg" width="100%" alt="Tervain: the wanderer wades through long grass at low sun, with the houses of the village behind him.">
+  <img src="docs/media/screenshots/lantern-point-bell.jpg" width="100%" alt="The bronze fog bell at Lantern Point, hanging from a timber frame.">
 </p>
-
-<sub>Both pictures are frames of the `0.0.48` build on the High preset, with the interface hidden.</sub>
 
 ## Playing it
 

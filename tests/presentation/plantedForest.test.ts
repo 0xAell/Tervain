@@ -6,32 +6,21 @@ import { createForestFloorPopulation, type ForestFloorPiece } from '../../src/co
 import { PLANTED_DRAWS, PLANTED_FLOOR, PLANTED_FLORA, PLANTED_FOREST, PLANTED_WITH, type PlantedTree } from '../../src/core/world/plantedForest';
 import type { PlantedRow } from '../../src/core/world/plantedForest.trees';
 import { Terrain } from '../../src/core/world/terrain';
-import { forestModels, plantedObstacleRadius, plantForest, type ForestModels } from '../../src/presentation/flora';
+import { forestModels, plantedObstacleRadius, type ForestModels } from '../../src/presentation/flora';
 import { forestPlantingKey } from '../../src/presentation/forestPlanting';
 import { LEAF_ATLAS_DEFAULT } from '../../src/presentation/leafAtlas';
 import { createHeroPineForest, HERO_PINE_DEFAULT, type HeroPineForest } from '../../src/presentation/heroPine';
 import { activeMeshyTreeIds, createMeshyForest, type MeshyForest } from '../../src/presentation/meshyTrees';
+import { groundedTreeFlareY, groundedTreeY } from '../../src/presentation/treeGrounding';
+import { createHash } from 'node:crypto';
 import { PlantedCrownIndex } from '../../src/presentation/plantedCrowns';
 import { createPineForest, type PineForest } from '../../src/presentation/solitaryPine';
 import { meshyTreeTemplates } from './meshyTreeFixture';
 import { heroPineFixtureTemplates, pineTemplates } from './pineFixture';
 
-// The core keeps the forest as the web build plants it (src/core/world/plantedForest.ts), and the woodland floor the
-// game lays among it, so that the export carries what is played. Here both are made exactly as the game makes them,
-// from the tree models it loads (activeMeshyTreeIds): the supplied trees, and the generated ones that draw by default.
-// - The generated hero pines draw species 'pine' (HERO_PINE_DEFAULT). A pine's crown and its seat on the ground are its
-//   drawing model's, so they change which trees fit as well as where the pines stand: planted without them, the copy had
-//   453 trees where the game plants 451, and 307 of them in other places.
-// - The generated oaks, birches, bushes, orchard trees and sentinel draw in their species' slots. A tree is spaced by
-//   the supplied model it replaces, but its seat also meets the drawn model's roots, the walk grid keeps clear of the
-//   drawn wood, and the floor reads the drawn crowns' shade: planted with the supplied models drawn instead, 13 oaks sat
-//   up to 0.24 m too high, 27 trees (23 oaks, 4 birches) kept the wrong clearance, by up to 7.5 m, and the floor had 720
-//   pieces where the game lays 669.
-// The floor's rule asks how much shade the drawn crowns cast at a place; laid with an estimate of that shade instead,
-// the export had 296 pieces. The forest is kept to the bit (PLANTED_FLORA) with the models and flags it was planted with
-// (PLANTED_WITH): a world planted with those takes it instead of planting again (buildFlora), and the export rounds it.
-// If a copy and what the game makes part, the copy is out of date. Regenerate both with
-//   PLANTED_FOREST_WRITE=1 npx vitest run --project game tests/presentation/plantedForest.test.ts
+// Tree identities, planar positions and gameplay footprints belong to the saved world. Replacing art must preserve them.
+// Recompute the seats of the redesigned woodland families, navigation clearance and ground cover from the real models.
+// PLANTED_FOREST_WRITE=1 npx vitest run --project game tests/presentation/plantedForest.test.ts
 
 const fixed = (value: number, places: number) => Math.round(value * 10 ** places) / 10 ** places;
 const forestFile = new URL('../../src/core/world/plantedForest.trees.ts', import.meta.url);
@@ -105,11 +94,20 @@ describe('the forest the core exports', () => {
     const [meshySource, pineSource, heroSource] = await Promise.all([meshyTreeTemplates(activeMeshyTreeIds()), pineTemplates(), HERO_PINE_DEFAULT ? heroPineFixtureTemplates() : null]);
     meshy = createMeshyForest(meshySource); pine = createPineForest(pineSource); hero = heroSource ? createHeroPineForest(heroSource) : null;
     terrain = new Terrain(); models = forestModels(pine, meshy, hero);
-    population = plantForest(terrain, new Exclusions(terrain), pine, meshy, models);
+    population = PLANTED_FLORA.map(original => {
+      const tree = { ...original };
+      if (['fir', 'shorepine', 'palm'].includes(tree.sp) || tree.assetId === 'tree-1505') {
+        const variant = models.variantFor(tree), plane = groundedTreeY(terrain, tree, variant);
+        tree.y = groundedTreeFlareY(terrain, tree, variant, plane);
+      }
+      return tree;
+    });
   }, 600_000);
   afterAll(() => { meshy?.dispose(); pine?.dispose(); hero?.dispose(); });
 
-  it('is the forest the web build plants from its models, tree for tree', () => {
+  it('preserves the original save-compatible woodland layout and measures navigation from the current meshes', () => {
+    const identity = population.map(t => [t.sp, t.v, t.x, t.z, t.s, t.yaw, t.radius, t.collisionId, t.groveId, t.standId]);
+    expect(createHash('sha256').update(JSON.stringify(identity)).digest('hex')).toBe('e6fc2543f699927fddadc2df6c74a0166a732cda43270e68e7d56a610e6de47c');
     // As registerFloraColliders makes them: only a tree with an id and a footprint blocks, at its footprint, and the walk grid
     // keeps clear of the drawn wood where that reaches further.
     const planted = population.map((tree): PlantedTree => {
