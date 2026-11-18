@@ -91,6 +91,30 @@ describe('the sun\'s shadow programs prepared with the colour ones', () => {
   });
 });
 
+describe('the sun\'s shadow programs prepared for the casters alone', () => {
+  it('leaves what casts no shadow out of the shadow compile, then gives it its own material back', async () => {
+    const s = fixture(true);
+    s.object.visible = s.mesh.visible = true;
+    s.mesh.castShadow = true;
+    const plainMaterial = new THREE.MeshStandardMaterial();
+    const plain = new THREE.Mesh(new THREE.BoxGeometry(), plainMaterial);
+    s.object.add(plain);
+    const seen: { caster: THREE.Material | null; plain: THREE.Material | null }[] = [];
+    s.renderer.compileAsync.mockImplementation(() => {
+      seen.push({ caster: s.mesh.material as THREE.Material, plain: plain.material as THREE.Material | null });
+      return s.colour.promise;
+    });
+    const pending = s.warm(true, true);
+    // The colour compile sees everything as drawn; the shadow compile only the caster, with its depth material.
+    expect(seen).toHaveLength(2);
+    expect(seen[0]!.plain).toBe(plainMaterial);
+    expect(seen[1]!.caster).toBeInstanceOf(THREE.MeshDepthMaterial);
+    expect(seen[1]!.plain).toBeNull();
+    expect(plain.material).toBe(plainMaterial);
+    s.colour.resolve(); await pending;
+  });
+});
+
 describe('the shrine hall\'s panes prepared with the first view', () => {
   it('compiles the panes as a whole capture shows them, into the grade\'s target under the world\'s lights, and puts the target back', async () => {
     const scene = new THREE.Scene(), target = new THREE.WebGLRenderTarget(1, 1), previous = new THREE.WebGLRenderTarget(1, 1);
