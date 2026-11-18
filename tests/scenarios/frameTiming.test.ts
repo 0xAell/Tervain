@@ -153,6 +153,25 @@ describe('the 60-frame cap (A71)', () => {
   });
 });
 
+it('keeps a floating label attached during draws between simulation steps and after a teleport', () => {
+  const motion = new MotionInterpolation();
+  const root = new THREE.Object3D();
+  const label = () => new THREE.Vector3(2, 1.8, 0);
+  motion.capture(1, [root]);
+  root.position.x = 2;
+  motion.capture(2, [root]);
+  for (const alpha of [.25, .75]) {
+    motion.apply(alpha, 2);
+    expect(motion.alignAnchor(label(), root).toArray()).toEqual([2 * alpha, 1.8, 0]);
+    motion.restore();
+    expect(motion.alignAnchor(label(), root).toArray()).toEqual([2, 1.8, 0]);
+  }
+  root.position.x = 22;
+  motion.apply(.5, 2);
+  expect(motion.alignAnchor(new THREE.Vector3(22, 1.8, 0), root).x).toBe(22);
+  motion.restore();
+});
+
 describe('interpolated rotation past a quarter turn (A113)', () => {
   it('keeps interpolating a looking camera on draws without a new simulation step', () => {
     const motion = new MotionInterpolation(), camera = new THREE.PerspectiveCamera();

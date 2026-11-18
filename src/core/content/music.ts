@@ -1,3 +1,5 @@
+import { ALDERWEIR_MUSIC } from './alderweirMusic';
+
 /**
  * The pieces of the in-world score, as the music director sees them: what each is for, where it came from and how long
  * it runs. The sound files themselves, their encodings and levels are the web build's (its generated audio manifest);
@@ -50,6 +52,7 @@ export const MUSIC = {
   place_stone: { kind: 'sting', mood: 'place', origin: 'composed', duration: 10.688, title: "Cut Stone" },
   place_sacred: { kind: 'sting', mood: 'place', origin: 'composed', duration: 10.7333, title: "Holy Water" },
   place_light: { kind: 'sting', mood: 'place', origin: 'composed', duration: 5.6373, title: "Lantern Point" },
+  ...ALDERWEIR_MUSIC,
 } as const satisfies Record<string, MusicEntry>;
 
 export type MusicId = keyof typeof MUSIC;

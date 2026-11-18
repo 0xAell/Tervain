@@ -32,11 +32,11 @@ export const SKY_KEYS: readonly SkyKey[] = [
   { h: 0, top: 0x070b16, horizon: 0x141b2a, sun: 0x8fa0c8, sunI: 0.0, hemiSky: 0x9aafc8, hemiGround: 0x66758a, hemiI: 1.02, fog: 0x141b2a, cover: 0.55 },
   { h: 5.2, top: 0x1a2236, horizon: 0x5c5560, sun: 0xd89a68, sunI: 0.1, hemiSky: 0x8e9db5, hemiGround: 0x5d697d, hemiI: 0.9, fog: 0x5c5560, cover: 0.6 },
   { h: 6.5, top: 0x4f6f96, horizon: 0xc8a682, sun: 0xf0b078, sunI: 1.0, hemiSky: 0x8298b0, hemiGround: 0x4a4230, hemiI: 0.72, fog: 0xb8a58c, cover: 0.62 },
-  // Pale blue air and warm mineral light separate roof/earth masses from cooler
-  // shadow. This is a daylight material relationship, not a sepia or dark filter.
-  { h: 9, top: 0x7794a8, horizon: 0xc1c6c2, sun: 0xffe6c4, sunI: 2.5, hemiSky: 0x8fa8bd, hemiGround: 0x4c4738, hemiI: 0.65, fog: 0xb5bfc0, cover: 0.52 },
-  { h: 13, top: 0x718ea4, horizon: 0xbec8c6, sun: 0xffe9c8, sunI: 2.75, hemiSky: 0x8da8c1, hemiGround: 0x4c4838, hemiI: 0.67, fog: 0xb2bfc3, cover: 0.5 },
-  { h: 17, top: 0x506f98, horizon: 0xc0b49d, sun: 0xffd19a, sunI: 2.3, hemiSky: 0x8b9fb9, hemiGround: 0x494031, hemiI: 0.64, fog: 0xacae9f, cover: 0.59 },
+  // Alderweir daylight: cream at the waterline, a cooler blue overhead and honey on limewash and reeds.
+  // A green-grey fill keeps the shaded side of a tree distinct from the blue hills behind it.
+  { h: 9, top: 0x8599ab, horizon: 0xe0ccaf, sun: 0xffdfa8, sunI: 2.5, hemiSky: 0x9babb6, hemiGround: 0x55513e, hemiI: 0.65, fog: 0xc1c3b5, cover: 0.52 },
+  { h: 13, top: 0x839ab1, horizon: 0xd8d5c4, sun: 0xffe7bd, sunI: 2.75, hemiSky: 0x93aabb, hemiGround: 0x505241, hemiI: 0.67, fog: 0xb4c1bb, cover: 0.5 },
+  { h: 17, top: 0x657c99, horizon: 0xd5b69a, sun: 0xffcf94, sunI: 2.3, hemiSky: 0x92a2b6, hemiGround: 0x504735, hemiI: 0.64, fog: 0xb7b8aa, cover: 0.59 },
   { h: 18.8, top: 0x3d4a6c, horizon: 0xd08a5a, sun: 0xff8f52, sunI: 0.9, hemiSky: 0x7a7a94, hemiGround: 0x3e2e28, hemiI: 0.62, fog: 0xb8825e, cover: 0.66 },
   { h: 20.2, top: 0x161f3a, horizon: 0x5f4a5a, sun: 0xd0784c, sunI: 0.1, hemiSky: 0x8e9db5, hemiGround: 0x5d697d, hemiI: 0.9, fog: 0x4c4152, cover: 0.6 },
   { h: 22, top: 0x080d1c, horizon: 0x151c2e, sun: 0x8fa0c8, sunI: 0.0, hemiSky: 0x9aafc8, hemiGround: 0x66758a, hemiI: 1.02, fog: 0x151c2e, cover: 0.56 },

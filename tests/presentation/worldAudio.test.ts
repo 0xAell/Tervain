@@ -55,7 +55,11 @@ interface Provenance {
 const provenance = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/world-audio-assets.json'), 'utf8')) as Provenance;
 
 describe('prepared world audio', () => {
+  const portable = (file: string) => file.split(path.sep).join('/');
+  const shipped = fs.readdirSync(OUT, { recursive: true, encoding: 'utf8' })
+    .filter((file) => fs.statSync(path.join(OUT, file)).isFile()).map(portable).sort();
   const files = [
+    'alderweir/title',
     ...Object.values(WORLD_AUDIO.banks).map((b) => b.file),
     ...Object.values(WORLD_AUDIO.loops).map((l) => l.file),
     ...Object.values(WORLD_AUDIO.music).map((m) => m.file),
@@ -70,7 +74,7 @@ describe('prepared world audio', () => {
       const m4a = fs.readFileSync(path.join(OUT, `${file}.m4a`));
       expect(m4a.subarray(4, 8).toString('latin1'), file).toBe('ftyp');
     }
-    expect(fs.readdirSync(OUT).sort()).toEqual(files.flatMap((f) => [`${f}.m4a`, `${f}.ogg`]).sort());
+    expect(shipped).toEqual(files.flatMap((f) => [`${f}.m4a`, `${f}.ogg`]).sort());
   });
 
   // Hashing every source and derivative is bound by the disk, which other workers reading models and audio share.
@@ -102,7 +106,17 @@ describe('prepared world audio', () => {
         expect(sha256(path.join(ROOT, d.path)), d.path).toBe(d.sha256);
       }
     }
-    expect([...derived].map((p) => path.basename(p)).sort()).toEqual(fs.readdirSync(OUT).sort());
+    const chamber = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/alderweir-audio.json'), 'utf8')) as {
+      derivatives: Record<string, { path: string; sha256: string }[]>;
+    };
+    for (const pair of Object.values(chamber.derivatives)) {
+      expect(pair).toHaveLength(2);
+      for (const file of pair) {
+        expect(sha256(path.join(ROOT, file.path)), file.path).toBe(file.sha256);
+        derived.add(file.path);
+      }
+    }
+    expect([...derived].map((p) => portable(path.relative(OUT, path.join(ROOT, p)))).sort()).toEqual(shipped);
   }, 30_000);
 
   it('records the length of every generation and credits ElevenLabs in the game', () => {
@@ -201,7 +215,9 @@ describe('foley tables', () => {
       soft.concat(hard).forEach((c) => expectCue(c, `land ${surface}`));
       expect(hard[0]!.gain).toBeGreaterThan(soft[0]!.gain);
     }
-    expect(stepCue('deck', false).clip).toBe('step.wood');
+    expect(stepCue('deck', false).clip).toBe('step.plank');
+    expect(stepCue('deck', true).clip).toBe('step.wood');
+    expect(stepCue('water', false).clip).toBe('step.shallows');
     expect(stepCue('road', false, () => 0.1).clip).toBe('step.gravel');
     expect(stepCue('road', false, () => 0.9).clip).toBe('step.dirt');
     expect(stepCue('water', true).clip).toBe('step.water');
@@ -307,7 +323,14 @@ describe('place beds', () => {
     const p = PLACES.sluice;
     expect(nearestStream(p.x, p.z, { main: 0, village: 0, quarry: 0 })).toBeNull();
     expect(bedTargets(at(p), { ...day(), flows: { main: 0, village: 0, quarry: 0 } }).brook.gain).toBe(0);
-    expect(bedTargets(at(p), day()).brook.gain).toBeGreaterThan(0.4);
+    const banks = bedTargets(at(p), day());
+    expect(banks.brook.gain + banks.riverbank.gain).toBeGreaterThan(0.4);
+    expect(banks.riverbank.at).toEqual(banks.brook.at);
+    expect(bedTargets(at(p), night()).riverbank.gain).toBe(0);
+    expect(bedTargets(at(p), night()).brook.gain).toBeGreaterThan(banks.brook.gain);
+    const mill = at({ x: -14, z: -8 });
+    expect(bedTargets(mill, day()).low_weir.gain).toBeGreaterThan(0.4);
+    expect(bedTargets(mill, { ...day(), millTurning: false }).low_weir.gain).toBe(0);
   });
 
   it('closes the room indoors: the archive hums and the outdoors drops to a quarter', () => {
@@ -500,8 +523,8 @@ describe('music director', () => {
   it('opens each mood with its own arrangement of the theme, then varies', () => {
     const d = new MusicDirector(rng(12));
     const first = step(d, 20, ctx())[0]!;
-    expect(first).toEqual({ t: 'piece', id: 'theme_vale', fadeIn: 2.5 });
-    for (const [mood, id] of [['wild', 'theme_wild'], ['night', 'theme_night'], ['sacred', 'theme_sacred']] as const) {
+    expect(first).toEqual({ t: 'piece', id: 'alder_landing', fadeIn: 2.5 });
+    for (const [mood, id] of [['wild', 'alder_ash_trees'], ['night', 'alder_coda'], ['sacred', 'alder_bridge']] as const) {
       expect(PLAYLISTS[mood]).toContain(id);
       expect(WORLD_AUDIO.music[id].origin).toBe('composed');
     }
@@ -648,7 +671,7 @@ class FakeContext {
     const name = path.basename(data.file).replace(/\.(ogg|m4a)$/, '');
     if (Object.values(ANIMAL_AUDIO.species).some((animal) => animal.files.some((file) => file === name))) return { duration: 4, file: name };
     const all = [...Object.values(WORLD_AUDIO.banks), ...Object.values(WORLD_AUDIO.loops), ...Object.values(WORLD_AUDIO.music), ...Object.values(VOICE_AUDIO.banks)];
-    const entry = all.find((e) => e.file === name);
+    const entry = all.find((e) => path.basename(e.file) === name);
     if (!entry) throw new Error(`no such file ${name}`);
     return { duration: entry.duration, file: name };
   });
@@ -951,7 +974,7 @@ describe('world sound runtime', () => {
     expect(FakeMedia.made).toHaveLength(probes + 1);
     const media = FakeMedia.made.at(-1)!;
     // The vale's first piece is its own arrangement of the theme.
-    expect(media.src).toMatch(/\/tervain\/assets\/audio\/world\/music-theme_vale\.ogg$/);
+    expect(media.src).toMatch(/\/tervain\/assets\/audio\/world\/alderweir\/landing\.ogg$/);
     expect(media.play).toHaveBeenCalledOnce();
     expect(world.musicState.phase).toBe('piece');
     // A hidden tab pauses the stream rather than letting it run on unheard.
@@ -961,7 +984,7 @@ describe('world sound runtime', () => {
     expect(media.play).toHaveBeenCalledTimes(2);
     // A stream the browser cannot play switches to the AAC fallback in place.
     media.listeners.get('error')!();
-    expect(media.src).toMatch(/music-theme_vale\.m4a$/);
+    expect(media.src).toMatch(/alderweir\/landing\.m4a$/);
     expect(media.play).toHaveBeenCalledTimes(3);
     world.update(0.05, frame(PLACES.rillford, { threat: 'combat' }));
     await flush();

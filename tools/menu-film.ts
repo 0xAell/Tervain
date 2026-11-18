@@ -1,7 +1,7 @@
 /**
  * A local film compositor. The scene and original artwork come straight from the game; a hidden, full-size menu made
  * by createMenuScreen supplies the layout and computed fonts. This is an animated native render, never a still loop.
- * MediaRecorder captures only the canvas; the user's full, untouched song is muxed into the delivered file afterwards.
+ * MediaRecorder captures the canvas. The full Alderweir AAC score is muxed into the delivered file afterwards.
  */
 import * as THREE from 'three';
 import '../src/style.css';
@@ -15,12 +15,15 @@ import { MaterialSet } from '../src/presentation/regions';
 import { barkTextures, leafTexture } from '../src/presentation/treeTextures';
 import { makeTerrainTextures } from '../src/presentation/terrainTextures';
 import { GAME_VERSION } from '../src/version';
+import { MENU_LOOK } from '../src/core/content/look';
+import { MENU_SCORE_FEATURE_INFO } from '../src/presentation/menu/menuScoreFeatures';
 
 const WIDTH = 1920;
 const HEIGHT = 1080;
 const FPS = 30;
-const FULL_DURATION = 216;
-const SONG_DURATION = 214.213;
+const SONG_DURATION = MENU_SCORE_FEATURE_INFO.duration;
+// Record a little past the final frame so the AAC can be muxed in full.
+const FULL_DURATION = Math.ceil(SONG_DURATION) + 1;
 const style = document.createElement('style');
 style.textContent = `
   html,body { overflow:auto; height:auto; min-height:100%; background:#131617; }
@@ -49,6 +52,7 @@ const ctx = output.getContext('2d', { alpha: false })!;
 const layout = document.querySelector<HTMLElement>('#film-layout')!;
 const status = document.querySelector<HTMLOutputElement>('#film-status')!;
 const progress = document.querySelector<HTMLProgressElement>('#film-progress')!;
+progress.max = FULL_DURATION;
 const fullButton = document.querySelector<HTMLButtonElement>('#film-record')!;
 const testButton = document.querySelector<HTMLButtonElement>('#film-test')!;
 const choices = ['New Game', 'Load', 'Settings', 'Controls', 'About this build'];
@@ -394,7 +398,7 @@ async function boot() {
     grade = new Grade(renderer, { msaa: true });
     grade.bloom = true;
     grade.setSize(WIDTH, HEIGHT);
-    grade.setLook({ saturation: .9, contrast: 1.07, vignette: .3, grain: .03, chromatic: .0012, night: 0 });
+    grade.setLook({ ...MENU_LOOK, night: 0 });
     const assets = await Promise.all(pending);
     if (assets.some((asset) => asset === null)) throw new Error('A menu texture or the Hegemony emblem could not load.');
     await document.fonts.ready;

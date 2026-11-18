@@ -133,6 +133,7 @@ export interface SceneryHandles {
    */
   doorBatch?: PartBatch | null;
   lanternPositions: THREE.Vector3[];
+  chimneyOutlets: THREE.Vector3[];
   millWheel: THREE.Object3D;
   bell: THREE.Object3D;
   bellPos: THREE.Vector3;
@@ -188,10 +189,10 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
   const group = new THREE.Group();
   group.name = 'settlement';
   const mats = new MaterialSet(quality === 'low' ? 192 : 256);
-  const lanternPositions: THREE.Vector3[] = [];
+  const lanternPositions: THREE.Vector3[] = [], chimneyOutlets: THREE.Vector3[] = [];
   const doors: DoorLeaf[] = [];
   const swinging: SwingingPart[] = [];
-  const out: BuildOut = { lanterns: lanternPositions, doors, swinging };
+  const out: BuildOut = { lanterns: lanternPositions, chimneys: chimneyOutlets, doors, swinging };
   const rng: Rnd = mulberry32(909);
   const gy = (x: number, z: number) => terrain.heightAt(x, z);
 
@@ -907,13 +908,14 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
   ];
   const doorBatch = batchParts(movingParts, group, { name: 'parts', copyMaterials: true });
 
+  const unlitGlass = new THREE.Color(0x464338), lamplight = new THREE.Color(0xffba69);
   const setNight = (n: number) => {
-    const c = new THREE.Color(0x30302a).lerp(new THREE.Color(0xffb85a), Math.min(1, n * 1.2));
-    mats.windowMat.color.copy(c);
-    mats.lanternMat.color.copy(c);
+    const lit = Math.min(1, n * 1.2);
+    mats.windowMat.color.copy(unlitGlass).lerp(lamplight, lit);
+    mats.lanternMat.color.copy(mats.windowMat.color);
     // A real window's lamplight after dark (A79), over its clear glass, seen from outside.
     const glow = mats.nightGlowMat as THREE.MeshBasicMaterial | undefined;
-    if (glow) glow.opacity = Math.min(1, n * 1.2) * 0.6;
+    if (glow) glow.opacity = lit * 0.6;
     // Seen from inside, a window is the light outside: pale daylight fading to the blue of night.
     mats.daylightMat.color.copy(DAYLIGHT).lerp(NIGHT_SKY, Math.min(1, n * 1.15));
   };
@@ -926,7 +928,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     daylightMat: mats.daylightMat,
     doors,
     doorBatch,
-    lanternPositions,
+    lanternPositions, chimneyOutlets,
     millWheel,
     bell,
     bellPos,

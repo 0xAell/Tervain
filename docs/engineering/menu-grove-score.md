@@ -1,5 +1,9 @@
 # The score-led hermitage awakening
 
+From 0.1.0 the grove follows Alderweir’s chamber recording. Its original MIDI supplies the variable-tempo 6/8 pulses. The title recording supplies the spectral envelopes and accents. [Current analysis](../../tools/README-menu-score-analysis.md).
+
+## Original choreography
+
 Owner direction of 30 September 2026, [A30](../decisions.md), first built in `0.0.5`. At **30.000 seconds of The Sovereign's Oath**, the native door in the ancient tree opens and luminous spirits emerge and dance round the tree in response to the actual song. The owner's follow-up of 1 October 2026, [A32](../decisions.md), reworked it for `0.0.7`. The spirits should look better, actually dance round the tree, and act as a visualiser for the menu song. The request also covered their physics and collisions and the inside of the tree door. The existing dusk vigil, title, camp and single Hegemony standard remain the composition.
 
 The primary creative reference is the forest reverence of Hyperion's Brotherhood of the Muir, with Warcraft's night-elf forest spirits as a secondary visual reference. [Dan Simmons's interview](https://www.writerswrite.com/journal/dan-simmons-9012) describes the Templars' environmental religion; [Blizzard's historical Wisp page](https://classic.battle.net/war3/nightelf/units/wisp.shtml) describes ancient forest spirits connected to living trees. These inform ecology, age, quiet sacredness and cool forest light. The spirits' forms, colours, dance and the hollow are authored for Tervain. This effect does not establish the books' or Warcraft's history, characters, religion, or supernatural rules as Tervain canon. What the spirits are, and what the light in the hollow is, remain unnamed presentation.

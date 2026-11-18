@@ -16,10 +16,11 @@ export interface ShadowSimplifier {
 }
 
 /**
- * Triangles over the same vertices, at most HERO_SHADOW_TRIANGLES of them, none farther than HERO_SHADOW_ERROR from the
- * surface (whichever comes first), and the error reached, in metres.
+ * Reduce over the existing vertices until the target triangle count or bind-pose error limit is reached. The
+ * simplifier's reported error is expressed in metres.
  */
-export function shadowIndex(simplifier: ShadowSimplifier, indices: Uint32Array, positions: Float32Array): { indices: Uint32Array; error: number } {
-  const [out, error] = simplifier.simplify(indices, positions, 3, HERO_SHADOW_TRIANGLES * 3, HERO_SHADOW_ERROR, ['ErrorAbsolute']);
+export function shadowIndex(simplifier: ShadowSimplifier, indices: Uint32Array, positions: Float32Array,
+  targetTriangles = HERO_SHADOW_TRIANGLES, maxError = HERO_SHADOW_ERROR): { indices: Uint32Array; error: number } {
+  const [out, error] = simplifier.simplify(indices, positions, 3, targetTriangles * 3, maxError, ['ErrorAbsolute']);
   return { indices: out, error };
 }

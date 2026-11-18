@@ -289,6 +289,38 @@
       "mood": "place",
       "origin": "composed",
       "duration": 5.6373
+    },
+    {
+      "id": "alder_landing",
+      "title": "The Landing",
+      "kind": "piece",
+      "mood": "vale",
+      "origin": "composed",
+      "duration": 59.48
+    },
+    {
+      "id": "alder_ash_trees",
+      "title": "Under the Ash Trees",
+      "kind": "piece",
+      "mood": "wild",
+      "origin": "composed",
+      "duration": 59.13
+    },
+    {
+      "id": "alder_bridge",
+      "title": "The Road over the Bridge",
+      "kind": "piece",
+      "mood": "sacred",
+      "origin": "composed",
+      "duration": 36.92
+    },
+    {
+      "id": "alder_coda",
+      "title": "Evening on the Landing",
+      "kind": "piece",
+      "mood": "night",
+      "origin": "composed",
+      "duration": 74
     }
   ],
   "playlists": {
@@ -296,25 +328,29 @@
       "vale_1",
       "vale_2",
       "vale_3",
-      "theme_vale"
+      "theme_vale",
+      "alder_landing"
     ],
     "wild": [
       "wild_1",
       "wild_2",
       "wild_3",
       "wild_4",
-      "theme_wild"
+      "theme_wild",
+      "alder_ash_trees"
     ],
     "sacred": [
       "sacred",
       "sacred_2",
-      "theme_sacred"
+      "theme_sacred",
+      "alder_bridge"
     ],
     "night": [
       "night_1",
       "night_2",
       "night_3",
-      "theme_night"
+      "theme_night",
+      "alder_coda"
     ]
   },
   "threatLoops": {
@@ -410,7 +446,9 @@
     "sea_far",
     "lap",
     "rapids",
-    "underwater"
+    "underwater",
+    "riverbank",
+    "low_weir"
   ],
   "calls": [
     {

@@ -27,6 +27,7 @@ import path from 'node:path';
 import { NO_GPU_WATCHDOG, openPage } from './cdp.mjs';
 import { textureUploadBytes } from './webgl-upload-bytes.mjs';
 import { recordBudgetFrames } from './budget-frame-samples.mjs';
+import { comparePopulatedBudgets, completePopulation, expectedPopulation, maximumBudget, populationLabel, readPopulation, servedRoster, waitForPopulation } from './budget-population.mjs';
 import { LoadFailure, PROBE_INIT, waitUntilReady } from './budget-probe.mjs';
 import { waitForSettledDeploy } from './live-deploy.mjs';
 
@@ -60,18 +61,38 @@ if (args['budget-url']) {
       await page.cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 2, mobile: false });
       // The shot query starts gameplay automatically; there is no title screen to wait for or click.
       await waitUntilReady(page, { label });
+      const served = await page.eval(`const T = window.tervain;
+        window.__readBudgetPopulation = ${readPopulation.toString()};
+        window.__budgetWorldSettled = 'pending';
+        T.world.arrived.then(() => { window.__budgetWorldSettled = 'done'; }, () => { window.__budgetWorldSettled = 'failed'; });
+        return (${servedRoster.toString()})(T);`);
+      const expected = label === 'candidate' ? expectedPopulation : served;
       await page.wait(15000);
-      await page.eval(`window.__budgetFrames = (${recordBudgetFrames.toString()})(window.tervain); const T = window.tervain; T.hud.show(false); T.debugTime?.(11); T.player.setPosition(-33.4, 55, 0, T.world.terrain); T.cam.yaw = 0; T.cam.manual = null; return 1`);
-      await page.wait(6000);
-      // The first four completed frames after placement include refreshed auxiliary passes.
-      // On software renderers a single frame can exceed all four former 1.5 s waits.
-      for (let k = 0; k < 2400 && !(await page.eval('return window.__budgetFrames.samples.length === 4')); k++) await page.wait(250);
-      const samples = await page.eval('const r = window.__budgetFrames; r.stop(); return r.samples');
-      if (samples.length !== 4) throw new Error('Budget gate did not receive four completed frames');
+      const samplePose = async () => {
+        await page.eval(`const T = window.tervain;
+          window.__budgetFrames = (${recordBudgetFrames.toString()})(T, 4, window.__readBudgetPopulation);
+          T.hud.show(false); T.debugTime?.(11); T.player.setPosition(-33.4, 55, 0, T.world.terrain); T.cam.yaw = 0; T.cam.manual = null; return 1;`);
+        await page.wait(6000);
+        for (let k = 0; k < 2400 && !(await page.eval('return window.__budgetFrames.samples.length === 4')); k++) await page.wait(250);
+        const samples = await page.eval('const r = window.__budgetFrames; r.stop(); return r.samples');
+        if (samples.length !== 4) throw new Error('Budget gate did not receive four completed frames');
+        return samples;
+      };
+      // The ordinary fifteen-second visit and its first four completed frames still count. Some visits
+      // already have their animals and residents, while others are drawing empty streamed stand-ins.
+      const entry = await page.eval('const T = window.tervain; return [T.player.x, T.player.z, T.player.yaw, T.cam.yaw]');
+      const early = await samplePose();
+      // Restoring the original view between samples lets arrivals adopt their rigs out of sight as in play.
+      // Wait for two presented frames so the follow camera actually returns before the second placement.
+      await page.eval(`const T = window.tervain, [x,z,face,yaw] = ${JSON.stringify(entry)};
+        T.player.setPosition(x, z, face, T.world.terrain); T.cam.yaw = yaw;
+        return new Promise(resolve => window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve(1))));`);
+      await waitForPopulation(page, label, expected);
+      const full = await samplePose();
+      if (!full.every((row) => completePopulation(row[2], expected))) throw new Error(`Budget population changed during full sample (${label})`);
       const version = await page.eval('return fetch(new URL("version.json", document.baseURI)).then((r) => r.json()).catch(() => null)');
       const errors = page.console().filter((l) => l.startsWith('[error]') || l.startsWith('[exception]'));
-      const calls = Math.max(...samples.map((x) => x[0])), triangles = Math.max(...samples.map((x) => x[1]));
-      return { url, calls, triangles, errors, revision: version?.revision ?? null, samples, stable: true };
+      return { url, early, full, errors, revision: version?.revision ?? null };
     } finally { await page.close?.(); }
   };
   // Live is probed twice: its own run-to-run spread (a dynamic draw can appear in one run and not the next) is the band the candidate is compared against.
@@ -98,24 +119,34 @@ if (args['budget-url']) {
     console.error(`Budget gate: FAIL: Live budget revision changed or is unavailable (${liveA.revision ?? 'missing'} -> ${liveB.revision ?? 'missing'}). Retry against a single published revision.`);
     process.exit(1);
   }
-  const live = { ...liveA, calls: Math.max(liveA.calls, liveB.calls), triangles: Math.max(liveA.triangles, liveB.triangles), errors: [...liveA.errors, ...liveB.errors] };
   const candidate = await probe(URL_, 'candidate');
-  // A missing, empty or malformed revision never certifies a build: any head starts with the empty string.
   const revisionOk = typeof candidate.revision === 'string' && /^[0-9a-f]{7,40}$/i.test(candidate.revision);
   const headOk = revisionOk && (!args.head || args.head.startsWith(candidate.revision));
-  // --tri-allowance: an owner-approved triangle exception over live (0 by default), recorded in the PR.
+  // --tri-allowance is the existing explicit, owner-approved exception. Defaults to zero in both stages.
   const triAllowance = Number(args['tri-allowance'] ?? 0);
-  const drawsOk = candidate.calls <= live.calls, trisOk = candidate.triangles <= live.triangles + triAllowance;
-  const errorsOk = candidate.errors.length === 0 && live.errors.length === 0;
-  const ok = drawsOk && trisOk && errorsOk && headOk;
-  const out = [
-    `# Budget gate: ${ok ? 'PASS' : 'FAIL'}`, '',
-    `- Live (${live.url}, revision ${live.revision}): draw calls ${live.calls}, triangles ${live.triangles}, console errors ${live.errors.length}`,
-    `- Candidate (${candidate.url}, revision ${candidate.revision}): draw calls ${candidate.calls}, triangles ${candidate.triangles}, console errors ${candidate.errors.length}`,
-    `- Draws not above live: ${drawsOk ? 'yes' : 'NO'}; triangles not above live: ${trisOk ? 'yes' : 'NO'}; no console errors: ${errorsOk ? 'yes' : 'NO'}; revision matches head ${args.head ?? '(not given)'}: ${headOk ? 'yes' : 'NO'}; maximum over four samples; live is the larger of two live probes`,
+  const comparisons = comparePopulatedBudgets([liveA, liveB], candidate, triAllowance);
+  const errorsOk = ![liveA, liveB, candidate].some((p) => p.errors.length);
+  const ok = comparisons.every((p) => p.drawsOk && p.trisOk) && errorsOk && headOk;
+  const out = [`# Budget gate: ${ok ? 'PASS' : 'FAIL'}`, ''];
+  for (const [name, p] of [['Live A', liveA], ['Live B', liveB], ['Candidate', candidate]]) {
+    out.push(`- ${name} (${p.url}, revision ${p.revision}, console errors ${p.errors.length})`);
+    const groups = new Map();
+    for (const row of p.early) {
+      const key = JSON.stringify(row[2]);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(row);
+    }
+    for (const rows of groups.values()) {
+      const { calls, triangles } = maximumBudget(rows);
+      out.push(`  - 15 s: draw calls ${calls}, triangles ${triangles}; ${populationLabel(rows[0][2])}; ${rows.length} frames`);
+    }
+    const { calls, triangles } = maximumBudget(p.full);
+    out.push(`  - Fully streamed: draw calls ${calls}, triangles ${triangles}; ${populationLabel(p.full[0][2])}; 4 frames`);
+  }
+  for (const row of comparisons) out.push(`- ${row.stage} (${row.baseline}): draws ${row.head.calls}/${row.live.calls} ${row.drawsOk ? 'PASS' : 'FAIL'}, triangles ${row.head.triangles}/${row.live.triangles} ${row.trisOk ? 'PASS' : 'FAIL'}`);
+  out.push(`- No console errors: ${errorsOk ? 'yes' : 'NO'}; revision matches head ${args.head ?? '(not given)'}: ${headOk ? 'yes' : 'NO'}`,
     '- Not measured by the page: texture taps, shader cost, JS frame CPU. Each PR posts its own cost table; the gate does not claim them.',
-    '- Wall-clock pacing (over-25 ms share, p95): advisory only, see docs/perf/LATEST.md (A/A band 1.7 points). Not a pass/fail condition.', '',
-  ];
+    '- Wall-clock pacing (over-25 ms share, p95): advisory only, see docs/perf/LATEST.md (A/A band 1.7 points). Not a pass/fail condition.', '');
   if (ok && args.head) out.push(`play-gate: PASS ${candidate.revision}`);
   console.log(out.join('\n'));
   process.exit(ok ? 0 : 1);

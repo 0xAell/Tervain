@@ -6,8 +6,8 @@ import { defineConfig } from 'vitest/config';
 import { gothic3LocalData } from './tools/gothic3LocalData.ts';
 import { hostedModelDelivery, productionModelAssetBase } from './tools/modelAssetDelivery.ts';
 
-if (!/^0\.0\.\d+$/.test(packageJson.version)) {
-  throw new Error(`Tervain must stay on the 0.0.x build line until its quality gate is met (got ${packageJson.version}).`);
+if (!/^0\.1\.(?:0|[1-9]\d*)$/.test(packageJson.version)) {
+  throw new Error(`Tervain development stays on 0.1.x until the project owner explicitly authorizes a new version line (got ${packageJson.version}).`);
 }
 
 if (packageLock.version !== packageJson.version || packageLock.packages[''].version !== packageJson.version) {

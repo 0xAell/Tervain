@@ -48,6 +48,7 @@ void main() {
 const SKY_FRAG = /* glsl */ `
 uniform vec3 uTop;
 uniform vec3 uHorizon;
+uniform vec3 uLowAir;
 uniform vec3 uSunDir;
 uniform vec3 uSunColor;
 uniform float uSunI;
@@ -87,6 +88,10 @@ void main() {
   col = mix(col, uTop * 0.78, smoothstep(0.5, 1.0, yy) * 0.55);
   // Sunlit side of the horizon glows warmer and brighter, the anti-solar side stays cool.
   float towardSun = pow(sd, 3.0);
+  // The lowest sliver still meets the terrain fog exactly. Above the ridge the sun warms a
+  // band of air; above that, the blue returns. Dusk and moonlight keep their own palettes.
+  float airBand = smoothstep(0.0, 0.075, yy) * (1.0 - smoothstep(0.09, 0.48, yy));
+  col += (uLowAir - uHorizon) * airBand * day * (0.25 + 0.65 * towardSun);
   col = mix(col, uHorizon * (1.0 + 0.55 * lowSun) + uSunColor * 0.35 * lowSun, towardSun * (1.0 - e) * (0.35 + 0.65 * lowSun) * min(uSunI, 1.0));
   // Scattering halo and the disc.
   col += uSunColor * (pow(sd, 6.0) * 0.09 + pow(sd, 32.0) * 0.16 + pow(sd, 260.0) * 0.62) * uSunI * (0.6 + 0.4 * day);
@@ -226,6 +231,7 @@ export class SkyRig {
   private uniforms = {
     uTop: SKY.top,
     uHorizon: SKY.horizon,
+    uLowAir: { value: new THREE.Color() },
     uSunDir: SKY.sunDir,
     uSunColor: SKY.sunColor,
     uSunI: SKY.sunI,
@@ -315,6 +321,7 @@ export class SkyRig {
     const { a, b, t } = skyKeysAt(hour);
     const top = lerpHex(SKY.top.value, a.top, b.top, t);
     lerpHex(SKY.sunColor.value, a.sun, b.sun, t);
+    lerpHex(this.uniforms.uLowAir!.value, a.horizon, b.horizon, t);
     const sunI = a.sunI + (b.sunI - a.sunI) * t;
     SKY.sunI.value = sunI;
     SKY.cover.value = a.cover + (b.cover - a.cover) * t;
