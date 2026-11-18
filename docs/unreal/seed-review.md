@@ -509,6 +509,13 @@ Improved:
   composes 144 matrices where it composed 304 and multiplies 101 where it multiplied 252, and posing all twelve takes
   0.22 ms a step where it took 0.36 (in Node on the test machine); every matrix after every step is the same to the
   bit, and a test refreshes the figure after each pose and finds nothing moved ([#910](https://github.com/0xAell/Tervain/pull/910)).
+- The figures' vertex measures work their matrices out once, not for every point. The wanderer's death clearance
+  and idle soles (measured as his rig is built), the support under his boots through a fall, and each resident's
+  palms carried every point into the figure's frame with three's getVertexPosition, localToWorld and worldToLocal:
+  every skinning matrix again for every weight, the chain of world matrices walked up again twice, the frame's matrix
+  inverted again. Building the wanderer takes 25 ms in Node where it took 76; a frame of his fall that measures the
+  support 0.6 ms where it took 2.5 to 3; building the twelve residents composes 501,169 matrices where it composed
+  1,119,066 and inverts 26,321 where it inverted 114,592. Every point is the same to the bit ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
