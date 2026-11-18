@@ -407,6 +407,10 @@ Improved:
   route's stops with the wanderer standing at each as in play. [AIR-CUTS.md](../perf/AIR-CUTS.md) gives the live
   build's frame at High and its three largest costs: the forest at full detail, the water's reflection when the sea is
   in view, and the sun's shadow map ([#887](https://github.com/0xAell/Tervain/pull/887)).
+- The wanderer's shadow is drawn from 15,000 of his own 150,000 triangles, chosen by meshoptimizer over the same
+  vertices within 2 mm of his surface, in a worker: the sun's shadow map draws 135,000 fewer skinned triangles every
+  daytime frame (12 to 22 % of it at three stops of the route), and a frame drawn both ways differs in 72 of its
+  2.9 million pixels, along the shadow's contact line under a boot ([#888](https://github.com/0xAell/Tervain/pull/888)).
 
 Next:
 

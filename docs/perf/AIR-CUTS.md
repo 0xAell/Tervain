@@ -61,7 +61,13 @@ The three largest costs, on a GPU the leaves, trunks and settlement leave bound 
 2. **The water's reflection**, when the sea is in view: up to a third of a frame's draws and triangles for a 512 px image of a rippled surface, after its trees have already been swapped for their middle models (A76). At one stop the sea shows at the edge of the view and the whole reflection is drawn for it.
 3. **The sun's shadow map**: a third of all draw calls and 0.75 M triangles, redrawn every daytime frame (moving trees and people cast it). The wanderer's 150,000-triangle skinned mesh is a fifth of its triangles; the village's merged regions most of the rest.
 
-Cuts that leave the picture as it is, to measure next with the same counts: drawing into the reflection only what can appear in the part of the screen where the sea shows (its sample is moved by up to 0.045 for ripples and smeared by up to 0.11 along the view, which the margin must cover); casting the wanderer's shadow from a coarser set of his own triangles over the same vertices and skeleton, so no file is added, once its shadow is shown to match. Lighter trees at High, and the leaves' pre-pass skipped for distant trees, are trades a GPU must judge.
+Cuts that leave the picture as it is, to measure next with the same counts: drawing into the reflection only what can appear in the part of the screen where the sea shows (its sample is moved by up to 0.045 for ripples and smeared by up to 0.11 along the view, which the margin must cover). Lighter trees at High, and the leaves' pre-pass skipped for distant trees, are trades a GPU must judge.
+
+### Cuts since
+
+| Cut | Before | After | Picture |
+| --- | --- | --- | --- |
+| The wanderer's shadow from 15,000 of his own triangles (`hero/shadowCaster.ts`): meshoptimizer's simplifier chooses them over the same vertices, within 2 mm of his surface (1.8 mm reached), in a worker; the mesh swaps to them around each shadow draw | His shadow draw 149,974 triangles. Shadow map at three stops (the landing, stop 2, stop 9): 625 k, 1.10 M, 678 k | 15,000. Shadow map 490 k, 0.97 M, 543 k (−12 to −22 %); each frame 135 k triangles fewer, all of them dual-quaternion skinned | The same frame drawn with each: 72 of 2.9 M pixels differ by more than 2/255 (at most 25), on the shadow's contact line under a boot and a few points of its far edge; his body is untouched. The map's texels are 3.4 cm across and receivers look up 7.5 cm out along their normal |
 
 ## Batch 10 findings (tried, measured, not kept)
 
