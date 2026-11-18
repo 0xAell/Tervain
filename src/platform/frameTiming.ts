@@ -75,6 +75,7 @@ interface Motion {
    * three re-derive the Euler, and past a quarter turn that reads (π, π − yaw, π), so the next `rotation.y = yaw` turned
    * the hero upside down every other frame (A113). */
   curE: THREE.Euler;
+  drawn: boolean;
   step: number;
 }
 
@@ -87,7 +88,7 @@ interface Motion {
  */
 export class MotionInterpolation {
   private readonly motions = new Map<THREE.Object3D, Motion>();
-  private applied: THREE.Object3D[] = [];
+  private readonly applied: THREE.Object3D[] = [];
   private lastStep = -1;
   static readonly JUMP = 4;
 
@@ -97,7 +98,7 @@ export class MotionInterpolation {
       if (!object) continue;
       let m = this.motions.get(object);
       if (!m) {
-        m = { prev: object.position.clone(), prevQ: object.quaternion.clone(), cur: object.position.clone(), curQ: object.quaternion.clone(), curE: object.rotation.clone(), step };
+        m = { prev: object.position.clone(), prevQ: object.quaternion.clone(), cur: object.position.clone(), curQ: object.quaternion.clone(), curE: object.rotation.clone(), drawn: false, step };
         this.motions.set(object, m);
         continue;
       }
@@ -125,8 +126,16 @@ export class MotionInterpolation {
       object.position.lerpVectors(m.prev, m.cur, a);
       object.quaternion.slerpQuaternions(m.prevQ, m.curQ, a);
       if ((object as THREE.Camera).isCamera) object.updateMatrixWorld();
+      m.drawn = true;
       this.applied.push(object);
     }
+  }
+
+  /** Translate a fresh gameplay-space label anchor with its actor for this draw. Actor roots are in world space. */
+  alignAnchor(point: THREE.Vector3, root: THREE.Object3D): THREE.Vector3 {
+    const m = this.motions.get(root);
+    if (m?.drawn) point.sub(m.cur).add(root.position);
+    return point;
   }
 
   /** Put every interpolated object back on its simulated transform. */
@@ -135,9 +144,10 @@ export class MotionInterpolation {
       const m = this.motions.get(object);
       if (!m) continue;
       object.position.copy(m.cur); object.rotation.copy(m.curE);
+      m.drawn = false;
       if ((object as THREE.Camera).isCamera) object.updateMatrixWorld();
     }
-    this.applied = [];
+    this.applied.length = 0;
   }
 }
 

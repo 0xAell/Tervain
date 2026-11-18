@@ -12,11 +12,13 @@ You start on a grey beach with no name and no explanation, walk inland through o
 
 ## Status
 
-- **Version.** `0.0.x`, and held there on purpose until a [quality gate](docs/production/versioning.md) is met. `package.json` has the number, and the title screen shows it.
+- **Version.** The Alderweir patch opens the `0.1.x` series under Astra 6.2 Ultra. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** Playable and deployed. Every merge to `main` is built, tested and published, and the published build is then loaded and played by a smoke test. It is a prototype: it still contains prototype geometry, and nothing has been measured on reference hardware.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
-- **Assets.** Most models and building surfaces, and the title music, are stand-ins. The [asset manifest](data/assets/README.md) names what replaces each in the port.
+- **Assets.** Most models and building surfaces are stand-ins. The Alderweir score and river sound are original to the project. The [asset manifest](data/assets/README.md) names what replaces each in the port.
 - **Not started.** A desktop package, and anything to do with a store release.
+
+In the Alderweir patch, two river paintings frame the journey into the valley. The opening chamber piece follows you into the world in shorter movements. The score makes room for river water, footsteps on the planks and the sound of a door latch. Hearth smoke drifts over the village.
 
 ## What is in the prototype
 

@@ -42,8 +42,8 @@ const MUSIC_HEADROOM = 0.8;
 const MUSIC_FADE_SECONDS = 0.15;
 const MUSIC_PAUSE_DELAY = 900;
 export const MENU_MUSIC_SOURCES = {
-  opus: `${import.meta.env.BASE_URL}assets/audio/the-sovereigns-oath.ogg`,
-  aac: `${import.meta.env.BASE_URL}assets/audio/the-sovereigns-oath.m4a`,
+  opus: `${import.meta.env.BASE_URL}assets/audio/world/alderweir/title.ogg`,
+  aac: `${import.meta.env.BASE_URL}assets/audio/world/alderweir/title.m4a`,
 };
 export type MenuMusicState = 'locked' | 'muted' | 'loading' | 'playing' | 'paused' | 'blocked' | 'unavailable';
 export interface MenuMusicPlayback {

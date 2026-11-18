@@ -390,6 +390,7 @@ export function chimney(R: Region, rnd: Rnd, x: number, z: number, y0: number, h
   }
   B.box(w + 0.16, 0.12, w + 0.16, x, y, z, jitterTone(TINT.stoneDark, rnd, 0.12), { jit: 0.1 });
   R.vc.box(w - 0.3, 0.04, w - 0.3, x, y + 0.1, z, 0x141210, { jit: 0 });
+  return R.ctx.toWorld(x, y + 0.14, z);
 }
 
 export type RoofKind = 'thatch' | 'shingle' | 'slate' | 'tile';

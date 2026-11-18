@@ -2,6 +2,7 @@ import { loadBakedTextures } from './bakedTextures';
 import type { CameraCrown } from '../core/rules/cameraCrowns';
 import { buildFurniture, deferredFurniture, loadFurniture, type FurnitureTemplates } from './furniture';
 import { InteriorLight } from './interiorLight';
+import { sunCasterFrustum } from './softShadows';
 import { buildHearthFires } from './hearthFire';
 import { WINDOW_VIEW_SIZE, WindowView } from './windowView';
 import { smoothDistanceFade } from './distanceVisibility';
@@ -334,14 +335,14 @@ export class WorldScene {
       addModule('ambient', buildAmbient(ctx));
       // The hunter's camp and the caravan rest register their solid props before grass is sown around them: built after,
       // grass grew through the trough, the panniers and the notice board (A105 scout). They join the scene below.
-      const hunterSupplies = buildHunterSupplies(terrain, colliders), animalCamp = buildAnimalCamp(terrain, colliders);
+      const hunterSupplies = buildHunterSupplies(terrain, colliders), animalCamp = buildAnimalCamp(terrain, colliders, settings.quality !== 'low');
       // Habitat snapshots solid footprints: register fences and hay before grass tiles can be generated.
       // Attach the settlement at its existing scene position below.
       const scenery = own(buildScenery(terrain, colliders, settings.quality));
       await checkpoint('woodland', 'Grass and undergrowth');
       addModule('groundcover', buildGroundcover(ctx));
       await checkpoint('woodland', 'Woodland atmosphere');
-      addModule('wildlife', buildWildlife(ctx));
+      addModule('wildlife', buildWildlife(ctx, scenery.chimneyOutlets));
       addModule('woodland air', buildWoodlandAir(ctx, sky.fog));
       addModule('coastal promontory', buildCoastalBackdrop(terrainTex));
       // Retain the original module update/draw ordering while still attaching each allocation immediately for cleanup.
@@ -378,6 +379,7 @@ export class WorldScene {
       await checkpoint('settlement', 'Hunter supplies and caravan');
       addModule('hunter supplies', { group: hunterSupplies, update() {}, dispose: () => disposeHunterSupplies(hunterSupplies) });
       addModule('caravan animal rest', animalCamp);
+      if (animalCamp.sunCaster) own({ dispose: installShadowOnlyGroup(scene, sky.sun, animalCamp.sunCaster) });
       await checkpoint('settlement', 'Wildlife');
       // Deferred, the world opens with a stand-in and the animals move in once their models are here (A70).
       const arriving = animalTemplates ? null : deferredWildlife();
@@ -771,7 +773,7 @@ export class WorldScene {
       // shadow volume now, so off-screen trees that shade visible ground remain submitted.
       this.sky.sun.updateMatrixWorld(); this.sky.sun.target.updateMatrixWorld();
       this.sky.sun.shadow.updateMatrices(this.sky.sun);
-      shadowFrustum = this.sky.sun.shadow.getFrustum();
+      shadowFrustum = sunCasterFrustum(this.sky.sun, this.casterFrustum);
     }
     const frame: FrameContext = { time: this.time, camera, focus, nightness: night, sunDir: this.sky.state.sunDir, shadowFrustum, shadowsForViewOnly: indoor <= 0 && !this.windowShown, reducedMotion: reduced, hour, view: v, quality: settings.quality, treeDetailByDistance: settings.treeDetailByDistance, wildlifeActive };
     this.animals.setRunning(wildlifeActive);
@@ -835,6 +837,7 @@ export class WorldScene {
   }
 
   private readonly doorSwings: DoorSwings;
+  private readonly casterFrustum = new THREE.Frustum();
   private readonly interiorLight: InteriorLight;
   private readonly windowView: WindowView;
   private readonly letIn: () => void;

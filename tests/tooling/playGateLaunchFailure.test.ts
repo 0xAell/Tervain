@@ -1,3 +1,4 @@
+import { installPopulationProbe } from './fixtures/budgetPopulation';
 import { it, expect } from 'vitest';
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,6 +8,7 @@ import { spawnSync } from 'node:child_process';
 it('records browser launch failure for every profile and exits without a PASS receipt', () => {
   const fixture = mkdtempSync(join(tmpdir(), 'tervain-gate-launch-check-'));
   try {
+    installPopulationProbe(fixture);
     writeFileSync(join(fixture, 'play-gate.mjs'), readFileSync('tools/play-gate.mjs'));
     // The gate's own helper modules travel with it; only the browser is replaced.
     writeFileSync(join(fixture, 'budget-frame-samples.mjs'), readFileSync('tools/budget-frame-samples.mjs'));

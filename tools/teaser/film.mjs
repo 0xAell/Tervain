@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openPage } from '../cdp.mjs';
+import { MENU_SCORE_FEATURE_INFO } from '../../src/presentation/menu/menuScoreFeatures.ts';
 import { dress } from './costume.mjs';
 import { FPS, HEIGHT, SHOTS, WIDTH } from './timeline.mjs';
 
@@ -38,7 +39,7 @@ const SEEDED = `(() => {
 })();`;
 
 /** Runs in the page. Installs window.__film: world and menu setup, and one frame of the film per call. */
-function install() {
+function install(scoreDuration) {
   const T = window.tervain;
   const V = T.cam.camera.position.constructor;
   // The game's loop ends at its next tick; from here on only the film advances time.
@@ -169,7 +170,7 @@ function install() {
     T.settings.reducedMotion = false;
     let song = s.song;
     film.advance = (dt) => { song += dt; };
-    Object.defineProperty(T.audio, 'menuMusicPlayback', { configurable: true, get: () => ({ time: song, duration: 214.2, playing: true, gain: 0.44 }) });
+    Object.defineProperty(T.audio, 'menuMusicPlayback', { configurable: true, get: () => ({ time: song, duration: scoreDuration, playing: true, gain: 0.44 }) });
     // The camp, sky and ships keep their own clock; start it, and the ships' routes, at the same place every time.
     T.menuScene.time = 40;
     T.menuScene.beginTrafficVisit(0x7e7a1);
@@ -288,7 +289,7 @@ export async function film(shot, { mode = 'video', stills = null } = {}) {
       await waitFor(page, `return !!(window.tervain && window.tervain.mode === 'title' && document.querySelector('.menu-screen'))`, 'the title screen');
       await page.wait(4000);
     }
-    await page.eval(`return (${install.toString()})()`);
+    await page.eval(`return (${install.toString()})(${MENU_SCORE_FEATURE_INFO.duration})`);
     const preroll = Math.round((shot.preroll ?? 0) * FPS);
     if (world) {
       // Camera keys are given in metres above the ground: resolve them once against the terrain.

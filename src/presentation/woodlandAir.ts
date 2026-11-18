@@ -44,10 +44,12 @@ export function buildWoodlandAir(ctx: Pick<BuildContext, 'terrain' | 'quality'>,
   const motes = new THREE.Points(geometry, material);
   motes.frustumCulled = false;
   group.add(motes);
-  const dayHaze = new THREE.Color(0x718c87);
+  const dayHaze = new THREE.Color(0x879d91);
+  const dayPollen = new THREE.Color(0xe8c98e), nightPollen = new THREE.Color(0xb8cfa1);
   const nightHaze = new THREE.Color(0x182936);
   const haze = new THREE.Color();
   let clock = 0;
+  let lastDrawn = -1;
   let disposed = false;
   return {
     group,
@@ -56,12 +58,14 @@ export function buildWoodlandAir(ctx: Pick<BuildContext, 'terrain' | 'quality'>,
       fog.density = woodlandFog(fog.density, cover, f.nightness);
       haze.copy(dayHaze).lerp(nightHaze, f.nightness);
       fog.color.lerp(haze, cover * 0.32);
-      material.color.setHex(f.nightness > 0.45 ? 0xb8cfa1 : 0xe3d4a4);
+      material.color.copy(dayPollen).lerp(nightPollen, f.nightness);
       // Habitat cover already blends across the woodland edge; follow it instead of revealing the entire
       // pollen patch at a single cover threshold while its particles are still in the player's view.
       material.opacity = (0.25 + f.nightness * 0.25) * smoothstep(0, 0.18, cover);
       motes.visible = material.opacity > 0;
       if (!f.reducedMotion) clock += dt;
+      if (!motes.visible || clock === lastDrawn) return;
+      lastDrawn = clock;
       seeds.forEach((p, i) => {
         positions[i * 3] = p.x + Math.sin(clock * 0.15 + p.p) * 0.75;
         positions[i * 3 + 1] = p.y + Math.sin(clock * 0.21 + p.p * 1.3) * 0.35;

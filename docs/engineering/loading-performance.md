@@ -148,7 +148,7 @@ replacement keep simulation, wildlife sound and autosaving paused. Retry
 retains the chosen save; Back disposes a failed first view and restores the
 prior title state.
 
-The parchment loading chart is original artwork. Phase segments show measured
+The arrival and view-rebuild screens use two original landscape plates from Alderweir. Phase segments show measured
 work counts when available and remain indeterminate for work without a known
 total; there is no guessed global percentage or minimum waiting time. Recovery
 supports Tab, keyboard activation and controller selection, with held input

@@ -22,9 +22,9 @@ Every file carries one of four plans, decided per family (`groups` in the manife
 
 `totals.byPlan` in the manifest counts the files and bytes under each.
 
-In short: models, building surfaces, leaf atlases and the title music are stand-ins and are replaced; the game's own
-dialogue and sound, and the emblem, are kept and imported from their source files; the browser's packed and
-re-encoded copies are dropped.
+Models, building surfaces and leaf atlases have replacements for the port. Keep the Alderweir score, river sounds,
+interaction effects, paintings, dialogue and emblem. Each Alderweir cue has one import identity shared by its two
+browser encodings. The archived 0.0.x title theme has its own replacement plan below.
 
 ## Which pack replaces what
 
@@ -42,7 +42,7 @@ target (`webTarget`). Every file of that family carries the pack's title in its 
 | Rock pile and landmark scenery | Nordic Beach Rock Formation (Quixel Megascans) | Nordic Coastal Cliff | |
 | Furniture and household pieces | Medieval Props: Kit (Dragon Motion) | Medieval Fantasy Furniture Pack 01 | |
 | Building surfaces | Medieval Modular Town (With Interiors) (Jemini Studio) | | |
-| Title music | Medieval Fantasy Game Music Pack (Skyhammer Sound) | | |
+| Archived 0.0.x title music | Medieval Fantasy Game Music Pack (Skyhammer Sound) | | |
 
 The game's own sound (voices, world sound, animal calls, hunting sounds) is kept, not replaced; the `audio` brief
 lists libraries to fill gaps.
@@ -57,7 +57,7 @@ names before anything is released, whatever the answer turns out to be, so nothi
 | Files | The open question | Replaced by |
 | --- | --- | --- |
 | The hero's two sources, `weathered-wanderer-hero-50k.glb` and `weathered-wanderer-animated-hero.glb` | Whether they were generated for the project or downloaded from a community listing (the model ledger's `toConfirm`) | Modular Medieval NPC V2 - Metahuman (Polyphoria) |
-| The title theme in its three encodings (`the-sovereigns-oath`) | Whether the terms of the service it was made with allow a commercial release | Medieval Fantasy Game Music Pack (Skyhammer Sound) |
+| The archived 0.0.x title theme in its three encodings (`the-sovereigns-oath`) | Whether the terms of the service it was made with allow a commercial release | Medieval Fantasy Game Music Pack (Skyhammer Sound) |
 
 The generator refuses to write a manifest in which a file with an unresolved licence is kept, and
 `tests/tools/assetManifest.test.ts` holds the list above. The web build goes on serving these files as it does

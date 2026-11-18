@@ -130,6 +130,27 @@ export function installSoftSunShadows(): boolean {
 }
 
 /**
+ * The sun shader fades every receiver to fully lit at the map's edges. A caster beyond that band can
+ * still contribute through the widest PCF tap and its texel footprint. Keep both in the light's own
+ * coordinates; the same bounds then hold for gameplay, reflected scenes and every window cube face.
+ */
+export function sunCasterFrustum(sun: THREE.DirectionalLight, out: THREE.Frustum): THREE.Frustum {
+  const shadow = sun.shadow;
+  out.copy(shadow.getFrustum());
+  if (!installed || shadow.radius !== SOFT_SUN_SHADOW || shadow.camera.view?.enabled) return out;
+  const camera = shadow.camera;
+  const furthestTap = Math.max(PENUMBRA_MAX / SUN_SHADOW_SPAN, 2 / shadow.mapSize.x);
+  const border = (1 - SUN_SHADOW_FADE[1]) / 2;
+  const insetX = Math.max(0, border - furthestTap - 1 / shadow.mapSize.x) * (camera.right - camera.left) / camera.zoom;
+  const insetY = Math.max(0, border - furthestTap - 1 / shadow.mapSize.y) * (camera.top - camera.bottom) / camera.zoom;
+  out.planes[0]!.constant -= insetX;
+  out.planes[1]!.constant -= insetX;
+  out.planes[2]!.constant -= insetY;
+  out.planes[3]!.constant -= insetY;
+  return out;
+}
+
+/**
  * Shadow maps drawn into depth alone (Air budget). Three's PCF shadow target carries an RGBA8 colour buffer beside the
  * depth texture the shaders compare against; nothing reads the colour, yet every caster fragment wrote its packed depth
  * there (and the clear filled it), at 4096 px on High 64 MB of writes a frame. Colour writes are masked off for the

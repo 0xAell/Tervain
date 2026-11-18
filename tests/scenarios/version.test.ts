@@ -4,8 +4,8 @@ import { MemoryStore, SaveStore } from '../../src/platform/storage';
 import { GAME_BUILD, GAME_VERSION } from '../../src/version';
 
 describe('pre-alpha build version', () => {
-  it('stays on the 0.0.x line until the quality hold is explicitly removed', () => {
-    expect(GAME_VERSION).toMatch(/^0\.0\.\d+$/);
+  it('stays on the owner-approved 0.1.x line', () => {
+    expect(GAME_VERSION).toMatch(/^0\.1\.(?:0|[1-9]\d*)$/);
     expect(GAME_BUILD).toBe(`prototype-${GAME_VERSION}`);
   });
 

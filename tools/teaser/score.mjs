@@ -14,6 +14,7 @@
  *                                              folder, and with --stems the music, effects and beds apart
  */
 import { spawnSync } from 'node:child_process';
+import { WORLD_AUDIO as MANIFEST } from '../../src/presentation/sound/worldAudioManifest.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -327,11 +328,6 @@ function scratch(L, R, cut) {
 }
 
 /* ------------------------------------------------------------------ the game's own sounds */
-
-const MANIFEST = (() => {
-  const text = fs.readFileSync(path.join(ROOT, 'src/presentation/sound/worldAudioManifest.ts'), 'utf8');
-  return JSON.parse(text.slice(text.indexOf('{', text.indexOf('export const WORLD_AUDIO')), text.lastIndexOf('} as const;') + 1));
-})();
 
 const decoded = new Map();
 function decode(file, channels) {

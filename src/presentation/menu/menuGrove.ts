@@ -1,12 +1,11 @@
 import type { TreeCapsules, TreeTrunkShape } from './menuTree';
 import {
   MENU_BAND_COUNT,
-  MENU_BEAT,
-  MENU_FIRST_BEAT,
+  MENU_BEATS_PER_BAR,
+  MENU_BARS_PER_PHRASE,
   createMenuRhythmSample,
   forEachMenuAccent,
   menuBeatTime,
-  menuPhraseTime,
   sampleMenuRhythm,
   type MenuRhythmSample,
 } from './menuScoreRhythm';
@@ -46,15 +45,14 @@ const SNAPSHOT_STEPS = 120;
 const TAU = Math.PI * 2;
 const GOLDEN = 2.399963229728653;
 
-/** The first spirit leaves the hollow on this beat (32.75 s, once the door rests open), the rest every half beat. */
-const RELEASE_BEAT = 58;
-/** They begin to come home on this beat (204.4 s) and pass through the door a sixteenth apart from 205.5 s. */
-const RETURN_BEAT = 364;
-const ENTRY_BEAT = 366;
-/** The door is pushed shut after the last spirit is in (211.7 s). */
-const CLOSE_BEAT = 377;
-/** When the spirits begin to come home (204.4 s). */
+/** The first spirit steps out on a downstroke once the door has opened. */
+export const GROVE_RELEASE_BEAT = 23;
+/** The final return begins in “Evening on the landing”. Allow a sixteenth note between arrivals. */
+const RETURN_BEAT = 167;
+const ENTRY_BEAT = 169;
+const CLOSE_BEAT = 178;
 export const GROVE_HOMECOMING = menuBeatTime(RETURN_BEAT);
+export const GROVE_CLOSE = menuBeatTime(CLOSE_BEAT);
 
 type Vec3 = [number, number, number];
 
@@ -81,19 +79,19 @@ export interface GroveWorld {
 export const GroveFormation = { Helix: 0, Rings: 1, Maypole: 2, Fireflies: 3 } as const;
 export type GroveFormation = (typeof GroveFormation)[keyof typeof GroveFormation];
 
-/** Phrase-by-phrase choreography (phrase 1 starts at 33.9 s). The opening release climbs; the rest alternates. */
+/** Phrase-by-phrase choreography. The opening release climbs; the rest alternates. */
 const PHRASE_FORMATIONS: readonly GroveFormation[] = [
   GroveFormation.Helix, // phrase 0 (before the cue; unused)
-  GroveFormation.Helix, // 33.9 s
-  GroveFormation.Rings, // 51.8 s
-  GroveFormation.Maypole, // 69.8 s
-  GroveFormation.Rings, // 87.7 s
-  GroveFormation.Fireflies, // 105.7 s
-  GroveFormation.Helix, // 123.6 s
-  GroveFormation.Maypole, // 141.5 s
-  GroveFormation.Rings, // 159.5 s
-  GroveFormation.Maypole, // 177.4 s
-  GroveFormation.Helix, // 195.4 s
+  GroveFormation.Helix,
+  GroveFormation.Rings,
+  GroveFormation.Maypole,
+  GroveFormation.Rings,
+  GroveFormation.Fireflies,
+  GroveFormation.Helix,
+  GroveFormation.Maypole,
+  GroveFormation.Rings,
+  GroveFormation.Maypole,
+  GroveFormation.Helix,
 ];
 
 export function groveFormationAt(phrase: number): GroveFormation {
@@ -394,8 +392,8 @@ export function createMenuGrove(world: GroveWorld, count: number): MenuGrove {
   // The side of the tree facing the camera, so the dance is laid out to be seen.
   const doorAz = Math.atan2(nz, nx);
   const front = doorAz + 0.27;
-  const releaseTime = (i: number) => menuBeatTime(RELEASE_BEAT + i * 0.5);
-  const entryTime = (i: number) => menuBeatTime(ENTRY_BEAT + i * 0.25);
+  const releaseTime = (i: number) => menuBeatTime(GROVE_RELEASE_BEAT + i / 3);
+  const entryTime = (i: number) => menuBeatTime(ENTRY_BEAT + i / 6);
   const returnStart = menuBeatTime(RETURN_BEAT);
   /** Inside the hollow before release and after return: a slow swirl round the chamber's middle. */
   const insideTarget = (i: number, t: number, out: Vec3): Vec3 => {
@@ -448,7 +446,7 @@ export function createMenuGrove(world: GroveWorld, count: number): MenuGrove {
       case GroveFormation.Fireflies: {
         // Hop from perch to perch (along the boughs or through the crown) every two beats, with an arc on each jump.
         const phraseIndex = Math.floor(rh.phrase);
-        const sinceStart = beats - (menuPhraseTime(phraseIndex) - MENU_FIRST_BEAT) / MENU_BEAT;
+        const sinceStart = beats - phraseIndex * MENU_BARS_PER_PHRASE * MENU_BEATS_PER_BAR;
         const hops = sinceStart / 2 + hash(i, 11) * 0.5;
         const k = Math.floor(hops);
         const phase = hops - k;
@@ -480,11 +478,11 @@ export function createMenuGrove(world: GroveWorld, count: number): MenuGrove {
     return out;
   };
   /** Where spirit i dances at time t: its phrase's formation, blended from the previous one over the phrase's first bar. */
-  const danceTarget = (i: number, t: number, rh: MenuRhythmSample, out: Vec3): Vec3 => {
+  const danceTarget = (i: number, rh: MenuRhythmSample, out: Vec3): Vec3 => {
     const phrase = Math.max(1, rh.phrase);
     const f = groveFormationAt(phrase);
-    const start = menuPhraseTime(Math.floor(phrase));
-    const w = smooth(0, 4 * MENU_BEAT, t - start);
+    const bar = (phrase - Math.floor(phrase)) * MENU_BARS_PER_PHRASE;
+    const w = smooth(0, 1, bar);
     if (w >= 1 || Math.floor(phrase) <= 1) return formationTarget(f, i, rh, out);
     formationTarget(groveFormationAt(phrase - 1), i, rh, blendA);
     formationTarget(f, i, rh, blendB);
@@ -493,7 +491,7 @@ export function createMenuGrove(world: GroveWorld, count: number): MenuGrove {
   const target = (i: number, t: number, rh: MenuRhythmSample, out: Vec3): Vec3 => {
     const release = releaseTime(i);
     if (t < release) return insideTarget(i, t, out);
-    if (t >= release + 2.6 && t < returnStart) return danceTarget(i, t, rh, out);
+    if (t >= release + 2.6 && t < returnStart) return danceTarget(i, rh, out);
     const entry = entryTime(i);
     if (t >= entry + 0.7) return insideTarget(i, t, out);
     // Out through the doorway: chamber → threshold → a step in front, then into the dance.
@@ -504,7 +502,7 @@ export function createMenuGrove(world: GroveWorld, count: number): MenuGrove {
     if (t < returnStart) {
       const join = smooth(release + 0.5, release + 2.6, t);
       if (join <= 0) return copy3(pathA, out);
-      danceTarget(i, t, rh, blendB);
+      danceTarget(i, rh, blendB);
       return lerp3(pathA, blendB, join, out);
     }
     // Home: from the dance into a wide spinning ring before the door (on the side away from the open leaf). Each spirit
@@ -513,7 +511,7 @@ export function createMenuGrove(world: GroveWorld, count: number): MenuGrove {
     const a = i * GOLDEN + (t - returnStart) * 1.5;
     const r = 0.55 + 1.3 * (1 - tighten);
     doorToTree(0.55 + Math.cos(a) * r * 0.85, 1.35 + Math.sin(a) * r * 0.6, 1.4 - 0.35 * tighten + 0.4 * Math.sin(a * 2 + i) * (1 - tighten), pathB);
-    danceTarget(i, t, rh, blendB);
+    danceTarget(i, rh, blendB);
     lerp3(blendB, pathB, smooth(returnStart, returnStart + 2.2, t), blendA);
     if (t < entry - 0.3) return copy3(blendA, out);
     doorToTree(0.1, 1.0, 0.5, pathB);
@@ -597,8 +595,8 @@ export function createMenuGrove(world: GroveWorld, count: number): MenuGrove {
     if (doorLatched) return;
     // A heavy oak leaf: pushed open from within it swings out over a couple of seconds, knocks against its stop and rests
     // there; at the end it is drawn shut, lands against the frame with a small rebound and latches.
-    const closing = t >= menuBeatTime(CLOSE_BEAT);
-    const shut = 1 - smooth(menuBeatTime(CLOSE_BEAT), menuBeatTime(CLOSE_BEAT) + 0.5, t);
+    const closing = t >= GROVE_CLOSE;
+    const shut = 1 - smooth(GROVE_CLOSE, GROVE_CLOSE + 0.5, t);
     const goal = (GROVE_DOOR_OPEN + 0.1) * shut - 0.08 * (1 - shut);
     const k = closing ? 7 : 1.05;
     const c = closing ? 2.2 : 0.85;

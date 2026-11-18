@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { ALDERWEIR_MUSIC } from '../../src/core/content/alderweirMusic';
 import { WORLD_AUDIO } from '../../src/presentation/sound/worldAudioManifest';
 
 /**
@@ -156,7 +157,7 @@ describe('composed pieces', () => {
     const composed = C.COMPOSED as unknown as { id: string; render: () => Float32Array[] }[];
     const ids = composed.map((c) => c.id);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const [id, e] of Object.entries(WORLD_AUDIO.music)) if (e.origin === 'composed') expect(ids, id).toContain(id);
+    for (const [id, e] of Object.entries(WORLD_AUDIO.music)) if (e.origin === 'composed') expect([...ids, ...Object.keys(ALDERWEIR_MUSIC)], id).toContain(id);
     // The inn's lute tunes are composed; its two sung songs were generated (A53) and come from plan.json instead.
     const sung = new Set(['drought_bell', 'bread_and_water']);
     for (const id of Object.keys(WORLD_AUDIO.songs)) if (!sung.has(id)) expect(ids, id).toContain(id);

@@ -86,6 +86,11 @@ void main() {
   float speed = length(vFlow);
   vec2 slope = waterFlowSlope(vWorld.xz, vFlow, uTime, 0.42, footprint) * (0.05 + 0.32 * vRough + 0.05 * min(speed, 2.0))
     + waterFlowSlope(vWorld.xz, vFlow * 1.3, uTime * 1.2, 1.15, footprint) * (0.03 + 0.18 * vRough) * uDetail;
+  // Long crests break a bank reflection into narrow horizontal strokes. They fade below the pixel
+  // footprint and give way to the existing standing waves wherever the channel starts to tumble.
+  vec2 crossFlow = vec2(-vFlow.y, vFlow.x) / max(speed, 0.06);
+  float crestPhase = dot(vWorld.xz, crossFlow) * 3.4 + 0.8 * sin(vWorld.z * 0.64 - uTime * 0.38) - uTime * 0.72;
+  slope += crossFlow * (0.027 * sin(crestPhase) * (1.0 - vRough) * (1.0 - smoothstep(0.15, 0.9, footprint)));
   vec4 foamTex = waterFlowFoam(vWorld.xz, vFlow, uTime, 0.55);
   // Where the surface itself tips over (a fall, a race's drop) the water runs as a torn sheet streaked along its fall.
   vec3 face = normalize(cross(dFdx(vWorld), dFdy(vWorld)));
@@ -99,8 +104,8 @@ void main() {
   slope += ripple.xy;
   vec3 N = normalize(vec3(-slope.x, 1.0, -slope.y));
   vec3 V = normalize(cameraPosition - vWorld);
-  // A70: rivers and pools a little rougher and less sun-glazed, for Gothic grit.
-  float roughness = clamp(0.08 + vRough * 0.3 + footprint * 0.02, 0.07, 0.5);
+  // Sheltered reaches mirror the bank. A tumbling race broadens the reflection into broken light.
+  float roughness = clamp(0.065 + vRough * 0.31 + footprint * 0.02, 0.065, 0.5);
   float day = 1.0 - uNight;
   vec3 L = normalize(uSunDir);
   float NdotV = max(dot(N, V), 0.0);
@@ -131,7 +136,7 @@ void main() {
   // Foam thins out toward the water's edge instead of ending in a hard white line along the ground.
   float cover = waterFoamCover(foamTex, amount, footprint) * smoothstep(0.0, 0.05, local);
   vec3 foamLight = uAmbient * 0.65 + uSunColor * (0.25 + 0.6 * max(dot(N, L), 0.0)) * min(uSunI, 2.4) * day * 0.45;
-  color = mix(color, vec3(0.84, 0.9, 0.86) * foamLight, cover * 0.85);
+  color = mix(color, vec3(0.90, 0.90, 0.81) * foamLight, cover * 0.85);
   // Aerated water in a fall is milky even between the foam.
   color = mix(color, vec3(0.62, 0.72, 0.68) * light * 1.4, max(smoothstep(0.55, 1.0, vRough), fall) * 0.18);
 
@@ -329,8 +334,8 @@ export function buildInlandWater(world: WaterWorld, terrain: Pick<Terrain, 'heig
   const group = new THREE.Group();
   group.name = 'inland-water';
   // The stream runs clear but tea-green from the hill; the races carry silt; the spring is almost glass.
-  const stream = inlandMaterial(water, 0.64, new THREE.Color(0.02, 0.06, 0.045), new THREE.Color(0.06, 0.12, 0.085), quality);
-  const races = inlandMaterial(water, 0.5, new THREE.Color(0.03, 0.06, 0.04), new THREE.Color(0.08, 0.12, 0.08), quality);
+  const stream = inlandMaterial(water, 0.64, new THREE.Color(0.034, 0.071, 0.055), new THREE.Color(0.092, 0.145, 0.094), quality);
+  const races = inlandMaterial(water, 0.5, new THREE.Color(0.055, 0.077, 0.047), new THREE.Color(0.12, 0.15, 0.083), quality);
   const spring = inlandMaterial(water, 1.2, new THREE.Color(0.015, 0.06, 0.06), new THREE.Color(0.05, 0.13, 0.11), quality);
   const ribbons: Ribbon[] = [
     makeRibbon(world.channel('main'), terrain, stream),

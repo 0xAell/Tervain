@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { mergeStaticParts } from './staticMerge';
 import { CARAVAN_ANIMAL_REST as REST, caravanAnimalPoint } from '../core/world/caravanAnimal';
 import type { Colliders } from '../core/world/colliders';
@@ -7,7 +8,7 @@ import type { SceneModule } from './context';
 import { makeTexPair } from './buildingTextures';
 
 /** A modest, physical caravan rest: hitching rail, two-compartment trough and strapped travel baggage. */
-export function buildAnimalCamp(terrain: Pick<Terrain, 'heightAt'>, colliders: Colliders): SceneModule {
+export function buildAnimalCamp(terrain: Pick<Terrain, 'heightAt'>, colliders: Colliders, batchSunShadow = false): SceneModule & { sunCaster: THREE.Mesh | null } {
   const group = new THREE.Group(); group.name = 'Caravan mount / hitching rest';
   const pair = makeTexPair('planks', 256, 4), woodMap = pair.map.clone(), woodNormal = pair.normal.clone();
   woodMap.needsUpdate = woodNormal.needsUpdate = true;
@@ -75,7 +76,26 @@ export function buildAnimalCamp(terrain: Pick<Terrain, 'heightAt'>, colliders: C
   }
   // Troughs, belts, buckles and flaps drawn as one mesh per material (A78).
   for (const mesh of mergeStaticParts(group)) geometries.add(mesh.geometry);
-  return { group, update() {}, stats: () => ({ caravanMountProps: 6 }), dispose() {
+  // The six opaque materials cast identical depth. Keep their coloured meshes and their own
+  // culling for the main and reflected views; the sun can draw the same small rest in one call.
+  let sunCaster: THREE.Mesh | null = null;
+  if (batchSunShadow) {
+    const casters = group.children.filter((child): child is THREE.Mesh => child instanceof THREE.Mesh && child.visible && child.castShadow);
+    const parts = casters.map((mesh) => mesh.geometry.clone().applyMatrix4(mesh.matrix));
+    const combined = mergeGeometries(parts);
+    for (const part of parts) part.dispose();
+    if (combined) {
+      combined.computeBoundingSphere();
+      geometries.add(combined);
+      sunCaster = new THREE.Mesh(combined, strap);
+      sunCaster.name = 'caravan-rest:sun-shadow';
+      sunCaster.visible = false;
+      sunCaster.castShadow = true;
+      group.add(sunCaster);
+      for (const mesh of casters) mesh.castShadow = false;
+    }
+  }
+  return { group, sunCaster, update() {}, stats: () => ({ caravanMountProps: 6 }), dispose() {
     if (disposed) return; disposed = true;
     for (const geometry of geometries) geometry.dispose();
     for (const material of materials) material.dispose();

@@ -3,8 +3,8 @@ import * as THREE from 'three';
 /**
  * The menu's dusk sky and the sea below it, drawn by one dome shader.
  *
- * The look is taken from the colour relationships measured on Gothic 3's own title backdrop (docs/art/gothic3-reference.md):
- * a near-black teal zenith, dull teal cloud masses, and one burning amber band at the horizon. The sea is not geometry: for
+ * The vigil keeps its low setting sun. Alderweir’s slate-blue air, mossy shallows and pale honey light
+ * carry from this headland into the painted valley. The sea is not geometry: for
  * directions below the horizon the shader intersects a flat plane 40 m under the camp and shades waves, the sun's glitter
  * path and the reflected clouds there, so the horizon is exact at any distance and costs nothing extra to draw.
  *
@@ -21,14 +21,14 @@ const lin = (hex: number) => new THREE.Color().setHex(hex);
 /** Uniforms shared by every menu shader that needs the sky: one set of objects, so a later tweak reaches all of them. */
 export const menuSkyUniforms = {
   uSunDir: { value: MENU_SUN_DIR.clone() },
-  uZenith: { value: lin(0x081013) },
-  uUpper: { value: lin(0x1a2b30) },
-  uHorizonCool: { value: lin(0x3b3631) },
-  uHorizonWarm: { value: lin(0xb4661f) },
-  uSunCore: { value: lin(0xffc27a) },
-  uCloudDark: { value: lin(0x0e1416) },
-  uCloudLit: { value: lin(0x8c4816) },
-  uSeaDeep: { value: lin(0x060d0f) },
+  uZenith: { value: lin(0x1a3039) },
+  uUpper: { value: lin(0x425a61) },
+  uHorizonCool: { value: lin(0x777669) },
+  uHorizonWarm: { value: lin(0xc29a64) },
+  uSunCore: { value: lin(0xffdc9a) },
+  uCloudDark: { value: lin(0x253635) },
+  uCloudLit: { value: lin(0x98764e) },
+  uSeaDeep: { value: lin(0x112524) },
   uSkyTime: { value: 0 },
   uNoise: { value: null as THREE.Texture | null },
 };

@@ -1,5 +1,6 @@
 import { rideable, STANDING_BODY } from '../core/rules/session';
 import * as THREE from 'three';
+import { prepareActorShadow } from './actorShadow';
 import { compactAnimalBoneTexture } from './animals/boneTexture';
 import { parseModel, type ModelGltf } from './assets/gltfLoader';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
@@ -265,7 +266,7 @@ interface AnimalBody {
   animation: AnimalAnimation;
 }
 
-function cloneAnimal(template: ModelGltf, definition: AnimalDefinition, validated = validateAnimalTemplate(template, definition)): AnimalBody {
+function cloneAnimal(template: ModelGltf, definition: AnimalDefinition, validated = validateAnimalTemplate(template, definition), worldShadow = false): AnimalBody {
   const scene = cloneSkinned(template.scene) as THREE.Group;
   const geometries = new Map<THREE.BufferGeometry, THREE.BufferGeometry>(), materials = new Map<THREE.Material, THREE.Material>(), textures = new Map<THREE.Texture, THREE.Texture>();
   const skeletons = new Set<THREE.Skeleton>(), paws: AnimalBody['paws'] = [];
@@ -289,13 +290,15 @@ function cloneAnimal(template: ModelGltf, definition: AnimalDefinition, validate
   scene.traverse(object => {
     const mesh = object as THREE.Mesh;
     if (!mesh.isMesh) return;
-    let geometry = geometries.get(mesh.geometry);
+    const source = mesh.geometry;
+    let geometry = geometries.get(source);
     if (!geometry) { geometry = mesh.geometry.clone(); geometries.set(mesh.geometry, geometry); }
     mesh.geometry = geometry;
     mesh.material = Array.isArray(mesh.material) ? mesh.material.map(ownMaterial) : ownMaterial(mesh.material);
     mesh.receiveShadow = true;
     const skinned = mesh as THREE.SkinnedMesh;
     if (!skinned.isSkinnedMesh) return;
+    if (worldShadow) void prepareActorShadow(skinned, source);
     if (!skeletons.has(skinned.skeleton)) compactAnimalBoneTexture(skinned.skeleton);
     skeletons.add(skinned.skeleton);
     // Animation can raise heads and swing tails outside the rest sphere.
@@ -463,7 +466,7 @@ function* buildAnimalSteps(ctx: Pick<BuildContext, 'terrain' | 'colliders' | 'qu
     yield;
   }
   for (const [index, { definition, template, home, validated }] of fitted.entries()) {
-    const body = cloneAnimal(template, definition, validated), root = new THREE.Group(); root.name = `${definition.species} / ${definition.id}`; root.add(body.scene);
+    const body = cloneAnimal(template, definition, validated, true), root = new THREE.Group(); root.name = `${definition.species} / ${definition.id}`; root.add(body.scene);
     body.scene.traverse(object => { if ((object as THREE.Mesh).isMesh) (object as THREE.Mesh).castShadow = ctx.quality !== 'low'; });
     // The body as the mind needs it: where it stands, how tall it is, the motion it plays, and the way the drawn body faces.
     const mind = new AnimalMind(definition, home, index, {

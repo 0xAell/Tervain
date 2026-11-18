@@ -24,7 +24,7 @@ Open **http://127.0.0.1:5180/tools/menu-film.html**. The server binds only to `1
 Hegemony emblem, shaders, and sky lighting finish preparing, the page exposes two buttons:
 
 - **Record 5-second wisp test**: inspect image composition, actual animation, dimensions, and frame pacing before a full run.
-- **Record full song**: record **216 seconds** of menu motion, slightly longer than the approved score.
+- **Record full song**: record **237 seconds** of menu motion, leaving room for the complete Alderweir recording.
 
 The test starts at song time **0:40**, during the wisp sequence. The full recording always starts at **0:00**, even
 after running a test. The recorder passes elapsed song time to the native menu animation, so the tree door and wisps
@@ -55,21 +55,25 @@ recording progress; recording write endpoints accept requests only from this rec
 ## Add the complete song
 
 The captured WebM has no audio. After the full recording completes, mux the **complete approved AAC score** separately.
-For **The Sovereign's Oath**, its AAC track lasts **214.213 seconds**; the film ends at the next full 30 fps frame,
-**214.233333 seconds** (6,427 frames). The following command encodes the native menu motion to H.264 and copies the whole
-AAC track without an additional audio encode. Do not add `-shortest`, audio fades, or an audio duration trim.
+FFprobe reports **11,304,000 samples at 48 kHz** for Alderweir’s AAC track. Its **235.5 seconds**
+fill exactly **7,065 frames at 30 fps**. The command below trims the video to that frame count, encodes
+it to H.264 and copies the full AAC stream.
 
 ```sh
 ffmpeg -i '/absolute/path/menu-motion-UUID.webm' \
-  -i 'public/assets/audio/the-sovereigns-oath.m4a' \
+  -i 'public/assets/audio/world/alderweir/title.m4a' \
   -map 0:v:0 -map 1:a:0 \
-  -vf 'fps=30,trim=end_frame=6427,setpts=PTS-STARTPTS' \
+  -vf 'fps=30,trim=end_frame=7065,setpts=PTS-STARTPTS' \
   -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p \
   -c:a copy -movflags +faststart \
-  '/absolute/path/Tervain-menu-The-Sovereigns-Oath.mp4'
+  '/absolute/path/Tervain-menu-Alderweir.mp4'
 ```
 
-Use an AAC source for `-c:a copy`; the Opus game asset is not interchangeable with it. If the approved song changes,
-measure its complete audio duration and increase the native capture duration and final video frame count accordingly.
-Check the final file with `ffprobe`, inspect samples from the start, middle, and end, and confirm that the entire audio
-track is retained and that the scene continues animating for the complete song.
+The recorder takes its timeline from the game’s score data. When the music changes, read the new AAC
+stream duration with FFprobe and round up its duration in seconds multiplied by 30 for the final video
+frame count. Verify the encoded file’s stream durations and video frame count before delivery.
+
+```sh
+ffprobe -v error -show_entries stream=codec_name,duration,nb_frames -of compact \
+  '/absolute/path/Tervain-menu-Alderweir.mp4'
+```

@@ -7,7 +7,7 @@ import { LOOK } from '../core/content/look';
 /**
  * The final image. The scene is drawn into a half-float target (multisampled where the quality allows), then one
  * full-screen pass tone maps it and gives it the look this game is after: earthy (greens lean olive and the sky is
- * muted, while reds and golds keep their colour), hard contrast with cool shadows and warm lights, a vignette and film
+ * muted, while reds and golds keep their colour), soft contrast with cool shadows and warm lights, a vignette and film
  * grain to take the digital polish off. A modest bloom (bright pass and a two-tap blur at quarter resolution, added
  * before tone mapping) lets the sun on the sea, lit windows, torches and the lighthouse lamp glow the way the reference
  * does; it is skipped on the low preset. No depth of field. The look's numbers are the core's (core/content/look.ts).
@@ -163,7 +163,7 @@ void main() {
   // The curve turns below mid grey, so the extra contrast goes into the lights and the shadows keep their detail.
   c = clamp((c - 0.4) * sceneContrast + 0.4 + 0.008, 0.0, 1.0);
   // Vignette.
-  float v = smoothstep(0.95, 0.28, length(d * vec2(1.0, 0.86)));
+  float v = 1.0 - smoothstep(0.28, 0.95, length(d * vec2(1.0, 0.86)));
   c *= mix(1.0 - uVignette, 1.0, v);
   // Grain: strongest in the mid tones, animated at low rate so it does not crawl.
   float g = hash12(gl_FragCoord.xy + floor(uTime * 24.0) * 17.0) - 0.5;

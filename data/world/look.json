@@ -3,15 +3,15 @@
   "units": "metres, seconds, radians; x east, z south, y up",
   "world": {
     "exposure": 1.22,
-    "contrast": 1.13,
+    "contrast": 1.11,
     "saturation": 0.88,
     "daySaturation": 1.08,
-    "vignette": 0.18,
-    "grain": 0.012,
+    "vignette": 0.13,
+    "grain": 0.008,
     "earth": 1,
     "bloom": {
       "threshold": 0.85,
-      "strength": 0.24
+      "strength": 0.21
     }
   },
   "title": {

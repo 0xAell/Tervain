@@ -370,6 +370,7 @@ export class Hud {
 
   /** Screen-space speech bubbles for ambient remarks. */
   setBubbles(items: Bubble[]) {
+    if (!items.length && !this.bubbleEls.size) return;
     const seen = new Set<string>();
     for (const b of items) {
       seen.add(b.id);
@@ -392,6 +393,7 @@ export class Hud {
   }
 
   setTags(items: Tag[]) {
+    if (!items.length && !this.tagEls.size) return;
     const seen = new Set<string>();
     for (const t of items) {
       seen.add(t.id);

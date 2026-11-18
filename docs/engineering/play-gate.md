@@ -20,8 +20,20 @@ when it passes:
 
       npm run play-gate -- --budget-url https://0xaell.github.io/Tervain/ --url http://127.0.0.1:4173/ --head <head commit>
 
-  It loads the live build twice and the head once at the same spot, and passes when the head's draw calls and
-  triangles are not above live's, neither logs a console error, and the page serves the head's revision. It counts
+  It loads the live build twice and the head once at the same spot. Each visit records the first four completed
+  frames after the 15-second warm-up, with the animal and figure IDs present in each frame. It returns to the
+  starting view while models stream, then repeats the placement and records four more frames. This second
+  sample requires furniture, all 19 animals and the full cast from the exported game data, including residents
+  away from the camera. The live build uses its own cast manifest and waits for its complete wildlife group to
+  attach. The head must match the checked-in game exports. The gate reports different complete rosters as
+  incomparable. A missing model or stalled arrival fails the check.
+
+  The original early ceiling always applies: the candidate's maximum across all four early frames must fit
+  the larger of the two live maxima, even if different models have arrived. When both visits encountered the
+  same early population, its budget is checked as well. The fully streamed frames must independently fit
+  the fully streamed live budget. The report names each comparison. In both
+  stages, the head's draw calls and triangles must stay within the live maxima, both builds must be free of
+  console errors and the page must serve the head's revision. It counts
   rather than times, so a machine without a GPU can run it on a software renderer: start it under a virtual display
   (`xvfb-run -a npm run play-gate -- ...`), and behind a proxy with `NODE_USE_ENV_PROXY=1`, so that it reaches the
   live build.

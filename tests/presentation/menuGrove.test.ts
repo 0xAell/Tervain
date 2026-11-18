@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import {
   GROVE_CUE,
-  GROVE_DOOR_OPEN,
+  GROVE_DOOR_OPEN, GROVE_CLOSE, GROVE_RELEASE_BEAT,
   GROVE_MAX_SPIRITS,
   GroveFormation,
   createMenuGrove,
@@ -42,13 +42,13 @@ describe('the hermitage awakening simulation', () => {
     expect(rebound).toBe(true);
     g.advanceTo(33.6);
     expect(g.doorAngle / GROVE_DOOR_OPEN).toBeGreaterThan(0.95);
-    for (let t = 36; t < 211; t += 5) {
+    for (let t = 36; t < GROVE_CLOSE; t += 5) {
       g.advanceTo(t);
       expect(g.doorAngle).toBe(GROVE_DOOR_OPEN);
     }
-    g.advanceTo(213.6);
+    g.advanceTo(GROVE_CLOSE + 2);
     expect(g.doorAngle).toBeLessThan(0.01 * GROVE_DOOR_OPEN);
-    g.advanceTo(214.1);
+    g.advanceTo(GROVE_CLOSE + 3);
     expect(g.doorAngle).toBe(0);
     // The song loops: the hollow sleeps again, with the door shut.
     g.advanceTo(0.02);
@@ -60,19 +60,17 @@ describe('the hermitage awakening simulation', () => {
     const g = grove();
     g.advanceTo(32.5);
     expect(insideCount(g)).toBe(GROVE_MAX_SPIRITS);
-    // The first leaves on the beat at 32.75 s, once the door rests open.
-    const first = menuBeatTime(58);
-    expect(first).toBeGreaterThan(32.6);
-    expect(first).toBeLessThan(32.9);
+    const first = menuBeatTime(GROVE_RELEASE_BEAT);
+    expect(first).toBeCloseTo(33.54, 2);
     g.advanceTo(first - 0.03);
     expect(g.inHollow(...at(g, 0))).toBe(true);
     g.advanceTo(first + 1.2);
     expect(g.inHollow(...at(g, 0))).toBe(false);
-    g.advanceTo(50);
+    g.advanceTo(54);
     expect(insideCount(g)).toBe(0);
     g.advanceTo(200);
     expect(insideCount(g)).toBe(0);
-    g.advanceTo(211.5);
+    g.advanceTo(GROVE_CLOSE - 0.1);
     expect(insideCount(g)).toBe(GROVE_MAX_SPIRITS);
   });
 
@@ -83,7 +81,7 @@ describe('the hermitage awakening simulation', () => {
     let low = Infinity;
     let high = -Infinity;
     let far = 0;
-    for (let t = 32; t < 214; t += 0.25) {
+    for (let t = 32; t < GROVE_CLOSE; t += 0.25) {
       g.advanceTo(t);
       for (let i = 0; i < g.count; i++) {
         const [x, y, z] = at(g, i);
@@ -167,7 +165,7 @@ describe('the hermitage awakening simulation', () => {
     let onBeat = 0;
     let between = 0;
     const lowNotes = Array.from({ length: g.count }, (_, i) => i).filter((i) => groveSpiritBand(i) < 2);
-    for (let beat = 112; beat < 136; beat++) {
+    for (let beat = 42; beat < 48; beat++) {
       g.advanceTo(menuBeatTime(beat) + 0.06);
       for (const i of lowNotes) onBeat += g.position[i * 3 + 1]!;
       g.advanceTo(menuBeatTime(beat + 0.5) + 0.06);
