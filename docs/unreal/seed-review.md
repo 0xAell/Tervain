@@ -473,7 +473,7 @@ Improved:
   warm-up's shared depth material on a static mesh and on a skinned animal, has a program for each, and a program's
   first draw waits for its link. On 0.1.2 the first view's preparation left 10 of the 136 programs it made unwaited,
   and a wild cat's arrival the program its skinned shadow is drawn with: the frame that first drew it in the sun's
-  shadow stalled (`compileWait.ts`) (PR_X).
+  shadow stalled (`compileWait.ts`) ([#902](https://github.com/0xAell/Tervain/pull/902)).
 
 Next:
 
