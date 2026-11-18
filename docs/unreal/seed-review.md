@@ -516,6 +516,10 @@ Improved:
   inverted again. Building the wanderer takes 25 ms in Node where it took 76; a frame of his fall that measures the
   support 0.6 ms where it took 2.5 to 3; building the twelve residents composes 501,169 matrices where it composed
   1,119,066 and inverts 26,321 where it inverted 114,592. Every point is the same to the bit ([#911](https://github.com/0xAell/Tervain/pull/911)).
+- The woodland's waymarkers and roadside ruin are drawn as one batch per surface: their stone and moss were a draw
+  call each per landmark in every pass that drew them, the sun's shadow map along the track, the main view and the
+  water's reflection at the sea. On 0.1.3 they draw 39 calls over the route where they drew 102: 22 to 10 at the
+  landing, 24 to 9 at the sea's stop, the triangles the same ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
@@ -555,9 +559,8 @@ Next:
   route's 13 stops, the wanderer at each; 267 before the settlement's shells were batched, 272 and 4.71 M on 0.1.2,
   293 and 4.97 M after October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws and 2.61 M triangles, 56 %
   of them; the main view 139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection,
-  with the sea in view, makes stop 11 the largest frame: 482 draws and 9.24 M. The woodland's waymarkers and ruin (up
-  to 22 draws a frame in the sun's shadow map and 24 in the reflection) and the residents' work tools, a draw each, are
-  the next draws to batch. The cuts that keep the picture, and those a GPU must judge, are in
+  with the sea in view, makes stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks
+  were batched). The residents' work tools, a draw each, and the bandits' gear are the next draws to batch. The cuts that keep the picture, and those a GPU must judge, are in
   [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by
   a fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the
