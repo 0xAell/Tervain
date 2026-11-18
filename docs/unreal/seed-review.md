@@ -431,7 +431,7 @@ Improved:
   and shutter, the mill and sluice wheels, the sluice gate, brace and cracks, the shortcut gate and lever, the bell's
   timber, the schedule board's posts, the guard's pole and the quest's pickups, each following what holds it and
   hiding with it. The five village stops draw 19 to 40 fewer calls again; with the doors and the props, 15 to 24 %
-  fewer than 0.0.49 there, for the same triangles (PR_X).
+  fewer than 0.0.49 there, for the same triangles ([#892](https://github.com/0xAell/Tervain/pull/892)).
 
 Next:
 
