@@ -427,6 +427,11 @@ Improved:
   follow its body as the physics moves it, where each prop was two or three meshes and as many draw calls in every
   pass. With the doors' batch, the route's five village stops draw 6 to 22 fewer calls again (308 at the median); the
   same frame drawn both ways differs only on one stretch of a barrel's shadow edge ([#891](https://github.com/0xAell/Tervain/pull/891)).
+- The settlement's other moving parts join those batches: the inn sign swinging on its bracket, the archive's door
+  and shutter, the mill and sluice wheels, the sluice gate, brace and cracks, the shortcut gate and lever, the bell's
+  timber, the schedule board's posts, the guard's pole and the quest's pickups, each following what holds it and
+  hiding with it. The five village stops draw 19 to 40 fewer calls again; with the doors and the props, 15 to 24 %
+  fewer than 0.0.49 there, for the same triangles (PR_X).
 
 Next:
 

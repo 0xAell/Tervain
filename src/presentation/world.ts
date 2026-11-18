@@ -536,6 +536,8 @@ export class WorldScene {
       sc.archiveDoor.rotation.y = this.scenery.archiveDoor.rotation.y;
       this.applyDynamic(1, true);
     }
+    // The batched parts follow at once: a pickup taken, a board put up or a gate snapped open is drawn so from this frame.
+    sc.doorBatch?.update();
     this.nav.ensureFresh();
   }
 
@@ -862,7 +864,10 @@ export class WorldScene {
     return roomShowing(this.doorSwings.openness(room), Math.hypot(this.eye.x - b.x, this.eye.z - b.z));
   }
 
-  /** Swing the rooms' doors for the wanderer and residents near them (A66); returns door sounds to play. */
+  /**
+   * Swing the rooms' doors for the wanderer and residents near them (A66); returns door sounds to play. Called after the
+   * frame's update, so the batched parts follow everything that moved this frame: the doors, the signs, wheels and gates.
+   */
   updateDoors(dt: number, visitors: readonly { x: number; z: number }[]): DoorEvent[] {
     const events = this.doorSwings.update(dt, visitors);
     this.scenery.doorBatch?.update();

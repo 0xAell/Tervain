@@ -1,17 +1,17 @@
 import * as THREE from 'three';
 
 /**
- * Small parts that move drawn as one batch per material, each part an instance whose matrix follows the object holding
- * it: the rooms' door leaves on their pivots (A66) and the pushable barrels and crates on their bodies' poses. Each part
- * was a mesh of its own, a draw call in every pass that drew it (the picture, the sun's shadow map, the water's
- * reflection) for a few hundred triangles; the doors alone were 84 of a frame's 758 draws at the village's busiest stop
- * on the benchmark route. The parts' own meshes stay in the scene graph, hidden (their names, holders and places are kept
- * for lookups), as mergeStaticParts keeps a fixed prop's parts.
+ * Small parts that move drawn as one batch per material, each part an instance whose matrix follows what holds it: the
+ * rooms' door leaves on their pivots (A66), the settlement's signs, gates, wheels and bell, and the pushable barrels and
+ * crates on their bodies' poses. Each part was a mesh of its own, a draw call in every pass that drew it (the picture, the
+ * sun's shadow map, the water's reflection) for a few hundred triangles; the doors alone were 84 of a frame's 758 draws at
+ * the village's busiest stop on the benchmark route. The parts' own meshes stay in the scene graph, hidden (their names,
+ * holders and places are kept for lookups), as mergeStaticParts keeps a fixed prop's parts.
  */
 export interface PartBatch {
-  /** One batch per material, added beside the holders. */
+  /** One batch per material, added to the parent the parts are placed in. */
   readonly meshes: readonly THREE.BatchedMesh[];
-  /** Puts the parts of each holder that moved, or was shown or hidden, since the last call where it now is. */
+  /** Puts every part whose holders moved, or were shown or hidden, since the last call where it now is. */
   update(): void;
   dispose(): void;
 }
@@ -30,7 +30,9 @@ export interface PartBatchOptions {
 
 /**
  * A copy of a part's material for the batch alone, kept equal to its source: a building set built before the baked
- * surfaces arrived takes them up later (regions.ts `adoptBaked`), and the copy follows each change its source announces.
+ * surfaces arrived takes them up later (regions.ts `adoptBaked`), and the copy follows each change its source announces
+ * (`needsUpdate`). A value changed without that, such as a colour animated every frame (the windows' and lanterns' glow at
+ * night), would not reach it: such materials are not given to a batch.
  */
 function followingCopy(source: THREE.Material): { material: THREE.Material; follow(): void } {
   const material = source.clone();
@@ -50,42 +52,71 @@ function followingCopy(source: THREE.Material): { material: THREE.Material; foll
   };
 }
 
-interface Held {
-  holder: THREE.Object3D;
-  /** The holder's matrix and visibility when its parts were last placed. */
+interface Anchor {
+  /** The objects from the parts' own parent up to the batch's parent: their matrices place the parts, and any of them hides them. */
+  chain: THREE.Object3D[];
+  /** The chain's matrix and visibility when its parts were last placed. */
   matrix: THREE.Matrix4;
   visible: boolean;
   parts: { below: THREE.Matrix4; batch: THREE.BatchedMesh; instance: number }[];
 }
 
+/** Where `anchor`'s chain puts its parts in the batch parent's space, from each link's own position, turn and scale. */
+function chainMatrix(chain: readonly THREE.Object3D[], into: THREE.Matrix4): THREE.Matrix4 {
+  into.identity();
+  for (const link of chain) {
+    if (link.matrixAutoUpdate) link.updateMatrix();
+    into.premultiply(link.matrix);
+  }
+  return into;
+}
+
 /**
- * Draw the meshes under each of `holders` as batches added to `parent`, the group that holds them. The meshes are bucketed
- * by material, shadow flags and vertex layout; a bucket of one stays as it is. Returns null when nothing was batched.
+ * Draw the meshes under each of `holders`, all within `parent`, as batches added to `parent`. A part follows whatever
+ * moves above it up to `parent` (a door's pivot, a sign's swing on its bracket, a barrel's body), and hides when any of
+ * them is hidden. A mesh's own matrix is taken as fixed. The meshes are bucketed by material, shadow flags and vertex
+ * layout; a bucket of one stays as it is. Returns null when nothing was batched.
  */
 export function batchParts(holders: readonly THREE.Object3D[], parent: THREE.Object3D, options: PartBatchOptions): PartBatch | null {
-  const buckets = new Map<string, { material: THREE.Material; cast: boolean; receive: boolean; parts: { holder: THREE.Object3D; mesh: THREE.Mesh }[] }>();
+  const buckets = new Map<string, { material: THREE.Material; cast: boolean; receive: boolean; parts: { mesh: THREE.Mesh; anchor: Anchor }[] }>();
+  const anchors = new Map<THREE.Object3D, Anchor>(), claimed = new Set<THREE.Mesh>();
+  parent.updateMatrixWorld(true);
   for (const holder of holders) {
-    if (holder.parent !== parent) continue;
-    holder.updateMatrixWorld(true);
+    let within = false;
+    for (let o: THREE.Object3D | null = holder; o; o = o.parent) if (o === parent) { within = o !== holder; break; }
+    if (!within) continue;
     holder.traverse((object) => {
       const mesh = object as THREE.Mesh;
-      if (!mesh.isMesh || (mesh as THREE.InstancedMesh).isInstancedMesh || (mesh as THREE.SkinnedMesh).isSkinnedMesh) return;
-      if (!mesh.visible || Array.isArray(mesh.material) || mesh.morphTargetInfluences || !mesh.geometry.index) return;
+      if (!mesh.isMesh || claimed.has(mesh) || (mesh as THREE.InstancedMesh).isInstancedMesh || (mesh as THREE.SkinnedMesh).isSkinnedMesh || (mesh as THREE.BatchedMesh).isBatchedMesh) return;
+      if (!mesh.visible || Array.isArray(mesh.material) || mesh.morphTargetInfluences || !mesh.geometry.index || !mesh.parent) return;
+      let anchor = anchors.get(mesh.parent);
+      if (!anchor) {
+        const chain: THREE.Object3D[] = [];
+        for (let o: THREE.Object3D | null = mesh.parent; o && o !== parent; o = o.parent) chain.push(o);
+        let visible = true;
+        for (const link of chain) visible &&= link.visible;
+        anchor = { chain, matrix: chainMatrix(chain, new THREE.Matrix4()), visible, parts: [] };
+        anchors.set(mesh.parent, anchor);
+      }
       const geometry = mesh.geometry;
       const layout = Object.keys(geometry.attributes).sort().map((name) => `${name}${geometry.attributes[name]!.itemSize}`).join(',');
       const key = `${mesh.material.uuid}|${mesh.castShadow}|${mesh.receiveShadow}|${layout}`;
       const bucket = buckets.get(key) ?? buckets.set(key, { material: mesh.material, cast: mesh.castShadow, receive: mesh.receiveShadow, parts: [] }).get(key)!;
-      bucket.parts.push({ holder, mesh });
+      bucket.parts.push({ mesh, anchor });
+      claimed.add(mesh);
     });
   }
   const meshes: THREE.BatchedMesh[] = [], copies: ReturnType<typeof followingCopy>[] = [], depthMaterials: THREE.Material[] = [];
-  const held = new Map<THREE.Object3D, Held>(), toBatch = new Map<THREE.BatchedMesh, THREE.Matrix4>();
+  const toBatch = new Map<THREE.BatchedMesh, THREE.Matrix4>();
   // A batch stands at its parts' middle, so an instance's offset, kept in single precision, is small.
-  const middle = new THREE.Vector3(), place = new THREE.Matrix4();
+  const middle = new THREE.Vector3(), at = new THREE.Vector3(), place = new THREE.Matrix4();
   for (const { material, cast, receive, parts } of buckets.values()) {
     if (parts.length < 2) continue;
     middle.set(0, 0, 0);
-    for (const { holder } of parts) middle.add(holder.position);
+    for (const { mesh, anchor } of parts) {
+      if (mesh.matrixAutoUpdate) mesh.updateMatrix();
+      middle.add(at.setFromMatrixPosition(place.multiplyMatrices(anchor.matrix, mesh.matrix)));
+    }
     middle.divideScalar(parts.length);
     let vertices = 0, indices = 0;
     for (const { mesh } of parts) { vertices += mesh.geometry.getAttribute('position').count; indices += mesh.geometry.index!.count; }
@@ -103,17 +134,15 @@ export function batchParts(holders: readonly THREE.Object3D[], parent: THREE.Obj
     batch.matrixAutoUpdate = false;
     const offset = new THREE.Matrix4().makeTranslation(-middle.x, -middle.y, -middle.z);
     toBatch.set(batch, offset);
-    for (const { holder, mesh } of parts) {
-      const below = new THREE.Matrix4();
-      for (let o: THREE.Object3D | null = mesh; o && o !== holder; o = o.parent) below.premultiply(o.matrix);
+    for (const { mesh, anchor } of parts) {
+      const below = mesh.matrix.clone();
       const instance = batch.addInstance(batch.addGeometry(mesh.geometry));
-      batch.setMatrixAt(instance, place.multiplyMatrices(offset, holder.matrix).multiply(below));
-      let entry = held.get(holder);
-      if (!entry) { entry = { holder, matrix: holder.matrix.clone(), visible: holder.visible, parts: [] }; held.set(holder, entry); }
-      entry.parts.push({ below, batch, instance });
-      if (!holder.visible) batch.setVisibleAt(instance, false);
+      batch.setMatrixAt(instance, place.multiplyMatrices(offset, anchor.matrix).multiply(below));
+      anchor.parts.push({ below, batch, instance });
+      if (!anchor.visible) batch.setVisibleAt(instance, false);
       mesh.visible = false;
       mesh.userData.batchedInto = batch;
+      mesh.userData.batchedInstance = instance;
     }
     batch.computeBoundingBox();
     batch.computeBoundingSphere();
@@ -123,21 +152,24 @@ export function batchParts(holders: readonly THREE.Object3D[], parent: THREE.Obj
     depthMaterials.push(depth);
   }
   if (!meshes.length) return null;
-  const moved = new Set<THREE.BatchedMesh>();
+  // Anchors whose parts all stayed single need no following.
+  const followed = [...anchors.values()].filter((anchor) => anchor.parts.length > 0);
+  const moved = new Set<THREE.BatchedMesh>(), now = new THREE.Matrix4();
   return {
     meshes,
     update() {
       for (const copy of copies) copy.follow();
-      for (const entry of held.values()) {
-        const holder = entry.holder;
-        if (holder.matrixAutoUpdate) holder.updateMatrix();
-        const placed = !holder.matrix.equals(entry.matrix), shown = holder.visible !== entry.visible;
+      for (const anchor of followed) {
+        chainMatrix(anchor.chain, now);
+        let visible = true;
+        for (const link of anchor.chain) visible &&= link.visible;
+        const placed = !now.equals(anchor.matrix), shown = visible !== anchor.visible;
         if (!placed && !shown) continue;
-        entry.matrix.copy(holder.matrix);
-        entry.visible = holder.visible;
-        for (const part of entry.parts) {
-          if (placed) part.batch.setMatrixAt(part.instance, place.multiplyMatrices(toBatch.get(part.batch)!, holder.matrix).multiply(part.below));
-          if (shown) part.batch.setVisibleAt(part.instance, holder.visible);
+        anchor.matrix.copy(now);
+        anchor.visible = visible;
+        for (const part of anchor.parts) {
+          if (placed) part.batch.setMatrixAt(part.instance, place.multiplyMatrices(toBatch.get(part.batch)!, now).multiply(part.below));
+          if (shown) part.batch.setVisibleAt(part.instance, visible);
           moved.add(part.batch);
         }
       }
