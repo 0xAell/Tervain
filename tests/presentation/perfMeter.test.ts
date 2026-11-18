@@ -62,3 +62,74 @@ describe('a frame that threw before it ended (A90 scout)', () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe('timer-query collection during ordinary play', () => {
+  class QueryContext {
+    QUERY_RESULT_AVAILABLE = 1;
+    QUERY_RESULT = 2;
+    disjoint = false;
+    ready = true;
+    reads = 0;
+    created = 0;
+    deleted = 0;
+    resultReads = 0;
+    getExtension() { return { TIME_ELAPSED_EXT: 10, GPU_DISJOINT_EXT: 11 }; }
+    createQuery() { return { elapsed: ++this.created * 1e6 }; }
+    beginQuery() {}
+    endQuery() {}
+    deleteQuery() { this.deleted++; }
+    getParameter() {
+      this.reads++;
+      const reset = this.disjoint;
+      this.disjoint = false;
+      return reset;
+    }
+    getQueryParameter(query: { elapsed: number }, parameter: number) {
+      if (parameter === this.QUERY_RESULT_AVAILABLE) return this.ready;
+      if (!this.ready) throw new Error('Read a pending timer');
+      this.resultReads++;
+      return query.elapsed;
+    }
+  }
+
+  async function measure(run: (context: QueryContext, frame: (immediate?: boolean) => FrameSample) => void) {
+    const { PerfMeter } = await import('../../src/presentation/perfMeter');
+    const context = new QueryContext();
+    vi.stubGlobal('WebGL2RenderingContext', QueryContext);
+    try {
+      const meter = new PerfMeter({ getContext: () => context, info: { reset() {}, render: { calls: 11, triangles: 200 } } } as unknown as THREE.WebGLRenderer);
+      run(context, (immediate = false) => { meter.begin(immediate); return meter.end(16); });
+    } finally { vi.unstubAllGlobals(); }
+  }
+
+  it('retains all timed frames with one disjoint read per four, and immediately drains for diagnostics', async () => {
+    await measure((gl, frame) => {
+      const samples = Array.from({ length: 60 }, () => frame());
+      expect(gl.reads).toBe(15);
+      frame(true);
+      expect(samples.map(s => s.gpu)).toEqual(samples.map((_, i) => i + 1));
+      expect(samples.every(s => s.calls === 11 && s.triangles === 200)).toBe(true);
+      expect(gl.deleted).toBe(60);
+      for (let i = 0; i < 5; i++) frame(true);
+      expect(gl.reads).toBe(21);
+    });
+  });
+
+  it('bounds unavailable queries and discards an entire disjoint batch before accepting later results', async () => {
+    await measure((gl, frame) => {
+      gl.ready = false;
+      const before = Array.from({ length: 12 }, () => frame());
+      expect(gl.created).toBe(6);
+      expect(gl.resultReads).toBe(0);
+      gl.disjoint = true;
+      frame();
+      expect(gl.deleted).toBe(6);
+      expect(before.every(s => s.gpu === null)).toBe(true);
+      gl.ready = true;
+      const valid = frame(true);
+      frame(true);
+      expect(valid.gpu).toBe(8);
+      expect(gl.resultReads).toBe(2);
+    });
+  });
+});

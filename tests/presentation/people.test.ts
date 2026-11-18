@@ -53,6 +53,9 @@ describe('people are skinned, dressed and armed as the story needs', () => {
       personBuildOptions.keepSheetData = false;
     }
     const job = rig.person!.sheetData.job!;
+    expect(rig.person!.parts.map(part => part.piece)).toEqual(expect.arrayContaining([
+      'cloak', 'bound shoulder cape', 'cloak darn', 'cloak repair thread',
+    ]));
     const parts = rig.person!.parts;
     let lo = Infinity;
     let hi = -Infinity;
@@ -108,6 +111,27 @@ describe('people are skinned, dressed and armed as the story needs', () => {
         expect(e.every((v) => Number.isFinite(v)), mode).toBe(true);
       }
     }
+  });
+
+  it('drives the painted ankle, counterturns the shoulders, and settles before riding', () => {
+    const rig = createPlayerRig();
+    const pose = (mode: 'walk' | 'idle' | 'sit', straddle = false) => {
+      for (let i = 0; i < 90; i++) poseRig(rig, {
+        mode, time: 0.08, speed: mode === 'walk' ? 1 : 0, heading: 0.7, t: 0, amp: 1, straddle,
+      }, 1 / 60);
+    };
+    pose('walk');
+    expect(rig.hips.rotation.y * rig.torso.rotation.y).toBeLessThan(0);
+    expect(rig.legL.rotation.z).toBeGreaterThan(0.1);
+    expect(Math.abs(rig.extremities!.LeftFoot.rotation.x)).toBeGreaterThan(0.05);
+    expect(rig.person!.mesh.skeleton.bones).toContain(rig.extremities!.LeftFoot);
+    pose('idle');
+    expect(rig.hips.position.x).toBeCloseTo(0, 5);
+    expect(rig.extremities!.LeftFoot.rotation.x).toBeCloseTo(0, 5);
+    pose('sit', true);
+    expect(rig.legL.rotation.z).toBeCloseTo(0.46, 5);
+    expect(rig.legR.rotation.z).toBeCloseTo(-0.46, 5);
+    expect(rig.hips.position.y).toBeCloseTo(0.075, 5);
   });
 
   it('gives residents a steady idle routine: one variant per turn, all of them in time, never a broken pose', () => {

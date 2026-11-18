@@ -101,6 +101,29 @@ function hermitDoor(R: Region, rnd: Rnd, at: THREE.Vector3, facing: number, clai
   R.timber.box(P, H + 0.33, 0.2, -(W / 2 + P / 2), -0.15, -0.02, wood, { grain: 'y', rz: 0.015, jit: 0.1 });
   R.timber.box(P, H + 0.3, 0.2, W / 2 + P / 2, -0.15, -0.02, wood, { grain: 'y', rz: -0.02, jit: 0.1 });
   R.timber.box(W + 2 * P + 0.14, 0.2, 0.24, 0.02, H, -0.03, wood, { grain: 'x', rz: 0.025, jit: 0.1 });
+  // Split cedar over the opening. Each board follows both pitches and ends on the rain hood's
+  // bowed drip line. The supporting oak cheeks sit on the actual posts, above the moving leaf.
+  const hoodHalf = 0.7;
+  const tip = (x: number) => 0.52 - 0.15 * Math.abs(x) / hoodHalf;
+  const hoodY = (x: number, z: number) => H + 0.24 + 0.22 * (1 - Math.abs(x) / hoodHalf) - 0.36 * z;
+  for (let i = 0; i < 8; i++) {
+    const x0 = (i / 4 - 1) * hoodHalf, x1 = ((i + 1) / 4 - 1) * hoodHalf;
+    const z0 = -0.11, zl = tip(x0), zr = tip(x1);
+    const top = [x0, hoodY(x0, z0), z0, x0, hoodY(x0, zl), zl, x1, hoodY(x1, zr), zr, x1, hoodY(x1, z0), z0];
+    const bottom = top.map((v, j) => j % 3 === 1 ? v - 0.045 : v);
+    const pigment = [0xc3b695, 0xb2ab8b, 0xcfb891, 0xbfa783][i % 4]!;
+    R.timber.quad(top, pigment, { uv: [0, 0, zl - z0, 0, zr - z0, x1 - x0, 0, x1 - x0] });
+    R.timber.quad(bottom, pigment, { flip: true });
+    const edge = (j: number, k: number) => R.timber.quad([...top.slice(j, j + 3), ...bottom.slice(j, j + 3), ...bottom.slice(k, k + 3), ...top.slice(k, k + 3)], pigment);
+    edge(3, 6);
+    if (i === 0) edge(0, 3);
+    if (i === 7) edge(6, 9);
+  }
+  for (const side of [-1, 1]) {
+    const x = side * (W / 2 + P / 2);
+    R.timber.rod(x, H + 0.07, 0.03, x, hoodY(x, 0.30) - 0.06, 0.30, 0.05, 4, wood, { caps: false });
+    R.timber.rod(side * 0.68, hoodY(0.68, 0.30) - 0.065, 0.30, 0, hoodY(0, 0.30) - 0.065, 0.30, 0.06, 4, wood);
+  }
   // The leaf is a separate native rig: its hinge remains exactly on the left post as the wood swings outward.
   const leaf = new Region('Menu_Tree_Door_Leaf', new Ctx());
   // The pin sits just in front of the post. This offset preserves the closed pose and keeps the leaf out of the timber

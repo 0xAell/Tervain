@@ -104,6 +104,49 @@ describe('resident terrain tiles', () => {
     } finally { height.mockRestore(); tex.albedo.dispose(); tex.normal.dispose(); }
   });
 
+  it('packs the world tiles once with their exact indexed surfaces and individual camera and reflection bounds', async () => {
+    const tex = textures(), reference = buildTerrainTiles(crop, tex, undefined, 3), own = vi.fn();
+    const result = await buildTerrainTilesAsync(crop, tex, undefined, 3, undefined, { ownBatch: own });
+    const batch = result.children[0] as THREE.BatchedMesh;
+    try {
+      expect(result.children).toHaveLength(1);
+      expect(own).toHaveBeenCalledExactlyOnceWith(batch);
+      expect(batch.isBatchedMesh && batch.perObjectFrustumCulled && batch.receiveShadow).toBe(true);
+      expect(batch.instanceCount).toBe(reference.children.length);
+      for (const [i, child] of reference.children.entries()) {
+        const g = (child as THREE.Mesh).geometry, id = batch.getGeometryIdAt(i), range = batch.getGeometryRangeAt(id)!;
+        expect(batch.getMatrixAt(i, new THREE.Matrix4()).equals(new THREE.Matrix4())).toBe(true);
+        expect(batch.getBoundingBoxAt(id, new THREE.Box3())).toEqual(g.boundingBox);
+        expect(batch.getBoundingSphereAt(id, new THREE.Sphere())).toEqual(g.boundingSphere);
+        expect(range.indexCount).toBe(g.index!.count);
+        expect(range.vertexCount).toBe(g.getAttribute('position').count);
+        for (let j = 0; j < range.indexCount; j++) {
+          expect(batch.geometry.index!.getX(range.indexStart + j)).toBe(g.index!.getX(j) + range.vertexStart);
+        }
+        for (const [name, expected] of Object.entries(g.attributes)) {
+          const offset = expected.itemSize * range.vertexStart;
+          expect(batch.geometry.getAttribute(name).array.subarray(offset, offset + expected.array.length)).toEqual(expected.array);
+        }
+      }
+      const scene = new THREE.Scene(); scene.add(result);
+      const disposeGeometry = vi.spyOn(batch.geometry, 'dispose');
+      disposeSceneResources(scene, () => batch.dispose());
+      expect(disposeGeometry).toHaveBeenCalledOnce();
+    } finally { release(reference); tex.albedo.dispose(); tex.normal.dispose(); }
+  });
+
+  it('disposes a partial batch without transferring ownership when cancelled during construction', async () => {
+    const tex = textures(), controller = new AbortController(), own = vi.fn();
+    const disposeBatch = vi.spyOn(THREE.BatchedMesh.prototype, 'dispose');
+    try {
+      await expect(buildTerrainTilesAsync(crop, tex, undefined, 3, undefined, {
+        ownBatch: own, signal: controller.signal, budgetMs: 0, yieldNow: async () => {},
+        onProgress: p => { if (p.phase === 'tiles' && p.completed === 2) controller.abort(); },
+      })).rejects.toThrow();
+      expect(own).not.toHaveBeenCalled(); expect(disposeBatch).toHaveBeenCalledOnce();
+    } finally { disposeBatch.mockRestore(); tex.albedo.dispose(); tex.normal.dispose(); }
+  });
+
   it('cooperatively builds the exact same triangles, normals and ground fields before returning the ready group', async () => {
     const tex = textures(), reference = buildTerrainTiles(crop, tex, undefined, 3);
     const yieldNow = vi.fn(async () => {}), progress: { phase: string; completed: number; total: number }[] = [];

@@ -31,7 +31,7 @@ export function buildTerrainMesh(terrain: Terrain, tex: TerrainTextures, crowns?
 }
 
 /** Keep the globally calculated normals and splats, but yield after short runs of complete rows. */
-function* terrainMeshSteps(terrain: Terrain, tex: TerrainTextures, crowns?: PlantedCrownField, contacts?: GroundContactField, meadow?: MeadowGround): Generator<TerrainBuildProgress, THREE.Mesh> {
+function* terrainMeshSteps(terrain: Terrain, tex: TerrainTextures, crowns?: PlantedCrownField, contacts?: GroundContactField, meadow?: MeadowGround): Generator<TerrainBuildProgress, THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>> {
   const subdivisions = TERRAIN_RENDER_SUBDIVISIONS;
   const nx = terrain.nx * subdivisions, nz = terrain.nz * subdivisions;
   const w = nx + 1;
@@ -135,30 +135,40 @@ export function buildTerrainTiles(terrain: Terrain, tex: TerrainTextures, crowns
 
 /** The ready group is returned only after all tiles exist; cancellation never exposes partial terrain. */
 export function buildTerrainTilesAsync(terrain: Terrain, tex: TerrainTextures, crowns?: PlantedCrownField, tileCells = TERRAIN_TILE_CELLS, contacts?: GroundContactField,
-  options: CooperativeOptions & { onProgress?: (progress: TerrainBuildProgress) => void; meadow?: MeadowGround } = {}): Promise<THREE.Group> {
-  return finishCooperatively(terrainTileSteps(terrain, tex, crowns, tileCells, contacts, options.meadow), options);
+  options: CooperativeOptions & {
+    onProgress?: (progress: TerrainBuildProgress) => void;
+    meadow?: MeadowGround;
+    /** Pack tiles into a single draw and transfer its GPU buffers and lookup textures to this owner when complete. */
+    ownBatch?: (batch: THREE.BatchedMesh) => void;
+  } = {}): Promise<THREE.Group> {
+  return finishCooperatively(terrainTileSteps(terrain, tex, crowns, tileCells, contacts, options.meadow, options.ownBatch), options);
 }
 
-function* terrainTileSteps(terrain: Terrain, tex: TerrainTextures, crowns: PlantedCrownField | undefined, tileCells: number, contacts?: GroundContactField, meadow?: MeadowGround): Generator<TerrainBuildProgress, THREE.Group> {
+function* terrainTileSteps(terrain: Terrain, tex: TerrainTextures, crowns: PlantedCrownField | undefined, tileCells: number, contacts?: GroundContactField, meadow?: MeadowGround, ownBatch?: (batch: THREE.BatchedMesh) => void): Generator<TerrainBuildProgress, THREE.Group> {
   if (!Number.isInteger(tileCells) || tileCells < 1) throw new Error('Terrain tile cells must be a positive integer.');
   const source = yield* terrainMeshSteps(terrain, tex, crowns, contacts, meadow), geometry = source.geometry;
   const nx = terrain.nx * TERRAIN_RENDER_SUBDIVISIONS, nz = terrain.nz * TERRAIN_RENDER_SUBDIVISIONS;
   const sourceRow = nx + 1, group = new THREE.Group();
   group.name = 'terrain';
-  const total = Math.ceil(nx / tileCells) * Math.ceil(nz / tileCells);
+  const columns = Math.ceil(nx / tileCells), rows = Math.ceil(nz / tileCells), total = columns * rows;
+  let batch: THREE.BatchedMesh | undefined;
   let completed = 0, transferred = false;
   try {
+    if (ownBatch) {
+      // Each tile includes its last row and column of vertices, including the smaller tiles along the two edges.
+      batch = new THREE.BatchedMesh(total, (nx + columns) * (nz + rows), nx * nz * 6, source.material);
+      batch.name = 'terrain:tiles'; batch.receiveShadow = true; batch.matrixAutoUpdate = false;
+      group.add(batch);
+    }
     for (let z0 = 0; z0 < nz; z0 += tileCells) for (let x0 = 0; x0 < nx; x0 += tileCells) {
       const width = Math.min(tileCells, nx - x0), depth = Math.min(tileCells, nz - z0), row = width + 1;
       const g = new THREE.BufferGeometry();
-      const tile = new THREE.Mesh(g, source.material);
-      tile.name = `terrain:${x0}:${z0}`; tile.receiveShadow = true; tile.matrixAutoUpdate = false;
-      group.add(tile);
       for (const [name, attribute] of Object.entries(geometry.attributes)) {
         const a = attribute as THREE.BufferAttribute, values = new Float32Array(row * (depth + 1) * a.itemSize);
-        for (let z = 0; z <= depth; z++) for (let x = 0; x <= width; x++) {
-          const from = ((z0 + z) * sourceRow + x0 + x) * a.itemSize, to = (z * row + x) * a.itemSize;
-          for (let c = 0; c < a.itemSize; c++) values[to + c] = a.array[from + c]!;
+        const rowSize = row * a.itemSize;
+        for (let z = 0; z <= depth; z++) {
+          const from = ((z0 + z) * sourceRow + x0) * a.itemSize;
+          values.set(a.array.subarray(from, from + rowSize), z * rowSize);
         }
         g.setAttribute(name, new THREE.BufferAttribute(values, a.itemSize, a.normalized));
       }
@@ -169,14 +179,27 @@ function* terrainTileSteps(terrain: Terrain, tex: TerrainTextures, crowns: Plant
         indices.set([a, c, b, b, c, d], at); at += 6;
       }
       g.setIndex(new THREE.BufferAttribute(indices, 1)); g.computeBoundingSphere(); g.computeBoundingBox();
+      if (batch) {
+        // addGeometry copies the vertices and each tile's exact culling bounds. The original need not stay resident.
+        try { batch.addInstance(batch.addGeometry(g)); } finally { g.dispose(); }
+      } else {
+        const tile = new THREE.Mesh(g, source.material);
+        tile.name = `terrain:${x0}:${z0}`; tile.receiveShadow = true; tile.matrixAutoUpdate = false;
+        group.add(tile);
+      }
       yield { phase: 'tiles', completed: ++completed, total };
+    }
+    if (batch && ownBatch) {
+      batch.computeBoundingBox(); batch.computeBoundingSphere();
+      ownBatch(batch);
     }
     transferred = true;
     return group;
   } finally {
     geometry.dispose();
     if (!transferred) {
-      group.traverse(o => { if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).geometry.dispose(); });
+      if (batch) batch.dispose();
+      else group.traverse(o => { if ((o as THREE.Mesh).isMesh) (o as THREE.Mesh).geometry.dispose(); });
       (source.material as THREE.Material).dispose();
       group.clear();
     }

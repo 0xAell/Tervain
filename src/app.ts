@@ -1112,7 +1112,7 @@ export class App {
         && this.renderScale.sample(interval * 1000)) this.onResize();
       this.audioClock += dt;
       held = steps === 0;
-      this.perf?.begin();
+      this.perf?.begin(this.settings.showFps || this.bench.active || this.capturing);
       try {
         // The world advances in fixed steps, as many as the frame's time holds (A72). A press or a mouse movement
         // counts in the first alone; the picture is drawn once, between the last two steps.

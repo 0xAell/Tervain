@@ -6,10 +6,10 @@ import { smoothstep } from '../../core/world/noise';
  * Streams a world-fixed grid of instanced tiles around the camera.
  *
  * Each tile is generated once from a deterministic seed (so the meadow never shifts under you), holds its
- * instances sorted by a stable rank in [0,1), and owns one draw call that three.js frustum-culls. Every frame the
- * layer sets each tile's instance count to those instances whose rank is below the density the camera distance
- * allows; the fragment shader fades each patch by the same rule without changing its shape. Tiles are built
- * ahead of that fade, and any missing visible tile is completed before rendering. Buffers are pooled.
+ * original clump ranks in [0,1), and owns one draw call that three.js frustum-culls. Distance-thinned layers
+ * keep their instances in rank order. Opaque near grass stays at full rank density and can instead partition
+ * boundary tiles by distance. The shader handles the fade on every retained patch. Tiles are pooled and
+ * generated ahead of the player, with any missing visible tile completed before rendering.
  *
  * The streaming idea follows ael-dev3/Warpkeep src/components/realm/realmGrassActiveWindow.ts and
  * createRealmGrassLayer.ts @786c0b2 (Apache-2.0): a bounded active window re-seeded from a deterministic grid,
@@ -18,6 +18,9 @@ import { smoothstep } from '../../core/world/noise';
 
 /** Ranks kept at full density: the shader keeps rank < q·RANK_HEADROOM, so at q = 1 even the last rank is whole. */
 export const RANK_HEADROOM = 1.12;
+
+/** Metres a camera can travel before the opaque near-grass instance prefix needs refreshing. */
+const BAND_RESERVE = 3;
 
 export interface TileBuffers {
   base: Float32Array; // x, y, z, rank
@@ -51,6 +54,8 @@ export interface TileLayerOptions {
   writesSlope?: boolean;
   /** Grass shader uses anchor distance for rank fading; omit only a certainly zero-coverage tail. */
   trimFadedTail?: boolean;
+  /** Opaque blades with full rank density throughout their visible band can omit individual out-of-band anchors. */
+  compactOuterBand?: boolean;
   /** Fill the buffers for tile (tx, tz) with instances in ascending rank; return how many. */
   generate(tx: number, tz: number, out: TileBuffers): number;
 }
@@ -69,6 +74,8 @@ interface Tile {
   attrs: THREE.InstancedBufferAttribute[];
   drawCount: number;
   renderInstances: number;
+  bandCenter?: THREE.Vector3;
+  bandCount: number;
 }
 
 export class TileLayer {
@@ -97,6 +104,9 @@ export class TileLayer {
   buildRate = 1;
 
   constructor(private o: TileLayerOptions) {
+    if (o.compactOuterBand && (!o.band || o.band.end > o.fadeStart || o.material.transparent)) {
+      throw new Error('A compact grass band requires opaque instances at full density.');
+    }
     this.group.name = o.name;
     this.buf = {
       base: new Float32Array(o.capacity * 4),
@@ -137,8 +147,8 @@ export class TileLayer {
     mesh.raycast = () => {};
     mesh.visible = false;
     this.group.add(mesh);
-    const tile = { key: -1, tx: 0, tz: 0, mesh, geo, count: 0, x0: 0, z0: 0, ymin: 0, ymax: 0, attrs, drawCount: this.trisPerInstance * 3, renderInstances: 0 };
-    if (o.maxRadius !== undefined || o.drawCountAt || o.trimFadedTail) {
+    const tile: Tile = { key: -1, tx: 0, tz: 0, mesh, geo, count: 0, x0: 0, z0: 0, ymin: 0, ymax: 0, attrs, drawCount: this.trisPerInstance * 3, renderInstances: 0, bandCount: 0 };
+    if (o.maxRadius !== undefined || o.drawCountAt || o.trimFadedTail || o.compactOuterBand) {
       mesh.onBeforeRender = (_renderer, _scene, camera) => {
         tile.renderInstances = geo.instanceCount;
         const e = camera.matrixWorld.elements;
@@ -150,7 +160,13 @@ export class TileLayer {
           this.captureFocus.setFromMatrixPosition(camera.matrixWorld);
           const distance = this.distTo(tile, this.captureFocus);
           // Rank thinning, like blade-tail thinning, belongs to this pass's camera.
-          geo.instanceCount = this.trimFadedTail(tile, this.instanceCountAt(tile, distance), this.captureFocus);
+          if (o.compactOuterBand) {
+            // A reflection outside the reserved ball can still see any original anchor in this tile.
+            geo.instanceCount = distance > o.band!.end + .01 ? 0
+              : tile.bandCenter && tile.bandCenter.distanceToSquared(this.captureFocus) <= BAND_RESERVE ** 2 ? tile.bandCount : tile.count;
+          } else {
+            geo.instanceCount = this.trimFadedTail(tile, this.instanceCountAt(tile, distance), this.captureFocus);
+          }
           if (o.drawCountAt) geo.setDrawRange(0, Math.min(this.trisPerInstance * 3, o.drawCountAt(distance)));
         }
         if (o.maxRadius !== undefined && !this.inHorizontalView(tile, camera)) geo.instanceCount = 0;
@@ -181,6 +197,7 @@ export class TileLayer {
     t.tz = tz;
     t.key = this.key(tx, tz);
     t.count = n;
+    t.bandCenter?.set(Infinity, Infinity, Infinity);
     t.x0 = tx * o.tileSize;
     t.z0 = tz * o.tileSize;
     t.ymin = n > 0 ? this.buf.ymin : 0;
@@ -302,12 +319,12 @@ export class TileLayer {
       // Outside the layer's band the whole tile is skipped: beyond its far edge, or nearer than its inner edge everywhere.
       // Only tiles whose nearest point is inside the inner cutoff can lie wholly inside it.
       if (o.band && (d > o.band.end || (d < o.band.start && this.farthest(t, cam) < o.band.start))) {
-            t.geo.instanceCount = 0;
+        t.geo.instanceCount = 0;
         t.mesh.visible = false;
         continue;
       }
-      const prefix = this.instanceCountAt(t, d);
-      const n = this.trimFadedTail(t, prefix, cam);
+      const prefix = o.compactOuterBand ? t.count : this.instanceCountAt(t, d);
+      const n = o.compactOuterBand ? this.compactBand(t, cam) : this.trimFadedTail(t, prefix, cam);
       t.geo.instanceCount = n;
       // A capture camera may need anchors whose main-camera coverage is zero.
       t.mesh.visible = prefix > 0;
@@ -322,6 +339,55 @@ export class TileLayer {
     this.visibleTriangles = tris;
     this.drawCalls = draws;
     this.activeTiles = this.tiles.size;
+  }
+
+  /** Partition a boundary tile infrequently. The GPU still owns the complete tile for other cameras. */
+  private compactBand(tile: Tile, camera: THREE.Vector3): number {
+    if (tile.bandCenter && tile.bandCenter.distanceToSquared(camera) <= BAND_RESERVE ** 2) return tile.bandCount;
+    tile.bandCenter ??= new THREE.Vector3();
+    tile.bandCenter.copy(camera);
+    const radius = this.o.band!.end + BAND_RESERVE + .01;
+    // A whole tile inside the ball requires neither a scan nor an upload.
+    if (this.farthest(tile, camera) <= radius) return tile.bandCount = tile.count;
+    const base = tile.attrs[0]!.array as Float32Array;
+    const radiusSq = radius * radius;
+    const within = (i: number) => {
+      const dx = base[i * 4]! - camera.x;
+      const dy = base[i * 4 + 1]! - camera.y;
+      const dz = base[i * 4 + 2]! - camera.z;
+      return dx * dx + dy * dy + dz * dz <= radiusSq;
+    };
+    let first = 0, last = tile.count - 1;
+    let dirtyStart = tile.count, dirtyEnd = -1;
+    while (first <= last) {
+      while (first <= last && within(first)) first++;
+      while (first <= last && !within(last)) last--;
+      if (first >= last) break;
+      dirtyStart = Math.min(dirtyStart, first);
+      dirtyEnd = Math.max(dirtyEnd, last);
+      for (const attribute of tile.attrs) {
+        const values = attribute.array as Float32Array;
+        for (let channel = 0; channel < 4; channel++) {
+          const a = first * 4 + channel, b = last * 4 + channel;
+          const saved = values[a]!;
+          values[a] = values[b]!;
+          values[b] = saved;
+        }
+      }
+      first++; last--;
+    }
+    if (dirtyStart <= dirtyEnd) for (const attribute of tile.attrs) {
+      // Keep prior dirty ranges if catch-up simulation steps occur before a render.
+      const start = dirtyStart * 4, end = (dirtyEnd + 1) * 4;
+      const previous = attribute.updateRanges[0];
+      if (previous) {
+        const lo = Math.min(start, previous.start);
+        previous.count = Math.max(end, previous.start + previous.count) - lo;
+        previous.start = lo;
+      } else attribute.addUpdateRange(start, end - start);
+      attribute.needsUpdate = true;
+    }
+    return tile.bandCount = first;
   }
 
   private trimFadedTail(t: Tile, count: number, camera: THREE.Vector3): number {

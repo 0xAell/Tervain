@@ -402,7 +402,7 @@ export class WorldScene {
       await checkpoint('physics', 'Preparing terrain surface');
       const grassCover = modules.find((m) => m.name === 'groundcover')?.module as Groundcover | undefined;
       const terrainMesh = await buildTerrainTilesAsync(terrain, terrainTex, ctx.plantedCrowns, undefined, contacts, {
-        ...options, meadow: grassCover?.meadowAt, onProgress: progress => phase('physics', progress.phase === 'surface' ? 'Preparing terrain surface' : 'Ground tiles'),
+        ...options, ownBatch: own, meadow: grassCover?.meadowAt, onProgress: progress => phase('physics', progress.phase === 'surface' ? 'Preparing terrain surface' : 'Ground tiles'),
       });
       scene.add(terrainMesh);
       await checkpoint('physics', 'Physical contacts');

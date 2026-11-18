@@ -7,6 +7,7 @@ import { BREAST_DEPTH, CHIMNEY_STACK, chimneyOf, FIREPLACE, HEARTH_DRESS, HEARTH
 import type { Terrain } from '../core/world/terrain';
 import { Ctx, FACES, hash3, mulc, rgb, type Col } from './buildKit';
 import { Region } from './regions';
+import { bakersShelf, loftJoinery, valleyFinish } from './valleyGables';
 import { authorLighthouse } from './lighthouse';
 import { innSign, type SwingingPart } from './innSign';
 import { antlers, doorHood, dormer, drawHouseYard, lookOf, lookRnd, plinthCourse } from './houseExteriors';
@@ -455,6 +456,7 @@ function buildStandardPass(R: Region, terrain: Terrain, b: BuildingSpec, out: Bu
   // A132: a village house's own look; the roof's kind may differ from the spec's (nothing else reads it).
   const look = lookOf(b);
   const roofKind = look?.roof ?? b.roof;
+  const finish = valleyFinish(b);
   ctx.push(b.x, avg, b.z, b.yaw);
   // Everything drawn inside the room darkens towards its floor, walls and corners and is smoked by its fire (A135).
   ctx.shade = roomShade(room, ctx.matrix);
@@ -493,7 +495,7 @@ function buildStandardPass(R: Region, terrain: Terrain, b: BuildingSpec, out: Bu
     roomWalls(R.planks, b.w - 0.06, b.d - 0.06, wallH, y0, t - 0.03, room.door, mulc(rgb(TINT.wood), 0.82), 0.7, openings);
   } else if (b.wall === 'plaster') {
     // A136: finer cells (0.3 m) so the lime wash and smoke inside (roomShade) read; the outside takes the same cells.
-    roomWalls(R.plaster, b.w, b.d, wallH, y0, t, room.door, jitterTone(TINT.plaster, rnd, 0.06), 0.3, openings);
+    roomWalls(R.plaster, b.w, b.d, wallH, y0, t, room.door, jitterTone(finish?.lime ?? TINT.plaster, rnd, 0.06), 0.3, openings);
     // A139: the lime wash inside, a skin 12 mm before the walls' inner faces in its own small texture, with the same
     // doorway and window openings. Its tint is taken from a hash, not `rnd`, so the building's sequence is unchanged.
     const limeFrom = R.lime.uv.n;
@@ -508,8 +510,8 @@ function buildStandardPass(R: Region, terrain: Terrain, b: BuildingSpec, out: Bu
   // Roof.
   const style = roofStyleOf(b);
   const roof = roofFor(R, roofKind, style, b.w, b.d, y0 + wallH, Math.floor(hash3(b.x, b.z, 5) * 1000),
-    { pitch: roofKind === 'lean' ? 0.3 : style === 'thatch' ? 0.82 : undefined, ohx: look?.ohx, ohz: look?.ohz });
-  roofWallInfill(R, roofKind, b.w, b.d, y0 + wallH, roof, wallMat(b));
+    { pitch: roofKind === 'lean' ? 0.3 : style === 'thatch' ? 0.82 : undefined, ohx: look?.ohx, ohz: look?.ohz, palette: finish?.roof });
+  roofWallInfill(R, roofKind, b.w, b.d, y0 + wallH, roof, wallMat(b), 0.24, b.wall === 'plaster' ? finish?.lime : undefined);
   // A hipped house draws no gable posts or ridge beam, but takes their tones all the same, so its windows, shutters and
   // clutter fall where they did.
   if (b.wall !== 'stone' && b.roof === 'gable' && roofKind !== 'gable') for (let i = 0; i < 6; i++) rnd();
@@ -533,15 +535,7 @@ function buildStandardPass(R: Region, terrain: Terrain, b: BuildingSpec, out: Bu
         structureTint, { jit: 0, amp: 0 });
     }
   }
-  if (b.wall !== 'stone' && roofKind === 'gable') {
-    const slope = Math.tan(roof.pitch);
-    for (const sx of [-1, 1]) for (const fraction of [-0.55, 0.55]) {
-      const x = sx * (b.w / 2 + 0.13), z = fraction * b.d / 2;
-      const lower = y0 + wallH - 0.02, upper = roof.ridgeY - Math.abs(z) * slope - 0.13;
-      if (upper > lower) R.timber.box(0.11, upper - lower, 0.11, x, lower, z,
-        structureTint, { grain: 'y', jit: 0.025, amp: 0.025 });
-    }
-  }
+  if (finish && roofKind === 'gable') loftJoinery(R, b, roof, y0 + wallH, finish);
   // Ridge sag: a beam under the ridge that visibly dips.
   if (b.roof === 'gable' && roofKind !== 'gable') rnd();
   if (roofKind === 'gable') R.timber.bx(-b.w / 2 - 0.2, roof.ridgeY - 0.35, -0.08, b.w / 2 + 0.2, roof.ridgeY - 0.2, 0.08, jitterTone(TINT.woodDark, rnd, 0.1), { jit: 0.08 });
@@ -560,8 +554,10 @@ function buildStandardPass(R: Region, terrain: Terrain, b: BuildingSpec, out: Bu
     out.doors.push({ room, pivot });
   } else door(R, rnd, doorOpts);
   const windows: { x: number; z: number; y: number; ry: number; w: number; h: number }[] = [];
-  const inside = (x: number, z: number, ry: number) => windows.push({ x, z, y: y0 + wallH * 0.45, ry, w: 0.72, h: 0.82 });
-  const opening = (side: WallOpening['side'], at: number) => found.push({ side, at, half: 0.36, y0: y0 + wallH * 0.45, y1: y0 + wallH * 0.45 + 0.82 });
+  const ordinary = { y: y0 + wallH * 0.45, w: 0.72, h: 0.82 };
+  const inside = (x: number, z: number, ry: number, size = ordinary) => windows.push({ x, z, ry, ...size });
+  const opening = (side: WallOpening['side'], at: number, size = ordinary) => found.push({ side, at, half: size.w / 2, y0: size.y, y1: size.y + size.h });
+  const bakery = b.kind === 'bakery';
   for (const side of [-1, 1]) {
     const wx = side * Math.min(b.w * 0.32, b.w / 2 - 0.75);
     if (Math.abs(wx - doorX) >= 1.25) {
@@ -575,11 +571,20 @@ function buildStandardPass(R: Region, terrain: Terrain, b: BuildingSpec, out: Bu
   inside(b.w / 2 - t - 0.005, eastZ, -Math.PI / 2);
   opening('east', eastZ);
   const westZ = sideWindowZ(room, 'west', (rnd() - 0.5) * b.d * 0.4);
-  windowAt(R, rnd, { x: -b.w / 2 - 0.02, y: y0 + wallH * 0.45, z: westZ, ry: -Math.PI / 2, stone: b.wall === 'stone', opening: true });
-  inside(-b.w / 2 + t + 0.005, westZ, Math.PI / 2);
-  opening('west', westZ);
+  const west = bakery ? { w: 1.35, h: 1.10, y: y0 + 1.05 } : ordinary;
+  const westX = -b.w / 2 - 0.02;
+  windowAt(R, rnd, { x: westX, z: westZ, ...west, ry: -Math.PI / 2, stone: b.wall === 'stone', opening: true,
+    shopWindow: bakery ? 'serving' : undefined, shutterTint: bakery ? 0x60765f : undefined });
+  inside(-b.w / 2 + t + 0.005, westZ, Math.PI / 2, west);
+  opening('west', westZ, west);
+  if (bakery) {
+    ctx.push(westX, west.y, westZ, -Math.PI / 2);
+    bakersShelf(R, west.w, west.h);
+    ctx.pop();
+  }
   for (const side of [-1, 1]) {
-    windowAt(R, rnd, { x: side * b.w * 0.24, y: y0 + wallH * 0.45, z: -b.d / 2 - 0.02, ry: Math.PI, stone: b.wall === 'stone', opening: true });
+    windowAt(R, rnd, { x: side * b.w * 0.24, y: y0 + wallH * 0.45, z: -b.d / 2 - 0.02, ry: Math.PI, stone: b.wall === 'stone', opening: true,
+      shopWindow: bakery ? 'rear' : undefined, shutterTint: bakery ? 0x76856c : undefined });
     inside(side * b.w * 0.24, -b.d / 2 + t + 0.005, 0);
     opening('back', side * b.w * 0.24);
   }
@@ -595,7 +600,7 @@ function buildStandardPass(R: Region, terrain: Terrain, b: BuildingSpec, out: Bu
       : [b.w / 2 - 0.04, chimneyAt.x + extent - 0.06, chimneyAt.z - cw / 2, chimneyAt.z + cw / 2];
     const tone = jitterTone(TINT.stone, rnd, 0.1);
     R.stone.bx(Math.min(x0, x1), -sink, Math.min(z0, z1), Math.max(x0, x1), y0 + wallH + 0.05, Math.max(z0, z1), tone, { sub: 0.5, jit: 0.08, amp: 0.06 });
-    const outlet = chimney(R, rnd, chimneyAt.x, chimneyAt.z, y0 + wallH + 0.05, roof.rise + 1.05 + (look?.chimneyUp ?? 0), look?.chimneyW);
+    const outlet = chimney(R, rnd, chimneyAt.x, chimneyAt.z, y0 + wallH + 0.05, roof.rise + 1.05 + (look?.chimneyUp ?? 0), look?.chimneyW, finish?.cowl);
     out.chimneys?.push(outlet);
   }
 

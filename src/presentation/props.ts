@@ -222,38 +222,55 @@ export function wagon(R: Region, rnd: Rnd, x: number, y: number, z: number, yaw:
   R.ctx.pop();
 }
 
-/** A shipwreck: a few ribs and strakes of a hull half buried in the sand. */
+/** Remains of a river lighter: split oak frames, overlapping painted strakes and a raked stem.
+ * The landing-side frames are stove in amidships, leaving the first blade open to view and approach. */
 export function wreck(R: Region, rnd: Rnd, x: number, y: number, z: number, yaw: number, len = 9) {
-  const ctx = R.ctx;
-  ctx.push(x, y, z, yaw);
-  const ribs = 9;
-  for (let i = 0; i < ribs; i++) {
-    const t = i / (ribs - 1);
-    const zz = (t - 0.5) * len;
-    const w = (1.5 + 0.6 * Math.sin(Math.PI * t)) * (0.85 + rnd() * 0.15);
+  R.ctx.push(x, y, z, yaw);
+  type Point = [number, number, number];
+  const stations = 8;
+  const widths: number[] = [];
+  const point = (i: number, f: number, side: number, outset = 0): Point => {
+    const t = i / stations, a = f * Math.PI / 2;
+    const sheer = (0.43 * (1 - t) ** 3 + 0.66 * t ** 3) * f;
+    return [side * (widths[i]! * Math.sin(a) + outset), -0.4 + 1.57 * (1 - Math.cos(a)) + sheer, (t - 0.5) * len];
+  };
+  for (let i = 0; i <= stations; i++) {
+    const t = i / stations;
+    widths.push((0.11 + 1.93 * Math.sin(t * Math.PI) ** 0.72 + (1 - t) ** 3 * 0.42) * (0.96 + rnd() * 0.08));
     const broken = rnd() < 0.3;
-    for (const s of [-1, 1]) {
-      const pts: [number, number, number][] = [];
-      const top = broken ? 0.4 + rnd() * 0.5 : 1;
-      for (let k = 0; k <= 8; k++) {
-        const a = (k / 8) * (Math.PI / 2) * top;
-        pts.push([s * w * Math.sin(a) * 1.05, 0.1 + 1.5 * (1 - Math.cos(a)) * 0.9 * 1.2 - 0.5, zz]);
-      }
-      R.timber.tube(pts, 0.09, 5, jitterTone(TINT.woodDark, rnd, 0.2));
-    }
-  }
-  for (let s = 0; s < 3; s++) {
     for (const side of [-1, 1]) {
-      const pts: [number, number, number][] = [];
-      for (let i = 0; i < ribs - 2; i++) {
-        const t = (i + s) / (ribs - 1);
-        pts.push([side * (1.3 + s * 0.42 + 0.4 * Math.sin(Math.PI * t)), 0.25 + s * 0.42, (t - 0.5) * len]);
-      }
-      if (pts.length > 1) R.planks.tube(pts, 0.05, 4, jitterTone(TINT.wood, rnd, 0.2));
+      const length = broken ? 0.45 + rnd() * 0.5 : 1;
+      const top = side === -1 && i >= 3 && i <= 5 ? Math.min(0.51, length) : length;
+      const rib = Array.from({ length: 6 }, (_, k) => point(i, top * k / 5, side));
+      R.timber.tube(rib, t => 0.105 - 0.029 * t, 5, jitterTone(TINT.woodDark, rnd, 0.2));
     }
   }
-  R.timber.box(0.24, 0.2, len, 0, -0.55, 0, jitterTone(TINT.woodDark, rnd, 0.1), { jit: 0.1, grain: 'z' });
-  ctx.pop();
+  const B = R.planks;
+  for (let course = 0; course < 3; course++) for (const side of [-1, 1]) {
+    const wood = jitterTone(course === 2 ? 0x9ebab9 : course === 1 ? 0xd8bc8d : TINT.wood, rnd, 0.12);
+    const f = 0.48 + course * 0.15;
+    for (let i = 0; i < stations; i++) {
+      if (side === -1 && i >= 2 && i <= 4 || side === 1 && i === 2 && course === 2 || i === 0 && course !== 0) continue;
+      const a = point(i, f, side, 0.114), b = point(i, f + 0.16, side, 0.095);
+      const c = point(i + 1, f + 0.16, side, 0.095), e = point(i + 1, f, side, 0.114);
+      const seam = (p: Point): Point => [p[0] - side * 0.055, p[1], p[2]];
+      const uv = [a[2], a[1], b[2], b[1], c[2], c[1], e[2], e[1]];
+      B.quad([...a, ...b, ...c, ...e], wood, { flip: side < 0, uv });
+      B.quad([...seam(a), ...seam(b), ...seam(c), ...seam(e)], wood, { flip: side > 0, uv, k: 0.75 });
+      B.quad([...b, ...seam(b), ...seam(c), ...c], wood, { flip: side < 0 });
+    }
+  }
+  const oak = jitterTone(TINT.woodDark, rnd, 0.1);
+  R.timber.box(0.24, 0.2, len, 0, -0.53, 0, oak, { grain: 'z' });
+  // A split stem is the last intact silhouette. The paired knees bind it into the forward frame.
+  const bow = len / 2;
+  const stem: Point[] = [[0, -0.41, bow - 0.66], [0, 0.32, bow - 0.21], [0, 1.18, bow + 0.07], [0, 1.94, bow + 0.27]];
+  R.timber.tube(stem, t => 0.19 - 0.08 * t, 5, oak);
+  R.timber.rod(0, 1.88, bow + 0.25, -0.045, 2.21, bow + 0.33, 0.088, 4, 0xcabda4, { rEnd: 0.018 });
+  for (const side of [-1, 1]) {
+    R.timber.rod(...point(7, 0.76, side), 0, 1.33, bow + 0.09, 0.075, 4, oak, { caps: false });
+  }
+  R.ctx.pop();
 }
 
 /** An original trestle table with a real plank top, pegged bearers and open leg space.
