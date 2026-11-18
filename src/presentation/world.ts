@@ -354,6 +354,7 @@ export class WorldScene {
       await checkpoint('settlement', 'Buildings and supplies');
       const environment = own(buildEnvironment(scene, settings.quality));
       scene.add(scenery.group);
+      if (settings.quality !== 'low' && scenery.installRegionSun) own({ dispose: scenery.installRegionSun(scene, sky.sun) });
       // A room's furniture shows only while someone can see into it (A66): see WorldScene.roomOpen.
       let roomOpen: (room: InteriorSpec) => number = () => 1;
       // What arrives after the world opens is asked for only once it has opened, so it never competes with what the

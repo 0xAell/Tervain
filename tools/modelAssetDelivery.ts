@@ -91,7 +91,7 @@ export function hostedModelDelivery(modelBase: string): Plugin {
     closeBundle() {
       if (!modelBase) return omitArchiveModels(root, outDir);
       const { removed, bytes } = finalizePagesModelArtifact(root, outDir);
-      console.info(`Original models: ${removed} bytes served from the build commit; Pages artifact: ${bytes} bytes.`);
+      console.info(`Omitted ${removed} bytes of model source files from Pages. Playable models load from the build commit. Artifact size: ${bytes} bytes.`);
     },
   };
 }
