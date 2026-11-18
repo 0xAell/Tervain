@@ -2,6 +2,15 @@ import * as THREE from 'three';
 
 type Resource = THREE.BufferGeometry | THREE.Material | THREE.Texture;
 
+/**
+ * A batch's own data textures: its instances' matrices, its list of what to draw, their colours. Three keeps them on the
+ * batch, outside its material, and only the batch's own dispose lets them go; a batch an owner already disposed has none.
+ */
+function batchTextures(batch: THREE.BatchedMesh): THREE.Texture[] {
+  const own = batch as unknown as Record<'_matricesTexture' | '_indirectTexture' | '_colorsTexture', THREE.Texture | null>;
+  return [own._matricesTexture, own._indirectTexture, own._colorsTexture].filter((texture): texture is THREE.Texture => !!texture);
+}
+
 /** Let module hooks release their private allocations, then release the remaining scene-owned resources once. */
 export function disposeSceneResources(scene: THREE.Scene, disposeOwned: () => void, retainedObjects: THREE.Object3D[] = []) {
   const resources = new Set<Resource>();
@@ -27,6 +36,10 @@ export function disposeSceneResources(scene: THREE.Scene, disposeOwned: () => vo
     const material = mesh.material as THREE.Material | THREE.Material[] | undefined;
     if (Array.isArray(material)) material.forEach((mat) => visitMaterial(mat, visit));
     else if (material) visitMaterial(material, visit);
+    // The shadow materials a mesh carries for itself (a batch's own depth material, a leaf's alpha-tested one).
+    if (object.customDepthMaterial) visitMaterial(object.customDepthMaterial, visit);
+    if (object.customDistanceMaterial) visitMaterial(object.customDistanceMaterial, visit);
+    if ((object as THREE.BatchedMesh).isBatchedMesh) for (const texture of batchTextures(object as THREE.BatchedMesh)) visit(texture);
     const skinned = object as THREE.SkinnedMesh;
     if (skinned.isSkinnedMesh && skinned.skeleton) {
       visitSkeleton(skinned.skeleton);
