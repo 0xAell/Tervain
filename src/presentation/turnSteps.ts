@@ -86,12 +86,19 @@ export function applyTurnLead(chain: readonly (readonly [THREE.Bone | undefined,
       poses?.set(bone, pose);
     }
     pose.before.copy(bone.quaternion);
-    bone.parent.updateWorldMatrix(true, false);
+    // The parent's turn as it now stands: the getter brings its chain up to date from the world down, the joints turned
+    // before it included.
     LEAD_AXIS.copy(up).applyQuaternion(bone.parent.getWorldQuaternion(LEAD_PARENT).invert()).normalize();
     bone.quaternion.premultiply(LEAD_TURN.setFromAxisAngle(LEAD_AXIS, lead * share));
-    bone.updateMatrixWorld(true);
     pose.after.copy(bone.quaternion);
     held.set(bone, pose);
+  }
+  // What hangs from the turned joints brought up to date once, from the outermost of them, rather than after each turn
+  // (a chest joint's subtree is most of the figure): the same matrices.
+  for (const bone of held.keys()) {
+    let outermost = true;
+    for (let o = bone.parent; o && outermost; o = o.parent) if (held.has(o as THREE.Bone)) outermost = false;
+    if (outermost) bone.updateMatrixWorld(true);
   }
 }
 

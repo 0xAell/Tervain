@@ -435,19 +435,26 @@ const _toFrame = new THREE.Matrix4();
 const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3(), _n = new THREE.Vector3();
 const _qa = new THREE.Quaternion(), _qb = new THREE.Quaternion(), _qc = new THREE.Quaternion(), _qp = new THREE.Quaternion(), _turn = new THREE.Quaternion();
 
+const _dropPosition = new THREE.Vector3(), _dropScale = new THREE.Vector3();
+/** An object's world turn from its world matrix as it stands: getWorldQuaternion without bringing the matrix up to date. */
+const worldTurnNow = (object: THREE.Object3D, out: THREE.Quaternion) => { object.matrixWorld.decompose(_dropPosition, out, _dropScale); return out; };
+
 /**
  * Two-joint reach in world space (A69): bend the middle joint until the chain's end lies as far from its root as the
  * target, then swing the chain at its root onto the target. The end keeps its world orientation.
  */
 function reachTwoJoints(upper: THREE.Bone, lower: THREE.Bone, end: THREE.Bone, target: THREE.Vector3): void {
-  const a = upper.getWorldPosition(_a), b = lower.getWorldPosition(_b), c = end.getWorldPosition(_c);
+  // The chain brought up to date once, from the world down to its end; every read below comes before the first write, so
+  // each sees what a getter's own walk up the chain would (there were seven such walks).
+  end.updateWorldMatrix(true, false);
+  const a = _a.setFromMatrixPosition(upper.matrixWorld), b = _b.setFromMatrixPosition(lower.matrixWorld), c = _c.setFromMatrixPosition(end.matrixWorld);
   const first = a.distanceTo(b), second = b.distanceTo(c);
   if (first < 1e-4 || second < 1e-4 || !upper.parent) return;
   const reach = THREE.MathUtils.clamp(target.distanceTo(a), Math.abs(first - second) + 1e-3, first + second - 1e-3);
   const ba = _v2.subVectors(a, b), bc = _v3.subVectors(c, b);
   const bend = ba.angleTo(bc);
   const wanted = Math.acos(THREE.MathUtils.clamp((first * first + second * second - reach * reach) / (2 * first * second), -1, 1));
-  const qUpper = upper.getWorldQuaternion(_qa), qLower = lower.getWorldQuaternion(_qb), qEnd = end.getWorldQuaternion(_qc);
+  const qUpper = worldTurnNow(upper, _qa), qLower = worldTurnNow(lower, _qb), qEnd = worldTurnNow(end, _qc);
   const axis = _n.crossVectors(ba, bc);
   if (axis.lengthSq() > 1e-12) {
     // Turning about ba × bc opens the joint: the end swings away from the root.
@@ -458,7 +465,7 @@ function reachTwoJoints(upper: THREE.Bone, lower: THREE.Bone, end: THREE.Bone, t
   _turn.setFromUnitVectors(_v2.subVectors(c, a).normalize(), _v3.subVectors(target, a).normalize());
   qUpper.premultiply(_turn);
   qLower.premultiply(_turn);
-  upper.quaternion.copy(upper.parent.getWorldQuaternion(_qp).invert().multiply(qUpper));
+  upper.quaternion.copy(worldTurnNow(upper.parent, _qp).invert().multiply(qUpper));
   lower.quaternion.copy(_qp.copy(qUpper).invert().multiply(qLower));
   end.quaternion.copy(_qp.copy(qLower).invert().multiply(qEnd));
   upper.updateMatrixWorld(true);
@@ -728,7 +735,8 @@ export class ResidentMotion {
   private plantFeet(lift: number): void {
     const parent = this.body.parent;
     if (!parent || Math.abs(lift) < 0.005) return;
-    this.body.updateMatrixWorld(true);
+    // Each foot's place and each reach bring their own chain up to date from the world down; the rest of the figure is
+    // brought up to date with the hands (keepHandsOut).
     const down = _v0.set(0, -lift, 0).applyMatrix3(_m3.setFromMatrix4(parent.matrixWorld));
     for (const [upper, lower, end] of [['LeftUpLeg', 'LeftLeg', 'LeftFoot'], ['RightUpLeg', 'RightLeg', 'RightFoot']] as const) {
       reachTwoJoints(this.bones[upper], this.bones[lower], this.bones[end], this.bones[end].getWorldPosition(_v1).add(down));
@@ -876,15 +884,18 @@ export class ResidentMotion {
     const turnNow = Number.isFinite(p.turn) ? p.turn! : 0;
     this.turnLead.update(step > 0 && !seated && mode !== 'work' ? turnNow / step : 0, step);
     if (Math.abs(this.turnLead.lead) > 1e-4 || this.turnLead.held.size) {
-      this.scene.updateMatrixWorld(true);
+      // The lead brings each joint's parent up to date as it turns it (applyTurnLead).
       this.turnLead.apply([[this.bones.Spine01, 0.15], [this.bones.Spine, 0.25], [this.bones.neck, 0.25], [this.bones.Head, 0.35]],
         _v3.set(0, 1, 0).applyQuaternion(this.scene.getWorldQuaternion(_qa)));
     }
     if (mode === 'work' && leading && p.workSite && this.options.contacts) this.reachSite(p, p.workGesture ?? 'general', p.workSite, leading);
+    // The figure's matrices end the pose up to date: keeping the hands out of the torso brings them all up to date and
+    // keeps them so; the dead, who skip it, are brought up to date here. (Each refresh of the whole figure is most of
+    // a resident's pose.)
     if (mode !== 'dead') this.keepHandsOut();
+    else this.scene.updateMatrixWorld(true);
     this.wasSeated = seated && this.transition?.name !== MOTION_CLIPS.sitUp;
     this.lastMode = mode;
-    this.scene.updateMatrixWorld(true);
   }
 
   /**
@@ -894,14 +905,17 @@ export class ResidentMotion {
    * elbow bending to suit, the hand keeping its turn.
    */
   private keepHandsOut(): void {
+    // The whole figure brought up to date from the world down (the actor has placed the root, the pose the body), then
+    // read as it stands; a reach below brings what it moves up to date, so the pose ends with every matrix current.
+    this.body.updateWorldMatrix(true, false);
     this.scene.updateMatrixWorld(true);
-    const hips = this.bones.Hips.getWorldPosition(_a).clone(), neck = this.bones.neck.getWorldPosition(_b).clone();
+    const hips = _a.setFromMatrixPosition(this.bones.Hips.matrixWorld).clone(), neck = _b.setFromMatrixPosition(this.bones.neck.matrixWorld).clone();
     const radius = this.torsoRadius * this.body.getWorldScale(_c).y;
     const axis = _n.subVectors(neck, hips);
     const length = axis.lengthSq();
     let recorded = this.reached.length > 0;
     for (const [arm, fore, hand] of [['LeftArm', 'LeftForeArm', 'LeftHand'], ['RightArm', 'RightForeArm', 'RightHand']] as const) {
-      const wrist = this.bones[hand].getWorldPosition(_v0);
+      const wrist = _v0.setFromMatrixPosition(this.bones[hand].matrixWorld);
       const t = clamp01(_v1.subVectors(wrist, hips).dot(axis) / Math.max(1e-9, length));
       const nearest = _v1.copy(hips).addScaledVector(axis, t);
       const out = _v2.subVectors(wrist, nearest);
