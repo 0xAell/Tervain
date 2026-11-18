@@ -7,7 +7,8 @@ const tan: RGB = [0.5, 0.4, 0.3];
 
 /** How many triangles face away from the surface's outside (winding against the outward direction). */
 function inward(g: THREE.BufferGeometry): { faces: number; inward: number } {
-  const p = g.attributes.position!, idx = g.index!.array;
+  // Unindexed geometry (a creature's merged parts) lists its triangles' corners in order.
+  const p = g.attributes.position!, idx = g.index?.array ?? Array.from({ length: p.count }, (_, i) => i);
   const tri = new THREE.Triangle(), normal = new THREE.Vector3(), mid = new THREE.Vector3();
   const centre = new THREE.Vector3();
   g.computeBoundingBox();
@@ -35,7 +36,8 @@ describe('lofted creature surfaces', () => {
 
   it('close the Thornback trunk from outside', () => {
     const rig = createThornback();
-    const trunk = rig.torso.children.find((o) => (o as THREE.Mesh).isMesh && (o as THREE.Mesh).geometry.index) as THREE.Mesh;
+    // The torso's hide: the trunk alone on its joint (its spines are bone).
+    const trunk = rig.torso.children.find((o) => (o as THREE.Mesh).isMesh && (o as THREE.Mesh).material === rig.materials[0]) as THREE.Mesh;
     expect(trunk).toBeDefined();
     const g = trunk.geometry.clone().applyMatrix4(trunk.matrix);
     expect(inward(g)).toMatchObject({ inward: 0 });

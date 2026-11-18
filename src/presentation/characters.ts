@@ -22,6 +22,7 @@ import { paintSheetJob, track } from './human/sheetPool';
 import { banditOutfit, lookOutfit, npcOutfit, playerOutfit, linear } from './human/outfits';
 import { BI, BONES, box, ellipsoid, loft, Mesher, mul3, rigid, tube, type BoneName, type V3 } from './human/skin';
 import { createResidentTools } from './npc/residentProps';
+import { batchParts, type PartBatch } from './partBatch';
 import type { HeroAnimationController } from './hero/animation';
 import type { ResidentMotion } from './npc/residentMotion';
 import type { ResidentFingers } from './npc/residentFingers';
@@ -180,6 +181,11 @@ export interface Rig {
   cur: Record<string, number>;
   materials: THREE.MeshStandardMaterial[];
   hitFlash: number;
+  /**
+   * The thornback's parts drawn as two batches, one a material (partBatch.ts), each part following its joint: put where
+   * the pose left them by `update()` after each pose.
+   */
+  parts?: PartBatch | null;
   kind: 'humanoid' | 'thornback';
   /** A person's skinned mesh, its sheet and how the sheet was laid out (people only). */
   person?: PersonRigInfo;
@@ -846,7 +852,8 @@ export function createThornback(): Rig {
   const trunk = rigidLoft(trunkSecs, 14, { wobble: 0.09, seed, capBottom: true, capTop: true });
   trunk.rotateX(Math.PI / 2);
   trunk.deleteAttribute('uv');
-  put(trunk, hideM, torso);
+  // Alone on its joint, the trunk is not merged: given the merged parts' layout, it joins their batch (below).
+  put(uniformAttrs(trunk), hideM, torso);
   // Spines along the back, set into the hide and leaning back.
   for (let i = 0; i < 9; i++) {
     const z = -0.85 + i * 0.22;
@@ -898,12 +905,16 @@ export function createThornback(): Rig {
   const cur: Record<string, number> = {};
   for (const k of ANGLE_KEYS) cur[k] = 0;
   mergeRigMeshes(root);
+  // Twelve merged parts, one a joint and material, were a draw each in every pass that drew the creature; two batches
+  // draw them, each part following its joint. The materials are the creature's own, so the hit flash still shows.
+  const parts = batchParts([body], root, { name: 'thornback', copyMaterials: false });
   return {
     root,
     body,
     hips,
     torso,
     head,
+    parts,
     armL: legs[0]!,
     armR: legs[1]!,
     legL: legs[2]!,
