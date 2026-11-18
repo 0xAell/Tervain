@@ -551,6 +551,7 @@ export class WorldScene {
     }
     // The batched parts follow at once: a pickup taken, a board put up or a gate snapped open is drawn so from this frame.
     sc.doorBatch?.update();
+    sc.shellBatch?.update();
     this.nav.ensureFresh();
   }
 
@@ -904,6 +905,7 @@ export class WorldScene {
   updateDoors(dt: number, visitors: readonly { x: number; z: number }[]): DoorEvent[] {
     const events = this.doorSwings.update(dt, visitors);
     this.scenery.doorBatch?.update();
+    this.scenery.shellBatch?.update();
     return events;
   }
 }

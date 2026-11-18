@@ -14,6 +14,13 @@ export type MatKey = TexKey | 'vc' | 'metal' | 'leaf' | 'glow' | 'pane' | 'dayli
  */
 export const DEPTH_RANK: Partial<Record<MatKey, number>> = { stone: 1, rock: 1, vc: 2, glow: 2, daylight: 2, pane: 3, timber: 4, metal: 5 };
 
+/**
+ * The surfaces that give light or let it through: the lanterns' and windows' glow, the panes, the daylight seen from a
+ * room, glass and its night glow. They cast no shadow and take none, and the settlement keeps them as meshes of their own
+ * (recoloured every frame, or sorted by their distance) when it batches its shells.
+ */
+export const LIT_SURFACES: ReadonlySet<MatKey> = new Set<MatKey>(['glow', 'pane', 'daylight', 'glass', 'nightGlow']);
+
 /** Surfaces laid on a face that need the slope-scaled offset too (none of them is seen edge-on through a wall). */
 const SLOPE_OFFSET = new Set<MatKey>(['stone', 'rock', 'vc', 'glow', 'daylight', 'pane']);
 
@@ -222,7 +229,8 @@ export class Region {
       if (!geo) continue;
       const mesh = new THREE.Mesh(geo, mats.get(key));
       mesh.name = `${this.name}:${key}`;
-      const emissive = key === 'glow' || key === 'pane' || key === 'daylight' || key === 'glass' || key === 'nightGlow';
+      mesh.userData.surface = key;
+      const emissive = LIT_SURFACES.has(key);
       mesh.castShadow = (opts.shadows ?? true) && !emissive;
       mesh.receiveShadow = !emissive;
       if (opts.isStatic ?? true) {

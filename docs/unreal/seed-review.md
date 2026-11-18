@@ -487,6 +487,16 @@ Improved:
   13 stops, even 380 m off at the landing, and in the sun's shadow map near the cut: 10 draws fewer at each of those
   stops and 20 at the nearest, 100 over the route, the triangles the same. Each part follows its joint through the pose
   and the fall, every vertex where its own mesh put it ([#906](https://github.com/0xAell/Tervain/pull/906)).
+- The settlement's shells are drawn as one batch per surface. Each region of the settlement (the village, the heath,
+  the quarry, the shrine, the coast and the rest) was a mesh per material, a draw call each in every colour pass that
+  drew it; once the sun's casters are packed, each surface the regions share is one batch, each region an instance
+  culled on its own. Merged at the settlement's origin, every vertex is the value its own mesh drew. On 0.1.3 the
+  settlement draws 4 to 52 fewer calls at 12 of the route's 13 stops, 201 in all (52 at the sea's stop, where the
+  reflection draws them too), its triangles the same; a frame's median is 254 draws where it was 267. Drawn by the
+  batches and by the shells' own meshes, the same frame differs in at most 12 of 576,000 pixels, single ones where two
+  surfaces meet at the same depth and draw order decides. `npm run perf:frame` now redraws the water's reflection in
+  every frame it counts, as play does while the camera moves: counted after the camera had come to rest, the frame at
+  stops 7 and 8 left the whole pass out in one run and not in another ([#908](https://github.com/0xAell/Tervain/pull/908)).
 
 Next:
 
@@ -519,13 +529,16 @@ Next:
   after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB: three needs both again only if
   a lost WebGL context is restored, which the game does not otherwise handle, so freeing them trades that recovery for
   the memory. The procedural bark's cache (25 MB) is the same case: the pixels of textures in use, which only a
-  restored context would read again.
-- Draws: at High the frame on 0.1.2 is 272 draw calls and 4.71 M triangles (medians over the benchmark route's 13
-  stops, the wanderer at each; 293 and 4.97 M after October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws
-  and 2.61 M triangles, 55 % of them; the main view 157 draws, the sun's shadow map 76, the leaves' depth pass 18. The
-  water's reflection, with the sea in view, makes stop 11 the largest frame: 533 draws and 9.39 M. The settlement's
-  merged shells, a mesh per region and material, are the next draws to batch: up to 41 a frame in the main view and 37
-  more in the reflection. The cuts that keep the picture, and those a GPU must judge, are in
+  restored context would read again. The settlement's shells are held twice on the CPU since they were batched: the
+  batches' 24.6 MB and the hidden shells' own 23.9 MB for their 354,000 triangles. Nothing reads the hidden ones once
+  the batches stand (nothing casts rays at them; the GPU never has them), so letting them go would give that back.
+- Draws: at High the frame on 0.1.3 is 254 draw calls and 4.68 M triangles (medians over the benchmark
+  route's 13 stops, the wanderer at each; 267 before the settlement's shells were batched, 272 and 4.71 M on 0.1.2,
+  293 and 4.97 M after October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws and 2.61 M triangles, 56 %
+  of them; the main view 139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection,
+  with the sea in view, makes stop 11 the largest frame: 482 draws and 9.24 M. The woodland's waymarkers and ruin (up
+  to 22 draws a frame in the sun's shadow map and 24 in the reflection) and the residents' work tools, a draw each, are
+  the next draws to batch. The cuts that keep the picture, and those a GPU must judge, are in
   [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by
   a fifth). The residents' poses are nearly a third of it: the work reach, the feet planted, the hands kept out of the torso,

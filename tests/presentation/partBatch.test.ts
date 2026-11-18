@@ -186,6 +186,53 @@ describe('moving parts drawn as one batch per material: the doors', () => {
     scenery.dispose();
   });
 
+  it('draws the regions\' shells as one batch per surface once their shadows are packed, every vertex where it was', () => {
+    vi.stubGlobal('document', { createElement: () => {
+      const canvas = { width: 0, height: 0, getContext: () => context };
+      const context = new Proxy<Record<string, unknown>>({ canvas, measureText: (t: string) => ({ width: t.length * 7 }),
+        createLinearGradient: () => ({ addColorStop() {} }), createRadialGradient: () => ({ addColorStop() {} }) },
+      { get: (target, key) => target[String(key)] ?? (() => {}) });
+      return canvas;
+    } });
+    const terrain = new Terrain();
+    const scenery = buildScenery(terrain, buildStaticColliders(terrain), 'high');
+    const scene = new THREE.Scene(), sun = new THREE.DirectionalLight();
+    scene.add(scenery.group, sun);
+    scenery.group.updateMatrixWorld(true);
+    expect(scenery.shellBatch).toBeFalsy();
+    const uninstall = scenery.installRegionSun!(scene, sun);
+    const batch = scenery.shellBatch!;
+    scenery.group.updateMatrixWorld(true);
+    // The regions are the groups the shell batches draw from; their meshes are the shells, lit surfaces included.
+    const regions = new Set<THREE.Object3D>();
+    scenery.group.traverse((o) => { if (batch.meshes.includes(o.userData.batchedInto)) regions.add(o.parent!); });
+    const shells = [...regions].flatMap((region) => region.children.filter((o): o is THREE.Mesh => (o as THREE.Mesh).isMesh));
+    // One batch per surface that several regions share; the lit surfaces and any surface one region alone has stay meshes.
+    const batched = shells.filter((mesh) => mesh.userData.batchedInto);
+    expect(batch.meshes.length).toBeGreaterThan(4);
+    expect(batched.length).toBeGreaterThan(batch.meshes.length);
+    for (const mesh of shells) {
+      const lit = ['glow', 'pane', 'daylight', 'glass', 'nightGlow'].includes(mesh.userData.surface as string);
+      if (lit) expect(mesh.userData.batchedInto).toBeUndefined();
+      if (!mesh.userData.batchedInto) { expect(mesh.visible).toBe(true); continue; }
+      expect(mesh.visible).toBe(false);
+      // The shells stand at the settlement's origin: each instance's matrix is the identity, and every vertex is the very
+      // value its own mesh drew.
+      const instance = mesh.userData.batchedInstance as number, into = mesh.userData.batchedInto as THREE.BatchedMesh;
+      expect(into.getMatrixAt(instance, new THREE.Matrix4()).equals(new THREE.Matrix4())).toBe(true);
+      expect(into.position.toArray()).toEqual([0, 0, 0]);
+      expect(drawnInBatch(into, instance, mesh.geometry)).toEqual(drawnAlone(mesh));
+      // Its shadow is packed for the sun (regionSun.ts), so the batch draws it in colour alone.
+      expect(mesh.castShadow).toBe(false);
+      expect(into.castShadow).toBe(false);
+    }
+    // Given back their own meshes when the packing is let go.
+    uninstall();
+    expect(scenery.shellBatch).toBeFalsy();
+    for (const mesh of batched) { expect(mesh.visible).toBe(true); expect(mesh.userData.batchedInto).toBeUndefined(); expect(mesh.castShadow).toBe(true); }
+    scenery.dispose();
+  });
+
   it('follows a part on a swing hung from a pivot, as a sign swings on its bracket', () => {
     const parent = new THREE.Group(), boards = new THREE.MeshStandardMaterial({ name: 'planks' });
     const signs = [0, 1].map((i) => {
