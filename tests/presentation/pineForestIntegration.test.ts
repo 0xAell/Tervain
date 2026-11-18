@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import * as THREE from 'three';
 import { buildTreeVariant, type TreeVariant } from '../../src/presentation/treeGen';
 import { groundedTreeY, seatTreeFlares, treeWoodCollisionRadius, TREE_ROOT_PLANE, TREE_SOIL_OVERLAP } from '../../src/presentation/treeGrounding';
-import { buildFlora } from '../../src/presentation/flora';
+import { buildFlora, buildFloraAsync } from '../../src/presentation/flora';
 import { createFloraPopulation, registerFloraColliders, selectFloraPopulation, floraLodWeights, type FloraTree } from '../../src/presentation/floraPopulation';
 import { pineTemplates } from './pineFixture';
 import { createPineForest, isPineSpecies, type PineTemplates } from '../../src/presentation/solitaryPine';
@@ -10,7 +10,7 @@ import { Colliders } from '../../src/core/world/colliders';
 import { Terrain } from '../../src/core/world/terrain';
 import { Exclusions } from '../../src/presentation/vegetation';
 import { defaultSettings } from '../../src/platform/settings';
-import type { FrameContext } from '../../src/presentation/context';
+import type { BuildContext, FrameContext } from '../../src/presentation/context';
 import { worldView } from '../../src/core/game/worldView';
 import { createInitialState } from '../../src/core/game/state';
 
@@ -56,6 +56,28 @@ beforeAll(async () => {
 });
 
 describe('coastal pine component without the species catalog', () => {
+  it('releases partially instanced trees on cancellation before publishing obstacles and crowns', async () => {
+    const colliders = new Colliders(), stop = new AbortController();
+    const ctx: BuildContext = { terrain, excl, colliders, quality: 'low', settings: defaultSettings(), sway: { uTime: { value: 0 }, uWind: { value: 0 } } };
+    const instanced = vi.spyOn(THREE.InstancedMesh.prototype, 'setColorAt');
+    const disposed = vi.spyOn(THREE.InstancedMesh.prototype, 'dispose');
+    const variantCounts: number[] = [], batchCounts: number[] = [];
+    try {
+      await expect(buildFloraAsync(ctx, templates, true, undefined, {
+        onForestProgress: progress => (progress.phase === 'variants' ? variantCounts : batchCounts).push(progress.completed),
+        budgetMs: 0, signal: stop.signal, yieldNow: async () => {
+          if (instanced.mock.calls.length) stop.abort(new Error('Left the coast'));
+        },
+      })).rejects.toThrow('Left the coast');
+      expect(disposed).toHaveBeenCalled();
+      expect(variantCounts.length).toBeGreaterThan(0);
+      expect(variantCounts).toEqual([...new Set(variantCounts)].sort((a, b) => a - b));
+      expect(batchCounts).toEqual([1]);
+      expect(colliders.all).toHaveLength(0);
+      expect(ctx.plantedCrowns).toBeUndefined();
+    } finally { disposed.mockRestore(); instanced.mockRestore(); }
+  });
+
   it('selects the requested root LOD and retains far wood at every planted position', () => {
     vi.stubGlobal('location', { search: '' });
     const forest = buildFlora({ terrain, excl, colliders: new Colliders(), quality: 'low', settings: { ...defaultSettings(), quality: 'low' }, sway: { uTime: { value: 0 }, uWind: { value: 0 } } }, templates);

@@ -2,10 +2,11 @@ import * as THREE from 'three';
 import { PROP_COLLIDER, type BoxCollider, type Collider, type Colliders } from '../core/world/colliders';
 import type { Terrain } from '../core/world/terrain';
 import { BUILDINGS, LIGHTHOUSE } from '../core/world/layout';
-import { CAMERA_CLEARANCE, cameraColliderEntry } from '../core/rules/cameraObstruction';
+import { CAMERA_CLEARANCE, cameraColliderEntry, type CameraPoint } from '../core/rules/cameraObstruction';
 import { RIDE_CAMERA } from '../core/rules/riding';
 import { AIM_VIEW, CAMERA, ROOM_CAMERA } from '../core/rules/camera';
 import { crownBoom, type CameraCrown } from '../core/rules/cameraCrowns';
+import { heroNearCoverage } from './nearFade';
 
 const MAX_RECOIL = CAMERA.maxRecoil;
 /** Inside a room the lens stays this far under the wall top (the tie beams and rafters), never floating up among them. */
@@ -26,6 +27,12 @@ function obstacleHeight(c: Collider): number {
     : c.id.startsWith('tree:') ? 20
     : building ? building.h + Math.min(building.w, building.d) * 0.6
     : c.id.startsWith('archive_') ? 3.4 : 5;
+}
+
+/** Room walls and trim already carry their world heights. Only older colliders need a ground query. */
+function entry(a: CameraPoint, b: CameraPoint, c: Collider, terrain: Pick<Terrain, 'groundAt'>): number | null {
+  const ground = c.minY === undefined || c.maxY === undefined ? terrain.groundAt(c.x, c.z) : 0;
+  return cameraColliderEntry(a, b, c, ground, c.maxY === undefined ? obstacleHeight(c) : 0);
 }
 
 /**
@@ -55,6 +62,7 @@ export class CameraRig {
   private target = new THREE.Vector3();
   private smoothTarget = new THREE.Vector3();
   private followPivot = new THREE.Vector3();
+  private readonly playerFeet = new THREE.Vector3();
   private aiming = false;
   /** Eases 0..1 into the shoulder view instead of snapping the boom and offset (B11). */
   aimBlend = 0;
@@ -74,8 +82,9 @@ export class CameraRig {
   private waterSide: 'above' | 'under' | null = null;
   private waterTerrain: Pick<Terrain, 'groundAt'> | null = null;
   private waterColliders: Collider[] = [];
-  /** Used to hide the local body only when the boom is forced inside it. */
-  get bodyVisible() { return this.manual !== null || this.curDist >= 0.85; }
+  /** Measure from the final eye, including shoulder, water and recoil offsets. */
+  get bodyCoverage() { return this.manual !== null || !this.initialized ? 1 : heroNearCoverage(this.camera.position, this.playerFeet); }
+  get bodyVisible() { return this.bodyCoverage > 0; }
 
   /** Teleports, respawns and loads must never inherit the previous pivot or a compressed boom. */
   reset() {
@@ -138,8 +147,10 @@ export class CameraRig {
       this.camera.lookAt(this.manual.look);
       return;
     }
+    const firstView = !this.initialized;
+    this.playerFeet.set(px, py, pz);
     const rideTarget = this.mounted ? 1 : 0;
-    this.rideBlend = !this.initialized || reducedMotion ? rideTarget
+    this.rideBlend = firstView || reducedMotion ? rideTarget
       : this.rideBlend + (rideTarget - this.rideBlend) * (1 - Math.exp(-Math.max(0, dt) * RIDE_CAMERA.rate));
     const lift = RIDE_CAMERA.up * this.rideBlend;
     this.lastPivotLift = heightOffset + lift;
@@ -159,7 +170,7 @@ export class CameraRig {
     }
 
     const aimTarget = this.aiming ? 1 : 0;
-    this.aimBlend = !this.initialized || reducedMotion ? aimTarget
+    this.aimBlend = reducedMotion ? aimTarget
       : this.aimBlend + (aimTarget - this.aimBlend) * (1 - Math.exp(-Math.max(0, dt) * 20));
     if (Math.abs(this.aimBlend - aimTarget) < 1e-3) this.aimBlend = aimTarget;
     const aimEase = this.aimBlend * this.aimBlend * (3 - 2 * this.aimBlend);
@@ -177,7 +188,8 @@ export class CameraRig {
     const roofs = candidates.filter(isRoof);
     let room: Collider | null = null;
     for (const r of roofs) {
-      if (r.kind !== 'box') continue;
+      // The roof footprint also covers the exterior above it.
+      if (r.kind !== 'box' || py >= (r.minY ?? Infinity)) continue;
       const [hx, hz] = boxLocal(r, px, pz);
       const here = this.interiorRoof === r.id;
       const m = here ? ROOM_LEAVE : ROOM_ENTER;
@@ -192,7 +204,7 @@ export class CameraRig {
     else if (this.interiorBlend <= 0.001) { this.interiorRoof = null; this.interiorCap = Infinity; }
     const roomTarget = room ? 1 : 0;
     const roomRate = (roomTarget ? 4 : 2) * (reducedMotion ? 2 : 1);
-    this.interiorBlend = !this.initialized ? roomTarget : this.interiorBlend + (roomTarget - this.interiorBlend) * (1 - Math.exp(-Math.max(0, dt) * roomRate));
+    this.interiorBlend = firstView ? roomTarget : this.interiorBlend + (roomTarget - this.interiorBlend) * (1 - Math.exp(-Math.max(0, dt) * roomRate));
     if (Math.abs(this.interiorBlend - roomTarget) < 1e-3) this.interiorBlend = roomTarget;
     let pitch = this.pitch;
     if (this.interiorBlend > 0 && Number.isFinite(this.interiorCap)) {
@@ -215,21 +227,22 @@ export class CameraRig {
     } else { this.paceX = this.paceZ = 0; }
     this.lastPx = px; this.lastPz = pz;
     if (aimOffset > 0) {
-      // At yaw zero the screen's right is -X. Sweep the short shoulder shift before sweeping the boom.
-      const offset = new THREE.Vector3(-Math.cos(this.yaw) * aimOffset, 0, Math.sin(this.yaw) * aimOffset);
+      // Sweep the rise and sideways shift together before the boom. A low lintel can clip an otherwise clear shoulder.
+      const offset = new THREE.Vector3(-Math.cos(this.yaw) * aimOffset, AIM_VIEW.up * aimEase, Math.sin(this.yaw) * aimOffset);
+      const shoulderLength = offset.length();
       const shoulder = this.smoothTarget.clone().add(offset);
       let shoulderFraction = 1;
       for (const c of candidates) {
-        const t = cameraColliderEntry(this.smoothTarget, shoulder, c, terrain.groundAt(c.x, c.z), obstacleHeight(c));
-        if (t !== null) shoulderFraction = Math.min(shoulderFraction, Math.max(0, t - 0.025 / aimOffset));
+        const t = entry(this.smoothTarget, shoulder, c, terrain);
+        if (t !== null) shoulderFraction = Math.min(shoulderFraction, Math.max(0, t - 0.025 / shoulderLength));
       }
       const clearShoulder = (fraction: number) => {
         const x = this.smoothTarget.x + offset.x * fraction, z = this.smoothTarget.z + offset.z * fraction;
         const r = CAMERA_CLEARANCE;
         const floor = Math.max(terrain.groundAt(x,z), terrain.groundAt(x-r,z), terrain.groundAt(x+r,z), terrain.groundAt(x,z-r), terrain.groundAt(x,z+r));
-        return this.smoothTarget.y >= floor + r;
+        return this.smoothTarget.y + offset.y * fraction >= floor + r;
       };
-      const shoulderSteps = Math.ceil(aimOffset / .06);
+      const shoulderSteps = Math.ceil(shoulderLength / .06);
       let previousShoulder = 0;
       for (let i = 1; i <= shoulderSteps; i++) {
         const fraction = Math.min(i / shoulderSteps, shoulderFraction);
@@ -241,14 +254,12 @@ export class CameraRig {
             if (clearShoulder(mid)) lo = mid;
             else hi = mid;
           }
-          shoulderFraction = Math.max(0, lo - .025 / aimOffset);
+          shoulderFraction = Math.max(0, lo - .025 / shoulderLength);
           break;
         }
         previousShoulder = fraction;
       }
       this.followPivot.addScaledVector(offset, shoulderFraction);
-      // Over the shoulder and a little above it, so the drawn bow ahead of him is framed, not hidden by his back (B11).
-      this.followPivot.y += AIM_VIEW.up * aimEase * shoulderFraction;
     }
     // A doorway's lintel is the one wall a boom can pass under: lower the view, continuously, just enough for the boom to
     // clear it, rather than shortening the boom to nothing the moment it would touch (a cut).
@@ -256,7 +267,7 @@ export class CameraRig {
     if (lintels.length) {
       const hits = (pt: number) => {
         const cpt = Math.cos(pt), end = { x: this.followPivot.x - Math.sin(this.yaw) * cpt * boomDistance, y: this.followPivot.y + Math.sin(pt) * boomDistance, z: this.followPivot.z - Math.cos(this.yaw) * cpt * boomDistance };
-        return lintels.some((c) => cameraColliderEntry(this.followPivot, end, c, terrain.groundAt(c.x, c.z), obstacleHeight(c)) !== null);
+        return lintels.some((c) => entry(this.followPivot, end, c, terrain) !== null);
       };
       const floorPitch = Math.min(pitch, 0.02);
       let want = 0;
@@ -296,7 +307,7 @@ export class CameraRig {
         future = { x: this.followPivot.x - Math.sin(futureYaw) * cp * boomDistance,
           y: desired.y, z: this.followPivot.z - Math.cos(futureYaw) * cp * boomDistance };
       }
-      const t = cameraColliderEntry(this.followPivot, future, c, terrain.groundAt(c.x, c.z), obstacleHeight(c));
+      const t = entry(this.followPivot, future, c, terrain);
       if (t !== null) trimTarget = Math.min(trimTarget, Math.max(.04, t * boomDistance - .025));
     }
     // The ceiling zone (the wall top less the clearance) draws the boom in softly, never to less than a metre.
@@ -304,7 +315,7 @@ export class CameraRig {
     for (const r of roofs) {
       if (r.minY === undefined) continue;
       const zone = { ...r, minY: r.minY - (CEILING_CLEARANCE - CAMERA_CLEARANCE) } as Collider;
-      const t = cameraColliderEntry(this.followPivot, desired, zone, terrain.groundAt(r.x, r.z), obstacleHeight(r));
+      const t = entry(this.followPivot, desired, zone, terrain);
       if (t !== null) ceilingTarget = Math.min(ceilingTarget, Math.max(1, t * boomDistance - 0.025));
     }
     // A moment ahead at the walls and trim of a room: the boom draws in as he nears a doorway, not at the instant its ray
@@ -315,13 +326,13 @@ export class CameraRig {
       const reach = { x: ahead.x + dirX * boomDistance, y: ahead.y + dirY * boomDistance, z: ahead.z + dirZ * boomDistance };
       for (const c of candidates) {
         if (!c.id.startsWith('room:') || isRoof(c)) continue;
-        const t = cameraColliderEntry(ahead, reach, c, terrain.groundAt(c.x, c.z), obstacleHeight(c));
+        const t = entry(ahead, reach, c, terrain);
         if (t !== null) leadTarget = Math.min(leadTarget, Math.max(0.8, t * boomDistance - 0.025));
       }
     }
     let allowed = boomDistance;
     for (const c of candidates) {
-      const t = cameraColliderEntry(this.followPivot, desired, c, terrain.groundAt(c.x, c.z), obstacleHeight(c));
+      const t = entry(this.followPivot, desired, c, terrain);
       if (t !== null) allowed = Math.min(allowed, Math.max(0.04, t * boomDistance - 0.025));
     }
     // The rendered terrain is piecewise planar. A short spatial march followed by bisection finds bank contact
@@ -381,8 +392,8 @@ export class CameraRig {
       // Recoil is presentation motion, but it still has the camera's near-plane volume.
       // Reuse the one broad-phase query: a clear boom can run alongside a wall less than a pulse away.
       for (const c of candidates) {
-        const entry = cameraColliderEntry(this.camera.position, recoil, c, terrain.groundAt(c.x, c.z), obstacleHeight(c));
-        if (entry !== null) share = Math.min(share, Math.max(0, entry - 0.001 / Math.max(recoilLength, 0.001)));
+        const hit = entry(this.camera.position, recoil, c, terrain);
+        if (hit !== null) share = Math.min(share, Math.max(0, hit - 0.001 / Math.max(recoilLength, 0.001)));
       }
       const clearRecoil = (t: number) => {
         const x = cx + (recoil.x - cx) * t, y = cy + (recoil.y - cy) * t, z = cz + (recoil.z - cz) * t;
@@ -457,7 +468,7 @@ export class CameraRig {
     const floor = Math.max(terrain.groundAt(p.x,p.z), terrain.groundAt(p.x-r,p.z), terrain.groundAt(p.x+r,p.z), terrain.groundAt(p.x,p.z-r), terrain.groundAt(p.x,p.z+r));
     if (y < floor + r) return false;
     const lowered = { x: p.x, y, z: p.z };
-    return this.waterColliders.every(c => cameraColliderEntry(p, lowered, c, terrain.groundAt(c.x, c.z), obstacleHeight(c)) === null);
+    return this.waterColliders.every(c => entry(p, lowered, c, terrain) === null);
   }
 
   /** A fixed camera route for repeatable frame-time measurements. */

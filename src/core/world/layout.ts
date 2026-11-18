@@ -378,9 +378,9 @@ export const PLACES: Record<PlaceId, { x: number; z: number; r: number }> = {
   archive: { x: -46, z: -100, r: 8 },
 };
 
-/** The player wakes alone above the tide, facing the faint track inland into the trees. */
+/** The player wakes above the tide with the stranded hull and the first recoverable weapon in sight. */
 const LANDING = { x: -268, z: 27 };
-export const SPAWN = { ...LANDING, yaw: Math.atan2(ARRIVAL_ROUTE[0]!.x - LANDING.x, ARRIVAL_ROUTE[0]!.z - LANDING.z) };
+export const SPAWN = { ...LANDING, yaw: Math.atan2(ARRIVAL_WRECK.x - LANDING.x, ARRIVAL_WRECK.z - LANDING.z) };
 
 export interface WorldPoint {
   id: string;

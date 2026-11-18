@@ -13,6 +13,7 @@ export { rockShapes } from './rockGeometry';
 import { streamDistance } from '../core/world/groundLayers';
 import { createScatterPopulation, createShoreDetailPopulation, registerScatterColliders, selectScatterPopulation, type ShoreDetail } from './scatterPopulation';
 import { buildForestLeafTexture } from './forestFloor';
+import { shoreShingle, wrackFrond } from './strandWreckage';
 
 /**
  * Stones and the things the sea leaves: boulders and scree, pebbles at the tide line, driftwood, wrack (weed), reeds by the
@@ -71,9 +72,14 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
   terrain.registerRockSurfaces(population.flatMap(rock => rock.contact ? [rock.contact] : []));
   const plan = selectScatterPopulation(population, quality);
   const rocks = plan.rocks.length;
+  const sandHeight = (x: number, z: number) => terrain.heightAt(x, z);
   for (const rock of plan.rocks) {
     const { x, y, z, size } = rock;
     const R = region(x, z);
+    if (rock.kind === 'beach') {
+      shoreShingle(R, rock, x - coastX(z), sandHeight);
+      continue;
+    }
     const list = size > 0.55 ? shapes.big : shapes.small;
     const g = list[rock.shape]!;
     const B = R.get('rock' as MatKey);
@@ -140,19 +146,18 @@ export function buildScatter(ctx: BuildContext): SceneModule & { counts: { rocks
     const y = terrain.heightAt(xs, zz);
     if (y < -0.25 || y > 1.3) continue;
     const R = region(xs, zz);
-    const B = R.get('leaf');
     const n = 3 + Math.floor(rng() * 4);
-    const tint: RGB = [0.24 + rng() * 0.08, 0.22 + rng() * 0.06, 0.1 + rng() * 0.04];
+    const tones = [0x665d47, 0x76684c, 0x736b56, 0x82765e];
+    const tone = tones[Math.floor(rng() * tones.length)]!;
+    const bend = (rng() - .5) * .8, width = .06 + rng() * .034;
     for (let k = 0; k < n; k++) {
       const a = rng() * Math.PI * 2;
-      const l = 0.5 + rng() * 0.9;
-      const w = 0.05 + rng() * 0.05;
+      const l = .25 + rng() * .66;
+      const w = l * (width + rng() * .024);
       const ox = xs + (rng() - 0.5) * 0.5;
       const oz = zz + (rng() - 0.5) * 0.5;
-      const oy = terrain.heightAt(ox, oz) + 0.025;
-      const dx = Math.cos(a);
-      const dz = Math.sin(a);
-      B.quad([ox - dz * w, oy, oz + dx * w, ox + dz * w, oy, oz - dx * w, ox + dx * l + dz * w * 0.6, oy + 0.05 + rng() * 0.05, oz + dz * l - dx * w * 0.6, ox + dx * l - dz * w * 0.6, oy + 0.05 + rng() * 0.05, oz + dz * l + dx * w * 0.6], tint, { nu: 1, nv: 1, amp: 0.1 });
+      const curl = bend + (rng() - .5) * .52, fold = .029 + rng() * .056;
+      wrackFrond(R, sandHeight, ox, oz, a, l, w, curl, fold, tone);
     }
   }
   // Reeds along the streams and round the spring pool.

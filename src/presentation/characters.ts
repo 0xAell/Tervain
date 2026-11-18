@@ -9,6 +9,7 @@ import type { NpcPoseFit } from './npc/poseFit';
 import { seatLegs } from '../core/rules/seat';
 import { Frame } from './human/frame';
 import { RUN_STEP, WALK_STEP, walkingFoot } from './human/gait';
+import { poseJump, type JumpPose } from './human/jump';
 import { buildHead, type HairCut, type HeadFit } from './human/head';
 import { makeFaceShape, type BeardStyle, type Build, type FaceShape } from './human/headShape';
 import { dress, dressHead, sashBand, type Outfit } from './human/dress';
@@ -75,6 +76,7 @@ export interface Pose {
   amp: number;
   /** Imported hero locomotion uses controller travel, never clip root motion. */
   grounded?: boolean;
+  jump?: JumpPose;
   travel?: number;
   moveSpeed?: number;
   /** The hero's way of travel against the way he faces, radians (0 ahead), where guard or aim lets them differ (A70). */
@@ -975,9 +977,13 @@ export function poseRig(rig: Rig, p: Pose, dt: number) {
 
   if (rig.kind === 'thornback') {
     poseCreature(rig, p, a);
+  } else if (p.jump?.airborne) {
+    poseJump(a, p.jump, speed, amp);
+    fast = 28;
   } else {
     switch (p.mode) {
       case 'idle': {
+        if (rig.person && p.travel !== undefined) a.soleL = a.soleR = -a.kneeL!;
         // Arms hang a little away from the body (+z lifts the left arm outward, -z the right).
         a.armLx = 0.04 + breathe * 3;
         a.armRx = 0.04 - breathe * 3;
@@ -1018,7 +1024,9 @@ export function poseRig(rig: Rig, p: Pose, dt: number) {
         // At full pace the support foot sweeps back 0.82 m per walking stance or 0.94 m per
         // running stance, matching the distance the controller covers in that part of the cycle.
         const step = running ? RUN_STEP : WALK_STEP;
-        const reach = step.reach * scale * Math.min(1, speed / 0.78) * amp;
+        // The player traverses the same metres with reduced motion. Keep the supporting boot at its
+        // contact point while the smaller pelvis, arm and head motion quiet the view.
+        const reach = step.reach * scale * Math.min(1, speed / 0.78) * (p.travel === undefined ? amp : 1);
         // At a walk the hips rise over the planted foot. At a run the knee flexes under
         // load and the body rises in flight. The controller still owns the root.
         a.lower = -active * (running
@@ -1357,15 +1365,21 @@ export function poseRig(rig: Rig, p: Pose, dt: number) {
     }
   }
 
+  if (p.jump && !p.jump.airborne) {
+    poseJump(a, p.jump, speed, amp);
+    fast = 36;
+  }
   const work = rig.npc?.work;
   if (work) {
     const working = (p.mode === 'work' || (p.mode === 'sit' && seated && p.seatHeight !== undefined)) && p.workGesture === work.gesture;
     for (const prop of work.props) prop.visible = working;
   }
   const k = 1 - Math.exp(-frameDt * fast);
-  const peaceful = rig.kind === 'humanoid' && ['idle', 'walk', 'run', 'work', 'sit', 'talk'].includes(p.mode);
+  const peaceful = !p.jump && rig.kind === 'humanoid' && ['idle', 'walk', 'run', 'work', 'sit', 'talk'].includes(p.mode);
   const gait = p.mode === 'walk' || p.mode === 'run';
   const authoredGait = gait && !!rig.person;
+  const playerStride = authoredGait && !p.jump && p.grounded && p.travel !== undefined;
+  const strideK = playerStride ? 1 - Math.exp(-frameDt * (p.mode === 'run' ? 34 : 26)) : k;
   const seatTransition = peaceful && ((!gait && a.lower! <= -.1) || rig.cur.lower! <= -.22);
   let supportK = k;
   if (seatTransition) {
@@ -1380,11 +1394,14 @@ export function poseRig(rig: Rig, p: Pose, dt: number) {
     // Partial and older rigs acquire a new channel at its neutral angle on first use.
     const previous = rig.cur[key] ?? 0;
     const supported = seatTransition && ['lower', 'legL', 'legR', 'kneeL', 'kneeR'].includes(key);
-    let change = (a[key]! - previous) * (supported ? supportK : k);
+    // A running foot bears weight for only a fraction of a second. The upper-body blend
+    // otherwise consumes nearly half its contact time, visibly dragging the boot on starts and turns.
+    const strideJoint = playerStride && (key === 'lower' || key.startsWith('leg') || key.startsWith('knee') || key.startsWith('sole') || key.startsWith('step'));
+    let change = (a[key]! - previous) * (supported ? supportK : strideJoint ? strideK : k);
     // Peaceful transitions cannot fling a shoulder or drop the hips when a task changes.
     // Attack/hurt/death timing and the imported hero controller retain their own authored response.
     if (peaceful) {
-      const limit = (key === 'lower' ? (authoredGait ? 1.7 : .72) : key.startsWith('head') ? 1.5 : authoredGait ? 10 : 4) * frameDt;
+      const limit = (key === 'lower' ? (authoredGait ? 1.7 : .72) : key.startsWith('head') ? 1.5 : strideJoint ? 18 : authoredGait ? 10 : 4) * frameDt;
       change = Math.max(-limit, Math.min(limit, change));
     }
     rig.cur[key] = previous + change;

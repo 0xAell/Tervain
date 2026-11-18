@@ -61,6 +61,18 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('loading screen recovery and accessible work counts', () => {
+  it('keeps the landing directions available as text and releases the map backing store at handoff', () => {
+    const screen = new LoadingScreen();
+    screen.start({ mode: 'initial', landfall: true });
+    const root = fixture(screen.el);
+    expect(root.textContent).toContain('The hull lies north along the beach');
+    const chart = root.find(element => element.tagName === 'CANVAS')!;
+    expect(chart.attributes.get('aria-hidden')).toBe('true');
+    Object.assign(chart, { width: 1800, height: 1200 });
+    screen.finish();
+    expect(chart).toMatchObject({ width: 0, height: 0 });
+  });
+
   it('announces the current phase and exposes actual counts only while they are known', () => {
     const screen = new LoadingScreen();
     screen.start({ mode: 'initial' });

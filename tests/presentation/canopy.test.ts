@@ -292,6 +292,11 @@ describe('cluster canopy (A134)', () => {
       expect(hit.distanceTo(q)).toBeCloseTo(expected, 9);
       // With a limit, a point beyond it finds nothing and one within finds the same.
       expect(anchor(q, hit, 1.5)).toBe(expected <= 1.5 ? expected : Infinity);
+      const support = anchor(q, hit, 1.5, 0.6);
+      if (expected <= 0.6) {
+        expect(support).toBeLessThanOrEqual(0.6);
+        expect(hit.distanceTo(q)).toBeCloseTo(support, 9);
+      } else expect(support).toBe(expected <= 1.5 ? expected : Infinity);
     }
   });
 });

@@ -114,7 +114,7 @@ vi.mock('../../src/presentation/sourceRockPile', () => ({ loadSourceRockPile: as
   await modelFamily('stone', 1, progress); return {};
 }, buildSourceRockPiles: () => owner('rocks') }));
 vi.mock('../../src/presentation/forestLandmarks', () => ({ buildForestLandmarks: () => ({ ...owner('landmarks'), stats: {} }) }));
-vi.mock('../../src/presentation/flora', () => ({ buildFlora: () => ({ ...owner('forest'), initializeFloor() {}, physicalWood: [] }) }));
+vi.mock('../../src/presentation/flora', () => ({ buildFloraAsync: async () => ({ ...owner('forest'), initializeFloor() {}, physicalWood: [] }) }));
 vi.mock('../../src/presentation/scatter', () => ({ buildScatter: () => owner('scatter') }));
 vi.mock('../../src/presentation/ambient', () => ({ buildAmbient: () => owner('ambient') }));
 vi.mock('../../src/presentation/groundcover', () => ({ buildGroundcover: () => owner('groundcover') }));

@@ -86,7 +86,8 @@ describe('original coastal dressing render contract', () => {
           if (batch.name === 'scatter:rock') rock += triangles; else small += triangles;
         }
       }
-      expect([rock, small]).toEqual([117800, 3460]);
+      // Wet shingle and fronds travel in the vertex-colour batch; only larger solid rock needs the mineral shader.
+      expect([rock, small]).toEqual([41640, 26280]);
     } finally { view.dispose?.(); }
   });
 

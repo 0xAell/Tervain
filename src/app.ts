@@ -32,7 +32,7 @@ import { SpeechDirector } from './presentation/speech';
 import { eventSting, fightWon, threatFrom } from './core/rules/music';
 import { seaBedNearness, windTone } from './core/rules/soundscape';
 import { CameraRig } from './presentation/cameraRig';
-import { NearFade, heroNearCoverage } from './presentation/nearFade';
+import { NearFade } from './presentation/nearFade';
 import { Grade, WORLD_EXPOSURE } from './presentation/grade';
 import { MENU_LOOK } from './core/content/look';
 import { buildInteractables, type Interactable } from './presentation/interactions';
@@ -437,6 +437,7 @@ export class App {
     this.worldBuilding = true;
     this.worldBuildFailed = false;
     // Keep staged actors owned until the new world adopts them, including on a failed build.
+    const previousWorld = this.world;
     const stagedCast = new THREE.Scene();
     const npcs: NpcActor[] = [];
     const enemies: EnemyActor[] = [];
@@ -459,7 +460,6 @@ export class App {
           yield;
         }
       })());
-      await Promise.all([this.player.rig.person?.ready, ...npcs.map(npc => npc.rig.person?.ready), ...enemies.map(enemy => enemy.rig.person?.ready)]);
       const { WorldScene } = await import('./presentation/world');
       this.world = await WorldScene.create(this.game.state, structuredClone(this.settings), undefined, undefined, {
         // Sculpt the wildlife after the player reaches the ground.
@@ -471,6 +471,9 @@ export class App {
           : { phase: p.phase, completed: p.completed, total: p.total, detail: p.label }),
       });
       this.worldDisposed = false;
+      // The painters run in workers while terrain, rooms and navigation are built. Only the
+      // handoff to the renderer needs finished sheets, including when loading a populated save.
+      await Promise.all([this.player.rig.person?.ready, ...npcs.map(npc => npc.rig.person?.ready), ...enemies.map(enemy => enemy.rig.person?.ready)]);
       if (this.rebuildPropPoses) this.world.physics.restore(this.rebuildPropPoses);
       this.world.scene.add(this.player.group);
       this.hunting.attach();
@@ -494,6 +497,9 @@ export class App {
       this.worldBuildFailed = true;
       // Settle late painters before releasing their targets, so recovery cannot leak replaced textures.
       await sheetsSettled();
+      // A failure after construction can leave part of the cast in the world. Dispose both
+      // owners and keep the last good prop snapshot for the next attempt.
+      if (this.world !== previousWorld) this.disposeWorld();
       disposeSceneResources(stagedCast, () => {}, [this.player.group]);
       throw error;
     } finally {
@@ -611,7 +617,7 @@ export class App {
     this.game.replaceState(state);
     const run = async () => {
       if (this.initialJourneyLoading) return;
-      this.pauseForWorldBuild(true);
+      this.pauseForWorldBuild(true, fromLoad === null);
       this.initialJourneyLoading = true;
       try {
         prefetchJourney(this.settings.quality, { deferFurniture: true });
@@ -686,7 +692,7 @@ export class App {
     return this.worldBuilding || this.worldBuildFailed || this.initialJourneyLoading || !!this.qualityReload;
   }
 
-  private pauseForWorldBuild(initial = false) {
+  private pauseForWorldBuild(initial = false, landfall = false) {
     this.hunting.reset();
     this.audio?.setWildlifeActive(false);
     this.world?.animals?.setRunning(false);
@@ -700,7 +706,7 @@ export class App {
       this.loadingMenuOnly = menuOnly;
       this.loadingScreen = new LoadingScreen(this.loadingEl, menuOnly ? ['prepare', 'graphics'] : undefined);
     }
-    this.loadingScreen?.start({ mode: initial || !this.world ? 'initial' : 'rebuild', phase: 'prepare', tip: 'hunt' });
+    this.loadingScreen?.start({ mode: initial || !this.world ? 'initial' : 'rebuild', phase: 'prepare', tip: 'hunt', landfall });
     this.loadingEl.classList.remove('off');
     this.loadingEl.setAttribute('role', 'status');
     this.loadingEl.removeAttribute('aria-label');
@@ -975,6 +981,7 @@ export class App {
     // Day or night is judged afresh in the new run: a stale night spoke a wrong "dawn" on arrival (A95 scout).
     this.wasNight = null;
     this.inventoryNotesChanged = false;
+    this.world?.sandTracks?.reset();
     this.hunting.reset();
     this.titleEl.classList.remove('on');
     this.panels.closeAll();
@@ -1341,7 +1348,7 @@ export class App {
       this.cam.follow(dt, this.player.x, this.player.y, this.player.z, this.world.terrain, this.world.colliders, this.settings.reducedMotion, this.player.shake, CAMERA.pivotHeight);
       this.cam.clearWater((x, z) => this.world.water.world.surfaceAt(x, z), this.player.swimming);
       // Playtest 7: pulled in against a tree, the lens must never sit inside his arm or shoulder; he dithers out first.
-      const coverage = this.cam.bodyVisible ? (this.cam.manual ? 1 : heroNearCoverage(this.cam.camera.position, this.player)) : 0;
+      const coverage = this.cam.bodyCoverage;
       this.heroFade.apply(this.player.group, coverage);
     }
 
@@ -2361,6 +2368,7 @@ export class App {
       },
       onDeath: () => this.onPlayerDeath(),
       onBoundary: () => this.hud.toast(S('toast.boundary')),
+      onSandStep: (x: number, feet: number, z: number, yaw: number) => this.world.sandTracks.stamp(this.world.terrain, x, feet, z, yaw),
     };
   }
 

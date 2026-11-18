@@ -1,6 +1,7 @@
 import { S } from '../../core/content/strings';
 import { clear, h } from './dom';
 import { mountJourneyBell } from './journeyBell';
+import { mountStrandChart } from './strandChart';
 import { LOADING_PHASES, LoadingProgress } from './loadingProgress';
 import type { LoadingPhase, LoadingUpdate } from './loadingProgress';
 
@@ -11,6 +12,7 @@ export interface LoadingStart {
   mode: LoadingMode;
   phase?: LoadingPhase;
   tip?: LoadingTip;
+  landfall?: boolean;
 }
 
 export interface LoadingFailure {
@@ -39,7 +41,7 @@ export class LoadingScreen {
   private bar!: HTMLElement;
   private segments: HTMLElement[] = [];
   private failed = false;
-  private stopBell?: () => void;
+  private stopIllustration?: () => void;
   private retry: HTMLButtonElement | null = null;
   private controls: HTMLButtonElement[] = [];
   private errorCard: HTMLElement | null = null;
@@ -69,12 +71,17 @@ export class LoadingScreen {
     this.el.removeAttribute('aria-labelledby');
     this.el.setAttribute('aria-label', S(`loading.title.${this.mode}`));
     this.el.setAttribute('aria-busy', 'true');
-    this.stopBell?.();
+    this.stopIllustration?.();
     clear(this.el);
-    const bell = h('canvas', { class: 'journey-bell', 'aria-hidden': 'true' });
-    this.el.append(bell);
-    this.stopBell = mountJourneyBell(bell, options.mode === 'rebuild');
-    const title = h('h1', { class: 'loading-title', id: `${this.id}-title` }, S('game.title'));
+    const illustration = h('canvas', { class: 'journey-bell', 'aria-hidden': 'true' });
+    this.el.append(illustration);
+    const stop = options.landfall ? mountStrandChart(illustration) : mountJourneyBell(illustration, options.mode === 'rebuild');
+    this.stopIllustration = () => {
+      stop();
+      // The hidden loading screen stays mounted during play. Release its backing store now.
+      illustration.width = illustration.height = 0;
+    };
+    const title = h('h1', { class: 'loading-title', id: `${this.id}-title` }, S(options.landfall ? 'place.shore' : 'game.title'));
     this.status = h('p', { class: 'loading-status', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' });
     this.detail = h('p', { class: 'loading-detail' });
     this.count = h('span', { class: 'loading-count', 'aria-hidden': 'true' });
@@ -82,10 +89,10 @@ export class LoadingScreen {
     this.segments = this.progress.phases.map(() => h('span', { class: 'loading-segment', 'aria-hidden': 'true' }, h('span', { class: 'loading-fill' })));
     this.bar.append(...this.segments);
     this.el.append(h('section', { class: 'loading-page', 'aria-labelledby': `${this.id}-title` },
-      h('header', { class: 'loading-heading' }, h('p', { class: 'loading-kicker' }, S(`loading.title.${this.mode}`)), title),
+      h('header', { class: 'loading-heading' }, h('p', { class: 'loading-kicker' }, S(options.landfall ? 'menu.new' : `loading.title.${this.mode}`)), title),
       h('div', { class: 'loading-work' }, h('div', { class: 'loading-status-line' }, this.status, this.count), this.bar, this.detail),
       h('aside', { class: 'loading-tip' }, h('p', { class: 'loading-tip-label' }, S('loading.tip.label')),
-        h('p', {}, S(`loading.tip.${options.tip ?? 'explore'}`)))));
+        h('p', {}, S(options.landfall ? 'loading.tip.landfall' : `loading.tip.${options.tip ?? 'explore'}`)))));
     this.render();
   }
 
@@ -97,8 +104,8 @@ export class LoadingScreen {
 
   /** Returns Retry for the app's existing controller navigation and held-confirmation guard. */
   fail(options: LoadingFailure): HTMLButtonElement | null {
-    this.stopBell?.();
-    this.stopBell = undefined;
+    this.stopIllustration?.();
+    this.stopIllustration = undefined;
     this.failed = true;
     this.el.classList.remove('off');
     this.el.classList.add('loading-failed');
@@ -156,8 +163,8 @@ export class LoadingScreen {
   }
 
   finish(restoreFocus = true) {
-    this.stopBell?.();
-    this.stopBell = undefined;
+    this.stopIllustration?.();
+    this.stopIllustration = undefined;
     this.el.classList.add('off');
     this.el.setAttribute('aria-busy', 'false');
     this.el.removeAttribute('role');
