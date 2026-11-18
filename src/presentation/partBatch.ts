@@ -28,6 +28,12 @@ export interface PartBatchOptions {
   copyMaterials: boolean;
   /** Which meshes under the holders to batch (all by default). */
   include?: (mesh: THREE.Mesh) => boolean;
+  /**
+   * Let each batched part's own geometry go once its batch holds a copy, for parts nothing else reads (the settlement's
+   * shells, drawn only by their batches for as long as the world stands). A released part keeps its name, place and
+   * bounds and an empty geometry, and stays hidden; a geometry a mesh left single shares is kept.
+   */
+  release?: boolean;
 }
 
 /**
@@ -156,6 +162,26 @@ export function batchParts(holders: readonly THREE.Object3D[], parent: THREE.Obj
     depthMaterials.push(depth);
   }
   if (!meshes.length) return null;
+  if (options.release) {
+    // What a mesh left single draws stays, shared or not.
+    const kept = new Set<THREE.BufferGeometry>();
+    for (const holder of holders) holder.traverse((object) => {
+      const mesh = object as THREE.Mesh;
+      if (mesh.isMesh && !mesh.userData.batchedInto && mesh.geometry) kept.add(mesh.geometry);
+    });
+    for (const mesh of claimed) {
+      const geometry = mesh.geometry;
+      if (!mesh.userData.batchedInto || kept.has(geometry)) continue;
+      if (!geometry.boundingSphere) geometry.computeBoundingSphere();
+      if (!geometry.boundingBox) geometry.computeBoundingBox();
+      const empty = new THREE.BufferGeometry();
+      empty.boundingSphere = geometry.boundingSphere;
+      empty.boundingBox = geometry.boundingBox;
+      mesh.geometry = empty;
+      mesh.userData.batchReleased = true;
+      geometry.dispose();
+    }
+  }
   // Anchors whose parts all stayed single need no following.
   const followed = [...anchors.values()].filter((anchor) => anchor.parts.length > 0);
   const moved = new Set<THREE.BatchedMesh>(), now = new THREE.Matrix4();
