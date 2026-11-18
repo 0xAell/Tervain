@@ -104,7 +104,7 @@ export interface FoliageInstall {
 /** What a geometry offers the foliage shaders: its branch hierarchy and baked crown light, from its vertex attributes. */
 export function foliageGeometryFeatures(geometry: THREE.BufferGeometry | null | undefined): Pick<FoliageInstall, 'hierarchical' | 'bakedCrown'> {
   if (!geometry) return {};
-  return { hierarchical: !!geometry.getAttribute('_wind') && !!geometry.getAttribute('_pivot'), bakedCrown: !!geometry.getAttribute('color') };
+  return { hierarchical: !!geometry.getAttribute('_wind') && !!geometry.getAttribute('_pivot'), bakedCrown: !!geometry.getAttribute('color') && geometry.userData.tervainVertexAlbedo !== true };
 }
 
 /**

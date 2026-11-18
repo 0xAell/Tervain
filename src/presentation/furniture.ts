@@ -13,7 +13,7 @@ import { roughnessFloor } from './matte';
 import { clutterGeometry, clutterMaterial, clutterOnPiece, firewoodGeometry, firewoodMaterial, hungGeometry, hungMaterial, pegRailGeometry, type ClutterKind, type HungKind } from './clutter';
 
 /**
- * The rooms' furniture, drawn (A66): the prepared Meshy pieces in public/models/furniture, placed as world/furniture.ts
+ * The rooms' furniture, drawn (A66): the original joinery and household pieces in public/models/craft/furniture, placed as world/furniture.ts
  * places them (the colliders use the same placements). One instanced mesh per kind of piece. A room is drawn only while
  * it can be seen into: the camera is inside it, or near it while its door stands open or its windows are in sight (A79).
  * Since 0.0.38 a room's furniture fades in and out with the dither the trees fade with, over the last metres of its range
@@ -30,7 +30,7 @@ const DRAW_FADE = 4;
 /** Every piece stays under this many triangles. */
 export const FURNITURE_TRIANGLE_LIMIT = 6000;
 
-const url = (file: string) => modelAssetUrl(`furniture/${file}`, import.meta.env.BASE_URL, document.baseURI);
+const url = (file: string) => modelAssetUrl(`craft/furniture/${file}`, import.meta.env.BASE_URL, document.baseURI);
 
 const fetchChecked = (file: string, bytes?: number, sha256?: string): Promise<ArrayBuffer> =>
   downloadAsset(url(file), { label: `Furniture ${file}`, bytes, sha256, holds: 'data' });

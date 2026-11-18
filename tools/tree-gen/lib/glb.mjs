@@ -6,7 +6,7 @@ const pad4 = (n) => (n + 3) & ~3;
  * materials: glTF material objects (texture refs by index into `textures`)
  * textures: [{ name, mimeType, data: Buffer, sampler: 'repeat'|'clamp', webp: bool }]
  */
-export function writeGlb({ parts, materials, textures = [], assetExtras }) {
+export function writeGlb({ parts, materials, textures = [], assetExtras, generator = 'Tervain tools/tree-gen' }) {
   const chunks = [], views = [], accessors = [], meshes = [], nodes = [], images = [], texs = [];
   let length = 0;
   const addView = (buf, target) => {
@@ -26,8 +26,8 @@ export function writeGlb({ parts, materials, textures = [], assetExtras }) {
     attrs.NORMAL = addAccessor(addView(Buffer.from(Float32Array.from(b.nrm).buffer), 34962), 5126, vc, 'VEC3');
     attrs.TEXCOORD_0 = addAccessor(addView(Buffer.from(Float32Array.from(b.uv).buffer), 34962), 5126, vc, 'VEC2');
     attrs.COLOR_0 = addAccessor(addView(Buffer.from(Uint8Array.from(b.col)), 34962), 5121, vc, 'VEC4', { normalized: true });
-    attrs._WIND = addAccessor(addView(Buffer.from(Float32Array.from(b.wind).buffer), 34962), 5126, vc, 'VEC4');
-    attrs._PIVOT = addAccessor(addView(Buffer.from(Float32Array.from(b.pivot).buffer), 34962), 5126, vc, 'VEC3');
+    if (b.wind?.length) attrs._WIND = addAccessor(addView(Buffer.from(Float32Array.from(b.wind).buffer), 34962), 5126, vc, 'VEC4');
+    if (b.pivot?.length) attrs._PIVOT = addAccessor(addView(Buffer.from(Float32Array.from(b.pivot).buffer), 34962), 5126, vc, 'VEC3');
     const big = vc > 65535, idx = big ? Uint32Array.from(b.idx) : Uint16Array.from(b.idx);
     const indices = addAccessor(addView(Buffer.from(idx.buffer), 34963), big ? 5125 : 5123, idx.length, 'SCALAR');
     meshes.push({ name: part.name, primitives: [{ attributes: attrs, indices, material: part.material, mode: 4, ...(part.extras ? { extras: part.extras } : {}) }] });
@@ -41,7 +41,7 @@ export function writeGlb({ parts, materials, textures = [], assetExtras }) {
     if (t.webp) { usesWebp = true; texs.push({ name: t.name, sampler, extensions: { EXT_texture_webp: { source: i } } }); } else texs.push({ name: t.name, sampler, source: i });
   });
   const json = {
-    asset: { version: '2.0', generator: 'Tervain tools/tree-gen', ...(assetExtras ? { extras: assetExtras } : {}) },
+    asset: { version: '2.0', generator, ...(assetExtras ? { extras: assetExtras } : {}) },
     ...(usesWebp ? { extensionsUsed: ['EXT_texture_webp'], extensionsRequired: ['EXT_texture_webp'] } : {}),
     scene: 0, scenes: [{ name: 'Scene', nodes: nodes.map((_, i) => i) }], nodes, meshes, materials,
     ...(textures.length ? { textures: texs, images, samplers } : {}),

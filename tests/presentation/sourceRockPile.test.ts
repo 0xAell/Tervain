@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -16,7 +15,6 @@ import { registerFloraColliders as registerPlantedColliders } from '../../src/co
 import { PLANTED_FOREST } from '../../src/core/world/plantedForest';
 import { ROCK_PILE_REACH } from '../../src/core/world/rockPiles';
 import { rockPileBinary, rockPileTemplate } from './rockPileFixture';
-import { bufferViewBytes } from './glbBufferView';
 
 let template: GLTF;
 beforeAll(async () => { template = await rockPileTemplate(); });
@@ -37,39 +35,16 @@ function fixture(quality: 'low' | 'medium' | 'high' = 'high') {
 }
 
 
-/** Width and height of an embedded PNG or JPEG (data maps may be either since the texture optimisation). */
-function imageSize(data: Buffer, mimeType: string): [number, number] {
-  if (mimeType === 'image/png') return [data.readUInt32BE(16), data.readUInt32BE(20)];
-  for (let at = 2; at + 9 < data.length;) {
-    const marker = data[at + 1]!, length = data.readUInt16BE(at + 2);
-    if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) return [data.readUInt16BE(at + 7), data.readUInt16BE(at + 5)];
-    at += 2 + length;
-  }
-  throw new Error(`No image size in ${mimeType}.`);
-}
-describe('owner rock pile derivative', () => {
-  it('matches the recorded runtime hash and retains every original geometry buffer byte under the complete model budget', async () => {
-    const { bytes, json, binary } = rockPileBinary();
-    const receipt = JSON.parse(readFileSync(new URL('../../docs/engineering/rock-pile-assets.json', import.meta.url), 'utf8'));
+describe('the original coastal schist outcrop', () => {
+  it('carries one closed set of bedding planes, mineral colour and a local grain texture', () => {
+    const { bytes, json } = rockPileBinary();
     expect(bytes.readUInt32LE(8)).toBe(bytes.length);
-    expect(createHash('sha256').update(bytes).digest('hex')).toBe(receipt.runtime.sha256);
-    expect(receipt.runtime.triangles).toBe(5220); expect(receipt.source.triangles).toBe(5220);
-    expect(bytes.length).toBeLessThan(receipt.source.bytes * 0.25);
-    for (const record of receipt.runtime.geometryBufferFidelity) {
-      // The geometry is meshopt-compressed losslessly: its decoded bytes are the recorded ones.
-      const view = json.bufferViews[record.runtimeBufferView], data = await bufferViewBytes(json, binary, record.runtimeBufferView);
-      expect(view.byteLength).toBe(record.bytes);
-      expect(createHash('sha256').update(data).digest('hex')).toBe(record.sha256);
-    }
-    const materials = json.materials;
-    expect(materials).toHaveLength(1); expect(materials[0].emissiveTexture).toBeUndefined();
-    expect(materials[0].pbrMetallicRoughness.metallicFactor).toBe(0);
-    expect(materials[0].pbrMetallicRoughness.roughnessFactor).toBe(1);
-    expect(json.images).toHaveLength(3);
-    for (let i = 1; i < json.images.length; i++) {
-      const view = json.bufferViews[json.images[i].bufferView], data = binary.subarray(view.byteOffset, view.byteOffset + view.byteLength);
-      expect(imageSize(data, json.images[i].mimeType)).toEqual(i === 1 ? [1024, 1024] : [512, 512]);
-    }
+    expect(json.asset.generator).toBe('Tervain tools/craft-environment/build.mjs');
+    const primitive = json.meshes[0].primitives[0];
+    expect(json.accessors[primitive.indices].count / 3).toBe(740);
+    expect(json.accessors[primitive.attributes.COLOR_0].count).toBe(json.accessors[primitive.attributes.POSITION].count);
+    expect(json.materials).toHaveLength(1); expect(json.materials[0].pbrMetallicRoughness.metallicFactor).toBe(0);
+    expect(json.images[0].bufferView).toBeTypeOf('number'); expect(json.images[0].uri).toBeUndefined();
   });
 
   it('adds a modest deterministic set without replacing canonical rocks, filling the arrival, or overlapping existing tree/route claims', () => {
@@ -97,14 +72,14 @@ describe('owner rock pile derivative', () => {
         expect(f.module.group.children).toHaveLength(f.module.contacts.length);
         for (const object of f.module.group.children) {
           const mesh = object as THREE.Mesh;
-          expect(assertNaturalModelBudget('Rendered source pile', [mesh.geometry])).toBe(5220);
+          expect(assertNaturalModelBudget('Rendered source pile', [mesh.geometry])).toBe(740);
           expect(mesh.scale.x).toBe(mesh.scale.y); expect(mesh.scale.y).toBe(mesh.scale.z);
           expect(mesh.rotation.x).toBe(0); expect(mesh.rotation.z).toBe(0);
           expect((mesh.material as THREE.MeshStandardMaterial).metalness).toBe(0);
           expect((mesh.material as THREE.MeshStandardMaterial).roughness).toBe(1);
           expect((mesh.material as THREE.MeshStandardMaterial).emissive.getHex()).toBe(0);
         }
-        expect(f.module.stats!()).toEqual({ sourceRockPiles: transforms.length, sourceRockModelTris: 5220, sourceRockTris: transforms.length * 5220 });
+        expect(f.module.stats!()).toEqual({ sourceRockPiles: transforms.length, sourceRockModelTris: 740, sourceRockTris: transforms.length * 740 });
       } finally { f.module.dispose!(); }
     }
   });

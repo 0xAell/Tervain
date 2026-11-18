@@ -1,3 +1,4 @@
+import { playableModel } from '../src/presentation/assets/playableModels.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Plugin } from 'vite';
@@ -59,6 +60,25 @@ export function finalizePagesModelArtifact(root: string, outDir: string): { remo
   return { removed, bytes };
 }
 
+/** For standalone builds Vite copies public/. Keep historical model fixtures out of the playable artifact. */
+export function omitArchiveModels(root: string, outDir: string): void {
+  const models = pagesModelArtifactTarget(root, outDir);
+  if (!fs.existsSync(models)) return;
+  function filter(dir: string) {
+    for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+      const file = path.join(dir, item.name);
+      if (item.isSymbolicLink()) throw new Error('The model artifact must not contain symlinks.');
+      if (item.isDirectory()) {
+        filter(file);
+        if (!fs.readdirSync(file).length) fs.rmdirSync(file);
+      } else if (!playableModel(path.relative(models, file).split(path.sep).join('/'))) {
+        fs.unlinkSync(file);
+      }
+    }
+  }
+  filter(models);
+}
+
 export function hostedModelDelivery(modelBase: string): Plugin {
   let root = '', outDir = '';
   return {
@@ -69,7 +89,7 @@ export function hostedModelDelivery(modelBase: string): Plugin {
       outDir = config.build.outDir;
     },
     closeBundle() {
-      if (!modelBase) return;
+      if (!modelBase) return omitArchiveModels(root, outDir);
       const { removed, bytes } = finalizePagesModelArtifact(root, outDir);
       console.info(`Original models: ${removed} bytes served from the build commit; Pages artifact: ${bytes} bytes.`);
     },

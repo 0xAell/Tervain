@@ -10,7 +10,7 @@ import { modelAssetUrl } from './assets/modelUrl';
 import { withModelLoadSlot, type ModelLoadProgress } from './assets/modelLoadQueue';
 import { downloadAsset } from './assets/download';
 
-export const PINE_FILES = ['solitary-pine-under-10k.glb', 'solitary-pine-mid.glb', 'solitary-pine-far.glb'] as const;
+export const PINE_FILES = ['craft/shore-pine-near.glb', 'craft/shore-pine-mid.glb', 'craft/shore-pine-far.glb'] as const;
 export type PineSpecies = 'pine' | 'fir' | 'shorepine';
 export type PineTemplates = readonly [ModelGltf, ModelGltf, ModelGltf];
 const pending = new Map<string, Promise<ModelGltf>>();
@@ -93,9 +93,6 @@ function parts(gltf: ModelGltf): Parts {
   return { wood: complete.wood, leaf: leafPart };
 }
 
-/** Far-model needle lift onto the near needles' measured mean albedo (see createPineForest). */
-export const PINE_FAR_LEAF_LIFT = new THREE.Color(2.7, 3.3, 2.55);
-
 const PROFILE: Record<PineSpecies, { height: number }> = {
   pine: { height: 25 }, fir: { height: 22 }, shorepine: { height: 8.5 },
 };
@@ -166,7 +163,7 @@ export function createPineForest(templates: PineTemplates): PineForest {
       const texture = value as THREE.Texture;
       fields[key] = cloneTexture(texture);
     }
-    material.vertexColors = false;
+
     material.alphaToCoverage = material.alphaTest > 0;
     ownedMaterials.add(material);
     return material;
@@ -184,9 +181,6 @@ export function createPineForest(templates: PineTemplates): PineForest {
   }
   // Needle UVs match near; remeshed mid wood has its own baked bark atlas.
   const materials = [nearMaterials, { wood: cloneMaterial(source[1]!.wood!.material), leaf: nearMaterials.leaf }, { wood: source[2]!.wood ? cloneMaterial(source[2]!.wood.material) : null, leaf: cloneMaterial(source[2]!.leaf.material) }];
-  // Playtest 7: the far model's baked needle planes average a linear albedo of 0.04 against the near needles' 0.16, so
-  // a pine went dark as it handed over to its far model. Lifted to match the near model's rendered crown at dusk.
-  materials[2]!.leaf.color.multiply(PINE_FAR_LEAF_LIFT);
   const bark = barkTextures('pine', 1024);
   const detail = { map: cloneTexture(bark.map) as THREE.DataTexture, surface: cloneTexture(bark.surface) as THREE.DataTexture };
   for (const level of materials) if (level.wood) installBarkDetail(level.wood, detail);

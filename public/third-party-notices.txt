@@ -9,7 +9,8 @@ license Tervain's music, models, logos, faction identity or other media.
 
 3D model credits and per-asset permission records: model-licenses.html and
 model-licenses.json, included beside this notice in the production build.
-Original-game imported models were created with Meshy (https://www.meshy.ai/).
+Historical prototype model records follow. The 0.1.1 game uses original
+geometry. The earlier imported models were created with Meshy (https://www.meshy.ai/).
 The resident rigs, the resident motion library, the furniture and the
 wanderer's body were generated for Tervain through its own Meshy account
 under Meshy Pro, a paid plan (task ids recorded), and follow Meshy's paid-plan Customer Output terms
@@ -50,12 +51,13 @@ their own terms. See package manifests, lockfiles, ASSETS-LICENSE.md, and the
 dated provenance records for applicable notices and exceptions.
 
 Warpkeep names, logos and the Hegemony identity are not granted by this notice.
-Alderweir uses instrument samples from Versilian Studios Community Orchestra 2,
-Community Edition (CC0 1.0). Original chamber music, synthesized river and
-woodland ambience, and interaction sounds are documented in the source record.
+The archived 0.1.0 Alderweir soundtrack used instrument samples from Versilian Studios Community Orchestra 2,
+Community Edition (CC0 1.0). Its original chamber music, synthesized river and
+woodland ambience, and interaction sounds are documented in its historical source record.
+Playable audio since 0.1.1 is original Tervain synthesis; see world-audio-licenses.html.
 https://github.com/sgossner/VSCO-2-CE/tree/440300901dfe9275fd84e0b7763af1f8443ae62e
 
-The approved menu emblem and The Sovereign's Oath are used under the project
+The former menu emblem and The Sovereign's Oath were used under the project
 owner's specific instruction; neither is assigned an open-content license here.
 Their source records are docs/engineering/menu-assets.json and
 docs/engineering/menu-audio-assets.json in the Tervain source repository.

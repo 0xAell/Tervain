@@ -22,9 +22,8 @@ export interface AnimalDefinition {
 }
 
 /**
- * The pace each animal walks and runs at (m/s), by model id. These are the speeds the game plays. They were measured
- * from the strides of the supplied models, so the drawn feet do not slide: whoever draws an animal plays its stride
- * at the pace it is given, and a port gives its own animations the same paces.
+ * Stable travel speeds in metres per second. The authored gaits use these paces to set each leg’s sweep.
+ * Keeping the original IDs and speeds also preserves the movement of saved herds.
  */
 const PACE: Readonly<Record<string, readonly [walk: number, run: number]>> = {
   '1005232739': [0.417, 1.650], '1005232726': [0.419, 1.691],
@@ -40,7 +39,7 @@ const entry = (species: AnimalSpecies, id: string, habitat: AnimalHabitat, x: nu
   id, species, file: `${species}-${id}.glb`, habitat, home: { x, z }, roam, walk: PACE[id]![0], run: PACE[id]![1], ...(seated ? { seated: true } : {}),
 });
 
-/** All supplied animals have a persistent home, including on the lowest presentation preset.
+/** All animals have a persistent home, including on the lowest presentation preset.
  * Homes flank travelled routes; the eastern ochre woods are the warmer habitat for the two big cats. */
 export const ANIMALS: readonly AnimalDefinition[] = [
   entry('tiger', '1005232739', 'warm-woodland', 107, 22, 19),
@@ -79,7 +78,7 @@ export const ANIMAL_SENSES: Record<AnimalSpecies, { notice: number; flee: number
 /** An animal's home is sought for its drawn footprint and this much more each way (m). */
 export const ANIMAL_HOME_MARGIN = 0.14;
 
-/** How long an animal holds a gesture before it moves on (s). The supplied models' clips run exactly this long, and a port's montages keep it. */
+/** How long an animal holds a gesture before it moves on (s). The valley's authored gesture clips use the same durations. */
 export const ANIMAL_GESTURE_SECONDS: Readonly<Record<'Alert' | 'Call' | 'Groom', number>> = { Alert: 2, Call: 4, Groom: 4 };
 
 /** How far each kind's call carries (m): an animal calls only when someone is within it, and the call is heard out to it. */

@@ -20,7 +20,7 @@ const params = new URLSearchParams(location.search);
 // Keep each sheet's pixels so they can be shown and saved (`people.sheetUrl(id)`).
 personBuildOptions.keepSheetData = true;
 if (params.has('sheet')) personBuildOptions.sheetSize = Number(params.get('sheet'));
-if (params.get('painted') === '1') personBuildOptions.ignoreOverrides = true;
+personBuildOptions.ignoreOverrides = params.get('painted') === '1';
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(2, devicePixelRatio));
 renderer.setSize(innerWidth, innerHeight);

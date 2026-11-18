@@ -29,18 +29,18 @@ beforeEach(() => {
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe('shared required-model loading budget', () => {
-  it('holds the four-model budget through decoding across hero, forest and scenery, and retains cached models on rebuild', async () => {
+  it('holds the four-model budget through decoding across two forests and scenery, and retains cached models on rebuild', async () => {
     const fetcher = vi.fn(async (url: URL) => new Response(bytes(kindOf(url)))); vi.stubGlobal('fetch', fetcher);
     const decoding: (() => void)[] = []; let active = 0, peak = 0;
     parse.mockImplementation(buffer => {
       active++; peak = Math.max(peak, active);
       return new Promise(resolve => decoding.push(() => { active--; resolve(model(new DataView(buffer).getUint8(12))); }));
     });
-    const [{ loadMainHero }, { loadSolitaryPine }, { loadSourceRockPile }] = await Promise.all([
-      import('../../src/presentation/mainHero'), import('../../src/presentation/solitaryPine'), import('../../src/presentation/sourceRockPile'),
+    const [{ loadHeroPine }, { loadSolitaryPine }, { loadSourceRockPile }] = await Promise.all([
+      import('../../src/presentation/heroPine'), import('../../src/presentation/solitaryPine'), import('../../src/presentation/sourceRockPile'),
     ]);
-    // Five files: the wanderer, the pine's three levels and the rock pile. Four may be in hand at once.
-    const first = [loadMainHero(), loadSolitaryPine(), loadSourceRockPile()];
+    // Both pine families supply three levels, plus one rock pile. Four files may be in hand at once.
+    const first = [loadHeroPine(), loadSolitaryPine(), loadSourceRockPile()];
     await vi.waitFor(() => expect(decoding).toHaveLength(4));
     // HTTP bodies have completed. Slots remain occupied until their images and
     // geometry finish decoding, so scenery cannot create extra memory pressure.
@@ -50,10 +50,12 @@ describe('shared required-model loading budget', () => {
     expect(active).toBe(4);
     await vi.waitFor(() => expect(decoding).toHaveLength(4));
     decoding.splice(0).forEach(finish => finish());
+    await vi.waitFor(() => expect(decoding).toHaveLength(2));
+    decoding.splice(0).forEach(finish => finish());
     await Promise.all(first);
     expect(peak).toBe(4); expect(active).toBe(0);
-    await Promise.all([loadMainHero(), loadSolitaryPine(), loadSourceRockPile()]);
-    expect(fetcher).toHaveBeenCalledTimes(5); expect(parse).toHaveBeenCalledTimes(5);
+    await Promise.all([loadHeroPine(), loadSolitaryPine(), loadSourceRockPile()]);
+    expect(fetcher).toHaveBeenCalledTimes(7); expect(parse).toHaveBeenCalledTimes(7);
   });
 
   it('starts the stall allowance of a queued model when its download starts, and retries a dropped download in its own slot', async () => {
@@ -69,28 +71,28 @@ describe('shared required-model loading budget', () => {
       });
     });
     vi.stubGlobal('fetch', fetcher); parse.mockImplementation(async buffer => model(new DataView(buffer).getUint8(12)));
-    const [{ loadMainHero }, { loadSolitaryPine }, { loadSourceRockPile }, { DOWNLOAD_POLICY }] = await Promise.all([
-      import('../../src/presentation/mainHero'), import('../../src/presentation/solitaryPine'), import('../../src/presentation/sourceRockPile'),
+    const [{ loadHeroPine }, { loadSolitaryPine }, { loadSourceRockPile }, { DOWNLOAD_POLICY }] = await Promise.all([
+      import('../../src/presentation/heroPine'), import('../../src/presentation/solitaryPine'), import('../../src/presentation/sourceRockPile'),
       import('../../src/presentation/assets/download'),
     ]);
     DOWNLOAD_POLICY.backoffMs = [0, 0];
-    const hero = loadMainHero(), pine = loadSolitaryPine(), rock = loadSourceRockPile();
-    // The hero and three forest levels fill the four slots; the rock waits.
+    const pine = loadSolitaryPine(), rock = loadSourceRockPile(), secondPine = loadHeroPine();
+    // The three shore-pine levels plus the rock occupy all four initial slots.
     expect(fetcher).toHaveBeenCalledTimes(4);
     await vi.advanceTimersByTimeAsync(DOWNLOAD_POLICY.stallMs - 5_000);
-    // The hero's connection drops: it downloads again in the slot it already holds, so the rock still waits.
+    // The first pine drops its connection and retries in its own slot. The second family still waits.
     rejectFirst(new Error('connection closed'));
     await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(5));
-    expect(String(fetcher.mock.calls[4]![0])).toContain('/hero/');
-    waiting.splice(1, 3).forEach(finish => finish()); await pine;
-    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(6));
-    // The rock's allowance began when its download did, not when it was asked for.
-    const rockSignal = signals[5]!;
+    expect(String(fetcher.mock.calls[4]![0])).toBe(String(fetcher.mock.calls[0]![0]));
+    waiting.slice(1, 4).forEach(finish => finish());
+    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(8));
+    // The second family's timer starts when its download does.
+    const queuedSignal = signals[5]!;
     await vi.advanceTimersByTimeAsync(DOWNLOAD_POLICY.stallMs - 1_000);
-    expect(rockSignal.aborted).toBe(false);
-    waiting.splice(0).forEach(finish => finish());
-    await Promise.all([hero, rock]);
-    expect(parse).toHaveBeenCalledTimes(5);
+    expect(queuedSignal.aborted).toBe(false);
+    waiting.slice(4).forEach(finish => finish());
+    await Promise.all([pine, rock, secondPine]);
+    expect(parse).toHaveBeenCalledTimes(7);
     expect(vi.getTimerCount()).toBe(0);
   });
 });

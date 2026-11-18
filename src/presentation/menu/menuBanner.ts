@@ -2,18 +2,10 @@ import * as THREE from 'three';
 import { mulberry32 } from '../../core/world/noise';
 import { createWindCloth, type WindCloth } from '../menuWind';
 
-/**
- * The one Hegemony standard at the vigil (A24: exactly one banner, on a grounded post). The owner-approved emblem (A22) is
- * painted into the cloth unchanged in shape, but the cloth has lived outdoors: the dye has faded unevenly, rain has left
- * tide lines, the lower third is splashed with mud from the track, the hem is torn into uneven tails and there are a couple
- * of holes. The PNG itself is never modified; weathering happens on the canvas the emblem is drawn into.
- */
-
+/** The warden's field standard: three crossed ward stakes stitched into weathered wool. */
 export interface CanvasSource {
   /** A 2D canvas; in tests a stub. */
   canvas(w: number, h: number): HTMLCanvasElement;
-  /** Load an image by URL; resolves null on failure. */
-  image(url: string): Promise<CanvasImageSource | null>;
 }
 
 export const BANNER_W = 1.45;
@@ -176,18 +168,29 @@ export function weatherEmblemPixels(data: Uint8ClampedArray, w: number, h: numbe
  * Paint the emblem into the cloth: dulled, a little sun-bleached and rubbed thin, as if dyed and embroidered years ago.
  * With `thickness`, only its shape is painted, dark: embroidered thread stops the light that shines through the cloth.
  */
-export function paintBannerEmblem(c: Ctx2D, w: number, h: number, emblem: CanvasImageSource, iw: number, ih: number, scratch: HTMLCanvasElement, thickness = false) {
-  const size = Math.round(w * 0.74);
-  const eh = Math.round((size * ih) / Math.max(1, iw));
-  const x = Math.round((w - size) / 2);
-  const y = Math.round(h * 0.2);
-  scratch.width = size;
-  scratch.height = eh;
+function paintBannerEmblem(c: Ctx2D, w: number, h: number, scratch: HTMLCanvasElement, thickness = false) {
+  const size = 128;
+  scratch.width = scratch.height = size;
   const s = scratch.getContext('2d', { willReadFrequently: true })!;
-  s.clearRect(0, 0, size, eh);
-  s.drawImage(emblem, 0, 0, size, eh);
-  const img = s.getImageData(0, 0, size, eh);
-  weatherEmblemPixels(img.data, size, eh);
+  // A forked stake above a double chevron. All motifs use the same diagonal stitch angle.
+  s.fillStyle = '#ead7a6';
+  const patch = (points: readonly number[][]) => {
+    s.beginPath();
+    points.forEach(([px, py], i) => { if (i) s.lineTo(px!, py!); else s.moveTo(px!, py!); });
+    s.closePath(); s.fill();
+  };
+  patch([[61,24],[64,10],[67,24],[67,74],[64,80],[61,74]]);
+  for (const side of [-1,1]) {
+    s.save(); s.translate(64, 0); s.scale(side, 1);
+    patch([[4,57],[34,30],[37,22],[40,31],[8,66]]);
+    patch([[0,83],[42,46],[48,46],[48,50],[0,94]]);
+    patch([[0,101],[32,74],[40,74],[0,112]]);
+    s.fillStyle = '#b18d58';
+    patch([[15,87],[19,84],[19,97],[15,101]]);
+    s.restore();
+  }
+  const img = s.getImageData(0, 0, size, size);
+  weatherEmblemPixels(img.data, size, size);
   if (thickness) {
     for (let i = 0; i < img.data.length; i += 4) {
       img.data[i] = img.data[i + 1] = img.data[i + 2] = 20;
@@ -198,12 +201,13 @@ export function paintBannerEmblem(c: Ctx2D, w: number, h: number, emblem: Canvas
   c.save();
   // Only where the cloth still exists (not in the tears).
   c.globalCompositeOperation = 'source-atop';
-  c.drawImage(scratch, x, y);
+  const width = Math.round(w * .78), x = (w - width) / 2, y = h * .19;
+  c.drawImage(scratch, x, y, width, width);
   // Weave and grime over the print.
   if (!thickness) {
     c.globalAlpha = 0.2;
     c.fillStyle = '#1a0f10';
-    for (let yy = y; yy < y + eh; yy += 3) c.fillRect(x, yy, size, 1);
+    for (let yy = y; yy < y + width; yy += 3) c.fillRect(x, yy, width, 1);
   }
   c.restore();
 }
@@ -211,8 +215,6 @@ export function paintBannerEmblem(c: Ctx2D, w: number, h: number, emblem: Canvas
 export interface MenuBanner {
   group: THREE.Group;
   cloth: WindCloth;
-  /** True once the emblem is on the cloth. */
-  printed(): boolean;
   update(time: number, strength: number): void;
   dispose(): void;
 }
@@ -223,7 +225,6 @@ export interface MenuBanner {
  */
 export function buildMenuBanner(
   src: CanvasSource,
-  emblemUrl: string,
   groundAt: (x: number, z: number) => number,
   hardware: (group: THREE.Group, poleTop: THREE.Vector3, barY: number) => void,
 ): MenuBanner {
@@ -269,30 +270,16 @@ export function buildMenuBanner(
   group.add(cloth.mesh);
   hardware(group, poleTop, barY);
   void groundAt;
-  let printed = false;
-  let disposed = false;
-  void src.image(emblemUrl).then((img) => {
-    if (!img || disposed) return;
-    const iw = (img as HTMLImageElement).naturalWidth || (img as { width?: number }).width || 1;
-    const ih = (img as HTMLImageElement).naturalHeight || (img as { height?: number }).height || 1;
-    // Repaint from scratch so a late load never double-prints.
-    paintBannerCloth(c, TEX_W, TEX_H);
-    paintBannerEmblem(c, TEX_W, TEX_H, img, iw, ih, src.canvas(4, 4));
-    tex.needsUpdate = true;
-    paintBannerCloth(tc, TEX_W, TEX_H, 27, true);
-    paintBannerEmblem(tc, TEX_W, TEX_H, img, iw, ih, src.canvas(4, 4), true);
-    thin.needsUpdate = true;
-    printed = true;
-  });
+  const scratch = src.canvas(128, 128);
+  paintBannerEmblem(c, TEX_W, TEX_H, scratch);
+  paintBannerEmblem(tc, TEX_W, TEX_H, scratch, true);
   return {
     group,
     cloth,
-    printed: () => printed,
     update(time: number, strength: number) {
       cloth.update(time, strength);
     },
     dispose() {
-      disposed = true;
       cloth.mesh.geometry.dispose();
       mat.dispose();
       tex.dispose();

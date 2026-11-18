@@ -1,5 +1,7 @@
 # Animated animal calls — 0.0.13
 
+Historical production notes. The 0.1.1 soundtrack and sound effects are documented in [The Ford at First Light](ford-audio.md).
+
 Each animated tiger, lion, bear, wolf, cat, dog, boar and deer has two prepared calls. The sound comes from the actor that begins its Call gesture, using its current world position. The wildlife controller emits `wildlife:animal-call` with `{ id, species, position: { x, y, z }, callVariant: 1 | 2 }` after the visible gesture starts. Its staggered 28–70 second rest prevents synchronized calling.
 
 `AudioEngine` validates the event and gates it on a running, visible world with audible Master and Ambience levels. `SoundWorld` allows three animal voices at once, protects each actor against duplicate calls for 12 seconds, and applies the species' near distance and maximum hearing range. Web Audio uses the camera's real position and forward direction for panning. Distant calls lose high frequencies, and calls pass through the existing outdoor filter that muffles sound indoors. The mixer has no separate geometric wall-occlusion calculation. Calls stop on a menu, panel, death, hidden tab or mute. A clip that is still decoding is dropped rather than played after its visible gesture has passed.

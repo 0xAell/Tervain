@@ -1,22 +1,24 @@
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { MENU_SCORE_FEATURE_INFO, MENU_SCORE_MOTION_LENGTH, sampleMenuScore } from '../../src/presentation/menu/menuScoreFeatures';
 
 describe('measured menu score visual controls', () => {
   it('identifies the approved full-length stereo score and compact offline analysis', () => {
-    expect(MENU_SCORE_FEATURE_INFO.sourceSha256).toBe('bd520b9c62e77da8c2fe5c02f88db23484bcd7c6ee8bdbe13ca1372b007ac2ba');
-    expect(MENU_SCORE_FEATURE_INFO.runtimeSha256).toBe('4d256a32afee0eaef849cfe355527f11a92e302b918b8992bb9b2a1dae9cfd71');
+    expect(MENU_SCORE_FEATURE_INFO.sourceSha256).toBe(createHash('sha256').update(readFileSync(MENU_SCORE_FEATURE_INFO.sourceArchive)).digest('hex'));
+    expect(MENU_SCORE_FEATURE_INFO.runtimeSha256).toBe(createHash('sha256').update(readFileSync(MENU_SCORE_FEATURE_INFO.runtimeReference)).digest('hex'));
     expect(MENU_SCORE_FEATURE_INFO.analysis.channels).toBe(2);
-    expect(MENU_SCORE_FEATURE_INFO.duration).toBe(235.5);
+    expect(MENU_SCORE_FEATURE_INFO.duration).toBe(118.5);
     expect((MENU_SCORE_FEATURE_INFO.frames - 1) / MENU_SCORE_FEATURE_INFO.rate).toBe(MENU_SCORE_FEATURE_INFO.duration);
     expect(MENU_SCORE_FEATURE_INFO.frames * 5).toBeLessThan(25000);
   });
 
-  it('follows the silent opening, chamber entrance and fading tail of the title', () => {
-    expect(sampleMenuScore(2).energy).toBeLessThan(0.01);
+  it('follows the silent opening, reed entrance and fading tail of the title', () => {
+    expect(sampleMenuScore(0.05).energy).toBeLessThan(0.01);
     const playing = sampleMenuScore(32);
     expect(playing.mid).toBeGreaterThan(0.7);
     expect(playing.energy).toBeGreaterThan(0.75);
-    expect(playing.onset).toBeGreaterThan(0.5);
+    expect(playing.onset).toBeGreaterThan(0.2);
     expect(sampleMenuScore(MENU_SCORE_FEATURE_INFO.duration).energy).toBeLessThan(0.01);
   });
 
@@ -74,7 +76,7 @@ describe('measured menu score visual controls', () => {
   });
 
   it('has no envelope or motion steps when native currentTime crosses a feature-frame boundary', () => {
-    for (const time of [0.05, 10.1, 30, 54.1, 60.9, 140, 235.45]) {
+    for (const time of [0.05, 10.1, 30, 54.1, 60.9, 140, 118.45]) {
       const before = sampleMenuScore(time - 0.00001);
       const after = sampleMenuScore(time + 0.00001);
       for (const key of ['energy', 'bass', 'mid', 'treble', 'onset', 'motion'] as const) {

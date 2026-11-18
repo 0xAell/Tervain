@@ -10,7 +10,7 @@ import { modelAssetUrl } from './assets/modelUrl';
 import { observeModelLoad, withModelLoadSlot, type ModelLoadProgress } from './assets/modelLoadQueue';
 import { downloadAsset } from './assets/download';
 
-export const ROCK_PILE_FILE = 'weathered-rock-pile-under-20k.glb';
+export const ROCK_PILE_FILE = 'intertidal-schist.glb';
 let pending: Promise<ModelGltf> | null = null;
 
 export function rockPileUrl(base = import.meta.env.BASE_URL, page = document.baseURI): URL {

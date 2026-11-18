@@ -1,5 +1,7 @@
 # The Sovereign's Oath — menu score source record
 
+Historical production notes. The 0.1.1 soundtrack and sound effects are documented in [The Ford at First Light](ford-audio.md).
+
 Historical record of the 0.0.x title score. The 0.1.x title plays [Alderweir](alderweir-audio.json).
 
 Recorded 30 September 2026 for Tervain `0.0.5` ([A28](../decisions.md)). The owner supplied **The Sovereign's Oath.m4a**, requested its use in the menu, authorized merging that addition into the main game, and requested a menu video covering the complete song. This is a specific project-use instruction, not a new open-content license or an independent authorship review.
@@ -25,8 +27,8 @@ The supplied timed text and descriptive metadata are source material, not projec
 
 | Runtime derivative | Preparation | Integrity and media |
 | --- | --- | --- |
-| [public/assets/audio/the-sovereigns-oath.ogg](../../public/assets/audio/the-sovereigns-oath.ogg) | Audio stream copied into Ogg without audio re-encoding; non-audio streams and metadata excluded | 3,930,812 bytes; SHA-256 `46d8c5f6492490e8ed521459fde2c588af18f55dff11ab4fbd22e491259fbee8`; Opus, 48 kHz stereo, container duration 214.2065 s |
-| [public/assets/audio/the-sovereigns-oath.m4a](../../public/assets/audio/the-sovereigns-oath.m4a) | AAC-LC fallback encoded at 256 kbit/s with `faststart`; non-audio streams and metadata excluded | 7,021,811 bytes; SHA-256 `0deffd62992d61e787e916eed745992d2ab9d4a133f0c3991a372ed3e7605084`; AAC, 48 kHz stereo, container duration 214.213 s |
+| [public/assets/audio/the-sovereigns-oath.ogg](https://github.com/0xAell/Tervain/blob/de22ba64f118edb3eb34176e31a57eb48406d378/public/assets/audio/the-sovereigns-oath.ogg) | Audio stream copied into Ogg without audio re-encoding; non-audio streams and metadata excluded | 3,930,812 bytes; SHA-256 `46d8c5f6492490e8ed521459fde2c588af18f55dff11ab4fbd22e491259fbee8`; Opus, 48 kHz stereo, container duration 214.2065 s |
+| [public/assets/audio/the-sovereigns-oath.m4a](https://github.com/0xAell/Tervain/blob/de22ba64f118edb3eb34176e31a57eb48406d378/public/assets/audio/the-sovereigns-oath.m4a) | AAC-LC fallback encoded at 256 kbit/s with `faststart`; non-audio streams and metadata excluded | 7,021,811 bytes; SHA-256 `0deffd62992d61e787e916eed745992d2ab9d4a133f0c3991a372ed3e7605084`; AAC, 48 kHz stereo, container duration 214.213 s |
 
 The millisecond differences in the derivatives reflect container/codec timing. They are not deliberate cuts, extensions, or changes to the musical arrangement. The primary Ogg preserves the original compressed audio stream; the AAC derivative is a compatibility fallback. Both resolve through the game's configured base URL and are served locally with the build.
 

@@ -1,47 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { modelAssetUrl } from '../../src/presentation/assets/modelUrl';
-import { mainHeroUrl } from '../../src/presentation/mainHero';
-import { meshyTreeUrl } from '../../src/presentation/meshyTrees';
-import { meshyNpcUrl } from '../../src/presentation/meshynpcs';
-import { solitaryPineUrl } from '../../src/presentation/solitaryPine';
-import { rockPileUrl } from '../../src/presentation/sourceRockPile';
-import { ANIMALS, animalModelUrl } from '../../src/presentation/animals';
-
 const SHA = '0123456789abcdef0123456789abcdef01234567';
 const HOSTED = `https://raw.githubusercontent.com/0xAell/Tervain/${SHA}/public/models/`;
 
 describe('original model delivery', () => {
-  it('keeps every model loader local under a served subdirectory', () => {
-    const base = './', page = 'https://example.test/games/tervain/index.html';
-    const urls = [
-      mainHeroUrl(base, page),
-      meshyTreeUrl('oak-elder', 'near', base, page),
-      meshyNpcUrl('manifest.json', base, page),
-      solitaryPineUrl('solitary-pine-under-10k.glb', base, page),
-      rockPileUrl(base, page),
-      animalModelUrl(ANIMALS[0]!, base, page),
-    ];
-    expect(urls.map((url) => url.href)).toEqual([
-      'https://example.test/games/tervain/models/hero/weathered-wanderer-hero-sealed.glb',
-      'https://example.test/games/tervain/models/flora/meshy-012/oak-elder-near.glb',
-      'https://example.test/games/tervain/models/npcs/manifest.json',
-      'https://example.test/games/tervain/models/flora/solitary-pine-under-10k.glb',
-      'https://example.test/games/tervain/models/scenery/weathered-rock-pile-under-20k.glb',
-      'https://example.test/games/tervain/models/animals/tiger-1005232739.glb',
-    ]);
-    expect(modelAssetUrl('hero/hero.glb', '/', 'http://localhost:5173/', '').href).toBe('http://localhost:5173/models/hero/hero.glb');
+  const playable = ['flora/hero/hero-oak-mid.glb', 'flora/craft/silver-fir-near.glb', 'craft/furniture/manifest.json', 'scenery/intertidal-schist.glb'];
+
+  it('resolves playable assets under the served game directory and the exact build commit', () => {
+    for (const file of playable) {
+      expect(modelAssetUrl(file, './', 'https://example.test/Tervain/index.html', '').href).toBe(`https://example.test/Tervain/models/${file}`);
+      expect(modelAssetUrl(file, './', 'https://example.test/Tervain/index.html', HOSTED).href).toBe(`${HOSTED}${file}`);
+    }
   });
 
-  it('pins both manifests and models to one full commit regardless of the served page', () => {
-    for (const file of ['npcs/manifest.json', 'npcs/mara.glb', 'flora/meshy-012/oak-elder-near.glb', 'hero/hero.glb', 'animals/tiger-1005232739.glb']) {
-      expect(modelAssetUrl(file, './', 'https://example.test/Tervain/index.html', HOSTED).href).toBe(`${HOSTED}${file}`);
-      expect(modelAssetUrl(file, '/', 'http://localhost:4173/', HOSTED).href).toBe(`${HOSTED}${file}`);
+  it('refuses archived art before a browser can fetch it from either host', () => {
+    for (const file of ['npcs/manifest.json', 'flora/meshy-012/oak-elder-near.glb', 'hero/hero.glb', 'animals/tiger-1005232739.glb', 'furniture/manifest.json']) {
+      for (const remote of ['', HOSTED]) expect(() => modelAssetUrl(file, './', 'https://example.test/Tervain/', remote)).toThrow(/outside the playable art/);
     }
   });
 
   it('rejects an unpublished or mutable production target instead of falling back locally', () => {
     for (const base of [HOSTED.replace(SHA, 'main'), HOSTED.replace(SHA, SHA.slice(0, 7)), HOSTED.replace('https:', 'http:'), HOSTED.replace('Tervain/', 'Warpkeep/')]) {
-      expect(() => modelAssetUrl('hero/hero.glb', './', 'https://example.test/Tervain/', base)).toThrow(/exact production commit/);
+      expect(() => modelAssetUrl(playable[0]!, './', 'https://example.test/Tervain/', base)).toThrow(/exact production commit/);
     }
   });
 

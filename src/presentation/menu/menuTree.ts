@@ -536,7 +536,7 @@ export function buildAncientTree(seed = 1207, opts: AncientTreeOptions = {}): An
   for (let i = 0; i < target && sites.length; i++) {
     const s = sites[Math.floor(rng() * sites.length)]!;
     const size = 1.25 + rng() * 0.55;
-    const p: V3 = addv(s.p, [(rng() - 0.5) * size * 1.1, (rng() - 0.35) * size * 0.8, (rng() - 0.5) * size * 1.1]);
+    const p = s.p;
     const outward = normv(sub(p, crownC));
     const depth = Math.min(1, lenv(sub(p, crownC)) / crownR);
     const shade = 0.42 + 0.6 * depth;
@@ -552,7 +552,7 @@ export function buildAncientTree(seed = 1207, opts: AncientTreeOptions = {}): An
     const col: V3 = [tint[0] * shade, tint[1] * shade, tint[2] * shade];
     const b = leaves.n;
     for (const [du, dv] of [[-0.5, 0], [0.5, 0], [0.5, 1], [-0.5, 1]] as const) {
-      const q = addv(p, addv(mulv(side, du * w), mulv(up, (dv - 0.15) * h)));
+      const q = addv(p, addv(mulv(side, du * w), mulv(up, dv * h)));
       leaves.v(q, du + 0.5, dv, col);
     }
     leaves.idx.push(b, b + 1, b + 2, b, b + 2, b + 3);
@@ -567,6 +567,10 @@ export function buildAncientTree(seed = 1207, opts: AncientTreeOptions = {}): An
   }
   const woodGeo = wood.geometry();
   const leafGeo = leaves.geometry();
+  // The twig base is fixed to the branch. Only the tips respond to wind in the colour and shadow passes.
+  const weights = new Float32Array(cards * 4);
+  for (let i = 0; i < cards; i++) { weights[i * 4 + 2] = 1; weights[i * 4 + 3] = 1; }
+  leafGeo.setAttribute('menuCrownWindWeight', new THREE.BufferAttribute(weights, 1));
   assertNaturalModelBudget('Ancient menu tree', [woodGeo, ...(cards ? [leafGeo] : [])]);
   // Cards light like a crown, not like flat planes: normals point out of the crown's centre (and a little up).
   const lp = leafGeo.getAttribute('position') as THREE.BufferAttribute;

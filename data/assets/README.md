@@ -22,9 +22,7 @@ Every file carries one of four plans, decided per family (`groups` in the manife
 
 `totals.byPlan` in the manifest counts the files and bytes under each.
 
-Models, building surfaces and leaf atlases have replacements for the port. Keep the Alderweir score, river sounds,
-interaction effects, paintings, dialogue and emblem. Each Alderweir cue has one import identity shared by its two
-browser encodings. The archived 0.0.x title theme has its own replacement plan below.
+The `shipped` flag tracks the playable build. Older model fixtures and audio masters can be inspected as production history. A source-checkout path under `public/models` alone does not put a model in the game. The browser and standalone artifact use the same [model selection](../../src/presentation/assets/playableModels.ts). The [current art index](../../docs/art/valley-craft.md) also covers models built directly as the game runs.
 
 ## Which pack replaces what
 
@@ -57,7 +55,7 @@ names before anything is released, whatever the answer turns out to be, so nothi
 | Files | The open question | Replaced by |
 | --- | --- | --- |
 | The hero's two sources, `weathered-wanderer-hero-50k.glb` and `weathered-wanderer-animated-hero.glb` | Whether they were generated for the project or downloaded from a community listing (the model ledger's `toConfirm`) | Modular Medieval NPC V2 - Metahuman (Polyphoria) |
-| The archived 0.0.x title theme in its three encodings (`the-sovereigns-oath`) | Whether the terms of the service it was made with allow a commercial release | Medieval Fantasy Game Music Pack (Skyhammer Sound) |
+| The archived 0.0.x title theme in its archived source encoding (`the-sovereigns-oath`) | Whether the terms of the service it was made with allow a commercial release | Medieval Fantasy Game Music Pack (Skyhammer Sound) |
 
 The generator refuses to write a manifest in which a file with an unresolved licence is kept, and
 `tests/tools/assetManifest.test.ts` holds the list above. The web build goes on serving these files as it does

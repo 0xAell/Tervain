@@ -20,7 +20,7 @@ import { personMaterial } from './human/sheetMaterial';
 import { paintSheetJob, track } from './human/sheetPool';
 import { banditOutfit, lookOutfit, npcOutfit, playerOutfit, linear } from './human/outfits';
 import { BI, BONES, box, ellipsoid, loft, Mesher, mul3, rigid, tube, type BoneName, type V3 } from './human/skin';
-import { poseHeroRig } from './hero/rig';
+import { createResidentTools } from './npc/residentProps';
 import type { HeroAnimationController } from './hero/animation';
 import type { ResidentMotion } from './npc/residentMotion';
 import type { ResidentFingers } from './npc/residentFingers';
@@ -141,7 +141,7 @@ export interface Rig {
    * arm angles fitted to this figure's own body (npc/poseFit.ts).
    */
   npc?: {
-    settle(mode: Mode, dt: number): void; fit?: NpcPoseFit; work?: { gesture: WorkGesture; props: THREE.Object3D[] };
+    settle?(mode: Mode, dt: number): void; fit?: NpcPoseFit; work?: { gesture: WorkGesture; props: THREE.Object3D[] };
     /** A resident's fingers (A72): closed on what each hand holds, in a fist to fight bare-handed, relaxed otherwise. */
     hands?(p: Pose, dt: number, working: boolean): void;
     /** The finger chains themselves. */
@@ -157,6 +157,8 @@ export interface Rig {
   armR: THREE.Object3D;
   legL: THREE.Object3D;
   legR: THREE.Object3D;
+  /** Wrist and ankle pivots for tools, archery and kneeling on a valley sculpt. */
+  extremities?: Record<'LeftHand' | 'RightHand' | 'LeftFoot' | 'RightFoot', THREE.Bone>;
   /** Joints that only humanoids have: knees and elbows bend as they move. */
   kneeL?: THREE.Object3D;
   kneeR?: THREE.Object3D;
@@ -249,7 +251,7 @@ export const personBuildOptions = {
   /** Default sheet size (square, pixels). */
   sheetSize: 1024,
   /** Ignore replacement images in src/assets/people (to compare with the painted sheets). */
-  ignoreOverrides: false,
+  ignoreOverrides: true,
 };
 
 const IRISES: RGB[] = [
@@ -332,8 +334,15 @@ export function createPersonRig(p: PersonSpec): Rig {
     bones[name].position.set(at[0] - pp[0], at[1] - pp[1], at[2] - pp[2]);
     (par ? bones[par] : body).add(bones[name]);
   }
+  const end = (name: string, parent: THREE.Bone, dy: number) => {
+    const b = new THREE.Bone(); b.name = name; b.position.y = dy; parent.add(b); return b;
+  };
+  const extremities = {
+    LeftHand: end('handL', bones.elbowL, -frame.fore), RightHand: end('handR', bones.elbowR, -frame.fore),
+    LeftFoot: end('footL', bones.kneeL, -frame.shin), RightFoot: end('footR', bones.kneeR, -frame.shin),
+  };
   root.updateMatrixWorld(true);
-  const skeleton = new THREE.Skeleton(BONES.map((n) => bones[n]));
+  const skeleton = new THREE.Skeleton([...BONES.map(n => bones[n]), ...Object.values(extremities)]);
 
   // One skinned mesh and one sheet for the whole person. The face is painted in the head's own (u, v) and projected
   // into the face panel with everything else.
@@ -369,6 +378,21 @@ export function createPersonRig(p: PersonSpec): Rig {
     mesh.castShadow = true;
     return mesh;
   };
+  // Retain the painter's original joint indices for its projection. Bind the visible fingers, heels and toes to
+  // their own wrists and ankles so the two-link bow and kneeling solves move the skin with the equipment.
+  const mapped = built.geometry.getAttribute('skinIndex').clone(), points = built.geometry.getAttribute('position');
+  const ends = [
+    [BI.elbowL, frame.shoulderY-frame.upper-frame.fore], [BI.elbowR, frame.shoulderY-frame.upper-frame.fore],
+    [BI.kneeL, frame.hipY-frame.thigh-frame.shin], [BI.kneeR, frame.hipY-frame.thigh-frame.shin],
+  ] as const;
+  const distal = new Map(ends.map(([joint, y], i) => [joint, { y, index: BONES.length + i }]));
+  for (let i = 0; i < points.count; i++) {
+    for (let j = 0; j < 4; j++) {
+      const end = distal.get(mapped.getComponent(i, j));
+      if (end && points.getY(i) < end.y) mapped.setComponent(i, j, end.index);
+    }
+  }
+  built.geometry.setAttribute('skinIndex', mapped);
   const personMesh = addSkinned(built.geometry, material);
   personMesh.name = 'person';
   // Hidden until its sheet arrives (the loading screen waits for every sheet; see sheetsSettled).
@@ -420,7 +444,7 @@ export function createPersonRig(p: PersonSpec): Rig {
       }),
     );
   } else {
-    person.ready = paint();
+    person.ready = track(paint());
   }
 
   // The sash of local standing, recoloured at runtime.
@@ -444,9 +468,9 @@ export function createPersonRig(p: PersonSpec): Rig {
   materials.push(metalM, leatherM, woodM);
   const hs = frame.handScale * frame.H;
   const hand = new THREE.Object3D();
-  hand.position.set(0.013 * hs, -frame.fore - 0.058 * hs, 0.012 * hs);
+  hand.position.set(0.013 * hs, -0.058 * hs, 0.012 * hs);
   hand.rotation.x = 1.9;
-  bones.elbowR.add(hand);
+  extremities.RightHand.add(hand);
   let weapon: THREE.Object3D | null = null;
   let scabbard: THREE.Object3D | null = null;
   let sheathed: THREE.Object3D | null = null;
@@ -469,6 +493,7 @@ export function createPersonRig(p: PersonSpec): Rig {
     sc.add(hilt);
     sheathed = hilt;
   }
+  for (const holder of [weapon, scabbard]) if (holder) mergeRigMeshes(holder);
   for (const holder of [hand, scabbard]) if (holder) holder.traverse((c) => ((c as THREE.Mesh).isMesh ? ((c as THREE.Mesh).castShadow = true) : null));
 
   const cur: Record<string, number> = {};
@@ -487,6 +512,7 @@ export function createPersonRig(p: PersonSpec): Rig {
     kneeR: bones.kneeR,
     elbowL: bones.elbowL,
     elbowR: bones.elbowR,
+    extremities,
     weapon,
     shield: null,
     scabbard,
@@ -649,7 +675,7 @@ export function createNpcAttachments(kind: NpcEquipment): {
 
 export function createNpcRig(def: NpcDef): Rig {
   const st = npcStyle(def.id);
-  return createPersonRig({
+  const rig = createPersonRig({
     build: st.build,
     height: def.look.height,
     girth: def.look.girth,
@@ -664,10 +690,20 @@ export function createNpcRig(def: NpcDef): Rig {
     weapon: def.id === 'shrine_warden' ? 'sheathed' : undefined,
     id: def.id,
   });
+  if (st.work && rig.extremities) {
+    const joints = { ...rig.extremities, LeftForeArm: rig.elbowL!, RightForeArm: rig.elbowR! };
+    const tools = createResidentTools(st.work, joints, rig.root, side =>
+      joints[side].localToWorld(new THREE.Vector3(0, -.054 * def.look.height, 0)));
+    if (tools.props.length) {
+      rig.materials.push(...tools.materials);
+      rig.npc = { work: { gesture: st.work, props: tools.props } };
+    }
+  }
+  return rig;
 }
 
-/** The wanderer's look (a proposal): a Gothic hero's plain start, unarmed. */
-export const PLAYER_LOOK: Look = { skin: 0xd2a07c, primary: 0x4d5a44, secondary: 0x6a5a44, hair: 0x3a2818, height: 1.0, girth: 1.0, accessory: 'none', accent: PAL.templarBlue };
+/** Reed-dyed wool, saddle leather and a brass pin mark a traveller from the ford. */
+export const PLAYER_LOOK: Look = { skin: 0xd2a07c, primary: 0x4e686a, secondary: 0x6b5741, hair: 0x3a2818, height: 1.0, girth: 1.0, accessory: 'none', accent: PAL.templarBlue };
 
 export function createPlayerRig(): Rig {
   const rig = createPersonRig({
@@ -908,14 +944,14 @@ function idleEnvelope(clock: number): number {
  * attack and guard poses depend on whether it holds a blade or fights with fists.
  */
 export function poseRig(rig: Rig, p: Pose, dt: number) {
-  if (poseHeroRig(rig, p, dt)) return;
+  if (rig.hero) { rig.hero.pose(p, dt, rig.grip === 'blade'); return; }
   if (rig.resident) {
     rig.resident.pose(p, dt);
     const tools = rig.npc?.work;
     const working = !!tools && p.mode === 'work' && (p.workGesture ?? 'general') === tools.gesture;
     if (tools) for (const prop of tools.props) prop.visible = working;
     rig.npc?.hands?.(p, dt, working);
-    rig.npc?.settle(p.mode, Number.isFinite(dt) ? Math.max(0, dt) : 0);
+    rig.npc?.settle?.(p.mode, Number.isFinite(dt) ? Math.max(0, dt) : 0);
     return;
   }
   const frameDt = Number.isFinite(dt) ? Math.max(0, dt) : 0;
@@ -1331,9 +1367,23 @@ export function poseRig(rig: Rig, p: Pose, dt: number) {
     }
     rig.cur[key] = previous + change;
   }
-  if (rig.kind === 'humanoid') applyRigAngles(rig, rig.cur);
+  if (rig.kind === 'humanoid') {
+    applyRigAngles(rig, rig.cur);
+    const m = p.straddle ? THREE.MathUtils.clamp(p.mountSwing ?? 1, 0, 1) : 0;
+    const lift = Math.sin(m * Math.PI);
+    rig.legL.rotation.z = .46 * m;
+    rig.legR.rotation.z = -.46 * m - .68 * lift;
+    if (p.straddle) {
+      // The root already follows the moving seat; bring the hips to the pad and the right boot over its edge.
+      rig.hips.position.y = rig.hipY * (1 - m) + .075 * m;
+      rig.legL.rotation.x = -.74 * m;
+      rig.legR.rotation.x = -.74 * m - .52 * lift;
+      if (rig.kneeL) rig.kneeL.rotation.x = .96 * m;
+      if (rig.kneeR) rig.kneeR.rotation.x = .96 * m + .30 * lift;
+    }
+  }
   // The body pivot has just been reset from this frame's pose, so visual clearance cannot accumulate between frames.
-  rig.npc?.settle(p.mode, frameDt);
+  rig.npc?.settle?.(p.mode, frameDt);
   // Hit flash tints materials briefly.
   if (rig.hitFlash > 0) {
     rig.hitFlash = Math.max(0, rig.hitFlash - frameDt * 4);

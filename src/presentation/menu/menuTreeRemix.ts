@@ -7,7 +7,7 @@ import { shadowDepthMaterial } from '../foliage/shadowCasters';
 import type { WispLighting } from './menuWispLight';
 import { sampleLeafSurfaceSites } from '../leafSurfaceSites';
 
-/** Owner-supplied leafy silhouette selected for the score-led hermitage. */
+/** Stable planting key for the original oak crown above the hollow and its door. */
 export const MENU_TREE_SOURCE = 'tree-0208';
 /** Hollow, hinged door and its hardware are counted again from the final constructed scene. */
 const ARCHITECTURE_RESERVE = 2500;

@@ -54,7 +54,7 @@ function poseResident(p: Resident, dt: number, reducedMotion: boolean) {
   }, dt);
 }
 
-export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { people: number }; awaiting: AwaitingFigure[] } {
+export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { people: number }; awaiting: AwaitingFigure[]; ready: Promise<void> } {
   const { terrain, colliders } = ctx;
   const group = new THREE.Group();
   group.name = 'ambient';
@@ -65,6 +65,7 @@ export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { peopl
     // A model still on its way leaves a stand-in with nothing to draw and no body to bump into (stage 2).
     const arrived = !ctx.npcAssets || ctx.npcAssets.has(role);
     const rig = !ctx.npcAssets ? createAmbientRig(spec.look, spec.style) : arrived ? ctx.npcAssets.create(role, height) : ctx.npcAssets.standIn(role, height);
+    rig.root.userData.residentId = spec.style.id;
     const ground = terrain.groundAt(spec.x, spec.z);
     rig.root.position.set(spec.x, ground, spec.z);
     rig.root.rotation.y = spec.yaw;
@@ -98,6 +99,7 @@ export function buildAmbient(ctx: BuildContext): SceneModule & { counts: { peopl
   return {
     group,
     counts: { people: people.length },
+    ready: Promise.all(people.map(p => p.rig.person?.ready)).then(() => undefined),
     awaiting,
     update(dt: number, f: FrameContext) {
       if (f.wildlifeActive === false || !Number.isFinite(dt) || dt <= 0) return;

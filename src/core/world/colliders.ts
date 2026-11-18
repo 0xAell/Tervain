@@ -603,6 +603,10 @@ export function buildStaticColliders(terrain?: Pick<Terrain, 'heightAt'>): Colli
   // Finite compound volumes let the stair pass above its connected keeper's house.
   const L = LIGHTHOUSE_CONSTRUCTION;
   const lb = (min: number, max: number) => relativeBounds(LIGHTHOUSE.x, LIGHTHOUSE.z, min, max);
+  const bellX = LIGHTHOUSE.x + L.fogBell.x, bellZ = LIGHTHOUSE.z + L.fogBell.z;
+  const bellHeight = (lo: number, hi: number) => relativeBounds(bellX, bellZ, lo, hi);
+  for (const side of [-1, 1]) c.box('fog-bell-post', bellX + side * L.fogBell.postOffset, bellZ, .15, .18, 0, true, bellHeight(0, 2.55));
+  c.circle('fog-bell-mouth', bellX, bellZ, .68, true, bellHeight(1.32, 2.32));
   // The tower's ground room is a hollow ring with the same open south sector as its mesh.
   const towerSector = (a0: number, a1: number, bottom: number, top: number) => {
     const mid = (a0 + a1) / 2, half = (a1 - a0) / 2;

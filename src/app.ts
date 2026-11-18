@@ -1,12 +1,11 @@
 import { PerfMeter, perfLine, summarise, type FrameSample } from './presentation/perfMeter';
 import { FOLIAGE_FOCUS } from './presentation/foliage/foliageMaterial';
-import { loadMeshyTrees, type MeshyTreeTemplates } from './presentation/meshyTrees';
 import { loadBakedTextures } from './presentation/bakedTextures';
 import { pruneContentCache } from './presentation/assets/download';
 import { prefetchJourney, warmJourney } from './presentation/journeyPrefetch';
 import * as THREE from 'three';
 import { beginStaticSkinFrame, endStaticSkinFrame } from './presentation/npc/dualQuaternionSkinning';
-import { figureScale, NPCS } from './core/content/npcs';
+import { NPCS } from './core/content/npcs';
 import { SPEAKER_NAMES, VOICE_LINES, shown, type HeroCue } from './core/content/voice';
 import { S } from './core/content/strings';
 import { CLOCK_RATE, RITE_CALM_MIN } from './core/game/constants';
@@ -18,6 +17,7 @@ import { HEAL_KEY_ITEM, ITEMS, itemAction } from './core/content/items';
 import { hourOfDay, createInitialState, formatClock, clockDay } from './core/game/state';
 import { EVIDENCE_IDS, QUICK_SLOT_COUNT, type Allocation, type GameEvent, type ItemId, type NpcId, type PlaceId, type WorldState } from './core/game/types';
 import { Input } from './platform/input';
+import { finishCooperatively } from './platform/cooperative';
 import { FrameClock, MotionInterpolation, SIM_CATCH_UP, SIM_STEP, cappedFrame } from './platform/frameTiming';
 import { waitForGraphicsReady } from './platform/graphicsReady';
 import { testControlsOffered } from './platform/diagnostics';
@@ -54,16 +54,12 @@ import { disposeSceneResources } from './presentation/disposeScene';
 import { BUILD_LABEL, GAME_VERSION, SOURCE_REVISION as REVISION } from './version';
 import { RenderScale, renderScaleFloor, presetPixelRatio, sharpenStrength } from './platform/renderScale';
 import { fetchLiveBuild, newerBuild, shouldReloadFor, type LiveBuild } from './platform/buildCheck';
-import { loadMainHero } from './presentation/mainHero';
-import { createHeroRig, type MainHeroRig } from './presentation/hero/rig';
 import { HuntingController } from './presentation/huntingController';
-import { loadMeshyNpcCatalog, NPC_ROLES, type MeshyNpcCatalog } from './presentation/meshynpcs';
-import { ResidentArrivals, residentRolesNear, type AwaitingFigure } from './presentation/residentArrivals';
+import { AMBIENT_RESIDENTS } from './core/content/ambientPeople';
 import { ANIMALS, loadAnimalTemplates } from './presentation/animals';
 import { REALM_WIND } from './core/world/wind';
 import type { AnimalDefinition } from './core/content/animals';
-import type { ModelGltf } from './presentation/assets/gltfLoader';
-import { npcStyle } from './presentation/npcStyle';
+import type { ValleyAnimal } from './presentation/animals/valleyAnimals';
 import { WaterRenderPass } from './presentation/waterRenderPass';
 import { installDepthOnlyShadowPass } from './presentation/softShadows';
 import { setHighLodBands, setHighLodSpecies } from './presentation/floraPopulation';
@@ -80,12 +76,11 @@ import { MOUNT_ID } from './core/rules/interactables';
 import { AUTOSAVE_SECONDS, bellGain, bellWait, DEATH, DROUGHT_BELL, noThreatNear, SPEECH_SOON_REACH, witnessesOf } from './core/rules/journey';
 import {
   archiveClosesBehind, archiveDoorAttempt, archiveOpen as archiveIsOpen, autosaveAt, autosaveDue, awaitedMountLapsed, momentOf, WHAT_RUNS, belowTheWorld, buriedOnEntry, clockDue, ENTRY_RESTORES, fallRemaining, hitStopFor,
-  journeyBegun, arrivesInView, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
+  journeyBegun, mayMount, mustDismount, objectiveKey, objectivePlace, placesReached, recoversFromUnderWorld, respawnAfter, riteReady, safePlace, savedMount, savingAllowed, SHAKE,
   STANDING_BODY, standingBodies, strandRespawn, TIMED_WORK, trustedPropTop, underWorldSeconds, WAKING, type AutosaveMoment, type RespawnMoment, type RespawnPoint,
 } from './core/rules/session';
 import { STAMINA_MAX } from './core/rules/hero';
 import { CAMERA } from './core/rules/camera';
-import { banditScale, ENEMY_VARIANT } from './core/content/enemies';
 
 /** How far round the line from the camera to the wanderer leaves give way (A84), metres. */
 const FOLIAGE_FOCUS_RADIUS = 1.3;
@@ -124,25 +119,17 @@ export class App {
   cam = new CameraRig();
   private readonly heroFade = new NearFade();
   player = new Player();
-  private mainHeroInstalled = false;
-  private treeTemplates: MeshyTreeTemplates | undefined;
+  /** Stable gameplay identities used to verify the complete cast against the models actually built. */
+  readonly castRoles = [...Object.keys(NPCS).map(id => 'named:' + id), ...AMBIENT_RESIDENTS.map(npc => 'ambient:' + npc.id),
+    ...ENEMY_SPAWNS.map(spawn => 'enemy:' + spawn.id)];
   /** The stag that grazes across the title meadow: the same template the wildlife uses later, loaded once. */
-  private menuDeer: { template: ModelGltf; definition: AnimalDefinition } | undefined;
+  private menuDeer: { template: ValleyAnimal; definition: AnimalDefinition } | undefined;
   /** The title's stag is the saddled deer's model. */
   private static readonly MENU_DEER_ID = MOUNT_ID;
-  private npcAssets: MeshyNpcCatalog | null = null;
-  /** The residents' catalog on its way: only the near ones' models before the world opens (stage 2). */
-  private npcAssetsLoad: Promise<void> | null = null;
-  /** Residents, hamlet people and bandits whose models arrive after the world opened (stage 2). */
-  private readonly arrivals = new ResidentArrivals();
-  /** The whole cast's catalog, asked for once the world is open. */
-  private castLoad: Promise<void> | null = null;
-  private readonly viewFrustum = new THREE.Frustum();
   private readonly viewMatrix = new THREE.Matrix4();
   private readonly poseFrustum = new THREE.Frustum();
   private readonly poseCentre = new THREE.Vector3();
   private readonly poseSphere = new THREE.Sphere();
-  private menuAssets: MeshyNpcCatalog | null = null;
   private menuLoad: Promise<void> | null = null;
   private menuGraphicsReady = false;
   /** Whether the journey's files have been asked for ahead, from the menu (A86). */
@@ -205,7 +192,7 @@ export class App {
     // A remark cut short takes its words with it (A70).
     hush: (speaker) => { this.audio.hush(speaker); this.bubbleState?.delete(speaker); this.hud?.hushSpeech?.(speaker); },
     caption: (speaker, text, seconds) => {
-      if (this.settings.captions) this.hud.speech(SPEAKER_NAMES[speaker], text, seconds, speaker);
+      this.hud.speech(SPEAKER_NAMES[speaker], text, seconds, speaker);
     },
   });
   /** Screenshot and film tools start a game without the hero's opening words. */
@@ -313,7 +300,7 @@ export class App {
     this.frameClock.tick(performance.now());
     requestAnimationFrame((t) => this.frame(t));
     (window as unknown as { tervain: App }).tervain = this;
-    // The menu needs one resident and one tree; the playable valley is requested by Start/Continue.
+    // The vigil is sculpted at startup. Start or Continue prepares the playable valley.
     void this.prepareMenuAssets().catch(async (error) => {
       console.warn('Menu backdrop unavailable', error);
       // The original vigil remains available if its optional imported backdrop cannot be downloaded.
@@ -443,21 +430,6 @@ export class App {
     };
   }
 
-  private async prepareMainHero() {
-    if (this.mainHeroInstalled) return;
-    this.loadingScreen?.update({ phase: 'prepare', detail: 'Preparing the wanderer…' });
-    const asset = await loadMainHero();
-    const rig = createHeroRig(asset);
-    // The provisional procedural sheet must finish before its GPU targets are released.
-    await sheetsSettled();
-    const previous = this.player;
-    this.player = new Player(rig);
-    const retired = new THREE.Scene();
-    retired.add(previous.group);
-    disposeSceneResources(retired, () => {});
-    this.mainHeroInstalled = true;
-  }
-
   private async buildWorld() {
     this.worldBuilding = true;
     this.worldBuildFailed = false;
@@ -469,39 +441,25 @@ export class App {
       // Shared flora caches must be released before replacement assets are constructed.
       if (this.world && !this.worldDisposed) this.rebuildPropPoses = this.world.physics.snapshot();
       if (this.world) this.disposeWorld();
-      if (!this.npcAssets) await (this.npcAssetsLoad ?? this.prepareNpcAssets());
-      const cast = this.npcAssets!;
-      this.arrivals.clear();
-      // The wanderer swims with the authored strokes from the residents' motion library once it is here.
-      const library = this.npcAssets!.library, hero = (this.player.rig as Partial<MainHeroRig> | undefined)?.hero;
-      if (library && hero) hero.useSwimClips(library);
-      // Legacy procedural export/fallback controls; Meshy residents retain their baked 1536 px surface maps in every preset.
-      personBuildOptions.sheetSize = this.settings.quality === 'low' ? 512 : 1024;
-      // Stage private Meshy rigs before the world adopts them, so a failed build can release the complete cast.
-      for (const definition of Object.values(NPCS)) {
-        const height = figureScale(definition.look.height, npcStyle(definition.id).build === 'woman');
-        const role = `named:${definition.id}`, arrived = cast.has(role);
-        // Someone whose model is still on its way keeps their schedule unseen and cannot be met until it is here (stage 2).
-        const npc = new NpcActor(definition, arrived ? cast.create(role, height) : cast.standIn(role, height), arrived);
-        npcs.push(npc);
-        stagedCast.add(npc.rig.root);
-        if (!arrived) this.arrivals.add({ role, position: () => npc, unseen: () => npc.away,
-          adopt: (catalog, rig) => npc.adoptRig(rig ?? catalog.create(role, height)), make: (catalog) => catalog.createSteps(role, height) });
-      }
-      for (const spawn of ENEMY_SPAWNS) {
-        const variant = ENEMY_VARIANT[spawn.id] ?? 0;
-        const role = `enemy:${spawn.id}`, scale = banditScale(variant), arrived = spawn.kind === 'thornback' || cast.has(role);
-        const rig = spawn.kind === 'thornback' ? undefined : arrived ? cast.create(role, scale, 'blade') : cast.standIn(role, scale, 'blade');
-        // A bandit still waiting for their model is out of every fight until it is here (stage 2).
-        const enemy = new EnemyActor(spawn, rig, arrived);
-        enemies.push(enemy);
-        stagedCast.add(enemy.rig.root);
-        if (!arrived) this.arrivals.add({ role, position: () => enemy, unseen: () => !enemy.rig.root.visible,
-          adopt: (catalog, rig) => enemy.adoptRig(rig ?? catalog.create(role, scale, 'blade')), make: (catalog) => catalog.createSteps(role, scale, 'blade') });
-      }
+      personBuildOptions.sheetSize = this.settings.quality === 'high' ? 1024 : 512;
+      await finishCooperatively((function* () {
+        for (const definition of Object.values(NPCS)) {
+          const npc = new NpcActor(definition);
+          npcs.push(npc);
+          stagedCast.add(npc.rig.root);
+          yield;
+        }
+        for (const spawn of ENEMY_SPAWNS) {
+          const enemy = new EnemyActor(spawn);
+          enemies.push(enemy);
+          stagedCast.add(enemy.rig.root);
+          yield;
+        }
+      })());
+      await Promise.all([this.player.rig.person?.ready, ...npcs.map(npc => npc.rig.person?.ready), ...enemies.map(enemy => enemy.rig.person?.ready)]);
       const { WorldScene } = await import('./presentation/world');
-      this.world = await WorldScene.create(this.game.state, structuredClone(this.settings), undefined, this.npcAssets!, {
-        // The animals follow the world in; a first visit downloads about a fifth less before entering (A70).
+      this.world = await WorldScene.create(this.game.state, structuredClone(this.settings), undefined, undefined, {
+        // Sculpt the wildlife after the player reaches the ground.
         deferWildlife: true,
         // So does the rooms' furniture: none of it is needed to set foot in the valley (backlog 4).
         deferFurniture: true,
@@ -521,14 +479,12 @@ export class App {
       for (const n of this.npcs) this.world.scene.add(n.rig.root);
       this.enemies = enemies;
       for (const e of this.enemies) this.world.scene.add(e.rig.root);
-      const ambient = this.world.modules?.find((m) => m.name === 'ambient')?.module as { awaiting?: AwaitingFigure[] } | undefined;
-      for (const figure of ambient?.awaiting ?? []) this.arrivals.add(figure);
       this.interactables = buildInteractables(this);
       // A new world must know who is in the archive before its door and shutter close: one rebuilt with the player inside
       // a reported archive locked them in (A93 scout).
       this.world.playerInArchive = this.archiveWasOccupied = this.world.occupiesArchive(this.player.x, this.player.z, PLAYER_BODY_RADIUS);
       this.syncWorldFromState();
-      // Settle any provisional hero/procedural-tool sheets; imported NPC surfaces are already baked and loaded.
+      // The cast enters together, with each painted face, coat and work tool ready.
       await sheetsSettled();
       this.rebuildPropPoses = null;
     } catch (error) {
@@ -540,46 +496,6 @@ export class App {
     } finally {
       this.worldBuilding = false;
     }
-  }
-
-  /** No silent runtime fallback: an incomplete resident download uses the existing graphics recovery screen. */
-  /** The residents' models: `roles` only (the near ones before entry, stage 2), else everyone's. */
-  private prepareNpcAssets(roles: readonly string[] = NPC_ROLES): Promise<void> {
-    // Ready only when it holds the roles asked for now: a journey begun elsewhere after a failed one left the new start's
-    // residents as stand-ins until after entry (A104 scout). What is already held is asked for again (from the cache).
-    const held = this.npcAssets, has = (catalog: MeshyNpcCatalog | null) => NPC_ROLES.filter((role) => catalog?.has(role));
-    if (held && roles.every((role) => held.has(role))) return Promise.resolve();
-    if (this.npcAssetsLoad) return this.npcAssetsLoad;
-    const want = [...new Set([...roles, ...has(held)])];
-    const request = loadMeshyNpcCatalog((loaded, total) => {
-      this.loadingScreen?.update({ phase: 'residents', completed: loaded, total });
-    }, want).then((assets) => { if (has(this.npcAssets).every((role) => assets.has(role))) this.npcAssets = assets; });
-    this.npcAssetsLoad = request;
-    void request.catch(() => {}).finally(() => { if (this.npcAssetsLoad === request) this.npcAssetsLoad = null; });
-    return request;
-  }
-
-  /**
-   * Everyone else's models, once the world is open (stage 2): they download behind the first view and the waiting
-   * figures take theirs as they arrive. A failed download is asked for again a little later; until then they stay unseen.
-   */
-  private completeCast() {
-    if (this.castLoad || NPC_ROLES.every((role) => this.npcAssets?.has(role))) return;
-    const request = loadMeshyNpcCatalog(undefined, NPC_ROLES).then((assets) => { this.npcAssets = assets; });
-    this.castLoad = request;
-    void request.catch((error) => {
-      console.warn('Residents still on their way:', error);
-      setTimeout(() => { if (this.castLoad === request) { this.castLoad = null; this.completeCast(); } }, 15_000);
-    });
-  }
-
-  /** Whether the player could see someone standing at `p` now: in the camera's view and near enough to make out. */
-  private inView(p: { x: number; y: number; z: number }): boolean {
-    const camera = this.cam.camera;
-    if (camera.position.distanceTo(new THREE.Vector3(p.x, p.y + 0.9, p.z)) > 150) return false;
-    camera.updateMatrixWorld();
-    this.viewFrustum.setFromProjectionMatrix(this.viewMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
-    return this.viewFrustum.intersectsSphere(new THREE.Sphere(new THREE.Vector3(p.x, p.y + 0.9, p.z), 1.4));
   }
 
   private prepareMenuAssets(): Promise<void> {
@@ -595,19 +511,12 @@ export class App {
   private async loadMenuAssets() {
     // The weathered building surfaces never hold up the title: the camp adopts them whenever they arrive.
     void loadBakedTextures(this.settings.quality);
-    const [trees, assets] = await Promise.all([
-      loadMeshyTrees(['tree-0208']), loadMeshyNpcCatalog(undefined, ['menu:warden']),
-    ]);
-    this.treeTemplates = trees;
-    this.menuAssets = assets;
-    this.replaceMenuScene();
     await this.prepareMenuGraphics();
-    void this.loadMenuDeer();
+    void this.loadMenuDeer().catch((error: unknown) => console.warn('Menu deer unavailable', error));
   }
 
   /**
-   * The title meadow's stag is cosmetic and follows the backdrop, so it never delays the menu. If its model cannot load
-   * the menu simply has none; the wildlife retries (and reports) the same download when the world is built.
+   * Attach the meadow’s stag after the title is ready. The same sculpt serves its counterpart in the valley.
    */
   private async loadMenuDeer() {
     const definition = ANIMALS.find((a) => a.id === App.MENU_DEER_ID);
@@ -623,10 +532,9 @@ export class App {
     const traffic = this.menuScene.trafficState;
     const awakening = this.menuScene.awakeningState, clock = this.menuScene.clockState;
     const grove = this.menuScene.grove;
-    const replacement = new MenuScene({ quality: this.settings.quality, treeTemplates: this.treeTemplates,
+    const replacement = new MenuScene({ quality: this.settings.quality,
       trafficSeed: traffic.seed, trafficTime: traffic.elapsed, awakening, grove, clock,
-      // The world's catalog holds the warden only once the whole cast is here (stage 2).
-      wardenRig: (this.menuAssets ?? (this.npcAssets?.has('menu:warden') ? this.npcAssets : null))?.create('menu:warden'), deer: this.menuDeer });
+      deer: this.menuDeer });
     this.menuGraphicsReady = false;
     if (!this.menuSceneDisposed) this.menuScene.dispose();
     this.menuScene = replacement;
@@ -698,13 +606,7 @@ export class App {
       this.pauseForWorldBuild(true);
       this.initialJourneyLoading = true;
       try {
-        // Everything the journey downloads starts now (A68): the wanderer, the residents, then the world's models and
-        // surfaces behind them, instead of each group waiting for the one before it to be prepared.
-        const hero = this.prepareMainHero();
-        // Only the residents near where the journey starts come before it; the rest arrive after (stage 2).
-        void this.prepareNpcAssets(residentRolesNear(state)).catch(() => {});
         prefetchJourney(this.settings.quality, { deferFurniture: true });
-        await hero;
         let pass = 0;
         do {
           // A second pass (the quality changed meanwhile) shows its progress from the start again, rather than a bar held at
@@ -716,22 +618,15 @@ export class App {
         } while (this.reloadAgain);
         // A quality changed while the journey loaded reaches the menu's backdrop too (A87 scout).
         if (this.menuScene.quality !== this.settings.quality) { this.replaceMenuScene(); void this.prepareMenuGraphics(); }
-        if (!this.menuAssets) {
-          // A failed optional menu download can recover from the now-loaded world template caches.
-          void this.prepareMenuAssets().catch((error) => console.warn('Menu backdrop unavailable', error));
-        }
+        if (!this.menuDeer) void this.loadMenuDeer().catch((error: unknown) => console.warn('Menu deer unavailable', error));
         this.initialJourneyLoading = false;
         this.finishWorldBuild();
         // Developer aid: what was fetched before the world opened is what started before this mark.
         performance.mark?.('tervain:world-open');
         enter();
         this.firstFrameUnderCurtain();
-        this.completeCast();
-        // Once every file the game needs has been asked for, drop cached models that have since been replaced. That is after
-        // the furniture, animals and remaining residents that follow the world in: pruned at the world's opening, their
-        // cached copies were deleted every visit and downloaded again the next (A95 scout).
         const world = this.world;
-        void Promise.allSettled([world.arrived ?? Promise.resolve(), this.castLoad ?? Promise.resolve()]).then(() => pruneContentCache());
+        void Promise.allSettled([world.arrived ?? Promise.resolve()]).then(() => pruneContentCache());
       } catch (error) {
         this.initialJourneyLoading = false;
         this.showWorldBuildFailure(error, () => { this.initialLoad = run(); return this.initialLoad; }, () => {
@@ -1192,8 +1087,6 @@ export class App {
   /* ============================== main loop ============================== */
 
   private nextDraw = -Infinity;
-  /** Whether the step running is a frame's second or later (catching up): the arrivals' work runs in a frame's first. */
-  private catchUp = false;
 
   private frame(now: number) {
     // On a display faster than 60 Hz, refreshes between frames are let pass: the same game, less heat (A71).
@@ -1220,12 +1113,10 @@ export class App {
         // counts in the first alone; the picture is drawn once, between the last two steps.
         try {
           for (let i = 0; i < steps; i++) {
-            this.catchUp = i > 0;
             this.step(SIM_STEP);
             this.input.consumePad(); this.input.endFrame();
           }
         } finally {
-          this.catchUp = false;
         }
         this.present(alpha);
         const sample = this.perf?.end(interval * 1000);
@@ -1321,17 +1212,6 @@ export class App {
       // same way (A79): the renderer's own first-view preparation passes over hidden objects.
       void this.warmHidden(scene);
     }
-    // Once a frame, not once a step (A80): a long frame runs several catch-up steps, and each spending the arrivals'
-    // budget made the next frame longer still.
-    if (this.arrivals.count && this.world && !this.catchUp) {
-      // A rig built while the world runs has its shaders compiled in parallel before it is shown (A78).
-      const scene = this.world.scene;
-      const world = this.world;
-      this.arrivals.warm ??= (rig) => this.warmShaders(rig.root, scene, true, world);
-      // Near enough to matter, a figure arrives even in view (the core's arrivesInView): better seen to appear than missing.
-      this.arrivals.update(this.npcAssets, (p) => this.inView(p), (p) => arrivesInView(Math.hypot(p.x - this.player.x, p.z - this.player.z)));
-    }
-
     if (this.menuBackgroundActive) {
       // The menu vigil is cosmetic. No patrols or game clock run beneath it.
       this.menuScene.update(dt, this.settings.reducedMotion, this.audio.menuMusicPlayback);

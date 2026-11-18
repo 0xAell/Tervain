@@ -332,7 +332,8 @@ export class WorldScene {
       addModule('source rock piles', buildSourceRockPiles(ctx, rockPile));
       // The residents' footprints precede grass placement, as in the original construction order.
       await checkpoint('woodland', 'Hamlet neighbours');
-      addModule('ambient', buildAmbient(ctx));
+      const neighbours = addModule('ambient', buildAmbient(ctx));
+      await neighbours.ready;
       // The hunter's camp and the caravan rest register their solid props before grass is sown around them: built after,
       // grass grew through the trough, the panniers and the notice board (A105 scout). They join the scene below.
       const hunterSupplies = buildHunterSupplies(terrain, colliders), animalCamp = buildAnimalCamp(terrain, colliders, settings.quality !== 'low');

@@ -15,6 +15,7 @@ export const expectedPopulation = {
 
 /** A live build supplies its own cast manifest. The procedural thornback also belongs to the encounter. */
 export function servedRoster(app) {
+  if (Array.isArray(app.castRoles)) return { figures: [...app.castRoles].sort() };
   const roles = Object.entries(app.npcAssets.manifest.roles).filter(([role]) => !role.startsWith('menu:'));
   const figures = roles.map(([role, model]) => role.startsWith('ambient:') ? 'ambient:' + model : role);
   for (const enemy of app.enemies) if (!figures.includes('enemy:' + enemy.id)) figures.push('enemy:' + enemy.id);
@@ -25,7 +26,7 @@ export function servedRoster(app) {
 export function readPopulation(app) {
   const world = app.world;
   const module = (name) => world.modules.find((entry) => entry.name === name)?.module;
-  const ambient = module('ambient').group.children.map((root) => root.userData.meshyNpc?.id).filter(Boolean);
+  const ambient = module('ambient').group.children.map((root) => root.userData.residentId ?? root.userData.meshyNpc?.id).filter(Boolean);
   return {
     wildlife: world.animals.arrived === true,
     furniture: module('furniture')?.arrived === true,
@@ -57,7 +58,7 @@ function differentIds(want, have) {
 }
 
 export async function waitForPopulation(page, label, expected = expectedPopulation, polls = 1200) {
-  const stateCode = 'const T = window.tervain; return { population: window.__readBudgetPopulation(T), pending: T.arrivals.count, settled: window.__budgetWorldSettled, net: window.__gateNet }';
+  const stateCode = 'const T = window.tervain; return { population: window.__readBudgetPopulation(T), pending: Array.isArray(T.castRoles) ? 0 : T.arrivals.count, settled: window.__budgetWorldSettled, net: window.__gateNet }';
   let last, reason;
   for (let i = 0; i <= polls; i++) {
     last = await page.eval(stateCode);

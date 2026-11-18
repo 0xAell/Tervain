@@ -1,5 +1,7 @@
 # The score-led hermitage awakening
 
+Historical production notes. The 0.1.1 soundtrack and sound effects are documented in [The Ford at First Light](ford-audio.md).
+
 From 0.1.0 the grove follows Alderweir’s chamber recording. Its original MIDI supplies the variable-tempo 6/8 pulses. The title recording supplies the spectral envelopes and accents. [Current analysis](../../tools/README-menu-score-analysis.md).
 
 ## Original choreography

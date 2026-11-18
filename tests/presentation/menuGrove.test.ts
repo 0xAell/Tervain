@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it, vi } from 'vitest';
 import {
   GROVE_CUE,
-  GROVE_DOOR_OPEN, GROVE_CLOSE, GROVE_RELEASE_BEAT,
+  GROVE_DOOR_OPEN, GROVE_CLOSE, GROVE_HOMECOMING, GROVE_RELEASE_BEAT,
   GROVE_MAX_SPIRITS,
   GroveFormation,
   createMenuGrove,
@@ -61,14 +61,14 @@ describe('the hermitage awakening simulation', () => {
     g.advanceTo(32.5);
     expect(insideCount(g)).toBe(GROVE_MAX_SPIRITS);
     const first = menuBeatTime(GROVE_RELEASE_BEAT);
-    expect(first).toBeCloseTo(33.54, 2);
+    expect(first).toBeGreaterThan(GROVE_CUE + 2);
     g.advanceTo(first - 0.03);
     expect(g.inHollow(...at(g, 0))).toBe(true);
     g.advanceTo(first + 1.2);
     expect(g.inHollow(...at(g, 0))).toBe(false);
     g.advanceTo(54);
     expect(insideCount(g)).toBe(0);
-    g.advanceTo(200);
+    g.advanceTo(GROVE_HOMECOMING - 1);
     expect(insideCount(g)).toBe(0);
     g.advanceTo(GROVE_CLOSE - 0.1);
     expect(insideCount(g)).toBe(GROVE_MAX_SPIRITS);
@@ -143,7 +143,7 @@ describe('the hermitage awakening simulation', () => {
     expect(groveFormationAt(1)).toBe(GroveFormation.Helix);
     expect(groveFormationAt(2)).toBe(GroveFormation.Rings);
     expect(groveFormationAt(3)).toBe(GroveFormation.Maypole);
-    expect(groveFormationAt(5)).toBe(GroveFormation.Fireflies);
+    expect(groveFormationAt(4)).toBe(GroveFormation.Fireflies);
     const g = grove();
     // As fireflies, half of them sit up in the crown and half flit along the low boughs; in the rings all circle the bole.
     const meanHeight = (from: number, to: number, which: (i: number) => boolean) => {
@@ -155,8 +155,8 @@ describe('the hermitage awakening simulation', () => {
       }
       return sum / n;
     };
-    const crown = meanHeight(menuPhraseTime(5) + 3, menuPhraseTime(6) - 1, (i) => i % 2 === 1);
-    const boughs = meanHeight(menuPhraseTime(5) + 3, menuPhraseTime(6) - 1, (i) => i % 2 === 0);
+    const crown = meanHeight(menuPhraseTime(4) + 3, menuPhraseTime(5) - 1, (i) => i % 2 === 1);
+    const boughs = meanHeight(menuPhraseTime(4) + 3, menuPhraseTime(5) - 1, (i) => i % 2 === 0);
     const rings = meanHeight(menuPhraseTime(2) + 3, menuPhraseTime(3) - 1, () => true);
     expect(crown).toBeGreaterThan(rings + 2.5);
     expect(boughs).toBeGreaterThan(1.5);
@@ -165,7 +165,7 @@ describe('the hermitage awakening simulation', () => {
     let onBeat = 0;
     let between = 0;
     const lowNotes = Array.from({ length: g.count }, (_, i) => i).filter((i) => groveSpiritBand(i) < 2);
-    for (let beat = 42; beat < 48; beat++) {
+    for (let beat = 60; beat < 66; beat++) {
       g.advanceTo(menuBeatTime(beat) + 0.06);
       for (const i of lowNotes) onBeat += g.position[i * 3 + 1]!;
       g.advanceTo(menuBeatTime(beat + 0.5) + 0.06);

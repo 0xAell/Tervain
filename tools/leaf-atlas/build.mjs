@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { BROADLEAF_CELLS, drawBroadleafCell } from './broadleaf.mjs';
 import { CONIFER_CELLS, drawConiferCell } from './conifer.mjs';
 import { clamp, coverage } from './raster.mjs';
-import { drawFirSheet, readGlbImage } from './firsheet.mjs';
+
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const sharp = createRequire(join(root, 'package.json'))('sharp');
@@ -93,10 +93,8 @@ await atlas('conifer', CONIFER_CELLS, drawConiferCell, 5000, (cells) => {
   matchMean(cells, [0, 1, 2, 3, 4, 5, 6, 7, 12, 14], firTarget);
   matchMean(cells, [8, 9, 10, 11, 13, 15], pineTarget);
 });
-{
-  const source = await sharp(readGlbImage(join(root, 'public/models/flora/meshy-012/fir-spire-near.glb'), /foliage/i)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  const cells = drawFirSheet({ data: source.data, width: source.info.width }, 8);
-  await atlas('fir', cells.map((_, i) => ({ name: 'fir-source-cell-' + i })), null, 0, (all) => matchMean(all, all.map((_, i) => i), firTarget), 8, cells);
-}
+// Eight by eight independently drawn sprays, with alternating needle colours and pendulous tips.
+const firSprays = Array.from({ length: 64 }, (_, i) => ({ name: 'silver-fir-' + (i + 1), kind: i % 4 === 2 ? 'spruce' : 'fir' }));
+await atlas('fir', firSprays, drawConiferCell, 9137, all => matchMean(all, all.map((_, i) => i), [61, 86, 57]), 8);
 writeFileSync(join(out, 'manifest.json'), JSON.stringify({ schema: 1, generator: 'tools/leaf-atlas/build.mjs', files, layout }, null, 1) + '\n');
 console.log('manifest written');

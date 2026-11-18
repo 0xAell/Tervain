@@ -14,7 +14,11 @@ describe('the tree models a journey loads', () => {
     expect(forestTreeIds('')).toEqual(PLANTED_DRAWS);
     const unused = activeMeshyTreeIds().filter((id) => !PLANTED_DRAWS.includes(id));
     expect(unused.length).toBeGreaterThan(0);
-    for (const id of unused) for (const lod of MESHY_TREE_LODS) expect(JOURNEY_MODEL_FILES, id).not.toContain(meshyTreeModelPath(id, lod));
+    const active = new Set(PLANTED_DRAWS.flatMap(id => MESHY_TREE_LODS.map(lod => meshyTreeModelPath(id, lod))));
+    for (const id of unused) for (const lod of MESHY_TREE_LODS) {
+      const file = meshyTreeModelPath(id, lod);
+      expect(JOURNEY_MODEL_FILES.includes(file), id).toBe(active.has(file));
+    }
   });
 
   it.each(['?herooak=0', '?herobirch=0', '?herosentinel=0', '?heropine=0', '?leafatlas=1', '?heronotrim=1', '?heronotwigs=1', '?lineup=0,0', '?treelab=oak'])(

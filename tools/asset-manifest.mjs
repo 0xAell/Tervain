@@ -10,6 +10,7 @@
  * Model licences come from the model ledger (public/model-licenses.json). See data/assets/README.md.
  */
 import { createHash } from 'node:crypto';
+import { playableModel } from '../src/presentation/assets/playableModels.ts';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -68,7 +69,7 @@ export function buildManifest(directory = root) {
     if (open && !group.beforeShip) throw new Error(`${group.id} holds a file with an open licence question: say what it is in beforeShip.`);
     const unreal = group.unreal(file);
     assets.push({
-      path: file, group: group.id, kind, bytes: fs.statSync(absolute).size, sha256: sha256(absolute), shipped: file.startsWith('public/'),
+      path: file, group: group.id, kind, bytes: fs.statSync(absolute).size, sha256: sha256(absolute), shipped: file.startsWith('public/models/') ? playableModel(file.slice('public/models/'.length)) : file.startsWith('public/'),
       ...(recorded?.sourceId ? { sourceId: recorded.sourceId } : {}), licence, plan: group.plan,
       ...(group.plan === 'replace' ? { replaceWith: replacement(group).title } : {}), ...(open ? { replaceBeforeShip: true } : {}), unreal,
     });
