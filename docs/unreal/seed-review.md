@@ -457,10 +457,10 @@ Improved:
 - `npm run perf:programs` lists the shader programs compiled for the first view, by shader and by the lights each was
   made for, then stands the wanderer at the route's 13 stops and in two rooms at noon and at night and counts each
   program compiled meanwhile: by a preparation, ahead of the first draw of what it is for, or inside a draw, which
-  stalls that frame. A fresh material shown at the end must be caught inside its draw, or the run fails. On the live
-  build twelve programs are compiled during the tour, at noon as at night: eleven by the arrivals' preparation, and one
-  inside a draw, the shrine hall's panes the first time they show the view its window capture took
-  ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  stalls that frame. A fresh material shown at the end must be caught inside its draw, or the run fails. On 0.1.0, 183
+  programs are compiled for the first view and twelve more during the tour, at noon as at night: eleven by the arrivals'
+  preparation, and one inside a draw, the shrine hall's panes the first time they show the view its window capture took
+  ([#898](https://github.com/0xAell/Tervain/pull/898)).
 
 Next:
 
@@ -479,7 +479,7 @@ Next:
   past them, and the worker slows); the terrain and the woodland built during the earlier waits. Each is worth
   measuring again on a machine with a GPU, as is building the models in workers or keeping them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
-  textures (KTX2) would cut that several times. 182 shader programs are compiled before the first view: the world's
+  textures (KTX2) would cut that several times. 183 shader programs are compiled before the first view (0.1.0): the world's
   materials under its lights, the sun's shadow pass, the menu's lights and the leaves' depth and shade passes. On a
   tour of the route and two rooms (`npm run perf:programs`) twelve more are compiled, at noon as at night: eleven by the
   preparation of pieces that arrive after the world opens, before they are first drawn, and one inside a draw. That one
