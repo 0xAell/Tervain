@@ -17,6 +17,8 @@ export const ENV_DAY_LIFT = 0.12;
 
 export interface EnvironmentHandle {
   update(dt: number, f: FrameContext): void;
+  /** Renderer work before anything draws the world: the repainted sky filtered for the surfaces. */
+  prepare?(renderer: THREE.WebGLRenderer): void;
   dispose?(): void;
 }
 
@@ -44,9 +46,45 @@ function clamp(v: number, lo: number, hi: number) {
   return v < lo ? lo : v > hi ? hi : v;
 }
 
+/** Each column's longitude and each row's latitude terms for one image size: the same values paint() used to work out per texel. */
+interface PaintGrid {
+  cosLon: Float64Array;
+  sinLon: Float64Array;
+  cosLat: Float64Array;
+  sinLat: Float64Array;
+  /** How far up the zenith gradient (above the horizon) or into the ground bounce (below it) the row lies. */
+  blend: Float64Array;
+}
+
+const grids = new Map<string, PaintGrid>();
+
+function gridFor(w: number, h: number): PaintGrid {
+  const key = `${w}x${h}`;
+  let grid = grids.get(key);
+  if (!grid) {
+    grid = { cosLon: new Float64Array(w), sinLon: new Float64Array(w), cosLat: new Float64Array(h), sinLat: new Float64Array(h), blend: new Float64Array(h) };
+    for (let x = 0; x < w; x++) {
+      const lon = ((x + 0.5) / w - 0.5) * Math.PI * 2;
+      grid.cosLon[x] = Math.cos(lon);
+      grid.sinLon[x] = Math.sin(lon);
+    }
+    for (let y = 0; y < h; y++) {
+      const lat = ((y + 0.5) / h - 0.5) * Math.PI;
+      const dy = Math.sin(lat);
+      grid.cosLat[y] = Math.cos(lat);
+      grid.sinLat[y] = dy;
+      grid.blend[y] = dy >= 0 ? Math.pow(dy, 0.5) : smooth01(-dy / 0.5);
+    }
+    grids.set(key, grid);
+  }
+  return grid;
+}
+
 /**
  * Fill a half-float equirect with the sky as an image-based light: zenith and horizon gradient, a warm ground
- * bounce, a sun core and glow, a moon glow, and a small night fill so shade never goes flat black.
+ * bounce, a sun core and glow, a moon glow, and a small night fill so shade never goes flat black. The directions and
+ * the gradient come from the size's grid and each row's gradient colour is worked out once: the same arithmetic on the
+ * same values as per texel, so the same half floats, in about half the time.
  */
 function paint(data: Uint16Array, w: number, h: number) {
   tmpTop.copy(SKY.top.value);
@@ -69,29 +107,32 @@ function paint(data: Uint16Array, w: number, h: number) {
   const moonUp = clamp(moon.y * 5, 0, 1) * night;
   // A cool floor so night shade keeps some blue rather than going black (scaled by the brightness setting).
   const nightFill = night * 0.05 * (0.6 + 0.6 * br);
+  const fillR = nightFill * 0.5, fillG = nightFill * 0.65, fillB = nightFill * 1.0;
   const half = THREE.DataUtils.toHalfFloat;
+  const opaque = half(1);
+  const { cosLon, sinLon, cosLat, sinLat, blend } = gridFor(w, h);
   for (let y = 0; y < h; y++) {
-    const lat = ((y + 0.5) / h - 0.5) * Math.PI;
-    const cl = Math.cos(lat);
-    const dy = Math.sin(lat);
+    const cl = cosLat[y]!;
+    const dy = sinLat[y]!;
+    const t = blend[y]!;
+    let skyR: number;
+    let skyG: number;
+    let skyB: number;
+    if (dy >= 0) {
+      skyR = tmpHor.r + (tmpTop.r - tmpHor.r) * t;
+      skyG = tmpHor.g + (tmpTop.g - tmpHor.g) * t;
+      skyB = tmpHor.b + (tmpTop.b - tmpHor.b) * t;
+    } else {
+      skyR = tmpHor.r * 0.7 + (gr - tmpHor.r * 0.7) * t;
+      skyG = tmpHor.g * 0.7 + (gg - tmpHor.g * 0.7) * t;
+      skyB = tmpHor.b * 0.7 + (gb - tmpHor.b * 0.7) * t;
+    }
     for (let x = 0; x < w; x++) {
-      const lon = ((x + 0.5) / w - 0.5) * Math.PI * 2;
-      const dx = cl * Math.cos(lon);
-      const dz = cl * Math.sin(lon);
-      let r: number;
-      let g: number;
-      let b: number;
-      if (dy >= 0) {
-        const t = Math.pow(dy, 0.5);
-        r = tmpHor.r + (tmpTop.r - tmpHor.r) * t;
-        g = tmpHor.g + (tmpTop.g - tmpHor.g) * t;
-        b = tmpHor.b + (tmpTop.b - tmpHor.b) * t;
-      } else {
-        const t = smooth01(-dy / 0.5);
-        r = tmpHor.r * 0.7 + (gr - tmpHor.r * 0.7) * t;
-        g = tmpHor.g * 0.7 + (gg - tmpHor.g * 0.7) * t;
-        b = tmpHor.b * 0.7 + (gb - tmpHor.b * 0.7) * t;
-      }
+      const dx = cl * cosLon[x]!;
+      const dz = cl * sinLon[x]!;
+      let r = skyR;
+      let g = skyG;
+      let b = skyB;
       // Sun: a tight core (specular sheen) inside a broad soft glow (warm fill on the sunward side).
       const cs = clamp(dx * sun.x + dy * sun.y + dz * sun.z, -1, 1);
       if (cs > 0) {
@@ -116,10 +157,10 @@ function paint(data: Uint16Array, w: number, h: number) {
         }
       }
       const o = (y * w + x) * 4;
-      data[o] = half(r + nightFill * 0.5);
-      data[o + 1] = half(g + nightFill * 0.65);
-      data[o + 2] = half(b + nightFill * 1.0);
-      data[o + 3] = half(1);
+      data[o] = half(r + fillR);
+      data[o + 1] = half(g + fillG);
+      data[o + 2] = half(b + fillB);
+      data[o + 3] = opaque;
     }
   }
 }
@@ -129,37 +170,48 @@ function smooth01(t: number) {
   return c * c * (3 - 2 * c);
 }
 
+/** The surfaces' image-based light: `image` filtered by three's PMREM, into `filtered` when given; returns the target filled. */
+export interface SkyLightFilter {
+  filter(image: THREE.Texture, filtered: THREE.WebGLRenderTarget | null): THREE.WebGLRenderTarget;
+  dispose(): void;
+}
+
+function pmremFilter(renderer: THREE.WebGLRenderer): SkyLightFilter {
+  const generator = new THREE.PMREMGenerator(renderer);
+  return { filter: (image, filtered) => generator.fromEquirectangular(image, filtered), dispose: () => generator.dispose() };
+}
+
 /**
- * Scene-wide lighting environment: the image-based light generated from the sky, and exposure. Presentation only.
+ * Scene-wide lighting environment: the image-based light generated from the sky. Presentation only.
  *
- * Exposure lives here (rather than in the app) because it follows the time of day: a little lower at noon so
- * bright surfaces keep their colour, a little higher at night so the valley stays navigable. The renderer is found
- * the first time the scene is drawn.
+ * The sky is painted into one half-float image and filtered for the surfaces into one render target, both kept for the
+ * whole journey, so every lit material sees the same environment texture from frame to frame. A new image and a new
+ * target every 1.8 s made three look up every lit material's program again, and allocate and free a target, each time.
+ * The filtering needs the renderer: `prepare` runs it before anything draws the world, whenever the sky was repainted.
  */
-export function buildEnvironment(scene: THREE.Scene, quality: Quality): EnvironmentHandle {
+export function buildEnvironment(scene: THREE.Scene, quality: Quality, filterFor: (renderer: THREE.WebGLRenderer) => SkyLightFilter = pmremFilter): EnvironmentHandle {
   const spec = SPECS[quality];
-  let current: THREE.DataTexture | null = null;
   let timer = REGEN_INTERVAL;
   let lastHour = -1;
-  const previousHook = scene.onBeforeRender;
+  let painted = false;
+  let filter: SkyLightFilter | null = null;
+  let filtered: THREE.WebGLRenderTarget | null = null;
 
   scene.environmentIntensity = spec.intensity;
 
+  const image = new THREE.DataTexture(new Uint16Array(spec.w * spec.h * 4), spec.w, spec.h, THREE.RGBAFormat, THREE.HalfFloatType);
+  image.mapping = THREE.EquirectangularReflectionMapping;
+  image.colorSpace = THREE.LinearSRGBColorSpace;
+  image.wrapS = THREE.RepeatWrapping;
+  image.wrapT = THREE.ClampToEdgeWrapping;
+  image.magFilter = THREE.LinearFilter;
+  image.minFilter = THREE.LinearFilter;
+  image.generateMipmaps = false;
+
   const regenerate = () => {
-    const data = new Uint16Array(spec.w * spec.h * 4);
-    paint(data, spec.w, spec.h);
-    const tex = new THREE.DataTexture(data, spec.w, spec.h, THREE.RGBAFormat, THREE.HalfFloatType);
-    tex.mapping = THREE.EquirectangularReflectionMapping;
-    tex.colorSpace = THREE.LinearSRGBColorSpace;
-    tex.wrapS = THREE.RepeatWrapping;
-    tex.wrapT = THREE.ClampToEdgeWrapping;
-    tex.magFilter = THREE.LinearFilter;
-    tex.minFilter = THREE.LinearFilter;
-    tex.generateMipmaps = false;
-    tex.needsUpdate = true;
-    scene.environment = tex;
-    current?.dispose();
-    current = tex;
+    paint(image.image.data as Uint16Array, spec.w, spec.h);
+    image.needsUpdate = true;
+    painted = true;
     SKY.ibl.value = 1;
   };
 
@@ -175,11 +227,20 @@ export function buildEnvironment(scene: THREE.Scene, quality: Quality): Environm
         regenerate();
       }
     },
+    prepare(renderer) {
+      if (!painted) return;
+      painted = false;
+      filter ??= filterFor(renderer);
+      filtered = filter.filter(image, filtered);
+      scene.environment = filtered.texture;
+    },
     dispose() {
-      current?.dispose();
-      current = null;
+      filtered?.dispose();
+      filtered = null;
+      filter?.dispose();
+      filter = null;
+      image.dispose();
       scene.environment = null;
-      scene.onBeforeRender = previousHook;
       SKY.ibl.value = 0;
     },
   };

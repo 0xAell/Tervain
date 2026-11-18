@@ -411,6 +411,14 @@ Improved:
   vertices within 2 mm of his surface, in a worker: the sun's shadow map draws 135,000 fewer skinned triangles every
   daytime frame (12 to 22 % of it at three stops of the route), and a frame drawn both ways differs in 72 of its
   2.9 million pixels, along the shadow's contact line under a boot ([#888](https://github.com/0xAell/Tervain/pull/888)).
+- The sky's light no longer costs a frame every 1.8 s. Each repaint of the sky's image made a new texture, so three
+  filtered it into a new target and looked up the shader program of every lit material the next frame drew again; the
+  image and its filtered target are now kept for the whole journey, and the image is painted from directions worked
+  out once. With the loop stopped at the landing, the frame after a repaint makes 10 program lookups where it made 34
+  (a steady frame's 10) and takes 6.3–7.2 ms of JavaScript where it took 8.8 (a steady frame about 6), and painting
+  takes 0.8 ms where it took 1.9, to the same half floats; the same frame lit both ways is identical (PR_X). Drawing
+  into the water's reflection only what can appear where the sea shows was measured too: on the route the sea's part
+  of the screen is the whole screen whenever it shows, so it would leave nothing out.
 
 Next:
 

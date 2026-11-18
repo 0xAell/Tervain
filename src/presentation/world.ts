@@ -633,6 +633,14 @@ export class WorldScene {
     return forest?.crownsNear?.(x, z, r) ?? [];
   }
 
+  /**
+   * Renderer work before anything draws the world: the sky's light, repainted in update(), filtered for the surfaces.
+   * Also before the first view's programs are compiled, so they are made with the sky's light they will draw with.
+   */
+  prepareSkyLight(renderer: THREE.WebGLRenderer) {
+    this.environment.prepare?.(renderer);
+  }
+
   /** Renderer work the ground cover needs before the frame is drawn (the grass interaction field). */
   prepareGrass(renderer: THREE.WebGLRenderer, dt: number) {
     this.groundcover?.prepare(renderer, dt);
