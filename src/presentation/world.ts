@@ -335,7 +335,7 @@ export class WorldScene {
       addModule('ambient', buildAmbient(ctx));
       // The hunter's camp and the caravan rest register their solid props before grass is sown around them: built after,
       // grass grew through the trough, the panniers and the notice board (A105 scout). They join the scene below.
-      const hunterSupplies = buildHunterSupplies(terrain, colliders), animalCamp = buildAnimalCamp(terrain, colliders);
+      const hunterSupplies = buildHunterSupplies(terrain, colliders), animalCamp = buildAnimalCamp(terrain, colliders, settings.quality !== 'low');
       // Habitat snapshots solid footprints: register fences and hay before grass tiles can be generated.
       // Attach the settlement at its existing scene position below.
       const scenery = own(buildScenery(terrain, colliders, settings.quality));
@@ -379,6 +379,7 @@ export class WorldScene {
       await checkpoint('settlement', 'Hunter supplies and caravan');
       addModule('hunter supplies', { group: hunterSupplies, update() {}, dispose: () => disposeHunterSupplies(hunterSupplies) });
       addModule('caravan animal rest', animalCamp);
+      if (animalCamp.sunCaster) own({ dispose: installShadowOnlyGroup(scene, sky.sun, animalCamp.sunCaster) });
       await checkpoint('settlement', 'Wildlife');
       // Deferred, the world opens with a stand-in and the animals move in once their models are here (A70).
       const arriving = animalTemplates ? null : deferredWildlife();

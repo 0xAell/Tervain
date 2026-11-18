@@ -6,6 +6,7 @@ import type { NpcId } from '../core/game/types';
 import { createNpcAttachments, createStandInRig, setArmed, type Grip, type Rig, type NpcEquipment, type Mode, type Pose } from './characters';
 import { BONES, type BoneName } from './human/skin';
 import { repairNpcSurfaceGeometry, repairNpcSurfaceMaterial } from './npcSurface';
+import { prepareActorShadow } from './actorShadow';
 import { installDualQuaternionSkinning } from './npc/dualQuaternionSkinning';
 import { applyNpcSkinRepair, computeNpcSkinRepair, type LowerGarment, type SkinRepairJoints } from './npc/skinRepair';
 import { fitNpcJoints, measuredPalm, type NpcJointFit } from './npc/jointFit';
@@ -365,7 +366,7 @@ export function finish<T>(steps: Generator<void, T, void>): T {
  * (each a few to a few tens of milliseconds), instead of stalling one frame for all of it.
  */
 export function* createMeshyNpcRigSteps(asset: Pick<ModelGltf, 'scene' | 'animations'>, entry: MeshyNpcEntry, heightScale = 1, grip: Grip = 'none', equipment?: NpcEquipment,
-  options: NpcRigOptions = {}, motion?: ResidentMotionSource): Generator<void, Rig, void> {
+  options: NpcRigOptions = {}, motion?: ResidentMotionSource, worldResident = false): Generator<void, Rig, void> {
   const settings = { ...NPC_RIG_DEFAULTS, ...options };
   // On its own rig a resident plays authored clips: the eleven-joint repairs and fitted poses do not apply.
   const authored = settings.authoredMotion && motion ? motion : null;
@@ -478,6 +479,7 @@ export function* createMeshyNpcRigSteps(asset: Pick<ModelGltf, 'scene' | 'animat
         skin.customDepthMaterial = depth; skin.customDistanceMaterial = distance;
         owner?.addEventListener('dispose', () => { depth.dispose(); distance.dispose(); });
       }
+      if (worldResident) void prepareActorShadow(skin, sourceOf(geometry));
       if (settings.surface) {
         for (const shadow of [skin.customDepthMaterial, skin.customDistanceMaterial]) if (shadow) patchResidentShadow(shadow as THREE.MeshDepthMaterial);
       }
@@ -872,7 +874,7 @@ export class MeshyNpcCatalog {
       seed: style?.faceSeed ?? [...role].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619), 2166136261),
       fighter: role.startsWith('enemy:'), work: task ?? known?.work,
     } : undefined;
-    return createMeshyNpcRigSteps(asset, entry, heightScale, grip, equipment, { work, ...options }, motion);
+    return createMeshyNpcRigSteps(asset, entry, heightScale, grip, equipment, { work, ...options }, motion, !!resident || role.startsWith('ambient:'));
   }
 }
 

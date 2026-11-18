@@ -7,9 +7,8 @@ export { HERO_SHADOW_ERROR, HERO_SHADOW_TRIANGLES, shadowIndex, type ShadowSimpl
 const fewer = new Map<THREE.Mesh, THREE.BufferAttribute>();
 
 /**
- * Draw every mesh that has fewer triangles to draw from (the wanderer's) from them until the returned function is called:
- * for the water's planar reflection, a 512 px image of a rippled surface, where triangles within 2 mm of his skin are his
- * skin. Over the same vertices, so his skeleton, skin weights and materials draw them as they draw the full mesh.
+ * Lend the coarser skin indices to the low-resolution water reflection until the returned function is called. Each
+ * mesh keeps its own skeleton, skin weights and materials.
  */
 export function drawFromFewerTriangles(): () => void {
   const swapped: [THREE.BufferGeometry, THREE.BufferAttribute | null][] = [];
@@ -45,28 +44,39 @@ export function castShadowFrom(mesh: THREE.Mesh, index: THREE.BufferAttribute): 
 
 type ShadowWorkerReply = { type: 'complete'; indices: Uint32Array; error: number } | { type: 'error'; message: string };
 
-/**
- * Work out `mesh`'s shadow triangles in a worker (about 0.1 s: neither the journey's load nor a frame waits on it) and
- * cast its shadow from them once they arrive. Without a worker, or if it fails, the full mesh keeps casting, as before.
- * Resolves with the error reached, or null when nothing changed.
- */
-export function castShadowFromFewerTriangles(mesh: THREE.Mesh, createWorker = () => new Worker(new URL('./shadowIndexWorker.ts', import.meta.url), { type: 'module' })): Promise<number | null> {
-  const index = mesh.geometry.index, position = mesh.geometry.getAttribute('position');
-  if (!index || !position || index.count <= HERO_SHADOW_TRIANGLES * 3 || typeof Worker === 'undefined') return Promise.resolve(null);
-  const indices = new Uint32Array(index.count), positions = new Float32Array(position.count * 3);
-  for (let i = 0; i < index.count; i++) indices[i] = index.getX(i);
-  for (let v = 0; v < position.count; v++) { positions[v * 3] = position.getX(v); positions[v * 3 + 1] = position.getY(v); positions[v * 3 + 2] = position.getZ(v); }
-  let worker: Worker;
-  try { worker = createWorker(); } catch { return Promise.resolve(null); }
+export function makeShadowIndexWorker(): Worker {
+  return new Worker(new URL('./shadowIndexWorker.ts', import.meta.url), { type: 'module' });
+}
+
+/** The caller owns the worker and can reuse it for another geometry once this request settles. */
+export function requestShadowIndex(geometry: THREE.BufferGeometry, worker: Worker, targetTriangles: number,
+  maxError?: number): Promise<{ index: THREE.BufferAttribute; error: number } | null> {
+  const index = geometry.index!, position = geometry.getAttribute('position');
+  const indices = new Uint32Array(index.array);
+  const positions = new Float32Array(position.count * 3);
+  for (let v = 0; v < position.count; v++) {
+    positions[v * 3] = position.getX(v); positions[v * 3 + 1] = position.getY(v); positions[v * 3 + 2] = position.getZ(v);
+  }
   return new Promise((resolve) => {
-    const finish = (result: number | null) => { worker.terminate(); resolve(result); };
     worker.onmessage = (event: MessageEvent<ShadowWorkerReply>) => {
       const reply = event.data;
-      if (reply.type !== 'complete' || !(reply.indices.length > 0) || reply.indices.length >= index.count) { finish(null); return; }
-      castShadowFrom(mesh, new THREE.BufferAttribute(reply.indices, 1));
-      finish(reply.error);
+      if (reply.type !== 'complete' || !reply.indices.length || reply.indices.length >= index.count) { resolve(null); return; }
+      resolve({ index: new THREE.BufferAttribute(reply.indices, 1), error: reply.error });
     };
-    worker.onerror = (event) => { event.preventDefault(); finish(null); };
-    try { worker.postMessage({ indices, positions }, [indices.buffer, positions.buffer]); } catch { finish(null); }
+    worker.onerror = (event) => { event.preventDefault(); resolve(null); };
+    try { worker.postMessage({ indices, positions, targetTriangles, maxError }, [indices.buffer, positions.buffer]); } catch { resolve(null); }
   });
+}
+
+/** Work out the wanderer's shadow triangles off-thread. The full mesh keeps casting if the worker cannot help. */
+export async function castShadowFromFewerTriangles(mesh: THREE.Mesh, createWorker = makeShadowIndexWorker): Promise<number | null> {
+  const geometry = mesh.geometry;
+  if (!geometry.index || !geometry.getAttribute('position') || geometry.index.count <= HERO_SHADOW_TRIANGLES * 3 || typeof Worker === 'undefined') return null;
+  let worker: Worker;
+  try { worker = createWorker(); } catch { return null; }
+  try {
+    const result = await requestShadowIndex(geometry, worker, HERO_SHADOW_TRIANGLES);
+    if (result) castShadowFrom(mesh, result.index);
+    return result?.error ?? null;
+  } finally { worker.terminate(); }
 }
