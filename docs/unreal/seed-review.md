@@ -446,7 +446,7 @@ Improved:
   for step). The supplier, the quarry hand and the steward work exactly as before, to the last bit. Over 600 steps
   profiled at a village spot, the hand queries took 39 and 43 ms where they took 266 and 293 (0.07 ms a step where
   they took 0.44 to 0.49). The route's frames were also counted again on the live build after this round of cuts: 293
-  draw calls a frame where 0.0.49 drew 385 ([AIR-CUTS.md](../perf/AIR-CUTS.md)) ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  draw calls a frame where 0.0.49 drew 385 ([AIR-CUTS.md](../perf/AIR-CUTS.md)) ([#895](https://github.com/0xAell/Tervain/pull/895)).
 
 Next:
 
