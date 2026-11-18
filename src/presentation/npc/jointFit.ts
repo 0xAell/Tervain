@@ -49,6 +49,17 @@ export function bindSurface(scene: THREE.Object3D): SkinPoint[] {
   return points;
 }
 
+/**
+ * For carrying a mesh's points into `frame`'s space as `localToWorld` then `worldToLocal` would: brings both chains up to
+ * date from the world down, once, and returns `frame`'s inverse world matrix, which `worldToLocal` works out again for
+ * every point. The mesh's world matrix is then current; apply it, then this, for the same points to the bit.
+ */
+export function sceneFrame(mesh: THREE.Object3D, frame: THREE.Object3D): THREE.Matrix4 {
+  mesh.updateWorldMatrix(true, false);
+  frame.updateWorldMatrix(true, false);
+  return new THREE.Matrix4().copy(frame.matrixWorld).invert();
+}
+
 /** Palm centre inferred from the lower tip of the source's actual elbow-weighted surface, with a bounded fallback for synthetic fixtures. */
 export function measuredPalm(scene: THREE.Group, elbow: THREE.Bone, arm: THREE.Bone): THREE.Vector3 {
   const candidates: THREE.Vector3[] = [], point = new THREE.Vector3();
@@ -58,11 +69,13 @@ export function measuredPalm(scene: THREE.Group, elbow: THREE.Bone, arm: THREE.B
     if (!mesh.isSkinnedMesh) return;
     const joint = mesh.skeleton.bones.indexOf(elbow), position = mesh.geometry.getAttribute('position');
     const indices = mesh.geometry.getAttribute('skinIndex'), weights = mesh.geometry.getAttribute('skinWeight');
+    // Into the scene's frame as localToWorld and worldToLocal take each point, their matrices worked out once.
+    const toScene = sceneFrame(mesh, scene);
     for (let vertex = 0; vertex < position.count; vertex++) {
       let weight = 0;
       for (let slot = 0; slot < 4; slot++) if (indices.getComponent(vertex, slot) === joint) weight += weights.getComponent(vertex, slot);
       if (weight < 0.6) continue;
-      point.fromBufferAttribute(position, vertex); mesh.localToWorld(point); scene.worldToLocal(point);
+      point.fromBufferAttribute(position, vertex).applyMatrix4(mesh.matrixWorld).applyMatrix4(toScene);
       candidates.push(point.clone());
     }
   });

@@ -9,7 +9,7 @@ import { repairNpcSurfaceGeometry, repairNpcSurfaceMaterial } from './npcSurface
 import { prepareActorShadow } from './actorShadow';
 import { installDualQuaternionSkinning } from './npc/dualQuaternionSkinning';
 import { applyNpcSkinRepair, computeNpcSkinRepair, type LowerGarment, type SkinRepairJoints } from './npc/skinRepair';
-import { fitNpcJoints, measuredPalm, type NpcJointFit } from './npc/jointFit';
+import { fitNpcJoints, measuredPalm, sceneFrame, type NpcJointFit } from './npc/jointFit';
 import { fitNpcPoses, measureBody, type FittedWork, type NpcPoseFit } from './npc/poseFit';
 import { createWorkProp } from './npc/workProps';
 import { installResidentSurface, patchResidentShadow, residentHiddenLayersSteps, residentSkinPrior, type ResidentAxis } from './npc/residentSurface';
@@ -310,13 +310,14 @@ function residentPalm(mesh: THREE.SkinnedMesh, hand: THREE.Bone, scene: THREE.Gr
   const joints = handJoints(mesh, hand);
   const position = mesh.geometry.getAttribute('position'), index = mesh.geometry.getAttribute('skinIndex'), weight = mesh.geometry.getAttribute('skinWeight');
   const sum = new THREE.Vector3(), point = new THREE.Vector3();
+  // Into the scene's frame as localToWorld and worldToLocal take each point, their matrices worked out once.
+  const toScene = sceneFrame(mesh, scene);
   let count = 0;
   for (let vertex = 0; vertex < position.count; vertex++) {
     let w = 0;
     for (let slot = 0; slot < 4; slot++) if (joints.has(index.getComponent(vertex, slot))) w += weight.getComponent(vertex, slot);
     if (w < 0.6) continue;
-    point.fromBufferAttribute(position, vertex);
-    mesh.localToWorld(point); scene.worldToLocal(point);
+    point.fromBufferAttribute(position, vertex).applyMatrix4(mesh.matrixWorld).applyMatrix4(toScene);
     sum.add(point); count++;
   }
   return count ? sum.multiplyScalar(1 / count) : scene.worldToLocal(hand.getWorldPosition(new THREE.Vector3()));
