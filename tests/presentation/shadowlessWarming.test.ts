@@ -58,3 +58,35 @@ describe('graphics preparation without shadow maps', () => {
     s.uploads.resolve(); await pending;
   });
 });
+
+describe('the sun\'s shadow programs prepared with the colour ones', () => {
+  it('compiles a caster\'s depth once, fog-free, under every light the world has, point lights at no intensity included', async () => {
+    const s = fixture(true);
+    s.object.visible = s.mesh.visible = true;
+    s.mesh.castShadow = true;
+    const scene = s.world.scene;
+    scene.fog = new THREE.Fog(0xffffff, 10, 100);
+    const sun = new THREE.DirectionalLight(), sky = new THREE.HemisphereLight(), lamp = new THREE.PointLight(0xffffff, 0);
+    scene.add(sun, sky, lamp);
+    const calls: { target: THREE.Scene; fog: THREE.Fog | THREE.FogExp2 | null; lights: string[]; material: THREE.Material }[] = [];
+    s.renderer.compileAsync.mockImplementation((...args: unknown[]) => {
+      const target = args[2] as THREE.Scene, lights: string[] = [];
+      target.traverseVisible((o) => { if ((o as THREE.Light).isLight) lights.push(o.type); });
+      calls.push({ target, fog: target.fog, lights: lights.sort(), material: s.mesh.material as THREE.Material });
+      return s.colour.promise;
+    });
+    const colour = s.mesh.material;
+    const pending = s.warm(true, true);
+    // The world's own colour programs, then the depth programs the shadow pass draws: the main view and every capture
+    // see all six point lights, kept at no intensity when dark, so no pass leaves the shadow pass without them.
+    expect(calls).toHaveLength(2);
+    expect(calls[0]!.target).toBe(scene);
+    expect(calls[0]!.material).toBe(colour);
+    expect(calls[1]!.target).not.toBe(scene);
+    expect(calls[1]!.fog).toBeNull();
+    expect(calls[1]!.lights).toEqual(['DirectionalLight', 'HemisphereLight', 'PointLight']);
+    expect(calls[1]!.material).toBeInstanceOf(THREE.MeshDepthMaterial);
+    expect(s.mesh.material).toBe(colour);
+    s.colour.resolve(); await pending;
+  });
+});
