@@ -481,7 +481,7 @@ Improved:
   62.1 s where it took 65.1 (medians of three alternating runs); on a GPU each program is driver compile time and
   memory ([#903](https://github.com/0xAell/Tervain/pull/903)).
 - Three functions nothing called are gone: `setRigShadow` (and the rig's `shadowOn` flag it kept), `animalModelUrl`
-  and `poseHeroRig` had no caller in the game, its tests or its tools (PR_X).
+  and `poseHeroRig` had no caller in the game, its tests or its tools ([#904](https://github.com/0xAell/Tervain/pull/904)).
 
 Next:
 
