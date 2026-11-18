@@ -426,7 +426,7 @@ Improved:
 - The pushable barrels and crates are drawn as batches as well, by the doors' batch made general: each prop's parts
   follow its body as the physics moves it, where each prop was two or three meshes and as many draw calls in every
   pass. With the doors' batch, the route's five village stops draw 6 to 22 fewer calls again (308 at the median); the
-  same frame drawn both ways differs only on one stretch of a barrel's shadow edge (PR_X).
+  same frame drawn both ways differs only on one stretch of a barrel's shadow edge ([#891](https://github.com/0xAell/Tervain/pull/891)).
 
 Next:
 
