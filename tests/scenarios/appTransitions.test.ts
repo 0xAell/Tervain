@@ -1,11 +1,13 @@
 import { S } from '../../src/core/content/strings';
 import * as THREE from 'three';
 import { ENEMY_SPAWNS, SPAWN } from '../../src/core/world/layout';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { App } from '../../src/app';
 import { Game } from '../../src/core/game/game';
 import { createInitialState } from '../../src/core/game/state';
 import { Input } from '../../src/platform/input';
+import { setHostYield } from '../../src/core/util/cooperative';
+import { yieldToBrowser } from '../../src/platform/cooperative';
 import { defaultSettings } from '../../src/platform/settings';
 import { FrameClock, MotionInterpolation, SIM_STEP } from '../../src/platform/frameTiming';
 import { WorldScene } from '../../src/presentation/world';
@@ -616,6 +618,11 @@ describe('actual application world transitions', () => {
 
   it('publishes an interactive title and its listeners before menu assets, then defers the world until Start', async () => {
     const { app, call, document, nextWorld } = rebuildFixture();
+    // The cast's construction gives a turn back whenever it outlasts its 8 ms budget, as a cold run of this test on its
+    // own does, and the browser's way waits on an animation frame. A plain task keeps those turns out of the frames
+    // counted here, which are the main loop's alone.
+    setHostYield(() => new Promise<void>((resolve) => { setTimeout(resolve, 0); }));
+    onTestFinished(() => setHostYield(yieldToBrowser));
     Reflect.set(app, 'world', undefined);
     Reflect.set(app, 'mode', 'loading');
     const canvas = { addEventListener: vi.fn() };
