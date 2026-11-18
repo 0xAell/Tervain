@@ -5,6 +5,7 @@ import { mulberry32 } from '../core/world/noise';
 import type { Terrain } from '../core/world/terrain';
 import { Ctx } from './buildKit';
 import { makeTexPair } from './buildingTextures';
+import { batchParts } from './partBatch';
 import type { Quality } from './context';
 import { Region } from './regions';
 import { jitterTone, type Rnd } from './structures';
@@ -171,7 +172,13 @@ export function buildForestLandmarks(terrain: Terrain, colliders: Colliders, qua
   const group = new THREE.Group();
   group.name = 'deepwood-native-landmarks';
   const regions = forestLandmarkGeometry(terrain, colliders);
-  for (const region of regions) group.add(region.toGroup({ get: (key) => key === 'stone' ? stone : key === 'timber' ? wood : key === 'metal' ? metal : moss }));
+  const shells = regions.map((region) => region.toGroup({ get: (key) => key === 'stone' ? stone : key === 'timber' ? wood : key === 'metal' ? metal : moss }));
+  group.add(...shells);
+  // One batch per surface, each landmark an instance culled on its own as its mesh was: the waymarkers' and the ruin's
+  // stone and moss were a draw call each per landmark in every pass that drew them (the sun's shadow map, the water's
+  // reflection). Built in place, every instance stands at the identity, so every vertex is the one its mesh drew. A
+  // surface only one landmark has stays its mesh; the batches draw with copies, so no material is drawn both ways.
+  const batch = batchParts(shells, group, { name: 'landmarks', copyMaterials: true });
   const labels: THREE.MeshBasicMaterial[] = [];
   const labelMaps: THREE.CanvasTexture[] = [];
   for (const back of [false, true]) {
@@ -198,7 +205,10 @@ export function buildForestLandmarks(terrain: Terrain, colliders: Colliders, qua
     labels.push(material);
     labelMaps.push(map);
   }
-  const stats = { markers: FOREST_WAYMARKERS.length, ruins: 1, signs: 1, triangles: regions.reduce((sum, region) => sum + region.tris, 0) + 4, meshes: regions.reduce((sum, region) => sum + region.batches.size, 0) + 2 };
+  // The meshes as drawn: the batches, the surfaces only one landmark has and the sign's two painted faces.
+  let meshes = 0;
+  group.traverse((object) => { if ((object as THREE.Mesh).isMesh && object.visible) meshes++; });
+  const stats = { markers: FOREST_WAYMARKERS.length, ruins: 1, signs: 1, triangles: regions.reduce((sum, region) => sum + region.tris, 0) + 4, meshes };
   group.userData.stats = stats;
   let disposed = false;
   return {
@@ -207,6 +217,7 @@ export function buildForestLandmarks(terrain: Terrain, colliders: Colliders, qua
     dispose() {
       if (disposed) return;
       disposed = true;
+      batch?.dispose();
       group.traverse((object) => {
         if (object instanceof THREE.Mesh) object.geometry.dispose();
       });
