@@ -496,7 +496,7 @@ Improved:
   batches and by the shells' own meshes, the same frame differs in at most 12 of 576,000 pixels, single ones where two
   surfaces meet at the same depth and draw order decides. `npm run perf:frame` now redraws the water's reflection in
   every frame it counts, as play does while the camera moves: counted after the camera had come to rest, the frame at
-  stops 7 and 8 left the whole pass out in one run and not in another ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  stops 7 and 8 left the whole pass out in one run and not in another ([#908](https://github.com/0xAell/Tervain/pull/908)).
 
 Next:
 
