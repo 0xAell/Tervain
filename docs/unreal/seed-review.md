@@ -486,7 +486,7 @@ Improved:
   draw call each in every pass that drew it, for about 2,500 triangles. It is in the main view at nine of the route's
   13 stops, even 380 m off at the landing, and in the sun's shadow map near the cut: 10 draws fewer at each of those
   stops and 20 at the nearest, 100 over the route, the triangles the same. Each part follows its joint through the pose
-  and the fall, every vertex where its own mesh put it (PR_X).
+  and the fall, every vertex where its own mesh put it ([#906](https://github.com/0xAell/Tervain/pull/906)).
 
 Next:
 
