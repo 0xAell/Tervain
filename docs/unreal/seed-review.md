@@ -440,6 +440,13 @@ Improved:
 - The water's reflection draws the wanderer from the 15,000 triangles his shadow is drawn from, where it drew all
   150,000: at the route stop where he is reflected, the reflection draws 135,000 fewer skinned triangles a frame
   and the frame drawn both ways is identical ([#894](https://github.com/0xAell/Tervain/pull/894)).
+- A resident at work finds where their hands rest on the real counter by skinning the hand's outermost vertices, up
+  to ten times a frame. Each vertex walked the scene graph above the resident twice and multiplied every weighted
+  bone's matrices again; the matrices are now worked out once a query (`posedVertices.ts` skins as three does, step
+  for step). The supplier, the quarry hand and the steward work exactly as before, to the last bit. Over 600 steps
+  profiled at a village spot, the hand queries took 39 and 43 ms where they took 266 and 293 (0.07 ms a step where
+  they took 0.44 to 0.49). The route's frames were also counted again on the live build after this round of cuts: 293
+  draw calls a frame where 0.0.49 drew 385 ([AIR-CUTS.md](../perf/AIR-CUTS.md)) ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
@@ -473,7 +480,13 @@ Next:
   a lost WebGL context is restored, which the game does not otherwise handle, so freeing them trades that recovery for
   the memory. The procedural bark's cache (25 MB) is the same case: the pixels of textures in use, which only a
   restored context would read again.
-- Draws: at High the live build's frame is 385 draw calls and 5.1 M triangles (medians over the benchmark route's
-  stops, the wanderer at each): the forest at full detail is more than half its triangles, the water's reflection up
-  to a third of a frame when the sea is in view, the sun's shadow map a third of its draw calls. The cuts that keep the
-  picture, and those a GPU must judge, are in [AIR-CUTS.md](../perf/AIR-CUTS.md).
+- Draws: at High the live build's frame is 293 draw calls and 4.97 M triangles (medians over the benchmark route's
+  stops, the wanderer at each; 385 and 5.10 M in 0.0.49): the forest at full detail is 57 % of its triangles, the
+  water's reflection up to a third of a frame when the sea is in view (182 draws and 2.39 M at stop 11), the sun's
+  shadow map 27 % of its draw calls. The cuts that keep the picture, and those a GPU must judge, are in
+  [AIR-CUTS.md](../perf/AIR-CUTS.md).
+- Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by
+  a fifth). The residents' poses are nearly a third of it: the work reach, the feet planted, the hands kept out of the torso,
+  the clips sampled, each 0.06 to 0.14 ms a step. The wanderer's own update is a fifth. The forest's per-step refresh
+  (`flora.ts`, 0.12 ms) and the groundcover's (0.1 ms) come next. The render's own JavaScript, about 6 ms a steady
+  frame at the landing, is still to be profiled by part.

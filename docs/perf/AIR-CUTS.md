@@ -75,6 +75,22 @@ Drawing into the reflection only what can appear in the part of the screen where
 | The scatter's chunks drawn as one batch per material (`scatter.ts`, `partBatch.ts`): rocks, the shore's driftwood, scrub and wrack, the streams' reeds and cattails. Each 96 m chunk is an instance in its material's batch, culled on its own by its own bounds as before; the chunks stand at the origin, so their instances' matrices are the identity | Each material in each chunk a draw call in every pass, up to 35 in a picture. At stops 0, 4, 5, 6, 9 and 11: 369, 285, 251, 367, 256 and 618 draws a frame | 335, 267, 236, 341, 241 and 555 draws (15 to 63 fewer), the triangles the same or fewer in every pass. The water's reflection again hides a batch's sub-pixel and drowned instances, as it hid them as single meshes (A78): the doors', props' and parts' batches had lost that, at most 528 triangles at stop 11 | The same frame at the landing, its rocks, wrack and the sea's reflection in view (redrawn for each), drawn by the batches and by the chunks' own meshes: identical, 0 of 1.3 M pixels differ; 143 draw calls against 167 |
 | The water's reflection draws the wanderer from the 15,000 triangles his shadow is drawn from (`hero/shadowCaster.ts` `drawFromFewerTriangles`, by the world's reflection lightening beside the trees' middle models) | His reflection 149,974 skinned triangles wherever it shows (stop 11: the reflection 2.53 M triangles) | 15,000; the reflection at stop 11 2.38 M, the frame 10.39 → 10.29 M | The same frame at stop 11 drawn both ways, the reflection redrawn for each: identical, 0 of 1.3 M pixels differ; the same 543 draw calls, 134,974 triangles fewer |
 
+### The frame after these cuts, live (November 2026)
+
+Counted as above on the live build after them (5c39fc5), medians over the 13 stops. One stop's counted frame also refiltered the sky's light (15 small draws, every 1.8 s); they are left out, as the old build filtered it outside the frame's passes.
+
+| Pass | 0.0.49 | After the cuts |
+| --- | ---: | ---: |
+| Main view | 218 draws, 3.22 M triangles | 159 draws, 3.22 M |
+| Leaves' depth pre-pass | 18, 0.94 M | 18, 0.94 M |
+| Sun's shadow map | 126, 0.75 M | 79, 0.66 M |
+| Water's reflection, at stop 11 (the sea in view) | 259, 2.52 M, and 0.96 M for its leaves' depth pass | 182, 2.39 M, and 0.96 M |
+| Water composite | 6, 0.11 M | 6, 0.11 M |
+| The frame | 385, 5.10 M | 293, 4.97 M |
+| The largest frame (stop 11) | 746, 10.41 M | 544, 10.17 M |
+
+By part, over all passes (medians): the settlement 141 → 83 draws for the same 0.68 M triangles, the scatter 28 → 6, the physical supplies 18 → 5, the wanderer 0.30 → 0.16 M triangles; the forest is as it was, 110 draws and 2.85 M. At the five village stops (4, 5, 6, 9 and 11) a frame draws 265, 236, 341, 240 and 544 calls where 0.0.49 drew 375, 323, 432, 307 and 746: 21 to 29 % fewer. The three largest costs are the same three. The forest is now 57 % of a frame's triangles, and the shadow map holds 27 % of its draws (79 of 293).
+
 ## Batch 10 findings (tried, measured, not kept)
 
 Same route and profile; each A/B pair run back to back, three laps each. The machine was shared with other GPU work during these runs, so laps with a CPU median above about 9 ms are contended and their GPU time is not comparable.
