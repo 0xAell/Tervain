@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 /**
- * Where a frame's work goes: the draw calls and triangles of one frame of the world at each view of the benchmark
- * route, by pass (the render target drawn into: the screen, the sun's shadow map, the water's reflection, a capture)
+ * Where a frame's work goes: the draw calls and triangles of one frame of the world at each stop of the benchmark
+ * route, the wanderer standing there and the camera following him as in play, by pass (the render target drawn into: the screen, the sun's shadow map, the water's reflection, a capture)
  * and by the part of the world drawn (its module), as three counts them.
  *
  *   npm run perf:frame -- [--url http://127.0.0.1:4173/] [--quality high] [--size 1440x900] [--dpr 2] [--hour 11]
- *                         [--views 0,4,9] [--settle 3] [--json frame.json]
+ *                         [--views 0,4,9] [--settle 3] [--json frame.json] [--records draws.json]
  *
  * Without a GPU (headless browsers here draw in software) a frame's time says little about a GPU's, but what it asks
  * of one does not change: docs/perf/AIR-CUTS.md found the leaves, trunks and settlement bound by their triangles, not
  * their pixels, and draw calls cost the CPU and driver on every machine. Each view is held for --settle frames before
  * one is counted, so its captures and levels of detail have caught up with the camera. The defaults are the play gate's
- * Mac profile: 1440×900 at a device pixel ratio of 2, High.
+ * Mac profile: 1440×900 at a device pixel ratio of 2, High. --records writes every draw of every view counted, with its
+ * material, for a closer look at one part of the world.
  */
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -107,7 +108,7 @@ const INSTALL = `
     const calls = info.render.calls, triangles = info.render.triangles;
     const out = draw.apply(this, arguments);
     state.records.push({ pass: passOf(renderer.getRenderTarget(), material), module: moduleOf(object), object: object.name || object.parent?.name || object.type,
-      material: material.type, calls: info.render.calls - calls, triangles: info.render.triangles - triangles });
+      material: material.name ? material.type + ' ' + material.name : material.type, calls: info.render.calls - calls, triangles: info.render.triangles - triangles });
     return out;
   };
   const renderWorld = Object.getPrototypeOf(app).renderWorld;
@@ -128,11 +129,18 @@ const INSTALL = `
     [H(0, -52, 2.5), H(-12, -90, 4)], [H(-6, -80, 3), H(-26, -104, 5)], [H(30, 6, 3), H(80, -20, 3)],
     [H(80, -12, 3), H(96, -32, 4)], [H(70, 30, 3), H(30, 12, 2)], [H(-70, 30, 12), H(20, -30, 4)],
   ];
-  state.view = (i) => { const [p, look] = state.route[i]; app.cam.manual = { p, look }; };
+  // As in play (and the play gate's budget view): the wanderer stands at the stop, facing along the route, and the
+  // camera follows him. The sun's shadow is centred on him, so a camera sent ahead alone would see no shadows drawn.
+  state.view = (i) => {
+    const [p, look] = state.route[i], yaw = Math.atan2(look.x - p.x, look.z - p.z);
+    app.cam.manual = null;
+    app.player.setPosition(p.x, p.z, yaw, T);
+    app.cam.yaw = yaw; app.cam.pitch = 0.25; app.cam.wantDist = 6;
+  };
   return state.route.length;`;
 
 function options(argv) {
-  const out = { url: process.env.TERVAIN_URL ?? 'http://127.0.0.1:4173/', quality: 'high', size: [1440, 900], dpr: 2, hour: 11, views: null, settle: 3, json: null };
+  const out = { url: process.env.TERVAIN_URL ?? 'http://127.0.0.1:4173/', quality: 'high', size: [1440, 900], dpr: 2, hour: 11, views: null, settle: 3, json: null, records: null };
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i], value = argv[i + 1];
     if (flag === '--url') { out.url = value; i++; }
@@ -143,6 +151,7 @@ function options(argv) {
     else if (flag === '--views') { out.views = value.split(',').map(Number); i++; }
     else if (flag === '--settle') { out.settle = Number(value); i++; }
     else if (flag === '--json') { out.json = value; i++; }
+    else if (flag === '--records') { out.records = value; i++; }
     else throw new Error(`unknown option ${flag}`);
   }
   if (!['low', 'medium', 'high'].includes(out.quality)) throw new Error('--quality takes low, medium or high');
@@ -164,11 +173,12 @@ async function main() {
     }
     const stops = await page.eval(INSTALL);
     const build = await page.eval('return fetch(new URL("version.json", document.baseURI)).then((r) => r.json()).then((v) => ({ revision: v.revision ?? null })).catch(() => ({ revision: null }));');
-    const views = [];
+    const views = [], draws = [];
     for (const i of opts.views ?? Array.from({ length: stops }, (_, n) => n)) {
       await page.eval(`window.__framePasses.view(${i}); return 1;`);
       for (let f = 0; f < opts.settle; f++) await page.eval('return window.__framePasses.frame(false).then(() => 1);');
       const records = await page.eval('return window.__framePasses.frame(true);');
+      if (opts.records) draws.push({ view: i, records });
       const summary = { view: i, ...frameSummary(records) };
       views.push(summary);
       console.log(`view ${i}: ${summary.calls} draws, ${million(summary.triangles)} triangles`);
@@ -180,6 +190,7 @@ async function main() {
     console.log('by pass:'); console.log(table(route.passes, 10));
     console.log('by part of the world:'); console.log(table(route.modules, 16));
     console.log(`build ${build.revision ?? 'unknown'} at ${base}, ${opts.quality}, ${opts.size.join('×')} at ${opts.dpr}×, ${opts.hour}:00`);
+    if (opts.records) fs.writeFileSync(opts.records, `${JSON.stringify(draws)}\n`);
     if (opts.json) fs.writeFileSync(opts.json, `${JSON.stringify({ url: base, ...build, quality: opts.quality, size: opts.size, dpr: opts.dpr, hour: opts.hour, route, views }, null, 1)}\n`);
   } finally {
     await page.close();
