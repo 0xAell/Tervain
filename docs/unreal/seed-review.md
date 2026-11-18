@@ -434,7 +434,7 @@ Improved:
   fewer than 0.0.49 there, for the same triangles ([#892](https://github.com/0xAell/Tervain/pull/892)).
 - The shore's driftwood, scrub and wrack and the streams' reeds are drawn as one piece each, where they were cut into
   the rocks' 96 m chunks: 20 meshes of a few dozen triangles each became five. Six route stops draw 2 to 22 fewer
-  calls a frame, for at most 3,000 triangles more where a piece is drawn whole (PR_X).
+  calls a frame, for at most 3,000 triangles more where a piece is drawn whole ([#893](https://github.com/0xAell/Tervain/pull/893)).
 
 Next:
 
