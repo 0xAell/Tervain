@@ -1,6 +1,7 @@
 import { HANDCART_CONSTRUCTION, WAGON_CONSTRUCTION, WELL_CONSTRUCTION as W } from '../core/world/layout';
 import { hash3, mulc, rgb } from './buildKit';
 import { vehicleFrame } from './wagonGeometry';
+import { wreckRig } from './strandWreckage';
 import type { Region } from './regions';
 import { TINT, barrel, crate, fieldstone, jitterTone, sack, type Rnd } from './structures';
 
@@ -262,7 +263,7 @@ export function wreck(R: Region, rnd: Rnd, x: number, y: number, z: number, yaw:
   }
   const oak = jitterTone(TINT.woodDark, rnd, 0.1);
   R.timber.box(0.24, 0.2, len, 0, -0.53, 0, oak, { grain: 'z' });
-  // A split stem is the last intact silhouette. The paired knees bind it into the forward frame.
+  // The split stem rakes out over the bow. The paired knees bind it into the forward frame.
   const bow = len / 2;
   const stem: Point[] = [[0, -0.41, bow - 0.66], [0, 0.32, bow - 0.21], [0, 1.18, bow + 0.07], [0, 1.94, bow + 0.27]];
   R.timber.tube(stem, t => 0.19 - 0.08 * t, 5, oak);
@@ -270,6 +271,7 @@ export function wreck(R: Region, rnd: Rnd, x: number, y: number, z: number, yaw:
   for (const side of [-1, 1]) {
     R.timber.rod(...point(7, 0.76, side), 0, 1.33, bow + 0.09, 0.075, 4, oak, { caps: false });
   }
+  wreckRig(R, len);
   R.ctx.pop();
 }
 

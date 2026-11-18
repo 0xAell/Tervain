@@ -253,9 +253,9 @@ export const ANCHOR_LIMIT = 0.75;
 /** Twigs stay above the player's 2.6 m slab (source space is metres): see treeWoodCollisionRadius. */
 const TWIG_FLOOR = 3.2;
 
-/** Nearest point on the wood's triangles: returns the distance and writes the point to `hit` (Infinity without wood). */
-/** With `max`, the search stops there: a point farther from the wood returns Infinity. */
-export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3, hit: THREE.Vector3, max?: number) => number {
+/** Finds the nearest wood point within `max`, or returns Infinity. Support checks may accept the first hit within
+ * `acceptWithin`; outside that radius the result is still the exact nearest point for moving a detached leaf. */
+export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3, hit: THREE.Vector3, max?: number, acceptWithin?: number) => number {
   const position = wood?.getAttribute('position');
   if (!wood || !position || position.count === 0) return () => Infinity;
   const index = wood.index, count = Math.floor((index?.count ?? position.count) / 3);
@@ -304,7 +304,7 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
   // most one sibling per level waits: 64 entries hold any tree of fewer than 2^31 triangles.
   const pendingNode = new Int32Array(64), pendingDistance = new Float64Array(64);
   // The point is read once, as the search starts: `p` and `hit` may be one vector.
-  return (p, hit, max = Infinity) => {
+  return (p, hit, max = Infinity, acceptWithin = -1) => {
     const x = p.x, y = p.y, z = p.z;
     let best = max, bestSq = max * max, found = false, pending = 1;
     pendingNode[0] = 0; pendingDistance[0] = boxDistanceSq(nodeBox, 0, x, y, z);
@@ -319,7 +319,11 @@ export function woodAnchor(wood: THREE.BufferGeometry | null): (p: THREE.Vector3
           // three's closest point on the triangle and its distance, to the same doubles, in scalars.
           closestPointOnTriangle(corners, t * 9, x, y, z, near);
           const dx = near[0]! - x, dy = near[1]! - y, dz = near[2]! - z, d = Math.sqrt(dx * dx + dy * dy + dz * dz);
-          if (d <= best) { best = d; bestSq = d * d; hit.set(near[0]!, near[1]!, near[2]!); found = true; }
+          if (d <= best) {
+            hit.set(near[0]!, near[1]!, near[2]!);
+            if (d <= acceptWithin) return d;
+            best = d; bestSq = d * d; found = true;
+          }
         }
         continue;
       }
@@ -561,7 +565,7 @@ export function buildCanopy(leaf: THREE.BufferGeometry, wood: THREE.BufferGeomet
       return added;
     };
     const seeds: Item[] = [];
-    for (const it of items) if (!it.linked && anchor(it.at, tmp) <= reach) seeds.push(...spread(it));
+    for (const it of items) if (!it.linked && anchor(it.at, tmp, reach, reach) <= reach) seeds.push(...spread(it));
     join(seeds);
     while (seeds.length && near.size) {
       let best: Item | null = null, bd = Infinity;
@@ -663,7 +667,7 @@ export function woodReachLocal(metres: number, scale: number): number { return m
  * far cards hang beyond the audit reach; no card is moved. Every attribute of a kept card is kept: the branch wind data
  * (`_wind`, `_pivot`) let each card ride its limb, and without it the whole crown swayed as one (A166).
  */
-export function cullFarCards(canopy: THREE.BufferGeometry, anchor: (p: THREE.Vector3, hit: THREE.Vector3, max?: number) => number, reach: number): { geometry: THREE.BufferGeometry; removed: number } {
+export function cullFarCards(canopy: THREE.BufferGeometry, anchor: ReturnType<typeof woodAnchor>, reach: number): { geometry: THREE.BufferGeometry; removed: number } {
   const position = canopy.getAttribute("position");
   const index = canopy.index;
   if (!position || !index) return { geometry: canopy, removed: 0 };
@@ -675,7 +679,7 @@ export function cullFarCards(canopy: THREE.BufferGeometry, anchor: (p: THREE.Vec
     centre.set(0, 0, 0);
     for (let k = 0; k < 4; k++) centre.add(new THREE.Vector3().fromBufferAttribute(position, first + k));
     centre.multiplyScalar(0.25);
-    if (anchor(centre, hit, reach) > reach) { removed++; continue; }
+    if (anchor(centre, hit, reach, reach) > reach) { removed++; continue; }
     const base = keptVertices.length;
     for (let k = 0; k < 4; k++) keptVertices.push(first + k);
     kept.push(base, base + 1, base + 2, base, base + 2, base + 3);
@@ -750,8 +754,8 @@ export function snapDetachedClumps(canopy: THREE.BufferGeometry, wood: THREE.Buf
       for (const i of members) {
         let before = Infinity, after = Infinity;
         for (const sample of set.parts[i]!.samples) {
-          before = Math.min(before, anchor(sample, supportHit));
-          after = Math.min(after, anchor(p.copy(sample).add(delta), supportHit));
+          before = Math.min(before, anchor(sample, supportHit, before));
+          after = Math.min(after, anchor(p.copy(sample).add(delta), supportHit, after));
         }
         if (!(after < before - 1e-5)) return;
       }
@@ -806,7 +810,7 @@ export function seatFarCards(canopy: THREE.BufferGeometry, wood: THREE.BufferGeo
     }
     let distance = Infinity;
     for (const sample of part.samples) {
-      const d = anchor(at.copy(sample).add(held), hit);
+      const d = anchor(at.copy(sample).add(held), hit, distance, reach);
       if (d < distance) { distance = d; nearest.copy(hit); from.copy(at); }
       // One supporting sample already keeps this card. Later samples cannot increase its minimum distance.
       if (distance <= reach) break;
@@ -868,7 +872,7 @@ export function anchorFarFoliage(leaf: THREE.BufferGeometry, wood: THREE.BufferG
     set.far.forEach((far, i) => {
       if (!far) return;
       let best = Infinity; const from = new THREE.Vector3(), to = new THREE.Vector3();
-      for (const sample of set.parts[i]!.samples) { const d = anchor(sample, hit); if (d < best) { best = d; from.copy(hit); to.copy(sample); } }
+      for (const sample of set.parts[i]!.samples) { const d = anchor(sample, hit, best); if (d < best) { best = d; from.copy(hit); to.copy(sample); } }
       const length = from.distanceTo(to);
       if (Number.isFinite(length) && length > reach * inside) twigs.push({ from, to: from.clone().lerp(to, (length - reach * inside) / length) });
     });

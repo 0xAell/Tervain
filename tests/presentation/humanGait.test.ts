@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { JumpMotion, poseJump } from '../../src/presentation/human/jump';
+import { ANGLE_KEYS } from '../../src/presentation/characters';
 import { HERO_RUN_CYCLE, HERO_WALK_CYCLE } from '../../src/core/rules/heroLocomotion';
 import { RUN_STEP, WALK_STEP, walkingFoot } from '../../src/presentation/human/gait';
 
@@ -45,5 +47,44 @@ describe('authored human steps', () => {
     expect(foot(0, Math.PI / 2).side).toBeGreaterThan(0.3);
     expect(foot(0, -Math.PI / 2).side).toBeCloseTo(-foot(0, Math.PI / 2).side, 6);
     expect(foot(1)).toEqual(foot(0));
+  });
+});
+
+describe('the native human jump', () => {
+  const angles = () => Object.fromEntries(ANGLE_KEYS.map(key => [key, 0]));
+  it('changes the lead knee with the push-off foot and keeps a ledge fall distinct from a jump', () => {
+    const pose = (stride: number, launched: boolean, amp = 1) => {
+      const motion = new JumpMotion(), a = angles();
+      motion.update(1/60, false, launched ? 5 : -.2, stride);
+      poseJump(a, motion.update(1/60, false, 0, stride)!, 1, amp);
+      return a;
+    };
+    const left = pose(0, true), right = pose(.5, true);
+    expect(left.legL).toBeLessThan(left.legR! - .7);
+    expect(right.legR).toBeCloseTo(left.legL!, 8);
+    expect(right.kneeL).toBeCloseTo(left.kneeR!, 8);
+    expect(left.armRx).toBeLessThan(left.armLx!);
+    expect(pose(0, false).kneeL).toBeLessThan(left.kneeL! - .4);
+    expect(Math.abs(pose(0, true, .6).armRx!)).toBeLessThan(Math.abs(left.armRx!));
+  });
+
+  it.each([30, 60, 120])('takes landing weight through the knees without sending the planted ankle underground at %i Hz', hz => {
+    const motion = new JumpMotion(), dt = 1/hz;
+    motion.update(dt, false, -5.4, 0);
+    const contact = () => {
+      const a = angles(); a.legL = -.18; a.kneeL = .34; a.soleL = -.16;
+      const ankle = () => [a.lower! - thigh * Math.cos(a.legL!) - shin * Math.cos(a.legL! + a.kneeL!),
+        -thigh * Math.sin(a.legL!) - shin * Math.sin(a.legL! + a.kneeL!)];
+      const [y,z] = ankle(), jump = motion.update(dt, true, 0, 0);
+      if (jump) poseJump(a, jump, 0, 1);
+      expect(ankle()[0]).toBeCloseTo(y!, 8); expect(ankle()[1]).toBeCloseTo(z!, 8);
+      expect(a.legL! + a.kneeL! + a.soleL!).toBeCloseTo(0, 8);
+      return -a.lower!;
+    };
+    const drop = Array.from({length: Math.ceil(.34 * hz)}, contact);
+    expect(Math.max(...drop)).toBeGreaterThan(.14);
+    expect(drop.at(-1)).toBeCloseTo(0, 8);
+    motion.update(dt, false, -6, 0); motion.reset();
+    expect(motion.update(dt, true, 0, 0)).toBeUndefined();
   });
 });

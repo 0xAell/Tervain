@@ -43,6 +43,7 @@ import { MaterialSet, Region } from './regions';
 import { signSway, type SwingingPart } from './innSign';
 import { TINT, buildShrineHallShell, crate, door, fieldstone, jitterTone, roofFor, sack, villageBell, windowAt, woodpile, type Rnd } from './structures';
 import { buildWorldPickups, isWorldPickupItem } from './worldPickups';
+import { strandWrack } from './strandWreckage';
 
 export function makeTextTexture(w: number, h: number, draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void): THREE.CanvasTexture {
   const c = document.createElement('canvas');
@@ -611,6 +612,7 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
     // it (a pickup), beside a stove-in sea chest.
     const wr = ARRIVAL_WRECK;
     wreck(region('coast'), rnd, wr.x, gy(wr.x, wr.z) - 0.1, wr.z, wr.yaw, wr.length);
+    strandWrack(region('coast'), gy);
     {
       const C = region('coast');
       const bx = wr.x + 1.9;

@@ -21,7 +21,7 @@ import { WorldScene } from '../../src/presentation/world';
 import { buildWorldPickups, pickupGeometry, pickupPlacement, setPickupVisible } from '../../src/presentation/worldPickups';
 import { buildStaticColliders, Colliders, PROP_COLLIDER } from '../../src/core/world/colliders';
 import {
-  ANCHORS, ARRIVAL_ROUTE, FIELDS, fieldFenceRuns, FOREST_WAYMARKERS, HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, KIT_TABLE, NOTICEBOARD, PICKUP_LOCATIONS,
+  ANCHORS, ARRIVAL_ROUTE, ARRIVAL_WRECK, FIELDS, fieldFenceRuns, FOREST_WAYMARKERS, HUNTER_CAMP, HUNTER_SUPPLY, HUNTER_TABLE, hunterStationPoint, KIT_TABLE, NOTICEBOARD, PICKUP_LOCATIONS,
   QUARRY_BOULDERS, SPAWN,
 } from '../../src/core/world/layout';
 import { NavGrid } from '../../src/core/world/nav';
@@ -538,6 +538,20 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
       expect(restored.state.inventory.coin).toBe(coin + 2);
       expect(restored.state.facts.hunter_game_delivered).toBe(true);
     }
+  });
+
+  it('lets the player walk from the landing to the wreck breach and reach the sword through it', () => {
+    const target = targets.find(item => item.id === 'pickup:wreck_blade')!;
+    const blade = target.pos();
+    // The broken side lies along the hull's negative local x axis.
+    const x = blade.x - Math.cos(ARRIVAL_WRECK.yaw) * 1.25;
+    const z = blade.z + Math.sin(ARRIVAL_WRECK.yaw) * 1.25;
+    const approach = { x, y: terrain.groundAt(x, z), z, yaw: Math.atan2(blade.x - x, blade.z - z) };
+    expect(terrain.walkable(x, z)).toBe(true);
+    expect(colliders.blocked(x, z, .4, { minY: approach.y + .03, maxY: approach.y + 1.95 })).toBe(false);
+    expect(connectsToArrival(approach)).toBe(true);
+    const nearby = targets.filter(item => item.id.startsWith('pickup:') || item.id.startsWith('inspect:'));
+    expect(chooseInteractable(nearby, approach, approach.yaw, terrain, colliders)).toBe(target);
   });
 
   it.each(additions)('makes $id reachable from the arrival through the full authored obstacle set', (point) => {
