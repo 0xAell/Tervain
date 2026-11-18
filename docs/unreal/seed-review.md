@@ -501,7 +501,7 @@ Improved:
   instances' matrices, its list of what to draw, their colours) and the depth and distance materials a mesh carries for
   its shadows. The thornback's two batches have no owner but the world, so every world it stood in kept their four
   textures and two depth materials after it was torn down. In a loaded journey the teardown now leaves none of the
-  batches' data textures and shadow materials behind, where it left those six (`disposeScene.ts`) ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  batches' data textures and shadow materials behind, where it left those six (`disposeScene.ts`) ([#909](https://github.com/0xAell/Tervain/pull/909)).
 
 Next:
 
