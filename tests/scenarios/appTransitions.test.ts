@@ -324,6 +324,23 @@ describe('actual application world transitions', () => {
     expect(Reflect.get(app, 'worldBuilding')).toBe(false);
   });
 
+  it('disposes a partially adopted world and retries with the last complete prop snapshot', async () => {
+    const { app, oldWorld, nextWorld, call } = rebuildFixture();
+    const failed = nextWorld(), recovered = nextWorld();
+    const poses = [{ id: 'loose_barrel_0', position: { x: 7, y: 1, z: 3 }, rotation: { x: 0, y: 0, z: 0, w: 1 } }];
+    Reflect.set(oldWorld.physics, 'snapshot', vi.fn(() => poses));
+    vi.spyOn(WorldScene, 'create')
+      .mockResolvedValueOnce(failed as unknown as WorldScene)
+      .mockResolvedValueOnce(recovered as unknown as WorldScene);
+    Reflect.set(app, 'syncWorldFromState', vi.fn().mockImplementationOnce(() => { throw new Error('adopting the cast'); }));
+    await expect(call('buildWorld')).rejects.toThrow('adopting the cast');
+    expect(failed.dispose).toHaveBeenCalledOnce();
+    await call('buildWorld');
+    expect(failed.physics.snapshot).not.toHaveBeenCalled();
+    expect(recovered.physics.restore).toHaveBeenCalledWith(poses);
+    expect(recovered.dispose).not.toHaveBeenCalled();
+  });
+
   it('quickloading while already playing clears held movement, toggles and queued jump', () => {
     const { app, input, key, call } = fixture();
     key('KeyW'); key('ShiftLeft'); key('KeyB'); key('Space');

@@ -253,21 +253,24 @@ function sand(n: number): Layer {
   const L = newLayer(n);
   const low = fbmField(n, 4, 4, 3, 91);
   const grain = fbmField(n, 96, 96, 2, 92);
-  const rip = fbmField(n, 5, 40, 2, 93);
+  const ripple = fbmField(n, 3, 4, 2, 93);
   const shell = voronoi(n, 16, 94, 0.9);
   for (let o = 0; o < n * n; o++) {
-    const r = Math.sin((rip[o]! * 7 + (o / n | 0) / n * 24) * Math.PI * 2) * 0.5 + 0.5;
-    let c = mixc([0.47, 0.38, 0.27], [0.6, 0.5, 0.37], low[o]!);
-    const k = 0.9 + grain[o]! * 0.2 + (r - 0.5) * 0.08;
-    c = [c[0] * k, c[1] * k, c[2] * k];
-    const sp = rnd(o, 95);
-    if (sp > 0.985) c = [c[0] * 0.55, c[1] * 0.55, c[2] * 0.5];
-    else if (sp < 0.008) c = [0.7, 0.66, 0.58];
-    if (shell.f1[o]! < 0.06 && shell.id[o]! > 0.8) c = [0.62, 0.58, 0.5];
-    // Fine sandy marks remain colour detail. Oversized normal ridges made an
-    // otherwise dry beach look like embossed foil under low coastal sunlight.
-    put(L, o, c, clamp01(0.46 + (r - 0.5) * 0.12 + grain[o]! * 0.12));
+    // Dry shell sand crests over thin seams of darker, heavier grains. The seams
+    // disappear where coarser grit interrupts them. Relief stays shallow and matte.
+    const phase = (o / n | 0) / n * 9 + ripple[o]! * 1.8;
+    const ridge = Math.sin(phase * Math.PI * 2) * .5 + .5;
+    const ripplePatch = sstep(.34, .64, low[o]!);
+    const seam = sstep(.62, .96, ridge) * (.04 + .25 * ripplePatch);
+    const base = mixc([.45, .405, .335], [.71, .655, .54], low[o]!);
+    const grit = .90 + grain[o]! * .20;
+    let c = mixc([base[0] * grit, base[1] * grit, base[2] * grit], [.32, .315, .30], seam);
+    const chip = rnd(o, 95);
+    if (chip > .984) c = mixc(c, [.23, .245, .24], .54);
+    if (chip < .006 || (shell.f1[o]! < .075 && shell.id[o]! > .8)) c = [.75, .715, .625];
+    put(L, o, c, .44 + ridge * (.006 + .022 * ripplePatch) + grain[o]! * .10);
   }
+  groundFragments(L, n, 96, 120, 1);
   return L;
 }
 
@@ -275,14 +278,16 @@ function wetsand(n: number): Layer {
   const L = newLayer(n);
   const low = fbmField(n, 4, 4, 3, 101);
   const grain = fbmField(n, 64, 64, 2, 102);
-  const rip = fbmField(n, 6, 30, 2, 103);
+  const wash = fbmField(n, 3, 4, 2, 103);
   for (let o = 0; o < n * n; o++) {
-    const r = Math.sin((rip[o]! * 5 + (o / n | 0) / n * 16) * Math.PI * 2) * 0.5 + 0.5;
-    let c = mixc([0.24, 0.19, 0.13], [0.33, 0.27, 0.2], low[o]!);
-    const k = 0.92 + grain[o]! * 0.14 + (r - 0.5) * 0.1;
-    c = [c[0] * k, c[1] * k, c[2] * k];
-    if (rnd(o, 105) > 0.995) c = [0.14, 0.12, 0.1];
-    put(L, o, c, clamp01(0.48 + (r - 0.5) * 0.11 + grain[o]! * 0.035));
+    const phase = (o / n | 0) / n * 7 + wash[o]! * 2.1;
+    const ridge = Math.sin(phase * Math.PI * 2) * .5 + .5;
+    const silt = sstep(.60, .98, ridge) * (.1 + .26 * sstep(.32, .64, low[o]!));
+    let c = mixc([.25, .245, .225], [.435, .405, .34], low[o]!);
+    c = mixc(c, [.19, .213, .203], silt);
+    const grit = .94 + grain[o]! * .12;
+    if (rnd(o, 105) > .993) c = [.17, .18, .17];
+    put(L, o, [c[0] * grit, c[1] * grit, c[2] * grit], .46 + ridge * .026 + grain[o]! * .035);
   }
   return L;
 }

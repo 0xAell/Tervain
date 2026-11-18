@@ -84,13 +84,13 @@ export function anchorLeafIslands(leaf: THREE.BufferGeometry, wood: THREE.Buffer
   const touches = (part: (typeof list)[number]) => {
     part.box.getCenter(centre);
     const radius = part.box.min.distanceTo(part.box.max) / 2;
-    const d = anchor(centre, hit, reach + radius);
+    const d = anchor(centre, hit, reach + radius, reach);
     if (d === Infinity) return false;
-    return d <= reach || part.samples.some(q => anchor(q, hit, reach) <= reach);
+    return d <= reach || part.samples.some(q => anchor(q, hit, reach, reach) <= reach);
   };
   const nearestFrom = new THREE.Vector3(), nearestTo = new THREE.Vector3();
-  const nearest = (part: (typeof list)[number]) => {
-    let d = Infinity;
+  const nearest = (part: (typeof list)[number], best: number) => {
+    let d = best;
     // Preserve the centre-first search and tie ordering without allocating an array and three vectors per part.
     for (let n = -1; n < part.samples.length; n++) {
       const q = n < 0 ? part.box.getCenter(centre) : part.samples[n]!;
@@ -198,7 +198,7 @@ export function anchorLeafIslands(leaf: THREE.BufferGeometry, wood: THREE.Buffer
   for (const members of islands) {
     const near = { d: Infinity, from: new THREE.Vector3(), to: new THREE.Vector3() };
     for (const i of members) {
-      const d = nearest(list[i]!);
+      const d = nearest(list[i]!, near.d);
       // A later part reuses the search scratch; retain this island's winning contact in its own vectors.
       if (d < near.d) { near.d = d; near.from.copy(nearestFrom); near.to.copy(nearestTo); }
     }

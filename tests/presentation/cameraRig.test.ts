@@ -12,6 +12,53 @@ const flat = { groundAt: () => 0 };
 const distance = (cam: CameraRig) => Math.hypot(cam.camera.position.x, cam.camera.position.y - 1.55, cam.camera.position.z);
 
 describe('woodland camera obstruction', () => {
+  it('only samples the ground below a nearby obstacle when its own vertical bounds are incomplete', () => {
+    const ground = { groundAt: vi.fn(() => 0) }, walls = new Colliders();
+    walls.box('room:test:wall', 0.73, -4.26, 0.25, 0.1, 0, true, { minY: 0, maxY: 3 });
+    walls.box('old-wall', 0.91, -4.18, 0.25, 0.1);
+    new CameraRig().follow(1 / 60, 0, 0, 0, ground, walls, false, 0);
+    expect(ground.groundAt).not.toHaveBeenCalledWith(0.73, -4.26);
+    expect(ground.groundAt).toHaveBeenCalledWith(0.91, -4.18);
+  });
+
+  it('keeps the shoulder view of the hero when a wall shortens the boom at his side', () => {
+    const walls = new Colliders();
+    walls.box('side-room-wall', -1, -1.1, 0.45, 0.05, 0, true, { minY: 0, maxY: 3 });
+    const cam = new CameraRig(); cam.pitch = 0; cam.setAiming(true);
+    cam.follow(1/60, 0, 0, 0, flat, walls, true, 0);
+    expect(-cam.camera.position.z).toBeLessThan(0.85);
+    expect(cam.camera.position.x).toBe(-AIM_VIEW.right);
+    expect(cam.bodyVisible).toBe(true);
+    expect(cam.bodyCoverage).toBeGreaterThan(0.9);
+  });
+
+  it.each([30, 60, 120])('keeps the hero in frame when aiming under low doorway trim at %i Hz', hz => {
+    const walls = new Colliders();
+    walls.cameraBox('low-overhang', -0.94, 0, 0.5, 0.45, 0, { minY: 2.1, maxY: 2.5 });
+    const cam = new CameraRig(); cam.pitch = 0; cam.setAiming(true);
+    for (let i = 0; i < hz; i++) cam.follow(1 / hz, 0, 0, 0, flat, walls, false, 0);
+    // The shoulder lifts into this trim only near the end of its lateral travel; the boom behind it is clear.
+    expect(cam.camera.position.z).toBeCloseTo(-AIM_VIEW.boom, 6);
+    expect(cam.camera.position.x).toBeGreaterThan(-AIM_VIEW.right);
+    expect(cam.camera.position.x).toBeLessThan(-0.45);
+    expect(cam.camera.position.y + CAMERA_CLEARANCE).toBeLessThan(2.1);
+    expect(cam.bodyVisible).toBe(true);
+    expect(cam.camera.getWorldDirection(new THREE.Vector3()).z).toBeCloseTo(1, 8);
+  });
+
+  it('restores a saved indoor view below the beams on its first frame and leaves an elevated exterior view alone', () => {
+    const walls = new Colliders();
+    walls.cameraBox('room:test:roof', 0, 0, 8, 8, 0, { minY: 3.2, maxY: 4.8 });
+    const cam = new CameraRig(); cam.pitch = 0.6;
+    cam.follow(1 / 60, 0, 0, 0, flat, walls, false, 0);
+    expect(cam.interiorBlend).toBe(1);
+    expect(cam.camera.position.y).toBeLessThanOrEqual(2.4);
+    expect(cam.camera.position.y).toBeGreaterThan(2.39);
+    cam.reset();
+    cam.follow(1 / 60, 0, 5, 0, flat, walls, false, 0);
+    expect(cam.interiorBlend).toBe(0);
+    expect(cam.camera.position.y).toBeCloseTo(5 + 1.55 + Math.sin(0.6) * 6.2, 5);
+  });
   it('eases into the shoulder view, tightens with the draw and lifts briefly on the loose (B11)', () => {
     const cam = new CameraRig(); cam.pitch = 0; cam.wantDist = 7;
     cam.follow(1 / 60, 0, 0, 0, flat, new Colliders(), false, 0);

@@ -10,6 +10,7 @@ import type { InteriorSpec } from '../core/world/interiors';
 import { DoorSwings, type DoorEvent } from './doors';
 import { drawFromFewerTriangles } from './hero/shadowCaster';
 import * as THREE from 'three';
+import { SandTracks } from './sandTracks';
 import { buildHunterSupplies, disposeHunterSupplies } from './hunterSupplies';
 import { buildAnimalCamp } from './animalCamp';
 import { S } from '../core/content/strings';
@@ -25,7 +26,7 @@ import { SkyRig } from './sky';
 import { buildTerrainTilesAsync } from './terrainMesh';
 import { makeTerrainTextures, TERRAIN_TEXTURE_SIZE, type TerrainTextures } from './terrainTextures';
 import { buildScenery, type SceneryHandles } from './settlement';
-import { buildFlora } from './flora';
+import { buildFloraAsync } from './flora';
 import { buildScatter } from './scatter';
 import { buildAmbient } from './ambient';
 import { buildGroundcover, type Groundcover } from './groundcover';
@@ -192,6 +193,7 @@ export class WorldScene {
   private dustNeedsClear = true;
   private riteResponse: RiteResponse;
   private disposeOwned: () => void;
+  readonly sandTracks = new SandTracks();
   time = 0;
   /** Set by the app each frame: true while the player is standing inside the archive. */
   playerInArchive = false;
@@ -320,7 +322,12 @@ export class WorldScene {
       const landmarks = own(buildForestLandmarks(terrain, colliders, settings.quality));
       addModule('woodland landmarks', { group: landmarks.group, update() {}, stats: () => landmarks.stats });
       await checkpoint('woodland', 'Trees and forest floor');
-      const forest = addModule('forest', buildFlora(ctx, pine, true, treeTemplates));
+      const forest = addModule('forest', await buildFloraAsync(ctx, pine, true, treeTemplates, {
+        ...options,
+        onForestProgress: progress => phase('woodland', progress.phase === 'variants'
+          ? `Tree variants prepared · ${progress.completed}`
+          : `Tree groups assembled · ${progress.completed} of ${progress.total}`),
+      }));
       // Tree shadows come from shadow-only casters that the colour pass never draws.
       const casters = forest.shadowCasters as THREE.Group | undefined;
       if (casters) own({ dispose: installShadowOnlyGroup(scene, sky.sun, casters) });
@@ -474,6 +481,7 @@ export class WorldScene {
 
   private constructor(state: WorldState, resources: WorldResources) {
     this.scene = resources.scene;
+    this.scene.add(this.sandTracks.mesh);
     this.terrain = resources.terrain;
     this.colliders = resources.colliders;
     this.sky = resources.sky;
@@ -747,6 +755,7 @@ export class WorldScene {
    */
   update(dt: number, state: WorldState, focus: THREE.Vector3, settings: Settings, hour: number, camera: THREE.Camera, wildlifeActive = true, clockRuns = true) {
     this.time += dt;
+    if (clockRuns) this.sandTracks.update(dt);
     this.view = worldView(state);
     const v = this.view;
     const reduced = settings.reducedMotion;

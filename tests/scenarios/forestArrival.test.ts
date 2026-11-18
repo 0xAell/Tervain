@@ -81,14 +81,15 @@ describe('quiet landing and deepwood arrival', () => {
     }
   });
 
-  it('wakes on dry, walkable beach sand facing the actual first inland track point', () => {
+  it('wakes on dry sand facing the stranded hull, with paths to the sword and inland track', () => {
     expect(shoreDistance(SPAWN.x, SPAWN.z)).toBeGreaterThan(5);
     expect(shoreDistance(SPAWN.x, SPAWN.z)).toBeLessThan(10);
     expect(terrain.heightAt(SPAWN.x, SPAWN.z)).toBeGreaterThan(0.2);
     expect(terrain.heightAt(SPAWN.x, SPAWN.z)).toBeLessThan(1);
     expect(terrain.walkable(SPAWN.x, SPAWN.z, 0.8)).toBe(true);
     const first = ARRIVAL_ROUTE[0]!;
-    expect(SPAWN.yaw).toBeCloseTo(Math.atan2(first.x - SPAWN.x, first.z - SPAWN.z));
+    expect(SPAWN.yaw).toBeCloseTo(Math.atan2(ARRIVAL_WRECK.x - SPAWN.x, ARRIVAL_WRECK.z - SPAWN.z));
+    expect(nav.findPath(SPAWN, INSPECT_LOCATIONS.find(p => p.id === 'arrival_wreckage')!)).not.toBeNull();
     expect(nav.findPath(SPAWN, first)).not.toBeNull();
   });
 

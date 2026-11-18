@@ -8,7 +8,7 @@ import { MAP_BOUNDS } from '../src/presentation/ui/mapProjection';
 import { mapTerrainColor } from '../src/presentation/ui/mapTerrain';
 import { coastX, shoreDistance } from '../src/core/world/coast';
 import { DISTANT_COAST, distantCoastHeight } from '../src/core/world/distantCoast';
-import { ARRIVAL_ROUTE, COAST_SHELVES, LIGHTHOUSE, SEA_LEVEL, SPAWN, WORLD } from '../src/core/world/layout';
+import { ARRIVAL_WRECK, COAST_SHELVES, LIGHTHOUSE, SEA_LEVEL, SPAWN, WORLD } from '../src/core/world/layout';
 import { Terrain } from '../src/core/world/terrain';
 import { BATHY, BATHY_NX, BATHY_NZ, buildBathymetry, SWASH_LIMIT } from '../src/core/world/water/bathymetry';
 
@@ -35,7 +35,7 @@ describe('original coastal bay composition and physical ground', () => {
     expect(terrain.heightAt(SPAWN.x, SPAWN.z)).toBeGreaterThan(0.2);
     expect(terrain.heightAt(SPAWN.x, SPAWN.z)).toBeLessThan(1);
     expect(terrain.walkable(SPAWN.x, SPAWN.z, 0.8)).toBe(true);
-    expect(SPAWN.yaw).toBeCloseTo(Math.atan2(ARRIVAL_ROUTE[0]!.x - SPAWN.x, ARRIVAL_ROUTE[0]!.z - SPAWN.z));
+    expect(SPAWN.yaw).toBeCloseTo(Math.atan2(ARRIVAL_WRECK.x - SPAWN.x, ARRIVAL_WRECK.z - SPAWN.z));
   });
 
   it('keeps a broad low sand apron and shallow wading before the dry grass-capped rock shelves', () => {

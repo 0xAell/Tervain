@@ -124,6 +124,7 @@ export interface WandererContext {
   onHurt(damage: number, blocked: boolean): void;
   onDeath(): void;
   onBoundary(): void;
+  onSandStep?(x: number, feet: number, z: number, yaw: number): void;
 }
 
 /** What his body is doing, for whoever poses it. */
@@ -1028,6 +1029,7 @@ export class Wanderer {
   private footfall(ctx: WandererContext, sprinting: boolean) {
     const water = ctx.water && this.waterDepth > 0.32 && !this.swimming ? ctx.water.sample(this.x, this.z) : null;
     if (!water) {
+      if (this.surface === 'sand' && this.grounded && !this.mount) ctx.onSandStep?.(this.x, this.y, this.z, this.yaw);
       ctx.audio.footstep(this.surface, sprinting);
       return;
     }

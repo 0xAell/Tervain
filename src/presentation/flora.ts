@@ -1,4 +1,6 @@
 import { anchorFarFoliage } from './canopy';
+import { finishCooperatively, yieldToBrowser, type CooperativeOptions } from '../platform/cooperative';
+import { Colliders } from '../core/world/colliders';
 import { intersectsTreeBounds } from './foliage/treeBounds';
 import { treeFootprint, treePlacementBox } from './foliage/treeFootprint';
 import { createMeshyForest, type MeshyForest, type MeshyTreeTemplates } from './meshyTrees';
@@ -177,7 +179,7 @@ export function plantedObstacleRadius(terrain: Pick<Terrain, 'heightAt'>, models
   return models.usesPine(tree.sp) ? tree.radius : treeWoodCollisionRadius(models.variantFor(tree), tree.s, terrain.heightAt(tree.x, tree.z) - tree.y);
 }
 
-export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, deferFloor = false, meshyTemplates?: MeshyTreeTemplates): SceneModule & {
+interface ForestModule extends SceneModule {
   counts: { trees: number; triangles: number; species: Record<string, number> }; physicalWood: readonly PhysicalWoodGeometry[]; initializeFloor(extraTrees?: readonly FloraTree[]): void;
   /** Meshes drawn only into the sun's shadow map; the world shows them for the shadow pass alone. */
   shadowCasters: THREE.Group;
@@ -192,29 +194,98 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
   lighterForReflection(): () => void;
   /** The leafy crowns near (x, z), for the follow camera to keep out of (A82). */
   crownsNear(x: number, z: number, r: number): readonly CameraCrown[];
-} {
+}
+
+export function buildFlora(ctx: BuildContext, pine: PineTemplates, deferFloor = false, trees?: MeshyTreeTemplates): ForestModule {
+  const steps = forestSteps(ctx, pine, deferFloor, trees);
+  let next = steps.next();
+  while (!next.done) next = steps.next();
+  return next.value;
+}
+
+type ForestProgress = { phase: 'variants'; completed: number } | { phase: 'batches'; completed: number; total: number };
+
+export function buildFloraAsync(ctx: BuildContext, pine: PineTemplates, deferFloor: boolean, trees: MeshyTreeTemplates | undefined,
+  options: CooperativeOptions & { onForestProgress?: (progress: ForestProgress) => void }): Promise<ForestModule> {
+  let latest: ForestProgress | undefined;
+  return finishCooperatively(forestSteps(ctx, pine, deferFloor, trees), {
+    ...options,
+    onProgress: update => { if (update) latest = update; },
+    yieldNow: async () => {
+      if (latest) { options.onForestProgress?.(latest); latest = undefined; }
+      await (options.yieldNow ?? yieldToBrowser)();
+    },
+  });
+}
+
+function* forestSteps(ctx: BuildContext, pine: PineTemplates, deferFloor: boolean, trees?: MeshyTreeTemplates): Generator<ForestProgress | void, ForestModule> {
+  // A cancelled world never publishes its colliders or crowns. Release the completed portions in reverse ownership order.
+  const cleanup: (() => void)[] = [];
+  let complete = false;
+  try {
+    const forest = yield* constructForest(ctx, pine, deferFloor, trees, cleanup);
+    complete = true;
+    return forest;
+  } finally {
+    if (!complete) for (const release of cleanup.reverse()) {
+      try { release(); } catch { /* Preserve the build error and release the other independent resources. */ }
+    }
+  }
+}
+
+function* constructForest(ctx: BuildContext, pineTemplates: PineTemplates, deferFloor: boolean, meshyTemplates: MeshyTreeTemplates | undefined,
+  cleanup: (() => void)[]): Generator<ForestProgress | void, ForestModule> {
   const { terrain, colliders, quality, sway, excl } = ctx;
   const group = new THREE.Group();
   group.name = 'flora';
   const pine = createPineForest(pineTemplates);
+  cleanup.push(() => pine.dispose());
   const meshy = meshyTemplates ? createMeshyForest(meshyTemplates) : null;
+  if (meshy) cleanup.push(() => meshy.dispose());
   // Species 'pine' draws the generated hero pines (on by default, HERO_PINE_DEFAULT; ?heropine=0 turns them off). A pine's
   // spacing and collider read the live pine's trunk; its crown's reach and its seat on the ground are the hero pine's own,
   // so the hero pines decide which trees fit as well as where the pines stand. The core's copy of the forest is planted the
   // same way (tests/presentation/plantedForest.test.ts).
   const heroTemplates = heroPineEnabled() ? heroPineTemplates() : null;
   const hero = heroTemplates ? createHeroPineForest(heroTemplates) : null;
+  if (hero) cleanup.push(() => hero.dispose());
   const heroVariants = new Set<TreeVariant>();
   const models = forestModels(pine, meshy, hero, (variant) => heroVariants.add(variant));
   const { usesPine, variantFor, footprintFor, variants } = models;
+  const disposeVariants = () => {
+    // Grounding also examines rejected candidates; all procedural variants belong to this world.
+    for (const variant of variants.values()) {
+      for (const lod of usesPine(variant.species) || meshy ? [] : variant.lods) {
+        lod.wood?.dispose();
+        lod.leaf?.dispose();
+      }
+    }
+    variants.clear();
+    disposeTreeMaterials();
+    disposeTreeTextures();
+  };
+  cleanup.push(disposeVariants);
+  yield;
   // The core keeps this forest to the bit, planted with the models and flags used by default (PLANTED_WITH). Planting it
   // again builds every supplied tree a generated one replaces, only to measure where it would stand: most of the
   // woodland's load. A journey that takes it loads only the models its trees are drawn with (forestTreeIds); a forest
   // planted with anything else, or without those models, is planted here.
   const population = takesPlantedForest(!!hero) && !!meshyTemplates && PLANTED_DRAWS.every((id) => meshyTemplates.has(id))
     ? PLANTED_FLORA.map((tree) => ({ ...tree })) : plantForest(terrain, excl, pine, meshy, models);
+  let variantsReported = 0;
+  const variantProgress = (): ForestProgress | undefined => {
+    if (variants.size === variantsReported) return;
+    variantsReported = variants.size;
+    return { phase: 'variants', completed: variantsReported };
+  };
   // Navigation uses the wood actually drawn after seating (a generated oak's flare and roots differ from the footprint that keeps placement).
-  registerFloraColliders(population, colliders, undefined, (tree) => plantedObstacleRadius(terrain, models, tree));
+  const navigationRadius = new Map<FloraTree, number>();
+  for (const tree of population) {
+    if (!tree.collisionId || tree.radius <= 0) continue;
+    navigationRadius.set(tree, plantedObstacleRadius(terrain, models, tree));
+    yield variantProgress();
+  }
+  const registerObstacles = (target: Colliders) => registerFloraColliders(population, target, undefined, tree => navigationRadius.get(tree)!);
   // Static rigid-body contact uses the same complete wood as the visible source tree,
   // rather than treating its broad ground-plane navigation circle as an infinite cylinder.
   // Pack only once per variant; hundreds of instances share these source buffers.
@@ -247,6 +318,7 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
     }
     physicalWood.push({ id: tree.collisionId, ...buffers, translation: { x: tree.x, y: tree.y, z: tree.z }, yaw: tree.yaw, scale: tree.s });
     woodTrees.set(tree.collisionId, { tree, variant });
+    yield variantProgress();
   }
   const { trees, obstacles } = selectFloraPopulation(population, quality);
   const plantedCrowns = new PlantedCrownIndex();
@@ -255,13 +327,13 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
     const leaf = variantFor(tree).lods[0].leaf;
     if (leaf) plantedCrowns.add(tree.sp, tree, leaf);
   }
-  ctx.plantedCrowns = plantedCrowns;
   let forestFloor: SceneModule | undefined;
   const initializeFloor = (extraTrees: readonly FloraTree[] = []) => {
     if (forestFloor) return;
     forestFloor = buildForestFloor(terrain, excl, quality, [...population, ...extraTrees], plantedCrowns, ctx.foliage);
     group.add(forestFloor.group);
   };
+  cleanup.push(() => forestFloor?.dispose?.());
   if (!deferFloor) initializeFloor();
 
   /* Developer aid: `?lineup=x,z` plants one of every species in rows near a point, and `?lod=0|1|2` forces a level of detail. */
@@ -285,8 +357,10 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
   /* Developer aid for tools/tree-lab.mjs: `?treelab=species[:assetId][@x,z]` leaves exactly one tree, on a cleared meadow. */
   const lab = typeof location !== 'undefined' ? parseTreeLab(location.search) : null;
   if (lab) {
+    const forestObstacles = new Colliders();
+    registerObstacles(forestObstacles);
     let spot: { x: number; z: number } | null = lab.x !== undefined && lab.z !== undefined ? { x: lab.x, z: lab.z } : null;
-    for (const pad of [25, 8, 0]) spot ??= pickLabSpot(terrain, (x, z, r) => colliders.blocked(x, z, r) || excl.blocked(x, z, Math.min(r, pad)));
+    for (const pad of [25, 8, 0]) spot ??= pickLabSpot(terrain, (x, z, r) => colliders.blocked(x, z, r) || forestObstacles.blocked(x, z, r) || excl.blocked(x, z, Math.min(r, pad)));
     console.info(`[treelab] ${lab.species}:${lab.assetId ?? '-'} spot ${spot ? `${spot.x},${spot.z}` : 'none found'}`);
     if (spot) {
       trees.length = 0;
@@ -316,6 +390,7 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
       batches.push(b);
     }
     b.trees.push(t);
+    yield variantProgress();
   }
   // Each leafy tree's crown, placed as its instance is (A82).
   const cameraCrowns = new CrownIndex();
@@ -350,9 +425,30 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
   const casterVisible = new Map<THREE.InstancedMesh, boolean>();
   const casterGeometries: THREE.BufferGeometry[] = [];
   const profileMaterials = new Set<THREE.Material>();
+  const disposeBatches = () => {
+    for (const batch of batches) {
+      for (const visibility of batch.visibility) { visibility.wood?.dispose(); visibility.leaf?.dispose(); }
+      for (const mesh of batch.meshes) {
+        mesh.wood?.dispose();
+        mesh.leaf?.dispose();
+        mesh.leafDepth?.dispose();
+        (mesh.leafDepth?.material as THREE.Material | undefined)?.dispose();
+      }
+      for (const mesh of batch.casters) {
+        mesh.wood?.dispose();
+        mesh.leaf?.dispose();
+      }
+    }
+    for (const material of casterMaterials) material.dispose();
+    for (const geometry of casterGeometries) geometry.dispose();
+    for (const material of profileMaterials) material.dispose();
+    profileMaterials.clear();
+  };
+  cleanup.push(disposeBatches);
   // The largest instance scale of each leaf template: the island pass works in template space, the audit in metres.
   const largest = new Map<THREE.BufferGeometry, number>();
   for (const b of batches) for (const l of b.variant.lods) if (l.leaf) largest.set(l.leaf, Math.max(largest.get(l.leaf) ?? 0, ...b.trees.map(t => t.s)));
+  let completedBatches = 0;
   for (const b of batches) {
     const v = b.variant;
     const response = foliageResponse(v);
@@ -460,14 +556,16 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
       }
     }
     triangles += v.lods[0].tris * b.trees.length;
+    yield { phase: 'batches', completed: ++completedBatches, total: batches.length };
   }
 
   // Detached leaves drift downwind; leaves knocked loose by a strike join them.
   const windDirection = ctx.foliage?.wind.direction;
   const fallingLeaves = buildFallingLeaves(terrain, quality, trees, variantFor, windDirection ? Math.atan2(windDirection[1], windDirection[0]) : 0);
   group.add(fallingLeaves.group);
+  cleanup.push(() => fallingLeaves.dispose?.());
   const burst = ctx.foliage ? createLeafBurst(terrain, ctx.foliage.wind, undefined, reducedMotion) : null;
-  if (burst) group.add(burst.mesh);
+  if (burst) { group.add(burst.mesh); cleanup.push(() => burst.dispose()); }
 
   /* ---- Per-frame selection ---- */
   const frustum = new THREE.Frustum();
@@ -760,6 +858,8 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
     });
   }
 
+  registerObstacles(colliders);
+  ctx.plantedCrowns = plantedCrowns;
   return {
     group,
     physicalWood,
@@ -913,21 +1013,7 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
       forestFloor?.dispose?.();
       fallingLeaves.dispose?.();
       burst?.dispose();
-      for (const batch of batches) {
-        for (const visibility of batch.visibility) { visibility.wood?.dispose(); visibility.leaf?.dispose(); }
-        for (const mesh of batch.meshes) {
-          mesh.wood?.dispose();
-          mesh.leaf?.dispose();
-          mesh.leafDepth?.dispose();
-          (mesh.leafDepth?.material as THREE.Material | undefined)?.dispose();
-        }
-        for (const mesh of batch.casters) {
-          mesh.wood?.dispose();
-          mesh.leaf?.dispose();
-        }
-      }
-      for (const material of casterMaterials) material.dispose();
-      for (const geometry of casterGeometries) geometry.dispose();
+      disposeBatches();
       // The reflection stand-ins hold the renderer's vertex-array states for this world (A95 scout: kept on every rebuild).
       // Their buffers belong to the middle models, which may outlive this world, so they are let go first: disposing
       // then frees only the stand-ins' own states.
@@ -939,22 +1025,11 @@ export function buildFlora(ctx: BuildContext, pineTemplates: PineTemplates, defe
       reflectionProxies.clear();
       for (const frame of reflectionFrames) { frame.active = false; frame.used = 0; frame.swapped.length = 0; }
       reflectionFrames.length = 0;
-      for (const material of profileMaterials) material.dispose();
-      profileMaterials.clear();
       woodTrees.clear();
-      // Grounding also examines rejected candidates; all procedural variants belong to this world.
-      for (const variant of variants.values()) {
-        for (const lod of usesPine(variant.species) || meshy ? [] : variant.lods) {
-          lod.wood?.dispose();
-          lod.leaf?.dispose();
-        }
-      }
+      disposeVariants();
       pine.dispose();
       hero?.dispose();
       meshy?.dispose();
-      variants.clear();
-      disposeTreeMaterials();
-      disposeTreeTextures();
       // The module owns these cached resources; fallback scene cleanup handles everything else.
       group.clear();
     },

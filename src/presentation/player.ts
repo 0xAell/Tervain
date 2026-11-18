@@ -6,6 +6,7 @@ import type { AudioEngine } from './audio';
 import { createPlayerRig, poseRig, setArmed, setSash, applyFlash, type Pose, type Rig } from './characters';
 import type { EnemyActor, NpcActor } from './actors';
 import { PlayerHuntingVisual } from './playerHunting';
+import { JumpMotion } from './human/jump';
 
 // The wanderer's rules and what he does with them live in the core (src/core/rules/hero.ts and wanderer.ts); they are
 // re-exported here for the scene's callers. This file is his body: the rig, the bow and the knife, and the pose.
@@ -28,6 +29,10 @@ export class Player extends Wanderer {
   readonly rig: Rig;
   readonly group = new THREE.Group();
   readonly huntingVisual: PlayerHuntingVisual;
+  private readonly jumpMotion = new JumpMotion();
+  private bootLift = 0;
+  private readonly bootPoint = new THREE.Vector3();
+  private readonly bootSupports = Array.from({ length: 4 }, () => ({ x: Infinity, z: Infinity, y: 0, root: Infinity, age: Infinity }));
 
   constructor(rig: Rig = createPlayerRig()) {
     super();
@@ -59,17 +64,50 @@ export class Player extends Wanderer {
   protected override bodyStruck(): void { this.rig.hitFlash = 1; }
 
   protected override bodyPlaced(): void {
+    this.jumpMotion.reset();
+    this.bootLift = 0;
+    for (const support of this.bootSupports) support.age = Infinity;
     this.rig.hitFlash = 0;
     this.rig.hero?.reset();
     this.rig.root.position.set(this.x, this.y, this.z);
     this.rig.root.rotation.y = this.yaw;
   }
 
+  /** The native boot runs from 7 cm behind its ankle to 21.5 cm ahead. Its rotated heel or toe can dip below
+   * the surface even with the ankle at the right height. Only the visible body receives this small correction. */
+  private settleBoots(pose: Pose, dt: number) {
+    const rig = this.rig;
+    if (!rig.person || !rig.extremities || !pose.groundAt) return;
+    let lift = 0, i = 0;
+    if (pose.grounded) {
+      const stature = rig.hipY / .95;
+      for (const foot of [rig.extremities.LeftFoot, rig.extremities.RightFoot]) {
+        foot.updateWorldMatrix(true, false);
+        for (const z of [-.07, .215]) {
+          const pt = this.bootPoint.set(0, -.08 * stature, z * stature).applyMatrix4(foot.matrixWorld);
+          const support = this.bootSupports[i++]!;
+          support.age += dt;
+          if (support.age >= .12 || Math.abs(pt.x-support.x) + Math.abs(pt.z-support.z) > .065 || Math.abs(this.y-support.root) > .045) {
+            support.x = pt.x; support.z = pt.z; support.root = this.y; support.age = 0;
+            support.y = pose.groundAt(pt.x, pt.z);
+          }
+          // A toe beside a stair riser does not pull the body up onto an unreached tread.
+          if (support.y <= this.y + .12) lift = Math.max(lift, Math.min(.085, support.y - pt.y));
+        }
+      }
+    }
+    this.bootLift = Math.max(lift, this.bootLift - dt * 1.4);
+    rig.body.position.y += this.bootLift;
+  }
+
   protected override present(dt: number, ctx: PlayerCtx, posture: WandererPosture): void {
+    const onFoot = !posture.straddle && !this.swimming && !this.blocking && !this.bowAiming && this.state === 'free';
+    if (!onFoot) this.jumpMotion.reset();
     const pose: Pose = {
       mode: posture.mode, speed: posture.speed, time: posture.time, t: posture.t,
       amp: ctx.settings.reducedMotion ? 0.6 : 1,
       grounded: posture.grounded,
+      jump: onFoot ? this.jumpMotion.update(dt, posture.grounded, this.vy, posture.time, this.vault?.t) : undefined,
       travel: posture.travel,
       moveSpeed: posture.moveSpeed,
       heading: posture.heading,
@@ -86,6 +124,8 @@ export class Player extends Wanderer {
     this.rig.root.rotation.y = this.yaw;
     this.rig.root.updateMatrixWorld(true);
     poseRig(this.rig, pose, dt);
+    if (onFoot) this.settleBoots(pose, dt);
+    else this.bootLift = 0;
     applyFlash(this.rig, this.rig.hitFlash);
     if (this.rig.hitFlash > 0) this.rig.hitFlash = Math.max(0, this.rig.hitFlash - dt * 4);
     this.rig.root.position.set(this.x, this.y + posture.seat, this.z);
