@@ -30,7 +30,9 @@ export class AnimalImpactEffects {
 
   constructor(private terrain: { heightAt(x: number, z: number): number }) {
     this.group.name = 'animal impact effects'; this.group.add(this.droplets);
-    this.droplets.count = 0; this.droplets.frustumCulled = false;
+    // Shown only while droplets fly: empty, three would still prepare the pool (its program and uniforms) in every pass
+    // that draws the animals, before skipping its draw for want of instances.
+    this.droplets.count = 0; this.droplets.frustumCulled = false; this.droplets.visible = false;
   }
 
   impact(rig: { scene: THREE.Group; root: THREE.Group }, hit: AnimalArrowHit, direction: THREE.Vector3, reducedMotion = false) {
@@ -101,7 +103,7 @@ export class AnimalImpactEffects {
   setReduced(value: boolean) {
     this.reduced = value;
     if (value) {
-      this.particles.length = 0; this.droplets.count = 0;
+      this.particles.length = 0; this.droplets.count = 0; this.droplets.visible = false;
       for (const f of this.flinches.values()) { f.scene.position.copy(f.base); f.scene.quaternion.copy(f.baseQ); }
       this.flinches.clear();
     }
@@ -129,6 +131,7 @@ export class AnimalImpactEffects {
       return true;
     });
     this.droplets.count = this.particles.length;
+    this.droplets.visible = this.particles.length > 0;
     for (let i = 0; i < this.particles.length; i++) {
       const particle = this.particles[i]!; this.dummy.position.copy(particle.position); this.dummy.scale.setScalar(particle.size);
       this.dummy.updateMatrix(); this.droplets.setMatrixAt(i, this.dummy.matrix);

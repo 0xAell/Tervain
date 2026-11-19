@@ -533,6 +533,12 @@ Improved:
   (the camera and the arrows meet the colliders, not the meshes). `batchParts` now takes `release`, and the shells use
   it: once a batch holds a part's copy, the part keeps an empty geometry with its bounds. The settlement's meshes hold
   39.3 MB once the shells are batched, where they held 63.2 MB ([#914](https://github.com/0xAell/Tervain/pull/914)).
+- What three prepared every frame without drawing anything is left out. The stars were drawn by day at an alpha of
+  zero, a draw call in the main view and another in the water's reflection: 18 draws over the benchmark route's 13
+  stops. The struck animals' droplet pool, never culled, was prepared with no droplets in it wherever the animals
+  were: three skips the draw of an instanced mesh with no instances, but only after choosing its program and
+  uploading its uniforms, 20 times over the route (the main view, the sun's shadow map and the reflection). Each is
+  now hidden while it would show nothing ([#915](https://github.com/0xAell/Tervain/pull/915)).
 
 Next:
 

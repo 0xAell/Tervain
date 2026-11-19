@@ -15,6 +15,20 @@ beforeEach(() => {
 });
 afterEach(() => { sky.dispose(); vi.unstubAllGlobals(); });
 
+describe('the stars', () => {
+  const stars = () => sky.group.children.find((o) => (o as THREE.Points).isPoints) as THREE.Points;
+  it('are drawn only while some can be seen: by day every star is clear, so nothing is drawn for them', () => {
+    sky.update(12, focus, 0, true);
+    expect(stars().visible).toBe(false);
+    sky.update(23, focus, 0, true);
+    expect(stars().visible).toBe(true);
+    expect((stars().material as THREE.ShaderMaterial).uniforms.uNight!.value).toBeGreaterThan(0);
+    sky.update(12, focus, 0, true);
+    expect((stars().material as THREE.ShaderMaterial).uniforms.uNight!.value).toBe(0);
+    expect(stars().visible).toBe(false);
+  });
+});
+
 describe('continuous coastal atmosphere', () => {
   it('requests one shadow-map initialization for a cold night scene', () => {
     expect(sky.sun.shadow.map).toBeNull();
