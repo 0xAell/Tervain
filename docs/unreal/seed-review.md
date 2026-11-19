@@ -501,21 +501,24 @@ Improved:
   instances' matrices, its list of what to draw, their colours) and the depth and distance materials a mesh carries for
   its shadows. The thornback's two batches have no owner but the world, so every world it stood in kept their four
   textures and two depth materials after it was torn down. In a loaded journey the teardown now leaves none of the
-  batches' data textures and shadow materials behind, where it left those six (`disposeScene.ts`) ([#909](https://github.com/0xAell/Tervain/pull/909)).
+  batches' data textures and shadow materials behind, where it left those six (`disposeScene.ts`)
+  ([#909](https://github.com/0xAell/Tervain/pull/909)).
 - A resident's pose brings the figure's matrices up to date once where it did so three times over: the whole figure
   at the end of the pose right after keeping the hands out of the torso had done it, each turned joint's subtree as the
   head and chest led a turn, and each two-joint reach walking its chain up from the world seven times. Over the twelve
   residents at work, turning, walking, running, seated at two heights, talking, fighting and fallen, a resident's step
   composes 144 matrices where it composed 304 and multiplies 101 where it multiplied 252, and posing all twelve takes
   0.22 ms a step where it took 0.36 (in Node on the test machine); every matrix after every step is the same to the
-  bit, and a test refreshes the figure after each pose and finds nothing moved ([#910](https://github.com/0xAell/Tervain/pull/910)).
+  bit, and a test refreshes the figure after each pose and finds nothing moved
+  ([#910](https://github.com/0xAell/Tervain/pull/910)).
 - The figures' vertex measures work their matrices out once, not for every point. The wanderer's death clearance
   and idle soles (measured as his rig is built), the support under his boots through a fall, and each resident's
   palms carried every point into the figure's frame with three's getVertexPosition, localToWorld and worldToLocal:
   every skinning matrix again for every weight, the chain of world matrices walked up again twice, the frame's matrix
   inverted again. Building the wanderer takes 25 ms in Node where it took 76; a frame of his fall that measures the
   support 0.6 ms where it took 2.5 to 3; building the twelve residents composes 501,169 matrices where it composed
-  1,119,066 and inverts 26,321 where it inverted 114,592. Every point is the same to the bit ([#911](https://github.com/0xAell/Tervain/pull/911)).
+  1,119,066 and inverts 26,321 where it inverted 114,592. Every point is the same to the bit
+  ([#911](https://github.com/0xAell/Tervain/pull/911)).
 - The woodland's waymarkers and roadside ruin are drawn as one batch per surface: their stone and moss were a draw
   call each per landmark in every pass that drew them, the sun's shadow map along the track, the main view and the
   water's reflection at the sea. On 0.1.3 they draw 39 calls over the route where they drew 102: 22 to 10 at the
@@ -523,8 +526,13 @@ Improved:
 - The first view's preparation leaves out the parts that batches draw. Three compiles hidden meshes too, so each part a
   batch draws (the settlement's shells, its doors and other moving parts, the pushable barrels and crates, the
   scatter's chunks, the woodland's landmarks and the thornback's parts: 191 at the first view) had its own programs
-  made, though no pass draws it: five colour programs and a depth program were made for those parts alone. The first view is prepared with 130 programs where it took 136
-  ([#913](https://github.com/0xAell/Tervain/pull/913)).
+  made, though no pass draws it: five colour programs and a depth program were made for those parts alone. The first
+  view is prepared with 130 programs where it took 136 ([#913](https://github.com/0xAell/Tervain/pull/913)).
+- The settlement's batched shells let go of their own geometry. Since they were batched, each shell kept its own,
+  hidden, beside its batch's copy: 23.9 MB of the shells' 354,000 triangles held twice on the CPU and read by nothing
+  (the camera and the arrows meet the colliders, not the meshes). `batchParts` now takes `release`, and the shells use
+  it: once a batch holds a part's copy, the part keeps an empty geometry with its bounds. The settlement's meshes hold
+  39.3 MB once the shells are batched, where they held 63.2 MB ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
@@ -557,23 +565,22 @@ Next:
   after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB: three needs both again only if
   a lost WebGL context is restored, which the game does not otherwise handle, so freeing them trades that recovery for
   the memory. The procedural bark's cache (25 MB) is the same case: the pixels of textures in use, which only a
-  restored context would read again. The settlement's shells are held twice on the CPU since they were batched: the
-  batches' 24.6 MB and the hidden shells' own 23.9 MB for their 354,000 triangles. Nothing reads the hidden ones once
-  the batches stand (nothing casts rays at them; the GPU never has them), so letting them go would give that back.
+  restored context would read again. The settlement's shells are held once, as their batches (24.6 MB): the hidden
+  shells let their own 23.9 MB go once the batches hold a copy.
 - Draws: at High the frame on 0.1.3 is 254 draw calls and 4.68 M triangles (medians over the benchmark
   route's 13 stops, the wanderer at each; 267 before the settlement's shells were batched, 272 and 4.71 M on 0.1.2,
   293 and 4.97 M after October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws and 2.61 M triangles, 56 %
   of them; the main view 139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection,
   with the sea in view, makes stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks
-  were batched). The residents' work tools, a draw each, and the bandits' gear are the next draws to batch. The cuts that keep the picture, and those a GPU must judge, are in
-  [AIR-CUTS.md](../perf/AIR-CUTS.md).
-- Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by
-  a fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the
+  were batched). The residents' work tools, a draw each, and the bandits' gear are the next draws to batch. The cuts
+  that keep the picture, and those a GPU must judge, are in [AIR-CUTS.md](../perf/AIR-CUTS.md).
+- Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by a
+  fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the
   torso, the clips sampled, each 0.06 to 0.14 ms a step; most of that was bringing the same matrices up to date again,
-  and the pose now does it once (0.36 to 0.22 ms a step for all twelve in Node). The wanderer's own update is a fifth. The forest's per-step refresh
-  (`flora.ts`, 0.12 ms) and the groundcover's (0.1 ms) come next. The render's own JavaScript, profiled on 0.1.2 over
-  eight steady frames at each of three route stops (480×300, so that the software renderer keeps up; the JavaScript does
-  not depend on the size): 10.5 ms a frame at the landing, 8.6 in the village, 11.5 with the sea in view. Three's work
-  for each draw is most of it: the colour passes' draws 55 to 65 % (choosing programs and uploading uniforms as the
-  material changes), the sun's shadow map about a fifth, the scene's traversal for culling about a tenth, the world's
-  matrices 7 %. Fewer draw calls and material changes are what cut it.
+  and the pose now does it once (0.36 to 0.22 ms a step for all twelve in Node). The wanderer's own update is a fifth.
+  The forest's per-step refresh (`flora.ts`, 0.12 ms) and the groundcover's (0.1 ms) come next. The render's own
+  JavaScript, profiled on 0.1.2 over eight steady frames at each of three route stops (480×300, so that the software
+  renderer keeps up; the JavaScript does not depend on the size): 10.5 ms a frame at the landing, 8.6 in the village,
+  11.5 with the sea in view. Three's work for each draw is most of it: the colour passes' draws 55 to 65 % (choosing
+  programs and uploading uniforms as the material changes), the sun's shadow map about a fifth, the scene's traversal
+  for culling about a tenth, the world's matrices 7 %. Fewer draw calls and material changes are what cut it.
