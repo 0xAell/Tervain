@@ -632,20 +632,25 @@ Next:
   context would read again. The settlement's shells are held once, as their batches (24.6 MB): the hidden shells let
   their own 23.9 MB go once the batches hold a copy. The scatter's chunks are held twice as the shells were (8 MB): its
   test reads the hidden chunks' geometry, so letting them go means reading the batches' instead.
-- Draws: at High the frame on 0.1.3 is 254 draw calls and 4.68 M triangles (medians over the benchmark route's 13 stops,
-  the wanderer at each; 267 before the settlement's shells were batched, 272 and 4.71 M on 0.1.2, 293 and 4.97 M after
-  October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws and 2.61 M triangles, 56 % of them; the main view
-  139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection, with the sea in view, makes
-  stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks were batched). The reflection and
-  the sea's grid are drawn only where some of the sea may be seen: at stops 6 and 7, behind the island's hills, the
+- Draws: at High the frame on main (0.1.3 with the cuts through #922) is 242 draw calls and 4.31 M triangles (medians
+  over the benchmark route's 13 stops, the wanderer at each, 480×300 at 11:00; 254 and 4.68 M before the sea's
+  reflection and grid were left out where no sea shows, 267 before the settlement's shells were batched, 272 and 4.71 M
+  on 0.1.2, 293 and 4.97 M after October's cuts, 385 and 5.10 M in 0.0.49). The forest is 106 draws and 2.48 M
+  triangles, 58 % of them; the main view 138 draws, the sun's shadow map 68, the leaves' depth pass 18. The reflection
+  and the sea's grid are drawn only where some of the sea may be seen: at stops 6 and 7, behind the island's hills, the
   reflection was over a quarter of the frame (155 draws in all), and the grid (94,000 triangles) was drawn at the ten
-  stops with no sea in view. The residents' work tools (a draw or two each, in the sun's shadow map too) and the
-  bandits' gear are the next draws to batch; each figure's materials flash on their own when it is struck, so a batch
-  across figures needs that flash per instance. Three still prepares about six draws a frame that draw nothing: a batch
-  whose bounds are in view though none of its parts is, which it finds only as it draws the batch (65 over the route: 30
-  in the main view, 23 in the sun's shadow map, 12 in the reflection), and a grass tile whose blades the main camera's
-  tighter test finds out of view (11). The cuts that keep the picture, and those a GPU must judge, are in
-  [AIR-CUTS.md](../perf/AIR-CUTS.md).
+  stops with no sea in view. The two largest frames keep theirs, as they should for now: stop 11 (465 draws, 9.29 M, the
+  reflection 162 draws and 3.07 M), where the sea is hidden by crests too thin to vouch for, and the landing (394 draws,
+  10.42 M, the reflection 129 draws and 3.57 M), where the swash runs up the beach in front of the camera. There the
+  reflection mirrors the whole inland view for a strip of water that can only show the sky and what stands near; leaving
+  out what cannot be reflected in the water's part of the screen would need the forest to draw a subset of its trees in
+  the reflection, and a region from the water's own cells near the eye rather than its 32 m boxes. The residents' work
+  tools (a draw or two each, in the sun's shadow map too) and the bandits' gear are the next draws to batch; each
+  figure's materials flash on their own when it is struck, so a batch across figures needs that flash per instance.
+  Three still prepares about six draws a frame that draw nothing: a batch whose bounds are in view though none of its
+  parts is, which it finds only as it draws the batch (65 over the route: 30 in the main view, 23 in the sun's shadow
+  map, 12 in the reflection), and a grass tile whose blades the main camera's tighter test finds out of view (11). The
+  cuts that keep the picture, and those a GPU must judge, are in [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by a
   fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the
   torso, the clips sampled, each 0.06 to 0.14 ms a step; most of that was bringing the same matrices up to date again,
