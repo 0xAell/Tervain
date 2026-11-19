@@ -570,7 +570,7 @@ Improved:
   program, uploaded its uniforms) before skipping its draw for want of blades: 41 times over the benchmark route's 13
   stops. Such a tile is now shown for the window view's draws alone (`showForCaptures`). 11 are left: tiles three finds
   in view whose blades the main camera's tighter test, run as three draws, finds out of it. The grass's draws are the
-  same at every stop ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  same at every stop ([#920](https://github.com/0xAell/Tervain/pull/920)).
 
 Next:
 
