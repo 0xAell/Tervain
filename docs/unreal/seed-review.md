@@ -563,7 +563,7 @@ Improved:
   same. A profile of the load shows the main thread no longer making either (they took 0.35 s and 0.21 s of the
   woodland's stage on the four-core test machine); over twelve alternating runs each, a journey reaches its first
   view's preparation in 17.0 s where it took 17.3 (medians), within the woodland's run-to-run spread
-  ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  ([#919](https://github.com/0xAell/Tervain/pull/919)).
 
 Next:
 
