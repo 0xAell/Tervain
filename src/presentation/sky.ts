@@ -404,6 +404,9 @@ export class SkyRig {
     if (!reducedMotion) this.cloudTime = (this.cloudTime + dt) % SHADER_CLOCK_WRAP;
     SKY.time.value = this.cloudTime;
     this.starUniforms.uNight.value = clampNum(nightAmt * 1.3 - 0.15, 0, 1);
+    // By day every star's alpha is zero (STAR_VERT): drawn, they would leave every pixel as it was, at a draw call in the
+    // main view and another in the water's reflection.
+    this.stars.visible = this.starUniforms.uNight.value > 0;
     this.starUniforms.uTime.value = this.cloudTime;
     this.starUniforms.uPx.value = RENDER_PX.value;
 

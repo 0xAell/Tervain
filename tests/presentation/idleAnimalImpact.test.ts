@@ -24,3 +24,13 @@ it('shoves a struck body along the arrow and settles it back exactly at rest (B1
  expect(scene.position.toArray()).toEqual([0,.1,0]);
  }finally{effects.dispose();}
 });
+it('draws the droplet pool only while droplets fly',()=>{
+ const effects=new AnimalImpactEffects({heightAt:()=>0}),root=new THREE.Group();try{
+ const mesh=pool(effects),hit={id:'tiger' as const,zone:'body' as const,point:{x:0,y:1,z:0},position:{x:0,y:0,z:0},yaw:0,distance:1};
+ expect(mesh.visible).toBe(false);
+ effects.impact({root,scene:root},hit,new THREE.Vector3(0,0,1));effects.update(1/60);expect(mesh.count).toBe(6);expect(mesh.visible).toBe(true);
+ for(let i=0;i<60;i++)effects.update(1/60);expect(mesh.count).toBe(0);expect(mesh.visible).toBe(false);
+ effects.impact({root,scene:root},hit,new THREE.Vector3(0,0,1));effects.update(1/60);expect(mesh.visible).toBe(true);
+ effects.setReduced(true);expect(mesh.count).toBe(0);expect(mesh.visible).toBe(false);
+ }finally{effects.dispose();}
+});
