@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { mulberry32 } from '../../src/core/world/noise';
-import { centredWaveTable, waveTable, type Wave } from '../../src/presentation/water/waterTextures';
+import { centredWaveTable, waveTable, type Wave } from '../../src/presentation/water/waterTexels';
 
 // The water's textures look each wave's sine and cosine up by lattice step instead of working it out per texel. The
 // tables must give every texel the value its own angle gives, to the bit, or the textures change.

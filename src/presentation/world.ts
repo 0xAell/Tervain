@@ -38,6 +38,7 @@ import { Exclusions, type SwayUniforms } from './vegetation';
 export interface LoadProgress { loaded: number; total: number; label: string }
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { WaterSystem } from './water/waterSystem';
+import { adoptWaterTexels, prefetchWaterTexels } from './water/waterTextures';
 import { SkyCapture } from './water/skyCapture';
 import type { WaterRenderInputs } from './waterRenderPass';
 import type { Settings } from '../platform/settings';
@@ -302,6 +303,8 @@ export class WorldScene {
     try {
       const groundRows = (WORLD.maxZ - WORLD.minZ) / WORLD.cell + 1, groundTotal = groundRows + 3;
       await checkpoint('terrain', 'Physical ground', 0, groundTotal);
+      // The water's texels are made by a worker meanwhile, and taken before the water is built.
+      prefetchWaterTexels();
       const terrain = await Terrain.create({ ...options, onProgress: completed => phase('terrain', 'Physical ground', completed, groundTotal) });
       const colliders = buildStaticColliders(terrain);
       await checkpoint('terrain', 'Ground contacts', groundRows + 1, groundTotal);
@@ -311,6 +314,7 @@ export class WorldScene {
       // The sky dome and stars are also drawn into the water's own small sky capture, for reflected clouds.
       SkyCapture.include(sky.group);
       await checkpoint('terrain', 'Sky and water', groundRows + 2, groundTotal);
+      await adoptWaterTexels();
       const water = own(new WaterSystem(terrain, settings.quality));
       scene.add(water.group);
       await checkpoint('terrain', 'Physical ground ready', groundTotal, groundTotal);

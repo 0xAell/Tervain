@@ -548,13 +548,21 @@ Improved:
   splat value is the same to the bit; in Node the terrain builds in 0.33 s where it took 0.62, and on the four-core test
   machine a journey reaches its first view's preparation in 17.9 s where it took 18.8 (the terrain 2.5 s where it took
   2.9; medians of four alternating runs) ([#916](https://github.com/0xAell/Tervain/pull/916)).
+- The water's textures are made in a worker while the main thread builds the terrain. Its ripples, foam and caustics
+  (about half a second of the main thread on the four-core test machine) are made from plain arrays in a module
+  without three (`waterTexels.ts`), so a small worker makes them and hands them over, and the water is built from
+  them; a host without workers, or a worker that fails, makes them as before. The bytes are the same. Started any
+  earlier, beside the worker painting the ground's textures, the two shared that machine's cores and the whole load
+  gained nothing; started with the terrain, the terrain's stage takes 1.6 s where it took 2.3, and a journey reaches
+  its first view's preparation in 16.7 s where it took 17.6 (medians of five alternating runs, faster in each)
+  ([#917](https://github.com/0xAell/Tervain/pull/917)).
 
 Next:
 
 - Loading: on the four-core test machine without a GPU, `npm run perf:load` times a journey from the click to its
-  first view's preparation at about 18 s: 2 s for the residents, under 1 s for the models, 2 s waiting for the
-  ground's textures (painted in a worker), 2.5 s for the terrain, 7.8 s for the woodland and 1.9 s for the ground's
-  tiles and physics; the first view then takes about 50 s more, nearly all of it the software renderer compiling
+  first view's preparation at about 17 s: 2 s for the residents, under 1 s for the models, 2 s waiting for the
+  ground's textures (painted in a worker), 1.6 s for the terrain (the water's textures made meanwhile in another),
+  7.7 s for the woodland and 1.9 s for the ground's tiles and physics; the first view then takes about 50 s more, nearly all of it the software renderer compiling
   shaders. The
   drawn trees' models are most of the woodland, and the leaf-island pass (`anchorLeafIslands`, run by flora.ts) 1.7 s
   of it. One tree level's wood is searched by three passes in turn (the clump snap, the card seat and the island
