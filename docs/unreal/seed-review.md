@@ -538,7 +538,7 @@ Improved:
   stops. The struck animals' droplet pool, never culled, was prepared with no droplets in it wherever the animals
   were: three skips the draw of an instanced mesh with no instances, but only after choosing its program and
   uploading its uniforms, 20 times over the route (the main view, the sun's shadow map and the reflection). Each is
-  now hidden while it would show nothing ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  now hidden while it would show nothing ([#915](https://github.com/0xAell/Tervain/pull/915)).
 
 Next:
 
