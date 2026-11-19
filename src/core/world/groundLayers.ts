@@ -1,7 +1,7 @@
 import { cliffiness, coastalShelfAt, seaWetness, shoreDistance } from './coast';
 import { FIELDS, SEA_LEVEL, STREAMS } from './layout';
 import { clamp, fbm, smoothstep } from './noise';
-import { distToPolyline, roadWeight, type Terrain } from './terrain';
+import { distToPolyline, distToPolylineWithin, roadWeight, type Terrain } from './terrain';
 import { deepwoodCover } from './forest';
 import { biomeAt, type BiomeSample } from './biomes';
 
@@ -77,7 +77,9 @@ export function groundSplat(
   const sd = sampledSurface?.shoreDistance ?? shoreDistance(x, z);
   const nearSea = sd < 90;
   const cl = nearSea ? cliffiness(z) : 0;
-  const sDist = streamDistance(x, z);
+  // Only a stream within 7 m wets the ground (the smoothstep is 1 from there on), so farther streams are not measured.
+  let sDist = Infinity;
+  for (const s of STREAMS) sDist = Math.min(sDist, distToPolylineWithin(x, z, s.points, 7));
   const wetStream = 1 - smoothstep(0.5, 7, sDist);
   const biome = sampledBiome ?? biomeAt(x, z);
 

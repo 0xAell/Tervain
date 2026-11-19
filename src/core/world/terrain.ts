@@ -74,6 +74,42 @@ export function distToPolyline(px: number, pz: number, pts: V2[]) {
   return { d: best, seg, t };
 }
 
+/** Each polyline's bounds, worked out once: the authored polylines never change. */
+const polylineBounds = new WeakMap<readonly V2[], readonly [number, number, number, number]>();
+function boundsOf(pts: readonly V2[]): readonly [number, number, number, number] {
+  let bounds = polylineBounds.get(pts);
+  if (!bounds) {
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    for (const p of pts) {
+      minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+      minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z);
+    }
+    bounds = [minX, maxX, minZ, maxZ];
+    polylineBounds.set(pts, bounds);
+  }
+  return bounds;
+}
+
+/** Covers the rounding of a measured point that lands a hair outside its polyline's bounds (coordinates in metres). */
+const REACH_MARGIN = 1e-6;
+
+/**
+ * Distance from p to a polyline, measured only where it can be under `reach`: then it is distToPolyline's, to the bit. A
+ * polyline whose bounds lie farther than `reach` from p is not measured and gives Infinity, so a use that is the same for
+ * every distance from `reach` on (a smoothstep ending there, a minimum later compared with it) is the same as with the
+ * measured distance. Most points of the world are far from most roads and streams.
+ */
+export function distToPolylineWithin(px: number, pz: number, pts: readonly V2[], reach: number): number {
+  return beyondPolyline(px, pz, pts, reach) ? Infinity : distToPolyline(px, pz, pts as V2[]).d;
+}
+
+/** Whether p is farther than `reach` from every point of a polyline, judged from its bounds alone. */
+function beyondPolyline(px: number, pz: number, pts: readonly V2[], reach: number): boolean {
+  const [minX, maxX, minZ, maxZ] = boundsOf(pts);
+  const gx = Math.max(minX - px, 0, px - maxX), gz = Math.max(minZ - pz, 0, pz - maxZ), far = reach + REACH_MARGIN;
+  return gx * gx + gz * gz > far * far;
+}
+
 const bump = (x: number, z: number, cx: number, cz: number, r: number, h: number, core = 0.35) => {
   const d = Math.hypot(x - cx, z - cz) / r;
   return h * (1 - smoothstep(core, 1, d));
@@ -95,9 +131,10 @@ export function forestRelief(x: number, z: number): number {
     if (d >= 1) continue;
     hills += hill.h * (1 - smoothstep(0.08, 1, d));
   }
-  const near = distToPolyline(x, z, ARRIVAL_ROUTE).d;
+  // Both smoothsteps are 1 from their far edges on: the trail and the swale are measured only nearer than that.
+  const near = distToPolylineWithin(x, z, ARRIVAL_ROUTE, 12);
   const shoulder = smoothstep(ARRIVAL_TRAIL_WIDTH / 2 + 1.5, 12, near);
-  const swaleDistance = distToPolyline(x, z, FOREST_SWALE.points).d;
+  const swaleDistance = distToPolylineWithin(x, z, FOREST_SWALE.points, FOREST_SWALE.width);
   const swale = FOREST_SWALE.depth * (1 - smoothstep(0, FOREST_SWALE.width, swaleDistance));
   return (hills - swale) * shoulder * coast;
 }
@@ -146,27 +183,38 @@ function outcrops(x: number, z: number): number {
   return best;
 }
 
-let keepClear: { x: number; z: number; r: number }[] | null = null;
+let keepClear: { x: number; z: number; r: number; reach2: number }[] | null = null;
 /** 0 next to paths, water and anything the story uses; 1 in open country. Outcrops fade out where it is low. */
 export function clearanceAt(x: number, z: number): number {
   if (!keepClear) {
-    keepClear = [];
-    for (const a of Object.values(ANCHORS)) keepClear.push({ x: a.x, z: a.z, r: 9 });
-    for (const p of INSPECT_LOCATIONS) keepClear.push({ x: p.x, z: p.z, r: 9 });
-    for (const p of PICKUP_LOCATIONS) keepClear.push({ x: p.x, z: p.z, r: isWorldPickupItem(p.item) ? 1.1 : 9 });
-    for (const b of BUILDINGS) keepClear.push({ x: b.x, z: b.z, r: Math.max(b.w, b.d) * 0.8 + 6 });
-    for (const p of FOREST_WAYMARKERS) keepClear.push({ x: p.x, z: p.z, r: 3.2 });
-    keepClear.push({ x: FOREST_RUIN.x, z: FOREST_RUIN.z, r: FOREST_RUIN.r + 3 });
-    for (const q of [BELL, SLUICE.control, SHORTCUT.lever, RITE_ALTAR, LEDGER, WAGON, LIGHTHOUSE]) keepClear.push({ x: q.x, z: q.z, r: 10 });
+    const circles: { x: number; z: number; r: number }[] = [];
+    for (const a of Object.values(ANCHORS)) circles.push({ x: a.x, z: a.z, r: 9 });
+    for (const p of INSPECT_LOCATIONS) circles.push({ x: p.x, z: p.z, r: 9 });
+    for (const p of PICKUP_LOCATIONS) circles.push({ x: p.x, z: p.z, r: isWorldPickupItem(p.item) ? 1.1 : 9 });
+    for (const b of BUILDINGS) circles.push({ x: b.x, z: b.z, r: Math.max(b.w, b.d) * 0.8 + 6 });
+    for (const p of FOREST_WAYMARKERS) circles.push({ x: p.x, z: p.z, r: 3.2 });
+    circles.push({ x: FOREST_RUIN.x, z: FOREST_RUIN.z, r: FOREST_RUIN.r + 3 });
+    for (const q of [BELL, SLUICE.control, SHORTCUT.lever, RITE_ALTAR, LEDGER, WAGON, LIGHTHOUSE]) circles.push({ x: q.x, z: q.z, r: 10 });
+    // A hair beyond each circle, so that every point the squared test passes over is one hypot puts outside it too.
+    keepClear = circles.map((k) => ({ ...k, reach2: (k.r * (1 + 1e-9)) ** 2 }));
   }
   let c = 1;
   for (const k of keepClear) {
-    const d = Math.hypot(x - k.x, z - k.z);
+    const dx = x - k.x, dz = z - k.z;
+    if (dx * dx + dz * dz > k.reach2) continue;
+    const d = Math.hypot(dx, dz);
     if (d < k.r) c = Math.min(c, smoothstep(k.r * 0.45, k.r, d));
   }
-  for (const r of ROADS) c = Math.min(c, smoothstep(r.width * 0.5 + 0.5, r.width * 0.5 + 5.5, distToPolyline(x, z, r.points).d));
-  for (const st of STREAMS) c = Math.min(c, smoothstep(st.halfWidth + 1, st.halfWidth + 9, distToPolyline(x, z, st.points).d));
-  c = Math.min(c, smoothstep(3, 8, distToPolyline(x, z, PALISADE.points as unknown as V2[]).d));
+  // Each smoothstep is 1 from its far edge on, so a road, stream or palisade farther than that is not measured.
+  for (const r of ROADS) {
+    const far = r.width * 0.5 + 5.5;
+    c = Math.min(c, smoothstep(r.width * 0.5 + 0.5, far, distToPolylineWithin(x, z, r.points, far)));
+  }
+  for (const st of STREAMS) {
+    const far = st.halfWidth + 9;
+    c = Math.min(c, smoothstep(st.halfWidth + 1, far, distToPolylineWithin(x, z, st.points, far)));
+  }
+  c = Math.min(c, smoothstep(3, 8, distToPolylineWithin(x, z, PALISADE.points as unknown as V2[], 8)));
   return c;
 }
 
@@ -353,8 +401,10 @@ const ROAD_BANK_SLOPE = 0.45, ROAD_BANK_REACH = 18;
 let arrivalGrades: number[] | null = null;
 /** A softly cut woodland trail follows a continuous grade, keeping the authored road walkable across hummocks. */
 function arrivalRoadGrade(x: number, z: number, h: number): number {
-  const near = distToPolyline(x, z, ARRIVAL_ROUTE);
   const width = ARRIVAL_TRAIL_WIDTH;
+  // Ground beyond the trail's farthest bank is left as it is, whether or not the trail is measured to know it.
+  if (beyondPolyline(x, z, ARRIVAL_ROUTE, width / 2 + 4 + ROAD_BANK_REACH)) return h;
+  const near = distToPolyline(x, z, ARRIVAL_ROUTE);
   if (near.d >= width / 2 + 4 + ROAD_BANK_REACH) return h;
   arrivalGrades ??= ARRIVAL_ROUTE.map((p) => {
     const level = softFloor(coreHeight(p.x, p.z));
@@ -372,9 +422,11 @@ function arrivalRoadGrade(x: number, z: number, h: number): number {
 let lanternGrades: number[] | null = null;
 /** A real cut-and-filled track, sampled into the same visible terrain as the character's feet. */
 function lanternRoadGrade(x: number, z: number, h: number): number {
-  const near = distToPolyline(x, z, LANTERN_ROUTE);
   // An entire 2 m terrain triangle lies on the grade around the walking strip, including the bends.
   const core = LANTERN_TRAIL_WIDTH / 2 + WORLD.cell * 0.75;
+  // Beyond the grade's outer edge its influence is 0: the track is not measured there.
+  if (beyondPolyline(x, z, LANTERN_ROUTE, core + 4.5)) return h;
+  const near = distToPolyline(x, z, LANTERN_ROUTE);
   const influence = 1 - smoothstep(core, core + 4.5, near.d);
   if (influence <= 0) return h;
   const terrace = shapeCoast(LIGHTHOUSE.x, LIGHTHOUSE.z, coreHeight(LIGHTHOUSE.x, LIGHTHOUSE.z));
@@ -442,6 +494,8 @@ function raceTarget(): NonNullable<typeof raceProfile> {
 function raceTrenchGround(x: number, z: number, ground: number): number {
   const race = STREAMS.find((stream) => stream.id === 'village')!;
   const reach = race.halfWidth * 1.65;
+  // Beyond the bank's farthest reach the ground is left as it is: the race is not measured there.
+  if (beyondPolyline(x, z, race.points, reach + RACE_BANK_REACH)) return ground;
   const { d, seg, t } = distToPolyline(x, z, race.points);
   // Where the race is cut deep through a rise, its bank keeps climbing past the rim at RACE_BANK_SLOPE until it meets
   // the ground, so a deep cut opens into a wide, grassed bank rather than a 45° wall (playtest 4).
