@@ -539,13 +539,23 @@ Improved:
   were: three skips the draw of an instanced mesh with no instances, but only after choosing its program and
   uploading its uniforms, 20 times over the route (the main view, the sun's shadow map and the reflection). Each is
   now hidden while it would show nothing ([#915](https://github.com/0xAell/Tervain/pull/915)).
+- The terrain's clearance and the ground's wetness skip the roads and streams beyond their reach. Each sample of the
+  height field measured its distance to every road, stream and the palisade (the clearance), to the arrival trail and
+  the forest swale (the relief) and to the two graded tracks and the mill race, walking every segment of each, though
+  each use is the same for every distance past its reach: a smoothstep ending there, an early return. A polyline whose
+  bounds lie beyond that reach is now not measured (`distToPolylineWithin`), nor is a keep-clear circle the squared
+  distance puts outside, and the ground's splat does the same for the streams. Every height, carve, clearance and
+  splat value is the same to the bit; in Node the terrain builds in 0.33 s where it took 0.62, and on the four-core test
+  machine a journey reaches its first view's preparation in 17.9 s where it took 18.8 (the terrain 2.5 s where it took
+  2.9; medians of four alternating runs) ([#916](https://github.com/0xAell/Tervain/pull/916)).
 
 Next:
 
 - Loading: on the four-core test machine without a GPU, `npm run perf:load` times a journey from the click to its
-  first view's preparation at about 19 s: 2 s for the residents, under 1 s for the models, 1.7 s waiting for the
-  ground's textures (painted in a worker), 2.9 s for the terrain, 8.6 s for the woodland and 2.4 s for paths and
-  shelter; the first view then takes about 50 s more, nearly all of it the software renderer compiling shaders. The
+  first view's preparation at about 18 s: 2 s for the residents, under 1 s for the models, 2 s waiting for the
+  ground's textures (painted in a worker), 2.5 s for the terrain, 7.8 s for the woodland and 1.9 s for the ground's
+  tiles and physics; the first view then takes about 50 s more, nearly all of it the software renderer compiling
+  shaders. The
   drawn trees' models are most of the woodland, and the leaf-island pass (`anchorLeafIslands`, run by flora.ts) 1.7 s
   of it. One tree level's wood is searched by three passes in turn (the clump snap, the card seat and the island
   pass), each building its own bounding tree over it, about 0.5 s in all. Built once, each wood's tree would be held
