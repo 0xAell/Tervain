@@ -583,6 +583,12 @@ Improved:
   the sea is hidden too, but by crests too thin to vouch for (a metre and a half or less, 115 to 395 m off), and on the
   landing's beach the swash may run up into view, so both keep their reflection. The test takes 0.07 to 0.4 ms a frame
   while the camera moves, on the four-core test machine ([#921](https://github.com/0xAell/Tervain/pull/921)).
+- The sea's grid is drawn only while some of the sea is in view. The water pass composites the inland water whenever any
+  is in view, and the sea's grid was drawn with it each time: 94,000 triangles, laid across the screen whatever the view
+  (so three never culls it) and lifted by the waves in its vertex shader, at all 13 of the benchmark route's stops,
+  though no sea is in view at ten of them. Out of view (no box of it in the frustum, or every one behind the land), the
+  grid now stays out of the water's draw, and out of the single render taken when no water at all is in view: 0.94 M
+  triangles fewer over the route, and the same pixels ([#922](https://github.com/0xAell/Tervain/pull/922)).
 
 Next:
 
@@ -630,14 +636,15 @@ Next:
   the wanderer at each; 267 before the settlement's shells were batched, 272 and 4.71 M on 0.1.2, 293 and 4.97 M after
   October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws and 2.61 M triangles, 56 % of them; the main view
   139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection, with the sea in view, makes
-  stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks were batched). The reflection is
-  drawn only where the land may let some of the sea be seen: at stops 6 and 7, behind the island's hills, it was over a
-  quarter of the frame (155 draws in all). The residents' work tools (a draw or two each, in the sun's shadow map too)
-  and the bandits' gear are the next draws to batch; each figure's materials flash on their own when it is struck, so a
-  batch across figures needs that flash per instance. Three still prepares about six draws a frame that draw nothing: a
-  batch whose bounds are in view though none of its parts is, which it finds only as it draws the batch (65 over the
-  route: 30 in the main view, 23 in the sun's shadow map, 12 in the reflection), and a grass tile whose blades the main
-  camera's tighter test finds out of view (11). The cuts that keep the picture, and those a GPU must judge, are in
+  stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks were batched). The reflection and
+  the sea's grid are drawn only where some of the sea may be seen: at stops 6 and 7, behind the island's hills, the
+  reflection was over a quarter of the frame (155 draws in all), and the grid (94,000 triangles) was drawn at the ten
+  stops with no sea in view. The residents' work tools (a draw or two each, in the sun's shadow map too) and the
+  bandits' gear are the next draws to batch; each figure's materials flash on their own when it is struck, so a batch
+  across figures needs that flash per instance. Three still prepares about six draws a frame that draw nothing: a batch
+  whose bounds are in view though none of its parts is, which it finds only as it draws the batch (65 over the route: 30
+  in the main view, 23 in the sun's shadow map, 12 in the reflection), and a grass tile whose blades the main camera's
+  tighter test finds out of view (11). The cuts that keep the picture, and those a GPU must judge, are in
   [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by a
   fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the

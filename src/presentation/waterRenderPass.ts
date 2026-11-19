@@ -328,22 +328,26 @@ export class WaterRenderPass {
     this.visibilityFrustum.setFromProjectionMatrix(this.visibilityProjection);
     // The sea is usually first. Reuse its result for the planar capture rather than
     // transforming/scanning its visibility boxes twice in the same unchanged view.
-    // Leave it unknown if an earlier channel short-circuits the search.
     let seaInView: boolean | undefined;
+    const sea = input.meshes.find(mesh => mesh.name === 'sea');
     if (!input.meshes.some(mesh => {
-      const visible = this.waterInView(mesh, camera, mesh.name === 'sea' ? input.landHides : undefined);
-      if (mesh.name === 'sea') seaInView = visible;
+      const visible = this.waterInView(mesh, camera, mesh === sea ? input.landHides : undefined);
+      if (mesh === sea) seaInView = visible;
       return visible;
     })) {
       // Looking inland needs one scene render, with no full-resolution copy or second water traversal. Retain
       // private targets for turning back toward the shore rather than reallocating them at every visibility change.
+      // The sea's grid is laid across the screen whatever the view, so three cannot cull it: out of view, it is not drawn.
       input.meshes.forEach(mesh => detachWaterOptics(mesh.material));
       if (Number.isFinite(dt) && dt > 0) this.reflectionAge += dt;
-      const previous = renderer.getRenderTarget(), previousAutoClear = renderer.autoClear;
+      const previous = renderer.getRenderTarget(), previousAutoClear = renderer.autoClear, seaMask = sea?.layers.mask ?? 0;
+      if (sea) sea.layers.mask = 0;
       try { renderer.autoClear = true; renderer.setRenderTarget(source); renderer.render(scene, camera); }
-      finally { renderer.autoClear = previousAutoClear; renderer.setRenderTarget(previous); }
+      finally { if (sea) sea.layers.mask = seaMask; renderer.autoClear = previousAutoClear; renderer.setRenderTarget(previous); }
       return source.texture;
     }
+    // An earlier channel in view short-circuits the search: the sea is tested here, once.
+    seaInView ??= !!sea && this.waterInView(sea, camera, input.landHides);
     this.prepare(source);
     this.gather(scene, dt);
     const oldTarget = renderer.getRenderTarget(), oldAutoClear = renderer.autoClear;
@@ -354,7 +358,9 @@ export class WaterRenderPass {
     try {
       camera.updateMatrixWorld();
       this.captureReflection(renderer, scene, camera, source, dt, input, seaInView);
-      input.meshes.forEach((mesh, i) => { mesh.layers.mask = (oldMask & meshMasks[i]!) !== 0 ? 2 : 0; });
+      // The sea out of view (out of the frustum, or behind the land) stays out of the water's draw: its grid would only be
+      // discarded or hidden pixel by pixel.
+      input.meshes.forEach((mesh, i) => { mesh.layers.mask = (oldMask & meshMasks[i]!) !== 0 && (mesh !== sea || seaInView) ? 2 : 0; });
       overlays.forEach((o, i) => { o.layers.mask = (oldMask & overlayMasks[i]!) !== 0 ? 2 : 0; });
       camera.layers.mask = oldMask & ~2;
       renderer.autoClear = true;
