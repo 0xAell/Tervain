@@ -594,7 +594,7 @@ Improved:
   whether fewer than one in a hundred missed (the share below which the render scale raises its resolution again), the
   hardest segment and the pixel ratio the run ended at; the game's own benchmark text gives the share for the route and
   for each segment. Chrome on macOS cannot time the GPU, so on a MacBook Air the frame times are the measure:
-  MAC-BUDGET.md says how to run it there ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  MAC-BUDGET.md says how to run it there ([#924](https://github.com/0xAell/Tervain/pull/924)).
 
 Next:
 
