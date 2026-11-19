@@ -38,6 +38,7 @@ import { Exclusions, type SwayUniforms } from './vegetation';
 export interface LoadProgress { loaded: number; total: number; label: string }
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { WaterSystem } from './water/waterSystem';
+import { LandHorizon } from './water/landHorizon';
 import { adoptWaterTexels, prefetchWaterTexels, waterTexelsSettled } from './water/waterTextures';
 import { adoptWoodTexels, prefetchWoodTexels } from './woodTexels';
 import { NEAR_CANOPY } from './canopy';
@@ -710,8 +711,15 @@ export class WorldScene {
       this.unreflected = [];
       this.scene.traverse((o) => { if (o.name === 'grass-near' || o.name === 'grass-far' || o.name === 'deepwood_forest_floor') this.unreflected.push(o); });
     }
-    return { ...inputs, unreflected: this.unreflected, lighten: this.lightenReflection, sunShadowReady: this.sky.sun.shadow.map !== null };
+    return { ...inputs, unreflected: this.unreflected, lighten: this.lightenReflection, sunShadowReady: this.sky.sun.shadow.map !== null, landHides: this.landHides };
   }
+
+  /**
+   * Whether the land surely hides a box of the sea from the eye: the sea's reflection is drawn only where some of the sea
+   * may be seen. Its horizon is made from the terrain on first use.
+   */
+  private landHorizon: LandHorizon | null = null;
+  private readonly landHides = (eye: THREE.Vector3, box: THREE.Box3): boolean => (this.landHorizon ??= new LandHorizon(this.terrain)).hides(eye, box);
 
   /**
    * What the water's reflection draws lighter, until the returned function is called: the trees with their middle models

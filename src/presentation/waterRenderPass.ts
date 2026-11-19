@@ -24,6 +24,11 @@ export interface WaterRenderInputs {
   lighten?: () => () => void;
   /** An initialized sun map can be reused by the reflection while its pending refresh waits for the full main view. */
   sunShadowReady?: boolean;
+  /**
+   * True only where the land surely hides every point of a box of the sea from the eye (LandHorizon). A box of the sea in
+   * the camera's frustum but behind the land does not bring the sea into view: no planar capture is drawn for it.
+   */
+  landHides?: (eye: THREE.Vector3, box: THREE.Box3) => boolean;
 }
 
 export interface WaterUnder {
@@ -63,6 +68,7 @@ export class WaterRenderPass {
   private visibilityFrustum = new THREE.Frustum();
   private visibilityProjection = new THREE.Matrix4();
   private visibilityBox = new THREE.Box3();
+  private readonly eye = new THREE.Vector3();
   private copyScene = new THREE.Scene();
   private reflectionGroup = new THREE.Group();
   private copyCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
@@ -123,8 +129,11 @@ export class WaterRenderPass {
     this.copyMaterial.uniforms.tDepth!.value = source.depthTexture;
   }
 
-  /** Conservative world-space boxes retain wave crests and changing channel levels at screen edges. */
-  private waterInView(mesh: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>, camera: THREE.Camera): boolean {
+  /**
+   * Conservative world-space boxes retain wave crests and changing channel levels at screen edges. With `landHides`, a box
+   * the land hides from the eye is out of view too.
+   */
+  private waterInView(mesh: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>, camera: THREE.Camera, landHides?: WaterRenderInputs['landHides']): boolean {
     if (!camera.layers.test(mesh.layers) || !mesh.material.visible) return false;
     for (let parent: THREE.Object3D | null = mesh; parent; parent = parent.parent) if (!parent.visible) return false;
     mesh.updateWorldMatrix(true, false);
@@ -135,9 +144,10 @@ export class WaterRenderPass {
     // Sea relief is bounded below 0.72 m; inland bounds already include all hydraulic levels and ripples.
     // A full metre in local space deliberately overestimates both so visibility never clips an animated crest.
     const pieces = mesh.userData.waterVisibilityBounds as THREE.Box3[] | undefined;
+    if (landHides) this.eye.setFromMatrixPosition(camera.matrixWorld);
     if (pieces) return pieces.some(bounds => {
       this.visibilityBox.copy(bounds).expandByScalar(1).applyMatrix4(mesh.matrixWorld);
-      return this.visibilityFrustum.intersectsBox(this.visibilityBox);
+      return this.visibilityFrustum.intersectsBox(this.visibilityBox) && !landHides?.(this.eye, this.visibilityBox);
     });
     const bounds = mesh.geometry.boundingBox;
     if (!bounds || bounds.isEmpty()) return false;
@@ -218,7 +228,7 @@ export class WaterRenderPass {
     // Only visible sea needs a planar capture; a map longitude is not a visibility boundary.
     camera.getWorldPosition(this.currentCameraPosition);
     camera.getWorldQuaternion(this.currentCameraRotation);
-    if (WaterRenderPass.captureOff || this.currentCameraPosition.y <= 0.08 || !(seaInView ?? input.meshes.some(m => m.name === 'sea' && this.waterInView(m, camera)))) return;
+    if (WaterRenderPass.captureOff || this.currentCameraPosition.y <= 0.08 || !(seaInView ?? input.meshes.some(m => m.name === 'sea' && this.waterInView(m, camera, input.landHides)))) return;
     if (this.reflectionScene !== scene) { this.reflectionValid = false; this.reflectionScene = scene; }
     const size = input.quality === 'high' ? 512 : 384;
     if (this.reflector && this.reflector.getRenderTarget().texture.type !== source.texture.type) {
@@ -321,7 +331,7 @@ export class WaterRenderPass {
     // Leave it unknown if an earlier channel short-circuits the search.
     let seaInView: boolean | undefined;
     if (!input.meshes.some(mesh => {
-      const visible = this.waterInView(mesh, camera);
+      const visible = this.waterInView(mesh, camera, mesh.name === 'sea' ? input.landHides : undefined);
       if (mesh.name === 'sea') seaInView = visible;
       return visible;
     })) {
