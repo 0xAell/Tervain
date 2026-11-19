@@ -38,4 +38,20 @@ Serve the build, then run `tools/bench.mjs --headed --quality high --size 1440x9
 
 Without a GPU, `npm run perf:frame -- --url <build>` counts one frame's draw calls and triangles at each stop of the route, by pass (main view, the leaves' depth pre-pass, the sun's shadow map, the water's reflection and composite) and by part of the world, with the wanderer at each stop as in play; [AIR-CUTS.md](AIR-CUTS.md) has the live build's.
 
+### On the Air itself
+
+The verdict that counts is the Air's own. On the Air, with Chrome, Node 22 or later and a checkout of the repository (the
+benchmark uses only Node's built-ins, so nothing needs installing), run the route against the live build:
+
+```
+node tools/bench.mjs --headed --quality high --size 1440x900 --dpr 2 --runs 2 --url https://0xaell.github.io/Tervain/
+```
+
+Each run prints its frame times and a verdict: whether it held a steady 60 Hz, the hardest segment, and the pixel ratio the
+run ended at. A frame shown later than 1.4 refreshes (23.3 ms) missed one, as the game's render scale counts it, and a run
+is steady when fewer than one frame in a hundred missed: the share below which the render scale raises its resolution
+again. High asks for a pixel ratio of up to 1.5, and the render scale lowers it while frames are missed, so a run that
+ends below 1.5 held its rate by drawing fewer pixels. The second run answers for play, since the first includes the
+shaders' compiles. Chrome on macOS cannot time the GPU (the GPU column reads n/a): the frame times are the measure there.
+
 Cuts must keep or improve the look. Each one should be shown with before/after GPU numbers per segment and the same capture from the visual gate.
