@@ -532,7 +532,7 @@ Improved:
   hidden, beside its batch's copy: 23.9 MB of the shells' 354,000 triangles held twice on the CPU and read by nothing
   (the camera and the arrows meet the colliders, not the meshes). `batchParts` now takes `release`, and the shells use
   it: once a batch holds a part's copy, the part keeps an empty geometry with its bounds. The settlement's meshes hold
-  39.3 MB once the shells are batched, where they held 63.2 MB ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  39.3 MB once the shells are batched, where they held 63.2 MB ([#914](https://github.com/0xAell/Tervain/pull/914)).
 
 Next:
 
