@@ -83,6 +83,11 @@ async function texelsInWorker(): Promise<WaterTexels | null> {
   });
 }
 
+/** Settles when the water's worker is done, or at once without one: work that should not share the cores with it waits. */
+export function waterTexelsSettled(): Promise<unknown> {
+  return ahead ?? Promise.resolve();
+}
+
 /**
  * Before the world's water is built: wait for texels made ahead, if a worker is making them, and build the shared
  * textures from them. Without any, the textures are made on first use, as before.
