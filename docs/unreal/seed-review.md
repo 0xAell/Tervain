@@ -520,6 +520,11 @@ Improved:
   call each per landmark in every pass that drew them, the sun's shadow map along the track, the main view and the
   water's reflection at the sea. On 0.1.3 they draw 39 calls over the route where they drew 102: 22 to 10 at the
   landing, 24 to 9 at the sea's stop, the triangles the same ([#912](https://github.com/0xAell/Tervain/pull/912)).
+- The first view's preparation leaves out the parts that batches draw. Three compiles hidden meshes too, so each part a
+  batch draws (the settlement's shells, its doors and other moving parts, the pushable barrels and crates, the
+  scatter's chunks, the woodland's landmarks and the thornback's parts: 191 at the first view) had its own programs
+  made, though no pass draws it: five colour programs and a depth program were made for those parts alone. The first view is prepared with 130 programs where it took 136
+  ([#913](https://github.com/0xAell/Tervain/pull/913)).
 
 Next:
 
@@ -538,8 +543,8 @@ Next:
   past them, and the worker slows); the terrain and the woodland built during the earlier waits. Each is worth
   measuring again on a machine with a GPU, as is building the models in workers or keeping them between visits.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
-  textures (KTX2) would cut that several times. 134 shader programs are compiled before the first view (0.1.2, the
-  shadow warm-up compiling the casters alone): the world's materials under its lights, the sun's shadow pass, the
+  textures (KTX2) would cut that several times. 130 shader programs are compiled before the first view (0.1.3, the
+  warm-up leaving out the parts that batches draw): the world's materials under its lights, the sun's shadow pass, the
   menu's lights, the leaves' depth and shade passes and the shrine hall's panes as its window capture shows them. On a
   tour of the route and two rooms at noon (`npm run perf:programs`) ten more are compiled, all by the preparation of
   pieces that arrive after the world opens, before they are first drawn; none inside a draw. Fewer programs would need

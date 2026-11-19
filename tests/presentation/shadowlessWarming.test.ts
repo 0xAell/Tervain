@@ -115,6 +115,34 @@ describe('the sun\'s shadow programs prepared for the casters alone', () => {
   });
 });
 
+describe('the parts a batch draws, left out of the compile', () => {
+  it.each([false, true])('compiles neither colour nor shadow programs for them, then gives them their material back (first view: %s)', async (firstView) => {
+    const s = fixture(true);
+    s.object.visible = s.mesh.visible = true;
+    s.mesh.castShadow = true;
+    const partMaterial = new THREE.MeshStandardMaterial();
+    const part = new THREE.Mesh(new THREE.BoxGeometry(), partMaterial);
+    part.visible = false; part.castShadow = true; part.userData.batchedInto = {};
+    s.object.add(part);
+    const seen: { part: THREE.Material | null; caster: THREE.Material | null }[] = [];
+    s.renderer.compileAsync.mockImplementation(() => {
+      seen.push({ part: part.material as THREE.Material | null, caster: s.mesh.material as THREE.Material | null });
+      return s.colour.promise;
+    });
+    const colour = s.mesh.material;
+    const pending = s.warm(true, firstView);
+    // The colour compile sees the caster as drawn and not the part; the shadow compile the caster's depth, still not the part.
+    expect(seen).toHaveLength(2);
+    expect(seen[0]).toEqual({ part: null, caster: colour });
+    expect(seen[1]!.part).toBeNull();
+    expect(seen[1]!.caster).toBeInstanceOf(THREE.MeshDepthMaterial);
+    expect(part.material).toBe(partMaterial);
+    expect(part.visible).toBe(false);
+    s.colour.resolve(); s.uploads.resolve(); await pending;
+    expect(part.material).toBe(partMaterial);
+  });
+});
+
 describe('the shrine hall\'s panes prepared with the first view', () => {
   it('compiles the panes as a whole capture shows them, into the grade\'s target under the world\'s lights, and puts the target back', async () => {
     const scene = new THREE.Scene(), target = new THREE.WebGLRenderTarget(1, 1), previous = new THREE.WebGLRenderTarget(1, 1);
