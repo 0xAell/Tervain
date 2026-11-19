@@ -555,7 +555,7 @@ Improved:
   earlier, beside the worker painting the ground's textures, the two shared that machine's cores and the whole load
   gained nothing; started with the terrain, the terrain's stage takes 1.6 s where it took 2.3, and a journey reaches
   its first view's preparation in 16.7 s where it took 17.6 (medians of five alternating runs, faster in each)
-  ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  ([#917](https://github.com/0xAell/Tervain/pull/917)).
 
 Next:
 
