@@ -124,6 +124,8 @@ export interface GrassField {
   layers: TileLayer[];
   materials: GrassMaterial[];
   update(camera: THREE.Vector3, reserve?: GrassReserve): void;
+  /** Show the tiles the main camera draws nothing of for a capture's draws; returns how to hide them again. */
+  showForCaptures(): () => void;
   stats(): { instances: number; triangles: number; draws: number; tiles: number };
   dispose(): void;
 }
@@ -218,6 +220,10 @@ export function createGrassField(terrain: Terrain, habitat: Habitat, quality: Qu
       const reserve = sharedReserve ?? { remaining: 2 };
       reserve.deadline ??= performance.now() + 2;
       for (const layer of layers) { layer.enabled = ok; layer.update(camera, reserve); }
+    },
+    showForCaptures() {
+      const hide = layers.map((layer) => layer.showForCaptures());
+      return () => { for (const restore of hide) restore(); };
     },
     stats() {
       let instances = 0, triangles = 0, draws = 0, tiles = 0;

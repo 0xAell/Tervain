@@ -29,7 +29,10 @@ export class WindowView {
   private age = Infinity;
   /** The face to redraw next while a refresh is spread over frames, or -1 between refreshes. */
   private face = -1;
-  /** Lighten what the capture draws (the trees' middle models); returns how to put it back. */
+  /**
+   * Prepare what the capture draws: the trees' middle models, and the grass tiles the main camera draws nothing of but the
+   * capture may (world.ts). Returns how to put it back.
+   */
   lighten: (() => () => void) | null = null;
 
   /**

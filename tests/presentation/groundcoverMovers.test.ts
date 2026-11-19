@@ -11,7 +11,7 @@ vi.mock('../../src/presentation/grass/grassField', async original => ({
   ...await original<typeof import('../../src/presentation/grass/grassField')>(), createGrassField: vi.fn(),
 }));
 function build() {
-  vi.mocked(createGrassField).mockReturnValue({group:new THREE.Group(),layers:[],materials:[],update:vi.fn(),stats:()=>({instances:0,triangles:0,draws:0,tiles:0}),dispose:vi.fn()});
+  vi.mocked(createGrassField).mockReturnValue({group:new THREE.Group(),layers:[],materials:[],update:vi.fn(),showForCaptures:()=>()=>{},stats:()=>({instances:0,triangles:0,draws:0,tiles:0}),dispose:vi.fn()});
   return buildGroundcover({quality:'high',terrain:{heightAt:()=>0}} as unknown as BuildContext);
 }
 describe('groundcover mover inputs',()=>{

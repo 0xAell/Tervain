@@ -16,6 +16,8 @@ export interface Groundcover extends SceneModule {
   prepare(renderer: THREE.WebGLRenderer, dt: number): void;
   /** Prepare the interaction field's passes ahead of their first use (A81). */
   warm(renderer: THREE.WebGLRenderer): void;
+  /** Show, for a capture's draws, the grass tiles the main camera draws nothing of; returns how to hide them again. */
+  showForCaptures(): () => void;
   /** The far ground's grass colour and cover at a point (B11), for the terrain's vertices. */
   readonly meadowAt: MeadowGround;
 }
@@ -73,6 +75,7 @@ export function buildGroundcover(ctx: BuildContext): Groundcover {
       field.update(cam, reserve);
     },
     warm(renderer) { trample?.warm(renderer); },
+    showForCaptures: () => field.showForCaptures(),
     prepare(renderer, dt) {
       // Catch-up steps share one allowance; rendering starts the next allowance even without trample work.
       reserve.remaining = 2;

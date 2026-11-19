@@ -76,6 +76,8 @@ interface Tile {
   renderInstances: number;
   bandCenter?: THREE.Vector3;
   bandCount: number;
+  /** Anchors a capture camera may still need though the main camera draws none of them (showForCaptures). */
+  capturable: boolean;
 }
 
 export class TileLayer {
@@ -147,7 +149,7 @@ export class TileLayer {
     mesh.raycast = () => {};
     mesh.visible = false;
     this.group.add(mesh);
-    const tile: Tile = { key: -1, tx: 0, tz: 0, mesh, geo, count: 0, x0: 0, z0: 0, ymin: 0, ymax: 0, attrs, drawCount: this.trisPerInstance * 3, renderInstances: 0, bandCount: 0 };
+    const tile: Tile = { key: -1, tx: 0, tz: 0, mesh, geo, count: 0, x0: 0, z0: 0, ymin: 0, ymax: 0, attrs, drawCount: this.trisPerInstance * 3, renderInstances: 0, bandCount: 0, capturable: false };
     if (o.maxRadius !== undefined || o.drawCountAt || o.trimFadedTail || o.compactOuterBand) {
       mesh.onBeforeRender = (_renderer, _scene, camera) => {
         tile.renderInstances = geo.instanceCount;
@@ -219,9 +221,21 @@ export class TileLayer {
     t.geo.boundingSphere!.set(new THREE.Vector3(t.x0 + centerOffset, cy, t.z0 + centerOffset), r);
   }
 
+  /**
+   * Show, for a capture's draws (the shrine hall's window view), the tiles whose anchors the main camera draws none of
+   * but another camera may: each tile works out a capture camera's own count as it is drawn. Returns how to hide them
+   * again, for the main camera.
+   */
+  showForCaptures(): () => void {
+    const shown: Tile[] = [];
+    for (const t of this.tiles.values()) if (t.capturable && !t.mesh.visible) { t.mesh.visible = true; shown.push(t); }
+    return () => { for (const t of shown) t.mesh.visible = false; };
+  }
+
   private release(t: Tile) {
     this.tiles.delete(t.key);
     t.mesh.visible = false;
+    t.capturable = false;
     t.geo.instanceCount = 0;
     t.count = 0;
     this.pool.push(t);
@@ -321,13 +335,17 @@ export class TileLayer {
       if (o.band && (d > o.band.end || (d < o.band.start && this.farthest(t, cam) < o.band.start))) {
         t.geo.instanceCount = 0;
         t.mesh.visible = false;
+        t.capturable = false;
         continue;
       }
       const prefix = o.compactOuterBand ? t.count : this.instanceCountAt(t, d);
       const n = o.compactOuterBand ? this.compactBand(t, cam) : this.trimFadedTail(t, prefix, cam);
       t.geo.instanceCount = n;
-      // A capture camera may need anchors whose main-camera coverage is zero.
-      t.mesh.visible = prefix > 0;
+      // Drawn by the main camera only where it has instances to draw: three would still prepare a tile of none (its
+      // program and uniforms) before skipping its draw. A capture camera may need anchors whose main-camera coverage is
+      // zero, so such a tile is shown for the captures' draws alone (showForCaptures).
+      t.mesh.visible = n > 0;
+      t.capturable = prefix > 0;
       if (n > 0) {
         // Counters include tiles three.js will frustum-cull, so they are an upper bound.
         inst += n;

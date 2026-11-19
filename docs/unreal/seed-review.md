@@ -564,6 +564,13 @@ Improved:
   woodland's stage on the four-core test machine); over twelve alternating runs each, a journey reaches its first
   view's preparation in 17.0 s where it took 17.3 (medians), within the woodland's run-to-run spread
   ([#919](https://github.com/0xAell/Tervain/pull/919)).
+- The grass tiles the main camera draws none of are hidden from it. Each tile of the streamed grass works out how many
+  of its blades a camera draws, from their distances; a tile whose blades were all faded out for the main camera was
+  still shown, for the shrine hall's window view that may draw some, so three prepared it every frame (chose its
+  program, uploaded its uniforms) before skipping its draw for want of blades: 41 times over the benchmark route's 13
+  stops. Such a tile is now shown for the window view's draws alone (`showForCaptures`). 11 are left: tiles three finds
+  in view whose blades the main camera's tighter test, run as three draws, finds out of it. The grass's draws are the
+  same at every stop ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
 
 Next:
 
@@ -613,10 +620,11 @@ Next:
   139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection, with the sea in view, makes
   stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks were batched). The residents' work
   tools (a draw or two each, in the sun's shadow map too) and the bandits' gear are the next draws to batch; each
-  figure's materials flash on their own when it is struck, so a batch across figures needs that flash per instance. The
-  grass tiles the main camera has nothing to draw for (about three a frame) are still prepared each frame: they stay
-  shown for the window captures, which may need them. The cuts that keep the picture, and those a GPU must judge, are in
-  [AIR-CUTS.md](../perf/AIR-CUTS.md).
+  figure's materials flash on their own when it is struck, so a batch across figures needs that flash per instance.
+  Three still prepares about seven draws a frame that draw nothing: a batch whose bounds are in view though none of its
+  parts is, which it finds only as it draws the batch (81 over the route, about a third each in the main view, the sun's
+  shadow map and the reflection), and a grass tile whose blades the main camera's tighter test finds out of view (11).
+  The cuts that keep the picture, and those a GPU must judge, are in [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by a
   fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the
   torso, the clips sampled, each 0.06 to 0.14 ms a step; most of that was bringing the same matrices up to date again,
