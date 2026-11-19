@@ -30,7 +30,7 @@ it('trims only fully faded trailing anchors and selects a separate prefix for ca
   } finally { layer.dispose(); }
 });
 
-it('keeps a zero-count main tile available to a closer capture camera', () => {
+it('hides a zero-count main tile from the main camera and shows it to a closer capture camera', () => {
   const material = new THREE.MeshBasicMaterial();
   const layer = new TileLayer({ name: 'tail-zero', tileSize: 10, capacity: 1,
     geometry: new THREE.PlaneGeometry(.2, .2), material, fadeStart: 0, fadeEnd: 10,
@@ -45,6 +45,10 @@ it('keeps a zero-count main tile available to a closer capture camera', () => {
     layer.update(new THREE.Vector3());
     const mesh = layer.group.children.find(o => (o as THREE.Mesh).geometry.getAttribute('aBase').getX(0) === 9) as THREE.Mesh<THREE.InstancedBufferGeometry>;
     expect(mesh.geometry.instanceCount).toBe(0);
+    // The main camera draws none of its anchors, so it is not shown to it: three would still prepare an empty tile.
+    expect(mesh.visible).toBe(false);
+    // A capture shows it for its own draws, where the closer camera works out an anchor of its own.
+    const hide = layer.showForCaptures();
     expect(mesh.visible).toBe(true);
     const camera = new THREE.PerspectiveCamera(90, 1, .1, 100);
     camera.position.set(10, 0, 0); camera.lookAt(0, 0, 0); camera.updateMatrixWorld(true);
@@ -52,5 +56,13 @@ it('keeps a zero-count main tile available to a closer capture camera', () => {
     expect(mesh.geometry.instanceCount).toBe(1);
     mesh.onAfterRender({} as THREE.WebGLRenderer, new THREE.Scene(), camera, mesh.geometry, material, {} as THREE.Group);
     expect(mesh.geometry.instanceCount).toBe(0);
+    hide();
+    expect(mesh.visible).toBe(false);
+    // A tile with anchors for the main camera stays shown, and the capture leaves it so.
+    layer.update(new THREE.Vector3(9, 0, 0));
+    expect(mesh.geometry.instanceCount).toBe(1);
+    expect(mesh.visible).toBe(true);
+    layer.showForCaptures()();
+    expect(mesh.visible).toBe(true);
   } finally { layer.dispose(); }
 });
