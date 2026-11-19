@@ -3024,11 +3024,11 @@ export class App {
         `gpu ${gpu}`,
         `ua ${navigator.userAgent}`,
         `game hour ${formatClock(this.game.state.clock)}  phase ${this.game.state.quest.phase} (not pinned during the run)`,
-        `frames ${a.length}  median ${q(0.5).toFixed(2)} ms  p95 ${q(0.95).toFixed(2)} ms  p99 ${q(0.99).toFixed(2)} ms  worst ${(a[a.length - 1] ?? 0).toFixed(1)} ms`,
+        `frames ${a.length}  median ${q(0.5).toFixed(2)} ms  p95 ${q(0.95).toFixed(2)} ms  p99 ${q(0.99).toFixed(2)} ms  worst ${(a[a.length - 1] ?? 0).toFixed(1)} ms  missed a 60 Hz refresh ${(whole.interval.missed * 100).toFixed(1)} %`,
         `cpu median ${whole.cpu.median.toFixed(2)} ms  p95 ${whole.cpu.p95.toFixed(2)} ms  gpu ${whole.gpu ? `median ${whole.gpu.median.toFixed(2)} ms  p95 ${whole.gpu.p95.toFixed(2)} ms (${whole.gpu.frames} frames timed)` : 'not measurable in this browser'}`,
         `draw calls median ${whole.calls.median}  max ${whole.calls.max}  triangles median ${(whole.triangles.median / 1e6).toFixed(2)} M  max ${(whole.triangles.max / 1e6).toFixed(2)} M`,
-        'segment  frame-median  cpu-median  gpu-median  draws  M-tris',
-        ...segments.map((g, i) => `${String(i).padStart(7)}  ${g.interval.median.toFixed(2).padStart(12)}  ${g.cpu.median.toFixed(2).padStart(10)}  ${(g.gpu ? g.gpu.median.toFixed(2) : '-').padStart(10)}  ${String(Math.round(g.calls.median)).padStart(5)}  ${(g.triangles.median / 1e6).toFixed(2).padStart(6)}`),
+        'segment  frame-median  missed-%  cpu-median  gpu-median  draws  M-tris',
+        ...segments.map((g, i) => `${String(i).padStart(7)}  ${g.interval.median.toFixed(2).padStart(12)}  ${(g.interval.missed * 100).toFixed(1).padStart(8)}  ${g.cpu.median.toFixed(2).padStart(10)}  ${(g.gpu ? g.gpu.median.toFixed(2) : '-').padStart(10)}  ${String(Math.round(g.calls.median)).padStart(5)}  ${(g.triangles.median / 1e6).toFixed(2).padStart(6)}`),
         'Frame times are wall-clock intervals between animation frames, recorded uncapped; they are limited by the display refresh rate.',
       ].join('\n');
       this.bench.active = false;

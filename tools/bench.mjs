@@ -18,9 +18,13 @@
  * --dpr N      emulate a device pixel ratio, e.g. --size 1440x900 --dpr 2 for the MacBook Air profile
  * --extra q    extra URL parameters, e.g. --extra prepass=0 or --extra shadows=0&msaa=0 (profiling switches)
  * --runs N     repeat the route N times in one session (default 1); the first lap includes shader compiles
+ *
+ * Each run also says whether it held a steady 60 Hz (tools/bench-verdict.mjs): the share of frames that missed a refresh,
+ * the hardest segment, and the pixel ratio the run ended at.
  */
 import fs from 'node:fs';
 import { openPage } from './cdp.mjs';
+import { benchVerdict } from './bench-verdict.mjs';
 
 const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -55,6 +59,8 @@ try {
     reports.push(report);
     const g = report.whole;
     console.log(`run ${run + 1}: frame median ${g.interval.median.toFixed(2)} ms p95 ${g.interval.p95.toFixed(2)} · cpu ${g.cpu.median.toFixed(2)} ms · gpu ${g.gpu ? `${g.gpu.median.toFixed(2)} ms` : 'n/a'} · draws ${g.calls.median} · ${(g.triangles.median / 1e6).toFixed(2)} M tris`);
+    // The first run includes the shaders' compiles: with --runs 2 or more, the later runs answer for play.
+    console.log(`  ${benchVerdict(report).line}`);
   }
   fs.writeFileSync(out, `${JSON.stringify(runs === 1 ? reports[0] : reports, null, 2)}\n`);
   console.log(`wrote ${out}`);

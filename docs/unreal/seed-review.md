@@ -589,6 +589,12 @@ Improved:
   though no sea is in view at ten of them. Out of view (no box of it in the frustum, or every one behind the land), the
   grid now stays out of the water's draw, and out of the single render taken when no water at all is in view: 0.94 M
   triangles fewer over the route, and the same pixels ([#922](https://github.com/0xAell/Tervain/pull/922)).
+- The benchmark says whether a run held a steady 60 Hz. Each frame summary counts the frames shown later than 1.4
+  refreshes (the game's render scale's own measure of a missed refresh), and `tools/bench.mjs` prints for each run
+  whether fewer than one in a hundred missed (the share below which the render scale raises its resolution again), the
+  hardest segment and the pixel ratio the run ended at; the game's own benchmark text gives the share for the route and
+  for each segment. Chrome on macOS cannot time the GPU, so on a MacBook Air the frame times are the measure:
+  MAC-BUDGET.md says how to run it there ([#924](https://github.com/0xAell/Tervain/pull/924)).
 
 Next:
 

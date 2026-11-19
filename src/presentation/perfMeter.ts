@@ -1,3 +1,4 @@
+import { MISSED_MS } from '../platform/renderScale';
 import type * as THREE from 'three';
 
 /**
@@ -87,7 +88,8 @@ export class PerfMeter {
 
 export interface FrameSummary {
   frames: number;
-  interval: { median: number; p95: number; p99: number; worst: number };
+  /** Frame intervals (ms); `missed` is the share of frames shown later than a 60 Hz refresh allows (MISSED_MS), 0 to 1. */
+  interval: { median: number; p95: number; p99: number; worst: number; missed: number };
   cpu: { median: number; p95: number };
   gpu: { median: number; p95: number; frames: number } | null;
   calls: { median: number; max: number };
@@ -106,7 +108,8 @@ export function summarise(samples: readonly FrameSample[]): FrameSummary {
   const gpu = samples.flatMap((s) => (s.gpu === null ? [] : [s.gpu]));
   return {
     frames: samples.length,
-    interval: { median: quantile(intervals, 0.5), p95: quantile(intervals, 0.95), p99: quantile(intervals, 0.99), worst: Math.max(0, ...intervals) },
+    interval: { median: quantile(intervals, 0.5), p95: quantile(intervals, 0.95), p99: quantile(intervals, 0.99), worst: Math.max(0, ...intervals),
+      missed: intervals.length ? intervals.filter((i) => i > MISSED_MS).length / intervals.length : 0 },
     cpu: { median: quantile(cpu, 0.5), p95: quantile(cpu, 0.95) },
     gpu: gpu.length ? { median: quantile(gpu, 0.5), p95: quantile(gpu, 0.95), frames: gpu.length } : null,
     calls: { median: quantile(calls, 0.5), max: Math.max(0, ...calls) },

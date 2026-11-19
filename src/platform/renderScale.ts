@@ -6,7 +6,7 @@
  */
 export const FRAME_BUDGET_MS = 1000 / 60;
 /** A frame shown later than this missed its refresh. */
-const MISSED_MS = FRAME_BUDGET_MS * 1.4;
+export const MISSED_MS = FRAME_BUDGET_MS * 1.4;
 /** Longer gaps are loading, a hidden tab or a breakpoint, not drawing cost. */
 const IGNORED_MS = 250;
 const RECENT = 90;

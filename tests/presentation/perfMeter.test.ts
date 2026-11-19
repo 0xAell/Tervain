@@ -12,6 +12,8 @@ describe('frame cost summary (A76)', () => {
     expect(s.interval.median).toBe(60);
     expect(s.interval.p95).toBe(105);
     expect(s.interval.worst).toBe(109);
+    // Intervals 10..109 ms: 24 ms and over missed a 60 Hz refresh (later than 1.4 × 16.7 ms), 86 of the 100 frames.
+    expect(s.interval.missed).toBeCloseTo(0.86, 9);
     expect(s.cpu.median).toBeCloseTo(7, 6);
     expect(s.gpu?.frames).toBe(50);
     expect(s.calls).toEqual({ median: 150, max: 199 });
@@ -30,6 +32,7 @@ describe('frame cost summary (A76)', () => {
     const s = summarise([]);
     expect(s.frames).toBe(0);
     expect(s.interval.median).toBe(0);
+    expect(s.interval.missed).toBe(0);
     expect(s.gpu).toBeNull();
   });
 });
