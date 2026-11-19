@@ -559,21 +559,27 @@ Improved:
 
 Next:
 
-- Loading: on the four-core test machine without a GPU, `npm run perf:load` times a journey from the click to its
-  first view's preparation at about 17 s: 2 s for the residents, under 1 s for the models, 2 s waiting for the
-  ground's textures (painted in a worker), 1.6 s for the terrain (the water's textures made meanwhile in another),
-  7.7 s for the woodland and 1.9 s for the ground's tiles and physics; the first view then takes about 50 s more, nearly all of it the software renderer compiling
-  shaders. The
-  drawn trees' models are most of the woodland, and the leaf-island pass (`anchorLeafIslands`, run by flora.ts) 1.7 s
-  of it. One tree level's wood is searched by three passes in turn (the clump snap, the card seat and the island
-  pass), each building its own bounding tree over it, about 0.5 s in all. Built once, each wood's tree would be held
-  from its level's build to the island pass, which runs after every level of the tree is built: about 100 bytes a
-  triangle for every tree's wood at once, to save perhaps 0.3 s; holding only the latest saves only the snap's.
-  Three ways to overlap the work were tried and not taken, each within the noise on that machine, whose four cores the
-  work already fills: the ground's textures in three workers (0.2 s); the trees' models built while the textures are
-  painted (the woodland 1.0 s shorter, the wait for the textures 1.0 s longer: a model takes up to a second and runs
-  past them, and the worker slows); the terrain and the woodland built during the earlier waits. Each is worth
-  measuring again on a machine with a GPU, as is building the models in workers or keeping them between visits.
+- Loading: on the four-core test machine without a GPU, `npm run perf:load` times a journey from the click to its first
+  view's preparation at about 17 s: 2 s for the residents, under 1 s for the models, 2 s waiting for the ground's
+  textures (painted in a worker), 1.6 s for the terrain (the water's textures made meanwhile in another), 7.7 s for the
+  woodland and 1.9 s for the ground's tiles and physics; the first view then takes about 50 s more, nearly all of it the
+  software renderer compiling shaders. The drawn trees' models are most of the woodland, and the leaf-island pass
+  (`anchorLeafIslands`, run by flora.ts) 1.7 s of it. One tree level's wood is searched by three passes in turn (the
+  clump snap, the card seat and the island pass), each building its own bounding tree over it, about 0.5 s in all. Built
+  once, each wood's tree would be held from its level's build to the island pass, which runs after every level of the
+  tree is built: about 100 bytes a triangle for every tree's wood at once, to save perhaps 0.3 s; holding only the
+  latest saves only the snap's. Three ways to overlap the work were tried and not taken, each within the noise on that
+  machine, whose four cores the work already fills: the ground's textures in three workers (0.2 s); the trees' models
+  built while the textures are painted (the woodland 1.0 s shorter, the wait for the textures 1.0 s longer: a model
+  takes up to a second and runs past them, and the worker slows); the terrain and the woodland built during the earlier
+  waits. Each is worth measuring again on a machine with a GPU, as is building the models in workers or keeping them
+  between visits. A profile of the load (an unminified build, after the water's textures moved to a worker) puts the
+  drawn trees' models at about 4.2 s of the woodland: their canopies 1.1 s, seating their far cards 0.8 s, snapping
+  their loose clumps 0.5 s and deriving their branch leaves 0.5 s, with the island pass 1.2 s besides. The figures'
+  build takes 0.8 s before the first stage (their heads 0.34 s, their clothes 0.18 s), spread over many small parts. The
+  canopies' leaf atlas (0.37 s) and the bark's noise fields (0.2 s) depend on nothing a world chooses, so a worker could
+  make them as it makes the water's textures; started beside the worker painting the ground's textures, the water's
+  gained nothing on that machine, and started with the terrain it took 0.7 s off the terrain's stage.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
   textures (KTX2) would cut that several times. 130 shader programs are compiled before the first view (0.1.3, the
   warm-up leaving out the parts that batches draw): the world's materials under its lights, the sun's shadow pass, the
@@ -586,18 +592,22 @@ Next:
   triangles, 840,000 of them the planted trees' contact wood (19 meshes, each copied for every tree that uses it); in
   node Rapier keeps a triangle mesh in 20 to 45 bytes a triangle, so those take about 20 to 40 MB, and what holds the
   rest is not yet known. A lighter contact mesh would change what can be stood on. The geometry three keeps on the CPU
-  after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB: three needs both again only if
-  a lost WebGL context is restored, which the game does not otherwise handle, so freeing them trades that recovery for
-  the memory. The procedural bark's cache (25 MB) is the same case: the pixels of textures in use, which only a
-  restored context would read again. The settlement's shells are held once, as their batches (24.6 MB): the hidden
-  shells let their own 23.9 MB go once the batches hold a copy.
-- Draws: at High the frame on 0.1.3 is 254 draw calls and 4.68 M triangles (medians over the benchmark
-  route's 13 stops, the wanderer at each; 267 before the settlement's shells were batched, 272 and 4.71 M on 0.1.2,
-  293 and 4.97 M after October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws and 2.61 M triangles, 56 %
-  of them; the main view 139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection,
-  with the sea in view, makes stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks
-  were batched). The residents' work tools, a draw each, and the bandits' gear are the next draws to batch. The cuts
-  that keep the picture, and those a GPU must judge, are in [AIR-CUTS.md](../perf/AIR-CUTS.md).
+  after uploading it is about 200 MB, and the ground's two eight-layer textures 64 MB: three needs both again only if a
+  lost WebGL context is restored, which the game does not otherwise handle, so freeing them trades that recovery for the
+  memory. The procedural bark's cache (25 MB) is the same case: the pixels of textures in use, which only a restored
+  context would read again. The settlement's shells are held once, as their batches (24.6 MB): the hidden shells let
+  their own 23.9 MB go once the batches hold a copy. The scatter's chunks are held twice as the shells were (8 MB): its
+  test reads the hidden chunks' geometry, so letting them go means reading the batches' instead.
+- Draws: at High the frame on 0.1.3 is 254 draw calls and 4.68 M triangles (medians over the benchmark route's 13 stops,
+  the wanderer at each; 267 before the settlement's shells were batched, 272 and 4.71 M on 0.1.2, 293 and 4.97 M after
+  October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws and 2.61 M triangles, 56 % of them; the main view
+  139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection, with the sea in view, makes
+  stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks were batched). The residents' work
+  tools (a draw or two each, in the sun's shadow map too) and the bandits' gear are the next draws to batch; each
+  figure's materials flash on their own when it is struck, so a batch across figures needs that flash per instance. The
+  grass tiles the main camera has nothing to draw for (about three a frame) are still prepared each frame: they stay
+  shown for the window captures, which may need them. The cuts that keep the picture, and those a GPU must judge, are in
+  [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by a
   fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the
   torso, the clips sampled, each 0.06 to 0.14 ms a step; most of that was bringing the same matrices up to date again,
