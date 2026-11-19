@@ -42,6 +42,24 @@ function drawnInBatch(batch: THREE.BatchedMesh, instance: number, geometry: THRE
   return out;
 }
 
+/** Where `geometry`'s vertices stand in the world as `mesh` would draw them (its own geometry may have been let go). */
+function drawnAloneFrom(mesh: THREE.Mesh, geometry: THREE.BufferGeometry): number[] {
+  mesh.updateWorldMatrix(true, false);
+  const position = geometry.getAttribute('position'), v = new THREE.Vector3(), out: number[] = [];
+  for (let i = 0; i < position.count; i++) out.push(...v.fromBufferAttribute(position, i).applyMatrix4(mesh.matrixWorld).toArray());
+  return out;
+}
+
+/** The vertices a batch holds for an instance, where it draws them: its matrix, then the instance's. */
+function heldInBatch(batch: THREE.BatchedMesh, instance: number): number[] {
+  batch.updateWorldMatrix(true, false);
+  const range = batch.getGeometryRangeAt(batch.getGeometryIdAt(instance))!;
+  const matrix = batch.getMatrixAt(instance, new THREE.Matrix4()).premultiply(batch.matrixWorld);
+  const position = batch.geometry.getAttribute('position'), v = new THREE.Vector3(), out: number[] = [];
+  for (let i = range.vertexStart; i < range.vertexStart + range.vertexCount; i++) out.push(...v.fromBufferAttribute(position, i).applyMatrix4(matrix).toArray());
+  return out;
+}
+
 function expectClose(actual: number[], expected: number[], tolerance: number) {
   expect(actual).toHaveLength(expected.length);
   let worst = 0;
@@ -186,7 +204,7 @@ describe('moving parts drawn as one batch per material: the doors', () => {
     scenery.dispose();
   });
 
-  it('draws the regions\' shells as one batch per surface once their shadows are packed, every vertex where it was', () => {
+  it('draws the regions\' shells as one batch per surface once their shadows are packed, every vertex where it was, their own geometry let go', () => {
     vi.stubGlobal('document', { createElement: () => {
       const canvas = { width: 0, height: 0, getContext: () => context };
       const context = new Proxy<Record<string, unknown>>({ canvas, measureText: (t: string) => ({ width: t.length * 7 }),
@@ -200,6 +218,15 @@ describe('moving parts drawn as one batch per material: the doors', () => {
     scene.add(scenery.group, sun);
     scenery.group.updateMatrixWorld(true);
     expect(scenery.shellBatch).toBeFalsy();
+    // Each mesh's own geometry as built, and whether it is let go.
+    const own = new Map<THREE.Mesh, THREE.BufferGeometry>(), letGo = new Set<THREE.BufferGeometry>();
+    scenery.group.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh || own.has(mesh)) return;
+      const geometry = mesh.geometry;
+      own.set(mesh, geometry);
+      geometry.addEventListener('dispose', () => letGo.add(geometry));
+    });
     const uninstall = scenery.installRegionSun!(scene, sun);
     const batch = scenery.shellBatch!;
     scenery.group.updateMatrixWorld(true);
@@ -221,15 +248,24 @@ describe('moving parts drawn as one batch per material: the doors', () => {
       const instance = mesh.userData.batchedInstance as number, into = mesh.userData.batchedInto as THREE.BatchedMesh;
       expect(into.getMatrixAt(instance, new THREE.Matrix4()).equals(new THREE.Matrix4())).toBe(true);
       expect(into.position.toArray()).toEqual([0, 0, 0]);
-      expect(drawnInBatch(into, instance, mesh.geometry)).toEqual(drawnAlone(mesh));
+      expect(heldInBatch(into, instance)).toEqual(drawnAloneFrom(mesh, own.get(mesh)!));
+      // Its own geometry is let go once the batch holds a copy: an empty geometry keeping the bounds stands in for it.
+      const built = own.get(mesh)!;
+      expect(mesh.userData.batchReleased).toBe(true);
+      expect(mesh.geometry).not.toBe(built);
+      expect(mesh.geometry.getAttribute('position')).toBeUndefined();
+      expect(mesh.geometry.boundingSphere).toBe(built.boundingSphere);
+      expect(letGo.has(built)).toBe(true);
       // Its shadow is packed for the sun (regionSun.ts), so the batch draws it in colour alone.
       expect(mesh.castShadow).toBe(false);
       expect(into.castShadow).toBe(false);
     }
-    // Given back their own meshes when the packing is let go.
+    // No mesh left drawing lost its geometry.
+    scenery.group.traverse((o) => { const mesh = o as THREE.Mesh; if (mesh.isMesh && !mesh.userData.batchedInto && own.has(mesh)) expect(mesh.geometry).toBe(own.get(mesh)); });
+    // Let go with the world, the shells, having nothing of their own to draw, stay hidden; their shadow flags come back.
     uninstall();
     expect(scenery.shellBatch).toBeFalsy();
-    for (const mesh of batched) { expect(mesh.visible).toBe(true); expect(mesh.userData.batchedInto).toBeUndefined(); expect(mesh.castShadow).toBe(true); }
+    for (const mesh of batched) { expect(mesh.visible).toBe(false); expect(mesh.userData.batchedInto).toBeUndefined(); expect(mesh.castShadow).toBe(true); }
     scenery.dispose();
   });
 

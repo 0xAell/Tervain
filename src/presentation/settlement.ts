@@ -138,6 +138,7 @@ export interface SceneryHandles {
   /**
    * The regions' merged shells as drawn once the sun's casters are packed (installRegionSun): one batch per surface, each
    * region an instance. Updated each step with the doors' batch, so its copies of the materials follow their sources.
+   * The batched shells' own geometry is let go (`release`): they stay hidden, the batches their only drawing.
    */
   readonly shellBatch?: PartBatch | null;
   /** Draw structural materials together only during the sun's shadow pass. */
@@ -952,14 +953,17 @@ export function buildScenery(terrain: Terrain, colliders: Colliders, quality: 'l
       // shadow is packed is drawn here without one; a part still casting its own stays apart or in a batch that casts it.
       // Glass, the panes and the glows stay meshes of their own: glass is sorted by its distance, and the others are
       // recoloured every frame (setNight), which a batch's copy would not follow.
-      shellBatch = batchParts(fixed, group, { name: 'shells', copyMaterials: true, include: (mesh) => !LIT_SURFACES.has(mesh.userData.surface as MatKey) });
+      // Nothing reads a batched shell's own geometry once its batch holds a copy (the camera and the arrows meet the
+      // colliders, not the meshes), so it is let go: the shells are held once, as the batches.
+      shellBatch = batchParts(fixed, group, { name: 'shells', copyMaterials: true, release: true, include: (mesh) => !LIT_SURFACES.has(mesh.userData.surface as MatKey) });
       return () => {
         const shells = shellBatch;
         shellBatch = null;
         if (shells) {
           for (const region of fixed) region.traverse((o) => {
             if (!shells.meshes.includes(o.userData.batchedInto)) return;
-            o.visible = true;
+            // A shell whose geometry went has nothing of its own to draw: it stays hidden with the world it was built for.
+            if (!o.userData.batchReleased) o.visible = true;
             delete o.userData.batchedInto; delete o.userData.batchedInstance;
           });
           shells.dispose();
