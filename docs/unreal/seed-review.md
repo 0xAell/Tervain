@@ -573,13 +573,14 @@ Next:
   built while the textures are painted (the woodland 1.0 s shorter, the wait for the textures 1.0 s longer: a model
   takes up to a second and runs past them, and the worker slows); the terrain and the woodland built during the earlier
   waits. Each is worth measuring again on a machine with a GPU, as is building the models in workers or keeping them
-  between visits. A profile of the load (an unminified build, after the water's textures moved to a worker) puts the
-  drawn trees' models at about 4.2 s of the woodland: their canopies 1.1 s, seating their far cards 0.8 s, snapping
-  their loose clumps 0.5 s and deriving their branch leaves 0.5 s, with the island pass 1.2 s besides. The figures'
-  build takes 0.8 s before the first stage (their heads 0.34 s, their clothes 0.18 s), spread over many small parts. The
-  canopies' leaf atlas (0.37 s) and the bark's noise fields (0.2 s) depend on nothing a world chooses, so a worker could
-  make them as it makes the water's textures; started beside the worker painting the ground's textures, the water's
-  gained nothing on that machine, and started with the terrain it took 0.7 s off the terrain's stage.
+  between visits. A profile of the load on 0.1.3 (an unminified build, before the terrain's and the water's cuts above)
+  puts the drawn trees' models at about 4.2 s of the woodland: their canopies 1.1 s, seating their far cards 0.8 s,
+  snapping their loose clumps 0.5 s and deriving their branch leaves 0.5 s, with the island pass 1.2 s besides (the 1.7
+  s above is an earlier measure). The figures' build takes 0.8 s before the first stage (their heads 0.34 s, their
+  clothes 0.18 s), spread over many small parts. The canopies' leaf atlas (0.37 s) and the bark's noise fields (0.2 s)
+  depend on nothing a world chooses, so a worker could make them as it makes the water's textures; started beside the
+  worker painting the ground's textures, the water's gained nothing on that machine, and started with the terrain it
+  took 0.7 s off the terrain's stage.
 - Hardware demand: the world holds 93 textures, about 600 MB uncompressed, most of them 2048² RGBA; compressed GPU
   textures (KTX2) would cut that several times. 130 shader programs are compiled before the first view (0.1.3, the
   warm-up leaving out the parts that batches draw): the world's materials under its lights, the sun's shadow pass, the
