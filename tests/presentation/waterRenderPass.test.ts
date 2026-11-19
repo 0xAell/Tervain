@@ -177,6 +177,28 @@ describe('water capture/composite orchestration', () => {
     water.dispose();
   });
 
+  it("leaves the sea's grid out of every draw while no sea is in view, and draws it once some is", () => {
+    const f = setup(), masks = f.meshes.map(m => m.layers.mask);
+    // The stream in view, the sea behind the camera: the composite draws the stream alone.
+    f.render();
+    expect(f.draws).toHaveLength(3);
+    expect(f.draws.map(d => d.meshMasks[0])).toEqual([0, 0, 0]);
+    expect(f.draws[2]!.meshMasks[1]).toBe(2);
+    expect(f.meshes.map(m => m.layers.mask)).toEqual(masks);
+    // No water in view: one render of the scene, without the sea's grid, whose layers come back after.
+    f.meshes[1]!.position.x = 500; f.draws.length = 0;
+    f.render();
+    expect(f.draws).toHaveLength(1);
+    expect(f.draws[0]!.meshMasks).toEqual([0, masks[1]]);
+    expect(f.meshes.map(m => m.layers.mask)).toEqual(masks);
+    // The sea in view: captured and drawn with the water.
+    coastalView(f); f.draws.length = 0;
+    f.render();
+    expect(f.draws).toHaveLength(4);
+    expect(f.draws[3]!.meshMasks[0]).toBe(2);
+    expect(f.meshes.map(m => m.layers.mask)).toEqual(masks);
+  });
+
   it('skips capture and copy when water is outside the camera frustum, detaches stale bindings, and reuses its targets on return', () => {
     const f = setup();
     f.render();
