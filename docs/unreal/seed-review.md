@@ -547,7 +547,7 @@ Improved:
   distance puts outside, and the ground's splat does the same for the streams. Every height, carve, clearance and
   splat value is the same to the bit; in Node the terrain builds in 0.33 s where it took 0.62, and on the four-core test
   machine a journey reaches its first view's preparation in 17.9 s where it took 18.8 (the terrain 2.5 s where it took
-  2.9; medians of four alternating runs) ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  2.9; medians of four alternating runs) ([#916](https://github.com/0xAell/Tervain/pull/916)).
 
 Next:
 
