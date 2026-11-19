@@ -38,7 +38,10 @@ import { Exclusions, type SwayUniforms } from './vegetation';
 export interface LoadProgress { loaded: number; total: number; label: string }
 import type { BuildContext, FrameContext, SceneModule } from './context';
 import { WaterSystem } from './water/waterSystem';
-import { adoptWaterTexels, prefetchWaterTexels } from './water/waterTextures';
+import { adoptWaterTexels, prefetchWaterTexels, waterTexelsSettled } from './water/waterTextures';
+import { adoptWoodTexels, prefetchWoodTexels } from './woodTexels';
+import { NEAR_CANOPY } from './canopy';
+import { leafAtlasWanted } from './leafAtlas';
 import { SkyCapture } from './water/skyCapture';
 import type { WaterRenderInputs } from './waterRenderPass';
 import type { Settings } from '../platform/settings';
@@ -303,8 +306,10 @@ export class WorldScene {
     try {
       const groundRows = (WORLD.maxZ - WORLD.minZ) / WORLD.cell + 1, groundTotal = groundRows + 3;
       await checkpoint('terrain', 'Physical ground', 0, groundTotal);
-      // The water's texels are made by a worker meanwhile, and taken before the water is built.
+      // The water's texels are made by a worker meanwhile, and taken before the water is built; then the woodland's
+      // canopy atlas and bark fields, taken before the woodland is built.
       prefetchWaterTexels();
+      prefetchWoodTexels({ atlas: leafAtlasWanted() ? null : { size: 1024, cells: NEAR_CANOPY.cells, seed: 1340 }, barkSizes: [1024] }, waterTexelsSettled());
       const terrain = await Terrain.create({ ...options, onProgress: completed => phase('terrain', 'Physical ground', completed, groundTotal) });
       const colliders = buildStaticColliders(terrain);
       await checkpoint('terrain', 'Ground contacts', groundRows + 1, groundTotal);
@@ -318,6 +323,7 @@ export class WorldScene {
       const water = own(new WaterSystem(terrain, settings.quality));
       scene.add(water.group);
       await checkpoint('terrain', 'Physical ground ready', groundTotal, groundTotal);
+      await adoptWoodTexels();
       const sway: SwayUniforms = { uTime: { value: 0 }, uWind: { value: 1 } };
       // One wind for the realm: the grass and the trees answer the same gusts as they cross the land.
       const foliage = createFoliageField(own(new GrassWind(REALM_WIND)));

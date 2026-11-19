@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { mulberry32 } from '../core/world/noise';
 import { buildCache } from './buildCaches';
-import { clamp01, fbmField, mixc, pnoise, rnd, sstep, voronoi, type RGB } from './procTex';
+import { makeBarkFields, type BarkFields } from './barkFields';
+import { clamp01, mixc, pnoise, rnd, sstep, voronoi, type RGB } from './procTex';
 
 /**
  * Textures for the trees, all generated: leaf and needle cards (alpha-cut, with the transparent texels carrying leaf colour
@@ -327,17 +328,20 @@ const barkNormals = new WeakMap<BarkTextures, THREE.DataTexture>();
  * kind painted its own, the same fields to the bit (seeded noise), so a world's oak, dead wood and pine at 1024 px made
  * them three times over. They are made once a size; only a build reads them (12 MB at 1024 px).
  */
-const barkFields = new Map<number, { warp: Float32Array; fine: Float32Array; low: Float32Array }>();
+const barkFields = new Map<number, BarkFields>();
 buildCache(() => barkFields.clear());
 function barkFieldsFor(n: number) {
   let fields = barkFields.get(n);
   if (!fields) {
-    // The close detail tile contains new, finer grain rather than a larger interpolation
-    // of the old 256px texture. Both resolutions are deterministic and periodic.
-    fields = { warp: fbmField(n, 4, 6, 3, 201), fine: fbmField(n, n >= 512 ? 128 : 40, n >= 512 ? 84 : 40, 3, 202), low: fbmField(n, 3, 5, 3, 203) };
+    fields = makeBarkFields(n);
     barkFields.set(n, fields);
   }
   return fields;
+}
+
+/** Hand over a size's fields made ahead by a worker (woodTexels.ts); the build lets them go with the rest. */
+export function adoptBarkFields(n: number, fields: BarkFields) {
+  if (!barkFields.has(n)) barkFields.set(n, fields);
 }
 
 /** Tileable bark (u around the trunk, v along it). Albedo is grey-brown and dark; the tree tints it with vertex colour. */
