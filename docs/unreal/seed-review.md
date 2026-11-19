@@ -582,7 +582,7 @@ Improved:
   draw calls and draws 2.1 M fewer triangles (292 to 210 and 252 to 179 draws). At the route's largest frame (stop 11)
   the sea is hidden too, but by crests too thin to vouch for (a metre and a half or less, 115 to 395 m off), and on the
   landing's beach the swash may run up into view, so both keep their reflection. The test takes 0.07 to 0.4 ms a frame
-  while the camera moves, on the four-core test machine ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  while the camera moves, on the four-core test machine ([#921](https://github.com/0xAell/Tervain/pull/921)).
 
 Next:
 

@@ -157,8 +157,8 @@ describe('water capture/composite orchestration', () => {
       f.draws.length = 0;
       f.render();
     };
-    // In Rillford, facing down the lane to the shrine (the benchmark route's eighth stop): the sea's boxes far to the
-    // south-west lie in the frustum, every one behind the island's hills.
+    // At the benchmark route's eighth stop, facing south-west: the sea's boxes 380 m and more away lie in the frustum, every
+    // one behind the island's hills.
     look([0.9, 6.4, -49], [-12, -90]);
     expect(f.draws).toHaveLength(4); // Without the land's say: the planar capture, the picture, its copy, the water.
     expect(f.draws[0]!.camera).not.toBe(f.camera);
