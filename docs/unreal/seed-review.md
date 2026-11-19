@@ -588,7 +588,7 @@ Improved:
   (so three never culls it) and lifted by the waves in its vertex shader, at all 13 of the benchmark route's stops,
   though no sea is in view at ten of them. Out of view (no box of it in the frustum, or every one behind the land), the
   grid now stays out of the water's draw, and out of the single render taken when no water at all is in view: 0.94 M
-  triangles fewer over the route, and the same pixels ([#PR_X](https://github.com/0xAell/Tervain/pull/PR_X)).
+  triangles fewer over the route, and the same pixels ([#922](https://github.com/0xAell/Tervain/pull/922)).
 
 Next:
 
