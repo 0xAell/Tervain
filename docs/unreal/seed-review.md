@@ -571,6 +571,18 @@ Improved:
   stops. Such a tile is now shown for the window view's draws alone (`showForCaptures`). 11 are left: tiles three finds
   in view whose blades the main camera's tighter test, run as three draws, finds out of it. The grass's draws are the
   same at every stop ([#920](https://github.com/0xAell/Tervain/pull/920)).
+- The water's reflection is left out while the land hides all the sea in view. The sea counted as in view, and its
+  reflection was drawn, whenever one of its boxes (its coastal tiles and the open water out to the horizon) lay in the
+  camera's frustum, though the island's hills stood between: at two of the benchmark route's stops over a quarter of the
+  frame's draws went into a reflection no pixel showed (the frame was the same, pixel for pixel, without it). Each of
+  the sea's boxes in the frustum is now tested against the land as well (`LandHorizon`). The terrain is drawn exactly as
+  its height field, so a cell's lowest corner bounds the ground drawn over it; seen from the eye, each degree of azimuth
+  is measured outward for a slope the land surely rises to, and a box counts as hidden only where, in every degree it
+  spans, the land rises above the box's highest point nearer than the box. At those two stops the frame makes 155 fewer
+  draw calls and draws 2.1 M fewer triangles (292 to 210 and 252 to 179 draws). At the route's largest frame (stop 11)
+  the sea is hidden too, but by crests too thin to vouch for (a metre and a half or less, 115 to 395 m off), and on the
+  landing's beach the swash may run up into view, so both keep their reflection. The test takes 0.07 to 0.4 ms a frame
+  while the camera moves, on the four-core test machine ([#921](https://github.com/0xAell/Tervain/pull/921)).
 
 Next:
 
@@ -618,13 +630,15 @@ Next:
   the wanderer at each; 267 before the settlement's shells were batched, 272 and 4.71 M on 0.1.2, 293 and 4.97 M after
   October's cuts, 385 and 5.10 M in 0.0.49). The forest is 110 draws and 2.61 M triangles, 56 % of them; the main view
   139 draws, the sun's shadow map 73, the leaves' depth pass 18. The water's reflection, with the sea in view, makes
-  stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks were batched). The residents' work
-  tools (a draw or two each, in the sun's shadow map too) and the bandits' gear are the next draws to batch; each
-  figure's materials flash on their own when it is struck, so a batch across figures needs that flash per instance.
-  Three still prepares about seven draws a frame that draw nothing: a batch whose bounds are in view though none of its
-  parts is, which it finds only as it draws the batch (81 over the route, about a third each in the main view, the sun's
-  shadow map and the reflection), and a grass tile whose blades the main camera's tighter test finds out of view (11).
-  The cuts that keep the picture, and those a GPU must judge, are in [AIR-CUTS.md](../perf/AIR-CUTS.md).
+  stop 11 the largest frame: 482 draws and 9.24 M (467 since the woodland's landmarks were batched). The reflection is
+  drawn only where the land may let some of the sea be seen: at stops 6 and 7, behind the island's hills, it was over a
+  quarter of the frame (155 draws in all). The residents' work tools (a draw or two each, in the sun's shadow map too)
+  and the bandits' gear are the next draws to batch; each figure's materials flash on their own when it is struck, so a
+  batch across figures needs that flash per instance. Three still prepares about six draws a frame that draw nothing: a
+  batch whose bounds are in view though none of its parts is, which it finds only as it draws the batch (65 over the
+  route: 30 in the main view, 23 in the sun's shadow map, 12 in the reflection), and a grass tile whose blades the main
+  camera's tighter test finds out of view (11). The cuts that keep the picture, and those a GPU must judge, are in
+  [AIR-CUTS.md](../perf/AIR-CUTS.md).
 - Simulation: at that village spot a fixed step takes about 1.8 to 2.8 ms on the four-core test machine (runs vary by a
   fifth). The residents' poses were nearly a third of it: the work reach, the feet planted, the hands kept out of the
   torso, the clips sampled, each 0.06 to 0.14 ms a step; most of that was bringing the same matrices up to date again,

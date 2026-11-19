@@ -6,6 +6,7 @@ import { WaterSystem } from '../../src/presentation/water/waterSystem';
 import { detachWaterOptics, makeWaterOpticsUniforms } from '../../src/presentation/waterOptics';
 import { WaterRenderPass, type WaterRenderInputs } from '../../src/presentation/waterRenderPass';
 import { Terrain } from '../../src/core/world/terrain';
+import { LandHorizon } from '../../src/presentation/water/landHorizon';
 
 interface Draw {
   scene: THREE.Scene;
@@ -141,6 +142,39 @@ describe('water capture/composite orchestration', () => {
     expect(f.draws).toHaveLength(3); // The original reflection is still fresh at the unchanged 15 Hz cadence.
     expect(sea.mesh.material.uniforms.tWaterReflection!.value).toBe(reflection.texture);
     expect(sea.mesh.material.uniforms.uWaterReflectionReady!.value).toBe(1);
+  });
+
+  it('draws no sea reflection where the land hides all the sea in view, and draws it where any may show', () => {
+    const f = setup(), terrain = new Terrain(), water = new WaterSystem(terrain, 'high'), sea = water.ocean, horizon = new LandHorizon(terrain);
+    const previousSea = f.meshes[0]!;
+    f.scene.remove(previousSea); previousSea.geometry.dispose(); previousSea.material.dispose();
+    f.meshes[0] = sea.mesh; f.input.seaMaterial = sea.mesh.material; f.input.quality = 'high';
+    f.scene.add(sea.mesh); f.meshes[1]!.visible = false;
+    f.camera.fov = 60; f.camera.aspect = 1440 / 900; f.camera.far = 1400; f.camera.updateProjectionMatrix();
+    const look = (eye: [number, number, number], at: [number, number]) => {
+      f.camera.position.set(...eye);
+      f.camera.lookAt(at[0], Math.min(terrain.heightAt(at[0], at[1]) + 1, eye[1] - 1.5), at[1]); f.camera.updateMatrixWorld();
+      f.draws.length = 0;
+      f.render();
+    };
+    // At the benchmark route's eighth stop, facing south-west: the sea's boxes 380 m and more away lie in the frustum, every
+    // one behind the island's hills.
+    look([0.9, 6.4, -49], [-12, -90]);
+    expect(f.draws).toHaveLength(4); // Without the land's say: the planar capture, the picture, its copy, the water.
+    expect(f.draws[0]!.camera).not.toBe(f.camera);
+    f.input.landHides = (eye, box) => horizon.hides(eye, box);
+    look([0.9, 6.4, -49], [-12, -90]);
+    expect(f.draws).toHaveLength(1); // Nothing of the water in view: the picture alone.
+    expect(sea.mesh.material.uniforms.uWaterReflectionReady!.value).toBe(0);
+    // At the landing, facing the sea: captured as before.
+    look([-262.5, 3.5, 27], [-300, 27]);
+    expect(f.draws).toHaveLength(4);
+    expect(f.draws[0]!.camera).not.toBe(f.camera);
+    expect(sea.mesh.material.uniforms.uWaterReflectionReady!.value).toBe(1);
+    // On the beach facing inland (the route's first stop) the swash may run up into view: captured as before.
+    look([-273.7, 3.6, 28.1], [-243, 22]);
+    expect(f.draws[0]!.camera).not.toBe(f.camera);
+    water.dispose();
   });
 
   it('skips capture and copy when water is outside the camera frustum, detaches stale bindings, and reuses its targets on return', () => {
