@@ -16,6 +16,7 @@ import type { PropView } from './propPhysics';
 import { crossings, deckAt } from './crossing';
 import { RiverLife } from './riverLife';
 import { Architecture } from './architecture';
+import { hegemonyStandards, isHegemonyStandard } from './hegemony';
 import { bridgeArt } from './bridgeArt';
 import { drawStrip } from './worldArt';
 import { worldView } from '../core/game/worldView';
@@ -233,6 +234,7 @@ export class Scene {
             continue;
           }
           const furniture = prop.key === 'seat' || prop.key === 'fire';
+          const standard = isHegemonyStandard(prop.key);
           const overlaps =
             !furniture &&
             focusPoints.some(
@@ -266,10 +268,12 @@ export class Scene {
             anchor: prop.key === 'rill_lilies' ? 0.55 : 1,
             key,
             frame: Math.floor(
-              time * (motion === 'sway' ? 3.5 : motion === 'bob' ? 2.5 : 6) +
+              (standard
+                ? time * 8 + 1.2 * Math.sin(time * 0.82 + prop.x * 0.018 - prop.z * 0.027)
+                : time * (motion === 'sway' ? 3.5 : motion === 'bob' ? 2.5 : 6)) +
                 (prop.phase ?? Math.abs(prop.z) % 5)
             ),
-            alpha: overlaps && prop.width > 27 ? (fieldwork ? 0.08 : 0.26) : 1,
+            alpha: overlaps && (standard || prop.width > 27) ? (fieldwork ? 0.08 : 0.26) : 1,
           });
         }
       }
@@ -672,6 +676,16 @@ export class Scene {
           const g = groundAt((x / w) * 580 - 380, (y / h) * 340 - 170);
           this.atlas.draw(c, g, x + 1.5, y + 2, 8, 0, false, 0.5);
         }
+      for (const standard of hegemonyStandards) {
+        if (!standard.chart) continue;
+        this.atlas.draw(
+          c,
+          'standard_chart',
+          ((standard.x + 380) / 580) * w,
+          ((standard.z + 170) / 340) * h,
+          9
+        );
+      }
       this.mapBase = base;
     }
     ctx.imageSmoothingEnabled = false;
