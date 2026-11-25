@@ -10,6 +10,8 @@ import { sites } from './doorways';
 import { terrainHeight } from './relief';
 import { bedDepth } from './swell';
 import { bridgePiers } from './waterObstacles';
+import { isHegemonyStandard, standardSize } from './hegemony';
+import { risePixels } from './projection';
 import {
   chamberLift,
   roomLift,
@@ -31,7 +33,8 @@ export const yawRotation = (angle: number) => ({
 });
 export const floorAt = (room: FloorPlan | undefined, p: V2) =>
   room ? roomLift(room, p) / roomRisePixels : terrainHeight(p.x, p.z);
-const solid = /^(well|fire|sign|board|bell|sluice|wreck|beacon|ruin|tide_rocks|rockpile|cart)$/;
+const solid =
+  /^(well|fire|sign|board|bell|sluice|wreck|beacon|ruin|tide_rocks|rockpile|cart|standard_court|standard_watch|standard_road)$/;
 const tile = (x: number, z: number) => Math.floor(x / tileSize) + ',' + Math.floor(z / tileSize);
 let sceneryTiles: Map<string, Scenery[]> | undefined;
 function obstacles() {
@@ -188,8 +191,15 @@ export function outdoorTile(world: RAPIER.World, i: number, j: number) {
       continue;
     }
     const trunk = isTree(s.key),
-      radius = trunk ? trunkRadius(s) : Math.max(0.3, Math.min(2.3, s.width / 22));
-    const hi = trunk ? 4.4 : s.key === 'fire' ? 0.36 : Math.min(2.8, s.width / 15),
+      pole = isHegemonyStandard(s.key) ? standardSize[s.key] : undefined,
+      radius = pole?.radius ?? (trunk ? trunkRadius(s) : Math.max(0.3, Math.min(2.3, s.width / 22)));
+    const hi = pole
+        ? pole.height / risePixels
+        : trunk
+          ? 4.4
+          : s.key === 'fire'
+            ? 0.36
+            : Math.min(2.8, s.width / 15),
       floor = floorAt(undefined, s);
     world.createCollider(
       RAPIER.ColliderDesc.cylinder(hi / 2, radius)

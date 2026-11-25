@@ -3657,6 +3657,121 @@
         "19b7b202318f1303f08dbf222dfed9b7244fc2dbd0ae5be2b80190eb96fe3552",
         "9522cc2ecc8dfec6055166ece72c7b5c09faa99b3ccb45d9565881318699185b"
       ]
+    },
+    "standard_chart": {
+      "tool": "original pixel drawing",
+      "description": "Gold-edged emblem on a burgundy map pennant.",
+      "sourceFrameSha256": [
+        "a2f971141dd9cfa7c785dc1bacd17a5c73987cf74df471c580f8f60168e009e5"
+      ]
+    },
+    "standard_court": {
+      "tool": "create_image_pixen",
+      "description": "Claret civic standard with a three-towered gate, river bars and a stepped hem.",
+      "sourceFrameSha256": [
+        "5f60acfb6c8faba81054746be92e850c22c6ce333eb1469646277a15a3b74066",
+        "49bbee5df6858b44befc303a76a7bc71c98f93b0107dbdb2712eb94361c3a3dd",
+        "a9fd17f8d2532f2f7fdc4ec8f1895be53319b7b0067c6044186fcb34af08fa70",
+        "bbb2feeb09a88eccd9b09d1cd8bf28cde3e7ca36e16dc07e1f94e5942a40680e",
+        "308415f79fc50fe7b5577eeb83249e9f1a080f10129c06b439e51dcc4d50da67",
+        "2f3adff060ec210f267bb8d6cbc42afb754c119a1180237c269c2254dc9896cd",
+        "1e551d611a1a14b747ae2579d4b5b4d079b73aa8bc5a6d7bd29340962b9fe76c",
+        "add0f291d97846c5af6b91d1600f6aed3a3fa1fd34f9fb10a7d4744d329c38f6",
+        "bf594140a41e33fdaa8896f3184219792800d18a39ac88f330584321485fa9fb",
+        "77dd6d1bf9d9980ef34d1905e3e5d4ddaa5af75e98a317fb7c0722b1ffe6da25",
+        "69a82321ea068e3b3edc6b38483dc4fddc43bbe477afa74d3b23dafa685f36a4",
+        "4d462f09717dd59218bcd5c8f143851a31021ce5ad6a57851a4acd8e89172ac5",
+        "acab67e23763dc4c71439d81c46c2f9e051bf0a29bfb2aa2ac53af06013b39ac",
+        "3949cad8a266a99d7a640f3ef9e05fca0deabd33ee9e8b4acbf9df5fe41f11b1",
+        "9aa5eb5aa007b9988d33d32dc123dc3f7e22aaaf58c5b34774f2ef38cf218ab4",
+        "ee80668ea14e1802c5524007122bb4b3036933eddfed35638264529a188a582c"
+      ],
+      "providerSource": {
+        "file": "masters/hegemony/pixellab-cloth.png",
+        "sha256": "b23a23a0f7349dac6de8581501c155d053a39e04c001c6fa30e18821997109f4",
+        "edits": "Original gate embroidery, palette, mounting and wind frames composed in pixel art for Tervain."
+      }
+    },
+    "standard_road": {
+      "tool": "create_image_pixen",
+      "description": "Oxblood roadside pennant with a compact gate and an angled hem.",
+      "sourceFrameSha256": [
+        "c8743f3562538ba515f64ee2d2c60f70305d553f24d79ddb564c9005e2eaafea",
+        "fe80da1db4e37f6a3dbe574e470abe92327f9f08d7d5eee31d244d741c652cf9",
+        "e4e6666db3b62e800169376394daefe3ec99875e142b003ab2b84f493e5b16b0",
+        "e83c2a73079690b421de52c9a1703849162ec5179442dcae991d99efbcc16f46",
+        "4a1d58581ddb24d360f165937400f1b3c761d770829885be4a1c50f0154fdb13",
+        "fec771d9b174db0c38c388567781193fc6467f9e0ab80903b7a514917557c1b5",
+        "514f1b25583243f47f553bad9c334c1496b4ee2c4b93d6ccca88fd4e0ca1c2d2",
+        "148899fb7c0aef228af34a2a392090e746b96092ca44a5d0b432697ece24df3a",
+        "852c46ecd7acdf855e033c5db61f344ce59cca66de7449a379839a5c802eea6f",
+        "7f1872e9137359aa8abcc615400e2f04e32e1a6d9483b7314a7d41e0423b08ff",
+        "3dcbdeb97108fe0de4515364f2c37d5bb261eb887e66a2f5247ed923bf9544e3",
+        "48ad7977044910c77fef392ce5ca795348276cf5100819f481780ea074c7c31e",
+        "ff6d60a1d77414798813bb35750679967acacc2008c12a3717cc2eed1b2679d2",
+        "47c2f7879b34315946e875305908c6d204ee4e484b163b22dc06d5abdf814d90",
+        "f6d862225edc60aa8150b5983390942ece359a9d4f64585eca51d6fff9465058",
+        "9bed600579daf663757aa334e76ae28ec706789f63b8fc8f39dddef25b542aec"
+      ],
+      "providerSource": {
+        "file": "masters/hegemony/pixellab-cloth.png",
+        "sha256": "b23a23a0f7349dac6de8581501c155d053a39e04c001c6fa30e18821997109f4",
+        "edits": "Original gate embroidery, palette, mounting and wind frames composed in pixel art for Tervain."
+      }
+    },
+    "standard_wall": {
+      "tool": "create_image_pixen",
+      "description": "Short wall hanging in claret and gold with bronze brackets.",
+      "sourceFrameSha256": [
+        "3a57ff6190046edeba8a9125abeee21bed5c006cebb0d6ecf4c91c09225afb88",
+        "98721623b9e187a9ab5d46bc012919343dbc2883e90274c42120dab807b94a82",
+        "201fcfb4dcdc2ee984925a7fe68a134e2a710f8fa593de89da533d465208f0ba",
+        "0937fb7584d4a8b0835c8fb7d369acc5adfc08f0cec4c209971dad4716e48bab",
+        "6343c31c25bcb0ed8d7d86678b425d3494a67200d82e6d310adf9fd54614a113",
+        "028f2a9d5bd049d897e676cc5e25ff00f0b58e8d36b959bcff9c6ff489a68480",
+        "35fcb9afc15a8641bc8d50d68dd8f068605b5a980ff7d4946b8895478e5b4512",
+        "818fc7cce375991254c51b65dd786169d2f859e20f64b7179bf3d5754347363c",
+        "0263d6a88e5f34ba194145c157e398997e3e03a3e0c0a1d1ae95aaeddd186f8f",
+        "ae9521fbecf6f56165666d80a64ec626ccc5f5b623129a8c7ab99acea41bc275",
+        "638f1b1377934418152f933a3da0b1af08a7199d69fd9c714afd85a68451a392",
+        "97e4ce0f94475dd3104e80e3c3907b784a5a1c552176c0d72d7406d1d9e1dc30",
+        "741d030cdc268d5ead7a21877481f903d399ce1a5291aef2027a8936e88dd79e",
+        "cd2c0d67dc69c90454c9ab4734356a18879c295df752a2af2e3438ba63690720",
+        "b9574a944b28a595ac65f00e7ac34778c948bf11b063d274f87969cb35906dea",
+        "489c45e2bad693b174713788ce341fab30f7bf027d53e238f4d8f857da6b85f9"
+      ],
+      "providerSource": {
+        "file": "masters/hegemony/pixellab-cloth.png",
+        "sha256": "b23a23a0f7349dac6de8581501c155d053a39e04c001c6fa30e18821997109f4",
+        "edits": "Original gate embroidery, palette, mounting and wind frames composed in pixel art for Tervain."
+      }
+    },
+    "standard_watch": {
+      "tool": "create_image_pixen",
+      "description": "Mulberry watch standard with a lit gate and a tapering hem.",
+      "sourceFrameSha256": [
+        "f41341b998db9289355f7572e1c595ce6cfde336dbe1d8661ec1263f9b222d9f",
+        "92d25caf6f1c63040f15cc9a126cdb1aca51e81e6c87af1a2a2a775a5eacb6c6",
+        "0ca01e67aa368173d1369b9d007f54005209118736f82b1606705b2878c20f32",
+        "8c22f87d1c20bec7858d32adecbfc2d4bb02527a42a682ad27f0b277598f7db0",
+        "c6157cc0cb3a4f6704b658dbad89a8bc2f1b4df41eb188466bb4637c0c057ef2",
+        "a5ce9640291b7f40ac582a48a58e0250db01eca3fda9db5c79150b127e80919d",
+        "5e9f40e64a12cadbe27fc93ef87650f0cbf4f205dd9ebf755e1948b2058aa55b",
+        "e9514934d798ec0ffea498a60e4350cbe80d8c1afe51178c7e86c706e15d7a3a",
+        "0e2dab634c1db37c510758dd5a65edb0cee2a5c4e3e3ca3db8ecae33b145a668",
+        "97a868fd4f434c4c16083d9a3309c0eef1633062e7aca8ea49e3d47683c97161",
+        "24b0500bafe45694df6902856c50e38329db926fee47db0158a05a0ca38ef4f3",
+        "27c5bf934d6fb550874321fd20f046da9b6526478884191da4255b5671ebbd8b",
+        "3823e122713bc9ee69847233da8a4fb4a392782a6b276b584d97b89954acbde8",
+        "a2d2f03bc7e848cf0207e398c4784aea5ef9eec5b774b19dc120cd8a661ac00e",
+        "20e57472590379d1a83d86f2a7e88731a4f6617eeea6d094d6a069a32d12dc51",
+        "ef8dd6b4c7d1e9555078313e3ca504466078938cf460db2da4e4e701253908de"
+      ],
+      "providerSource": {
+        "file": "masters/hegemony/pixellab-cloth.png",
+        "sha256": "b23a23a0f7349dac6de8581501c155d053a39e04c001c6fa30e18821997109f4",
+        "edits": "Original gate embroidery, palette, mounting and wind frames composed in pixel art for Tervain."
+      }
     }
   },
   "runtimeFilesSha256": {
@@ -3704,8 +3819,8 @@
     "icons/votive_reed.png": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
     "icons/witness_cord.png": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
     "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
-    "sprites.json": "e6525de1b7798e8fdd44a4c644a33a20869e2e061679497356e3b45b1e6fbc1b",
-    "sprites.png": "b4f1a0b1b43529ad1b6c2d6bfd1d17cdc2ecd264f216f96f3e222717b7d6fc4e",
+    "sprites.json": "5021cd03abaeb4fc4e21de58086d2272367ac3b27e0a8e5f896b0aaa87ffc7b0",
+    "sprites.png": "b4672b66015ce5ed0d018ada92d619cdea419bae14d78a678f07368558fd0d40",
     "title.png": "fbf2dab7ad6403e4caff7a94248822339792e0adf04d87f6722d0caea72d6505",
     "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
   }

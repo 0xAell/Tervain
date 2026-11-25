@@ -1,6 +1,7 @@
 import { canClimb } from './relief';
 import { PROJECTION } from './projection';
 import { bankPlants } from './riverHabitat';
+import { hegemonyStandards } from './hegemony';
 import { passesRails } from './crossing';
 import { campShelter, buildingSprite } from './settlement';
 import { toBuildingLocal } from '../core/world/interiors';
@@ -118,6 +119,8 @@ export interface Scenery extends V2 {
   building?: BuildingSpec;
   flip?: boolean;
   phase?: number;
+  lift?: number;
+  elevation?: number;
   paidKey?: string;
   submerged?: number;
   rock?: StoneObstacle;
@@ -163,6 +166,7 @@ export function scenery() {
   for (const p of FOREST_WAYMARKERS) put('marker', p, 25);
   for (const p of LANTERNS) put('lantern', p, 20);
   for (const p of Object.values(BENCHES)) put('seat', p, 34);
+  list.push(...hegemonyStandards);
   for (let x = WORLD.minX; x < WORLD.maxX; x += 6)
     for (let z = WORLD.minZ; z < WORLD.maxZ; z += 6) {
       const p = { x: x + random(x, z, 11) * 5, z: z + random(x, z, 21) * 5 };
@@ -180,6 +184,8 @@ export function scenery() {
       )
         continue;
       if (BUILDINGS.some((b) => distance(b, p) < Math.max(b.w, b.d) * 1.02) || distance(p, ARRIVAL_WRECK) < 8)
+        continue;
+      if (hegemonyStandards.some((standard) => standard.lift === undefined && distance(standard, p) < 1.8))
         continue;
       const bank = waterProfile(p.x, p.z);
       if (bank && bank.course !== 'ocean' && bank.bank < 0) {

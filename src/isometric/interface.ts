@@ -649,6 +649,7 @@ export class Interface {
       );
       return;
     }
+    canvas.setAttribute('aria-label', 'Map of the vale with Hegemony standards and the player position');
     this.scene.drawMap(canvas, this.valley);
     canvas.onclick = (e) => {
       const r = canvas.getBoundingClientRect();
@@ -657,7 +658,10 @@ export class Interface {
       this.valley.action({ t: 'setMapMarker', marker: { x, z } });
       this.scene.drawMap(canvas, this.valley);
     };
-    panel.append(canvas, el('p', 'map-note', 'Click the chart to mark a destination.'));
+    panel.append(
+      canvas,
+      el('p', 'map-note', 'Gold pennants mark Hegemony standards. Click to mark a destination.')
+    );
     const list = el('div', 'map-places');
     for (const place of buildJournal(this.game.state).places.filter((p) => p.status !== 'unknown')) {
       list.append(
