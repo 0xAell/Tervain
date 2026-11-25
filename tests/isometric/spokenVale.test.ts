@@ -14,6 +14,49 @@ import { Game } from '../../src/core/game/game';
 import { Valley } from '../../src/isometric/simulation';
 
 describe('the English voice recordings in the playable vale', () => {
+  it('keeps authored narration, chosen dialogue and world effects on their own routes', () => {
+    vi.stubGlobal(
+      'Audio',
+      class {
+        canPlayType() {
+          return '';
+        }
+      }
+    );
+    try {
+      const sound = new Sound(1);
+      sound.enabled = true;
+      const say = vi.spyOn(sound.mixer, 'say').mockReturnValue(true);
+      const effect = vi.spyOn(sound.mixer, 'effect').mockResolvedValue(undefined);
+      const passage = households.house_a!.passage;
+      expect(sound.narrate([passage])).toBe(true);
+      expect(say.mock.lastCall?.[0]).toEqual([{ cue: catalogue.reader[readKey(passage)] }]);
+
+      sound.mode = 'characters';
+      expect(sound.narrate([passage])).toBe(false);
+      const answer = DIALOGUE_NODES.joss_intro!.choices[0]!.text;
+      const reply = DIALOGUE_NODES.joss_bell!.text;
+      expect(sound.story([answer, reply])).toBe(true);
+      expect(say.mock.lastCall?.[0].map(({ cue, inWorld }) => [cue, inWorld])).toEqual([
+        [catalogue.story[answer], true],
+        [catalogue.story[reply], true],
+      ]);
+
+      sound.mode = 'off';
+      expect(sound.narrate([passage])).toBe(false);
+      expect(sound.story([reply])).toBe(false);
+      expect(say).toHaveBeenCalledTimes(2);
+      sound.page('journal');
+      sound.field('block');
+      expect(effect.mock.calls.map(([cue, , , inWorld]) => [cue[0], inWorld])).toEqual([
+        [catalogue.effects.page![0]![0], false],
+        [catalogue.effects.block![0]![0], true],
+      ]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('lets both toll-jumpers finish their challenge while combat prompts continue', () => {
     vi.stubGlobal(
       'Audio',

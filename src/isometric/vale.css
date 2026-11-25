@@ -595,9 +595,7 @@ button img {
   pointer-events: none;
 }
 .page header .read-aloud { margin-left: auto; }
-.tools .read-aloud { font-size: 12px; max-width: 54px; padding: 0.25em; }
 .volume + .volume { margin-top: 0.55em; }
 @media (max-width: 650px) { .spoken-caption { top: 20%; } }
 .speech.voicing { color: #ffe9b6; }
-.reply.voicing { box-shadow: inset 3px 0 #e0bb76; }
 .heard-reply { margin: 0.4em 0; color: #dfc89e; font-size: 0.9em; }

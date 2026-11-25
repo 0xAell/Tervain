@@ -323,7 +323,6 @@ export class Client implements Controls {
   }
   resume() {
     this.valley.openChest = undefined;
-    this.sound.endLine();
     if (!this.playing) {
       this.ui.title();
       return;
@@ -479,10 +478,7 @@ export class Client implements Controls {
         }
         break;
       case 'inspect':
-        if (v.action({ t: 'inspect', pointId: act.point }))
-          this.ui.message(
-            act.point === 'noticeboard' ? this.ui.describeNoticeboard() : S('inspect.' + act.point)
-          );
+        if (v.action({ t: 'inspect', pointId: act.point })) this.ui.observation(act.point);
         break;
       case 'dismount':
         v.riding = false;
