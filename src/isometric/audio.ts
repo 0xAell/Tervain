@@ -1,202 +1,333 @@
-import { VOICE_AUDIO, type StoryLineId } from '../presentation/sound/voiceManifest';
-import { WORLD_AUDIO } from '../presentation/sound/worldAudioManifest';
-import { hourOfDay } from '../core/game/state';
-import { distance, groundAt } from './land';
+import { hourOfDay, evalAll } from '../core/game/state';
+import { S } from '../core/content/strings';
+import { DIALOGUE_NODES } from '../core/content/dialogue';
+import { HERO_LINES, SPEAKER_NAMES, TALKS, VOICE_LINES, shown, type HeroCue } from '../core/content/voice';
+import { eligibleBarks } from '../core/rules/schedule';
+import { eventRemarks, scenesInEarshot } from '../core/rules/speech';
+import type { GameEvent, NpcId } from '../core/game/types';
+import { catalogue, readText, type VoiceMode, type SpokenPart } from './reading';
+import { defaultMix, Mixer } from './mixer';
+import { distance, groundAt, inBuilding } from './land';
 import { onBridge, wetPoint } from './water';
-import { gameFile } from './files';
-import type { FieldSound } from './fieldcraft';
+import type { Activity, FieldSound } from './fieldcraft';
 import type { Valley } from './simulation';
 
+export type { MixLevels } from './mixer';
 const stepMaterial: Record<string, string> = {
   trail: 'dirt',
   woodland: 'grass',
-  rock: 'gravel',
+  rock: 'stone',
+  gravel: 'stone',
   floor: 'wood',
   field: 'grass',
 };
-interface Cue {
-  file: string;
-  start: number;
-  length: number;
-}
-class Channel {
-  private element = new Audio();
-  private generation = 0;
-  private end = 0;
-  private timer = 0;
-  private asset = '';
-  constructor() {
-    this.element.ontimeupdate = () => {
-      if (this.end && this.element.currentTime >= this.end) this.element.pause();
-    };
-  }
-  stop() {
-    this.generation++;
-    window.clearTimeout(this.timer);
-    this.element.pause();
-  }
-  play(cue: Cue, volume: number) {
-    this.stop();
-    const generation = this.generation,
-      a = this.element;
-    const start = () => {
-      if (generation !== this.generation) return;
-      this.end = cue.start + cue.length;
-      a.currentTime = cue.start;
-      a.volume = Math.min(1, volume);
-      void a
-        .play()
-        .then(() => {
-          if (this.generation === generation)
-            this.timer = window.setTimeout(() => a.pause(), cue.length * 1000);
-        })
-        .catch(() => {});
-    };
-    if (this.asset !== cue.file) {
-      this.asset = cue.file;
-      a.src = gameFile(
-        cue.file.endsWith('.mp3') ? cue.file : cue.file + (a.canPlayType('audio/ogg') ? '.ogg' : '.m4a')
-      );
-    }
-    if (a.readyState >= 1) start();
-    else a.addEventListener('loadedmetadata', start, { once: true });
-  }
-}
+type Caption = (text: string) => void;
+
 export class Sound {
-  private music = new Audio();
-  private air = new Audio();
-  private tag = '';
-  private airTag = '';
-  private voice = new Channel();
-  private bow = new Channel();
-  private impact = new Channel();
-  private strokes = [new Channel(), new Channel()];
-  private serial = 0;
+  readonly mixer: Mixer;
+  private variant = 0;
   private nextStep = 0;
-  private lastWet: boolean | null = null;
+  private nextAnimal = 0;
+  private nextVoice = 0;
+  private challenges = new Set<string>();
+  private lastThreat = 0;
+  private activity?: Activity;
+  private sounded = false;
+  private room?: string;
+  private wasWet: boolean | null = null;
+  private wasStriking = false;
+  private wasJumping = false;
+  private night: boolean | null = null;
+  private pending?: { cue: HeroCue; due: number; expires: number };
+  private heardTalks = new Set<number>();
+  private scenes = new Set<string>();
+  private turns = new Map<string, number>();
+  private format = new Audio().canPlayType('audio/ogg; codecs="opus"') ? '.ogg' : '.m4a';
   enabled = false;
-  constructor(public volume: number) {
-    this.music.loop = true;
-    this.air.loop = true;
-    this.setVolume(volume);
+  constructor(
+    public volume: number,
+    public mode: VoiceMode = 'full',
+    levels = { ...defaultMix }
+  ) {
+    this.mixer = new Mixer(volume, levels);
+  }
+  unlock() {
+    this.mixer.unlock();
+  }
+  titleMusic() {
+    if (this.volume && !this.enabled)
+      void this.mixer.loop('music', 'assets/audio/vale/' + catalogue.music['first-light']);
+  }
+  setCaption(callback: Caption) {
+    this.mixer.caption = callback;
   }
   setVolume(n: number) {
     this.volume = n;
-    this.music.volume = n * 0.7;
-    this.air.volume = n * 0.42;
-    if (n === 0) {
-      this.bow.stop();
-      this.impact.stop();
-      this.voice.stop();
-      for (const c of this.strokes) c.stop();
+    this.mixer.setVolume(n);
+  }
+  endLine() {
+    this.mixer.stopVoice();
+  }
+  read(text: string[], priority = 3) {
+    if (this.mode !== 'full') return false;
+    return this.mixer.say(text.flatMap(readText), priority);
+  }
+  private actorPart(id: string): SpokenPart | undefined {
+    const line = VOICE_LINES[id],
+      cue = catalogue.lines[id];
+    if (!line || !cue) return;
+    return { cue, caption: SPEAKER_NAMES[line.speaker] + ' · ' + shown(line.text) };
+  }
+  tell(ids: string[], priority = 2) {
+    if (this.mode === 'off') return false;
+    return this.mixer.say(
+      ids.flatMap((id) => this.actorPart(id) ?? []),
+      priority
+    );
+  }
+  story(ids: string[], priority = 4) {
+    if (this.mode === 'off') return;
+    const parts: SpokenPart[] = [];
+    for (const id of ids) {
+      const cue = catalogue.story[id];
+      if (!cue) continue;
+      const speaker = id.includes('#') ? 'hero' : DIALOGUE_NODES[id.slice(2)]?.speaker;
+      const caption = speaker && speaker !== 'narrator' ? SPEAKER_NAMES[speaker] + ' · ' + S(id) : S(id);
+      parts.push({ cue, caption });
+    }
+    this.mixer.say(parts, priority);
+  }
+  readPage(parts: SpokenPart[]) {
+    if (this.mode === 'full') this.mixer.say(parts, 5);
+  }
+  more(npc: NpcId, v: Valley) {
+    const eligible = TALKS.map((talk, i) => ({ talk, i })).filter(
+      ({ talk }) => talk.npc === npc && evalAll(v.game.state, talk.when)
+    );
+    const pick =
+      eligible.find(({ i }) => !this.heardTalks.has(i)) ??
+      eligible.find(({ talk }) => talk.again) ??
+      eligible[0];
+    if (!pick) return;
+    this.heardTalks.add(pick.i);
+    return pick.talk.ask ? [pick.talk.ask, pick.talk.reply] : [pick.talk.reply];
+  }
+  private cycle(key: string, size: number) {
+    const n = this.turns.get(key) ?? 0;
+    this.turns.set(key, n + 1);
+    return n % size;
+  }
+  private remark(cue: HeroCue, now: number, delay = 0.7) {
+    if (HERO_LINES[cue]?.length) this.pending = { cue, due: now + delay, expires: now + 18 };
+  }
+  event(event: GameEvent, v: Valley) {
+    if (event.t === 'equipment' && event.item) this.one('equip', 0.36);
+    if (event.t === 'item' && event.id === 'coin') this.one('coins', 0.42);
+    if (event.t === 'rite' || event.t === 'gate') this.one(event.t, 0.6);
+    for (const r of eventRemarks(event, {
+      archiveOpen: v.game.state.locationChanges.archive_door === 'open',
+    }))
+      this.remark(r.cue, v.time, r.delay);
+  }
+  private residents(v: Valley, night: boolean) {
+    if (this.night !== null && this.night !== night) this.remark(night ? 'night' : 'dawn', v.time);
+    this.night = night;
+    if (this.mode === 'off' || this.mixer.speaking) return;
+    const pending = this.pending;
+    if (pending && v.time >= pending.due) {
+      this.pending = undefined;
+      const lines = HERO_LINES[pending.cue];
+      if (v.time <= pending.expires && lines && this.tell([lines[this.cycle(pending.cue, lines.length)]!]))
+        return;
+    }
+    if (v.room || v.time < this.nextVoice || v.bow || v.activity) return;
+    this.nextVoice = v.time + 6;
+    const live = v.actors.filter((a) => a.npc && !a.dead && !inBuilding(a));
+    const hour = hourOfDay(v.game.state.clock);
+    for (const { scene } of scenesInEarshot(
+      v.game.state,
+      hour,
+      (id) => {
+        const a = live.find((actor) => actor.npc === id);
+        return a && { id, x: a.x, z: a.z, hidden: false, asleep: a.posture === 'rest', underway: a.move };
+      },
+      v.player
+    )) {
+      const today = scene.id + '/' + Math.floor(v.game.state.clock / 1440);
+      if (!this.scenes.has(today) && this.tell(scene.lines, 1)) {
+        this.scenes.add(today);
+        this.nextVoice = v.time + 35;
+        return;
+      }
+    }
+    const near = live
+      .filter((a) => a.posture !== 'rest' && distance(a, v.player) < 6)
+      .sort((a, b) => distance(a, v.player) - distance(b, v.player))[0];
+    if (!near?.npc) return;
+    const pool = eligibleBarks(near.npc, v.game.state, hour);
+    if (pool.length && this.tell([pool[this.cycle(near.npc, pool.length)]!.line], 1))
+      this.nextVoice = v.time + 38;
+  }
+  private one(key: string, gain: number, pan = 0) {
+    const options = catalogue.effects[key];
+    if (!options?.length) return;
+    void this.mixer.effect(options[this.variant++ % options.length]!, gain, pan);
+  }
+  page(name: string) {
+    if (this.enabled) {
+      const key = ({ inventory: 'bag', journal: 'page', map: 'map' } as Record<string, string>)[name];
+      if (key) this.one(key, 0.45);
     }
   }
+  field(cue: FieldSound, range = 0) {
+    if (this.enabled) this.one(cue, 0.8 / (1 + range / 22));
+  }
   update(v: Valley) {
-    if (!this.enabled) return;
-    const night = hourOfDay(v.game.state.clock) < 6 || hourOfDay(v.game.state.clock) > 19,
-      p = v.nearestPlace();
-    const room = v.room;
-    const combat = !room && v.actors.some((a) => a.enemy && !a.dead && distance(a, v.player) < 10);
-    const track = combat
+    if (!this.enabled || !this.volume) return;
+    const hour = hourOfDay(v.game.state.clock),
+      night = hour < 6 || hour > 19,
+      place = v.nearestPlace(),
+      room = v.room;
+    const coast = place === 'shore' || place === 'lantern_point',
+      forest = place === 'deepwood';
+    const enemies = room ? [] : v.actors.filter((a) => a.enemy && !a.dead && distance(a, v.player) < 12);
+    const combat = enemies.length > 0;
+    if (combat) {
+      this.lastThreat = v.time;
+      for (const foe of enemies) {
+        if (this.challenges.has(foe.id)) continue;
+        const challenge = catalogue.encounters[foe.id];
+        if (foe.key === 'thornback') {
+          this.challenges.add(foe.id);
+          this.one('thornback', 0.72);
+          this.remark('beast', v.time, 1);
+        } else if (challenge && this.mode !== 'off' && this.mixer.speechPriority < 3) {
+          const spoke = this.mixer.say(
+            [{ cue: challenge.cue, caption: challenge.speaker + ' · ' + challenge.text }],
+            3
+          );
+          if (spoke) this.challenges.add(foe.id);
+        }
+      }
+    } else if (v.time - this.lastThreat > 45) this.challenges.clear();
+    const music = combat
       ? 'timber'
       : night
         ? 'banked-embers'
-        : p === 'deepwood'
+        : forest
           ? 'bough-watch'
-          : p === 'spring_shrine'
+          : place === 'spring_shrine'
             ? 'spring-stones'
-            : p === 'shore' || p === 'lantern_point'
+            : coast
               ? 'riverbank'
               : 'lanterns';
+    const pos = v.player;
+    const riverside =
+      !room &&
+      !coast &&
+      (
+        [
+          [0, 0],
+          [5, 0],
+          [-5, 0],
+          [0, 5],
+          [0, -5],
+        ] as const
+      ).some(([x, z]) => !!wetPoint(pos.x + x, pos.z + z));
     const air = room
       ? room.level === 'cellar'
-        ? 'hall_drone'
+        ? 'cellar'
         : room.level === 'ground' && v.lightsOn
-          ? 'fire'
+          ? 'hearth'
           : 'interior'
-      : p === 'shore' || p === 'lantern_point'
-        ? 'lap'
-        : p === 'deepwood'
-          ? night
-            ? 'forest_night'
-            : 'forest_day'
-          : p === 'quarry'
-            ? 'quarry'
-            : 'brook';
-    const play = (a: HTMLAudioElement, file: string) => {
-      a.src = gameFile('assets/audio/world/' + file + (a.canPlayType('audio/ogg') ? '.ogg' : '.m4a'));
-      void a.play().catch(() => {});
-    };
-    if (this.tag !== track) {
-      this.tag = track;
-      play(this.music, 'ford/' + track);
-    }
-    if (this.airTag !== air) {
-      this.airTag = air;
-      play(this.air, 'loop-' + air);
-    }
-  }
-  private one(bank: 'water' | 'steps', name: string, volume: number) {
-    const source = WORLD_AUDIO.banks[bank];
-    const clips = (source.clips as Record<string, readonly (readonly [number, number])[]>)[name];
-    if (!clips) return;
-    const cue = clips[this.serial % clips.length]!;
-    this.strokes[this.serial++ % 2]!.play(
-      { file: WORLD_AUDIO.base + source.file, start: cue[0], length: cue[1] },
-      volume * this.volume
+      : coast
+        ? 'coast'
+        : riverside
+          ? 'river'
+          : night
+            ? 'night'
+            : forest
+              ? 'woodland'
+              : place === 'quarry'
+                ? 'quarry'
+                : place === 'rillford'
+                  ? 'village'
+                  : 'woodland';
+    const score = room ? 'hearthside' : riverside && !combat && !night ? 'reedwater' : undefined;
+    void this.mixer.loop(
+      'music',
+      score ? 'assets/audio/vale/' + catalogue.music[score] : 'assets/audio/world/ford/' + music + this.format
     );
-  }
-  field(cue: FieldSound, range = 0) {
-    if (!this.enabled || !this.volume) return;
-    const lane = cue.startsWith('bow_') ? this.bow : this.impact;
-    lane.play(
-      { file: 'assets/audio/hunting/' + cue + '.mp3', start: 0, length: 2 },
-      (this.volume * 0.65) / (1 + range / 22)
-    );
+    void this.mixer.loop('air', 'assets/audio/vale/' + catalogue.beds[air]);
+    this.residents(v, night);
+    if (!room && v.time >= this.nextAnimal && !v.activity && !combat) {
+      const animal = v.actors
+        .filter((a) => a.animal && !a.dead && a.key !== 'mount' && distance(pos, a) < 12)
+        .sort((a, b) => distance(pos, a) - distance(pos, b))[0];
+      if (animal) {
+        this.one(
+          'call.' + animal.key,
+          0.44 / (1 + distance(pos, animal) / 7),
+          (animal.x - pos.x - animal.z + pos.z) / 16
+        );
+        this.nextAnimal = v.time + 17;
+      }
+    }
   }
   movement(v: Valley) {
     if (!this.enabled || !this.volume) return;
+    const act = v.activity;
+    if (act !== this.activity) {
+      this.activity = act;
+      this.sounded = false;
+    }
+    if (act && !this.sounded && act.elapsed >= Math.min(0.38, act.duration * 0.28)) {
+      this.sounded = true;
+      const key =
+        act.kind === 'pet'
+          ? 'pet_' + act.target.animal?.key
+          : act.kind === 'work' && act.target.fixture?.key.includes('loom')
+            ? 'loom'
+            : act.kind;
+      this.one(key, 0.76);
+    }
+    if (this.room !== undefined && this.room !== v.roomKey) this.one('door', 0.48);
+    this.room = v.roomKey;
+    if (v.strike && !this.wasStriking) this.one('blade', 0.68);
+    this.wasStriking = !!v.strike;
+    if (this.wasJumping && !v.jump) this.one('land', 0.58);
+    this.wasJumping = !!v.jump;
     const p = v.player,
       wet = !v.room && !!wetPoint(p.x, p.z) && !onBridge(p);
-    if (this.lastWet !== null && wet !== this.lastWet)
-      this.one('water', wet ? 'water.enter' : 'water.exit', 0.37);
-    this.lastWet = wet;
-    if (!v.walk || v.time < this.nextStep) return;
-    if (wet) this.one('water', v.swimming ? 'water.swim' : 'water.wade', v.swimming ? 0.62 : 0.4);
-    else {
-      const material = v.room ? (v.room.stone ? 'stone' : 'wood') : onBridge(p) ? 'wood' : groundAt(p.x, p.z);
-      this.one('steps', 'step.' + (stepMaterial[material] ?? material), 0.31);
-    }
+    if (this.wasWet !== null && wet !== this.wasWet) this.one(wet ? 'water_enter' : 'water_exit', 0.6);
+    this.wasWet = wet;
+    if (!v.walk || v.jump || v.time < this.nextStep) return;
+    const material = v.room ? (v.room.stone ? 'stone' : 'wood') : onBridge(p) ? 'wood' : groundAt(p.x, p.z);
+    const step = stepMaterial[material] ?? material;
+    const key = wet ? (v.swimming ? 'water_swim' : 'water_wade') : 'step.' + step;
+    this.one(catalogue.effects[key] ? key : 'step.dirt', wet ? 0.62 : 0.42);
     this.nextStep = v.time + (v.swimming ? 0.85 : v.riding ? 0.36 : 0.48);
   }
-  line(id: string) {
-    if (!this.enabled || !this.volume) return;
-    const cue = VOICE_AUDIO.story[id as StoryLineId];
-    if (!cue) {
-      this.voice.stop();
-      return;
-    }
-    this.voice.play(
-      { file: VOICE_AUDIO.base + VOICE_AUDIO.banks[cue[0]].file, start: cue[1], length: cue[2] },
-      this.volume * 0.8
-    );
-  }
-  endLine() {
-    this.voice.stop();
-  }
   reset() {
-    this.bow.stop();
-    this.impact.stop();
-    this.lastWet = null;
+    this.mixer.reset();
+    this.pending = undefined;
     this.nextStep = 0;
-    this.endLine();
+    this.nextAnimal = 9;
+    this.nextVoice = 9;
+    this.lastThreat = 0;
+    this.challenges.clear();
+    this.activity = undefined;
+    this.room = undefined;
+    this.wasWet = null;
+    this.night = null;
+    this.wasStriking = false;
+    this.wasJumping = false;
+    this.scenes.clear();
+    this.heardTalks.clear();
+    this.turns.clear();
   }
   stop() {
     this.reset();
-    this.music.pause();
-    this.air.pause();
-    this.tag = '';
-    this.airTag = '';
-    for (const lane of this.strokes) lane.stop();
+    this.enabled = false;
   }
 }

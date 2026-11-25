@@ -1,4 +1,7 @@
 import { artUrl } from './atlas';
+import { catalogue, readText, type SpokenPart, type VoiceMode } from './reading';
+import type { Sound, MixLevels } from './audio';
+import { SPEAKER_NAMES, VOICE_LINES, shown } from '../core/content/voice';
 import { S } from '../core/content/strings';
 import { ITEMS, ITEM_ORDER, itemAction, hotbarEligible } from '../core/content/items';
 import { NPCS } from '../core/content/npcs';
@@ -60,7 +63,9 @@ export type Screen =
   | 'settings';
 export interface Controls {
   readonly controllerActive?: boolean;
-  line(id: string): void;
+  readonly sound: Sound;
+  setVoiceMode(mode: VoiceMode): void;
+  setMix(key: keyof MixLevels, value: number): void;
   start(load: boolean): void;
   resume(): void;
   save(slot: SlotId): void;
@@ -74,7 +79,12 @@ export interface Controls {
   setVolume(value: number): void;
   slot(i: number): void;
   setBindings(action: string, key: string): void;
-  readonly settings: { volume: number; bindings: Record<string, string> };
+  readonly settings: {
+    volume: number;
+    mix: MixLevels;
+    voiceMode: VoiceMode;
+    bindings: Record<string, string>;
+  };
 }
 
 export class Interface {
@@ -91,6 +101,12 @@ export class Interface {
   private slots = el('div', 'belt');
   private notice = el('div', 'notice');
   private noticeUntil = 0;
+  private subtitle = el('div', 'spoken-caption plate');
+  private hoverTimer = 0;
+  private manualRead = false;
+  private seenPrompt = '';
+  private announcedPrompt = '';
+  private promptSince = 0;
   private slotSig = '';
   private currentDialog = '';
   private uiStamp = 0;
@@ -105,7 +121,30 @@ export class Interface {
   ) {
     this.notice.setAttribute('role', 'status');
     this.notice.setAttribute('aria-live', 'polite');
-    this.root.append(this.hud, this.layer, this.notice);
+    this.subtitle.hidden = true;
+    this.subtitle.setAttribute('role', 'status');
+    this.root.append(this.hud, this.layer, this.notice, this.subtitle);
+    const target = (event: Event) =>
+      event.target instanceof Element
+        ? event.target.closest<HTMLElement>('button,select,input,[data-voice],p.entry')
+        : null;
+    this.root.addEventListener('focusin', (e) => {
+      const t = target(e);
+      if (t && (this.controls.controllerActive || t.matches(':focus-visible'))) this.preview(t);
+    });
+    this.root.addEventListener('pointerover', (e) => {
+      window.clearTimeout(this.hoverTimer);
+      const t = target(e);
+      if (t && e.pointerType !== 'touch')
+        this.hoverTimer = window.setTimeout(() => {
+          if (t.isConnected && !this.controls.sound.mixer.speaking) this.preview(t);
+        }, 480);
+    });
+    this.root.addEventListener('pointerout', () => window.clearTimeout(this.hoverTimer));
+    this.root.addEventListener('change', (event) => {
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement)
+        this.preview(event.target);
+    });
     this.prompt.onclick = () => controls.interact();
     this.chamber.hidden = true;
     this.chamber.setAttribute('aria-live', 'polite');
@@ -116,7 +155,8 @@ export class Interface {
       iconButton('Journal (J)', 'journal_icon', () => this.open('journal')),
       iconButton('Map (M)', 'map_icon', () => this.open('map')),
       iconButton('Inventory (I)', 'bag_icon', () => this.open('inventory')),
-      iconButton('Pause (Esc)', 'seal', () => this.open('pause'))
+      iconButton('Pause (Esc)', 'seal', () => this.open('pause')),
+      this.readerButton()
     );
     const vitals = el('div', 'vitals');
     const bars = el('div', 'bars');
@@ -155,13 +195,110 @@ export class Interface {
     this.game = valley.game;
     this.scene = scene;
     this.slotSig = '';
+    this.seenPrompt = this.announcedPrompt = '';
   }
   message(text: string) {
+    const repeated = text === this.notice.textContent && performance.now() < this.noticeUntil;
     this.notice.textContent = text;
     this.noticeUntil = performance.now() + 3300;
     this.notice.classList.add('visible');
+    if (!repeated) this.controls.sound.read([text], 2);
+  }
+  caption(text: string) {
+    this.subtitle.textContent = text;
+    const panel = this.layer.querySelector<HTMLElement>('section');
+    panel?.querySelector('.voicing')?.classList.remove('voicing');
+    panel?.querySelector('.heard-reply')?.remove();
+    this.subtitle.hidden = !text;
+    if (!text || !panel || (this.mode !== 'dialogue' && !panel.dataset.castPage)) return;
+    this.subtitle.hidden = true;
+    const words = text.includes(' · ') ? text.slice(text.indexOf(' · ') + 3) : text;
+    const line = Array.from(panel.querySelectorAll<HTMLElement>('[data-story],[data-voice]')).find(
+      (n) => n.textContent === words || n.textContent === text
+    );
+    if (line) line.classList.add('voicing');
+    else panel.querySelector('header')?.after(el('p', 'heard-reply', text));
+  }
+  private readerButton() {
+    const b = button('Read aloud', () => this.readAloud(), 'read-aloud');
+    b.title = 'Read this page or your surroundings aloud';
+    return b;
+  }
+  private textFor(node: HTMLElement): string {
+    if (node instanceof HTMLInputElement) {
+      return (
+        (node.labels?.[0]?.firstChild?.textContent ?? 'Volume') +
+        ' ' +
+        Math.round(Number(node.value) * 100) +
+        ' percent'
+      );
+    }
+    if (node instanceof HTMLSelectElement)
+      return (node.getAttribute('aria-label') ?? '') + ' ' + (node.selectedOptions[0]?.text ?? '');
+    if (node.classList.contains('item'))
+      return Array.from(node.querySelectorAll('span,small'), (n) => n.textContent).join(' times ');
+    return node.getAttribute('aria-label') ?? node.textContent ?? '';
+  }
+  private preview(node: HTMLElement) {
+    if (!this.controls.sound.enabled && !navigator.userActivation?.hasBeenActive) return;
+    if (node.dataset.story) {
+      this.controls.sound.story([node.dataset.story], 5);
+      return;
+    }
+    if (node.dataset.voice) {
+      this.controls.sound.tell([node.dataset.voice], 5);
+      return;
+    }
+    this.controls.sound.read([this.textFor(node)], 5);
+  }
+  private panelParts(panel: HTMLElement): SpokenPart[] {
+    const parts: SpokenPart[] = [];
+    for (const n of panel.querySelectorAll<HTMLElement>(
+      'h1,h2,h3,p,dt,dd,strong,small,span,button,select,input,canvas'
+    )) {
+      if (n.closest('[hidden]') || n.matches('.read-aloud,.close') || n.parentElement?.closest('button'))
+        continue;
+      const id = n.dataset.story ?? n.dataset.voice;
+      if (id) {
+        const cue = n.dataset.story ? catalogue.story[id] : catalogue.lines[id];
+        if (cue) parts.push({ cue, caption: this.textFor(n) });
+      } else parts.push(...readText(this.textFor(n)));
+    }
+    return parts;
+  }
+  readAloud() {
+    const sound = this.controls.sound;
+    sound.unlock();
+    if (this.manualRead && sound.mixer.speaking) {
+      sound.endLine();
+      this.manualRead = false;
+      return;
+    }
+    this.manualRead = true;
+    if (this.mode === 'play') {
+      const p = this.valley.player;
+      sound.read(
+        [
+          this.place.textContent ?? '',
+          this.chamber.textContent ?? '',
+          this.clock.textContent ?? '',
+          'Health ' + p.health + ' of ' + p.maxHealth,
+          'Stamina ' + Math.round(this.valley.stamina) + ' percent',
+          this.scene.hoverLabel ||
+            (this.prompt.hidden ? 'No nearby interaction' : (this.prompt.textContent ?? '')),
+          this.notice.classList.contains('visible') ? (this.notice.textContent ?? '') : '',
+          ...Array.from(this.slots.querySelectorAll('button'), (b) => this.textFor(b)),
+        ],
+        5
+      );
+    } else {
+      const panel = this.layer.querySelector<HTMLElement>('section');
+      if (panel) sound.readPage(this.panelParts(panel));
+    }
   }
   private shell(title: string, wide = false) {
+    this.manualRead = false;
+    this.controls.sound.endLine();
     this.hud.hidden = true;
     this.layer.replaceChildren();
     this.layer.hidden = false;
@@ -171,10 +308,15 @@ export class Interface {
     const header = el('header');
     header.append(
       el('h2', '', title),
+      this.readerButton(),
       button('Close', () => this.back(), 'close')
     );
     panel.append(header);
     this.layer.append(panel);
+    queueMicrotask(() => {
+      if (panel.isConnected && this.mode !== 'dialogue' && !panel.dataset.castPage)
+        this.controls.sound.readPage(this.panelParts(panel));
+    });
     return panel;
   }
   private back() {
@@ -185,6 +327,8 @@ export class Interface {
     this.controls.resume();
   }
   title() {
+    this.manualRead = false;
+    this.controls.sound.endLine();
     this.mode = 'title';
     this.hud.hidden = true;
     this.layer.hidden = false;
@@ -210,6 +354,13 @@ export class Interface {
         this.open('help');
       })
     );
+    choices.append(
+      button('Settings', () => {
+        this.backTo = 'title';
+        this.open('settings');
+      }),
+      this.readerButton()
+    );
     content.append(choices);
     screen.append(
       scene,
@@ -217,8 +368,10 @@ export class Interface {
       el('small', 'version', 'Grey Strand  /  v' + __GAME_VERSION__ + ' · ' + __SOURCE_REVISION__)
     );
     this.layer.append(screen);
+    if (navigator.userActivation?.hasBeenActive) this.controls.sound.readPage(this.panelParts(screen));
   }
   play() {
+    this.manualRead = false;
     this.mode = 'play';
     this.hud.hidden = false;
     this.layer.hidden = true;
@@ -238,6 +391,7 @@ export class Interface {
     if (screen === 'help' || screen === 'saves' || screen === 'settings')
       this.backTo = this.mode === 'title' ? 'title' : 'pause';
     this.mode = screen;
+    this.controls.sound.page(screen);
     if (screen === 'pause') {
       const panel = this.shell('Journey paused');
       const menu = el('div', 'menu-choices');
@@ -272,6 +426,7 @@ export class Interface {
         ['1–0', 'Use a belt slot'],
         ['F5 / F9', 'Quick save / quick load'],
         ['Esc', 'Close a page or pause'],
+        ['V', 'Read this page or your surroundings aloud'],
         [
           'Controller',
           'Left stick moves, A interacts or selects, D-pad chooses, X attacks, B closes, Start pauses',
@@ -292,6 +447,36 @@ export class Interface {
       slider.oninput = () => this.controls.setVolume(Number(slider.value));
       label.append(slider);
       panel.append(label);
+      const voiceLabel = el('label', 'volume', 'Spoken audio'),
+        voiceMode = el('select');
+      voiceMode.setAttribute('aria-label', 'Spoken audio');
+      for (const [value, name] of [
+        ['full', 'Full narration'],
+        ['characters', 'Characters only'],
+        ['off', 'Off'],
+      ] as const) {
+        const option = el('option', '', name);
+        option.value = value;
+        voiceMode.append(option);
+      }
+      voiceMode.value = this.controls.settings.voiceMode;
+      voiceMode.onchange = () => {
+        this.controls.setVoiceMode(voiceMode.value as VoiceMode);
+      };
+      voiceLabel.append(voiceMode);
+      panel.append(voiceLabel);
+      for (const [key, name] of [
+        ['voice', 'Voice volume'],
+        ['music', 'Music volume'],
+        ['effects', 'Effects volume'],
+      ] as const) {
+        const row = el('label', 'volume', name),
+          level = slider.cloneNode(false) as HTMLInputElement;
+        level.value = String(this.controls.settings.mix[key]);
+        level.oninput = () => this.controls.setMix(key, Number(level.value));
+        row.append(level);
+        panel.append(row);
+      }
       panel.append(el('h3', '', 'Keyboard'));
       for (const [action, code] of Object.entries(this.controls.settings.bindings)) {
         const b = button(
@@ -456,13 +641,15 @@ export class Interface {
     }
     panel.append(list);
   }
-  dialogue(nodeId: string) {
+  dialogue(nodeId: string, answer?: string) {
     if (!this.game.showNode(nodeId).ok) {
       this.controls.resume();
       return;
     }
+    this.showConversation(nodeId, answer);
+  }
+  private showConversation(nodeId: string, answer?: string) {
     const node = getNode(nodeId)!;
-    this.controls.line(node.text);
     this.currentDialog = nodeId;
     this.mode = 'dialogue';
     const panel = this.shell(node.speaker === 'narrator' ? 'Bellwether Vale' : NPCS[node.speaker].name);
@@ -471,22 +658,51 @@ export class Interface {
       portrait.className = 'speaker';
       panel.append(portrait, el('small', 'role', S(NPCS[node.speaker].titleKey)));
     }
-    panel.append(el('p', 'speech', S(node.text)));
+    const speech = el('p', 'speech', S(node.text));
+    speech.dataset.story = node.text;
+    panel.append(speech);
+    this.controls.sound.story(answer ? [answer, node.text] : [node.text]);
     for (const { index, choice, locked } of this.game.choices(nodeId)) {
       const b = button(
         S(choice.text),
         () => {
           const res = this.game.choose(this.currentDialog, index);
           if (res.ok) {
-            if (res.next === 'end') this.controls.resume();
-            else this.dialogue(res.next);
+            if (res.next === 'end') {
+              this.controls.resume();
+              this.controls.sound.story([choice.text]);
+            } else this.dialogue(res.next, choice.text);
           }
         },
         'reply'
       );
+      b.dataset.story = choice.text;
       b.disabled = locked;
       panel.append(b);
     }
+    const npc = node.speaker;
+    if (npc !== 'narrator')
+      panel.append(
+        button(
+          'Ask about the vale',
+          () => {
+            const ids = this.controls.sound.more(npc, this.valley);
+            if (!ids) return;
+            this.mode = 'actions';
+            const page = this.shell(NPCS[npc].name);
+            page.dataset.castPage = 'true';
+            for (const id of ids) {
+              const line = VOICE_LINES[id]!,
+                p = el('p', 'speech', SPEAKER_NAMES[line.speaker] + ' · ' + shown(line.text));
+              p.dataset.voice = id;
+              page.append(p);
+            }
+            page.append(button('Back to conversation', () => this.showConversation(nodeId)));
+            this.controls.sound.tell(ids, 5);
+          },
+          'reply'
+        )
+      );
   }
   actions(title: string, options: { text: string; run: () => void }[], description = '') {
     this.mode = 'actions';
@@ -703,19 +919,34 @@ export class Interface {
       detail
     );
   }
-  padMenu(move: number, confirm: boolean) {
-    const buttons = Array.from(this.layer.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));
-    if (!buttons.length) return;
-    const current = buttons.indexOf(document.activeElement as HTMLButtonElement);
+  padMenu(move: number, confirm: boolean, horizontal = 0) {
+    const focused = document.activeElement;
+    if (horizontal && focused instanceof HTMLInputElement && focused.type === 'range') {
+      if (horizontal > 0) focused.stepUp();
+      else focused.stepDown();
+      focused.dispatchEvent(new Event('input', { bubbles: true }));
+      focused.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    if (horizontal && focused instanceof HTMLSelectElement) {
+      focused.selectedIndex = Math.max(0, Math.min(focused.length - 1, focused.selectedIndex + horizontal));
+      focused.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+    const controls = Array.from(
+      this.layer.querySelectorAll<HTMLElement>('button:enabled,input:enabled,select:enabled')
+    );
+    if (!controls.length) return;
+    const current = controls.indexOf(focused as HTMLElement);
     const next =
       current < 0
         ? Math.max(
             0,
-            buttons.findIndex((b) => !b.classList.contains('close'))
+            controls.findIndex((b) => !b.matches('.close,.read-aloud'))
           )
-        : (current + move + buttons.length) % buttons.length;
-    buttons[next]!.focus();
-    if (confirm) buttons[next]!.click();
+        : (current + move + controls.length) % controls.length;
+    controls[next]!.focus();
+    if (confirm) controls[next]!.click();
   }
   chooseOffers() {
     this.actions(
@@ -813,6 +1044,23 @@ export class Interface {
             offers[0]!.label +
             (this.valley.chooseNearby(offers) ? '  +' + (offers.length - 1) : '')
           : '';
+    const prompt = this.scene.hoverLabel || (this.prompt.hidden ? '' : (this.prompt.textContent ?? ''));
+    if (prompt !== this.seenPrompt) {
+      this.seenPrompt = prompt;
+      this.promptSince = performance.now();
+      if (!prompt) this.announcedPrompt = '';
+    }
+    if (
+      prompt &&
+      !act &&
+      !bow &&
+      prompt !== this.announcedPrompt &&
+      performance.now() - this.promptSince > 700 &&
+      !this.controls.sound.mixer.speaking
+    ) {
+      this.announcedPrompt = prompt;
+      this.controls.sound.read([prompt], 1);
+    }
     const signature = JSON.stringify([s.quickSlots, s.inventory, s.equippedWeapon]);
     if (this.slotSig !== signature) {
       this.slotSig = signature;

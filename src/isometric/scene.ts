@@ -45,6 +45,7 @@ export class Scene {
     }
     return { at: this.pointAt(clientX, clientY), head: undefined };
   }
+  hoverLabel = '';
   private pointer?: { x: number; y: number };
   private center = { x: 0, y: 0 };
   private initialized = false;
@@ -95,6 +96,7 @@ export class Scene {
   private focus() {
     const point = this.pointer && this.pixel(this.pointer.x, this.pointer.y);
     const selected = point && pickRegion(this.regions, point.x, point.y);
+    this.hoverLabel = selected?.target.label ?? '';
     this.canvas.style.cursor = selected ? 'pointer' : '';
     if (selected) drawFocus(this.context, selected);
   }
