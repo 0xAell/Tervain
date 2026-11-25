@@ -53,7 +53,7 @@ function hull(points: V2Screen[]) {
 }
 type V2Screen = { x: number; y: number };
 const tall =
-  /^(oak|pine|fir|birch|rill_willow|rill_alder|beacon|ruin|lantern|sign|bell|board|marker|standard_court|standard_watch|standard_road)(--|$)/;
+  /^(oak|pine|fir|birch|rill_willow|rill_alder|beacon|ruin|lantern|sign|bell|board|marker|standard_court|standard_watch)(--|$)/;
 const skip =
   /^(field_arrow|cursor|rill_lilies|rill_fish|rill_trout|rill_minnow|rill_dragonfly|rill_spark|standard_wall)/;
 export class Sunlight {

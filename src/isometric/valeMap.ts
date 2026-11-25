@@ -149,7 +149,7 @@ export function paintValeMap(width: number, height: number, atlas: Atlas) {
   for (const standard of hegemonyStandards) {
     if (!standard.chart) continue;
     const at = chartPoint(standard, width, height);
-    atlas.draw(ctx, 'standard_chart', at.x, at.y, 9);
+    atlas.draw(ctx, 'standard_chart', at.x, at.y, 11);
   }
   return map;
 }

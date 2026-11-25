@@ -731,25 +731,6 @@
       }
     },
     {
-      "id": "pickup:shoretrack_apple",
-      "place": {
-        "at": "pickup",
-        "pickup": "shoretrack_apple",
-        "x": -246,
-        "z": 31
-      },
-      "reach": 1.85,
-      "priority": -0.5,
-      "ignoreColliders": [],
-      "needs": [],
-      "act": {
-        "do": "pickup",
-        "pickup": "shoretrack_apple",
-        "item": "shore_apple",
-        "qty": 1
-      }
-    },
-    {
       "id": "pickup:dune_herb",
       "place": {
         "at": "pickup",
@@ -822,25 +803,6 @@
         "do": "pickup",
         "pickup": "deepwood_mushroom_b",
         "item": "field_mushroom",
-        "qty": 1
-      }
-    },
-    {
-      "id": "pickup:deepwood_apple_a",
-      "place": {
-        "at": "pickup",
-        "pickup": "deepwood_apple_a",
-        "x": -184,
-        "z": 12
-      },
-      "reach": 1.85,
-      "priority": -0.5,
-      "ignoreColliders": [],
-      "needs": [],
-      "act": {
-        "do": "pickup",
-        "pickup": "deepwood_apple_a",
-        "item": "shore_apple",
         "qty": 1
       }
     },
@@ -940,25 +902,6 @@
       }
     },
     {
-      "id": "pickup:waystation_apple_a",
-      "place": {
-        "at": "pickup",
-        "pickup": "waystation_apple_a",
-        "x": -104,
-        "z": 14
-      },
-      "reach": 1.85,
-      "priority": -0.5,
-      "ignoreColliders": [],
-      "needs": [],
-      "act": {
-        "do": "pickup",
-        "pickup": "waystation_apple_a",
-        "item": "shore_apple",
-        "qty": 1
-      }
-    },
-    {
       "id": "pickup:waystation_bread_a",
       "place": {
         "at": "pickup",
@@ -974,25 +917,6 @@
         "do": "pickup",
         "pickup": "waystation_bread_a",
         "item": "bread",
-        "qty": 1
-      }
-    },
-    {
-      "id": "pickup:waystation_apple_b",
-      "place": {
-        "at": "pickup",
-        "pickup": "waystation_apple_b",
-        "x": -90,
-        "z": 46
-      },
-      "reach": 1.85,
-      "priority": -0.5,
-      "ignoreColliders": [],
-      "needs": [],
-      "act": {
-        "do": "pickup",
-        "pickup": "waystation_apple_b",
-        "item": "shore_apple",
         "qty": 1
       }
     },
@@ -1111,31 +1035,12 @@
       }
     },
     {
-      "id": "pickup:lantern_apple",
-      "place": {
-        "at": "pickup",
-        "pickup": "lantern_apple",
-        "x": -327,
-        "z": 114
-      },
-      "reach": 1.85,
-      "priority": -0.5,
-      "ignoreColliders": [],
-      "needs": [],
-      "act": {
-        "do": "pickup",
-        "pickup": "lantern_apple",
-        "item": "shore_apple",
-        "qty": 1
-      }
-    },
-    {
       "id": "pickup:rillford_apple",
       "place": {
         "at": "pickup",
         "pickup": "rillford_apple",
-        "x": -18,
-        "z": 32
+        "x": -2.1,
+        "z": 18.7
       },
       "reach": 1.85,
       "priority": -0.5,

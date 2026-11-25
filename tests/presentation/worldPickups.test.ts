@@ -366,8 +366,9 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
     } finally { pose.mockRestore(); }
   });
 
-  it('keeps 35 independent pickups and all eight silhouettes in the two material draws', () => {
-    expect(additions).toHaveLength(35);
+  it('keeps the pickups independent and all eight silhouettes in the two material draws', () => {
+    expect(additions.filter((point) => point.item === 'shore_apple').map((point) => point.id))
+      .toEqual(['strand_apple', 'rillford_apple']);
     expect(new Set(PICKUP_LOCATIONS.map((point) => point.id)).size).toBe(PICKUP_LOCATIONS.length);
     expect(PICKUP_LOCATIONS.filter((point) => !isWorldPickupItem(point.item)).map((point) => point.id)).toEqual(['quarry_brace', 'quarry_wrench', 'side_path_cache', 'wreck_blade']);
     for (const point of additions) {
@@ -377,7 +378,7 @@ describe('persistent reachable world pickups with full scenery and vegetation', 
     const batches: THREE.BatchedMesh[] = [];
     scenery.group.traverse((object) => { if (object instanceof THREE.BatchedMesh && object.name.startsWith('loose-')) batches.push(object); });
     expect(batches.map(batch => batch.name).sort()).toEqual(['loose-metal', 'loose-vc']);
-    expect(batches.reduce((n, batch) => n + batch.instanceCount, 0)).toBe(35);
+    expect(batches.reduce((n, batch) => n + batch.instanceCount, 0)).toBe(additions.length);
     let triangles = 0, models = 0;
     for (const batch of batches) {
       const shapes = new Set<number>();

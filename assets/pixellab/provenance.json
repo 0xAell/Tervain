@@ -317,10 +317,11 @@
     },
     "office": {
       "tool": "create_image_pixflux",
-      "description": "Fortified stone administrative lodge with a weathered blue banner and slate roof. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "description": "Fortified stone administrative lodge with bare stone walls and a slate roof. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
       "sourceFrameSha256": [
-        "9aa223331d3ba0b8bbd3512539ada09313eccea9f2f577586eb9341f5d276ebd"
-      ]
+        "6bf080e16f17884c16111814276bef3afd9772751c1c76429a7d70a013869464"
+      ],
+      "edits": "Blue fabric infilled with stone. The approved crest appears on a separate animated wall hanging."
     },
     "bunks": {
       "tool": "create_image_pixflux",
@@ -3659,118 +3660,111 @@
       ]
     },
     "standard_chart": {
-      "tool": "original pixel drawing",
-      "description": "Gold-edged emblem on a burgundy map pennant.",
+      "tool": "pixel-art reduction",
+      "description": "Small map pennant bearing the silhouette of the supplied Hegemony crest.",
       "sourceFrameSha256": [
-        "a2f971141dd9cfa7c785dc1bacd17a5c73987cf74df471c580f8f60168e009e5"
-      ]
+        "1cde106055ef694bbdf40f3dae122e26bbe91434988b6bf9eb8c9eaffd6fa75c"
+      ],
+      "crestSource": {
+        "file": "masters/hegemony/sword-and-wings.png",
+        "sha256": "7f1492924e4230344b95071ab3cc3c8bfdbd57cd9bd8bb90bdc09b6d0989e330",
+        "credit": "Hegemony banner artwork supplied by the project owner. Gold embroidery and pink rings extracted from the artwork."
+      }
     },
     "standard_court": {
       "tool": "create_image_pixen",
-      "description": "Claret civic standard with a three-towered gate, river bars and a stepped hem.",
+      "description": "Plum standard with the supplied Hegemony sword, wings, stars and rings. Flies at the Rillford bridge.",
       "sourceFrameSha256": [
-        "5f60acfb6c8faba81054746be92e850c22c6ce333eb1469646277a15a3b74066",
-        "49bbee5df6858b44befc303a76a7bc71c98f93b0107dbdb2712eb94361c3a3dd",
-        "a9fd17f8d2532f2f7fdc4ec8f1895be53319b7b0067c6044186fcb34af08fa70",
-        "bbb2feeb09a88eccd9b09d1cd8bf28cde3e7ca36e16dc07e1f94e5942a40680e",
-        "308415f79fc50fe7b5577eeb83249e9f1a080f10129c06b439e51dcc4d50da67",
-        "2f3adff060ec210f267bb8d6cbc42afb754c119a1180237c269c2254dc9896cd",
-        "1e551d611a1a14b747ae2579d4b5b4d079b73aa8bc5a6d7bd29340962b9fe76c",
-        "add0f291d97846c5af6b91d1600f6aed3a3fa1fd34f9fb10a7d4744d329c38f6",
-        "bf594140a41e33fdaa8896f3184219792800d18a39ac88f330584321485fa9fb",
-        "77dd6d1bf9d9980ef34d1905e3e5d4ddaa5af75e98a317fb7c0722b1ffe6da25",
-        "69a82321ea068e3b3edc6b38483dc4fddc43bbe477afa74d3b23dafa685f36a4",
-        "4d462f09717dd59218bcd5c8f143851a31021ce5ad6a57851a4acd8e89172ac5",
-        "acab67e23763dc4c71439d81c46c2f9e051bf0a29bfb2aa2ac53af06013b39ac",
-        "3949cad8a266a99d7a640f3ef9e05fca0deabd33ee9e8b4acbf9df5fe41f11b1",
-        "9aa5eb5aa007b9988d33d32dc123dc3f7e22aaaf58c5b34774f2ef38cf218ab4",
-        "ee80668ea14e1802c5524007122bb4b3036933eddfed35638264529a188a582c"
+        "613a3767bd68e3f949d15ba7d76168d0a9f36676c705f1dd3e517563ec51e6d1",
+        "c661921a57282202e5ed5b416b54b26e3ebaf0a28f72b9ab32a9702e1edfcd05",
+        "dc98a59480ed4c16b32f99b59ff0e78a55baa441db8e587aeb05d0e39e377900",
+        "3c8c93e55b2e0df401c36df80282259300ec8b69da597bbce9b4adfd112a46b8",
+        "c056f6c5e2dd1d37255843adbae8142f703f38112be930d2e2e80ae483c16b82",
+        "ce4a409964d5eec34420ca9bada7bda90413fe133e870e01242c3efcc0332f74",
+        "b94adc59910c0505387192331dc83f9b03899a933b7fa2ed4c031b4229fbce4f",
+        "fcedb1bfd25f7bfb312cb82c523353e3c672afaa2fb1ef3d657450327f66bf64",
+        "df84ec0c50ffbd3d71c4e4573470a3745353b1f8cd44c8cfa87cb3950625d0e3",
+        "5ade922aeeff69a7bb32fbf2bb76e127202bdba071b19ee6343bb6b0b909d956",
+        "1e456f4f016b9337c7f332e34afcc59c3a08043a4ac610bc7ab31965c255cfe5",
+        "bd34a9e86d83d3a423e7071b3d2dc5e54cf183d72ae893b071f484265dfa414b",
+        "7d0f69d8c47afd95170c8eeaa44be2efedab0aed079748e987f5532886caf6d6",
+        "046647d5e4526129c99fc53d83b379aaeb22ba68b4fce845e51aacf188e50d28",
+        "949933abf8f04e2c18497081e1d3bd86279ce712f3b647a9fe3837a5f1035461",
+        "93e5f1e7685dc96949b5fb14b3e817838c7a33728d2dc13db7e64e7a6727e9ce"
       ],
+      "crestSource": {
+        "file": "masters/hegemony/sword-and-wings.png",
+        "sha256": "7f1492924e4230344b95071ab3cc3c8bfdbd57cd9bd8bb90bdc09b6d0989e330",
+        "credit": "Hegemony banner artwork supplied by the project owner. Gold embroidery and pink rings extracted from the artwork."
+      },
       "providerSource": {
         "file": "masters/hegemony/pixellab-cloth.png",
         "sha256": "b23a23a0f7349dac6de8581501c155d053a39e04c001c6fa30e18821997109f4",
-        "edits": "Original gate embroidery, palette, mounting and wind frames composed in pixel art for Tervain."
-      }
-    },
-    "standard_road": {
-      "tool": "create_image_pixen",
-      "description": "Oxblood roadside pennant with a compact gate and an angled hem.",
-      "sourceFrameSha256": [
-        "c8743f3562538ba515f64ee2d2c60f70305d553f24d79ddb564c9005e2eaafea",
-        "fe80da1db4e37f6a3dbe574e470abe92327f9f08d7d5eee31d244d741c652cf9",
-        "e4e6666db3b62e800169376394daefe3ec99875e142b003ab2b84f493e5b16b0",
-        "e83c2a73079690b421de52c9a1703849162ec5179442dcae991d99efbcc16f46",
-        "4a1d58581ddb24d360f165937400f1b3c761d770829885be4a1c50f0154fdb13",
-        "fec771d9b174db0c38c388567781193fc6467f9e0ab80903b7a514917557c1b5",
-        "514f1b25583243f47f553bad9c334c1496b4ee2c4b93d6ccca88fd4e0ca1c2d2",
-        "148899fb7c0aef228af34a2a392090e746b96092ca44a5d0b432697ece24df3a",
-        "852c46ecd7acdf855e033c5db61f344ce59cca66de7449a379839a5c802eea6f",
-        "7f1872e9137359aa8abcc615400e2f04e32e1a6d9483b7314a7d41e0423b08ff",
-        "3dcbdeb97108fe0de4515364f2c37d5bb261eb887e66a2f5247ed923bf9544e3",
-        "48ad7977044910c77fef392ce5ca795348276cf5100819f481780ea074c7c31e",
-        "ff6d60a1d77414798813bb35750679967acacc2008c12a3717cc2eed1b2679d2",
-        "47c2f7879b34315946e875305908c6d204ee4e484b163b22dc06d5abdf814d90",
-        "f6d862225edc60aa8150b5983390942ece359a9d4f64585eca51d6fff9465058",
-        "9bed600579daf663757aa334e76ae28ec706789f63b8fc8f39dddef25b542aec"
-      ],
-      "providerSource": {
-        "file": "masters/hegemony/pixellab-cloth.png",
-        "sha256": "b23a23a0f7349dac6de8581501c155d053a39e04c001c6fa30e18821997109f4",
-        "edits": "Original gate embroidery, palette, mounting and wind frames composed in pixel art for Tervain."
+        "edits": "PixelLab cloth finished with the supplied crest, mounting hardware and wind animation."
       }
     },
     "standard_wall": {
       "tool": "create_image_pixen",
-      "description": "Short wall hanging in claret and gold with bronze brackets.",
+      "description": "An animated civic wall hanging carrying the supplied Hegemony crest.",
       "sourceFrameSha256": [
-        "3a57ff6190046edeba8a9125abeee21bed5c006cebb0d6ecf4c91c09225afb88",
-        "98721623b9e187a9ab5d46bc012919343dbc2883e90274c42120dab807b94a82",
-        "201fcfb4dcdc2ee984925a7fe68a134e2a710f8fa593de89da533d465208f0ba",
-        "0937fb7584d4a8b0835c8fb7d369acc5adfc08f0cec4c209971dad4716e48bab",
-        "6343c31c25bcb0ed8d7d86678b425d3494a67200d82e6d310adf9fd54614a113",
-        "028f2a9d5bd049d897e676cc5e25ff00f0b58e8d36b959bcff9c6ff489a68480",
-        "35fcb9afc15a8641bc8d50d68dd8f068605b5a980ff7d4946b8895478e5b4512",
-        "818fc7cce375991254c51b65dd786169d2f859e20f64b7179bf3d5754347363c",
-        "0263d6a88e5f34ba194145c157e398997e3e03a3e0c0a1d1ae95aaeddd186f8f",
-        "ae9521fbecf6f56165666d80a64ec626ccc5f5b623129a8c7ab99acea41bc275",
-        "638f1b1377934418152f933a3da0b1af08a7199d69fd9c714afd85a68451a392",
-        "97e4ce0f94475dd3104e80e3c3907b784a5a1c552176c0d72d7406d1d9e1dc30",
-        "741d030cdc268d5ead7a21877481f903d399ce1a5291aef2027a8936e88dd79e",
-        "cd2c0d67dc69c90454c9ab4734356a18879c295df752a2af2e3438ba63690720",
-        "b9574a944b28a595ac65f00e7ac34778c948bf11b063d274f87969cb35906dea",
-        "489c45e2bad693b174713788ce341fab30f7bf027d53e238f4d8f857da6b85f9"
+        "e3ae4ab6cc26674782194c338ef32cad928667ececb301e538ff87bbebb28e48",
+        "b1905ad1afb80e69e83dc77cb0d6f23ef608a16affca5654e4e5ba0d7bfb69f0",
+        "2126583a375c9c5c21a41425ec8d97e109c140014140fb313fae53829f8dd765",
+        "48f3c5b85fa9bef91827919c3eb91274929fe5c6e0aabc7bdf7b5d00b95d4ab0",
+        "cfa8407c2a632cdcf7c91b646a6f3945e8cd9f74d35999ce8a69da7cb9380188",
+        "e0671cdc0259509af93bd6034650be6a84bd38e3b7403d189dc2323316f5bf0d",
+        "575c29f37566bda4cfe34decd4683fadb15351d30b1146b005e2dcc9340be908",
+        "45e1253350dcfb57d97806f49e83ca9723a26a5608f9ee0d56a17c1cd88ac593",
+        "99df894000d76bd659b5236c24f6bbe3b8603672fcb3c86bb5ad4d4bea5df277",
+        "4874038b4e5c7abb46d11ff772e6d52564c7b4e827f17f03988ac3de52f6b7dc",
+        "37bca057469f11fcbda3f138f0dc75ba54091df52ba4c3f74292aa1b79136448",
+        "270c43534bee0df3e14aa29dfd38595610b448cfdf1cc2e6b9d539be1df5816c",
+        "63bead536d029c64ed213e6c4e5ddcb73399b133fbc570a8d0e662b81c335a66",
+        "a69c19bc47d7cf837dca06573f028e08f8a2afe745018e8f97f71bb989a3ed5e",
+        "53a6fdffc5c8a1941e3de2fae885a0b3cdf28f03d187d9d8dd055f0d6ac40612",
+        "dd68da5914097be4a72fe524b53ce351e930a9abf17790c8b2b5652b9f7c9bf8"
       ],
+      "crestSource": {
+        "file": "masters/hegemony/sword-and-wings.png",
+        "sha256": "7f1492924e4230344b95071ab3cc3c8bfdbd57cd9bd8bb90bdc09b6d0989e330",
+        "credit": "Hegemony banner artwork supplied by the project owner. Gold embroidery and pink rings extracted from the artwork."
+      },
       "providerSource": {
         "file": "masters/hegemony/pixellab-cloth.png",
         "sha256": "b23a23a0f7349dac6de8581501c155d053a39e04c001c6fa30e18821997109f4",
-        "edits": "Original gate embroidery, palette, mounting and wind frames composed in pixel art for Tervain."
+        "edits": "PixelLab cloth finished with the supplied crest, mounting hardware and wind animation."
       }
     },
     "standard_watch": {
       "tool": "create_image_pixen",
-      "description": "Mulberry watch standard with a lit gate and a tapering hem.",
+      "description": "Narrow burgundy Hegemony standard with the supplied sword-and-wings crest.",
       "sourceFrameSha256": [
-        "f41341b998db9289355f7572e1c595ce6cfde336dbe1d8661ec1263f9b222d9f",
-        "92d25caf6f1c63040f15cc9a126cdb1aca51e81e6c87af1a2a2a775a5eacb6c6",
-        "0ca01e67aa368173d1369b9d007f54005209118736f82b1606705b2878c20f32",
-        "8c22f87d1c20bec7858d32adecbfc2d4bb02527a42a682ad27f0b277598f7db0",
-        "c6157cc0cb3a4f6704b658dbad89a8bc2f1b4df41eb188466bb4637c0c057ef2",
-        "a5ce9640291b7f40ac582a48a58e0250db01eca3fda9db5c79150b127e80919d",
-        "5e9f40e64a12cadbe27fc93ef87650f0cbf4f205dd9ebf755e1948b2058aa55b",
-        "e9514934d798ec0ffea498a60e4350cbe80d8c1afe51178c7e86c706e15d7a3a",
-        "0e2dab634c1db37c510758dd5a65edb0cee2a5c4e3e3ca3db8ecae33b145a668",
-        "97a868fd4f434c4c16083d9a3309c0eef1633062e7aca8ea49e3d47683c97161",
-        "24b0500bafe45694df6902856c50e38329db926fee47db0158a05a0ca38ef4f3",
-        "27c5bf934d6fb550874321fd20f046da9b6526478884191da4255b5671ebbd8b",
-        "3823e122713bc9ee69847233da8a4fb4a392782a6b276b584d97b89954acbde8",
-        "a2d2f03bc7e848cf0207e398c4784aea5ef9eec5b774b19dc120cd8a661ac00e",
-        "20e57472590379d1a83d86f2a7e88731a4f6617eeea6d094d6a069a32d12dc51",
-        "ef8dd6b4c7d1e9555078313e3ca504466078938cf460db2da4e4e701253908de"
+        "1be3f922c7045d5b1fa15398401cf0d6b64a86ad5a255b54524fcff30931e17d",
+        "fd2db58e02d83608f8c6690fbd5a5c84472fc761d0a2712e31347cbf153007c2",
+        "ccbdb24a8d37628ff2a243408bf28faeb47611880c84d56235fd5575af20ab16",
+        "0498831d0bff13a30f6eec72d65547bc5ec6d8931f8d04ec24ffdd58a5bd0240",
+        "ded39c98e056dd67cef9f488280c1fa1b56298705c0fd6bbee5f9b74da597205",
+        "9278ca4eeb436545bdc8751b0fb8f1f6d83876c558ea4233682c27612d88062d",
+        "3f16600d97882fa877b2c056159d928e97e31a3150daa1ced22149c9a0eaea41",
+        "a117ef0b374ba4684c1a178508c00d2ba8cecf3ef2a0c6d0ea1efe57ce116488",
+        "3f8fe71053f603a2d0708309eb153be22a110634a05dbaeb5b623e89b1830c04",
+        "e206ae79109420d802bf54e5615be9e04b53b4833d0d0fbff07d5b2c1b624b43",
+        "d2141a6dd93497c8fba4e74a409c034cf2b6416023d4da16f64497eeb384e3d9",
+        "470ccfa3a2f88814c6fe275369f35565803449b5e013e9e94a6f1ad08c2db0b6",
+        "3093d96ccbb233253326ab25400ecec5510ac75bfa06eb9d6e3cb879fe988148",
+        "9d8d601ad72043134ea4451437e779c0d570e715d0fc45d93e140a9330ad3531",
+        "cba269515e7b12e21fa2fc131183148cd6ce5b414097cf0415df0d7ad327f5dc",
+        "d4342862c64e96c0ca82ce5f049fc474f56bdc8786e7c7f8844b2b29c519da87"
       ],
+      "crestSource": {
+        "file": "masters/hegemony/sword-and-wings.png",
+        "sha256": "7f1492924e4230344b95071ab3cc3c8bfdbd57cd9bd8bb90bdc09b6d0989e330",
+        "credit": "Hegemony banner artwork supplied by the project owner. Gold embroidery and pink rings extracted from the artwork."
+      },
       "providerSource": {
         "file": "masters/hegemony/pixellab-cloth.png",
         "sha256": "b23a23a0f7349dac6de8581501c155d053a39e04c001c6fa30e18821997109f4",
-        "edits": "Original gate embroidery, palette, mounting and wind frames composed in pixel art for Tervain."
+        "edits": "PixelLab cloth finished with the supplied crest, mounting hardware and wind animation."
       }
     }
   },
@@ -3819,8 +3813,8 @@
     "icons/votive_reed.png": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
     "icons/witness_cord.png": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
     "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
-    "sprites.json": "5021cd03abaeb4fc4e21de58086d2272367ac3b27e0a8e5f896b0aaa87ffc7b0",
-    "sprites.png": "b4672b66015ce5ed0d018ada92d619cdea419bae14d78a678f07368558fd0d40",
+    "sprites.json": "cf79f1ff3debc7cde207c6f8f27135f9332c3f16212ac5097a0435e61759552d",
+    "sprites.png": "544cb0a1fb79a06b96fc467b715e3a5ca61bd56ccd89ad79a534c55f34ef7da9",
     "title.png": "fbf2dab7ad6403e4caff7a94248822339792e0adf04d87f6722d0caea72d6505",
     "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
   }
