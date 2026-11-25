@@ -1,3 +1,4 @@
+import type { Ripple } from './water';
 import shader from './water.frag?raw';
 import { foamCell } from './foam';
 import { bankRamp, oceanRamp, poolRamp, streamRamp } from './waterPalette';
@@ -19,7 +20,7 @@ void main(){
   if(mode==1){color=vec4(1.,1.,1.,d.a);return;}
   ivec2 delta=ivec2(round(d.rg*16.-8.)),uv=ivec2(p.x,viewHeight-p.y-1)+delta;
   if(d.b<=0.||any(lessThan(uv,ivec2(0)))||any(greaterThanEqual(uv,textureSize(mirrors,0)))){color=vec4(0.);return;}
-  vec4 sprite=texelFetch(mirrors,uv,0);color=vec4(sprite.rgb,sprite.a*d.b);
+  vec4 sprite=texelFetch(mirrors,uv,0);vec3 scatter=vec3(.19,.32,.33);color=vec4(mix(sprite.rgb,scatter,.22),sprite.a*d.b);
 }`;
 
 function program(gl: WebGL2RenderingContext, source: string) {
@@ -58,7 +59,7 @@ export class WaterGL {
   private chunks = new Map<Chunk, WebGLTexture[]>();
   private stamp = '';
   private locations = new Map<WebGLProgram, Map<string, WebGLUniformLocation | null>>();
-  static create(textures: Texture[][]) {
+  static create(textures: Texture[][], shingle: Texture) {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl2', {
       alpha: true,
@@ -70,7 +71,7 @@ export class WaterGL {
     });
     if (!gl) return null;
     try {
-      return new WaterGL(gl, canvas, textures);
+      return new WaterGL(gl, canvas, textures, shingle);
     } catch (e) {
       console.warn('Using the Canvas water renderer.', e);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
@@ -80,7 +81,8 @@ export class WaterGL {
   private constructor(
     private gl: WebGL2RenderingContext,
     canvas: HTMLCanvasElement,
-    textures: Texture[][]
+    textures: Texture[][],
+    shingle: Texture
   ) {
     this.canvas = canvas;
     this.base = program(gl, shader);
@@ -105,7 +107,7 @@ export class WaterGL {
     const layers = [3, 2, 10, 11].flatMap((i) =>
       Array.from({ length: 7 }, (_, j) => textures[i]![j % textures[i]!.length]!)
     );
-    layers.push(textures[1]![0]!, textures[6]![0]!);
+    layers.push(textures[1]![0]!, shingle);
     gl.texStorage3D(gl.TEXTURE_2D_ARRAY, 1, gl.RGBA8, 64, 64, layers.length);
     for (const [layer, tex] of layers.entries()) {
       const scaled = Uint32Array.from(
@@ -177,11 +179,11 @@ export class WaterGL {
       geom[j] = c.bank[i]! / 64;
       geom[j + 1] = c.along[i]! / 64;
       geom[j + 2] = c.across[i]! / 64;
-      geom[j + 3] = c.width[i]! / 48;
+      geom[j + 3] = c.width[i]! / 24;
       mat[j] = c.course[i]!;
       mat[j + 1] = c.grain[i]!;
       mat[j + 2] = c.pocket[i]!;
-      mat[j + 3] = c.material[i] === 11 ? 255 : 0;
+      mat[j + 3] = c.material[i] === 11 ? 255 : Math.round(c.pressure[i]! * 0.49);
     }
     const shape = this.texture();
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, size, size, 0, gl.RGBA, gl.FLOAT, geom);
@@ -227,13 +229,15 @@ export class WaterGL {
     tick: number,
     hour: number,
     currents: number[],
-    stage: number[]
+    stage: number[],
+    ripples: Ripple[],
+    pulseKey: string
   ) {
     const gl = this.gl,
       w = ctx.canvas.width,
       h = ctx.canvas.height;
     this.size(w, h);
-    const stamp = [w, h, ox, oy, tick, Math.floor(hour * 12), ...stage].join('/');
+    const stamp = [w, h, ox, oy, tick, Math.floor(hour * 12), ...stage, pulseKey].join('/');
     if (stamp !== this.stamp) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, this.fbo);
       gl.clearColor(0, 0, 0, 0);
@@ -251,6 +255,17 @@ export class WaterGL {
         currents.map((t) => t * 29)
       );
       gl.uniform1fv(this.loc(p, 'stage[0]'), stage);
+      gl.uniform1i(this.loc(p, 'pulseCount'), ripples.length);
+      if (ripples.length) {
+        gl.uniform4fv(
+          this.loc(p, 'pulses[0]'),
+          ripples.flatMap((r) => [r.x, r.z, r.radius, r.amplitude])
+        );
+        gl.uniform1iv(
+          this.loc(p, 'pulseCourse[0]'),
+          ripples.map((r) => r.course)
+        );
+      }
       this.bind(4, this.bubble);
       this.bind(5, this.ramps);
       this.bind(6, this.paint, gl.TEXTURE_2D_ARRAY);

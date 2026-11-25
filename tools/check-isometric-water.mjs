@@ -48,6 +48,39 @@ try {
     );
     checks.push({ name, ...data });
   }
+  const interaction = await run(`c.game.setPlayerTransform(37.9,0,6.4,0);s.resetCamera();v.time=9.2;
+    const original=g.draw;
+    let args;
+    try {
+      g.draw=function(...a){args=a;return original.apply(this,a);};
+      for(let i=0;i<34;i++){v.step(1/30,.25,.97,false);s.render(v,1/30);}
+    }finally{g.draw=original;}
+    const [gameContext,ox,oy,width,height,time,flow,hour,rings]=args;
+    const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+    const ctx=canvas.getContext('2d'),read=()=>ctx.getImageData(0,0,width,height).data;
+    const sample=r=>{g.draw(ctx,ox,oy,width,height,time,flow,hour,r);return read();};
+    const still=sample([]),rippled=sample(rings);
+    ctx.clearRect(0,0,width,height);g.drawMask(ctx);const mask=read();
+    let changed=0,escaped=0;for(let i=0;i<still.length;i+=4){
+      if(still[i]===rippled[i]&&still[i+1]===rippled[i+1]&&still[i+2]===rippled[i+2])continue;
+      if(mask[i+3])changed++;else escaped++;
+    }
+    const playerWet=s.water.tracks.get('player')?.wet;
+    const before={x:v.player.x,z:v.player.z};
+    for(let i=0;i<30;i++)v.step(1/30,0,0,false);
+    const drift=Math.hypot(v.player.x-before.x,v.player.z-before.z);
+    c.game.setPlayerTransform(36.73,0,-.32,0);s.resetCamera();v.step(.02,0,0,false);s.render(v,0);
+    return {waves:rings.length,changed,escaped,drift,playerWet,deckDry:s.water.tracks.get('player')?.wet===false};`);
+  assert(
+    interaction.playerWet &&
+      interaction.deckDry &&
+      interaction.waves > 0 &&
+      interaction.changed > 8 &&
+      interaction.escaped === 0 &&
+      interaction.drift > 0.006,
+    'Wading must disturb only water, drift with the river, and cease on the bridge ' +
+      JSON.stringify(interaction)
+  );
   const levels =
     await run(`c.game.setPlayerTransform(-13,0,4,0);s.resetCamera();c.game.state.quest.phase='committed';
     const measure=allocation=>{c.game.state.quest.allocation=allocation;v.time+=.08;s.render(v,0);
@@ -66,7 +99,9 @@ try {
   assert.equal(seams, 0, 'Translating the camera must translate the same world pixels');
   const errors = page.console().filter((s) => s.startsWith('[error]') || s.startsWith('[exception]'));
   assert.deepEqual(errors, []);
-  console.log(JSON.stringify({ renderer, checks, villageChannelCoveredPixels: levels, cameraSeams: seams }));
+  console.log(
+    JSON.stringify({ renderer, checks, interaction, villageChannelCoveredPixels: levels, cameraSeams: seams })
+  );
 } finally {
   await page.close();
 }

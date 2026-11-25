@@ -8,6 +8,8 @@ uniform ivec2 origin, worldOrigin;
 uniform int viewHeight;
 uniform float seconds, sunlight;
 uniform float currents[5], stage[5];
+uniform int pulseCount,pulseCourse[16];
+uniform vec4 pulses[16];
 layout(location=0) out vec4 surface;
 layout(location=1) out vec4 distortion;
 const float tau=6.28318530718;
@@ -19,6 +21,17 @@ float cell(vec2 uv){return texelFetch(bubbles,ivec2(floor(uv))&127,0).r;}
 vec3 band(int ramp,float index){return texelFetch(palette,ivec2(clamp(int(index),0,31),ramp),0).rgb;}
 vec3 paint(int layer,vec2 uv){return texelFetch(paintings,ivec3(ivec2(floor(uv))&63,layer),0).rgb;}
 float loopFrame(float f){return 6.0-abs(6.0-mod(f,12.0));}
+float riverSpark(ivec2 p,float t,float grain){
+  ivec2 c=ivec2(floor(vec2(p)/vec2(15.,11.)));
+  int seed=((c.x*73)^(c.y*151)^(c.x*c.y*17))&255;
+  float flare=sine(float(seed)+t*43.);
+  if(flare<.47||(seed&3)==0)return 0.;
+  ivec2 d=abs(p-c*ivec2(15,11)-ivec2(3+seed%9,2+(seed>>3)%7));
+  float peak=(flare-.47)/.53;
+  if(d.x+d.y==0)return peak*(.64+.36*grain);
+  if((d.x==0&&d.y==1)||(d.y==0&&d.x<=2))return max(0.,(peak-.67)*2.4)*(d.x+d.y==1?.85:.46);
+  return 0.;
+}
 void main(){
   ivec2 screen=ivec2(int(gl_FragCoord.x),viewHeight-1-int(gl_FragCoord.y));
   ivec2 local=screen-origin;
@@ -47,7 +60,8 @@ void main(){
   float damp=sat((depth+(ocean?1.28:.96))/(ocean?1.67:1.42));
   vec3 earth=mix(ground,vec3(58.,70.,61.)/255.,damp*(ocean?.355:.48));
   if(cover<=0.){surface=vec4(earth,1.);distortion=vec4(.5,.5,0.,0.);return;}
-  vec3 sky=texelFetch(skyMap,local,0).rgb,deep;
+  vec4 skySample=texelFetch(skyMap,local,0);
+  vec3 sky=skySample.rgb,deep;
   vec2 normal;
   float clarity,foam=0.,shine=0.,mirror;
   float frame=loopFrame(floor(t*(ocean?2.7:1.55))+floor(mod((phase.w/tau+t*.042)*256.,4.)));
@@ -87,27 +101,48 @@ void main(){
     float rip=sine(slow*15.+side*28.),rip2=cosine(fast*23.-side*26.),pulse=sine(along*49.-t*51.);
     normal=basin?vec2(pulse*.69,cosine(along*42.-t*53.)*.55):
       vec2(rip*.86+rip2*.63+pocket*sine(fast*31.)*1.8,sine(fast*18.+side*17.)*.82);
+    float curl=pocket*sine(fast*39.+side*33.+19.*sweep);
+    if(!basin)normal+=vec2(curl*1.45,pocket*cosine(slow*32.-side*41.)*1.18);
     vec2 uv=basin?world*3.1:vec2(side*5.5,along*3.1);
     float ink=sat((paint((basin?21:14)+int(frame),uv+normal-vec2(0.,clock*.12)).g*255.-85.)/107.);
     float channel=sat(cover/max(.42,g.w*.85)),grainLine=cell(vec2(along*6.8-run*9.+18.*sine(side*35.),side*15.+sweep*3.5));
     float riffle=sat(1.-abs(chop-61.)/8.)*sat((cosine(fast*12.-side*43.)+.12)*1.15);
-    float level=13.+(1.-channel)*6.+rip*3.8+rip2*2.8+ink*3.+riffle*3.;
+    float level=13.+(1.-channel)*6.+rip*3.8+rip2*2.8+ink*3.+riffle*3.+(basin?0.:cosine(fast*12.+side*31.+17.*sweep)*1.8+curl*2.1);
     deep=mix(band(basin?3:2,level),sky,basin?.11:.074);
     float rings=sat((pulse-.915)*12.)*sat(1.-along/6.5)*(.22+.26*n);
     shine=basin?rings+ink*.23:line*breaks*(.26+.26*(1.-grainLine))+riffle*(.20+.17*breaks)+ink*(.17+.16*breaks);
     foam=basin?0.:max(max(pocket*(line+riffle*.65)*(.24+.54*breaks),riffle*.29*sat(1.-cover/1.8)*(1.-grainLine)),sat(1.-cover/.12)*.19*breaks);
-    clarity=basin?cover*.58:cover*.57+channel*.31;mirror=basin?.82:.72;
+    if(!basin)foam=max(foam,pocket*sat((curl-.12)*1.35)*(.28+.36*breaks));
+    if(!basin){
+      float bow=mat.a*2.04,wash=.57+.31*sine(fast*35.+side*44.)+.12*cosine(fast*18.);
+      foam=max(foam,max(bow*wash*(.68+stage[course]*.32),pocket*riffle*breaks*.65));shine+=bow*.21;
+    }
+    clarity=basin?cover*.58:cover*.57+channel*.31;mirror=basin?.82:.57+.31*channel-.13*pocket;
+    for(int i=0;i<pulseCount;i++){
+      if(pulseCourse[i]!=course)continue;
+      vec4 pulse=pulses[i];vec2 offset=world-pulse.xy;
+      if(any(greaterThan(abs(offset),vec2(pulse.z+.7))))continue;
+      float d=length(offset),delta=d-pulse.z,env=max(0.,1.-abs(delta)/.66);
+      float strength=env*env*pulse.w,grad=cos(delta*8.5)*strength/max(d,.15);
+      normal+=vec2((offset.x-offset.y)*2.9,(offset.x+offset.y)*1.116)*grad;
+      float crest=max(0.,sin(delta*8.5+.7))*strength;shine+=crest*.68;foam=max(foam,crest*.43);
+    }
   }
   vec2 floorUV=floor(world*3.8);
-  vec3 bed=mix(paint(ocean?28:29,floorUV+round(normal*vec2(1.25,1.65))),vec3(30.,61.,63.)/255.,ocean?.344:.36);
+  vec3 bed=mix(paint(ocean?28:29,floorUV+round(normal*vec2(1.25,1.65))),(ocean?vec3(30.,61.,63.):vec3(62.,142.,159.))/255.,ocean?.344:.328);
   if(!ocean){
     float gravel=cell(mod(floorUV,64.)*vec2(1.2,1.14)+normal);
-    bed=mix(bed,(gravel<.12?vec3(65.,73.,61.):vec3(157.,158.,125.))/255.,gravel<.12?.45:gravel*.293);
+    bed=mix(bed,(gravel<.12?vec3(88.,99.,133.):vec3(194.,203.,159.))/255.,gravel<.12?.433:gravel*.188);
   }
   bed=mix(earth,bed,sat(cover/(ocean?1.7:1.05)));
   vec3 color=mix(deep,bed,exp(-clarity*1.36));
+  float shelter=skySample.a;
+  color=mix(color,vec3(22.,42.,44.)/255.,shelter*.3984);
+  shine*=1.-shelter*.76;foam*=1.-shelter*.34;
   color=mix(color,vec3(186.,199.,174.)/255.,min(.68,shine)*.855*sat(cover/.25));
-  color=mix(color,(foam>.35?vec3(212.,221.,191.):vec3(147.,173.,151.))/255.,sat(foam)*.949);
+  color=mix(color,(ocean?(foam>.35?vec3(212.,221.,191.):vec3(147.,173.,151.)):(foam>.35?vec3(222.,246.,218.):vec3(146.,211.,209.)))/255.,sat(foam)*.949);
+  float sparkle=ocean?0.:riverSpark(worldOrigin+local,t,n)*(1.-shelter*.96)*sat(cover/.3);
+  color=mix(color,vec3(237.,253.,208.)/255.,sparkle*.977);mirror*=1.-sparkle*.85;
   surface=vec4(floor(color*255.+.5)/255.,1.);
   distortion=vec4((round(normal)+8.)/16.,sat(mirror*sat(cover/(ocean?1.07:.60))*(1.-foam*.93)),1.);
 }

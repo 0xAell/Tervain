@@ -14,6 +14,7 @@ import { Scene } from './scene';
 import { Valley } from './simulation';
 import { Interface, type Controls, type Screen } from './interface';
 import { distance, navigable } from './land';
+import { wetPoint, onBridge } from './water';
 
 const defaults: Record<string, string> = {
   north: 'KeyW',
@@ -147,9 +148,14 @@ export class Client implements Controls {
         const i = node.i + di,
           j = node.j + dj,
           key = i + ',' + j,
-          g = node.g + step * Math.hypot(di, dj);
+          x = p.x + i * step,
+          z = p.z + j * step;
+        const surface = wetPoint(x, z);
+        const resistance =
+          surface?.kind === 'river' && !onBridge({ x, z }) ? 1 + 0.65 * Math.min(1, surface.bank / 1.9) : 1;
+        const g = node.g + step * Math.hypot(di, dj) * resistance;
         if ((best.get(key) ?? Infinity) <= g || g > limit * 1.65) continue;
-        const next = { x: p.x + i * step, z: p.z + j * step, i, j, g, parent: index };
+        const next = { x, z, i, j, g, parent: index };
         if (!navigable(node, next, this.valley.archiveOpen)) continue;
         best.set(key, g);
         open.push(nodes.length);
