@@ -4,10 +4,8 @@ import {
   CARRY,
   CARGO_BODY,
   carryForce,
-  carryLift,
   holdPoint,
   throwImpulse,
-  throwSpin,
 } from '../core/rules/cargo';
 import { GRAVITY } from '../core/rules/hero';
 import { PROP_WATER_DRAG } from '../core/world/physicalProps';
@@ -51,14 +49,14 @@ interface WaterEntry extends V2 {
   current: V2;
   course: number;
 }
-interface Grip {
+type Grip = {
   id: string;
   angle: number;
-  drag: boolean;
-}
+} & ({ drag: false } | { drag: true; offset: V2 });
 export type ContactSound = Material | 'splash' | 'leaves';
 const fixed = 1 / 60;
 const splashLife = 1.45;
+const still = { x: 0, y: 0, z: 0 };
 const upright = yawRotation(0);
 export const angleOf = (q: Turn) => Math.atan2(2 * (q.w * q.y + q.x * q.z), 1 - 2 * (q.y * q.y + q.x * q.x));
 const distance = (a: V2, b: V2) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -132,8 +130,9 @@ export class PropPhysics {
   private events = new RAPIER.EventQueue(true);
   private controller = this.world.createCharacterController(0.018);
   private character = this.world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased());
+  // A cast can block the player without the capsule transferring kinematic speed into cargo.
   private capsule = this.world.createCollider(
-    RAPIER.ColliderDesc.capsule(0.63, 0.3).setFriction(0.22),
+    RAPIER.ColliderDesc.capsule(0.63, 0.3).setSensor(true),
     this.character
   );
   private bodies = new Map<string, Live>();
@@ -160,8 +159,6 @@ export class PropPhysics {
     for (const p of state().physicalObjects) this.saved.set(p.id, p);
     this.world.timestep = fixed;
     this.world.numSolverIterations = 6;
-    this.controller.setApplyImpulsesToDynamicBodies(true);
-    this.controller.setCharacterMass(CARGO_BODY.pusherMass);
   }
   get objects(): Iterable<PropView> {
     return this.views.values();
@@ -215,10 +212,13 @@ export class PropPhysics {
     this.world.removeRigidBody(l.body);
     this.bodies.delete(l.view.spec.id);
   }
-  private add(v: PropView) {
+  private add(v: PropView, restored: boolean) {
     const s = v.spec;
+    // An authored resting pose belongs to the landscape until it is disturbed.
+    // Stacked goods need gravity when their support moves, and water needs to drive its own bodies.
+    const resting = !restored && !s.onTop && (!!this.plan || !wetPoint(v.x, v.z) || !!deckAt(v));
     const b = this.world.createRigidBody(
-      RAPIER.RigidBodyDesc.dynamic()
+      (resting ? RAPIER.RigidBodyDesc.fixed() : RAPIER.RigidBodyDesc.dynamic())
         .setTranslation(v.x, v.y, v.z)
         .setRotation(v.rotation)
         .setLinearDamping(CARGO_BODY.linearDamping)
@@ -229,6 +229,10 @@ export class PropPhysics {
     const l = { body: b, view: v, previousSpeed: 0 };
     this.bodies.set(s.id, l);
     for (let i = 0; i < b.numColliders(); i++) this.handles.set(b.collider(i).handle, l);
+  }
+  private wake(b: RAPIER.RigidBody) {
+    if (b.isFixed()) b.setBodyType(RAPIER.RigidBodyType.Dynamic, true);
+    else b.wakeUp();
   }
   sync(room: FloorPlan | undefined, p: V2, footY: number, yaw: number) {
     const key = room ? room.site.id + '/' + room.level : outdoors,
@@ -306,7 +310,7 @@ export class PropPhysics {
         moving: false,
       };
       visible.set(s.id, v);
-      if (!this.bodies.has(s.id) && (room || distance(v, p) < 31)) this.add(v);
+      if (!this.bodies.has(s.id) && (room || distance(v, p) < 31)) this.add(v, !!pose);
     }
     this.views = visible;
     this.character.setTranslation({ x: p.x, y: footY + 0.95, z: p.z }, false);
@@ -353,8 +357,12 @@ export class PropPhysics {
     const v = this.nearby(id);
     if (!v) return false;
     const b = this.bodies.get(v.spec.id)!.body;
-    this.grip = { id: v.spec.id, angle: angleOf(b.rotation()), drag: v.spec.mass > carryMass };
-    b.wakeUp();
+    const grip = { id: v.spec.id, angle: angleOf(b.rotation()) };
+    this.grip =
+      v.spec.mass > carryMass
+        ? { ...grip, drag: true, offset: { x: v.x - this.foot.x, z: v.z - this.foot.z } }
+        : { ...grip, drag: false };
+    if (!this.grip.drag) this.wake(b);
     return true;
   }
   turn(dir: number) {
@@ -371,17 +379,23 @@ export class PropPhysics {
     b.resetForces(true);
     b.resetTorques(true);
     if (toss) {
-      const yaw = direction ? Math.atan2(direction.x - this.foot.x, direction.z - this.foot.z) : this.yaw;
-      const impulse = throwImpulse(yaw, -0.18, mass);
-      const strength = g.drag ? 0.28 : Math.min(1, Math.sqrt(14 / mass));
-      b.applyImpulse(
-        { x: impulse.x * strength, y: g.drag ? 0 : impulse.y * strength, z: impulse.z * strength },
+      this.wake(b);
+      const from = g.drag ? this.foot : b.translation();
+      const yaw =
+        direction && distance(from, direction) > 0.45
+          ? Math.atan2(direction.x - from.x, direction.z - from.z)
+          : this.yaw;
+      const speed = throwImpulse(yaw, -0.18, 1);
+      const strength = g.drag ? 0.22 : Math.min(1, Math.sqrt(12 / mass));
+      b.setLinvel(
+        { x: speed.x * strength, y: g.drag ? 0 : speed.y * strength, z: speed.z * strength },
         true
       );
-      b.applyTorqueImpulse(throwSpin(mass * (g.drag ? 0.15 : 0.5)), true);
+      const roll = g.drag ? 0 : 2.6 * strength;
+      b.setAngvel({ x: Math.cos(yaw) * roll, y: 0, z: -Math.sin(yaw) * roll }, true);
     } else {
-      const v = b.linvel();
-      b.setLinvel({ x: v.x * 0.22, y: Math.min(0.1, v.y * 0.25), z: v.z * 0.22 }, true);
+      b.setLinvel(still, true);
+      b.setAngvel(still, true);
     }
     this.remember(l);
   }
@@ -399,6 +413,33 @@ export class PropPhysics {
       return 0;
     }
     return Math.sin(t * 15) * Math.exp(-2.6 * t) * pulse.force;
+  }
+  private cargoContact(b: RAPIER.RigidBody, start: Point, offset: Point) {
+    if (Math.abs(offset.x) + Math.abs(offset.y) + Math.abs(offset.z) < 1e-7) return;
+    const origin = b.translation();
+    let first: RAPIER.ColliderShapeCastHit | undefined;
+    for (let i = 0; i < b.numColliders(); i++) {
+      const part = b.collider(i),
+        center = part.translation();
+      const hit = this.world.castShape(
+        { x: start.x + center.x - origin.x, y: start.y + center.y - origin.y, z: start.z + center.z - origin.z },
+        part.rotation(),
+        offset,
+        part.shape,
+        0.008,
+        first?.time_of_impact ?? 1,
+        false,
+        RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+        undefined,
+        undefined,
+        b
+      );
+      if (hit) first = hit;
+    }
+    return first;
+  }
+  private cargoTravel(b: RAPIER.RigidBody, start: Point, offset: Point) {
+    return this.cargoContact(b, start, offset)?.time_of_impact ?? 1;
   }
   placeAt(p: V2) {
     const v = this.held;
@@ -421,32 +462,7 @@ export class PropPhysics {
     const dest = { x: p.x, y: eyeY - hit.timeOfImpact + v.spec.height / 2 + 0.035, z: p.z },
       initial = b.translation();
     const delta = { x: dest.x - initial.x, y: dest.y - initial.y, z: dest.z - initial.z };
-    const clear = (start: Point, offset: Point) => {
-      for (let i = 0; i < b.numColliders(); i++) {
-        const part = b.collider(i),
-          center = part.translation();
-        const hit = this.world.castShape(
-          {
-            x: start.x + center.x - initial.x,
-            y: start.y + center.y - initial.y,
-            z: start.z + center.z - initial.z,
-          },
-          part.rotation(),
-          offset,
-          part.shape,
-          0.008,
-          1,
-          false,
-          undefined,
-          undefined,
-          undefined,
-          b,
-          (c) => c.parent()?.handle !== this.character.handle
-        );
-        if (hit && hit.time_of_impact < 0.97) return false;
-      }
-      return true;
-    };
+    const clear = (start: Point, offset: Point) => this.cargoTravel(b, start, offset) >= 0.97;
     if (!clear(initial, delta)) {
       const high = Math.min(eyeY + 0.15, Math.max(dest.y, initial.y) + 0.38);
       const above = { x: initial.x, y: high, z: initial.z },
@@ -460,8 +476,6 @@ export class PropPhysics {
     }
     this.release();
     b.setTranslation(dest, true);
-    b.setLinvel({ x: 0, y: 0, z: 0 }, true);
-    b.setAngvel({ x: 0, y: 0, z: 0 }, true);
     this.remember(l);
     this.sound(v.spec.material, 0.48, l);
     return true;
@@ -475,25 +489,40 @@ export class PropPhysics {
       this.release();
       return;
     }
-    const target = holdPoint(this.foot, this.yaw, 0);
-    target.y += 0.43 + s.height * 0.32;
-    if (grip.drag) {
-      target.x += Math.sin(this.yaw) * 0.5;
-      target.z += Math.cos(this.yaw) * 0.5;
+    const target = grip.drag
+      ? { x: this.foot.x + grip.offset.x, y: v.y, z: this.foot.z + grip.offset.z }
+      : holdPoint(this.foot, this.yaw, 0);
+    if (!grip.drag) target.y += 0.43 + s.height * 0.32;
+    if (l.body.isFixed()) {
+      if (distance(target, v) < 0.04 && Math.abs(Math.sin((grip.angle - angleOf(l.body.rotation())) / 2)) < 0.025)
+        return;
+      this.wake(l.body);
     }
     const gain = grip.drag ? 0.32 : 1;
-    const force = {
-      x: carryForce(target.x - v.x, vel.x, s.mass) * gain,
-      y: grip.drag ? 0 : carryForce(target.y - v.y, vel.y, s.mass) + carryLift(s.mass),
-      z: carryForce(target.z - v.z, vel.z, s.mass) * gain,
-    };
-    l.body.addForce(force, true);
+    const steer = (offset: number, speed: number) =>
+      speed + (carryForce(offset, speed, s.mass) / s.mass) * gain * fixed;
+    const x = steer(target.x - v.x, vel.x),
+      z = steer(target.z - v.z, vel.z),
+      limit = Math.min(1, (grip.drag ? 2.9 : 5.6) / Math.max(0.01, Math.hypot(x, z)));
+    let next = { x: x * limit, y: vel.y, z: z * limit };
+    if (!grip.drag) {
+      const up = Math.max(-3.2, Math.min(3.2, steer(target.y - v.y, vel.y)));
+      // Lift off the support first. Then stop the hand's pull at walls and neighboring props.
+      const dy = up * fixed * this.cargoTravel(l.body, v, { x: 0, y: up * fixed, z: 0 });
+      const reach = this.cargoTravel(
+        l.body,
+        { ...v, y: v.y + dy },
+        { x: next.x * fixed, y: 0, z: next.z * fixed }
+      );
+      next = { x: next.x * reach, y: dy / fixed + GRAVITY * fixed, z: next.z * reach };
+    }
+    l.body.setLinvel(next, true);
     const q = l.body.rotation(),
       desired = yawRotation(grip.angle);
-    // Shortest quaternion arc keeps a gripped object upright without rotating it through a wall.
+    // Follow the shortest rotation toward the selected orientation.
     const sign = q.y * desired.y + q.w * desired.w < 0 ? -1 : 1,
       spin = l.body.angvel(),
-      speed = grip.drag ? 4 : 9;
+      speed = grip.drag ? 2.4 : 5;
     l.body.setAngvel(
       {
         x: -speed * sign * (desired.w * q.x + desired.y * q.z) - spin.x * 0.05,
@@ -503,25 +532,25 @@ export class PropPhysics {
       true
     );
   }
-  roomRouteClear(from: V2, to: V2) {
-    const base = floorAt(this.plan, from);
-    // A click route should go around the furniture in its current position.
-    // Manual movement still uses the character controller and can push it.
+  routeClear(from: V2, to: V2) {
+    const ground = (p: V2) => (this.plan ? floorAt(this.plan, p) : supportHeight(p));
+    const base = ground(from);
     return !this.world.castShape(
       { x: from.x, y: base + 0.95, z: from.z },
       upright,
-      { x: to.x - from.x, y: floorAt(this.plan, to) - base, z: to.z - from.z },
+      { x: to.x - from.x, y: ground(to) - base, z: to.z - from.z },
       this.capsule.shape,
       0.16,
       1,
       false,
-      RAPIER.QueryFilterFlags.ONLY_DYNAMIC,
       undefined,
       undefined,
-      this.grip ? this.bodies.get(this.grip.id)?.body : undefined
+      undefined,
+      this.grip ? this.bodies.get(this.grip.id)?.body : undefined,
+      (c) => this.handles.has(c.handle)
     );
   }
-  move(from: V2, to: V2, y: number) {
+  move(from: V2, to: V2, y: number, pushTime = 0) {
     const dx = to.x - from.x,
       dz = to.z - from.z;
     if (Math.abs(dx) + Math.abs(dz) < 1e-8) return to;
@@ -548,8 +577,45 @@ export class PropPhysics {
         return !!l && l.view.spec.id !== this.grip?.id;
       }
     );
+    if (pushTime > 0 && this.controller.numComputedCollisions()) {
+      const travel = Math.hypot(dx, dz),
+        speed = travel / pushTime,
+        pushed = new Set<Live>();
+      for (let i = 0; i < this.controller.numComputedCollisions(); i++) {
+        const hit = this.controller.computedCollision(i);
+        const l = hit?.collider && this.handles.get(hit.collider.handle);
+        if (!hit || !l || pushed.has(l) || l.view.spec.mass > carryMass || Math.abs(hit.normal1.y) > 0.55)
+          continue;
+        const normal = Math.hypot(hit.normal1.x, hit.normal1.z),
+          x = -hit.normal1.x / normal,
+          z = -hit.normal1.z / normal,
+          approach = (dx * x + dz * z) / travel;
+        if (approach < 0.57) continue;
+        const mass = l.view.spec.mass,
+          v = l.body.linvel(),
+          goal = Math.min(2, speed * 0.4) * approach,
+          amount = Math.min(goal - v.x * x - v.z * z, (26 * approach * pushTime) / (1 + mass / 16));
+        if (amount <= 0) continue;
+        this.wake(l.body);
+        l.body.applyImpulse({ x: x * amount * mass, y: 0, z: z * amount * mass }, true);
+        pushed.add(l);
+      }
+    }
     const m = this.controller.computedMovement();
     return { x: from.x + m.x, z: from.z + m.z };
+  }
+  private wakeOnImpact(l: Live, velocity: Point) {
+    const hit = this.cargoContact(l.body, l.body.translation(), {
+      x: velocity.x * fixed,
+      y: velocity.y * fixed,
+      z: velocity.z * fixed,
+    });
+    const target = hit && this.handles.get(hit.collider.handle);
+    if (!hit || !target?.body.isFixed()) return;
+    const n = hit.normal1;
+    const approach = -(velocity.x * n.x + velocity.y * n.y + velocity.z * n.z);
+    if (approach > 1.2 && approach * l.view.spec.mass > target.view.spec.mass * 0.42)
+      this.wake(target.body);
   }
   supporting(p: V2, base: number, previous: number, hop: number) {
     if (!this.bodies.size) return base;
@@ -631,20 +697,25 @@ export class PropPhysics {
       this.accumulator -= fixed;
       this.time += fixed;
       for (const l of this.bodies.values()) {
-        const b = l.body;
-        if (b.isSleeping() && this.grip?.id !== l.view.spec.id && !l.view.wet) continue;
+        const b = l.body,
+          held = this.grip?.id === l.view.spec.id;
+        if (!held && (b.isFixed() || (b.isSleeping() && !l.view.wet))) continue;
         b.resetForces(false);
         b.resetTorques(false);
         const v = b.linvel();
         l.previousSpeed = Math.hypot(v.x, v.y, v.z);
-        if (this.grip?.id === l.view.spec.id) this.pull(l);
-        else if (!room) this.float(l, flow);
+        if (held) this.pull(l);
+        else {
+          if (l.previousSpeed > 1.2) this.wakeOnImpact(l, v);
+          if (!room) this.float(l, flow);
+        }
       }
-      this.character.setNextKinematicTranslation({ x: p.x, y: y + 0.95, z: p.z });
       this.world.step(this.events);
       this.events.drainCollisionEvents((a, b, started) => {
         if (!started) return;
-        const l = this.handles.get(a) ?? this.handles.get(b);
+        const first = this.handles.get(a),
+          second = this.handles.get(b),
+          l = (first?.previousSpeed ?? 0) > (second?.previousSpeed ?? 0) ? first : second;
         if (l && l.previousSpeed > 1.2) this.sound(l.view.spec.material, Math.min(1, l.previousSpeed / 7), l);
       });
     }
