@@ -37,6 +37,18 @@ function moveTo(v: Valley, x: number, z: number) {
   advance(v, 0.15);
 }
 describe('loose objects in the playable vale', () => {
+  it('keeps dry loose stones in place when the coast loads', () => {
+    const v = journey(), w = v.props!;
+    const stones = [...w.objects]
+      .filter((p) => p.spec.key === 'rockpile' && !wetPoint(p.x, p.z) && Math.hypot(p.x - SPAWN.x, p.z - SPAWN.z) < 30)
+      .map((stone) => ({ stone, x: stone.x, y: stone.y, z: stone.z }));
+    expect(stones.length).toBeGreaterThan(2);
+    advance(v, 2.5);
+    for (const { stone, x, y, z } of stones)
+      expect(Math.hypot(stone.x - x, stone.y - y, stone.z - z), stone.spec.id).toBeLessThan(0.02);
+    w.checkpoint();
+    expect(v.game.state.physicalObjects.some((pose) => stones.some(({ stone }) => stone.spec.id === pose.id))).toBe(false);
+  });
   it('supports dropped objects on each individual tread above and below the hall slab', () => {
     const plan = floorPlan(sites.find((s) => s.id === 'house_a')!, 'ground');
     const world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
@@ -202,23 +214,67 @@ describe('loose objects in the playable vale', () => {
       }
     }
   });
-  it('shoves a free crate with the character and releases a tossed object into contacts', () => {
+  it('keeps pathfinding from shoving a crate, then responds to a bounded manual push and an aimed toss', () => {
     const v = journey(),
       w = v.props!;
     advance(v, 0.45);
     const box = w.object('strand/small-crate')!,
       old = { x: box.x, z: box.z };
     moveTo(v, box.x, box.z + 1.4);
-    for (let i = 0; i < 34; i++) v.step(1 / 60, 0, -1, false);
+    expect(v.canWalk(v.position, { x: box.x, z: box.z - 1.4 })).toBe(false);
+    for (let i = 0; i < 34; i++) v.step(1 / 60, 0, -1, true, false);
+    expect(Math.hypot(box.x - old.x, box.z - old.z)).toBeLessThan(0.04);
+    let topSpeed = 0;
+    for (let i = 0; i < 34; i++) {
+      const { x, z } = box;
+      v.step(1 / 60, 0, -1, true);
+      topSpeed = Math.max(topSpeed, Math.hypot(box.x - x, box.z - z) * 60);
+    }
+    expect(topSpeed).toBeLessThan(2.3);
     expect(Math.hypot(box.x - old.x, box.z - old.z)).toBeGreaterThan(0.2);
     moveTo(v, box.x - 0.68, box.z + 1.3);
     expect(v.grabProp(box.spec.id)).toBe(true);
     advance(v, 0.45);
     const cast = { x: box.x, z: box.z };
-    v.startAttack({ x: box.x - 3, z: box.z + 3 });
+    v.startAttack({ x: box.x - 3, z: box.z });
     expect(w.held).toBeUndefined();
+    advance(v, 1 / 60);
+    expect(box.x).toBeLessThan(cast.x - 0.085);
+    expect(box.z).toBeCloseTo(cast.z, 2);
     advance(v, 0.65);
     expect(Math.hypot(box.x - cast.x, box.z - cast.z)).toBeGreaterThan(1);
+  });
+  it('drops a moving, turning jar straight down when the player lets go', () => {
+    const v = journey(), w = v.props!;
+    advance(v, 0.3);
+    const jar = w.object('strand/jar')!;
+    moveTo(v, jar.x - 1.55, jar.z - 0.7);
+    expect(v.grabProp(jar.spec.id)).toBe(true);
+    w.turn(3);
+    advance(v, 0.26);
+    for (let i = 0; i < 9; i++) v.step(1 / 60, -1, 0, false);
+    const { x, y, z, rotation } = jar;
+    w.release();
+    advance(v, 1 / 60);
+    expect(jar.y).toBeLessThan(y);
+    expect(Math.hypot(jar.x - x, jar.z - z)).toBeLessThan(0.001);
+    expect(angleOf(jar.rotation)).toBeCloseTo(angleOf(rotation), 3);
+  });
+  it('lets a falling barrel dislodge a crate it actually hits', () => {
+    const game = new Game();
+    const at = propsNear(SPAWN, 4).find((p) => p.id === 'strand/small-crate')!;
+    game.state.physicalObjects.push({
+      id: 'loose_barrel_0',
+      space: 'vale',
+      position: { x: at.x + 0.63, y: supportHeight(at) + 3.1, z: at.z },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    });
+    const v = journey(game), box = v.props!.object(at.id)!;
+    const { x, z } = box;
+    advance(v, 0.4);
+    expect(Math.hypot(box.x - x, box.z - z)).toBeLessThan(0.01);
+    advance(v, 0.6);
+    expect(Math.hypot(box.x - x, box.z - z)).toBeGreaterThan(0.012);
   });
   it('drags a heavy bench along the ground and still offers sitting at its new position', () => {
     const v = journey();
@@ -229,6 +285,8 @@ describe('loose objects in the playable vale', () => {
     expect(v.grabProp(seat.prop)).toBe(true);
     expect(w.grip?.drag).toBe(true);
     const old = { ...w.held! };
+    advance(v, 0.45);
+    expect(Math.hypot(w.held!.x - old.x, w.held!.z - old.z)).toBeLessThan(0.04);
     for (let i = 0; i < 80; i++) v.step(1 / 60, 0, 1, false);
     w.release();
     advance(v, 0.5);

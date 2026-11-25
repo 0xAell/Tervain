@@ -286,11 +286,13 @@ export class Valley {
       ? [...targets.filter((t) => t.field !== 'seat'), ...physicalTargets(this.props, this.position, room)]
       : targets;
   }
-  canWalk(a: V2, b: V2, lift = 0) {
+  private outdoorPassable(a: V2, b: V2, lift = 0) {
+    return navigable(a, b, this.game.state, lift) && (!this.props || passesTrunks(a, b));
+  }
+  canWalk(a: V2, b: V2) {
     const room = this.room;
-    return room
-      ? roomCanMove(room, a, b) && (!this.props || this.props.roomRouteClear(a, b))
-      : navigable(a, b, this.game.state, lift) && (!this.props || passesTrunks(a, b));
+    const passable = room ? roomCanMove(room, a, b) : this.outdoorPassable(a, b);
+    return passable && (!this.props || this.props.routeClear(a, b));
   }
   private restoreFootprint() {
     const site = inBuilding(this.player);
@@ -376,7 +378,10 @@ export class Valley {
       if (roomCanMove(plan, p, { x: p.x, z: next.z })) p.z = next.z;
     }
     if (this.props)
-      Object.assign(p, this.props.move(before, p, this.localFloor + this.standingLift + this.hop));
+      Object.assign(
+        p,
+        this.props.move(before, p, this.localFloor + this.standingLift + this.hop, walkThrough && !this.jump ? dt : 0)
+      );
     this.facing = facing(dx, dz);
     this.player.yaw = Math.atan2(dx, dz);
     this.walk = distance(before, p) > 0.0001;
@@ -476,15 +481,17 @@ export class Valley {
         const x = p.x + dx * stride,
           z = p.z + dz * stride;
         const start = { x: p.x, z: p.z };
-        if (this.canWalk(p, { x, z }, this.hop)) {
+        if (this.outdoorPassable(p, { x, z }, this.hop)) {
           p.x = x;
           p.z = z;
         } else {
-          if (this.canWalk(p, { x, z: p.z }, this.hop)) p.x = x;
-          if (this.canWalk(p, { x: p.x, z }, this.hop)) p.z = z;
+          if (this.outdoorPassable(p, { x, z: p.z }, this.hop)) p.x = x;
+          if (this.outdoorPassable(p, { x: p.x, z }, this.hop)) p.z = z;
         }
-        if (this.props)
-          Object.assign(p, this.props.move(start, p, this.localFloor + this.standingLift + this.hop));
+        if (this.props) {
+          const push = walkThrough && !this.jump && !this.riding && !this.swimming ? dt : 0;
+          Object.assign(p, this.props.move(start, p, this.localFloor + this.standingLift + this.hop, push));
+        }
         this.walk = distance(start, p) > 0.0001;
         const entered = inBuilding(p);
         if (entered) {
@@ -498,7 +505,7 @@ export class Valley {
         const v = riverVelocity(water, worldView(this.game.state).flow),
           pull = dt * wade * (this.guard ? 0.06 : 0.24);
         const next = { x: p.x + v.x * pull, z: p.z + v.z * pull };
-        if (!onBridge(next) && this.canWalk(p, next)) {
+        if (!onBridge(next) && this.outdoorPassable(p, next)) {
           Object.assign(p, this.props?.move(p, next, this.localFloor + this.standingLift) ?? next);
         }
       }

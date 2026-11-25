@@ -725,6 +725,13 @@ export class Client implements Controls {
         this.sound.endLine();
         this.stopWalking();
         this.nextAudio = 0;
+      } else if (
+        this.destination &&
+        !this.valley.walk &&
+        !this.valley.bow &&
+        !this.valley.canWalk(this.valley.position, this.destination)
+      ) {
+        this.walkTo(this.route.at(-1) ?? this.destination);
       } else if (this.pendingTarget) {
         const target = this.valley.targets().find((t) => t.id === this.pendingTarget);
         if (target && this.inReach(target)) this.activateTarget(target);

@@ -16,7 +16,7 @@ Gold lanterns mark building entrances, exits and stairs between floors. Click a 
 
 The wanderer can pet village cats and dogs, take a seat, gather wild herbs and mushrooms, and cook at a campfire or household hearth. Carry trail stew for later or eat at the fire. An equipped bow has a travelling stance, a held draw and a release. Arrows travel through the scene and woodland game can be harvested with a knife.
 
-Lift loose cargo with **G**, turn it with **R** or the mouse wheel, and click a nearby surface to set it down. Press **G** again to let go or use **Space** to toss it. Heavy benches and tables drag along the ground. Possessions keep their position and rotation when you leave a room or save your journey.
+Lift loose cargo with **G**, turn it with **R** or the mouse wheel, and click a nearby surface to set it down. Press **G** again to let go or use **Space** to toss it. Hold a movement direction into lighter cargo to give it a push. Click routes go around cargo. Heavy benches and tables move when you drag or shove them. Possessions keep their position and rotation when you leave a room or save your journey.
 
 The wanderer and all twelve residents speak their dialogue. Choose a reply to hear the wanderer answer. Reading a book in a house, examining a noticeboard or inspecting something in the field can start narration. Press V to replay or stop an open book, note or conversation. Interface narration is off by default. To hear menus, journal entries, inventory descriptions and nearby prompts, open **Settings → Spoken audio** and select **Characters, world and interface narration**. With this setting, V can also read the current page or your surroundings. Your choice carries over between sessions. Petting the dog still earns an audible reaction. Voice, music and effects have separate controls in Settings. [Music and recording credits](public/world-audio-licenses.html).
 
@@ -24,7 +24,7 @@ The editable PNG sequences, original provider images and typeface are in `assets
 
 ## Status
 
-- **Version.** The current patch is [`0.1.12`](docs/production/releases/0.1.12.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is [`0.1.18`](docs/production/releases/0.1.18.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
