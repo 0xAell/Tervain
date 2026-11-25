@@ -48,6 +48,24 @@ function iconButton(label: string, key: string, action: () => void) {
   b.append(icon(key));
   return b;
 }
+function readerLabel(node: HTMLElement): string {
+  if (node instanceof HTMLInputElement)
+    return (
+      (node.labels?.[0]?.firstChild?.textContent ?? '') + ' ' + Math.round(Number(node.value) * 100) + '%'
+    );
+  if (node instanceof HTMLSelectElement)
+    return (node.getAttribute('aria-label') ?? '') + ' ' + (node.selectedOptions[0]?.text ?? '');
+  if (node.classList.contains('item'))
+    return Array.from(node.querySelectorAll('span,small'), (n) => n.textContent).join(' times ');
+  return node.getAttribute('aria-label') ?? node.textContent ?? '';
+}
+function pageText(panel: HTMLElement) {
+  return Array.from(
+    panel.querySelectorAll<HTMLElement>('h1,h2,h3,p,dt,dd,strong,.save-row > span,button,select,input,canvas')
+  )
+    .filter((n) => !n.closest('[hidden],.read-aloud,.close') && !n.parentElement?.closest('button'))
+    .map(readerLabel);
+}
 export type Screen =
   | 'title'
   | 'play'
@@ -103,6 +121,9 @@ export class Interface {
   private noticeUntil = 0;
   private subtitle = el('div', 'spoken-caption plate');
   private passage?: { play: () => boolean; button: HTMLButtonElement; playing: boolean };
+  private hoverTimer = 0;
+  private nearbyPrompt = '';
+  private promptSince = 0;
   private slotSig = '';
   private currentDialog = '';
   private uiStamp = 0;
@@ -120,6 +141,39 @@ export class Interface {
     this.subtitle.hidden = true;
     this.subtitle.setAttribute('role', 'status');
     this.root.append(this.hud, this.layer, this.notice, this.subtitle);
+    const controlAt = (e: Event) =>
+      e.target instanceof Element
+        ? e.target.closest<HTMLElement>('button:enabled,select,input,p.entry')
+        : null;
+    const preview = (node: HTMLElement) => {
+      if (node.matches('.read-aloud') && this.passage?.playing) return;
+      controls.sound.readInterface([readerLabel(node)]);
+    };
+    this.root.addEventListener('focusin', (e) => {
+      const node = controlAt(e);
+      if (
+        controls.sound.mode === 'interface' &&
+        node &&
+        (controls.controllerActive || node.matches(':focus-visible'))
+      )
+        preview(node);
+    });
+    this.root.addEventListener('pointerover', (e) => {
+      const node = controlAt(e);
+      if (controls.sound.mode !== 'interface' || e.pointerType === 'touch' || !node) return;
+      if (e.relatedTarget instanceof Node && node.contains(e.relatedTarget)) return;
+      window.clearTimeout(this.hoverTimer);
+      this.hoverTimer = window.setTimeout(() => {
+        if (node.isConnected && !controls.sound.mixer.speaking) preview(node);
+      }, 480);
+    });
+    this.root.addEventListener('pointerout', (e) => {
+      if (!(e.relatedTarget instanceof Node && controlAt(e)?.contains(e.relatedTarget)))
+        window.clearTimeout(this.hoverTimer);
+    });
+    this.root.addEventListener('change', (e) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) preview(e.target);
+    });
     this.prompt.onclick = () => controls.interact();
     this.chamber.hidden = true;
     this.chamber.setAttribute('aria-live', 'polite');
@@ -170,10 +224,12 @@ export class Interface {
     this.scene = scene;
     this.slotSig = '';
   }
-  message(text: string) {
+  message(text: string, announce = true) {
+    const repeat = text === this.notice.textContent && performance.now() < this.noticeUntil;
     this.notice.textContent = text;
     this.noticeUntil = performance.now() + 3300;
     this.notice.classList.add('visible');
+    if (announce && !repeat) this.controls.sound.readInterface([text]);
   }
   caption(text: string) {
     if (!text && this.passage && !this.controls.sound.mixer.speaking) {
@@ -194,16 +250,33 @@ export class Interface {
     if (line) line.classList.add('voicing');
     else panel.querySelector('header')?.after(el('p', 'heard-reply', text));
   }
-  private readerFor(panel: HTMLElement, play: () => boolean, initial = play) {
-    if (this.controls.sound.mode === 'off' || (this.mode !== 'dialogue' && this.mode !== 'actions')) return;
-    const host = panel.querySelector('header')!;
+  private readerFor(panel: HTMLElement, play: () => boolean, initial: (() => boolean) | null = play) {
+    if (this.controls.sound.mode === 'off') return;
+    const host = panel.querySelector('header,.menu-choices')!;
     const control = button('Read aloud', () => this.readAloud(), 'read-aloud');
     host.insertBefore(control, host.querySelector('.close'));
     this.passage = { play, button: control, playing: false };
-    this.startReading(initial);
+    if (initial) this.startReading(initial);
+  }
+  private interfaceReader(panel: HTMLElement, announce = true) {
+    if (this.controls.sound.mode !== 'interface') return;
+    queueMicrotask(() => {
+      if (!panel.isConnected || this.passage || this.controls.sound.mode !== 'interface') return;
+      const sound = this.controls.sound;
+      const play = () => sound.readInterface(pageText(panel));
+      const focus = panel.querySelector<HTMLElement>('.item-detail');
+      const initial =
+        this.mode === 'journal'
+          ? play
+          : () =>
+              sound.readInterface(
+                focus ? pageText(focus) : [panel.querySelector('h1,h2')?.textContent ?? '']
+              );
+      this.readerFor(panel, play, announce ? initial : null);
+    });
   }
   private readWorldPage(panel: HTMLElement, lines: string[]) {
-    if (this.controls.sound.mode !== 'full') return;
+    if (!this.controls.sound.worldNarration) return;
     this.readerFor(panel, () => this.controls.sound.narrate(lines, 5));
   }
   private startReading(play: () => boolean) {
@@ -212,8 +285,23 @@ export class Interface {
     passage.button.textContent = passage.playing ? 'Stop reading' : 'Read aloud';
   }
   readAloud() {
-    if (!this.passage) return;
     const sound = this.controls.sound;
+    if (!this.passage) {
+      if (sound.mode === 'interface' && this.mode === 'play') {
+        sound.unlock();
+        if (sound.readingInterface) sound.stopInterface();
+        else
+          sound.readInterface([
+            this.place.textContent ?? '',
+            this.valley.roomName(),
+            this.clock.textContent ?? '',
+            'Health ' + this.game.state.player.health + ' of ' + this.game.state.player.maxHealth,
+            'Stamina ' + Math.round(this.valley.stamina) + '%',
+            this.promptLabel() || 'No nearby interaction',
+          ]);
+      }
+      return;
+    }
     sound.unlock();
     if (this.passage.playing && sound.mixer.speaking) sound.endLine();
     else this.startReading(this.passage.play);
@@ -222,6 +310,9 @@ export class Interface {
     const active = this.passage?.playing;
     this.passage = undefined;
     if (active) this.controls.sound.endLine();
+    else this.controls.sound.stopInterface();
+    window.clearTimeout(this.hoverTimer);
+    this.nearbyPrompt = '';
   }
   private shell(title: string, wide = false) {
     this.closeReading();
@@ -238,6 +329,7 @@ export class Interface {
     );
     panel.append(header);
     this.layer.append(panel);
+    this.interfaceReader(panel);
     return panel;
   }
   private back() {
@@ -288,6 +380,7 @@ export class Interface {
       el('small', 'version', 'Grey Strand  /  v' + __GAME_VERSION__ + ' · ' + __SOURCE_REVISION__)
     );
     this.layer.append(screen);
+    this.interfaceReader(screen);
   }
   play() {
     this.closeReading();
@@ -354,7 +447,12 @@ export class Interface {
         ['1–0', 'Use a belt slot'],
         ['F5 / F9', 'Quick save / quick load'],
         ['Esc', 'Close a page or pause'],
-        ['V', 'Replay or stop the current conversation, open book or note'],
+        [
+          'V',
+          this.controls.sound.mode === 'interface'
+            ? 'Read or stop the current page or your surroundings'
+            : 'Replay or stop the current conversation, open book or note',
+        ],
         [
           'Controller',
           'Left stick moves, A interacts or selects, D-pad chooses, X attacks, B closes, Start pauses',
@@ -375,11 +473,12 @@ export class Interface {
       slider.oninput = () => this.controls.setVolume(Number(slider.value));
       label.append(slider);
       panel.append(label);
-      const voiceLabel = el('label', 'volume', 'Spoken audio'),
+      const voiceLabel = el('label', 'volume spoken-audio', 'Spoken audio'),
         voiceMode = el('select');
       voiceMode.setAttribute('aria-label', 'Spoken audio');
       for (const [value, name] of [
         ['full', 'Characters and world narration'],
+        ['interface', 'Characters, world and interface narration'],
         ['characters', 'Characters only'],
         ['off', 'Off'],
       ] as const) {
@@ -390,6 +489,9 @@ export class Interface {
       voiceMode.value = this.controls.settings.voiceMode;
       voiceMode.onchange = () => {
         this.controls.setVoiceMode(voiceMode.value as VoiceMode);
+        this.closeReading();
+        panel.querySelector('.read-aloud')?.remove();
+        this.interfaceReader(panel, false);
       };
       voiceLabel.append(voiceMode);
       panel.append(voiceLabel);
@@ -943,6 +1045,23 @@ export class Interface {
       ]);
     }
   }
+  private promptLabel() {
+    return this.scene.hoverLabel || (this.prompt.hidden ? '' : (this.prompt.textContent ?? ''));
+  }
+  private announcePrompt(label: string) {
+    const now = performance.now();
+    if (label !== this.nearbyPrompt) {
+      this.nearbyPrompt = label;
+      this.promptSince = now;
+    }
+    if (
+      label &&
+      now - this.promptSince >= 700 &&
+      !this.controls.sound.mixer.speaking &&
+      this.controls.sound.readInterface([label])
+    )
+      this.promptSince = Infinity;
+  }
   update(force = false) {
     if (performance.now() > this.noticeUntil) this.notice.classList.remove('visible');
     if (this.mode !== 'play' || (!force && performance.now() - this.uiStamp < 125)) return;
@@ -1005,6 +1124,7 @@ export class Interface {
             (grip.drag ? 'Shove' : 'Toss');
     } else if (offers[0]?.target?.prop && offers[0].target.field === 'seat')
       this.prompt.textContent += '   ' + grabKey + ' · Move';
+    if (this.controls.sound.mode === 'interface') this.announcePrompt(act || bow ? '' : this.promptLabel());
     const signature = JSON.stringify([s.quickSlots, s.inventory, s.equippedWeapon]);
     if (this.slotSig !== signature) {
       this.slotSig = signature;
@@ -1030,7 +1150,7 @@ export class Interface {
       point === 'noticeboard'
         ? worldView(this.game.state).noticeboard.map((k) => S(k))
         : [S('inspect.' + point)];
-    this.message(lines.join(' '));
+    this.message(lines.join(' '), false);
     this.controls.sound.narrate(lines);
   }
   speakName(id: NpcId) {

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import { catalogue, readingKeys, readKey, type Cue } from '../../src/isometric/reading';
+import { catalogue, readingKeys, readKey, savedVoiceMode, type Cue } from '../../src/isometric/reading';
 import { DIALOGUE_NODES } from '../../src/core/content/dialogue';
 import { VOICE_LINES } from '../../src/core/content/voice';
 import { households } from '../../src/isometric/households';
@@ -52,6 +52,40 @@ describe('the English voice recordings in the playable vale', () => {
         [catalogue.effects.page![0]![0], false],
         [catalogue.effects.block![0]![0], true],
       ]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('requires an explicit saved preference to read the interface and keeps world speech in that mode', () => {
+    for (const value of [undefined, null, 'full', 'unknown', true])
+      expect(savedVoiceMode(value)).toBe('full');
+    vi.stubGlobal(
+      'Audio',
+      class {
+        canPlayType() {
+          return '';
+        }
+      }
+    );
+    try {
+      const sound = new Sound(1);
+      const say = vi.spyOn(sound.mixer, 'say').mockReturnValue(true);
+      const prompt = 'E · Pet the dog';
+      for (const mode of ['full', 'characters', 'off'] as const) {
+        sound.mode = savedVoiceMode(mode);
+        expect(sound.readInterface([prompt])).toBe(false);
+      }
+      expect(say).not.toHaveBeenCalled();
+      sound.mode = savedVoiceMode('interface');
+      expect(sound.readInterface([prompt])).toBe(true);
+      const [parts, priority] = say.mock.lastCall!;
+      expect(parts.map((p) => p.cue)).toEqual([catalogue.reader.e, catalogue.reader['pet the dog']]);
+      expect(sound.narrate([households.house_a!.passage])).toBe(true);
+      expect(say.mock.lastCall![1]).toBeGreaterThan(priority);
+      const line = DIALOGUE_NODES.joss_intro!.text;
+      expect(sound.story([line])).toBe(true);
+      expect(say.mock.lastCall![0][0]?.cue).toBe(catalogue.story[line]);
     } finally {
       vi.unstubAllGlobals();
     }
