@@ -1,6 +1,7 @@
 import { AUTOSAVE_SECONDS } from '../core/rules/journey';
 import { initializePhysics } from '../physics/initialize';
 import { PropPhysics } from './propPhysics';
+import type { LoadingScreen } from './loadingScreen';
 import { Sound } from './audio';
 import { defaultMix, type MixLevels } from './mixer';
 import { savedVoiceMode, type VoiceMode } from './reading';
@@ -101,7 +102,8 @@ export class Client implements Controls {
   private playing = false;
   constructor(
     private canvas: HTMLCanvasElement,
-    root: HTMLElement
+    root: HTMLElement,
+    private loading: LoadingScreen
   ) {
     this.ui = new Interface(root, this.saves, this);
     this.sound.setCaption((text) => this.ui.caption(text));
@@ -318,14 +320,35 @@ export class Client implements Controls {
     this.sound.unlock();
   }
   start(load: boolean) {
-    const latest = load ? this.saves.latest() : null;
-    this.bind(latest?.state ?? createInitialState());
-    if (this.valley.player.health <= 0) {
-      this.game.dispatch({ t: 'healPlayer', amount: this.valley.player.maxHealth });
-    }
-    this.resume();
-    this.sound.update(this.valley);
-    if (!latest) this.sound.tell(['hero.arrival'], 3);
+    this.enterJourney(load ? 'Restoring your journey' : 'Preparing the Grey Strand', () => {
+      const latest = load ? this.saves.latest() : null;
+      this.bind(latest?.state ?? createInitialState());
+      if (this.valley.player.health <= 0) {
+        this.game.dispatch({ t: 'healPlayer', amount: this.valley.player.maxHealth });
+      }
+      return () => {
+        this.sound.update(this.valley);
+        if (!latest) this.sound.tell(['hero.arrival'], 3);
+      };
+    });
+  }
+  private enterJourney(message: string, prepare: () => () => void) {
+    if (this.loading.visible) return;
+    this.sound.unlock();
+    this.keys.clear();
+    this.loading.show(message);
+    // Give the veil one paint before building the scene on the main thread.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      try {
+        const ready = prepare();
+        if (this.valley.player.health > 0) this.scene.render(this.valley, 0);
+        this.loading.hide();
+        this.resume();
+        ready();
+      } catch (error) {
+        this.loading.fail(error);
+      }
+    }));
   }
   resume() {
     this.valley.openChest = undefined;
@@ -367,9 +390,10 @@ export class Client implements Controls {
       this.ui.message(r.message);
       return;
     }
-    this.bind(r.state);
-    this.resume();
-    this.ui.message('Journey restored');
+    this.enterJourney('Restoring your journey', () => {
+      this.bind(r.state);
+      return () => this.ui.message('Journey restored');
+    });
   }
   setVolume(v: number) {
     this.settings.volume = v;
@@ -590,6 +614,7 @@ export class Client implements Controls {
     this.ui.update(true);
   }
   private key(e: KeyboardEvent, down: boolean) {
+    if (this.loading.visible) return;
     if (down) this.controllerActive = false;
     if (!down) {
       const wasHeld = this.keys.delete(e.code);
@@ -647,6 +672,10 @@ export class Client implements Controls {
   private frame(t: number) {
     const dt = Math.min(0.05, (t - (this.lastTime || t)) * 0.001);
     this.lastTime = t;
+    if (this.loading.visible) {
+      requestAnimationFrame((n) => this.frame(n));
+      return;
+    }
     const pad = this.pad();
     if (pad) {
       const buttons = pad.buttons.map((b) => b.pressed);

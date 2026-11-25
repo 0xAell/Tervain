@@ -110,14 +110,54 @@ button img {
   overflow: hidden;
   background: #132221;
 }
+.title-landscape {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100vw, 177.778dvh);
+  aspect-ratio: 16 / 9;
+  translate: -50% -50%;
+  scale: 1.04;
+  z-index: -2;
+  animation: title-panorama 23s ease-in-out infinite alternate;
+}
 .title-art {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: center;
-  z-index: -2;
+}
+.title-fire {
+  position: absolute;
+  inset: 86% auto auto 73%;
+  width: 1px;
+  height: 1px;
+}
+.title-fire::before {
+  content: '';
+  position: absolute;
+  width: clamp(42px, 8vw, 125px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(circle, #ed983e4d, transparent 66%);
+  animation: title-hearth 2.8s steps(11, end) infinite alternate;
+}
+.title-fire i {
+  position: absolute;
+  width: clamp(2px, 0.27vw, 5px);
+  aspect-ratio: 1;
+  background: #ffba68;
+  opacity: 0;
+  animation: title-ember 3.2s steps(15, end) infinite;
+}
+.title-fire i:nth-child(2) { left: 5px; animation-delay: -1.9s; }
+.title-fire i:nth-child(3) { left: -9px; animation-delay: -.8s; }
+.title-fire i:nth-child(4) { left: 9px; animation-delay: -2.5s; }
+.title-mist {
+  position: absolute;
+  inset: 18% -5% 33%;
+  background: radial-gradient(ellipse at 65% 48%, #c9cfb828, transparent 55%);
+  animation: title-mist-drift 17s ease-in-out infinite alternate;
 }
 .title-screen:after {
   content: '';
@@ -134,6 +174,7 @@ button img {
   top: 49%;
   transform: translateY(-50%);
   max-width: min(470px, 82vw);
+  animation: menu-arrive 420ms ease-out both;
 }
 .title-content > img {
   width: 58px;
@@ -184,6 +225,37 @@ button img {
 }
 .menu-choices button {
   min-width: 118px;
+  transition: background-color 160ms, border-color 160ms, color 160ms;
+}
+.menu-panel {
+  animation: menu-arrive 220ms ease-out both;
+}
+@keyframes menu-arrive {
+  from { opacity: 0.58; }
+  to { opacity: 1; }
+}
+@keyframes title-panorama {
+  from { transform: translateX(-0.7%) scale(1); }
+  to { transform: translateX(1.2%) scale(1.055); }
+}
+@keyframes title-hearth {
+  0%, 28%, 74% { opacity: 0.52; scale: 0.85; }
+  15%, 55%, 100% { opacity: 0.95; scale: 1.12; }
+}
+@keyframes title-ember {
+  15% { opacity: 0.87; }
+  65% { opacity: 0.57; }
+  to { translate: 23px -57px; opacity: 0; }
+}
+@keyframes title-mist-drift {
+  from { transform: translateX(-8%); opacity: 0.36; }
+  to { transform: translateX(10%); opacity: 0.75; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-landscape, .title-content, .title-fire::before, .title-fire i, .title-mist, .menu-panel {
+    animation: none;
+  }
+  .menu-choices button { transition: none; }
 }
 .title-content button {
   padding: 0.65em 1.25em;

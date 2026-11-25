@@ -7,13 +7,104 @@
     <meta name="description" content="Explore Bellwether Vale in Tervain, an isometric pixel-art role-playing game.">
     <title>Tervain — Bellwether Vale</title>
     <link rel="icon" type="image/png" href="./vale/icons/seal.png">
+    <style>
+      .vale-loading {
+        position: fixed;
+        inset: 0;
+        z-index: 5;
+        display: grid;
+        place-items: center;
+        color: #f1dfbc;
+        background: radial-gradient(ellipse at 50% 45%, #293635, #111d1f 67%, #0a1315);
+        font-family: Vale, Georgia, serif;
+        text-align: center;
+      }
+      .vale-loading[hidden] { display: none; }
+      .vale-loading-inner { width: min(20rem, 84vw); }
+      .vale-loading-lantern {
+        box-sizing: border-box;
+        position: relative;
+        width: 26px;
+        height: 30px;
+        margin: 0 auto .85rem;
+        border: 4px solid #9d794e;
+        background: #342b24;
+        box-shadow: 0 4px #5c4635, 0 -4px #5c4635;
+      }
+      .vale-loading-lantern::before {
+        content: '';
+        position: absolute;
+        width: 8px;
+        height: 6px;
+        left: 5px;
+        top: -13px;
+        border: 2px solid #9d794e;
+        border-bottom: none;
+      }
+      .vale-loading-lantern::after {
+        content: '';
+        position: absolute;
+        inset: 4px 3px 2px;
+        background: #e6ab61;
+        box-shadow: 0 0 22px #e6944c8c;
+        animation: vale-loading-flame 1.3s steps(4, end) infinite alternate;
+        transform-origin: bottom;
+      }
+      .vale-loading-name {
+        display: block;
+        font-size: clamp(3rem, 11vw, 5.75rem);
+        line-height: 1;
+        letter-spacing: -.055em;
+        text-shadow: 3px 4px #111b1a;
+      }
+      .vale-loading-text { color: #dfd0b2; margin: 1rem 0 1.45rem; }
+      .vale-loading-track {
+        position: relative;
+        width: min(12rem, 70%);
+        height: 5px;
+        margin: auto;
+        background: #41463d;
+        overflow: hidden;
+      }
+      .vale-loading-track::after {
+        content: '';
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 28%;
+        background: #d5a667;
+        animation: vale-loading-pass 1.65s steps(20, end) infinite alternate;
+      }
+      .vale-loading[data-failed] .vale-loading-track { display: none; }
+      .vale-loading a { color: #f1d29b; }
+      @keyframes vale-loading-pass { to { transform: translateX(257%); } }
+      @keyframes vale-loading-flame {
+        from { opacity: .7; scale: 1 .77; }
+        to { opacity: 1; scale: .85 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .vale-loading-track::after { animation: none; transform: translateX(128%); }
+        .vale-loading-lantern::after { animation: none; }
+      }
+    </style>
   </head>
   <body>
     <main id="app">
       <canvas id="view" tabindex="-1" aria-label="Bellwether Vale game world"></canvas>
       <div id="ui"></div>
+      <div id="loading-screen" class="vale-loading">
+        <div class="vale-loading-inner">
+          <div class="vale-loading-lantern" aria-hidden="true"></div>
+          <strong class="vale-loading-name">Tervain</strong>
+          <p class="vale-loading-text" role="status">Loading Bellwether Vale</p>
+          <div class="vale-loading-track" aria-hidden="true"></div>
+          <a class="vale-loading-retry" href="" hidden>Reload game</a>
+        </div>
+      </div>
+      <noscript>
+        <style>.vale-loading { display: none; }</style>
+        Tervain needs JavaScript to play.
+      </noscript>
     </main>
-    <noscript>Tervain needs JavaScript to play.</noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
