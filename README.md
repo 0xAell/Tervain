@@ -10,13 +10,13 @@ The editable PNG sequences, original provider images and typeface are in `assets
 
 ## Status
 
-- **Version.** The current patch is `0.1.3` in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
-- **Web build.** This checkout contains the isometric edition. The project also maintains a [published edition](https://0xaell.github.io/Tervain/) and a [separate Gothic 3 study](gothic3/).
+- **Version.** The current patch is [`0.1.4`](docs/production/releases/0.1.4.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
 - **Not started.** A desktop package, and anything to do with a store release.
 
-At Lantern Point the keeper’s tide bell hangs beside the tower. You see the same piece up close as you enter the valley. An original waltz, *The Ford at First Light*, opens the journey.
+At Lantern Point the keeper’s tide bell hangs beside the tower. An original waltz, *The Ford at First Light*, opens the journey.
 
 ## What is in the prototype
 
@@ -28,15 +28,15 @@ The prototype is one small region, 580 m by 340 m: a coast, a wood, a waystation
 - Twelve named residents with a day of their own. They work a trade, sit on benches, talk, go home and sleep.
 - Nineteen animals of eight kinds. Thirteen can be hunted with a bow and skinned. The cats, the dogs and the saddled deer are left alone, and the deer can be ridden.
 - Sword and bow against two kinds of hostile. One is the Thornback from the teaser, without the hat.
-- One water system for the sea, the streams and the spring. You can wade, swim and look under the surface.
-- Grass and trees that move in one wind. The grass parts for whoever walks through it and closes behind them.
+- Reflective seas, flowing rivers and a spring. You can swim along the coast and wade among trout inland.
+- Planted banks, trout shoals, kingfishers and dragonflies.
 - A day and a night, adaptive music, footsteps by surface, and captioned speech.
 - Inventory, equipment, a ten-slot hotbar, a journal and a map.
 
 Not in it yet: dialogue choices. The first quest exists as rules, data and scenario tests, not as something you can play to its end.
 
 <p align="center">
-  <img src="docs/media/screenshots/grey-strand-wreck.jpg" width="100%" alt="A wanderer approaches the broken hull and its torn sail on the Grey Strand.">
+  <img src="docs/media/screenshots/rillford-riverlands.webp" width="100%" alt="The wanderer stands on Rillford’s timber bridge above the bright river and planted banks.">
 </p>
 
 ## Playing it
@@ -44,8 +44,8 @@ Not in it yet: dialogue choices. The first quest exists as rules, data and scena
 The [live build](https://0xaell.github.io/Tervain/) is published from `main` on every merge.
 
 - Use a desktop browser with WebGL 2. There is no touch or phone layout.
-- Click the view to capture the mouse. WASD moves, Shift runs, Space jumps, E interacts. Tab, M and I open the journal, the map and the inventory. Esc pauses.
-- A controller works too. Keys can be rebound in Settings, and the [prototype guide](docs/engineering/prototype.md#controls) has the full table.
+- Walk with WASD or click a destination. Shift runs, X jumps, Space attacks and E interacts. J or Tab opens the journal, M opens the map, I opens the inventory and Esc pauses.
+- A controller works too. Open Controls on the title screen to review or change key bindings.
 - Progress is saved in that browser. F5 saves and F9 loads.
 
 ## Run and build locally

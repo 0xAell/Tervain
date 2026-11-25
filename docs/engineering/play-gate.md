@@ -38,7 +38,7 @@ when it passes:
   (`xvfb-run -a npm run play-gate -- ...`), and behind a proxy with `NODE_USE_ENV_PROXY=1`, so that it reaches the
   live build.
 - **The clip run**, on a machine with a GPU: `npm run play-gate -- --url http://127.0.0.1:4173/ --against head`. It
-  plays the head with real input, as described below.
+  plays the head with real input, as described below. Use this route for the isometric release. Its Canvas sprite passes and water shader use different rendering primitives from the preceding 3D build.
 
 After the merge, CI's `live-smoke` job plays the published build, and `npm run play-gate` runs the clip run on the
 live build once the deploy lands. Run it on an otherwise idle machine with a visible Chrome window: other work running
@@ -54,6 +54,8 @@ alongside skews frame times.
 3. **Every presented frame** records its vsync-aligned time, whether the hero is drawn, the camera distance, the
    hero's pose (root upright, head height above the root), where his hips land on screen and the drawing pixel ratio.
    Long tasks and console errors are collected, and the screen is recorded to `clip.mp4` (`--video false` skips it).
+
+The isometric route walks and runs on the Grey Strand, clicks onto the Rillford bridge, walks the riverbank and a furnished interior, then fires two arrows. Its sampler observes the hero’s actual sprite blit on the final canvas and measures its orientation, visible height and screen position. The gate also checks for a hardware water context, movement, arrival on the selected deck and ammunition consumed. The two display profiles and frame-time checks apply to both editions.
 
 ## What fails it
 

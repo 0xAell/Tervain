@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { openPage } from './cdp.mjs';
+import { measureIsometricCost } from './isometric-software-proof.mjs';
 import { installRenderCost } from './render-cost.mjs';
 import { textureUploadBytes } from './webgl-upload-bytes.mjs';
 
@@ -21,21 +22,29 @@ let page;
 try {
   page = await openPage(url.href, { w: 640, h: 360, requestTimeoutMs: timeout, init: `(${installRenderCost.toString()})(${textureUploadBytes.toString()});` });
   const deadline = Date.now() + timeout;
+  let isometric = false;
   while (Date.now() < deadline) {
-    const ready = await page.eval('return window.tervain?.mode === "play" && !!window.tervain?.renderer;');
+    const state = await page.eval('const t = window.tervain; return { title: t?.scene && t.mode === "title", ready: t?.mode === "play" && !!(t.scene?.renderedFrames || t.renderer) };');
+    if (state.title) {
+      isometric = true;
+      const point = await page.eval('const r = document.querySelector(".menu-choices .primary").getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2];');
+      await page.click(...point);
+      await page.eval('const t = window.tervain; t.game.setPlayerTransform(36.74, 0, -0.32, 0); t.scene.resetCamera();');
+    }
+    const ready = state.ready;
     if (ready) { report.assertions.gameReady = true; break; }
     await page.wait(250);
   }
   if (!report.assertions.gameReady) throw new Error('Game readiness assertion failed');
-  const context = await page.eval(`const gl = window.tervain.renderer.getContext(); const ext = gl.getExtension('WEBGL_debug_renderer_info'); return { webgl2: typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext, software: !!ext && /swiftshader/i.test(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) };`);
+  const context = await page.eval(`const t = window.tervain; const gl = t.scene?.ground.gpu?.gl ?? t.renderer?.getContext(); if (!gl) return { webgl2: false, software: false }; const ext = gl.getExtension('WEBGL_debug_renderer_info'); return { webgl2: typeof WebGL2RenderingContext !== 'undefined' && gl instanceof WebGL2RenderingContext, software: !!ext && /swiftshader/i.test(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) };`);
   report.assertions.webgl2 = context.webgl2;
   report.assertions.swiftShader = context.software;
   // Verify the artifact's own published stamp, without including its source URL in public evidence.
   const version = await page.eval(`const r = await fetch(new URL('version.json', document.baseURI)); return r.ok ? await r.json() : null;`);
   if (version) report.build = { version: version.version, revision: version.revision ?? version.commit };
-  await page.eval('const T=window.tervain;T.__costDraw=T.render.bind(T);T.render=()=>{};await T.world.arrived;T.step=()=>{};');
+  if (!isometric) await page.eval('const T=window.tervain;T.__costDraw=T.render.bind(T);T.render=()=>{};await T.world.arrived;T.step=()=>{};');
   await page.cdp('HeapProfiler.startSampling', {samplingInterval:32768,includeObjectsCollectedByMajorGC:true,includeObjectsCollectedByMinorGC:true});
-  report.renderCost = await page.eval(`const T=window.tervain;const draw=T.__costDraw;
+  report.renderCost = isometric ? await page.eval(`return (${measureIsometricCost.toString()})();`) : await page.eval(`const T=window.tervain;const draw=T.__costDraw;
     const R=T.renderer,s=window.__renderCostStates.get(R.getContext());if(!s)throw new Error('Cost counters missing');
     const beforeAuto=R.info.autoReset;R.info.autoReset=false;
     const shadow=R.shadowMap.render;let shadowDraws=0,shadowPasses=0;
@@ -49,6 +58,7 @@ try {
   report.renderCost.sampledAllocationBytes=(allocationResult.result.profile.samples??[]).reduce((sum,s)=>sum+s.size,0);
   report.renderCost.allocationScope='Sampling estimate across warmup plus three renders, including diagnostic overhead; not deterministic allocation counts.';
   report.assertions.renderCostMeasured = report.renderCost.frames.length === 3 && report.renderCost.frames.every(f => f.drawCalls > 0 && f.triangles > 0 && Number.isFinite(f.uploadBytes)) && report.renderCost.textureCount > 0 && report.renderCost.estimatedTextureStorageBytes > 0;
+  if (isometric) report.assertions.completedScene = report.renderCost.frames.every(f => f.heroDrawn && f.completed && f.sceneDraws > 0);
   await page.shot(path.join(out, 'game.png'));
   const { data, info } = await sharp(path.join(out, 'game.png')).removeAlpha().raw().toBuffer({ resolveWithObject: true });
   let min = 255, max = 0;
