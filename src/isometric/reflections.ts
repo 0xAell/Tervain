@@ -262,30 +262,6 @@ export class WaterReflections {
       this.reflected++;
       this.include(left, y, stamp.width, depth);
     }
-    for (const stamp of stamps) {
-      const wreck = stamp.key === 'wreck',
-        rock =
-          stamp.key === 'tide_rocks' || ['rill_boulder', 'rill_pebbles', 'rill_slab'].includes(stamp.key);
-      if (!wreck && !rock && !stamp.submerged) continue;
-      const s = project(stamp.x, stamp.z),
-        x = s.x + ox,
-        y = s.y + oy,
-        r = stamp.width * (wreck ? 0.37 : rock ? 0.29 : 0.17);
-      if (!ground.touchesWater(x - r - 2, y - 5, x + r + 2, y + 6)) continue;
-      const pulse = (time * 0.37 + Math.abs(stamp.z) * 0.031) % 1;
-      this.include(x - r - 4, y - r * 0.21 - 3, r * 2 + 8, r * 0.42 + 7);
-      this.mirror.globalAlpha = (0.36 + 0.24 * Math.sin(pulse * Math.PI)) * (rock || wreck ? 1 : 0.74);
-      this.mirror.fillStyle = '#c0d6c1';
-      for (let k = 0; k < 36; k++) {
-        const angle = (k * Math.PI) / 18;
-        if (Math.sin(angle * 3 + pulse * 5 + stamp.x) + Math.cos(angle * 5 - pulse * 3) < 0.12) continue;
-        const reach = r + pulse * 2.4;
-        const px = Math.round(x + Math.cos(angle) * reach),
-          py = Math.round(y - 1 + Math.sin(angle) * reach * 0.21);
-        this.mirror.fillRect(px, py, rock || wreck ? 2 : 1, 1);
-      }
-      this.mirror.globalAlpha = 1;
-    }
     for (const wake of this.wakes) if (wake.course === 0) this.paintWake(wake, time, ox, oy);
     if (!this.regions.length || ground.compositeMirrors(ctx, this.mirror.canvas)) return;
     for (const rect of this.regions) {

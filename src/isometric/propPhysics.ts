@@ -27,7 +27,7 @@ import {
 import { outdoorTile, buildRoom, tileSize, floorAt, yawRotation } from './propSurfaces';
 import { chamberAt, visibleAcrossWall, type FloorPlan } from './roomPlans';
 import { supportHeight } from './relief';
-import { wetPoint, riverVelocity, type Flow } from './water';
+import { coursesInFrame, wetPoint, waterVelocity, type Flow, type Ripple } from './water';
 import { floatHeight, bedDepth } from './swell';
 import { deckAt } from './crossing';
 
@@ -44,6 +44,13 @@ interface Live {
   body: RAPIER.RigidBody;
   previousSpeed: number;
 }
+interface WaterEntry extends V2 {
+  time: number;
+  energy: number;
+  radius: number;
+  current: V2;
+  course: number;
+}
 interface Grip {
   id: string;
   angle: number;
@@ -51,6 +58,7 @@ interface Grip {
 }
 export type ContactSound = Material | 'splash' | 'leaves';
 const fixed = 1 / 60;
+const splashLife = 1.45;
 const upright = yawRotation(0);
 export const angleOf = (q: Turn) => Math.atan2(2 * (q.w * q.y + q.x * q.z), 1 - 2 * (q.y * q.y + q.x * q.x));
 const distance = (a: V2, b: V2) => Math.hypot(a.x - b.x, a.z - b.z);
@@ -140,6 +148,7 @@ export class PropPhysics {
   private time = 0;
   private soundAfter = 0;
   private contactTime = new Map<string, number>();
+  private waterEntries: WaterEntry[] = [];
   private foliage = new Map<Scenery, { time: number; force: number }>();
   private brushTime = 0;
   private foot: Point = { x: 0, y: 0, z: 0 };
@@ -159,6 +168,18 @@ export class PropPhysics {
   }
   get held() {
     return this.grip ? this.views.get(this.grip.id) : undefined;
+  }
+  waterRipples(): Ripple[] {
+    return this.waterEntries.map((entry) => {
+      const age = this.time - entry.time;
+      return {
+        x: entry.x + entry.current.x * age * 0.72,
+        z: entry.z + entry.current.z * age * 0.72,
+        radius: entry.radius + age * (2.2 + entry.energy * 0.8),
+        amplitude: entry.energy * (1 - age / splashLife) ** 2,
+        course: entry.course,
+      };
+    });
   }
   object(id: string) {
     return this.views.get(id);
@@ -226,6 +247,7 @@ export class PropPhysics {
       this.foliage.clear();
       this.accumulator = 0;
       this.contactTime.clear();
+      this.waterEntries.length = 0;
       this.space = key;
       this.plan = room;
       this.grip = undefined;
@@ -558,8 +580,20 @@ export class PropPhysics {
     l.view.wet = depth;
     if (!water || !depth) return;
     const v = b.linvel(),
-      current = riverVelocity(water, flow);
-    if (last < 0.08 && depth >= 0.08 && v.y < -0.9) this.sound('splash', Math.min(1, -v.y * 0.18), l);
+      current = waterVelocity(p, water, flow, this.time);
+    if (last < 0.08 && depth >= 0.08 && v.y < -0.9) {
+      const energy = Math.min(1.3, -v.y * (0.11 + Math.sqrt(s.hx * s.hz) * 0.19));
+      this.sound('splash', Math.min(1, energy), l);
+      this.waterEntries.push({
+        x: p.x,
+        z: p.z,
+        time: this.time,
+        energy,
+        radius: Math.max(0.16, Math.min(1.2, Math.sqrt(s.hx * s.hz))),
+        current,
+        course: coursesInFrame.indexOf(water.course),
+      });
+    }
     const drag = PROP_WATER_DRAG * s.mass * depth;
     if (!b.isSleeping() || s.floats)
       b.addForce(
@@ -614,6 +648,8 @@ export class PropPhysics {
         if (l && l.previousSpeed > 1.2) this.sound(l.view.spec.material, Math.min(1, l.previousSpeed / 7), l);
       });
     }
+    if (this.waterEntries.length)
+      this.waterEntries = this.waterEntries.filter((entry) => this.time - entry.time < splashLife).slice(-8);
     for (const l of this.bodies.values()) {
       const b = l.body,
         pos = b.translation();

@@ -286,11 +286,11 @@ export class Valley {
       ? [...targets.filter((t) => t.field !== 'seat'), ...physicalTargets(this.props, this.position, room)]
       : targets;
   }
-  canWalk(a: V2, b: V2) {
+  canWalk(a: V2, b: V2, lift = 0) {
     const room = this.room;
     return room
       ? roomCanMove(room, a, b) && (!this.props || this.props.roomRouteClear(a, b))
-      : navigable(a, b, this.game.state) && (!this.props || passesTrunks(a, b));
+      : navigable(a, b, this.game.state, lift) && (!this.props || passesTrunks(a, b));
   }
   private restoreFootprint() {
     const site = inBuilding(this.player);
@@ -476,12 +476,12 @@ export class Valley {
         const x = p.x + dx * stride,
           z = p.z + dz * stride;
         const start = { x: p.x, z: p.z };
-        if (this.canWalk(p, { x, z })) {
+        if (this.canWalk(p, { x, z }, this.hop)) {
           p.x = x;
           p.z = z;
         } else {
-          if (this.canWalk(p, { x, z: p.z })) p.x = x;
-          if (this.canWalk(p, { x: p.x, z })) p.z = z;
+          if (this.canWalk(p, { x, z: p.z }, this.hop)) p.x = x;
+          if (this.canWalk(p, { x: p.x, z }, this.hop)) p.z = z;
         }
         if (this.props)
           Object.assign(p, this.props.move(start, p, this.localFloor + this.standingLift + this.hop));
@@ -499,8 +499,7 @@ export class Valley {
           pull = dt * wade * (this.guard ? 0.06 : 0.24);
         const next = { x: p.x + v.x * pull, z: p.z + v.z * pull };
         if (!onBridge(next) && this.canWalk(p, next)) {
-          p.x = next.x;
-          p.z = next.z;
+          Object.assign(p, this.props?.move(p, next, this.localFloor + this.standingLift) ?? next);
         }
       }
       this.swimming = !this.room && waterAt(p.x, p.z) === 'sea' && !onBridge(p);

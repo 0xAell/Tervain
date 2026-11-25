@@ -11,6 +11,8 @@ import { Ground } from './ground';
 import { WaterReflections, type Stamp } from './reflections';
 import { floatHeight } from './swell';
 import { wetPoint } from './water';
+import { drawWaterSpray } from './waterImpact';
+import type { PropView } from './propPhysics';
 import { crossings, deckAt } from './crossing';
 import { RiverLife } from './riverLife';
 import { Architecture } from './architecture';
@@ -358,11 +360,13 @@ export class Scene {
             : Math.floor(time * (a.attack ? 13 : a.move ? 8 : 4)) + i,
       });
     }
+    const floating: PropView[] = [];
     if (valley.props)
       for (const v of valley.props.objects) {
         const base = v.y - v.spec.height / 2,
           at = project(v.x, v.z, base);
         if (at.x + ox < -64 || at.x + ox > w + 64 || at.y + oy < -36 || at.y + oy > h + 70) continue;
+        if (v.wet >= 0.1 && v.wet <= 0.89) floating.push(v);
         stamps.push({
           x: v.x,
           z: v.z,
@@ -428,11 +432,17 @@ export class Scene {
       const pos = project(p.x, p.z, p.elevation);
       return pos.x + ox > -48 && pos.x + ox < w + 48 && pos.y + oy > -48 && pos.y + oy < h + 48;
     });
-    const ripples = [...fishRipples, ...this.water.advance(nearWaterView, time, view.flow)].slice(-16);
-    this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, time, view.flow, hour, ripples);
+    const ripples = [
+      ...fishRipples,
+      ...this.water.advance(nearWaterView, time, view.flow),
+      ...(valley.props?.waterRipples() ?? []),
+    ].slice(-16);
+    this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, time, view.flow, hour, ripples, floating);
     this.riverLife.drawShoals(ctx, this.ground, ox, oy, time);
     this.water.draw(ctx, this.ground, stamps, ox, oy, time);
     this.sun.draw(ctx, stamps, buildings, ox, oy, hour);
+    if (this.ground.hasWater && this.ground.waterImpacts.length)
+      drawWaterSpray(ctx, this.ground.waterImpacts, ox, oy);
     for (const stamp of stamps) {
       if (stamp.art) {
         ctx.globalAlpha = stamp.alpha ?? 1;

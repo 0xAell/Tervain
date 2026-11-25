@@ -1,6 +1,6 @@
 import type { Atlas } from './atlas';
 import { project } from './land';
-import { crossingPoint, deckHeight, risePixels, type Crossing } from './crossing';
+import { crossingPoint, deckHeight, pierHalfWidth, pierOffsets, risePixels, type Crossing } from './crossing';
 import { bitmap, depthStrips } from './worldArt';
 import { mix } from './waterPalette';
 
@@ -79,8 +79,9 @@ function timbers(b: Crossing) {
   for (const s of b.sills) {
     const y = deckHeight(b, s);
     block(s - 0.18, s + 0.18, -w - 0.18, w + 0.18, [y - 0.76, y - 0.76], [y - 0.5, y - 0.5]);
-    for (const t of [-(w - 0.16), w - 0.16]) {
-      block(s - 0.17, s + 0.17, t - 0.17, t + 0.17, [-0.16, -0.16], [y - 0.68, y - 0.68]);
+    for (const t of pierOffsets(b)) {
+      const half = pierHalfWidth;
+      block(s - half, s + half, t - half, t + half, [-0.16, -0.16], [y - 0.68, y - 0.68]);
       const d = s < 0 ? 1 : -1,
         other = s + d * 1.35,
         joint = deckHeight(b, other) - 0.51;

@@ -9,7 +9,9 @@ import { PropPhysics, angleOf } from '../../src/isometric/propPhysics';
 import { propsNear, roomProps, staticRoom } from '../../src/isometric/propCatalogue';
 import { sites, frontDoor } from '../../src/isometric/doorways';
 import { floorPlan, roomRisePixels } from '../../src/isometric/roomPlans';
-import { buildRoom } from '../../src/isometric/propSurfaces';
+import { buildRoom, outdoorTile, tileSize } from '../../src/isometric/propSurfaces';
+import { bridgePiers, coastalRocks } from '../../src/isometric/waterObstacles';
+import { pierHalfWidth } from '../../src/isometric/crossing';
 import { wetPoint, riverVelocity } from '../../src/isometric/water';
 import { worldView } from '../../src/core/game/worldView';
 import { supportHeight } from '../../src/isometric/relief';
@@ -156,7 +158,9 @@ describe('loose objects in the playable vale', () => {
       contacts: string[] = [];
     w.onContact = (m) => contacts.push(m);
     const flow = riverVelocity(wetPoint(water.x, water.z)!, worldView(g.state).flow);
-    advance(v, 4.2, 1 / 30);
+    advance(v, 0.98);
+    expect(w.waterRipples().some((r) => r.course === 1 && r.amplitude > 0.25)).toBe(true);
+    advance(v, 3.22, 1 / 30);
     const wood = w.object('strand/wood-crate')!,
       clay = w.object('strand/jar')!;
     expect(wood.wet).toBeGreaterThan(0.15);
@@ -171,6 +175,32 @@ describe('loose objects in the playable vale', () => {
     moveTo(v, 24, -16);
     expect(w.object(wood.spec.id)!.x).toBeCloseTo(x, 0);
     expect(w.object(wood.spec.id)!.z).toBeCloseTo(z, 0);
+  });
+  it('stops drifting bodies at exposed rock and the bridge footings', () => {
+    for (const obstacle of [coastalRocks[0]!, bridgePiers[0]!]) {
+      const world = new RAPIER.World({ x: 0, y: 0, z: 0 });
+      try {
+        outdoorTile(world, Math.floor(obstacle.x / tileSize), Math.floor(obstacle.z / tileSize));
+        const yaw = 'yaw' in obstacle ? obstacle.yaw : 0,
+          dx = Math.cos(yaw),
+          dz = -Math.sin(yaw),
+          radius = 'yaw' in obstacle ? pierHalfWidth : obstacle.radius;
+        const body = world.createRigidBody(
+          RAPIER.RigidBodyDesc.dynamic()
+            .setTranslation(obstacle.x - dx * (radius + 0.8), 0.4, obstacle.z - dz * (radius + 0.8))
+            .setLinvel(4 * dx, 0, 4 * dz)
+            .setCcdEnabled(true)
+        );
+        world.createCollider(RAPIER.ColliderDesc.ball(0.15), body);
+        for (let i = 0; i < 38; i++) world.step();
+        const p = body.translation(),
+          v = body.linvel();
+        expect((p.x - obstacle.x) * dx + (p.z - obstacle.z) * dz).toBeLessThan(-radius + 0.06);
+        expect(v.x * dx + v.z * dz).toBeLessThan(0.5);
+      } finally {
+        world.free();
+      }
+    }
   });
   it('shoves a free crate with the character and releases a tossed object into contacts', () => {
     const v = journey(),
