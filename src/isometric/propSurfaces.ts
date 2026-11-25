@@ -3,12 +3,13 @@ import { SURFACE_FRICTION } from '../core/rules/cargo';
 import { buildingEntry, buildingTreads } from '../core/world/buildingEntries';
 import { fromBuildingLocal } from '../core/world/interiors';
 import type { BuildingSpec, V2 } from '../core/world/layout';
-import { crossings, crossingPoint, deckHeight } from './crossing';
+import { crossings, crossingPoint, deckHeight, pierHalfWidth } from './crossing';
 import { wetPoint } from './channels';
 import { scenery, type Scenery } from './land';
 import { sites } from './doorways';
 import { terrainHeight } from './relief';
 import { bedDepth } from './swell';
+import { bridgePiers } from './waterObstacles';
 import {
   chamberLift,
   roomLift,
@@ -30,15 +31,18 @@ export const yawRotation = (angle: number) => ({
 });
 export const floorAt = (room: FloorPlan | undefined, p: V2) =>
   room ? roomLift(room, p) / roomRisePixels : terrainHeight(p.x, p.z);
-const solid =
-  /^(well|fire|sign|board|bell|sluice|wreck|beacon|ruin|rill_slab|rill_boulder|tide_rocks|rockpile|cart)$/;
+const solid = /^(well|fire|sign|board|bell|sluice|wreck|beacon|ruin|tide_rocks|rockpile|cart)$/;
 const tile = (x: number, z: number) => Math.floor(x / tileSize) + ',' + Math.floor(z / tileSize);
 let sceneryTiles: Map<string, Scenery[]> | undefined;
 function obstacles() {
   if (sceneryTiles) return sceneryTiles;
   sceneryTiles = new Map();
   for (const s of scenery()) {
-    if (s.building || (!isTree(s.key) && !solid.test(s.key)) || (s.key === 'rockpile' && s.width < 30))
+    if (
+      s.building ||
+      (!s.rock && !isTree(s.key) && !solid.test(s.key)) ||
+      (s.key === 'rockpile' && s.width < 30)
+    )
       continue;
     const key = tile(s.x, s.z);
     let list = sceneryTiles.get(key);
@@ -85,6 +89,10 @@ function house(world: RAPIER.World, group: RAPIER.RigidBody, b: BuildingSpec) {
   for (const t of buildingTreads(b))
     box(t.x, t.top / 2, (t.zMin + t.zMax) / 2, t.halfX, t.top / 2, (t.zMax - t.zMin) / 2);
 }
+function outdoorFloor(x: number, z: number) {
+  const wet = wetPoint(x, z);
+  return wet ? -bedDepth(wet.bank, wet.halfWidth, wet.course === 'ocean', 0.5) : terrainHeight(x, z);
+}
 export function outdoorTile(world: RAPIER.World, i: number, j: number) {
   const group = world.createRigidBody(RAPIER.RigidBodyDesc.fixed()),
     count = tileSize / 2 + 1;
@@ -95,12 +103,9 @@ export function outdoorTile(world: RAPIER.World, i: number, j: number) {
     for (let col = 0; col < count; col++) {
       const a = row * count + col,
         x = i * tileSize + col * 2,
-        z = j * tileSize + row * 2,
-        wet = wetPoint(x, z);
+        z = j * tileSize + row * 2;
       vertices[a * 3] = x;
-      vertices[a * 3 + 1] = wet
-        ? -bedDepth(wet.bank, wet.halfWidth, wet.course === 'ocean', 0.5)
-        : terrainHeight(x, z);
+      vertices[a * 3 + 1] = outdoorFloor(x, z);
       vertices[a * 3 + 2] = z;
       if (row < count - 1 && col < count - 1) {
         const b = a + 1,
@@ -151,8 +156,37 @@ export function outdoorTile(world: RAPIER.World, i: number, j: number) {
       group
     );
   }
+  for (const pier of bridgePiers) {
+    if (tile(pier.x, pier.z) !== key) continue;
+    const bottom = outdoorFloor(pier.x, pier.z) - 0.24,
+      halfHeight = (pier.height - bottom) / 2;
+    solidBox(
+      world,
+      group,
+      pier.x,
+      bottom + halfHeight,
+      pier.z,
+      pierHalfWidth,
+      halfHeight,
+      pierHalfWidth,
+      pier.yaw
+    );
+  }
   for (const s of obstacles().get(key) ?? []) {
     if (s.key === 'ruin' || s.key === 'beacon') continue; // Their enterable shells are already present.
+    if (s.rock) {
+      const floor = wetPoint(s.x, s.z) ? 0 : terrainHeight(s.x, s.z);
+      const bottom = Math.min(floor, outdoorFloor(s.x, s.z)) - 0.24;
+      const halfHeight = (floor + s.rock.height - bottom) / 2;
+      const bevel = Math.min(0.16, s.rock.radius * 0.26);
+      world.createCollider(
+        RAPIER.ColliderDesc.roundCylinder(halfHeight - bevel, s.rock.radius - bevel, bevel)
+          .setTranslation(s.x, bottom + halfHeight, s.z)
+          .setFriction(0.84),
+        group
+      );
+      continue;
+    }
     const trunk = isTree(s.key),
       radius = trunk ? trunkRadius(s) : Math.max(0.3, Math.min(2.3, s.width / 22));
     const hi = trunk ? 4.4 : s.key === 'fire' ? 0.36 : Math.min(2.8, s.width / 15),

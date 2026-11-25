@@ -10,6 +10,8 @@ uniform float seconds, sunlight;
 uniform float currents[5], stage[5];
 uniform int pulseCount,pulseCourse[16];
 uniform vec4 pulses[16];
+uniform int impactCount;
+uniform vec4 impactShape[10],impactMotion[10];
 layout(location=0) out vec4 surface;
 layout(location=1) out vec4 distortion;
 const float tau=6.28318530718;
@@ -31,6 +33,29 @@ float riverSpark(ivec2 p,float t,float grain){
   if(d.x+d.y==0)return peak*(.64+.36*grain);
   if((d.x==0&&d.y==1)||(d.y==0&&d.x<=2))return max(0.,(peak-.67)*2.4)*(d.x+d.y==1?.85:.46);
   return 0.;
+}
+// Match waterImpactAt in the software renderer. XY is projected slope, Z foam, W lee shelter.
+vec4 solidContact(vec2 offset, float radius, float pressure, vec3 motion, bool ocean, float grain){
+  float limit=radius*1.8+3.8;
+  if(any(greaterThan(abs(offset),vec2(limit))))return vec4(0.);
+  float distance=length(offset),gap=distance-radius;
+  if(gap<-.16||distance>limit)return vec4(0.);
+  float forward=dot(offset,motion.xy),lateral=dot(offset,vec2(-motion.y,motion.x)),side=abs(lateral);
+  float facing=forward/max(distance,.15),front=sat(.52-facing*.62);
+  float age=motion.z,pulse=gap-(.08+age*(ocean?2.85:1.65)-max(0.,facing)*.54);
+  float response=sat(1.-abs(pulse)/(.38+radius*.15));
+  float bounce=response*sat(1.-age/(ocean?1.36:1.16))*front*pressure;
+  float lip=sat(1.-abs(gap-.1)/(.24+radius*.1))*front*pressure;
+  float tailWidth=radius*.61+max(0.,forward-radius)*.29;
+  float tail=sat((forward-radius*.52)*1.4)*sat((limit-forward)/2.8);
+  float shear=tail*sat(1.-abs(side-tailWidth)/(.42+radius*.14));
+  float shelter=tail*sat(1.-side/(tailWidth+.35)),curl=cos(forward*2.9-age*4.9+lateral*2.3);
+  float slope=bounce*cos(pulse*7.6)*3.4+lip*(ocean?bounce:.46);
+  vec2 normal=vec2(offset.x-offset.y,(offset.x+offset.y)*.48)*slope/max(distance,.18)
+    +vec2(1.68,-.88)*shear*curl*pressure;
+  float foam=(.46+grain*.54)*max(max(bounce*1.16,lip*(ocean?.18+bounce*.60:.63)),
+    shear*pressure*(ocean?.29:.56)*(.52+curl*.48));
+  return vec4(normal,foam,shelter);
 }
 void main(){
   ivec2 screen=ivec2(int(gl_FragCoord.x),viewHeight-1-int(gl_FragCoord.y));
@@ -113,20 +138,25 @@ void main(){
     shine=basin?rings+ink*.23:line*breaks*(.26+.26*(1.-grainLine))+riffle*(.20+.17*breaks)+ink*(.17+.16*breaks);
     foam=basin?0.:max(max(pocket*(line+riffle*.65)*(.24+.54*breaks),riffle*.29*sat(1.-cover/1.8)*(1.-grainLine)),sat(1.-cover/.12)*.19*breaks);
     if(!basin)foam=max(foam,pocket*sat((curl-.12)*1.35)*(.28+.36*breaks));
-    if(!basin){
-      float bow=mat.a*2.04,wash=.57+.31*sine(fast*35.+side*44.)+.12*cosine(fast*18.);
-      foam=max(foam,max(bow*wash*(.68+stage[course]*.32),pocket*riffle*breaks*.65));shine+=bow*.21;
-    }
+    if(!basin)foam=max(foam,pocket*riffle*breaks*.65);
     clarity=basin?cover*.58:cover*.57+channel*.31;mirror=basin?.82:.57+.31*channel-.13*pocket;
-    for(int i=0;i<pulseCount;i++){
-      if(pulseCourse[i]!=course)continue;
-      vec4 pulse=pulses[i];vec2 offset=world-pulse.xy;
-      if(any(greaterThan(abs(offset),vec2(pulse.z+.7))))continue;
-      float d=length(offset),delta=d-pulse.z,env=max(0.,1.-abs(delta)/.66);
-      float strength=env*env*pulse.w,grad=cos(delta*8.5)*strength/max(d,.15);
-      normal+=vec2((offset.x-offset.y)*2.9,(offset.x+offset.y)*1.116)*grad;
-      float crest=max(0.,sin(delta*8.5+.7))*strength;shine+=crest*.68;foam=max(foam,crest*.43);
-    }
+  }
+  for(int i=0;i<impactCount;i++){
+    vec4 motion=impactMotion[i],shape=impactShape[i];
+    if(int(motion.w)!=course)continue;
+    vec4 effect=solidContact(world-shape.xy,shape.z,shape.w,motion.xyz,ocean,n);
+    normal=normal*(1.-effect.w*.46)+effect.xy;
+    foam=max(foam*(1.-effect.w*.34),effect.z);
+    shine=shine*(1.-effect.w*.28)+effect.z*.26;
+  }
+  for(int i=0;i<pulseCount;i++){
+    if(pulseCourse[i]!=course)continue;
+    vec4 pulse=pulses[i];vec2 offset=world-pulse.xy;
+    if(any(greaterThan(abs(offset),vec2(pulse.z+.7))))continue;
+    float d=length(offset),delta=d-pulse.z,env=max(0.,1.-abs(delta)/.66);
+    float strength=env*env*pulse.w,grad=cos(delta*8.5)*strength/max(d,.15);
+    normal+=vec2((offset.x-offset.y)*2.9,(offset.x+offset.y)*1.116)*grad;
+    float crest=max(0.,sin(delta*8.5+.7))*strength;shine+=crest*.68;foam=max(foam,crest*.56);
   }
   float section=sat(max(0.,depth)/max(.8,g.w));
   float bedDepth=ocean?min(5.5,max(0.,depth)*.34)*(.91+.18*n):min(2.65,.54+g.w*.38)*section*(2.-section)*(.83+.32*n);

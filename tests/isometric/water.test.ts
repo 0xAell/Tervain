@@ -4,6 +4,9 @@ import { buildingEntry } from '../../src/core/world/buildingEntries';
 import { BUILDINGS, DECKS, frontOf } from '../../src/core/world/layout';
 import { SPRING_BASIN } from '../../src/core/world/water/spring';
 import { foamCell } from '../../src/isometric/foam';
+import { project } from '../../src/isometric/projection';
+import { coastalRocks, passesRocks, quarryRocks, rockApproach } from '../../src/isometric/waterObstacles';
+import { visibleWaterImpacts, waterImpactAt } from '../../src/isometric/waterImpact';
 import { seaClock, seaPhases, surfaceHeight, floatHeight } from '../../src/isometric/swell';
 import {
   bridgeShade,
@@ -98,6 +101,37 @@ describe('isometric water', () => {
     expect(floatHeight(-292, 15, 0, 2)).toBe(0);
     expect(floatHeight(-292, 15, 10, 2)).not.toBeCloseTo(floatHeight(-292, 15, 10, 2.7), 2);
     expect(Math.abs(floatHeight(-292, 15, 10, 2))).toBeLessThanOrEqual(2.7);
+  });
+  it('breaks a crest on the incident side of an offshore rock and shelters its lee', () => {
+    const rock = coastalRocks[0]!;
+    const p = project(rock.x, rock.z);
+    const flow = { main: 0.5, village: 0.4, quarry: 0.7, spring: 0.3 };
+    const impact = (t: number) =>
+      visibleWaterImpacts(p.x - 48, p.y - 48, 96, 96, t, flow, []).find(
+        (o) => o.x === rock.x && o.z === rock.z
+      )!;
+    const when = Array.from({ length: 160 }, (_, i) => i / 30).find((t) => impact(t).age < 0.11)!;
+    const hit = impact(when),
+      rim = rock.radius + 0.08 + hit.age * 2.85,
+      front = { x: rock.x - hit.tx * rim, z: rock.z - hit.tz * rim },
+      back = { x: rock.x + hit.tx * rim, z: rock.z + hit.tz * rim };
+    const reflected = waterImpactAt(hit, front.x, front.z, 0.72)!;
+    expect(reflected.foam).toBeGreaterThan(0.6);
+    expect(Math.hypot(reflected.x, reflected.y)).toBeGreaterThan(1);
+    expect(waterImpactAt(hit, back.x, back.z, 0.72)!.shelter).toBeGreaterThan(0.4);
+    expect(waterImpactAt(impact(when + 1.9), front.x, front.z, 0.72)!.foam).toBeLessThan(0.25);
+  });
+  it('blocks a walking segment through a boulder and keeps the approach outside its footprint', () => {
+    const quarryEdge = quarryRocks.reduce((a, b) => (a.x + a.radius > b.x + b.radius ? a : b));
+    for (const rock of [coastalRocks[0]!, quarryEdge]) {
+      const a = { x: rock.x + rock.radius + 1, z: rock.z },
+        b = { x: rock.x - rock.radius - 1, z: rock.z };
+      expect(passesRocks(a, b)).toBe(false);
+      expect(passesRocks(rock, a)).toBe(true);
+      const approach = rockApproach(rock, a)!;
+      expect(passesRocks(a, approach)).toBe(true);
+      expect(Math.hypot(approach.x - rock.x, approach.z - rock.z)).toBeGreaterThan(rock.radius);
+    }
   });
   it('wraps its foam field and plays irregular-length painted wave sequences without a loop cut', () => {
     expect(foamCell(-3, 21)).toBe(foamCell(125, 149));

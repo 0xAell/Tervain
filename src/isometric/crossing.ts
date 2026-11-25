@@ -85,6 +85,11 @@ export function deckHeight(b: Crossing, s: number) {
   const ramp = clamp((b.halfLength - Math.abs(s)) / 2.75, 0, 1);
   return b.rise * ramp * (2 - ramp) + 0.12 * (1 - (s / b.halfLength) ** 2);
 }
+export const pierHalfWidth = 0.17;
+export function pierOffsets(b: Crossing) {
+  const offset = b.halfWidth - 0.16;
+  return [-offset, offset] as const;
+}
 export function deckAt(p: V2) {
   for (const b of crossings) {
     if (Math.abs(p.x - b.x) + Math.abs(p.z - b.z) > 2 * (b.halfLength + b.halfWidth)) continue;

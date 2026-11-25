@@ -6,7 +6,16 @@ import { campShelter, buildingSprite } from './settlement';
 import { toBuildingLocal } from '../core/world/interiors';
 import { crossedDoor, doorOpen, siteAtPoint } from './doorways';
 import type { WorldState } from '../core/game/types';
-import { wetPoint, waterProfile, riverStones } from './water';
+import { wetPoint, waterProfile } from './channels';
+import {
+  coastalRocks,
+  quarryRocks,
+  riverStones,
+  springRock,
+  strandWreck,
+  passesRocks,
+  type StoneObstacle,
+} from './waterObstacles';
 import { coastX, shoreDistance } from '../core/world/coast';
 import { roadWeight, realmRadius } from '../core/world/terrain';
 import {
@@ -83,7 +92,7 @@ export function dryGroundAt(x: number, z: number, lane = roadWeight(x, z)) {
     return 'woodland';
   return 'grass';
 }
-export function navigable(from: V2, to: V2, open: boolean | WorldState) {
+export function navigable(from: V2, to: V2, open: boolean | WorldState, lift = 0) {
   return (
     to.x > WORLD.minX + 1 &&
     to.x < WORLD.maxX - 1 &&
@@ -91,6 +100,7 @@ export function navigable(from: V2, to: V2, open: boolean | WorldState) {
     to.z < WORLD.maxZ - 1 &&
     realmRadius(to.x, to.z) < 1.01 &&
     passesRails(from, to) &&
+    passesRocks(from, to, lift) &&
     canClimb(from, to) &&
     enteredThroughDoor(from, to, open)
   );
@@ -110,6 +120,7 @@ export interface Scenery extends V2 {
   phase?: number;
   paidKey?: string;
   submerged?: number;
+  rock?: StoneObstacle;
 }
 let sceneryCache: Scenery[] | undefined;
 export function scenery() {
@@ -119,22 +130,15 @@ export function scenery() {
   for (const b of [...BUILDINGS, campShelter])
     list.push({ ...b, key: buildingSprite[b.kind], width: (b.w + b.d) * PROJECTION, building: b });
   // The stern rests at the tide line; the salvage remains reachable at the inland end of the wreck.
-  put('wreck', { x: coastX(ARRIVAL_WRECK.z) - 0.9, z: ARRIVAL_WRECK.z }, 143);
-  for (const [z, offshore, width] of [
-    [16, 5, 42],
-    [21, 8, 24],
-    [40, 10, 56],
-    [64, 4, 34],
-    [-35, 6, 36],
-    [90, 7, 55],
-  ] as const)
-    put('tide_rocks', { x: coastX(z) - offshore, z }, width);
+  put('wreck', strandWreck, strandWreck.width);
+  for (const stone of [...coastalRocks, springRock]) list.push({ ...stone, key: 'tide_rocks', rock: stone });
   for (const [i, s] of riverStones.entries()) {
     const k = random(s.x * 3, s.z * 3, 501),
       key = k < 0.34 ? 'rill_slab' : k < 0.62 ? 'rill_pebbles' : 'rill_boulder';
     list.push({
       ...s,
       key,
+      rock: s,
       flip: i % 3 === 0,
       submerged: wetPoint(s.x, s.z)?.kind === 'river' ? (key === 'rill_pebbles' ? 0.12 : 0.17 + k * 0.1) : 0,
     });
@@ -143,7 +147,6 @@ export function scenery() {
   put('driftwood', { x: coastX(35) - 0.2, z: 35 }, 43);
   put('driftwood', { x: coastX(7) + 3, z: 7 }, 35);
   put('reeds', { x: -12.6, z: -93 }, 23);
-  put('tide_rocks', { x: -11.9, z: -95.5 }, 28);
   put('sign', ARRIVAL_SIGN, 37);
   put('beacon', LIGHTHOUSE, 114);
   put('table', HUNTER_CAMP, 33);
@@ -155,7 +158,8 @@ export function scenery() {
   put('sluice', SLUICE.gateCenter, 73);
   put('cart', WAGON, 62);
   list.push({ ...WAGON_TALLY, key: 'chest', paidKey: 'room_open_chest', width: 21 });
-  for (const p of QUARRY_BOULDERS) put('rockpile', p, p.width * 8);
+  for (const p of QUARRY_BOULDERS) if (p.width * 8 < 30) put('rockpile', p, p.width * 8);
+  for (const p of quarryRocks) list.push({ x: p.x, z: p.z, width: p.width, key: 'rockpile', rock: p });
   for (const p of FOREST_WAYMARKERS) put('marker', p, 25);
   for (const p of LANTERNS) put('lantern', p, 20);
   for (const p of Object.values(BENCHES)) put('seat', p, 34);

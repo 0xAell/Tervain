@@ -1,6 +1,7 @@
 import type { Ripple } from './water';
 import shader from './water.frag?raw';
 import { foamCell } from './foam';
+import { impactsForTile, maxWaterImpacts, type WaterImpact } from './waterImpact';
 import { bankRamp, oceanRamp, poolRamp, streamRamp } from './waterPalette';
 import type { Atlas } from './atlas';
 import type { Ground } from './ground';
@@ -56,6 +57,8 @@ export class WaterGL {
   private paint: WebGLTexture;
   private bubble: WebGLTexture;
   private ramps: WebGLTexture;
+  private impactShape = new Float32Array(maxWaterImpacts * 4);
+  private impactMotion = new Float32Array(maxWaterImpacts * 4);
   private chunks = new Map<Chunk, WebGLTexture[]>();
   private stamp = '';
   private locations = new Map<WebGLProgram, Map<string, WebGLUniformLocation | null>>();
@@ -183,7 +186,7 @@ export class WaterGL {
       mat[j] = c.course[i]!;
       mat[j + 1] = c.grain[i]!;
       mat[j + 2] = c.pocket[i]!;
-      mat[j + 3] = c.material[i] === 11 ? 255 : Math.round(c.pressure[i]! * 0.49);
+      mat[j + 3] = c.material[i] === 11 ? 255 : 0;
     }
     const shape = this.texture();
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, size, size, 0, gl.RGBA, gl.FLOAT, geom);
@@ -231,6 +234,7 @@ export class WaterGL {
     currents: number[],
     stage: number[],
     ripples: Ripple[],
+    impacts: readonly WaterImpact[],
     pulseKey: string
   ) {
     const gl = this.gl,
@@ -269,10 +273,23 @@ export class WaterGL {
       this.bind(4, this.bubble);
       this.bind(5, this.ramps);
       this.bind(6, this.paint, gl.TEXTURE_2D_ARRAY);
+      const shape = this.loc(p, 'impactShape[0]'),
+        motion = this.loc(p, 'impactMotion[0]'),
+        count = this.loc(p, 'impactCount');
       for (const { x, y, chunk } of regions) {
         const cached = this.chunks.get(chunk) ?? this.upload(chunk);
         cached.forEach((t, j) => this.bind(j, t));
         const size = chunk.canvas.width;
+        const hit = impactsForTile(impacts, chunk.worldX, chunk.worldY, size);
+        gl.uniform1i(count, hit.length);
+        if (hit.length) {
+          hit.forEach((o, i) => {
+            this.impactShape.set([o.x, o.z, o.radius, o.pressure], i * 4);
+            this.impactMotion.set([o.tx, o.tz, o.age, o.course], i * 4);
+          });
+          gl.uniform4fv(shape, this.impactShape, 0, hit.length * 4);
+          gl.uniform4fv(motion, this.impactMotion, 0, hit.length * 4);
+        }
         gl.viewport(x, h - y - size, size, size);
         gl.uniform2i(this.loc(p, 'origin'), x, y);
         gl.uniform2i(this.loc(p, 'worldOrigin'), chunk.worldX, chunk.worldY);

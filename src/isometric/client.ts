@@ -21,6 +21,7 @@ import { distance, inBuilding } from './land';
 import { stairRun } from './roomPlans';
 import { targetDistance, type RoomTarget } from './roomTargets';
 import { wetPoint, onBridge } from './water';
+import { rockApproach } from './waterObstacles';
 
 const defaults: Record<string, string> = {
   north: 'KeyW',
@@ -221,10 +222,16 @@ export class Client implements Controls {
     return targetDistance(target, this.valley.position, this.valley.room) <= target.reach;
   }
   private walkTo(target: V2) {
-    this.destination = target;
-    this.route = [];
     const p = this.valley.position;
     const room = this.valley.room;
+    const approach = room ? target : rockApproach(target, p);
+    if (!approach) {
+      this.stopWalking();
+      return;
+    }
+    target = approach;
+    this.destination = target;
+    this.route = [];
     const canReach = (a: V2, b: V2) => this.valley.canWalk(a, b) && (!!room || !inBuilding(b));
     const step = room ? 0.64 : 1.25,
       limit = 90;

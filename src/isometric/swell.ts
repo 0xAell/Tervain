@@ -1,3 +1,6 @@
+import { shoreDistance } from '../core/world/coast';
+import type { V2 } from '../core/world/layout';
+
 /** A wind sea, a longer ground swell and a short cross chop, all in world metres.
  * Byte phases let the floor, floating actors and reflected silhouettes sample the same surface. */
 const sine = Float32Array.from({ length: 256 }, (_, i) => Math.sin((i * Math.PI) / 128));
@@ -19,6 +22,21 @@ export function seaPhases(x: number, z: number, depth: number) {
   const c = phase(x * 0.12 + z * 0.16 + 0.14 * Math.cos(x * 0.21 - z * 0.13));
   const d = phase(z * 0.039 - x * 0.017 + 0.21 * Math.cos(z * 0.081 + x * 0.048));
   return (a | (b << 8) | (c << 16) | (d << 24)) >>> 0;
+}
+
+/** Gradient of the primary swell's phase and its sample on the windward face of an obstacle. */
+export function incomingSwell(p: V2, radius: number, bank: number) {
+  const a = 0.17 * Math.cos(p.z * 0.152 + p.x * 0.039),
+    b = 0.093 * Math.cos(p.z * 0.32 - p.x * 0.12),
+    shoaling = bank < 7 ? 0.037 : 0,
+    dx = 0.06 + a * 0.039 - b * 0.12 - shoaling,
+    dz = 0.02 + a * 0.152 + b * 0.32,
+    length = Math.hypot(dx, dz),
+    tx = dx / length,
+    tz = dz / length,
+    x = p.x - tx * radius,
+    z = p.z - tz * radius;
+  return { tx, tz, phase: seaPhases(x, z, -shoreDistance(x, z)) };
 }
 
 /** Metres below the surface. Channel floors flatten towards the thalweg, with exposed gravel near the bank. */

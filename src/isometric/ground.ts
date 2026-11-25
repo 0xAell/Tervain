@@ -7,6 +7,8 @@ import { bridgeShade } from './crossing';
 import { yardAt, yardPixel } from './settlement';
 import { rippleAt, type Ripple } from './water';
 import { WaterGL } from './waterGL';
+import { impactsForTile, visibleWaterImpacts, waterImpactAt, type WaterImpact } from './waterImpact';
+import type { PropView } from './propPhysics';
 import { foamCell } from './foam';
 import type { Atlas } from './atlas';
 import { dryGroundAt, PROJECTION } from './land';
@@ -86,10 +88,11 @@ function skyAt(sky: Texture, x: number, y: number) {
   );
 }
 const transmission = Float32Array.from({ length: 256 }, (_, d) => Math.exp(-d / 36));
-const bend = (p: WetPoint) => (p.kind === 'river' ? stoneFlow(p) : { deflection: 0, eddy: 0, bow: 0 });
+const bend = (p: WetPoint) => (p.kind === 'river' ? stoneFlow(p) : { deflection: 0, eddy: 0 });
 
 /** Persistent world-space channels and seabeds, with dynamic surface buffers only for wet chunks. */
 export class Ground {
+  waterImpacts: readonly WaterImpact[] = [];
   private textures: Texture[][];
   private sky: Texture;
   private meadow: Texture;
@@ -161,7 +164,6 @@ export class Ground {
       width = new Uint8Array(n);
     const grain = new Uint8Array(n),
       pocket = new Uint8Array(n),
-      pressure = new Uint8Array(n),
       sky = new Uint32Array(n),
       land = new Uint32Array(n);
     const shearX = new Int8Array(n),
@@ -293,7 +295,6 @@ export class Ground {
         floorUV[i] =
           wrap(Math.floor((wz - offset) * 3.8), bed.h) * bed.w + wrap(Math.floor((wx - offset) * 3.8), bed.w);
         pocket[i] = byte(stone.eddy);
-        pressure[i] = byte(stone.bow);
         land[i] = pixels[i]!;
         const skyColor = skyAt(this.sky, sx / 25 + 0.65 * Math.sin(wz * 0.13), sy / 23);
         sky[i] =
@@ -325,7 +326,6 @@ export class Ground {
       width,
       grain,
       pocket,
-      pressure,
       sky,
       land,
       shearX,
@@ -349,6 +349,7 @@ export class Ground {
         rx = (r.radius + 0.7) * 9;
       return sx >= -rx && sx <= SIZE + rx && sy >= -rx * 0.5 && sy <= SIZE + rx * 0.5;
     });
+    const contacts = impactsForTile(this.waterImpacts, ch.worldX, ch.worldY, SIZE);
     const archives = this.textures;
     for (const i of ch.waterPixels) {
       const mat = ch.material[i]!,
@@ -525,26 +526,32 @@ export class Ground {
             );
         if (!basin) foam = Math.max(foam, sat(1 - cover / 0.12) * 0.19 * breaks);
         if (!basin) foam = Math.max(foam, p * sat((curl - 0.12) * 1.35) * (0.28 + 0.36 * breaks));
-        if (!basin) {
-          const bow = ch.pressure[i]! / 255,
-            wash = 0.57 + 0.31 * sinPhase(fast * 35 + side * 44) + 0.12 * cosPhase(fast * 18);
-          foam = Math.max(foam, bow * wash * (0.68 + stages[course]! * 0.32), p * riffle * breaks * 0.65);
-          shine += bow * 0.21;
-        }
+        if (!basin) foam = Math.max(foam, p * riffle * breaks * 0.65);
         optical = basin ? cover * 0.58 : cover * 0.57 + channelDepth * 0.31;
         strength = basin ? 0.82 : 0.57 + 0.31 * channelDepth - 0.13 * p;
-        if (nearby.length) {
-          const sx = ch.worldX + (i % SIZE),
-            sy = ch.worldY + Math.floor(i / SIZE);
-          for (const r of nearby) {
-            if (r.course !== course) continue;
-            const pulse = rippleAt(r, (sy + sx * 0.5) / 6, (sy - sx * 0.5) / 6);
-            if (!pulse) continue;
-            dx += pulse.dx * 2.9;
-            dy += pulse.dy * 1.8;
-            shine += pulse.crest * 0.68;
-            foam = Math.max(foam, pulse.crest * 0.43);
-          }
+      }
+      if (nearby.length || contacts.length) {
+        const sx = ch.worldX + (i % SIZE),
+          sy = ch.worldY + Math.floor(i / SIZE),
+          wx = (sy + sx * 0.5) / PROJECTION,
+          wz = (sy - sx * 0.5) / PROJECTION;
+        for (const contact of contacts) {
+          if (contact.course !== course) continue;
+          const hit = waterImpactAt(contact, wx, wz, n);
+          if (!hit) continue;
+          dx = dx * (1 - hit.shelter * 0.46) + hit.x;
+          dy = dy * (1 - hit.shelter * 0.46) + hit.y;
+          foam = Math.max(foam * (1 - hit.shelter * 0.34), hit.foam);
+          shine = shine * (1 - hit.shelter * 0.28) + hit.foam * 0.26;
+        }
+        for (const r of nearby) {
+          if (r.course !== course) continue;
+          const pulse = rippleAt(r, wx, wz);
+          if (!pulse) continue;
+          dx += pulse.dx * 2.9;
+          dy += pulse.dy * 1.8;
+          shine += pulse.crest * 0.68;
+          foam = Math.max(foam, pulse.crest * 0.56);
         }
       }
       const bedTex = ocean ? archives[SAND]![0]! : this.shingle,
@@ -693,7 +700,8 @@ export class Ground {
     time: number,
     flow: Flow,
     hour: number,
-    ripples: Ripple[] = []
+    ripples: Ripple[] = [],
+    loose: readonly PropView[] = []
   ) {
     const x0 = Math.floor(-ox / SIZE),
       y0 = Math.floor(-oy / SIZE),
@@ -701,6 +709,16 @@ export class Ground {
       y1 = Math.floor((h - oy) / SIZE);
     const tick = Math.floor(time * 15),
       rates = [0.72, 0.35 + flow.main, 0.25 + flow.village, 0.25 + flow.quarry, 0.24 + flow.spring * 0.25];
+    const surfaceTick = Math.floor(time * 30);
+    this.waterImpacts = visibleWaterImpacts(
+      x0 * SIZE,
+      y0 * SIZE,
+      (x1 - x0 + 1) * SIZE,
+      (y1 - y0 + 1) * SIZE,
+      (this.accelerated ? surfaceTick : tick * 2) / 30,
+      flow,
+      loose
+    );
     const pulseKey = ripples
       .map((r) =>
         [
@@ -712,7 +730,8 @@ export class Ground {
         ].join(',')
       )
       .join('/');
-    const frame = [tick, Math.floor(hour * 12), ...rates, pulseKey].join(';');
+    const bodyKey = loose.map((p) => Math.round(p.x * 24) + ',' + Math.round(p.z * 24)).join('/');
+    const frame = [tick, Math.floor(hour * 12), ...rates, pulseKey, bodyKey].join(';');
     if (this.lastTime < 0 || time < this.lastTime) this.currents = rates.map((rate) => rate * time);
     else
       for (let i = 0; i < rates.length; i++)
@@ -745,12 +764,13 @@ export class Ground {
           this.visible,
           ox,
           oy,
-          Math.floor(time * 30),
+          surfaceTick,
           hour,
           this.currents,
           [0, flow.main, flow.village, flow.quarry, flow.spring],
           ripples,
-          pulseKey
+          this.waterImpacts,
+          pulseKey + ';' + bodyKey
         );
       } catch (e) {
         console.warn('Switching to the Canvas water renderer.', e);
