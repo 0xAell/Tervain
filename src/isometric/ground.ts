@@ -59,6 +59,17 @@ interface VisibleChunk {
   y: number;
   chunk: Chunk;
 }
+interface TerrainView {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+  key: string;
+}
 export interface Rect {
   x: number;
   y: number;
@@ -105,6 +116,9 @@ export class Ground {
   private visible: VisibleChunk[] = [];
   private currents = [0, 0, 0, 0, 0];
   private lastTime = -1;
+  private terrainView?: TerrainView;
+  private warming = false;
+  private warmView = '';
   hasWater = false;
   private gpu: WaterGL | null;
   get accelerated() {
@@ -719,6 +733,34 @@ export class Ground {
     }
     destination.putImageData(output, left, top);
   }
+  /** Prepare the next strip of terrain during idle time so it can scroll into view in one blit. */
+  private warmTerrain(view: TerrainView) {
+    if (this.terrainView?.key !== view.key) this.warmView = '';
+    this.terrainView = view;
+    if (this.warming || this.warmView === view.key || typeof requestIdleCallback !== 'function') return;
+    this.warming = true;
+    requestIdleCallback((deadline) => {
+      this.warming = false;
+      if (deadline.timeRemaining() < 6) return;
+      const v = this.terrainView!;
+      let next: { key: string; x: number; y: number } | undefined,
+        distance = Infinity;
+      for (let y = v.y0 - 1; y <= v.y1 + 1; y++)
+        for (let x = v.x0 - 1; x <= v.x1 + 1; x++) {
+          if (x >= v.x0 && x <= v.x1 && y >= v.y0 && y <= v.y1) continue;
+          const key = x + ',' + y;
+          if (this.chunks.has(key)) continue;
+          const dx = Math.max(0, v.left - (x + 1) * SIZE, x * SIZE - v.right),
+            dy = Math.max(0, v.top - (y + 1) * SIZE, y * SIZE - v.bottom),
+            m = dx + dy;
+          if (m >= distance) continue;
+          next = { key, x, y };
+          distance = m;
+        }
+      if (next) this.chunks.set(next.key, this.makeChunk(next.x, next.y));
+      else this.warmView = v.key;
+    });
+  }
   draw(
     ctx: CanvasRenderingContext2D,
     ox: number,
@@ -735,6 +777,17 @@ export class Ground {
       y0 = Math.floor(-oy / SIZE),
       x1 = Math.floor((w - ox) / SIZE),
       y1 = Math.floor((h - oy) / SIZE);
+    this.warmTerrain({
+      left: -ox,
+      top: -oy,
+      right: w - ox,
+      bottom: h - oy,
+      x0,
+      x1,
+      y0,
+      y1,
+      key: x0 + ',' + x1 + ',' + y0 + ',' + y1,
+    });
     const tick = Math.floor(time * 15),
       rates = [0.72, 0.35 + flow.main, 0.25 + flow.village, 0.25 + flow.quarry, 0.24 + flow.spring * 0.25];
     const surfaceTick = Math.floor(time * 30);
