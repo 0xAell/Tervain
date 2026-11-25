@@ -5,6 +5,46 @@ const base = 'assets/audio/vale/';
 export type MixLevels = { voice: number; music: number; effects: number };
 export const defaultMix: MixLevels = { voice: 1, music: 0.62, effects: 0.82 };
 type Loop = { source: AudioBufferSourceNode; gain: GainNode };
+type RoomMaterial = 'timber' | 'stone';
+type RoomBus = 'voice' | 'effects';
+
+// Extra path lengths in metres for the left and right ears, followed by reflected gain.
+// The direct signal travels separately. Timber absorbs more of the high end than stone.
+const reflections: Record<RoomMaterial, readonly (readonly [number, number, number])[]> = {
+  timber: [
+    [3.8, 4.7, 0.085],
+    [7.5, 6.3, 0.041],
+    [11.2, 13.3, 0.021],
+  ],
+  stone: [
+    [6.4, 8.2, 0.15],
+    [13.8, 11.1, 0.085],
+    [19.6, 23.4, 0.052],
+    [29.3, 33.2, 0.029],
+    [39.8, 37.5, 0.014],
+  ],
+};
+
+function roomImpulse(ctx: AudioContext, material: RoomMaterial) {
+  const paths = reflections[material];
+  const longest = Math.max(...paths.map(([l, r]) => Math.max(l, r)));
+  const rate = ctx.sampleRate;
+  const decay = Math.exp((-2 * Math.PI * (material === 'timber' ? 1900 : 4700)) / rate);
+  const tail = Math.ceil(rate * 0.001);
+  const buffer = ctx.createBuffer(2, Math.ceil((rate * longest) / 343) + tail + 1, rate);
+  for (const ear of [0, 1] as const) {
+    const samples = buffer.getChannelData(ear);
+    for (const path of paths) {
+      const start = Math.round((path[ear] * rate) / 343);
+      let level = path[2] * (1 - decay);
+      for (let i = 0; i < tail; i++) {
+        samples[start + i] = samples[start + i]! + level;
+        level *= decay;
+      }
+    }
+  }
+  return buffer;
+}
 
 /** One gesture-unlocked graph. All sources and file URLs also work inside the standalone edition. */
 export class Mixer {
@@ -18,6 +58,11 @@ export class Mixer {
   private fading = new Set<AudioBufferSourceNode>();
   private desired: Record<string, string> = {};
   private effects = new Set<AudioBufferSourceNode>();
+  room?: RoomMaterial;
+  private interiors = new Map<
+    RoomMaterial,
+    { impulse: AudioBuffer; returns: Partial<Record<RoomBus, ConvolverNode>> }
+  >();
   private voice?: AudioBufferSourceNode;
   private generation = 0;
   private worldGeneration = 0;
@@ -48,6 +93,24 @@ export class Mixer {
       /* Text and controls remain accessible on devices without audio output. */
     }
   }
+  private reflect(source: AudioNode, bus: RoomBus, material: RoomMaterial | undefined) {
+    if (!material) return;
+    const ctx = this.context!;
+    let interior = this.interiors.get(material);
+    if (!interior) {
+      interior = { impulse: roomImpulse(ctx, material), returns: {} };
+      this.interiors.set(material, interior);
+    }
+    let send = interior.returns[bus];
+    if (!send) {
+      send = ctx.createConvolver();
+      send.normalize = false;
+      send.buffer = interior.impulse;
+      send.connect(this.buses![bus]);
+      interior.returns[bus] = send;
+    }
+    source.connect(send);
+  }
   private mix() {
     if (!this.context || !this.master || !this.buses) return;
     const t = this.context.currentTime;
@@ -55,9 +118,10 @@ export class Mixer {
       node.gain.setTargetAtTime(value, t, seconds);
     target(this.master, this.volume, 0.025);
     target(this.buses.voice, this.levels.voice, 0.025);
-    target(this.buses.music, this.levels.music * (this.active ? 0.24 : 0.72), this.active ? 0.07 : 0.32);
-    target(this.buses.air, this.levels.effects * (this.active ? 0.36 : 0.68), this.active ? 0.08 : 0.33);
-    target(this.buses.effects, this.levels.effects * (this.active ? 0.72 : 1), 0.045);
+    const voiced = !!this.voice;
+    target(this.buses.music, this.levels.music * (voiced ? 0.24 : 0.72), voiced ? 0.07 : 0.32);
+    target(this.buses.air, this.levels.effects * (voiced ? 0.36 : 0.68), voiced ? 0.08 : 0.33);
+    target(this.buses.effects, this.levels.effects * (voiced ? 0.72 : 1), voiced ? 0.045 : 0.16);
   }
   setVolume(n: number) {
     this.volume = n;
@@ -114,7 +178,6 @@ export class Mixer {
     const generation = this.generation;
     this.currentPriority = priority;
     this.active = true;
-    this.mix();
     const next = async (index: number): Promise<void> => {
       if (generation !== this.generation) return;
       const part = parts[index];
@@ -129,13 +192,18 @@ export class Mixer {
           source = ctx.createBufferSource();
         source.buffer = buffer;
         source.connect(this.buses!.voice);
-        this.voice = source;
+        if (part.inWorld) this.reflect(source, 'voice', this.room);
         source.onended = () => {
           source.disconnect();
-          if (generation === this.generation) void next(index + 1);
+          if (generation !== this.generation) return;
+          this.voice = undefined;
+          this.mix();
+          void next(index + 1);
         };
-        if (part.caption !== undefined) this.caption(part.caption);
         source.start(0, part.cue[1] / sampleRate, part.cue[2] / sampleRate);
+        this.voice = source;
+        this.mix();
+        if (part.caption !== undefined) this.caption(part.caption);
         const after = parts[index + 1];
         if (after && after.cue[0] !== part.cue[0]) void this.buffer(this.file(after.cue)).catch(() => {});
       } catch {
@@ -158,9 +226,10 @@ export class Mixer {
     this.caption('');
     this.mix();
   }
-  async effect(cue: Cue, gain: number, pan = 0) {
+  async effect(cue: Cue, gain: number, pan = 0, inWorld = true) {
     if (!this.context || !this.volume || !this.levels.effects || document.hidden) return;
     const generation = this.worldGeneration;
+    const material = inWorld ? this.room : undefined;
     const at = performance.now();
     try {
       const buffer = await this.buffer(this.file(cue)),
@@ -173,6 +242,7 @@ export class Mixer {
       stereo.pan.value = Math.max(-1, Math.min(1, pan));
       source.buffer = buffer;
       source.connect(level).connect(stereo).connect(this.buses!.effects);
+      this.reflect(stereo, 'effects', material);
       this.effects.add(source);
       source.onended = () => {
         this.effects.delete(source);
@@ -227,6 +297,7 @@ export class Mixer {
     }
   }
   reset() {
+    this.room = undefined;
     this.stopVoice();
     this.worldGeneration++;
     for (const { source } of this.loops.values()) source.stop();

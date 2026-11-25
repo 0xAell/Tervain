@@ -1,5 +1,5 @@
 import { artUrl } from './atlas';
-import { catalogue, readText, type SpokenPart, type VoiceMode } from './reading';
+import type { VoiceMode } from './reading';
 import type { Sound, MixLevels } from './audio';
 import { SPEAKER_NAMES, VOICE_LINES, shown } from '../core/content/voice';
 import { S } from '../core/content/strings';
@@ -102,11 +102,7 @@ export class Interface {
   private notice = el('div', 'notice');
   private noticeUntil = 0;
   private subtitle = el('div', 'spoken-caption plate');
-  private hoverTimer = 0;
-  private manualRead = false;
-  private seenPrompt = '';
-  private announcedPrompt = '';
-  private promptSince = 0;
+  private passage?: { play: () => boolean; button: HTMLButtonElement; playing: boolean };
   private slotSig = '';
   private currentDialog = '';
   private uiStamp = 0;
@@ -124,27 +120,6 @@ export class Interface {
     this.subtitle.hidden = true;
     this.subtitle.setAttribute('role', 'status');
     this.root.append(this.hud, this.layer, this.notice, this.subtitle);
-    const target = (event: Event) =>
-      event.target instanceof Element
-        ? event.target.closest<HTMLElement>('button,select,input,[data-voice],p.entry')
-        : null;
-    this.root.addEventListener('focusin', (e) => {
-      const t = target(e);
-      if (t && (this.controls.controllerActive || t.matches(':focus-visible'))) this.preview(t);
-    });
-    this.root.addEventListener('pointerover', (e) => {
-      window.clearTimeout(this.hoverTimer);
-      const t = target(e);
-      if (t && e.pointerType !== 'touch')
-        this.hoverTimer = window.setTimeout(() => {
-          if (t.isConnected && !this.controls.sound.mixer.speaking) this.preview(t);
-        }, 480);
-    });
-    this.root.addEventListener('pointerout', () => window.clearTimeout(this.hoverTimer));
-    this.root.addEventListener('change', (event) => {
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement)
-        this.preview(event.target);
-    });
     this.prompt.onclick = () => controls.interact();
     this.chamber.hidden = true;
     this.chamber.setAttribute('aria-live', 'polite');
@@ -155,8 +130,7 @@ export class Interface {
       iconButton('Journal (J)', 'journal_icon', () => this.open('journal')),
       iconButton('Map (M)', 'map_icon', () => this.open('map')),
       iconButton('Inventory (I)', 'bag_icon', () => this.open('inventory')),
-      iconButton('Pause (Esc)', 'seal', () => this.open('pause')),
-      this.readerButton()
+      iconButton('Pause (Esc)', 'seal', () => this.open('pause'))
     );
     const vitals = el('div', 'vitals');
     const bars = el('div', 'bars');
@@ -195,16 +169,17 @@ export class Interface {
     this.game = valley.game;
     this.scene = scene;
     this.slotSig = '';
-    this.seenPrompt = this.announcedPrompt = '';
   }
   message(text: string) {
-    const repeated = text === this.notice.textContent && performance.now() < this.noticeUntil;
     this.notice.textContent = text;
     this.noticeUntil = performance.now() + 3300;
     this.notice.classList.add('visible');
-    if (!repeated) this.controls.sound.read([text], 2);
   }
   caption(text: string) {
+    if (!text && this.passage && !this.controls.sound.mixer.speaking) {
+      this.passage.playing = false;
+      this.passage.button.textContent = 'Read aloud';
+    }
     this.subtitle.textContent = text;
     const panel = this.layer.querySelector<HTMLElement>('section');
     panel?.querySelector('.voicing')?.classList.remove('voicing');
@@ -219,86 +194,39 @@ export class Interface {
     if (line) line.classList.add('voicing');
     else panel.querySelector('header')?.after(el('p', 'heard-reply', text));
   }
-  private readerButton() {
-    const b = button('Read aloud', () => this.readAloud(), 'read-aloud');
-    b.title = 'Read this page or your surroundings aloud';
-    return b;
+  /** Only authored passages and performed lines get a reader. Controls never supply speech text. */
+  private readerFor(container: HTMLElement, play: () => boolean, initial?: () => boolean) {
+    if (this.controls.sound.mode === 'off') return;
+    const host = container.querySelector('header') ?? container;
+    const control = button('Read aloud', () => this.readAloud(), 'read-aloud');
+    host.insertBefore(control, host.querySelector('.close'));
+    this.passage = { play, button: control, playing: false };
+    if (initial) this.startReading(initial);
   }
-  private textFor(node: HTMLElement): string {
-    if (node instanceof HTMLInputElement) {
-      return (
-        (node.labels?.[0]?.firstChild?.textContent ?? 'Volume') +
-        ' ' +
-        Math.round(Number(node.value) * 100) +
-        ' percent'
-      );
-    }
-    if (node instanceof HTMLSelectElement)
-      return (node.getAttribute('aria-label') ?? '') + ' ' + (node.selectedOptions[0]?.text ?? '');
-    if (node.classList.contains('item'))
-      return Array.from(node.querySelectorAll('span,small'), (n) => n.textContent).join(' times ');
-    return node.getAttribute('aria-label') ?? node.textContent ?? '';
+  private narrated(container: HTMLElement, lines: string[], automatic = true) {
+    if (this.controls.sound.mode !== 'full') return;
+    const play = () => this.controls.sound.narrate(lines, 5);
+    this.readerFor(container, play, automatic ? play : undefined);
   }
-  private preview(node: HTMLElement) {
-    if (!this.controls.sound.enabled && !navigator.userActivation?.hasBeenActive) return;
-    if (node.dataset.story) {
-      this.controls.sound.story([node.dataset.story], 5);
-      return;
-    }
-    if (node.dataset.voice) {
-      this.controls.sound.tell([node.dataset.voice], 5);
-      return;
-    }
-    this.controls.sound.read([this.textFor(node)], 5);
-  }
-  private panelParts(panel: HTMLElement): SpokenPart[] {
-    const parts: SpokenPart[] = [];
-    for (const n of panel.querySelectorAll<HTMLElement>(
-      'h1,h2,h3,p,dt,dd,strong,small,span,button,select,input,canvas'
-    )) {
-      if (n.closest('[hidden]') || n.matches('.read-aloud,.close') || n.parentElement?.closest('button'))
-        continue;
-      const id = n.dataset.story ?? n.dataset.voice;
-      if (id) {
-        const cue = n.dataset.story ? catalogue.story[id] : catalogue.lines[id];
-        if (cue) parts.push({ cue, caption: this.textFor(n) });
-      } else parts.push(...readText(this.textFor(n)));
-    }
-    return parts;
+  private startReading(play: () => boolean) {
+    const passage = this.passage!;
+    passage.playing = play();
+    passage.button.textContent = passage.playing ? 'Stop reading' : 'Read aloud';
   }
   readAloud() {
+    if (!this.passage) return;
     const sound = this.controls.sound;
     sound.unlock();
-    if (this.manualRead && sound.mixer.speaking) {
-      sound.endLine();
-      this.manualRead = false;
-      return;
-    }
-    this.manualRead = true;
-    if (this.mode === 'play') {
-      const p = this.valley.player;
-      sound.read(
-        [
-          this.place.textContent ?? '',
-          this.chamber.textContent ?? '',
-          this.clock.textContent ?? '',
-          'Health ' + p.health + ' of ' + p.maxHealth,
-          'Stamina ' + Math.round(this.valley.stamina) + ' percent',
-          this.scene.hoverLabel ||
-            (this.prompt.hidden ? 'No nearby interaction' : (this.prompt.textContent ?? '')),
-          this.notice.classList.contains('visible') ? (this.notice.textContent ?? '') : '',
-          ...Array.from(this.slots.querySelectorAll('button'), (b) => this.textFor(b)),
-        ],
-        5
-      );
-    } else {
-      const panel = this.layer.querySelector<HTMLElement>('section');
-      if (panel) sound.readPage(this.panelParts(panel));
-    }
+    if (this.passage.playing && sound.mixer.speaking) sound.endLine();
+    else this.startReading(this.passage.play);
+  }
+  private closeReading() {
+    const active = this.passage?.playing;
+    this.passage = undefined;
+    if (active) this.controls.sound.endLine();
   }
   private shell(title: string, wide = false) {
-    this.manualRead = false;
-    this.controls.sound.endLine();
+    this.closeReading();
     this.hud.hidden = true;
     this.layer.replaceChildren();
     this.layer.hidden = false;
@@ -308,15 +236,10 @@ export class Interface {
     const header = el('header');
     header.append(
       el('h2', '', title),
-      this.readerButton(),
       button('Close', () => this.back(), 'close')
     );
     panel.append(header);
     this.layer.append(panel);
-    queueMicrotask(() => {
-      if (panel.isConnected && this.mode !== 'dialogue' && !panel.dataset.castPage)
-        this.controls.sound.readPage(this.panelParts(panel));
-    });
     return panel;
   }
   private back() {
@@ -327,8 +250,7 @@ export class Interface {
     this.controls.resume();
   }
   title() {
-    this.manualRead = false;
-    this.controls.sound.endLine();
+    this.closeReading();
     this.mode = 'title';
     this.hud.hidden = true;
     this.layer.hidden = false;
@@ -338,11 +260,12 @@ export class Interface {
     scene.src = artUrl('title.png');
     scene.alt = '';
     const content = el('div', 'title-content');
+    const premise = 'The tide left you a blade. Inland, a village is running dry.';
     content.append(
       icon('seal'),
       el('p', 'locale', 'Bellwether Vale'),
       el('h1', '', 'Tervain'),
-      el('p', 'premise', 'The tide left you a blade. Inland, a village is running dry.')
+      el('p', 'premise', premise)
     );
     const choices = el('div', 'menu-choices');
     if (this.store.latest())
@@ -358,9 +281,9 @@ export class Interface {
       button('Settings', () => {
         this.backTo = 'title';
         this.open('settings');
-      }),
-      this.readerButton()
+      })
     );
+    this.narrated(choices, [premise], false);
     content.append(choices);
     screen.append(
       scene,
@@ -368,10 +291,9 @@ export class Interface {
       el('small', 'version', 'Grey Strand  /  v' + __GAME_VERSION__ + ' · ' + __SOURCE_REVISION__)
     );
     this.layer.append(screen);
-    if (navigator.userActivation?.hasBeenActive) this.controls.sound.readPage(this.panelParts(screen));
   }
   play() {
-    this.manualRead = false;
+    this.closeReading();
     this.mode = 'play';
     this.hud.hidden = false;
     this.layer.hidden = true;
@@ -435,7 +357,7 @@ export class Interface {
         ['1–0', 'Use a belt slot'],
         ['F5 / F9', 'Quick save / quick load'],
         ['Esc', 'Close a page or pause'],
-        ['V', 'Read this page or your surroundings aloud'],
+        ['V', 'Read or stop the current passage or dialogue line'],
         [
           'Controller',
           'Left stick moves, A interacts or selects, D-pad chooses, X attacks, B closes, Start pauses',
@@ -460,7 +382,7 @@ export class Interface {
         voiceMode = el('select');
       voiceMode.setAttribute('aria-label', 'Spoken audio');
       for (const [value, name] of [
-        ['full', 'Full narration'],
+        ['full', 'Characters and narration'],
         ['characters', 'Characters only'],
         ['off', 'Off'],
       ] as const) {
@@ -528,7 +450,7 @@ export class Interface {
     else if (screen === 'map') this.map();
     else if (screen === 'death') {
       const panel = this.shell('You fell in the vale');
-      panel.querySelector('header button')?.remove();
+      panel.querySelector('header .close')?.remove();
       panel.append(
         button('Return to last save', () => this.controls.start(true), 'primary'),
         button('Begin again', () => this.controls.start(false))
@@ -538,8 +460,14 @@ export class Interface {
   private journal() {
     const panel = this.shell('Field journal', true),
       journal = buildJournal(this.game.state);
-    panel.append(el('h3', '', 'The water of Bellwether Vale'), el('p', '', S(journal.statusKey)));
-    if (journal.leadKey) panel.append(el('p', 'lead', S(journal.leadKey)));
+    const lines: string[] = [];
+    const paragraph = (text: string, cls = '') => {
+      lines.push(text);
+      panel.append(el('p', cls, text));
+    };
+    panel.append(el('h3', '', 'The water of Bellwether Vale'));
+    paragraph(S(journal.statusKey));
+    if (journal.leadKey) paragraph(S(journal.leadKey), 'lead');
     for (const [name, rows] of [
       ['Observations', journal.observed],
       ['Testimony', journal.reported],
@@ -548,19 +476,24 @@ export class Interface {
     ] as const) {
       if (!rows.length) continue;
       panel.append(el('h3', '', name));
-      for (const row of rows) panel.append(el('p', 'entry', S(row.key, row.params)));
+      for (const row of rows) paragraph(S(row.key, row.params), 'entry');
     }
     const books = Object.entries(households).filter(
       ([id]) => this.game.state.facts['room_read:' + id] === true
     );
     if (books.length) {
       panel.append(el('h3', '', 'Household readings'));
-      for (const [, home] of books) panel.append(el('strong', '', home.book), el('p', 'entry', home.passage));
+      for (const [, home] of books) {
+        panel.append(el('strong', '', home.book));
+        lines.push(home.book);
+        paragraph(home.passage, 'entry');
+      }
     }
     const met = journal.people.filter((p) => p.met);
     if (met.length) {
       panel.append(el('h3', '', 'People met'), el('p', '', met.map((p) => NPCS[p.npc].name).join(' · ')));
     }
+    this.narrated(panel, lines);
   }
   private inventory() {
     const panel = this.shell('Inventory', true);
@@ -604,6 +537,7 @@ export class Interface {
       );
     }
     panel.append(detail);
+    this.narrated(panel, [S(ITEMS[id].descKey)], false);
   }
   private map(world = false) {
     const room = !world && this.valley.room;
@@ -670,7 +604,8 @@ export class Interface {
     const speech = el('p', 'speech', S(node.text));
     speech.dataset.story = node.text;
     panel.append(speech);
-    this.controls.sound.story(answer ? [answer, node.text] : [node.text]);
+    const replay = () => this.controls.sound.story([node.text]);
+    this.readerFor(panel, replay, answer ? () => this.controls.sound.story([answer, node.text]) : replay);
     for (const { index, choice, locked } of this.game.choices(nodeId)) {
       const b = button(
         S(choice.text),
@@ -685,7 +620,6 @@ export class Interface {
         },
         'reply'
       );
-      b.dataset.story = choice.text;
       b.disabled = locked;
       panel.append(b);
     }
@@ -707,7 +641,8 @@ export class Interface {
               page.append(p);
             }
             page.append(button('Back to conversation', () => this.showConversation(nodeId)));
-            this.controls.sound.tell(ids, 5);
+            const play = () => this.controls.sound.tell(ids, 5);
+            this.readerFor(page, play, play);
           },
           'reply'
         )
@@ -718,6 +653,7 @@ export class Interface {
     const panel = this.shell(title);
     if (description) panel.append(el('p', '', description));
     for (const option of options) panel.append(button(option.text, option.run, 'reply'));
+    return panel;
   }
   private interactKey() {
     if (this.controls.controllerActive) return 'A';
@@ -764,7 +700,8 @@ export class Interface {
       finish();
       v.perform('read', target, 1.05, () => {
         v.action({ t: 'setFact', key: 'room_read:' + room.site.id, value: true });
-        this.actions(home.book, [{ text: 'Close the book', run: finish }], home.passage);
+        const page = this.actions(home.book, [{ text: 'Close the book', run: finish }], home.passage);
+        this.narrated(page, [home.book, home.passage]);
       });
     };
     if (f.use === 'book') {
@@ -994,11 +931,14 @@ export class Interface {
         'Gate condition · ' + this.game.state.quest.gate
       );
     } else if (act.do === 'hunting_notes') {
-      this.actions(
+      const note = S('inspect.hunter_supplies');
+      const page = this.actions(
         'Hunter’s table',
         [{ text: 'Return', run: () => this.controls.resume() }],
         'Take the bow, knife and arrows. Rowan trades fresh meat and hides at this table.'
       );
+      page.querySelector('header')!.after(el('p', '', note));
+      this.narrated(page, [note]);
     } else if (act.do === 'try_archive_door') {
       this.actions('The archive', [
         {
@@ -1080,23 +1020,6 @@ export class Interface {
             (grip.drag ? 'Shove' : 'Toss');
     } else if (offers[0]?.target?.prop && offers[0].target.field === 'seat')
       this.prompt.textContent += '   ' + grabKey + ' · Move';
-    const prompt = this.scene.hoverLabel || (this.prompt.hidden ? '' : (this.prompt.textContent ?? ''));
-    if (prompt !== this.seenPrompt) {
-      this.seenPrompt = prompt;
-      this.promptSince = performance.now();
-      if (!prompt) this.announcedPrompt = '';
-    }
-    if (
-      prompt &&
-      !act &&
-      !bow &&
-      prompt !== this.announcedPrompt &&
-      performance.now() - this.promptSince > 700 &&
-      !this.controls.sound.mixer.speaking
-    ) {
-      this.announcedPrompt = prompt;
-      this.controls.sound.read([prompt], 1);
-    }
     const signature = JSON.stringify([s.quickSlots, s.inventory, s.equippedWeapon]);
     if (this.slotSig !== signature) {
       this.slotSig = signature;
@@ -1117,10 +1040,13 @@ export class Interface {
       });
     }
   }
-  describeNoticeboard() {
-    return worldView(this.game.state)
-      .noticeboard.map((k) => S(k))
-      .join(' ');
+  observation(point: string) {
+    const lines =
+      point === 'noticeboard'
+        ? worldView(this.game.state).noticeboard.map((k) => S(k))
+        : [S('inspect.' + point)];
+    this.message(lines.join(' '));
+    this.controls.sound.narrate(lines);
   }
   speakName(id: NpcId) {
     return NPCS[id].name;

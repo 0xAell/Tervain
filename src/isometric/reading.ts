@@ -14,7 +14,7 @@ export const catalogue = recorded as unknown as {
   encounters: Record<string, { cue: Cue; text: string; speaker: string }>;
 };
 export type VoiceMode = 'full' | 'characters' | 'off';
-export type SpokenPart = { cue: Cue; caption?: string };
+export type SpokenPart = { cue: Cue; caption?: string; inWorld?: boolean };
 export const readKey = (text: string) =>
   text
     .toLowerCase()

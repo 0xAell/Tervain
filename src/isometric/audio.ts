@@ -68,7 +68,7 @@ export class Sound {
   endLine() {
     this.mixer.stopVoice();
   }
-  read(text: string[], priority = 3) {
+  narrate(text: string[], priority = 3) {
     if (this.mode !== 'full') return false;
     return this.mixer.say(text.flatMap(readText), priority);
   }
@@ -76,7 +76,7 @@ export class Sound {
     const line = VOICE_LINES[id],
       cue = catalogue.lines[id];
     if (!line || !cue) return;
-    return { cue, caption: SPEAKER_NAMES[line.speaker] + ' · ' + shown(line.text) };
+    return { cue, inWorld: true, caption: SPEAKER_NAMES[line.speaker] + ' · ' + shown(line.text) };
   }
   tell(ids: string[], priority = 2) {
     if (this.mode === 'off') return false;
@@ -86,19 +86,17 @@ export class Sound {
     );
   }
   story(ids: string[], priority = 4) {
-    if (this.mode === 'off') return;
+    if (this.mode === 'off') return false;
     const parts: SpokenPart[] = [];
     for (const id of ids) {
       const cue = catalogue.story[id];
       if (!cue) continue;
       const speaker = id.includes('#') ? 'hero' : DIALOGUE_NODES[id.slice(2)]?.speaker;
       const caption = speaker && speaker !== 'narrator' ? SPEAKER_NAMES[speaker] + ' · ' + S(id) : S(id);
-      parts.push({ cue, caption });
+      if (speaker !== 'narrator' || this.mode === 'full')
+        parts.push({ cue, caption, inWorld: !!speaker && speaker !== 'narrator' });
     }
-    this.mixer.say(parts, priority);
-  }
-  readPage(parts: SpokenPart[]) {
-    if (this.mode === 'full') this.mixer.say(parts, 5);
+    return this.mixer.say(parts, priority);
   }
   more(npc: NpcId, v: Valley) {
     const eligible = TALKS.map((talk, i) => ({ talk, i })).filter(
@@ -168,15 +166,15 @@ export class Sound {
     if (pool.length && this.tell([pool[this.cycle(near.npc, pool.length)]!.line], 1))
       this.nextVoice = v.time + 38;
   }
-  private one(key: string, gain: number, pan = 0) {
+  private one(key: string, gain: number, pan = 0, inWorld = true) {
     const options = catalogue.effects[key];
     if (!options?.length) return;
-    void this.mixer.effect(options[this.variant++ % options.length]!, gain, pan);
+    void this.mixer.effect(options[this.variant++ % options.length]!, gain, pan, inWorld);
   }
   page(name: string) {
     if (this.enabled) {
       const key = ({ inventory: 'bag', journal: 'page', map: 'map' } as Record<string, string>)[name];
-      if (key) this.one(key, 0.45);
+      if (key) this.one(key, 0.45, 0, false);
     }
   }
   contact(
@@ -220,7 +218,7 @@ export class Sound {
           this.remark('beast', v.time, 1);
         } else if (challenge && this.mode !== 'off' && this.mixer.speechPriority < 3) {
           const spoke = this.mixer.say(
-            [{ cue: challenge.cue, caption: challenge.speaker + ' · ' + challenge.text }],
+            [{ cue: challenge.cue, caption: challenge.speaker + ' · ' + challenge.text, inWorld: true }],
             3
           );
           if (spoke) this.challenges.add(foe.id);
@@ -293,6 +291,11 @@ export class Sound {
   }
   movement(v: Valley) {
     if (!this.enabled || !this.volume) return;
+    if (this.room !== v.roomKey) {
+      this.mixer.room = v.room ? (v.room.stone ? 'stone' : 'timber') : undefined;
+      if (this.room !== undefined) this.one('door', 0.48);
+      this.room = v.roomKey;
+    }
     const act = v.activity;
     if (act !== this.activity) {
       this.activity = act;
@@ -308,8 +311,6 @@ export class Sound {
             : act.kind;
       this.one(key, 0.76);
     }
-    if (this.room !== undefined && this.room !== v.roomKey) this.one('door', 0.48);
-    this.room = v.roomKey;
     if (v.strike && !this.wasStriking) this.one('blade', 0.68);
     this.wasStriking = !!v.strike;
     if (this.wasJumping && !v.jump) this.one('land', 0.58);
