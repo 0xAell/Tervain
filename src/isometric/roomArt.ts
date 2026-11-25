@@ -12,6 +12,7 @@ import {
   type RoomArch,
   type StairFlight,
 } from './roomPlans';
+import { windFrame } from './wind';
 
 type Point = { x: number; y: number };
 const at = (x: number, z: number, h = 0): Point => {
@@ -83,6 +84,11 @@ export interface Casement {
   height: number;
   floor: number;
 }
+interface Hanging {
+  a: Point;
+  b: Point;
+  c: Point;
+}
 function wall(
   ctx: CanvasRenderingContext2D,
   atlas: Atlas,
@@ -92,7 +98,8 @@ function wall(
   stone: boolean,
   windows: boolean,
   loft: boolean,
-  casement?: (centre: V2, half: V2, height: number) => void
+  casement?: (centre: V2, half: V2, height: number) => void,
+  hanging?: (a: Point, b: Point, c: Point) => void
 ) {
   const p = at(a.x, a.z),
     q = at(b.x, b.z),
@@ -145,7 +152,7 @@ function wall(
       polygon(ctx, [b0, b1, sill, { x: b0.x + 3, y: b0.y + 3 }], stone ? '#a49a85' : '#c8a978');
     } else if (!stone && i % 2 === 1) {
       const half = 0.52 / length;
-      quad(ctx, atlas, 'room_banner', point(m - half, h - 3), point(m + half, h - 3), point(m - half, 7));
+      hanging?.(point(m - half, h - 3), point(m + half, h - 3), point(m - half, 7));
     }
   }
   if (!stone) line(ctx, point(0, 5), point(1, 5), '#99754d', 2);
@@ -470,6 +477,7 @@ export function stairForeground(
 }
 export interface RoomPlate {
   casements: Casement[];
+  hangings: Hanging[];
   floors: Path2D;
   stairs: StairLayer[];
   image: HTMLCanvasElement;
@@ -479,6 +487,19 @@ export interface RoomPlate {
 export class RoomArt {
   private plates = new Map<string, RoomPlate>();
   constructor(private atlas: Atlas) {}
+  drawHangings(ctx: CanvasRenderingContext2D, plate: RoomPlate, phase: number) {
+    if (!plate.hangings.length) return;
+    const key = 'room_banner--wind',
+      count = this.atlas.frameCount(key),
+      { width: w, height: h } = this.atlas.surface('room_banner');
+    for (const [index, { a, b, c }] of plate.hangings.entries()) {
+      const art = this.atlas.surface(key, windFrame(phase, count, index * 1.45));
+      ctx.save();
+      ctx.transform((b.x - a.x) / w, (b.y - a.y) / w, (c.x - a.x) / h, (c.y - a.y) / h, a.x, a.y);
+      ctx.drawImage(art, (w - art.width) / 2, 0);
+      ctx.restore();
+    }
+  }
   plate(plan: FloorPlan, indigo = false): RoomPlate {
     const style = plan.site.id + '/' + plan.level + '/' + indigo;
     const cached = this.plates.get(style);
@@ -505,9 +526,15 @@ export class RoomArt {
       ctx.restore();
     }
     const casements: Casement[] = [],
+      hangings: Hanging[] = [],
       floors = new Path2D();
     const recordWindow = (index: number) => (centre: V2, half: V2, height: number) =>
       casements.push({ centre, half, height, floor: chamberLift(plan, index) });
+    const recordHanging = (index: number) => (a: Point, b: Point, c: Point) => {
+      const lift = chamberLift(plan, index);
+      const raised = (p: Point) => ({ x: p.x, y: p.y - lift });
+      hangings.push({ a: raised(a), b: raised(b), c: raised(c) });
+    };
     for (const [i, r] of plan.rooms.entries()) {
       const lift = chamberLift(plan, i);
       for (const [n, p] of [
@@ -543,7 +570,8 @@ export class RoomArt {
         plan.stone,
         plan.level !== 'cellar',
         plan.level === 'loft',
-        recordWindow(i)
+        recordWindow(i),
+        recordHanging(i)
       );
       ctx.restore();
     }
@@ -558,7 +586,8 @@ export class RoomArt {
       plan.stone,
       plan.level !== 'cellar',
       false,
-      recordWindow(0)
+      recordWindow(0),
+      recordHanging(0)
     );
     ctx.restore();
     const stairLayers = plan.stairs.map((s) =>
@@ -599,7 +628,7 @@ export class RoomArt {
         line(ctx, b, { x: b.x + 1, y: b.y - 1 }, '#eac184', 3);
       }
     }
-    const out = { image, left, top, casements, floors, stairs: stairLayers };
+    const out = { image, left, top, casements, hangings, floors, stairs: stairLayers };
     if (this.plates.size >= 6) this.plates.delete(this.plates.keys().next().value!);
     this.plates.set(style, out);
     return out;

@@ -1,9 +1,12 @@
 import { shoreDistance } from '../core/world/coast';
 import { deepwoodCover, forestClearingCover, forestOpeningCover } from '../core/world/forest';
 import { toBuildingLocal } from '../core/world/interiors';
-import { FIELDS, FOREST_REGION, INLAND_HAMLET, PLACES } from '../core/world/layout';
+import { FIELDS, FOREST_REGION, INLAND_HAMLET, PLACES, type FieldSpec } from '../core/world/layout';
 import { smoothstep } from '../core/world/noise';
 import { realmRadius } from '../core/world/terrain';
+
+export const cropHeadland = 1.2;
+export const cropRowSpacing = { grain: 1.7, greens: 2.1, fallow: 2.25 } satisfies Record<FieldSpec['crop'], number>;
 
 export function onBeach(x: number, z: number, margin = 0) {
   return x < -220 + margin && shoreDistance(x, z) < 15 + 2 * Math.sin(z * 0.2) + margin;

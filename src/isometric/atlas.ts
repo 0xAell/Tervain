@@ -4,9 +4,14 @@ type Frame = [number, number, number, number];
 interface Sheet {
   frames: Record<string, Frame[]>;
 }
+interface Animation {
+  image: HTMLCanvasElement;
+  frames: Frame[];
+}
 
 export class Atlas {
   private reflections = new Map<string, HTMLCanvasElement>();
+  private animations = new Map<string, Animation>();
   private constructor(
     readonly image: HTMLImageElement,
     private sheet: Sheet
@@ -41,40 +46,50 @@ export class Atlas {
   }
 
   private materials = new Map<string, HTMLCanvasElement>();
-  surface(key: string) {
-    let surface = this.materials.get(key);
+  surface(key: string, frame = 0) {
+    const animation = this.animations.get(key),
+      index = Math.floor(frame) % this.frameCount(key),
+      id = key + '/' + index;
+    let surface = this.materials.get(id);
     if (!surface) {
-      const [x, y, w, h] = this.sheet.frames[key]![0]!;
+      const [x, y, w, h] = (animation?.frames ?? this.sheet.frames[key])![index]!;
       surface = document.createElement('canvas');
       surface.width = w;
       surface.height = h;
-      surface.getContext('2d')!.drawImage(this.image, x, y, w, h, 0, 0, w, h);
-      this.materials.set(key, surface);
+      surface.getContext('2d')!.drawImage(animation?.image ?? this.image, x, y, w, h, 0, 0, w, h);
+      this.materials.set(id, surface);
     }
     return surface;
   }
 
+  addAnimation(key: string, image: HTMLCanvasElement, width: number, height: number) {
+    const frames: Frame[] = [];
+    for (let x = 0; x < image.width; x += width) frames.push([x, 0, width, height]);
+    this.animations.set(key, { image, frames });
+  }
+
   read(key: string) {
-    return this.sheet.frames[key]!.map(([x, y, w, h]) => {
+    const animation = this.animations.get(key);
+    return (animation?.frames ?? this.sheet.frames[key])!.map(([x, y, w, h]) => {
       const canvas = document.createElement('canvas');
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
-      ctx.drawImage(this.image, x, y, w, h, 0, 0, w, h);
+      ctx.drawImage(animation?.image ?? this.image, x, y, w, h, 0, 0, w, h);
       return { pixels: new Uint32Array(ctx.getImageData(0, 0, w, h).data.buffer), w, h };
     });
   }
 
   has(key: string) {
-    return Object.hasOwn(this.sheet.frames, key);
+    return this.animations.has(key) || Object.hasOwn(this.sheet.frames, key);
   }
 
   frameCount(key: string) {
-    return this.sheet.frames[key]?.length ?? 0;
+    return (this.animations.get(key)?.frames ?? this.sheet.frames[key])?.length ?? 0;
   }
 
   height(key: string, width: number, frame = 0) {
-    const frames = this.sheet.frames[key];
+    const frames = this.animations.get(key)?.frames ?? this.sheet.frames[key];
     if (!frames?.length) throw Error('Missing PixelLab sprite ' + key);
     const rect = frames[Math.max(0, Math.floor(frame)) % frames.length]!;
     return Math.round((width * rect[3]) / rect[2]);
@@ -92,7 +107,9 @@ export class Atlas {
     submerged = 0,
     reflected = false
   ) {
-    const frames = this.sheet.frames[key];
+    const animation = this.animations.get(key),
+      source = animation?.image ?? this.image,
+      frames = animation?.frames ?? this.sheet.frames[key];
     if (!frames?.length) throw new Error('Missing PixelLab sprite ' + key);
     const [sx, sy, sw, sh] = frames[Math.floor(frame) % frames.length]!;
     const w = Math.round(width),
@@ -114,7 +131,7 @@ export class Atlas {
         copy.width = sw;
         copy.height = sh;
         const layer = copy.getContext('2d')!;
-        layer.drawImage(this.image, sx, sy, sw, sh, 0, 0, sw, sh);
+        layer.drawImage(source, sx, sy, sw, sh, 0, 0, sw, sh);
         const fog = layer.createLinearGradient(0, 0, 0, sh);
         fog.addColorStop(0, 'rgba(0,0,0,.17)');
         fog.addColorStop(1, 'rgba(0,0,0,.9)');
@@ -124,7 +141,7 @@ export class Atlas {
         this.reflections.set(id, copy);
       }
       ctx.drawImage(copy, 0, 0, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
-    } else ctx.drawImage(this.image, sx, sy, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
+    } else ctx.drawImage(source, sx, sy, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
     if (flip) ctx.restore();
   }
 }

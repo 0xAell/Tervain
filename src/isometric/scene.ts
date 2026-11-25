@@ -30,6 +30,9 @@ import { project, unproject, inBuilding, scenery, type Scenery } from './land';
 import { COOKFIRES, PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
 import { hourOfDay } from '../core/game/state';
 import { facesLeft, type Valley } from './simulation';
+import { isTree } from './treeHabitat';
+import { Meadow } from './meadow';
+import { buildWindArt, windFrame, windPhase, type WindSprite } from './wind';
 
 export class Scene {
   readonly context: CanvasRenderingContext2D;
@@ -38,6 +41,8 @@ export class Scene {
   readonly water: WaterReflections;
   private architecture: Architecture;
   private riverLife: RiverLife;
+  private meadow: Meadow;
+  private windSprites: Map<string, WindSprite>;
   private bridges: Stamp[][];
   private props = new Map<string, Scenery[]>();
   private rooms: RoomView;
@@ -71,6 +76,9 @@ export class Scene {
     readonly atlas: Atlas
   ) {
     this.context = canvas.getContext('2d', { alpha: false })!;
+    const wind = buildWindArt(atlas);
+    this.windSprites = wind.sprites;
+    this.meadow = new Meadow(atlas, wind);
     this.rooms = new RoomView(atlas);
     this.ground = new Ground(atlas);
     this.sun = new Sunlight(atlas);
@@ -236,6 +244,7 @@ export class Scene {
           }
           const furniture = prop.key === 'seat' || prop.key === 'fire';
           const standard = isHegemonyStandard(prop.key);
+          const wind = this.windSprites.get(prop.key);
           const overlaps =
             !furniture &&
             focusPoints.some(
@@ -247,33 +256,34 @@ export class Scene {
           const motion =
             prop.key === 'rill_lilies'
               ? 'bob'
-              : ['rill_iris', 'rill_sedge', 'rill_willow', 'rill_alder', 'rill_fern'].includes(prop.key)
+              : this.atlas.has(prop.key + '--sway')
                 ? 'sway'
                 : prop.key === 'fire'
                   ? 'firelight'
                   : prop.key === 'lantern'
                     ? 'light'
-                    : ['oak', 'fir', 'birch', 'pine'].includes(prop.key)
-                      ? 'sway'
-                      : '';
+                    : '';
           const key =
             prop.paidKey && valley.game.state.facts.wagon_iron_paid
               ? prop.paidKey
-              : motion
-                ? this.motion(prop.key, motion)
-                : prop.key;
+              : (wind?.key ?? (motion ? this.motion(prop.key, motion) : prop.key));
+          const offset = prop.phase ?? Math.abs(prop.z) % 5;
+          const frame =
+            standard || wind || motion === 'sway'
+              ? windFrame(
+                  windPhase(prop.x, prop.z, time, isTree(prop.key) ? 0.61 : standard ? 1.12 : 1),
+                  this.atlas.frameCount(key),
+                  offset
+                )
+              : Math.floor(time * (motion === 'bob' ? 2.5 : 6) + offset);
           stamps.push({
             ...prop,
             sway: valley.props?.sway(prop),
             reflect: prop.key !== 'rill_lilies',
             anchor: prop.key === 'rill_lilies' ? 0.55 : 1,
             key,
-            frame: Math.floor(
-              (standard
-                ? time * 8 + 1.2 * Math.sin(time * 0.82 + prop.x * 0.018 - prop.z * 0.027)
-                : time * (motion === 'sway' ? 3.5 : motion === 'bob' ? 2.5 : 6)) +
-                (prop.phase ?? Math.abs(prop.z) % 5)
-            ),
+            width: prop.width * (wind?.widthScale ?? 1),
+            frame,
             alpha: overlaps && (standard || prop.width > 27) ? (fieldwork ? 0.08 : 0.26) : 1,
           });
         }
@@ -287,16 +297,18 @@ export class Scene {
         width: 20,
         lift: 5,
       });
-    for (const p of PICKUP_LOCATIONS)
-      if (valley.game.state.locationChanges['pickup:' + p.id] !== 'taken')
-        stamps.push({
-          ...p,
-          key:
-            p.item === 'healing_herb' ? 'field_herbs' : p.item === 'field_mushroom' ? 'field_caps' : p.item,
-          width:
-            p.id === 'wreck_blade' ? 24 : p.item === 'healing_herb' || p.item === 'field_mushroom' ? 16 : 14,
-          lift: p.id === 'wreck_blade' ? 4 : 1,
-        });
+    for (const p of PICKUP_LOCATIONS) {
+      if (valley.game.state.locationChanges['pickup:' + p.id] === 'taken') continue;
+      const herb = p.item === 'healing_herb' ? this.windSprites.get('field_herbs') : undefined;
+      const key = herb?.key ?? (p.item === 'field_mushroom' ? 'field_caps' : p.item);
+      stamps.push({
+        ...p,
+        key,
+        width: p.id === 'wreck_blade' ? 24 : herb ? 16 * herb.widthScale : p.item === 'field_mushroom' ? 16 : 14,
+        frame: herb ? windFrame(windPhase(p.x, p.z, time), this.atlas.frameCount(key)) : 0,
+        lift: p.id === 'wreck_blade' ? 4 : 1,
+      });
+    }
     for (const resident of AMBIENT_RESIDENTS) {
       if (resident.sleeps && (hour < 6 || hour >= 21)) continue;
       let elapsed = time % resident.cycle.reduce((n, c) => n + c[1], 0);
@@ -443,6 +455,7 @@ export class Scene {
       ...(valley.props?.waterRipples() ?? []),
     ].slice(-16);
     this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, time, view.flow, hour, ripples, floating);
+    this.lastDraws += this.meadow.draw(ctx, this.ground, ox, oy, time, { xmin, xmax, zmin, zmax });
     this.riverLife.drawShoals(ctx, this.ground, ox, oy, time);
     this.water.draw(ctx, this.ground, stamps, ox, oy, time);
     this.sun.draw(ctx, stamps, buildings, ox, oy, hour);
