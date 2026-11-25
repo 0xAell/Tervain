@@ -293,7 +293,11 @@ def prepare(cache):
         "music": "Three instrumental commissions from the briefs in tools/world-audio/vale-score.json. Eleven Music terms apply.",
         "sources": sources,
         "deliveries": [
-            {"file": f, "sha256": hashlib.sha256((OUT / f).read_bytes()).hexdigest()}
+            {
+                "file": f,
+                "bytes": (OUT / f).stat().st_size,
+                "sha256": hashlib.sha256((OUT / f).read_bytes()).hexdigest(),
+            }
             for f in sorted(files)
         ],
     }

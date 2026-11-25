@@ -995,622 +995,777 @@
   "deliveries": [
     {
       "file": "bed-cellar.mp3",
+      "bytes": 224958,
       "sha256": "e992c5394c2cd51bf75b1c614934c6a3c9aa3df0a1784ec95a0f4461672866d1"
     },
     {
       "file": "bed-coast.mp3",
+      "bytes": 253118,
       "sha256": "861594a6c708450c1c1c0d862c400563fc2ab3c7ff8cd42f26b3f407c52aa9df"
     },
     {
       "file": "bed-hearth.mp3",
+      "bytes": 224958,
       "sha256": "f0f3f443459a51f45c08843678b1b6f4864ea2238122c0710f957db898753272"
     },
     {
       "file": "bed-interior.mp3",
+      "bytes": 224958,
       "sha256": "408b24776f4e2919fc8506c6610dbee01273a908fda02657acc53a9fb61647c1"
     },
     {
       "file": "bed-night.mp3",
+      "bytes": 253118,
       "sha256": "f1bbd05bc26a352d175b5d384bb6b8c692f28ce099d8dabc99d9b81bdefe4547"
     },
     {
       "file": "bed-quarry.mp3",
+      "bytes": 224958,
       "sha256": "5bb6f7c0cb318b3c54b9905253fc09def1733c88c7290974596b8f8b62fdd633"
     },
     {
       "file": "bed-river.mp3",
+      "bytes": 253118,
       "sha256": "c084229bdb5084b514c54b07c621864eac274fdddf9fd4e0e12b15d7fdac4279"
     },
     {
       "file": "bed-village.mp3",
+      "bytes": 253118,
       "sha256": "e17736841bb063739049f1f98d4cc798fb9fb635cf4368045b45710ebf5859e3"
     },
     {
       "file": "bed-woodland.mp3",
+      "bytes": 253118,
       "sha256": "6bc7ae080151ac1aed749207bf8b2111d03cbe6174c08b797b42250292395141"
     },
     {
       "file": "cast-ash-recorder-01.mp3",
+      "bytes": 420141,
       "sha256": "7ef8ad1ab04d5894076e90de9ebe4e115d72e680a8a0358b6dfda757d4629c06"
     },
     {
       "file": "cast-ash-recorder-02.mp3",
+      "bytes": 337581,
       "sha256": "35508bcca18c0d69d7bc44c531cd6e27334e394c5f0c8c122d489e8946f52d2b"
     },
     {
       "file": "cast-ash-recorder-03.mp3",
+      "bytes": 192045,
       "sha256": "5f9c2867d755467fb56c98596cdee7eb58ebb93f52f088ddd3e80fd4a0c16afd"
     },
     {
       "file": "cast-caravan-master-01.mp3",
+      "bytes": 375021,
       "sha256": "91251e5a4b40f62934b7b71d3c42ed089c5f62d59d218649693092b74f822bc4"
     },
     {
       "file": "cast-caravan-master-02.mp3",
+      "bytes": 347565,
       "sha256": "f8751854b84a61370e22078cf228d0abbbb5254a2e6409d7f22aae250dfeb371"
     },
     {
       "file": "cast-caravan-master-03.mp3",
+      "bytes": 390381,
       "sha256": "ad2dccb258e9e7c28d3b867ec01c0c621186ebc545fdeca55316e7b69f825166"
     },
     {
       "file": "cast-caravan-master-04.mp3",
+      "bytes": 132909,
       "sha256": "b431f2fd06423b4d4e59269cfc2a90c49287a4cae5d1b8b7a3b92803bfa1af6a"
     },
     {
       "file": "cast-estate-steward-01.mp3",
+      "bytes": 413421,
       "sha256": "b0c74d5b4ff894cd1c5b32b1fd58d44a95577cf4cf6a3314b5f1e63a22cb6b75"
     },
     {
       "file": "cast-estate-steward-02.mp3",
+      "bytes": 384045,
       "sha256": "3254a48e9ffe91aad44f0716aaf6b52109f682c640eabda77e8ac26989fcb8db"
     },
     {
       "file": "cast-hero-01.mp3",
+      "bytes": 422445,
       "sha256": "2acb50845b006fe56eea4c3150d55f416cac64493d37ecb3d85639a38c6eb614"
     },
     {
       "file": "cast-hero-02.mp3",
+      "bytes": 399405,
       "sha256": "eb48428b3204b14c9280ab992dc0b57dfab828fe359cd3f86b981315988fa919"
     },
     {
       "file": "cast-hero-03.mp3",
+      "bytes": 398445,
       "sha256": "8f717baa7312a5790b43f284b2b2ca53c86c9ab539e90b182f806db744d07ea9"
     },
     {
       "file": "cast-hero-04.mp3",
+      "bytes": 419949,
       "sha256": "4fe7b248626421a709856c033343cf533136683ffc5ff029e45d765fcef8313e"
     },
     {
       "file": "cast-hero-05.mp3",
+      "bytes": 421101,
       "sha256": "2b9eba231c2937107fac3d1a942d2e747a5a4944101720ef6435439ba90745a2"
     },
     {
       "file": "cast-hero-06.mp3",
+      "bytes": 425709,
       "sha256": "c736b7f42f4c12e3afb96ec15fe8fbd9718e72b0edd2c60c01f7bb1014aa16b3"
     },
     {
       "file": "cast-hero-07.mp3",
+      "bytes": 414189,
       "sha256": "0b5eb44930182e61430ccb0debc67bb5cee296306c984d2580be39b464eab965"
     },
     {
       "file": "cast-hero-08.mp3",
+      "bytes": 421485,
       "sha256": "08512f4d7266d820d5f2ac67804da0bba1eb10baf6942cae86864284fdcff657"
     },
     {
       "file": "cast-hero-09.mp3",
+      "bytes": 415341,
       "sha256": "cb1808d07a3da866ca523adc34f28a4f7d23754e128998ace4fe013abfc4d419"
     },
     {
       "file": "cast-hero-10.mp3",
+      "bytes": 148269,
       "sha256": "92c11787b3d019c93fe398b76a9b5ba4d03221693415eab38bf0d299e98f7cdc"
     },
     {
       "file": "cast-maintenance-worker-01.mp3",
+      "bytes": 385965,
       "sha256": "87db5c0bedfd6c274aa2d0d747c3f3fe199ca75bb25fa6f97e1ef13437763cb1"
     },
     {
       "file": "cast-maintenance-worker-02.mp3",
+      "bytes": 418221,
       "sha256": "8b5f2e9bbe7d5cd9a4b4cad7722efb31e6c68beabeca8ec919d5a8edc5fe33bf"
     },
     {
       "file": "cast-maintenance-worker-03.mp3",
+      "bytes": 365805,
       "sha256": "79bf2acc95c5d189bb4d8261449cb7afccc288e8b36588ac361ef373aba5bf8f"
     },
     {
       "file": "cast-maintenance-worker-04.mp3",
+      "bytes": 309741,
       "sha256": "892c56885772968f06c245784c2ea97a7854a09687b15d7cecd8f5e831672820"
     },
     {
       "file": "cast-maintenance-worker-05.mp3",
+      "bytes": 362925,
       "sha256": "a5003180c455be4b878a8800ec2cedc4a7fd84984b633194c5983916dfef8436"
     },
     {
       "file": "cast-mill-hand-01.mp3",
+      "bytes": 413421,
       "sha256": "ec85ac7f85edcf6f99ae1027b3cbb813ecbe8f7d99d5e5b25d9a60a4f4eee8a0"
     },
     {
       "file": "cast-mill-hand-02.mp3",
+      "bytes": 345069,
       "sha256": "952de7c2ef42c786f4ae54ea8e7d2b1917689fb0f55acc7421081c6446745681"
     },
     {
       "file": "cast-quarry-foreman-01.mp3",
+      "bytes": 384429,
       "sha256": "a0764fbeab81d7d368ca003d35a3f743b353ebe47fc6e6333358a52807b2d66a"
     },
     {
       "file": "cast-quarry-foreman-02.mp3",
+      "bytes": 401709,
       "sha256": "ce13df9d61ad94b9b09e675103943ed897b34c56c657bd8519169cae97c075db"
     },
     {
       "file": "cast-quarry-foreman-03.mp3",
+      "bytes": 369069,
       "sha256": "c219d99300c4beb2067df9383eb01aaf4a8d9e6a805376b149363c6ef88dd289"
     },
     {
       "file": "cast-quarry-foreman-04.mp3",
+      "bytes": 311469,
       "sha256": "20f108301c69b5d95942fc5ccfee5fafba7ae3cc51b63a0639a72ef6535f9e49"
     },
     {
       "file": "cast-quarry-foreman-05.mp3",
+      "bytes": 389421,
       "sha256": "34c6fe13bbe65f3ce6323cbb31d94266e3c410e3697040db83838287cdda387a"
     },
     {
       "file": "cast-quarry-foreman-06.mp3",
+      "bytes": 353325,
       "sha256": "6ecff64fa5235a86eec52a13efff42ea57c2663d43190efb781580ec6c27264b"
     },
     {
       "file": "cast-quarry-foreman-07.mp3",
+      "bytes": 224109,
       "sha256": "341ebb3c5e9eef46d4a7a20ec40e1c1212fb96fa3a4fff8777907b4adfbcdda1"
     },
     {
       "file": "cast-quarry-hand-01.mp3",
+      "bytes": 412461,
       "sha256": "94b11fd0059aa0b0dc0df89b806532d1446a83118f3c4d596ef48ba8a60186b9"
     },
     {
       "file": "cast-quarry-hand-02.mp3",
+      "bytes": 419949,
       "sha256": "af4864198f8afaf7871253bfbb6bfedfd2760bb0debae4498d2fcdd8cb62a062"
     },
     {
       "file": "cast-quarry-hand-03.mp3",
+      "bytes": 72045,
       "sha256": "970bde93a0b166d95a7d38db1153f54081c902f1d9fd995a796886d575fce3c7"
     },
     {
       "file": "cast-rillford-reeve-01.mp3",
+      "bytes": 365805,
       "sha256": "a6aa0cc577b32c6b108b451eefa26b39f1c77f6ec04b86146016aa23134b03dc"
     },
     {
       "file": "cast-rillford-reeve-02.mp3",
+      "bytes": 421485,
       "sha256": "207b5ed66734c0bcf46587b79a12b4f4f8db0b8dad16309d30db95fe3ec00367"
     },
     {
       "file": "cast-rillford-reeve-03.mp3",
+      "bytes": 370221,
       "sha256": "53ba46ed25b164659199583d2c9544e97779dcb868be44dbbfd1193f64f46337"
     },
     {
       "file": "cast-rillford-reeve-04.mp3",
+      "bytes": 312621,
       "sha256": "25dbfa8d73fbad3a39c0d97f276a422d121abcfd93b51c55f96bb6da005a8a97"
     },
     {
       "file": "cast-rillford-reeve-05.mp3",
+      "bytes": 365805,
       "sha256": "141c9c277f2c12d93ec026efc04f5d1f31a3db10dbc4835cfbaee118ecf6d79d"
     },
     {
       "file": "cast-rillford-reeve-06.mp3",
+      "bytes": 415149,
       "sha256": "acdde7a095175d88b2f4c4839c77e88332ee75c79c59469f374beef791e12924"
     },
     {
       "file": "cast-rillford-reeve-07.mp3",
+      "bytes": 362541,
       "sha256": "571f41fb1fe576e89e00f6368cc47b8b6c1ae77eda1e994a867250e7c2cd4495"
     },
     {
       "file": "cast-rillford-reeve-08.mp3",
+      "bytes": 346605,
       "sha256": "785a31de95e0f2b6304636a50f038a6bc294c49a4533fca9538b6fd25910f7af"
     },
     {
       "file": "cast-shrine-warden-01.mp3",
+      "bytes": 418605,
       "sha256": "5b0bba1a3a19165f3ff6adb5dd0652507a5c11bdb7c725874c611218e97203e2"
     },
     {
       "file": "cast-shrine-warden-02.mp3",
+      "bytes": 374445,
       "sha256": "d2382efe9d67aa504ecfc8440c0f4c25b23d9127e6d75d112c82e698aeca0018"
     },
     {
       "file": "cast-shrine-warden-03.mp3",
+      "bytes": 273645,
       "sha256": "7d7be52814f55f1e1272e168f5f823ca7b4ef19e0608c6ef0c034ad62fbf70c7"
     },
     {
       "file": "cast-spring-steward-01.mp3",
+      "bytes": 370029,
       "sha256": "7c84fdc7bfe7eb75eb45dcf2bddda0578f1dab0913785e29533bfb4333eb06a6"
     },
     {
       "file": "cast-spring-steward-02.mp3",
+      "bytes": 379245,
       "sha256": "9b98a416cc0e8f5f99844f3fc752b67fee09be40289625c58a3e3e18a9cc672d"
     },
     {
       "file": "cast-spring-steward-03.mp3",
+      "bytes": 349869,
       "sha256": "adad1439a8438ad047ac2509779a39e9eadc63c48929298d2fd1c47476a0958d"
     },
     {
       "file": "cast-spring-steward-04.mp3",
+      "bytes": 330669,
       "sha256": "39a10020243177cfbe19a4d26c15252305cd377c451c1addc3028da3b89f93b7"
     },
     {
       "file": "cast-spring-steward-05.mp3",
+      "bytes": 359085,
       "sha256": "214e8ff29d6e4abfb2cd56a74c1212daea2f0468034c963d00a340e63bd9679d"
     },
     {
       "file": "cast-spring-steward-06.mp3",
+      "bytes": 404205,
       "sha256": "99aa6bd80458b37f574848cb7c5a3c1c429d019e9b03227f5e09858fcc40f946"
     },
     {
       "file": "cast-spring-steward-07.mp3",
+      "bytes": 222189,
       "sha256": "b06ec01349eb9ff3ed5bea8cfb8233102eab1cbc0b579d5ff4cef938d68c4ed2"
     },
     {
       "file": "cast-trail-hunter-01.mp3",
+      "bytes": 85485,
       "sha256": "b63f85d173d2f48c048c5e2a3eaa9e149cfc4df5c4d577962c69774db3721d06"
     },
     {
       "file": "cast-village-baker-01.mp3",
+      "bytes": 421869,
       "sha256": "cd2b26fec5e643de1bb864451063fd715a957f03cb1e01c6c593b41952158eab"
     },
     {
       "file": "cast-village-baker-02.mp3",
+      "bytes": 344109,
       "sha256": "52a320cae89beadd2a43f4fd7ebed7d509ddce1c2dcce16472316576760ada70"
     },
     {
       "file": "cast-village-baker-03.mp3",
+      "bytes": 156141,
       "sha256": "045fd3bf88de465e22c0dffeae6ab1862675b57e5569027d9531ce4cb3559913"
     },
     {
       "file": "foley-01.mp3",
+      "bytes": 218349,
       "sha256": "1b9adc929c056ab190b8d3e25537f62a96aac0512865c001429b4ec7bd304ab4"
     },
     {
       "file": "footsteps-01.mp3",
+      "bytes": 247917,
       "sha256": "a12fdac1e81676360a76646eb0091f84de25331ddf102f9ee0a672b8f29566d0"
     },
     {
       "file": "ford-voices-01.mp3",
+      "bytes": 48621,
       "sha256": "12f6afde469ea10297f022120608a8a5463583892627d45a00776e6be27481f6"
     },
     {
       "file": "reader-01.mp3",
+      "bytes": 413613,
       "sha256": "86a6a52f5e48a39af80a93fb241ac8b70571d39056481b095bf43825e1d932a1"
     },
     {
       "file": "reader-02.mp3",
+      "bytes": 424557,
       "sha256": "22a555d338a0a42067891e29f388ae5127893de779b92620e268b9749df4b91e"
     },
     {
       "file": "reader-03.mp3",
+      "bytes": 425325,
       "sha256": "8803fb64f3d8c9f1f170fa32828d76934281a6db64f79e3a152ab36995d8076e"
     },
     {
       "file": "reader-04.mp3",
+      "bytes": 400173,
       "sha256": "8aa99107aab7b387d5feb632ed4ecfc606b8a966259449dd9a9970da7238f1ad"
     },
     {
       "file": "reader-05.mp3",
+      "bytes": 418989,
       "sha256": "d4f7c5e458bc10ae00bfb303b93f3258612a9b97a72761ae82126dac4f675368"
     },
     {
       "file": "reader-06.mp3",
+      "bytes": 388077,
       "sha256": "6e144d1fa1022083da7d202b83eb7f33b4fa238f6be368401429953339a24c11"
     },
     {
       "file": "reader-07.mp3",
+      "bytes": 421101,
       "sha256": "a80142ef6cb98b6d87c3dddf9f8587a79b02de24c95f6c0c5efa159dbd8de107"
     },
     {
       "file": "reader-08.mp3",
+      "bytes": 416877,
       "sha256": "a81a0338e442c0924188792d5649e18a0ed54329f24f7b32f97fba9d272f990e"
     },
     {
       "file": "reader-09.mp3",
+      "bytes": 419949,
       "sha256": "5cd0e2e811feff3ca13fbe9508bf4b8f5a5f3b7bf9286c3f935b2ea03897e20e"
     },
     {
       "file": "reader-10.mp3",
+      "bytes": 422829,
       "sha256": "d5da68468bc91aae2d622d808a78e7ce495a8eaa0d3b12b73834f367316f54b9"
     },
     {
       "file": "reader-11.mp3",
+      "bytes": 418605,
       "sha256": "a151136ceed270e9a469e5225cd17cb83f414473fbc307e35c05702ed07b69e8"
     },
     {
       "file": "reader-12.mp3",
+      "bytes": 421869,
       "sha256": "7830d07be32170bcc0b1d230e1b37a0e90b3a04f76b24e106d692b25f0d56da9"
     },
     {
       "file": "reader-13.mp3",
+      "bytes": 424941,
       "sha256": "bb6a3ddd68ce06c0e8d686f9bcea79f573ba9a8eea814767e1a008aa5763bb9a"
     },
     {
       "file": "reader-14.mp3",
+      "bytes": 405741,
       "sha256": "c4c6f9aab9354ef8e5414adb13c6f330beda9f65cef32c8fb685ac35193c2832"
     },
     {
       "file": "reader-15.mp3",
+      "bytes": 410925,
       "sha256": "e74989b65824c81f880f9bd87d05f80bd705abc6c52adf642f15fb25378c16e1"
     },
     {
       "file": "reader-16.mp3",
+      "bytes": 424557,
       "sha256": "f151489b3d36b3baf05d3af2095301455b627dee565411ab77efde3411c8fca3"
     },
     {
       "file": "reader-17.mp3",
+      "bytes": 420333,
       "sha256": "c0c8010b7fd6948f29f51113875aa9d58f53a86652fdd4038db76cd2d1f74174"
     },
     {
       "file": "reader-18.mp3",
+      "bytes": 415725,
       "sha256": "b54cb477878c12a6264ebfd5f702da5610b959e7f2b650d606a43082f48e76b6"
     },
     {
       "file": "reader-19.mp3",
+      "bytes": 419757,
       "sha256": "a174bc14b21330161155e65cd8b4a8239c26bb91db9a817847ed869749164c97"
     },
     {
       "file": "reader-20.mp3",
+      "bytes": 414957,
       "sha256": "c1be001c5dd92a20795c6c55ddbc76ba60635bf57504a9b4effc2a14b42a2608"
     },
     {
       "file": "reader-21.mp3",
+      "bytes": 410157,
       "sha256": "b8609ec3d255c89dbe2c43de86edcec045e004aaa6854c705f16a97d4e6dfb4f"
     },
     {
       "file": "reader-22.mp3",
+      "bytes": 420717,
       "sha256": "ddb23a1cd8b393b7a56b7dc8586c770f9c1face4e8a9b8cabc86cfae24538980"
     },
     {
       "file": "reader-23.mp3",
+      "bytes": 422061,
       "sha256": "4301cb238605d18b63af98aa92b40976547b5ff987b17d587abdf9367bf1d9f5"
     },
     {
       "file": "reader-24.mp3",
+      "bytes": 413421,
       "sha256": "5b87c4648dc322438239afbb09f57c36c84e461d6ee787655cf89e92a6982381"
     },
     {
       "file": "reader-25.mp3",
+      "bytes": 424557,
       "sha256": "2bcd50a4236bb3d92dba006378dd1919e35b3b76cfb2d6a09a58e8bec96a1d59"
     },
     {
       "file": "reader-26.mp3",
+      "bytes": 369645,
       "sha256": "455aa6afca49a8d617ce879c9ea245eb6c356b888e08112c7e846ecfdb658150"
     },
     {
       "file": "reader-27.mp3",
+      "bytes": 421293,
       "sha256": "c9a056cd2e1c7baeca453a34e3d0e19c7d5e72fcbff7440e64a32ae81cdb6c6d"
     },
     {
       "file": "reader-28.mp3",
+      "bytes": 412845,
       "sha256": "d164740a0530fa85ae6b47b12a6f638a19f3dd3c7342d10bc48d1cb5d95f14bc"
     },
     {
       "file": "reader-29.mp3",
+      "bytes": 367917,
       "sha256": "d50b330e165b0c585ad343f99432021fe07aa939f596454d4cb81aa4ccd509b9"
     },
     {
       "file": "reader-30.mp3",
+      "bytes": 405741,
       "sha256": "310faa41dfde8ae3c70df210775e54bab10ca9893ef8fb923786664c476883be"
     },
     {
       "file": "reader-31.mp3",
+      "bytes": 417261,
       "sha256": "b9ff23531fdd922d1056d9e1cd4b5f0b0fb29eba0a618dccee3a5f603170882d"
     },
     {
       "file": "reader-32.mp3",
+      "bytes": 415341,
       "sha256": "e4240e02cca30375e442048ade990b527a82aa6437e1d8e489e0d1acd3b8edc4"
     },
     {
       "file": "reader-33.mp3",
+      "bytes": 420717,
       "sha256": "1bc339ba0c54e007d6c901773bff2802815db01556945af46a505eec0e9a2367"
     },
     {
       "file": "reader-34.mp3",
+      "bytes": 391341,
       "sha256": "61afaebca0512af28987d2a48f3313cbaf0a52b1d42c8923f71f73e8c932b22f"
     },
     {
       "file": "reader-35.mp3",
+      "bytes": 402093,
       "sha256": "1a65bcf297bdfb652b815262fb4eff7d0f96bf0d2a928a52183a1be8e26cce79"
     },
     {
       "file": "reader-36.mp3",
+      "bytes": 417261,
       "sha256": "00e470c3a1fa8436fa10910fc2cf319f6700956db9f76e327b5774766b11701f"
     },
     {
       "file": "reader-37.mp3",
+      "bytes": 423789,
       "sha256": "65e7a96fd600c46e440c63c726497eb15393f1821cb1077f2d7b9d47f9f94cdc"
     },
     {
       "file": "reader-38.mp3",
+      "bytes": 423213,
       "sha256": "363ee64bee991e3d2c15a848880272e4be943b4b12adc800eb7f96dd7a2e8e29"
     },
     {
       "file": "reader-39.mp3",
+      "bytes": 401325,
       "sha256": "8ce8ba0592976ac73cb164a2820f659f5a64e362586e805de382d382bf80d3ae"
     },
     {
       "file": "reader-40.mp3",
+      "bytes": 414765,
       "sha256": "ee6b97ed1eec9a1f27a239e3ed1e2c2b14f6bd662a242c09dafd4d3761166ed1"
     },
     {
       "file": "reader-41.mp3",
+      "bytes": 412653,
       "sha256": "09f5c173f235a13e391545c87bf45d31e8920bb2c12d7415b1a5b4251af397e9"
     },
     {
       "file": "reader-42.mp3",
+      "bytes": 403629,
       "sha256": "96a029dcf8544dbd7f25091ad64d4f6926d792fd7fc32aec96f1fe52210193a7"
     },
     {
       "file": "reader-43.mp3",
+      "bytes": 417837,
       "sha256": "401b02af2eb76a72d9c21c0373666c366af99e7be59c7d8796b71b1d5c219af8"
     },
     {
       "file": "reader-44.mp3",
+      "bytes": 422829,
       "sha256": "dcfafe2fb102c35613c18cf8f3392e88fb7854a678ef07b0cd40b464a05f286c"
     },
     {
       "file": "reader-45.mp3",
+      "bytes": 412653,
       "sha256": "f29fbc1f72aa8a76cc842982274c19b78ce6323a6bffecdf551a07e230fad410"
     },
     {
       "file": "reader-46.mp3",
+      "bytes": 423405,
       "sha256": "4919de7efa1ab32d4034a4eee937703b0bd0e793a03a9601785a29960ba36e5b"
     },
     {
       "file": "reader-47.mp3",
+      "bytes": 415917,
       "sha256": "2b60f452074a47c3b3982c1a92df1c281efbbeb406cba060dd1b061fd1bbf81e"
     },
     {
       "file": "reader-48.mp3",
+      "bytes": 421293,
       "sha256": "c43a4d62b9a2c693abaa9772a2b79bfe5b84ff0a1d35bcd0f6c006cffd192a85"
     },
     {
       "file": "reader-49.mp3",
+      "bytes": 377517,
       "sha256": "92d1b0448b0c2b616fb2bee0020eccfa321d843d018bef365f239a07ea888869"
     },
     {
       "file": "reader-50.mp3",
+      "bytes": 424173,
       "sha256": "8d282d9e2dce7f7efbca521aef41dbb9922596afe114c96bd16c41de18aba730"
     },
     {
       "file": "reader-51.mp3",
+      "bytes": 420333,
       "sha256": "326d49d2bddf565e32f45a9ff48fbf794e43ebc3eff7aca2278cc014d3c21679"
     },
     {
       "file": "reader-52.mp3",
+      "bytes": 422061,
       "sha256": "89fe415dbbed0e431b6de4f148be1d6e3e4e086b7324fa12ef03b0cba353c63a"
     },
     {
       "file": "reader-53.mp3",
+      "bytes": 423597,
       "sha256": "074a21c98f40b966aa80e222a9eb9c0034d6a56b274ea6ba8da4b2b5935829cb"
     },
     {
       "file": "reader-54.mp3",
+      "bytes": 421101,
       "sha256": "d87eac91aa35a039e7f335e19384a6f6edfb97b42e78cc757e096b07e2a551fb"
     },
     {
       "file": "reader-55.mp3",
+      "bytes": 425133,
       "sha256": "20557b14b1126f1e2299ca4cd14b34d2d40278071f32c7c5237992fd4f85e34a"
     },
     {
       "file": "reader-56.mp3",
+      "bytes": 421485,
       "sha256": "0f43fa30eed4a362b6500208497ed57cdff9d94ffa2d78f5b8abffbdfd1f0e3a"
     },
     {
       "file": "reader-57.mp3",
+      "bytes": 404973,
       "sha256": "548990ba6d4cf24ff61d713112fc42fd102cc7e4ad5ffc4702a534f3884a560c"
     },
     {
       "file": "reader-58.mp3",
+      "bytes": 407085,
       "sha256": "fa2fb41dcfffe0f3ae10a7b42743daeb9e8179585873277a90e6ced3fb6bbc63"
     },
     {
       "file": "reader-59.mp3",
+      "bytes": 404205,
       "sha256": "cdfa02f42cfeb435f2a5f30f65d4e2d80952e7e783e8d9bcfe41c7dd6b5777a6"
     },
     {
       "file": "reader-60.mp3",
+      "bytes": 419757,
       "sha256": "a5276ce274273a227830b24b5cccd9b4d0550ae8e8584e94281aeb44711a5f6d"
     },
     {
       "file": "reader-61.mp3",
+      "bytes": 413229,
       "sha256": "78e334522cb7678d229577dad0bbd2f3df19b79623321e7647a4ab1b3b1336ba"
     },
     {
       "file": "reader-62.mp3",
+      "bytes": 422829,
       "sha256": "a2607854fa423a0af663c5c3011239d8008348920f27be0a675168f8d0406724"
     },
     {
       "file": "reader-63.mp3",
+      "bytes": 405549,
       "sha256": "463132416d6618159feb8422cf2f4a06898df90f3c3f4ecd10acd66033f7e3f6"
     },
     {
       "file": "reader-64.mp3",
+      "bytes": 402861,
       "sha256": "b3ea73b5096bc35c233d17c2093321c77463f3d6db043810ed333737285d2241"
     },
     {
       "file": "reader-65.mp3",
+      "bytes": 390573,
       "sha256": "a132b759f37d3371411f2e6325447945585e4d6de07486ac1de5da315877eece"
     },
     {
       "file": "reader-66.mp3",
+      "bytes": 418797,
       "sha256": "cb302ad29ed4f001a51342764c8ca8ca32198b5305777019db206975fee29a8a"
     },
     {
       "file": "reader-67.mp3",
+      "bytes": 423789,
       "sha256": "f20c7e4c611e27e59d96ee363dcce5d40755578e45da3c5e4eb69d10b7bc6ca5"
     },
     {
       "file": "reader-68.mp3",
+      "bytes": 424749,
       "sha256": "bd89c1cc49a577f2e9eef4b851edbae685f37c2fba2fa5a63df76b691b08a846"
     },
     {
       "file": "reader-69.mp3",
+      "bytes": 412269,
       "sha256": "70c00d1f0a2c97ac7567b0a3e4d71a4c132752b91f04e100a5fc354993b72d6a"
     },
     {
       "file": "reader-70.mp3",
+      "bytes": 366765,
       "sha256": "ff6936be0c0ad4ceac6bac69b18f5252bc7e5c3b4a12f8112619abb6621df3e7"
     },
     {
       "file": "reader-71.mp3",
+      "bytes": 425325,
       "sha256": "0d194c923619a1955948f71e6d3748bd99665b10a40f2784f379715423d5fd47"
     },
     {
       "file": "reader-72.mp3",
+      "bytes": 420333,
       "sha256": "d9f9f39c6c274f4727890ba3cc514509f17f84416e73e072b886ee36dc385f15"
     },
     {
       "file": "reader-73.mp3",
+      "bytes": 420141,
       "sha256": "d09d3fe8120a2c26fd831614e57e704d3e7c05ba09c2b2648cf4f20e862d8b92"
     },
     {
       "file": "reader-74.mp3",
+      "bytes": 394797,
       "sha256": "8b9b0b8dba1aaf7358da152e59675c27a55ea4502c8aafba69c3fe44a74e45fa"
     },
     {
       "file": "reader-75.mp3",
+      "bytes": 425133,
       "sha256": "0bb88bcd91a2cf712f4324a5d3fbc672c6bf44af1549b2e3c36b674d46620e11"
     },
     {
       "file": "reader-76.mp3",
+      "bytes": 422637,
       "sha256": "1383eb4bdd37ac5f3d00475af7ca6b92bcb43bbf8eb16b0427dfd3a7068cf0a9"
     },
     {
       "file": "reader-77.mp3",
+      "bytes": 399981,
       "sha256": "a4143cfc64575df6b70e63d7ec98342513bdb60b44f137ec37ff88a94cb93dd4"
     },
     {
       "file": "reader-78.mp3",
+      "bytes": 425133,
       "sha256": "4b2262ffa8e10f7d55792cae076f1fab1ce70da28be168e1bf1f8d53a335cffe"
     },
     {
       "file": "reader-79.mp3",
+      "bytes": 341613,
       "sha256": "aba97250ae313f1dd427dd8d99a46932693a0787b46a53073b6080001ca1fd05"
     },
     {
       "file": "score-first-light.mp3",
+      "bytes": 659583,
       "sha256": "0178b303efe3d3fac438cd508f245f4c521f41026ff30b7eb174dc5726507e83"
     },
     {
       "file": "score-hearthside.mp3",
+      "bytes": 818826,
       "sha256": "dba3563fdaebbe4050560584c2dfc2c3f12fd23bfec7e97d5d7122f92eead6b1"
     },
     {
       "file": "score-reedwater.mp3",
+      "bytes": 787479,
       "sha256": "a8e158f090911505aa4799a0cc69b520f1374b4bd01a37cc25876e4d421aed6d"
     },
     {
       "file": "wildlife-01.mp3",
+      "bytes": 402285,
       "sha256": "a44399b096f55194e2e1c2356bf67c4d563c1c9732580060167d9bd8891b82a5"
     },
     {
       "file": "wildlife-02.mp3",
+      "bytes": 25581,
       "sha256": "77558e0e948d01cf7e571bd81660d45976d563a7958d6c5be7045a22cce91cec"
     },
     {
       "file": "world-01.mp3",
+      "bytes": 395181,
       "sha256": "efc5abb4d199cc276baeb813b72e1fb2d653b2a6c75f46150b9cd5fda51724d9"
     }
   ]
