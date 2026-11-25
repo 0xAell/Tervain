@@ -9,7 +9,7 @@ import { eventRemarks, scenesInEarshot } from '../core/rules/speech';
 import type { GameEvent, NpcId } from '../core/game/types';
 import { catalogue, readText, type VoiceMode, type SpokenPart } from './reading';
 import { defaultMix, Mixer } from './mixer';
-import { distance, groundAt, inBuilding } from './land';
+import { distance, inBuilding } from './land';
 import { onBridge, wetPoint } from './water';
 import type { Activity, FieldSound } from './fieldcraft';
 import type { Valley } from './simulation';
@@ -31,7 +31,7 @@ const mill = BUILDINGS.find((building) => building.kind === 'mill')!;
 export class Sound {
   readonly mixer: Mixer;
   private variant = 0;
-  private nextStep = 0;
+  private lastStep = 0;
   private nextAnimal = 0;
   private nextVoice = 0;
   private challenges = new Set<string>();
@@ -339,7 +339,7 @@ export class Sound {
             : act.kind;
       this.one(key, 0.76);
     }
-    if (v.strike && !this.wasStriking) this.one('blade', 0.68);
+    if (v.strike && v.swordSwing && !this.wasStriking) this.one('blade', 0.68);
     this.wasStriking = !!v.strike;
     if (this.wasJumping && !v.jump) this.one('land', 0.58);
     this.wasJumping = !!v.jump;
@@ -347,17 +347,18 @@ export class Sound {
       wet = !v.room && !!wetPoint(p.x, p.z) && !onBridge(p);
     if (this.wasWet !== null && wet !== this.wasWet) this.one(wet ? 'water_enter' : 'water_exit', 0.6);
     this.wasWet = wet;
-    if (!v.walk || v.jump || v.time < this.nextStep) return;
-    const material = v.room ? (v.room.stone ? 'stone' : 'wood') : onBridge(p) ? 'wood' : groundAt(p.x, p.z);
+    if (v.gait.serial === this.lastStep) return;
+    this.lastStep = v.gait.serial;
+    if (!v.walk || v.jump) return;
+    const material = v.gait.material;
     const step = stepMaterial[material] ?? material;
     const key = wet ? (v.swimming ? 'water_swim' : 'water_wade') : 'step.' + step;
-    this.one(catalogue.effects[key] ? key : 'step.dirt', wet ? 0.62 : 0.42);
-    this.nextStep = v.time + (v.swimming ? 0.85 : v.riding ? 0.36 : 0.48);
+    this.one(catalogue.effects[key] ? key : 'step.dirt', wet ? 0.62 : v.gait.speed > 6.4 ? 0.53 : 0.42);
   }
   reset() {
     this.mixer.reset();
     this.pending = undefined;
-    this.nextStep = 0;
+    this.lastStep = 0;
     this.nextAnimal = 9;
     this.nextVoice = 9;
     this.lastThreat = 0;

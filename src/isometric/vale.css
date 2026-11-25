@@ -438,28 +438,36 @@ button img {
   left: 18px;
   display: flex;
   flex-direction: column;
-  min-width: 155px;
-  padding: 3px 12px 6px;
+  min-width: 144px;
+  padding: 5px 28px 7px 12px;
+  border: 0;
+  border-left: 2px solid #bb945b;
+  border-image: none;
+  background: linear-gradient(90deg, #152021ee 0%, #1b2729d9 62%, #1b272900);
+  text-shadow: 0 2px 1px #181b1a;
+  pointer-events: none;
 }
 .region strong {
-  font-size: clamp(20px, 2.1vw, 31px);
+  font-size: clamp(20px, 1.9vw, 28px);
 }
 .room-name {
   color: #f1d49c;
   font-size: 15px;
 }
 .clock {
-  font-size: 14px;
+  font-size: 13px;
+  color: #e8d6b2;
+  font-variant-numeric: tabular-nums;
 }
 .tools {
   right: 18px;
   top: 18px;
   display: flex;
-  gap: 5px;
+  gap: 3px;
 }
 .tool {
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border-width: 6px;
 }
@@ -482,7 +490,7 @@ button img {
   object-fit: contain;
 }
 .bars {
-  width: 116px;
+  width: 126px;
 }
 .meter {
   display: flex;
@@ -493,6 +501,7 @@ button img {
 .meter-label {
   font-size: 12px;
   color: #e5dabc;
+  min-width: 41px;
 }
 .track {
   height: 6px;
@@ -503,41 +512,57 @@ button img {
 .track > span {
   display: block;
   height: 100%;
+  transition: width 120ms linear;
 }
 .health .track > span {
-  background: #b95c48;
+  background: linear-gradient(#d28365 0 20%, #ae5642 20% 73%, #824134 73%);
 }
 .stamina .track > span {
-  background: #b7a360;
+  background: linear-gradient(#d8c783 0 20%, #aa995a 20% 73%, #817546 73%);
 }
 .belt {
   bottom: 18px;
   right: 18px;
   display: flex;
-  gap: 1px;
+  gap: 0;
+  padding: 0 3px;
+  background: linear-gradient(#262b29ee, #161b1bed);
+  border: 1px solid #76674e;
+  border-bottom: 2px solid #9b8059;
 }
 .slot {
   position: relative;
-  width: 37px;
-  height: 39px;
+  width: 32px;
+  height: 35px;
   padding: 0;
-  border-width: 5px;
+  border: 0;
+  border-image: none;
+  background: transparent;
+  box-shadow: inset -1px 0 #b69e641c;
 }
 .slot span {
   position: absolute;
-  top: -3px;
-  left: -1px;
+  top: 0;
+  left: 2px;
   color: var(--gold);
   font-size: 12px;
   z-index: 1;
+  text-shadow: 1px 1px #17201f;
 }
+.slot.empty span {
+  inset: auto 0 8px;
+  color: #baae92;
+  font-size: 11px;
+}
+.slot:focus-visible, .slot:hover { background: #5b553e; }
 .slot img {
-  width: 100%;
-  height: 100%;
+  width: 84%;
+  height: 84%;
   object-fit: contain;
 }
 .slot.equipped {
-  outline: 1px solid var(--gold);
+  background: #514a36;
+  box-shadow: inset 0 -2px #f3cc76, inset 0 1px #bc9c62;
 }
 .prompt,
 .notice {
@@ -551,6 +576,26 @@ button img {
   bottom: 83px;
   max-width: 80%;
   white-space: normal;
+  line-height: 1.4;
+}
+.prompt kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 0.25em;
+  margin-right: 0.6em;
+  border: 1px solid #b99c67;
+  box-shadow: inset 0 -2px #766144;
+  background: #dfcba2;
+  color: #272c29;
+  font: inherit;
+  font-size: 0.9em;
+}
+.key-separator {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 .notice {
   bottom: 135px;
@@ -570,6 +615,9 @@ button img {
 }
 .hud button:focus-visible {
   outline: 2px solid var(--gold);
+}
+@media (prefers-reduced-motion: reduce) {
+  .track > span { transition: none; }
 }
 @media (max-width: 700px) {
   body {

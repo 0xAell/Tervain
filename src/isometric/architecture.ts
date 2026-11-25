@@ -6,6 +6,7 @@ import { project, risePixels } from './projection';
 import { houseSolid, HousePainter } from './houseSolid';
 import { bitmap, depthStrips, finishBitmap } from './worldArt';
 import { mix, rgba } from './waterPalette';
+import { windowLightMask } from './skyLight';
 
 type Point = [number, number];
 interface Facade {
@@ -250,11 +251,40 @@ function inside(x: number, y: number, polygon: Point[]) {
   return yes;
 }
 type Painting = ReturnType<Atlas['read']>[number];
+// Pane bounds in the painted facade: left, top, width, height and vertical slope.
+type Pane = readonly [number, number, number, number, number];
+const panes: Partial<Record<string, readonly Pane[]>> = {
+  house: [[28, 42, 9, 9, 0.43]],
+  inn: [
+    [29, 57, 4, 10, 0.34],
+    [49, 67, 4, 10, 0.39],
+    [86, 44, 4, 10, -0.36],
+    [86, 60, 5, 9, -0.36],
+  ],
+  shrine: [[61, 64, 7, 8, -0.46]],
+  archive: [[34, 55, 10, 7, 0.35]],
+  office: [[63, 26, 4, 6, -0.48]],
+};
+
+function litPane(pane: Pane, u: number, v: number, original: number) {
+  const [left, top, width, height, slope] = pane;
+  const x = u - left,
+    y = v - top - slope * x;
+  if (x < 0 || x >= width || y < 0 || y >= height) return;
+  const r = original & 255,
+    g = (original >>> 8) & 255;
+  // Preserve the window frame, the lead and the dark crossbars between lights.
+  if (g < 95 && (r > 60 || g > 47)) return;
+  if (Math.floor(y) === Math.floor(height * 0.49) || (width >= 6 && x === Math.floor(width / 2))) return;
+  return mix(rgba(213, 121, 50), rgba(255, 225, 145), 65 + (1 - y / height) * 108 + (x % 3) * 22);
+}
+
 export class Architecture {
   private sources = new Map<string, Painting[]>();
   private cache = new Map<string, ReturnType<typeof depthStrips>>();
   private thatch: number[];
   private painter: HousePainter;
+  readonly windows = new WeakMap<BuildingSpec, { x: number; y: number }[]>();
   constructor(private atlas: Atlas) {
     this.painter = new HousePainter(atlas);
     const flecks = atlas.read('bridge')[0]!.pixels;
@@ -278,12 +308,13 @@ export class Architecture {
     }
     return frames;
   }
-  exterior(b: BuildingSpec, turning: boolean, frame: number) {
+  exterior(b: BuildingSpec, turning: boolean, frame: number, lamps = false) {
     const base = buildingSprite[b.kind],
       key = turning && base === 'mill' ? 'mill--turn' : base;
+    const glass = lamps ? panes[base] : undefined;
     const frames = this.frames(key),
       index = frame % frames.length,
-      id = b.id + '/' + key + index;
+      id = b.id + '/' + key + index + (glass ? '/lit' : '');
     const saved = this.cache.get(id);
     if (saved) return saved;
     const f = frames[index]!,
@@ -337,16 +368,35 @@ export class Architecture {
       mirror = water.createImageData(w, h);
     const pixels = new Uint32Array(image.data.buffer),
       reflection = new Uint32Array(mirror.data.buffer);
+    const cachedWindows = this.windows.get(b);
+    const windowPositions = cachedWindows ? undefined : glass?.map(() => ({ x: 0, y: 0, error: Infinity }));
     for (let x = 0; x < w; x++) {
       const c = column(x + left + 0.5),
         u = Math.floor(c.u);
       if (u < 0 || u >= f.w) continue;
+      const paneColumn = glass?.filter((p) => u >= p[0] && u < p[0] + p[2]);
+      if (windowPositions)
+        glass!.forEach(([px, py, pw, ph, slope], i) => {
+          const pos = windowPositions![i]!,
+            error = Math.abs(c.u - px - pw / 2);
+          if (error < pos.error) {
+            pos.error = error;
+            pos.x = left + x;
+            pos.y =
+              c.foot - (c.base - (py + (slope * pw) / 2 + ph / 2)) * scale - houseSolid(b).floor * risePixels;
+          }
+        });
       const pigment = (v: number) => {
         const col = f.pixels[v * f.w + u]!,
           r = col & 255,
           g = (col >>> 8) & 255,
           bv = (col >>> 16) & 255;
         if (!(col >>> 24)) return 0;
+        if (paneColumn)
+          for (const pane of paneColumn) {
+            const light = litPane(pane, u, v, col);
+            if (light !== undefined) return light;
+          }
         if (base === 'house' && v < 57 && r > 136 && g < r * 0.84 && g > bv * 1.57) {
           const tone = Math.min(1, Math.max(0, (g - 49) / 167));
           const ink = this.thatch[Math.round(tone * (this.thatch.length - 1))]!;
@@ -379,13 +429,14 @@ export class Architecture {
     const lift = houseSolid(b).floor * risePixels;
     face.top -= Math.round(lift);
     reflected.top += Math.round(lift * 0.82);
-    const strips = depthStrips(
-      base,
-      this.painter.paint(b, face),
-      (x) => column(x).foot,
-      this.painter.paint(b, reflected, true)
-    );
+    const facade = this.painter.paint(b, face);
+    const strips = depthStrips(base, facade, (x) => column(x).foot, this.painter.paint(b, reflected, true));
     this.cache.set(id, strips);
+    if (glass) {
+      if (windowPositions) this.windows.set(b, windowPositions);
+      const mask = windowLightMask(facade, cachedWindows ?? windowPositions!);
+      for (const strip of strips) strip.art!.windowLight = mask;
+    }
     return strips;
   }
 }
