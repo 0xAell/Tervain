@@ -5,6 +5,8 @@ import { NPCS } from '../core/content/npcs';
 import { getNode } from '../core/game/dialogue';
 import { buildJournal } from '../core/game/journal';
 import { formatClock } from '../core/game/state';
+import { households } from './households';
+import type { Fixture } from './roomPlans';
 import type { Game } from '../core/game/game';
 import type { ItemId, NpcId } from '../core/game/types';
 import { PLACES } from '../core/world/layout';
@@ -55,6 +57,7 @@ export type Screen =
   | 'death'
   | 'settings';
 export interface Controls {
+  readonly controllerActive?: boolean;
   line(id: string): void;
   start(load: boolean): void;
   resume(): void;
@@ -75,6 +78,7 @@ export class Interface {
   private layer = el('div', 'modal-layer');
   private hud = el('div', 'hud');
   private titleBar = el('div', 'region');
+  private chamber = el('span', 'room-name');
   private clock = el('span', 'clock');
   private place = el('strong');
   private health = el('span');
@@ -99,7 +103,9 @@ export class Interface {
     this.notice.setAttribute('aria-live', 'polite');
     this.root.append(this.hud, this.layer, this.notice);
     this.prompt.onclick = () => controls.interact();
-    this.titleBar.append(this.place, this.clock);
+    this.chamber.hidden = true;
+    this.chamber.setAttribute('aria-live', 'polite');
+    this.titleBar.append(this.place, this.chamber, this.clock);
     const nav = el('nav', 'tools');
     nav.setAttribute('aria-label', 'Journey tools');
     nav.append(
@@ -236,14 +242,22 @@ export class Interface {
       for (const [k, v] of [
         ['W A S D / arrows', 'Move relative to the screen'],
         ['Click ground', 'Walk to a point'],
-        ['E', 'Interact with a person or object'],
+        [this.interactKey(), 'Use the nearest door, object or person'],
+        [
+          'Gold lantern',
+          'Walk through a lit threshold or click it. Arches join rooms and stairs change floors. A padlock marks a sealed entrance.',
+        ],
+        ['M indoors', 'See rooms, stairs and your position on this floor'],
         ['Space / right-click', 'Attack with the equipped weapon'],
         ['Shift / Q / X', 'Run / guard / jump'],
         ['I / J / M', 'Inventory / journal / map'],
         ['1–0', 'Use a belt slot'],
         ['F5 / F9', 'Quick save / quick load'],
         ['Esc', 'Close a page or pause'],
-        ['Controller', 'Left stick moves, A interacts, X attacks, B closes, Start pauses'],
+        [
+          'Controller',
+          'Left stick moves, A interacts or selects, D-pad chooses, X attacks, B closes, Start pauses',
+        ],
       ]) {
         dl.append(el('dt', '', k), el('dd', '', v));
       }
@@ -324,6 +338,13 @@ export class Interface {
       panel.append(el('h3', '', name));
       for (const row of rows) panel.append(el('p', 'entry', S(row.key, row.params)));
     }
+    const books = Object.entries(households).filter(
+      ([id]) => this.game.state.facts['room_read:' + id] === true
+    );
+    if (books.length) {
+      panel.append(el('h3', '', 'Household readings'));
+      for (const [, home] of books) panel.append(el('strong', '', home.book), el('p', 'entry', home.passage));
+    }
     const met = journal.people.filter((p) => p.met);
     if (met.length) {
       panel.append(el('h3', '', 'People met'), el('p', '', met.map((p) => NPCS[p.npc].name).join(' · ')));
@@ -372,11 +393,30 @@ export class Interface {
     }
     panel.append(detail);
   }
-  private map() {
-    const panel = this.shell('Map of the vale', true);
+  private map(world = false) {
+    const room = !world && this.valley.room;
+    const panel = this.shell(room ? this.valley.placeName() + ' · ' + room.name : 'Map of the vale', true);
     const canvas = el('canvas', 'map-canvas');
     canvas.width = 450;
     canvas.height = 264;
+    if (room) {
+      canvas.setAttribute(
+        'aria-label',
+        room.rooms.map((r) => r.name).join(', ') +
+          '. ' +
+          room.passages
+            .filter((p) => p.kind !== 'arch')
+            .map((p) => (p.kind === 'outside' ? 'Exit' : p.kind === 'up' ? 'Stairs up' : 'Stairs down'))
+            .join(', ')
+      );
+      this.scene.drawFloorMap(canvas, this.valley);
+      panel.append(
+        canvas,
+        el('p', 'map-note', 'Gold marks passages. ↑ upstairs · ↓ downstairs · ◆ outside'),
+        button('Map of the vale', () => this.map(true))
+      );
+      return;
+    }
     this.scene.drawMap(canvas, this.valley);
     canvas.onclick = (e) => {
       const r = canvas.getBoundingClientRect();
@@ -436,13 +476,197 @@ export class Interface {
     if (description) panel.append(el('p', '', description));
     for (const option of options) panel.append(button(option.text, option.run, 'reply'));
   }
+  private interactKey() {
+    if (this.controls.controllerActive) return 'A';
+    return (this.controls.settings.bindings.interact ?? 'KeyE').replace(/^Key/, '').replace(/^Digit/, '');
+  }
+  roomFixture(f: Fixture) {
+    const v = this.valley,
+      room = v.room;
+    if (!room || !f.use) return;
+    const home = households[room.site.id]!,
+      finish = () => this.controls.resume();
+    const read = () => {
+      v.action({ t: 'setFact', key: 'room_read:' + room.site.id, value: true });
+      this.actions(home.book, [{ text: 'Close the book', run: finish }], home.passage);
+    };
+    if (f.use === 'book') {
+      read();
+      return;
+    }
+    if (f.use === 'trade' && room.site.id === 'house_a' && room.level === 'ground') {
+      const key = 'room_indigo:' + room.site.id,
+        dye = this.game.state.facts[key] !== true;
+      this.actions(
+        'The weaver’s loom',
+        [
+          {
+            text: dye ? 'Weave an indigo runner' : 'Weave a madder-red runner',
+            run: () => {
+              v.action({ t: 'setFact', key, value: dye });
+              finish();
+              this.message('The new runner is laid in the entry hall.');
+            },
+          },
+          { text: 'Read the pattern book', run: read },
+        ],
+        'Two shuttles hold indigo and madder wool. Choose the colour of the hall runner.'
+      );
+      return;
+    }
+    if (f.use === 'lamp') {
+      const on = v.lightsOn;
+      v.action({ t: 'setFact', key: 'room_dim:' + v.roomKey, value: on });
+      this.message(on ? 'Lights lowered' : 'Lights kindled');
+      finish();
+      return;
+    }
+    if (f.use === 'chest') {
+      v.openChest = f.id;
+      const options = [];
+      for (const id of ITEM_ORDER) {
+        const held = this.game.state.inventory[id] ?? 0,
+          stored = this.game.state.facts['room_store:' + room.site.id + ':' + id];
+        const transfer = (direction: 'deposit' | 'withdraw') => {
+          v.action({ t: 'roomStorage', item: id, direction });
+          this.roomFixture(f);
+        };
+        if (held)
+          options.push({
+            text: 'Store ' + S(ITEMS[id].nameKey) + ' · carrying ' + held,
+            run: () => transfer('deposit'),
+          });
+        if (typeof stored === 'number' && stored > 0)
+          options.push({
+            text: 'Take ' + S(ITEMS[id].nameKey) + ' · stored ' + stored,
+            run: () => transfer('withdraw'),
+          });
+      }
+      options.push({ text: 'Close the chest', run: finish });
+      this.actions(
+        home.name + ' · Storage',
+        options,
+        'Move one item at a time. The chests in this building share your stores.'
+      );
+      return;
+    }
+    if (f.use === 'supply' && f.item) {
+      const item = f.item,
+        name = S(ITEMS[item].nameKey),
+        id = 'room_' + room.site.id + '_' + room.level + '_supplies';
+      if (this.game.state.locationChanges['pickup:' + id] === 'taken') {
+        this.actions('Cupboard', [{ text: 'Close', run: finish }], 'The shelves are empty.');
+        return;
+      }
+      this.actions(
+        'Household supplies',
+        [
+          {
+            text: 'Take ' + name,
+            run: () => {
+              if (v.action({ t: 'pickup', pickupId: id, item, qty: 1 })) this.message(name + ' × 1');
+              finish();
+            },
+          },
+        ],
+        'On the shelf · ' + name
+      );
+      return;
+    }
+    if (f.use === 'bed') {
+      const sleep = (mins: number) => {
+        v.action({ t: 'advanceClock', minutes: mins });
+        v.action({ t: 'healPlayer', amount: Math.max(5, Math.round(mins / 3)) });
+        v.stamina = 100;
+        finish();
+        this.message('Rested · ' + formatClock(this.game.state.clock));
+      };
+      this.actions(
+        'Rest in the bed',
+        [
+          { text: 'Rest for one hour', run: () => sleep(60) },
+          {
+            text: 'Sleep until dawn',
+            run: () => sleep((360 - (this.game.state.clock % 1440) + 1440) % 1440 || 1440),
+          },
+        ],
+        'Rest restores health and stamina.'
+      );
+      return;
+    }
+    const task =
+      f.use === 'hearth'
+        ? 'cook'
+        : room.level === 'cellar' && ['ledger', 'rite', 'read'].includes(home.task)
+          ? 'herbs'
+          : home.task;
+    if (task === 'read') {
+      read();
+      return;
+    }
+    if (task === 'rite' || task === 'ledger') {
+      this.actions(task === 'rite' ? 'Offering altar' : 'Water ledger', [
+        {
+          text: task === 'rite' ? 'Make the offering' : 'Examine the ledger',
+          run: () => {
+            v.action(task === 'rite' ? { t: 'performRite' } : { t: 'readLedger' });
+            finish();
+          },
+        },
+      ]);
+      return;
+    }
+    const recipe = task;
+    const title =
+      recipe === 'cook' ? 'Cook a hot meal' : recipe === 'herbs' ? 'Bind a poultice' : 'Fletch four arrows';
+    const detail =
+      recipe === 'cook'
+        ? 'One portion of raw meat or a field mushroom restores up to 30 health.'
+        : recipe === 'herbs'
+          ? 'Wrap one healing herb into a poultice.'
+          : 'Shape one iron scrap into four arrowheads.';
+    this.actions(
+      f.use === 'hearth' ? 'The hearth' : room.level === 'cellar' ? 'Cellar workbench' : home.workroom,
+      [
+        {
+          text: title,
+          run: () => {
+            if (v.action({ t: 'roomCraft', recipe }))
+              this.message(
+                recipe === 'cook'
+                  ? 'A hot meal restored your health'
+                  : recipe === 'herbs'
+                    ? 'Poultice × 1'
+                    : 'Arrows × 4'
+              );
+            finish();
+          },
+        },
+      ],
+      detail
+    );
+  }
+  padMenu(move: number, confirm: boolean) {
+    const buttons = Array.from(this.layer.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'));
+    if (!buttons.length) return;
+    const current = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    const next =
+      current < 0
+        ? Math.max(
+            0,
+            buttons.findIndex((b) => !b.classList.contains('close'))
+          )
+        : (current + move + buttons.length) % buttons.length;
+    buttons[next]!.focus();
+    if (confirm) buttons[next]!.click();
+  }
   chooseOffers() {
     this.actions(
       'Within reach',
       this.valley.offers().map((o, i) => ({ text: o.label, run: () => this.controls.interactIndex(i) }))
     );
   }
-  controlsAt(act: InteractableAct) {
+  controlsAt(act: InteractableAct, onEntry?: () => void) {
     if (act.do === 'open_sluice') {
       const options = [
         ['Brace the gate', 'stabilizeGate'],
@@ -483,14 +707,14 @@ export class Interface {
         {
           text: 'Ask for authorised entry',
           run: () => {
-            this.valley.action({ t: 'archiveAccess', method: 'permission' });
+            if (this.valley.action({ t: 'archiveAccess', method: 'permission' })) onEntry?.();
             this.controls.resume();
           },
         },
         {
           text: 'Use the borrowed key',
           run: () => {
-            this.valley.action({ t: 'archiveAccess', method: 'borrowed_key' });
+            if (this.valley.action({ t: 'archiveAccess', method: 'borrowed_key' })) onEntry?.();
             this.controls.resume();
           },
         },
@@ -503,6 +727,9 @@ export class Interface {
     this.uiStamp = performance.now();
     const s = this.game.state;
     this.place.textContent = this.valley.placeName();
+    const chamber = this.valley.roomName();
+    this.chamber.hidden = !chamber;
+    if (this.chamber.textContent !== chamber) this.chamber.textContent = chamber;
     this.clock.textContent = formatClock(s.clock);
     this.health.style.width = (s.player.health / s.player.maxHealth) * 100 + '%';
     this.vigor.style.width = this.valley.stamina + '%';
@@ -510,7 +737,10 @@ export class Interface {
     const offers = this.valley.offers();
     this.prompt.hidden = !offers.length;
     this.prompt.textContent = offers.length
-      ? 'E  ·  ' + offers[0]!.label + (offers.length > 1 ? '  +' + (offers.length - 1) : '')
+      ? this.interactKey() +
+        '  ·  ' +
+        offers[0]!.label +
+        (offers.length > 1 && !offers[0]!.target ? '  +' + (offers.length - 1) : '')
       : '';
     const signature = JSON.stringify([s.quickSlots, s.inventory, s.equippedWeapon]);
     if (this.slotSig !== signature) {

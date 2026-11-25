@@ -663,6 +663,55 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
       return ok();
     }
 
+    case 'roomStorage': {
+      const room = s.player.interior;
+      if (!room || !isItemId(cmd.item) || !['deposit', 'withdraw'].includes(cmd.direction))
+        return fail('no_chest');
+      const key = 'room_store:' + room.building + ':' + cmd.item;
+      const stored = s.facts[key] ?? 0,
+        held = itemCount(s, cmd.item);
+      if (!validQuantity(stored)) return fail('invalid_quantity');
+      const delta = cmd.direction === 'deposit' ? -1 : 1;
+      if ((delta < 0 && held < 1) || (delta > 0 && stored < 1)) return fail('missing_item');
+      if (!validQuantity(stored - delta) || !validQuantity(held + delta)) return fail('invalid_quantity');
+      if (cmd.item === 'arrow' && held + delta > ARROW_QUIVER_CAPACITY) return fail('quiver_full');
+      const err = applyEffect(s, { t: 'item', id: cmd.item, delta }, events);
+      if (err) return fail(err);
+      s.facts[key] = stored - delta;
+      return ok();
+    }
+    case 'roomCraft': {
+      if (!s.player.interior || !['herbs', 'fletch', 'cook'].includes(cmd.recipe))
+        return fail('no_workstation');
+      const input =
+        cmd.recipe === 'herbs'
+          ? 'healing_herb'
+          : cmd.recipe === 'fletch'
+            ? 'iron_scrap'
+            : itemCount(s, 'raw_meat')
+              ? 'raw_meat'
+              : 'field_mushroom';
+      if (itemCount(s, input) < 1) return fail('missing_ingredient');
+      if (cmd.recipe === 'cook' && s.player.health >= s.player.maxHealth) return fail('already_well');
+      if (cmd.recipe === 'fletch' && itemCount(s, 'arrow') + 4 > ARROW_QUIVER_CAPACITY)
+        return fail('quiver_full');
+      const err = applyEffect(s, { t: 'item', id: input, delta: -1 }, events);
+      if (err) return fail(err);
+      if (cmd.recipe === 'cook') s.player.health = Math.min(s.player.maxHealth, s.player.health + 30);
+      else {
+        const result = applyEffect(
+          s,
+          {
+            t: 'item',
+            id: cmd.recipe === 'herbs' ? 'poultice' : 'arrow',
+            delta: cmd.recipe === 'herbs' ? 1 : 4,
+          },
+          events
+        );
+        if (result) return fail(result);
+      }
+      return ok();
+    }
     case 'setMapMarker': {
       if (cmd.marker !== null && !validMapMarker(cmd.marker)) return fail('invalid_marker');
       s.mapMarker = cmd.marker === null ? null : { x: cmd.marker.x, z: cmd.marker.z };

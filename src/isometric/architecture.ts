@@ -2,7 +2,7 @@ import type { Atlas } from './atlas';
 import { buildingEntry } from '../core/world/buildingEntries';
 import { fromBuildingLocal } from '../core/world/interiors';
 import type { BuildingSpec } from '../core/world/layout';
-import { project, unproject, buildingLocal } from './land';
+import { project } from './land';
 import { bitmap, depthStrips, finishBitmap } from './worldArt';
 import { mix, rgba } from './waterPalette';
 
@@ -252,7 +252,6 @@ type Painting = ReturnType<Atlas['read']>[number];
 export class Architecture {
   private sources = new Map<string, Painting[]>();
   private cache = new Map<string, ReturnType<typeof depthStrips>>();
-  private floors = new Map<BuildingSpec, ReturnType<typeof bitmap>>();
   private thatch: number[];
   constructor(private atlas: Atlas) {
     const flecks = atlas.read('bridge')[0]!.pixels;
@@ -377,49 +376,5 @@ export class Architecture {
     const strips = depthStrips(base, face, (x) => column(x).foot, reflected);
     this.cache.set(id, strips);
     return strips;
-  }
-  floor(b: BuildingSpec) {
-    const saved = this.floors.get(b);
-    if (saved) return saved;
-    const corners = [-1, 1].flatMap((a) => [-1, 1].map((c) => worldFoot(b, (a * b.w) / 2, (c * b.d) / 2)));
-    const left = Math.floor(Math.min(...corners.map((c) => c.x))),
-      top = Math.floor(Math.min(...corners.map((c) => c.y)));
-    const width = Math.ceil(Math.max(...corners.map((c) => c.x))) - left + 1,
-      height = Math.ceil(Math.max(...corners.map((c) => c.y))) - top + 1;
-    const out = bitmap(left, top, width, height),
-      ctx = out.canvas.getContext('2d')!,
-      im = ctx.createImageData(width, height);
-    const pixels = new Uint32Array(im.data.buffer),
-      stone = b.kind === 'shrine' || b.kind === 'archive',
-      tex = this.atlas.read(stone ? 'texture-rock' : 'texture-floor')[0]!;
-    for (let y = 0; y < height; y++)
-      for (let x = 0; x < width; x++) {
-        const l = buildingLocal(unproject(left + x + 0.5, top + y + 0.5), b),
-          edge = Math.min(b.w / 2 - Math.abs(l.x), b.d / 2 - Math.abs(l.z));
-        if (edge < 0) continue;
-        const u = Math.floor((l.x + b.w) * 5) % tex.w,
-          v = Math.floor((l.z + b.d) * 5) % tex.h;
-        const source = tex.pixels[v * tex.w + u]!;
-        const localU = l.x + b.w / 2,
-          localV = l.z + b.d / 2;
-        if (stone) {
-          const flag = (localU + 0.55 * (Math.floor(localV / 0.76) % 2)) % 1.14;
-          const mortar = flag < 0.075 || localV % 0.76 < 0.075;
-          pixels[y * width + x] = mix(
-            source,
-            mortar || edge < 0.22 ? rgba(52, 54, 47) : rgba(123, 123, 101),
-            mortar ? 175 : 124
-          );
-        } else {
-          const course = Math.floor(localV / 0.52),
-            seam = localV % 0.52 < 0.074 || (localU + 0.67 * (course % 3)) % 2.65 < 0.058;
-          const shade =
-            seam || edge < 0.18 ? 0.1 : 0.38 + ((source >>> 8) & 255) / 555 + 0.065 * Math.sin(course * 3.61);
-          pixels[y * width + x] = this.thatch[Math.round(shade * (this.thatch.length - 1))]!;
-        }
-      }
-    ctx.putImageData(im, 0, 0);
-    this.floors.set(b, out);
-    return out;
   }
 }

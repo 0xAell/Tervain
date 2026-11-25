@@ -13,7 +13,8 @@ import { Atlas } from './atlas';
 import { Scene } from './scene';
 import { Valley } from './simulation';
 import { Interface, type Controls, type Screen } from './interface';
-import { distance, navigable } from './land';
+import { distance, inBuilding } from './land';
+import { targetDistance, type RoomTarget } from './roomTargets';
 import { wetPoint, onBridge } from './water';
 
 const defaults: Record<string, string> = {
@@ -47,6 +48,7 @@ function readSettings() {
 }
 
 export class Client implements Controls {
+  controllerActive = false;
   readonly settings = readSettings();
   readonly saves = new SaveStore(store);
   readonly sound = new Sound(this.settings.volume);
@@ -61,6 +63,7 @@ export class Client implements Controls {
   private nextAudio = 0;
   private destination: V2 | null = null;
   private route: V2[] = [];
+  private pendingTarget?: string;
   private gamepadBlocked = false;
   private playing = false;
   constructor(
@@ -96,19 +99,41 @@ export class Client implements Controls {
       e.preventDefault();
       if (this.mode === 'play') this.valley.attack(this.scene.pointAt(e.clientX, e.clientY));
     });
+    this.canvas.addEventListener('pointermove', (e) => this.scene.hover(e.clientX, e.clientY));
+    this.canvas.addEventListener('pointerleave', () => this.scene.hover());
     this.canvas.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || this.mode !== 'play') return;
+      this.controllerActive = false;
       this.canvas.focus();
-      this.walkTo(this.scene.pointAt(e.clientX, e.clientY));
+      const point = this.scene.pointAt(e.clientX, e.clientY);
+      const site = !this.valley.room && inBuilding(point);
+      const target =
+        this.scene.targetAt(e.clientX, e.clientY) ??
+        (site ? this.valley.targets().find((t) => t.door?.site === site && !t.door.rear) : undefined);
+      this.stopWalking();
+      if (target && this.inReach(target)) this.activateTarget(target);
+      else {
+        this.walkTo(target?.approach ?? point);
+        if (target && this.destination) this.pendingTarget = target.id;
+      }
     });
     requestAnimationFrame((t) => this.frame(t));
+  }
+  private stopWalking() {
+    this.pendingTarget = undefined;
+    this.destination = null;
+    this.route = [];
+  }
+  private inReach(target: RoomTarget) {
+    return targetDistance(target, this.valley.position, this.valley.room) <= target.reach;
   }
   private walkTo(target: V2) {
     this.destination = target;
     this.route = [];
-    const p = this.valley.player;
-    // The first click need only find a local route round a house or through its door.
-    const step = 1.25,
+    const p = this.valley.position;
+    const room = this.valley.room;
+    const canReach = (a: V2, b: V2) => this.valley.canWalk(a, b) && (!!room || !inBuilding(b));
+    const step = room ? 0.64 : 1.25,
       limit = 90;
     if (distance(p, target) > limit) {
       this.destination = null;
@@ -124,7 +149,7 @@ export class Client implements Controls {
       );
       const index = open.pop()!,
         node = nodes[index]!;
-      if (distance(node, target) < step && navigable(node, target, this.valley.archiveOpen)) {
+      if (distance(node, target) < step && canReach(node, target)) {
         const path = [target];
         let k = index;
         while (k > 0) {
@@ -150,13 +175,13 @@ export class Client implements Controls {
           key = i + ',' + j,
           x = p.x + i * step,
           z = p.z + j * step;
-        const surface = wetPoint(x, z);
+        const surface = room ? undefined : wetPoint(x, z);
         const resistance =
           surface?.kind === 'river' && !onBridge({ x, z }) ? 1 + 0.65 * Math.min(1, surface.bank / 1.9) : 1;
         const g = node.g + step * Math.hypot(di, dj) * resistance;
         if ((best.get(key) ?? Infinity) <= g || g > limit * 1.65) continue;
         const next = { x, z, i, j, g, parent: index };
-        if (!navigable(node, next, this.valley.archiveOpen)) continue;
+        if (!canReach(node, next)) continue;
         best.set(key, g);
         open.push(nodes.length);
         nodes.push(next);
@@ -179,8 +204,7 @@ export class Client implements Controls {
     });
     this.playing = true;
     this.keys.clear();
-    this.destination = null;
-    this.route = [];
+    this.stopWalking();
     this.nextAuto = performance.now() + AUTOSAVE_SECONDS * 1000;
     this.nextAudio = 0;
     this.sound.enabled = true;
@@ -198,6 +222,7 @@ export class Client implements Controls {
     this.sound.line(id);
   }
   resume() {
+    this.valley.openChest = undefined;
     this.sound.endLine();
     if (!this.playing) {
       this.ui.title();
@@ -208,15 +233,13 @@ export class Client implements Controls {
       return;
     }
     this.keys.clear();
-    this.destination = null;
-    this.route = [];
+    this.stopWalking();
     this.ui.play();
     this.canvas.focus();
   }
   private page(screen: Screen) {
     this.keys.clear();
-    this.destination = null;
-    this.route = [];
+    this.stopWalking();
     this.ui.open(screen);
   }
   quit() {
@@ -278,7 +301,7 @@ export class Client implements Controls {
       this.ui.message('Nothing within reach');
       return;
     }
-    if (offers.length > 1) {
+    if (offers.length > 1 && !offers[0]!.target) {
       this.ui.chooseOffers();
       return;
     }
@@ -291,6 +314,10 @@ export class Client implements Controls {
       return;
     }
     this.resume();
+    if (offer.target) {
+      this.activateTarget(offer.target);
+      return;
+    }
     if (offer.skin) {
       this.valley.skin(offer.skin);
       return;
@@ -362,7 +389,56 @@ export class Client implements Controls {
         break;
     }
   }
+  private activateTarget(target: RoomTarget) {
+    if (!this.inReach(target)) return;
+    this.stopWalking();
+    const v = this.valley;
+    if (target.door) {
+      if (target.locked) {
+        if (!target.door.rear) {
+          this.ui.controlsAt({ do: 'try_archive_door' }, () => v.enterDoor(target.door!));
+          return;
+        }
+        this.ui.actions(
+          'Archive shutter',
+          [
+            {
+              text: 'Force the shutter',
+              run: () => {
+                const opened = v.action({
+                  t: 'archiveAccess',
+                  method: 'trespass',
+                  observedBy: v.actors
+                    .filter((a) => a.npc && !a.dead && distance(a, v.player) < 12)
+                    .map((a) => a.npc!),
+                });
+                this.resume();
+                if (opened) v.enterDoor(target.door!);
+              },
+            },
+          ],
+          'The shutter is fastened from inside.'
+        );
+        return;
+      }
+      v.enterDoor(target.door);
+    } else if (target.passage) {
+      const p = target.passage;
+      if (p.kind === 'arch') {
+        const direction = v.position.x > p.x ? -1 : v.position.x < p.x ? 1 : p.side!;
+        this.walkTo({ x: p.x + direction * 2.25, z: p.z });
+      } else v.usePassage(p);
+    } else if (target.fixture) this.ui.roomFixture(target.fixture);
+    else if (target.npc) {
+      const node = pickEntryNode(this.game.state, target.npc);
+      if (node) this.ui.dialogue(node);
+      else this.ui.message(NPCS[target.npc].name + ' has nothing more to say.');
+    }
+    this.nextAudio = 0;
+    this.ui.update(true);
+  }
   private key(e: KeyboardEvent, down: boolean) {
+    if (down) this.controllerActive = false;
     if (!down) {
       this.keys.delete(e.code);
       return;
@@ -405,11 +481,15 @@ export class Client implements Controls {
     if (pad) {
       const buttons = pad.buttons.map((b) => b.pressed);
       const hit = (n: number) => buttons[n] && !this.buttons[n];
+      if (buttons.some((_, i) => hit(i)) || pad.axes.some((a) => Math.abs(a) > 0.18))
+        this.controllerActive = true;
       if (hit(9)) {
         if (this.mode === 'play') this.page('pause');
         else if (this.mode === 'title') this.start(!!this.saves.latest());
         else this.resume();
       } else if (hit(0) && this.mode === 'play') this.interact();
+      else if (this.mode !== 'play' && (hit(12) || hit(13) || hit(14) || hit(15) || hit(0)))
+        this.ui.padMenu(hit(12) || hit(14) ? -1 : hit(13) || hit(15) ? 1 : 0, !!hit(0));
       else if (hit(2) && this.mode === 'play') this.attack();
       else if (hit(1) && this.mode !== 'title') this.resume();
       this.buttons = buttons;
@@ -428,18 +508,32 @@ export class Client implements Controls {
       let dx = h + v,
         dz = v - h;
       if (dx || dz) {
-        this.destination = null;
-        this.route = [];
+        this.stopWalking();
       } else if (this.destination) {
-        if (distance(this.destination, this.valley.player) < 0.35)
+        if (distance(this.destination, this.valley.position) < (this.valley.room ? 0.16 : 0.35))
           this.destination = this.route.shift() ?? null;
         if (this.destination) {
-          dx = this.destination.x - this.valley.player.x;
-          dz = this.destination.z - this.valley.player.z;
+          dx = this.destination.x - this.valley.position.x;
+          dz = this.destination.z - this.valley.position.z;
         }
       }
       this.valley.guard = held(b.guard!) || !!pad?.buttons[4]?.pressed;
-      this.valley.step(dt, dx, dz, held('ShiftLeft') || held('ShiftRight') || !!pad?.buttons[5]?.pressed);
+      const previousRoom = this.valley.roomKey;
+      this.valley.step(
+        dt,
+        dx,
+        dz,
+        held('ShiftLeft') || held('ShiftRight') || !!pad?.buttons[5]?.pressed,
+        !this.destination
+      );
+      if (previousRoom !== this.valley.roomKey) {
+        this.stopWalking();
+        this.nextAudio = 0;
+      } else if (this.pendingTarget) {
+        const target = this.valley.targets().find((t) => t.id === this.pendingTarget);
+        if (target && this.inReach(target)) this.activateTarget(target);
+        else if (!target || !this.destination) this.stopWalking();
+      }
       this.scene.render(this.valley, dt);
       this.sound.movement(this.valley);
       this.ui.update();

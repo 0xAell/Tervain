@@ -55,7 +55,7 @@ alongside skews frame times.
    hero's pose (root upright, head height above the root), where his hips land on screen and the drawing pixel ratio.
    Long tasks and console errors are collected, and the screen is recorded to `clip.mp4` (`--video false` skips it).
 
-The isometric route walks and runs on the Grey Strand, clicks onto the Rillford bridge, walks the riverbank and a furnished interior, then fires two arrows. Its sampler observes the hero’s actual sprite blit on the final canvas and measures its orientation, visible height and screen position. The gate also checks for a hardware water context, movement, arrival on the selected deck and ammunition consumed. The two display profiles and frame-time checks apply to both editions.
+The isometric route walks and runs on the Grey Strand, clicks onto the Rillford bridge, walks the riverbank, enters a house through its marked front door, walks through the hall, clicks the stairs to the loft and fires two arrows back outside. Its sampler observes the hero’s actual sprite blit on the final canvas and measures its orientation, visible height and screen position. The gate also checks for a hardware water context, movement, arrival on the selected deck and ammunition consumed. The two display profiles and frame-time checks apply to both editions.
 
 ## What fails it
 

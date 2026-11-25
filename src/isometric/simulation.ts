@@ -19,6 +19,11 @@ import { RESIDENT_HOMES, INDOOR_POSTS } from '../core/world/homes';
 import { bySpec } from '../core/world/layout';
 import { buildingEntry } from '../core/world/buildingEntries';
 import type { Goal } from '../core/rules/schedule';
+import type { InteriorLevel } from '../core/game/types';
+import { frontDoor, doorOpen, doorsById, sitesById, crossedDoor, type Doorway } from './doorways';
+import { roomCanMove, roomWalkable, floorPlan, passageLanding, chamberAt, type Passage } from './roomPlans';
+import { households } from './households';
+import { indoorTargets, outsideTargets, targetDistance, outsideReturn, type RoomTarget } from './roomTargets';
 
 export interface Actor extends V2 {
   id: string;
@@ -38,6 +43,7 @@ export interface Actor extends V2 {
   health: number;
 }
 export interface Offer {
+  target?: RoomTarget;
   entry?: InteractableEntry;
   skin?: AnimalId;
   label: string;
@@ -131,9 +137,131 @@ export class Valley {
       });
     }
     this.facing = facing(Math.sin(game.state.player.yaw), Math.cos(game.state.player.yaw));
+    const saved = this.player.interior,
+      site = saved && sitesById.get(saved.building);
+    if (saved && site && inBuilding(this.player) === site) {
+      const valid = site.id !== 'archive' || this.archiveOpen;
+      if (!valid) this.leaveRoom();
+      else if (!roomWalkable(floorPlan(site, saved.level), saved))
+        Object.assign(saved, passageLanding(floorPlan(site, saved.level)));
+    } else {
+      delete this.player.interior;
+      this.restoreFootprint();
+    }
   }
   get player() {
     return this.game.state.player;
+  }
+  get position(): V2 {
+    return this.player.interior ?? this.player;
+  }
+  get room() {
+    const inside = this.player.interior;
+    return inside ? floorPlan(sitesById.get(inside.building)!, inside.level) : undefined;
+  }
+  openChest?: string;
+  get roomKey() {
+    const r = this.player.interior;
+    return r ? r.building + '/' + r.level : '';
+  }
+  get lightsOn() {
+    return this.game.state.facts['room_dim:' + this.roomKey] !== true;
+  }
+  targets() {
+    const room = this.room;
+    return room ? indoorTargets(room, this.position, this.actors) : outsideTargets(this.game.state);
+  }
+  canWalk(a: V2, b: V2) {
+    const room = this.room;
+    return room ? roomCanMove(room, a, b) : navigable(a, b, this.game.state);
+  }
+  private restoreFootprint() {
+    const site = inBuilding(this.player);
+    if (!site) return;
+    const front = frontDoor(site);
+    const door = doorOpen(front, this.game.state) ? front : doorsById.get(site.id + '/shutter');
+    if (door && doorOpen(door, this.game.state)) this.enterDoor(door);
+    else {
+      const p = outsideReturn(front);
+      this.game.setPlayerTransform(p.x, 0, p.z, this.player.yaw);
+    }
+  }
+  enterDoor(door: Doorway) {
+    if (this.room || !doorOpen(door, this.game.state)) return false;
+    const site = door.site,
+      inside = fromBuildingLocal(site, 0, 0);
+    this.game.setPlayerTransform(inside.x, 0, inside.z, this.player.yaw);
+    this.player.interior = {
+      building: site.id,
+      level: 'ground',
+      ...passageLanding(floorPlan(site, 'ground')),
+      rear: door.rear,
+    };
+    this.openChest = undefined;
+    this.riding = false;
+    this.swimming = false;
+    this.jump = 0;
+    this.strike = 0;
+    this.walk = false;
+    this.skinning = null;
+    return true;
+  }
+  leaveRoom() {
+    const inside = this.player.interior;
+    if (!inside) return;
+    const site = sitesById.get(inside.building)!;
+    const door = inside.rear ? (doorsById.get(site.id + '/shutter') ?? frontDoor(site)) : frontDoor(site);
+    const p = outsideReturn(door);
+    this.game.setPlayerTransform(p.x, 0, p.z, site.yaw + (door.rear ? Math.PI : 0));
+    this.facing = facing(Math.sin(this.player.yaw), Math.cos(this.player.yaw));
+    this.walk = false;
+  }
+  changeFloor(level: InteriorLevel) {
+    const inside = this.player.interior;
+    if (!inside) return;
+    const plan = floorPlan(sitesById.get(inside.building)!, level);
+    Object.assign(inside, passageLanding(plan, inside.level), { level });
+    this.walk = false;
+  }
+  usePassage(p: Passage) {
+    if (p.kind === 'outside') this.leaveRoom();
+    else if (p.target) this.changeFloor(p.target);
+  }
+  private stepInside(dt: number, dx: number, dz: number, run: boolean, walkThrough: boolean) {
+    const plan = this.room!,
+      p = this.player.interior!,
+      length = Math.hypot(dx, dz);
+    this.walk = false;
+    this.swimming = false;
+    if (!length) {
+      this.stamina = Math.min(100, this.stamina + dt * 5);
+      return;
+    }
+    const amount = (dt * (run && this.stamina > 1 ? 8.2 : this.guard ? 2.4 : 5.4)) / length,
+      before = { x: p.x, z: p.z };
+    const next = { x: p.x + dx * amount, z: p.z + dz * amount };
+    if (roomCanMove(plan, p, next)) {
+      p.x = next.x;
+      p.z = next.z;
+    } else {
+      if (roomCanMove(plan, p, { x: next.x, z: p.z })) p.x = next.x;
+      if (roomCanMove(plan, p, { x: p.x, z: next.z })) p.z = next.z;
+    }
+    this.facing = facing(dx, dz);
+    this.player.yaw = Math.atan2(dx, dz);
+    this.walk = distance(before, p) > 0.0001;
+    this.stamina = Math.max(0, Math.min(100, this.stamina + dt * (run ? -5 : 5)));
+    if (!walkThrough) return;
+    for (const link of plan.passages) {
+      if (Math.abs(p.x - link.x) > 1.13) continue;
+      if (
+        (link.kind === 'outside' && dz > 0 && before.z < link.z && p.z >= link.z) ||
+        (link.target && dz < 0 && before.z > link.z - 0.4 && p.z <= link.z - 0.4)
+      ) {
+        this.usePassage(link);
+        break;
+      }
+    }
   }
   get mount() {
     return this.actors.find((a) => a.animal === 'deer-mount')!;
@@ -162,7 +290,7 @@ export class Valley {
     a.move = true;
     a.flip = project(dx, dz).x < 0;
   }
-  step(dt: number, dx: number, dz: number, run: boolean) {
+  step(dt: number, dx: number, dz: number, run: boolean, walkThrough = true) {
     this.time += dt;
     this.clockElapsed += dt;
     this.game.addPlaySeconds(dt);
@@ -173,41 +301,50 @@ export class Valley {
     this.strike = Math.max(0, this.strike - dt);
     this.jump = Math.max(0, this.jump - dt);
     const p = this.player;
-    const water = onBridge(p) ? null : wetPoint(p.x, p.z);
-    const wade = water?.kind === 'river' ? Math.min(1, water.bank / 1.9) : 0;
-    const norm = Math.hypot(dx, dz);
-    this.walk = false;
-    if (norm > 0 && p.health > 0 && this.strike < 0.2) {
-      dx /= norm;
-      dz /= norm;
-      this.facing = facing(dx, dz);
-      const fast = run && this.stamina > 1 && !this.swimming;
-      const speed = this.riding ? (fast ? 14 : 9) : this.swimming ? 3 : this.guard ? 2 : fast ? 9 : 5;
-      const x = p.x + dx * dt * speed * (1 - wade * 0.27),
-        z = p.z + dz * dt * speed * (1 - wade * 0.27);
-      const start = { x: p.x, z: p.z };
-      if (navigable(p, { x, z }, this.archiveOpen)) {
-        p.x = x;
-        p.z = z;
-      } else {
-        if (navigable(p, { x, z: p.z }, this.archiveOpen)) p.x = x;
-        if (navigable(p, { x: p.x, z }, this.archiveOpen)) p.z = z;
+    if (!this.player.interior && inBuilding(p)) this.restoreFootprint();
+    if (this.room) this.stepInside(dt, dx, dz, run, walkThrough);
+    else {
+      const water = onBridge(p) ? null : wetPoint(p.x, p.z);
+      const wade = water?.kind === 'river' ? Math.min(1, water.bank / 1.9) : 0;
+      const norm = Math.hypot(dx, dz);
+      this.walk = false;
+      if (norm > 0 && p.health > 0 && this.strike < 0.2) {
+        dx /= norm;
+        dz /= norm;
+        this.facing = facing(dx, dz);
+        const fast = run && this.stamina > 1 && !this.swimming;
+        const speed = this.riding ? (fast ? 14 : 9) : this.swimming ? 3 : this.guard ? 2 : fast ? 9 : 5;
+        const x = p.x + dx * dt * speed * (1 - wade * 0.27),
+          z = p.z + dz * dt * speed * (1 - wade * 0.27);
+        const start = { x: p.x, z: p.z };
+        if (navigable(p, { x, z }, this.game.state)) {
+          p.x = x;
+          p.z = z;
+        } else {
+          if (navigable(p, { x, z: p.z }, this.game.state)) p.x = x;
+          if (navigable(p, { x: p.x, z }, this.game.state)) p.z = z;
+        }
+        this.walk = distance(start, p) > 0.0001;
+        const entered = inBuilding(p);
+        if (entered) {
+          const door = crossedDoor(start, p, entered);
+          if (door) this.enterDoor(door);
+        }
+        p.yaw = Math.atan2(dx, dz);
+        this.stamina = Math.max(0, Math.min(100, this.stamina + dt * (fast ? -7 : 5)));
+      } else this.stamina = Math.min(100, this.stamina + dt * 10);
+      if (!this.room && wade && water && !this.jump && p.health > 0 && !onBridge(p)) {
+        const v = riverVelocity(water, worldView(this.game.state).flow),
+          pull = dt * wade * (this.guard ? 0.06 : 0.24);
+        const next = { x: p.x + v.x * pull, z: p.z + v.z * pull };
+        if (!onBridge(next) && navigable(p, next, this.game.state)) {
+          p.x = next.x;
+          p.z = next.z;
+        }
       }
-      this.walk = distance(start, p) > 0.0001;
-      p.yaw = Math.atan2(dx, dz);
-      this.stamina = Math.max(0, Math.min(100, this.stamina + dt * (fast ? -7 : 5)));
-    } else this.stamina = Math.min(100, this.stamina + dt * 10);
-    if (wade && water && !this.jump && p.health > 0 && !onBridge(p)) {
-      const v = riverVelocity(water, worldView(this.game.state).flow),
-        pull = dt * wade * (this.guard ? 0.06 : 0.24);
-      const next = { x: p.x + v.x * pull, z: p.z + v.z * pull };
-      if (!onBridge(next) && navigable(p, next, this.archiveOpen)) {
-        p.x = next.x;
-        p.z = next.z;
-      }
+      this.swimming = !this.room && waterAt(p.x, p.z) === 'sea' && !onBridge(p);
+      if (this.swimming) this.riding = false;
     }
-    this.swimming = waterAt(p.x, p.z) === 'sea' && !onBridge(p);
-    if (this.swimming) this.riding = false;
     if (this.skinning) {
       if (this.walk) this.skinning = null;
       else if ((this.skinning.remaining -= dt) <= 0) {
@@ -266,7 +403,7 @@ export class Valley {
         }
         const def = ANIMALS.find((d) => d.id === ANIMAL_MODEL_IDS[a.animal!])!;
         if (def.seated) continue;
-        const near = distance(a, p),
+        const near = this.room ? Infinity : distance(a, p),
           phase = this.time * 0.13 + i;
         if (isHuntableAnimalId(a.animal) && near < 6 && near > 0.05)
           this.stepActor(
@@ -290,7 +427,7 @@ export class Valley {
         if (a.dead) continue;
         const spawn = ENEMY_SPAWNS.find((e) => e.id === a.enemy)!;
         const def = ENEMY_ARCHETYPES[spawn.kind],
-          near = distance(a, p);
+          near = this.room ? Infinity : distance(a, p);
         if (near < def.notice * 1.6 && distance(a, a.home) < spawn.leash + 6 && p.health > 0) {
           if (near > def.reach && !a.attack) this.stepActor(a, p, def.speed, dt);
           else if (!a.timer && near <= def.reach) {
@@ -309,7 +446,7 @@ export class Valley {
     }
   }
   attack(target?: V2) {
-    if (this.strike > 0 || this.player.health <= 0) return;
+    if (this.room || this.strike > 0 || this.player.health <= 0) return;
     const p = this.player,
       bow = this.game.state.equippedWeapon === 'hunting_bow';
     const hit = this.actors
@@ -348,9 +485,21 @@ export class Valley {
   offers(): Offer[] {
     const p = this.player,
       nearThreat = this.actors.some((a) => a.enemy && !a.dead && distance(a, p) < 4);
+    const plan = this.room;
     const offers: Offer[] = [];
+    for (const target of this.targets()) {
+      const d = targetDistance(target, this.position, plan);
+      if (d <= target.reach)
+        offers.push({
+          target,
+          label: target.label,
+          score: d - (target.door || target.passage?.target || target.passage?.kind === 'outside' ? 0.32 : 0),
+        });
+    }
+    if (plan) return offers.sort((a, b) => a.score - b.score);
     for (const entry of entries) {
-      if (!entry.offered(this.game.state)) continue;
+      if (['archive_door', 'archive_shutter', 'ledger'].includes(entry.id) || !entry.offered(this.game.state))
+        continue;
       const at = entry.place;
       let loc: V2;
       if (at.at === 'resident') {
@@ -400,6 +549,12 @@ export class Valley {
     )[0]!;
   }
   placeName() {
-    return S('place.' + this.nearestPlace());
+    return this.room ? households[this.room.site.id]!.name : S('place.' + this.nearestPlace());
+  }
+  roomName() {
+    const room = this.room;
+    if (!room) return '';
+    const chamber = chamberAt(room, this.position);
+    return chamber && chamber.name !== room.name ? room.name + ' · ' + chamber.name : room.name;
   }
 }

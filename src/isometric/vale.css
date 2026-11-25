@@ -365,6 +365,10 @@ button img {
 .region strong {
   font-size: clamp(20px, 2.1vw, 31px);
 }
+.room-name {
+  color: #f1d49c;
+  font-size: 15px;
+}
 .clock {
   font-size: 14px;
 }

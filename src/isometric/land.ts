@@ -2,7 +2,8 @@ import { bankPlants } from './riverHabitat';
 import { passesRails } from './crossing';
 import { campShelter, buildingSprite } from './settlement';
 import { toBuildingLocal } from '../core/world/interiors';
-import { buildingEntry } from '../core/world/buildingEntries';
+import { crossedDoor, doorOpen, siteAtPoint } from './doorways';
+import type { WorldState } from '../core/game/types';
 import { wetPoint, waterProfile, riverStones } from './water';
 import { coastX, shoreDistance } from '../core/world/coast';
 import { roadWeight, realmRadius } from '../core/world/terrain';
@@ -49,23 +50,16 @@ export function random(x: number, z: number, salt = 0) {
 export function buildingLocal(p: V2, b: BuildingSpec) {
   return toBuildingLocal(b, p.x, p.z);
 }
-export function inBuilding(p: V2) {
-  return BUILDINGS.find((b) => {
-    if (Math.abs(p.x - b.x) + Math.abs(p.z - b.z) > b.w + b.d) return false;
-    const local = buildingLocal(p, b);
-    return Math.abs(local.x) < b.w / 2 && Math.abs(local.z) < b.d / 2;
-  });
-}
-export function enteredThroughDoor(from: V2, to: V2, archiveOpen: boolean) {
-  for (const b of BUILDINGS) {
-    if (Math.abs(to.x - b.x) + Math.abs(to.z - b.z) > b.w + b.d) continue;
-    const a = buildingLocal(from, b),
-      c = buildingLocal(to, b);
-    const within = (p: V2) => Math.abs(p.x) < b.w / 2 && Math.abs(p.z) < b.d / 2;
-    if (within(a) === within(c)) continue;
-    if (b.id === 'archive' && !archiveOpen) return false;
-    const door = buildingEntry(b);
-    if (Math.abs(c.x - door.x) > door.w / 2 + 0.22 || Math.max(a.z, c.z) < b.d / 2 - 0.3) return false;
+export const inBuilding = siteAtPoint;
+export function enteredThroughDoor(from: V2, to: V2, access: boolean | WorldState) {
+  const a = inBuilding(from),
+    b = inBuilding(to);
+  if (a === b) return true;
+  for (const site of [a, b]) {
+    if (!site) continue;
+    const door = crossedDoor(from, to, site);
+    if (!door || (typeof access === 'boolean' ? site.id === 'archive' && !access : !doorOpen(door, access)))
+      return false;
   }
   return true;
 }
@@ -91,7 +85,7 @@ export function dryGroundAt(x: number, z: number, lane = roadWeight(x, z)) {
     return 'woodland';
   return 'grass';
 }
-export function navigable(from: V2, to: V2, open: boolean) {
+export function navigable(from: V2, to: V2, open: boolean | WorldState) {
   return (
     to.x > WORLD.minX + 1 &&
     to.x < WORLD.maxX - 1 &&

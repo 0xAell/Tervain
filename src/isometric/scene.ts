@@ -9,8 +9,9 @@ import { Architecture } from './architecture';
 import { bridgeArt } from './bridgeArt';
 import { drawStrip } from './worldArt';
 import { worldView } from '../core/game/worldView';
-import { FURNITURE, pieceSize } from '../core/world/furniture';
-import { fromBuildingLocal } from '../core/world/interiors';
+import { RoomView } from './roomView';
+import { drawFocus, drawWaylight, pickRegion, type PickRegion } from './entryCues';
+import { targetDistance } from './roomTargets';
 import { AMBIENT_RESIDENTS } from '../core/content/ambientPeople';
 import { project, unproject, PROJECTION, groundAt, inBuilding, scenery, type Scenery } from './land';
 import { PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
@@ -25,6 +26,10 @@ export class Scene {
   private riverLife: RiverLife;
   private bridges: Stamp[][];
   private props = new Map<string, Scenery[]>();
+  private rooms: RoomView;
+  private indoors = false;
+  private regions: PickRegion[] = [];
+  private pointer?: { x: number; y: number };
   private center = { x: 0, y: 0 };
   private initialized = false;
   private mapBase: HTMLCanvasElement | null = null;
@@ -37,6 +42,7 @@ export class Scene {
     readonly atlas: Atlas
   ) {
     this.context = canvas.getContext('2d', { alpha: false })!;
+    this.rooms = new RoomView(atlas);
     this.ground = new Ground(atlas);
     this.water = new WaterReflections(atlas);
     this.architecture = new Architecture(atlas);
@@ -56,8 +62,32 @@ export class Scene {
     const clip = sprite + '--' + action;
     return this.atlas.has(clip) ? clip : sprite;
   }
+  private pixel(clientX: number, clientY: number) {
+    const r = this.canvas.getBoundingClientRect();
+    return {
+      x: ((clientX - r.left) / r.width) * this.canvas.width,
+      y: ((clientY - r.top) / r.height) * this.canvas.height,
+    };
+  }
+  targetAt(clientX: number, clientY: number) {
+    const p = this.pixel(clientX, clientY);
+    return pickRegion(this.regions, p.x, p.y)?.target;
+  }
+  hover(clientX?: number, clientY?: number) {
+    this.pointer = clientX === undefined || clientY === undefined ? undefined : { x: clientX, y: clientY };
+  }
+  private focus() {
+    const point = this.pointer && this.pixel(this.pointer.x, this.pointer.y);
+    const selected = point && pickRegion(this.regions, point.x, point.y);
+    this.canvas.style.cursor = selected ? 'pointer' : '';
+    if (selected) drawFocus(this.context, selected);
+  }
   pointAt(clientX: number, clientY: number): V2 {
     const r = this.canvas.getBoundingClientRect();
+    if (this.indoors) {
+      const p = this.pixel(clientX, clientY);
+      return this.rooms.point(p.x, p.y);
+    }
     const ground = unproject(
       ((clientX - r.left) / r.width) * this.canvas.width - this.canvas.width / 2 + this.center.x,
       ((clientY - r.top) / r.height) * this.canvas.height - this.canvas.height * 0.54 - 24 + this.center.y
@@ -66,6 +96,8 @@ export class Scene {
   }
   resetCamera() {
     this.initialized = false;
+    this.regions.length = 0;
+    this.rooms.leave();
     this.water.reset();
     this.riverLife.reset();
   }
@@ -79,6 +111,24 @@ export class Scene {
       this.canvas.height = h;
     }
     ctx.imageSmoothingEnabled = false;
+    this.regions.length = 0;
+    if (valley.room) {
+      this.indoors = true;
+      const frame = this.rooms.draw(ctx, valley, this.regions, dt);
+      this.heroDrawn = frame.heroDrawn;
+      this.lastDraws = frame.draws;
+      this.renderedFrames++;
+      if (this.lastLight !== 'none') {
+        this.lastLight = 'none';
+        this.canvas.style.filter = 'none';
+      }
+      this.focus();
+      return;
+    }
+    if (this.indoors) {
+      this.indoors = false;
+      this.resetCamera();
+    }
     const target = project(valley.player.x, valley.player.z);
     const follow = this.initialized ? 1 - Math.exp(-Math.max(dt, 0) * 12) : 1;
     this.center.x += (target.x - this.center.x) * follow;
@@ -99,8 +149,7 @@ export class Scene {
     const stamps: Stamp[] = [];
     this.lastDraws = 0;
     this.heroDrawn = false;
-    const playerBuilding = inBuilding(valley.player),
-      time = valley.time;
+    const time = valley.time;
     const view = worldView(valley.game.state),
       hour = hourOfDay(valley.game.state.clock);
     for (const bridge of this.bridges) {
@@ -113,21 +162,6 @@ export class Scene {
       )
         stamps.push(...bridge);
     }
-    if (playerBuilding) {
-      for (const piece of FURNITURE) {
-        if (piece.room.building !== playerBuilding) continue;
-        const pos = fromBuildingLocal(playerBuilding, piece.x, piece.z),
-          size = pieceSize(piece.piece);
-        const key =
-          piece.piece === 'bench'
-            ? 'seat'
-            : this.atlas.has('furniture_' + piece.piece)
-              ? 'furniture_' + piece.piece
-              : piece.piece;
-        if (this.atlas.has(key))
-          stamps.push({ ...pos, key, width: Math.max(6, (size[0] + size[2]) * 6.1), reflect: false });
-      }
-    }
     for (let i = Math.floor(xmin / 32); i <= Math.floor(xmax / 32); i++)
       for (let j = Math.floor(zmin / 32); j <= Math.floor(zmax / 32); j++) {
         for (const prop of this.props.get(i + ',' + j) ?? []) {
@@ -139,7 +173,6 @@ export class Scene {
             screen.y + oy > h + 180
           )
             continue;
-          if (prop.building && prop.building === playerBuilding) continue;
           if (prop.building) {
             const strips = this.architecture.exterior(prop.building, view.millTurning, Math.floor(time * 6));
             const front = strips.find(
@@ -224,7 +257,7 @@ export class Scene {
       if ((a.npc && a.dead) || (a.enemy && a.dead)) continue;
       if (a.animal && valley.game.state.hunting[a.animal]?.status === 'skinned') continue;
       const inside = inBuilding(a);
-      if (inside && inside !== playerBuilding) continue;
+      if (inside) continue;
       const key = a.dead
         ? a.key
         : this.motion(a.key, a.attack ? 'attack' : a.move ? 'walk' : (a.posture ?? 'idle'));
@@ -299,10 +332,6 @@ export class Scene {
     });
     const ripples = [...fishRipples, ...this.water.advance(nearWaterView, time, view.flow)].slice(-16);
     this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, time, view.flow, hour, ripples);
-    if (playerBuilding) {
-      const floor = this.architecture.floor(playerBuilding);
-      ctx.drawImage(floor.canvas, floor.left + ox, floor.top + oy);
-    }
     this.riverLife.drawShoals(ctx, this.ground, ox, oy, time);
     this.water.draw(ctx, this.ground, stamps, ox, oy, time);
     for (const stamp of stamps) {
@@ -333,6 +362,20 @@ export class Scene {
     }
     ctx.globalAlpha = 1;
 
+    for (const target of valley.targets()) {
+      const door = target.door!;
+      const s = project(
+        door.sill.x * 0.68 + door.outside.x * 0.32,
+        door.sill.z * 0.68 + door.outside.z * 0.32
+      );
+      const x = s.x + ox,
+        y = s.y + oy;
+      if (x < -16 || x > w + 16 || y < -12 || y > h + 20) continue;
+      const near = targetDistance(target, valley.player) <= target.reach;
+      drawWaylight(ctx, this.atlas, x, y, time, near, target.locked);
+      this.regions.push({ id: target.id, x, y: y - 6, w: 24, h: 26, target });
+    }
+    this.focus();
     const light =
       hour < 5.5 || hour > 20.5
         ? 'brightness(.56) saturate(.75)'
@@ -344,6 +387,56 @@ export class Scene {
       this.canvas.style.filter = light;
       this.lastLight = light;
     }
+  }
+  drawFloorMap(canvas: HTMLCanvasElement, valley: Valley) {
+    const plan = valley.room!;
+    const ctx = canvas.getContext('2d')!,
+      { width: w, height: h } = canvas;
+    const [left, hall, right] = plan.rooms;
+    const scale = Math.min((w - 28) / (right.x1 - left.x0), (h - 44) / (hall.z1 - hall.z0));
+    const px = (x: number) => w / 2 + (x - (left.x0 + right.x1) / 2) * scale,
+      py = (z: number) => h / 2 + z * scale;
+    ctx.fillStyle = '#253030';
+    ctx.fillRect(0, 0, w, h);
+    for (const [i, r] of plan.rooms.entries()) {
+      ctx.fillStyle = i === 1 ? '#776042' : '#5a5646';
+      ctx.strokeStyle = '#d6b784';
+      ctx.lineWidth = 2;
+      ctx.fillRect(px(r.x0), py(r.z0), (r.x1 - r.x0) * scale, (r.z1 - r.z0) * scale);
+      ctx.strokeRect(px(r.x0), py(r.z0), (r.x1 - r.x0) * scale, (r.z1 - r.z0) * scale);
+    }
+    ctx.imageSmoothingEnabled = false;
+    for (const f of plan.fixtures) {
+      ctx.fillStyle = f.use ? '#9bb9a4' : '#847861';
+      ctx.fillRect(px(f.x - f.hx), py(f.z - f.hz), f.hx * 2 * scale, f.hz * 2 * scale);
+    }
+    for (const room of plan.rooms) {
+      const cx = px((room.x0 + room.x1) / 2),
+        y = py(room.z0) + 13;
+      ctx.font = '13px Vale, serif';
+      ctx.textAlign = 'center';
+      const roomWidth = (room.x1 - room.x0) * scale - 8;
+      const width = Math.min(roomWidth, ctx.measureText(room.name).width + 8);
+      ctx.fillStyle = 'rgba(36,35,32,.82)';
+      ctx.fillRect(cx - width / 2, y - 10, width, 14);
+      ctx.fillStyle = '#f5dfac';
+      ctx.fillText(room.name, cx, y, roomWidth - 5);
+    }
+    for (const p of plan.passages) {
+      const x = px(p.x),
+        y = py(p.z);
+      ctx.fillStyle = '#ffe0a2';
+      if (p.kind === 'arch') {
+        ctx.fillRect(x - 3, y - scale, 6, 2 * scale);
+        continue;
+      }
+      this.atlas.draw(ctx, 'room_waylight', x - 7, y + 2, 8, 0, false, 0.6);
+      ctx.font = 'bold 15px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(p.kind === 'up' ? '↑' : p.kind === 'down' ? '↓' : '◆', x, y + 5);
+    }
+    const pos = valley.position;
+    this.atlas.draw(ctx, 'hero-south', px(pos.x), py(pos.z), 24, 0, false, 0.75);
   }
   drawMap(canvas: HTMLCanvasElement, valley: Valley) {
     const w = canvas.width,
