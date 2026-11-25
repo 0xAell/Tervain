@@ -13,6 +13,7 @@ import {
   chamberLift,
   roomLift,
   roomRisePixels,
+  upperLandingRun,
   landingSteps,
   landingRun,
   landingHalfWidth,
@@ -176,7 +177,16 @@ export function buildRoom(world: RAPIER.World, plan: FloorPlan) {
       hz = (r.z1 - r.z0) / 2,
       cx = r.x0 + hx,
       cz = r.z0 + hz;
-    box(cx, (floor - 0.6) / 2, cz, hx, (floor + 0.6) / 2, hz);
+    const well = i === 1 && plan.stairs.find((s) => s.passage.kind === 'down');
+    if (well) {
+      // Four pieces leave the stairwell open through the hall slab.
+      const slab = (x0: number, x1: number, z0: number, z1: number) =>
+        box((x0 + x1) / 2, -0.3, (z0 + z1) / 2, (x1 - x0) / 2, 0.3, (z1 - z0) / 2);
+      slab(r.x0, r.x1, r.z0, well.z0);
+      slab(r.x0, r.x1, well.z1, r.z1);
+      slab(r.x0, well.x0, well.z0, well.z1);
+      slab(well.x1, r.x1, well.z0, well.z1);
+    } else box(cx, (floor - 0.6) / 2, cz, hx, (floor + 0.6) / 2, hz);
     for (const z of [r.z0, r.z1]) box(cx, floor + wallHeight / 2, z, hx, 0.5 * wallHeight, 0.12);
     if (i !== 1) box(i === 0 ? r.x0 : r.x1, floor + wallHeight / 2, cz, 0.12, 0.5 * wallHeight, hz);
     if (i !== 1) continue;
@@ -199,6 +209,36 @@ export function buildRoom(world: RAPIER.World, plan: FloorPlan) {
           landingHalfWidth
         );
       }
+    }
+  }
+  for (const stair of plan.stairs) {
+    const last = stair.treads[stair.treads.length - 1]!,
+      bottom = Math.min(0, last.height / roomRisePixels) - 0.3;
+    for (const tread of stair.treads) {
+      const top = tread.height / roomRisePixels;
+      box(
+        stair.passage.x,
+        (bottom + top) / 2,
+        (tread.start + tread.end) / 2,
+        (stair.x1 - stair.x0) / 2,
+        (top - bottom) / 2,
+        Math.abs(tread.end - tread.start) / 2
+      );
+    }
+    if (last.height > 0) {
+      box(
+        stair.passage.x,
+        last.height / roomRisePixels - 0.15,
+        stair.z0 - upperLandingRun / 2,
+        (stair.x1 - stair.x0) / 2,
+        0.15,
+        upperLandingRun / 2
+      );
+    } else {
+      const height = 0.68 - bottom;
+      for (const x of [stair.x0 - 0.06, stair.x1 + 0.06])
+        box(x, bottom + height / 2, (stair.z0 + stair.z1) / 2, 0.06, height / 2, (stair.z1 - stair.z0) / 2);
+      box(stair.passage.x, bottom / 2, stair.z1 + 0.06, (stair.x1 - stair.x0) / 2, -bottom / 2, 0.06);
     }
   }
   for (const f of staticRoom(plan).fixtures) {

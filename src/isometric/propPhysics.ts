@@ -51,6 +51,7 @@ interface Grip {
 }
 export type ContactSound = Material | 'splash' | 'leaves';
 const fixed = 1 / 60;
+const upright = yawRotation(0);
 export const angleOf = (q: Turn) => Math.atan2(2 * (q.w * q.y + q.x * q.z), 1 - 2 * (q.y * q.y + q.x * q.x));
 const distance = (a: V2, b: V2) => Math.hypot(a.x - b.x, a.z - b.z);
 export function rotate(p: Point, q: Turn): Point {
@@ -478,6 +479,24 @@ export class PropPhysics {
         z: -speed * sign * (desired.w * q.z - desired.y * q.x) - spin.z * 0.05,
       },
       true
+    );
+  }
+  roomRouteClear(from: V2, to: V2) {
+    const base = floorAt(this.plan, from);
+    // A click route should go around the furniture in its current position.
+    // Manual movement still uses the character controller and can push it.
+    return !this.world.castShape(
+      { x: from.x, y: base + 0.95, z: from.z },
+      upright,
+      { x: to.x - from.x, y: floorAt(this.plan, to) - base, z: to.z - from.z },
+      this.capsule.shape,
+      0.16,
+      1,
+      false,
+      RAPIER.QueryFilterFlags.ONLY_DYNAMIC,
+      undefined,
+      undefined,
+      this.grip ? this.bodies.get(this.grip.id)?.body : undefined
     );
   }
   move(from: V2, to: V2, y: number) {

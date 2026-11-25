@@ -1,18 +1,20 @@
 import { drawProp } from './propArt';
 import type { PropView } from './propPhysics';
-import { roomLift } from './roomPlans';
 import { heroPose } from './heroPose';
 import { hourOfDay } from '../core/game/state';
 import type { Atlas } from './atlas';
-import { RoomArt, type RoomPlate } from './roomArt';
+import { clipBelowRim, RoomArt, stairForeground, type RoomPlate } from './roomArt';
 import { drawWaylight, type PickRegion } from './entryCues';
 import { residentSpots } from './roomTargets';
 import {
   roomUnproject,
   roomProject,
   roomFoot,
+  roomLift,
+  stairAt,
   pickRoomFloor,
   roomRisePixels,
+  upperLandingRun,
   type FloorPlan,
 } from './roomPlans';
 import type { Valley } from './simulation';
@@ -280,12 +282,14 @@ export class RoomView {
     ctx.save();
     ctx.translate(ox, oy);
     this.castShadows(ctx, plan, plate, sprites, hour, valley.lightsOn);
-    ctx.restore();
     let heroDrawn = false;
     for (const s of sprites) {
       const at = roomFoot(plan, s),
-        sx = Math.round(at.x + ox),
-        sy = Math.round(at.y + oy);
+        sx = Math.round(at.x),
+        sy = Math.round(at.y);
+      ctx.save();
+      const flight = stairAt(plan, s);
+      if (flight?.passage.kind === 'down') clipBelowRim(ctx, flight);
       if (s.shade) {
         ctx.fillStyle = 'rgba(37,25,33,.24)';
         ctx.beginPath();
@@ -308,9 +312,23 @@ export class RoomView {
       ctx.globalAlpha = hidden ? 0.52 : 1;
       if (s.prop) drawProp(ctx, this.atlas, s.prop, sx, sy - (s.lift ?? 0), s.width, true);
       else this.atlas.draw(ctx, s.key, sx, sy - (s.lift ?? 0), s.width, s.frame ?? 0, s.flip);
+      ctx.restore();
+      const height = this.atlas.height(s.key, s.width, s.frame);
+      stairForeground(
+        ctx,
+        plate,
+        s,
+        {
+          x: sx - s.width / 2 - 2,
+          y: sy - (s.lift ?? 0) - height - 2,
+          w: s.width + 4,
+          h: height + 5,
+        },
+        !!s.hero
+      );
       if (s.hero) heroDrawn = true;
     }
-    ctx.globalAlpha = 1;
+    ctx.restore();
     if (!valley.lightsOn) {
       ctx.fillStyle = 'rgba(17,29,46,.26)';
       ctx.fillRect(0, 0, w, h);
@@ -325,6 +343,12 @@ export class RoomView {
       if (target.passage) {
         drawWaylight(ctx, this.atlas, x, base, clock, close, false, true, target.passage.kind);
         regions.push({ id: target.id, x, y: base - 7, w: 29, h: 33, target });
+        if (target.passage.kind === 'up') {
+          const flight = plan.stairs.find((s) => s.passage.id === target.passage!.id)!;
+          const head = roomProject({ x: flight.passage.x, z: flight.z0 - upperLandingRun });
+          const height = flight.treads[flight.treads.length - 1]!.height;
+          regions.push({ id: target.id, x: head.x + ox, y: head.y + oy - height - 10, w: 27, h: 25, target });
+        }
       } else {
         const f = target.fixture,
           width = prop ? (prop.spec.width * 11) / 6 : (f?.width ?? 36),

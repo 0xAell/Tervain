@@ -30,6 +30,12 @@ export interface Passage extends V2 {
   target?: InteriorLevel;
   side?: -1 | 1;
 }
+export interface StairFlight extends RoomRect {
+  passage: Passage;
+  direction: number;
+  /** Surface heights in native room pixels, in walking order from this floor. */
+  treads: { start: number; end: number; height: number }[];
+}
 export interface FloorPlan {
   site: BuildingSpec;
   level: InteriorLevel;
@@ -37,11 +43,42 @@ export interface FloorPlan {
   rooms: [Chamber, Chamber, Chamber];
   fixtures: Fixture[];
   passages: Passage[];
+  stairs: StairFlight[];
   gap: number;
   stone: boolean;
 }
 export const roomScale = 11;
 export const roomRisePixels = 14;
+export const floorElevation: Record<InteriorLevel, number> = { cellar: -3, ground: 0, loft: 3.5 };
+export const stairRun = 5.25;
+export const upperLandingRun = 1.3;
+const stairCount = 11,
+  stairWidth = 3.4;
+
+function makeFlight(p: Passage, level: InteriorLevel): StairFlight {
+  const direction = p.kind === 'up' ? -1 : 1,
+    finish = p.z + direction * stairRun,
+    rise = (floorElevation[p.target!] - floorElevation[level]) * roomRisePixels;
+  return {
+    passage: p,
+    direction,
+    x0: p.x - stairWidth / 2,
+    x1: p.x + stairWidth / 2,
+    z0: Math.min(p.z, finish),
+    z1: Math.max(p.z, finish),
+    treads: Array.from({ length: stairCount }, (_, i) => ({
+      start: p.z + (direction * stairRun * i) / stairCount,
+      end: p.z + (direction * stairRun * (i + 1)) / stairCount,
+      height: (rise * i) / (stairCount - 1),
+    })),
+  };
+}
+export function stairAt(plan: FloorPlan, p: V2) {
+  return plan.stairs.find((s) => p.x >= s.x0 && p.x <= s.x1 && p.z >= s.z0 && p.z <= s.z1);
+}
+export function stairDepth(s: StairFlight, p: V2) {
+  return (p.z - s.passage.z) * s.direction;
+}
 export const roomProject = (p: V2) => ({ x: (p.x - p.z) * roomScale, y: ((p.x + p.z) * roomScale) / 2 });
 export const roomUnproject = (x: number, y: number): V2 => ({
   x: (y + x / 2) / roomScale,
@@ -58,6 +95,11 @@ export function chamberLift(plan: FloorPlan, index: number) {
   return index === 0 ? 21 : 12;
 }
 export function roomLift(plan: FloorPlan, p: V2) {
+  const stair = stairAt(plan, p);
+  if (stair) {
+    const index = Math.min(stairCount - 1, Math.floor((stairDepth(stair, p) * stairCount) / stairRun));
+    return stair.treads[index]!.height;
+  }
   const hall = plan.rooms[1],
     left = p.x <= hall.x0;
   if (left || p.x >= hall.x1) return chamberLift(plan, left ? 0 : 2);
@@ -79,19 +121,20 @@ export function pickRoomFloor(plan: FloorPlan, x: number, y: number) {
     nearest = -Infinity,
     bestGap = Infinity;
   // A point on a vertical riser selects its closest tread. The frontmost exact hit wins.
-  for (const index of [0, 2]) {
-    for (let k = 0; k <= landingSteps; k++) {
-      const h = (chamberLift(plan, index) * k) / landingSteps,
-        p = roomUnproject(x, y + h);
-      if (!chamberAt(plan, p)) continue;
-      const gap = Math.abs(h - roomLift(plan, p));
-      if (gap < bestGap - 0.001 || (Math.abs(gap - bestGap) < 0.001 && h > nearest)) {
-        picked = p;
-        nearest = h;
-        bestGap = gap;
-      }
+  const consider = (h: number) => {
+    const p = roomUnproject(x, y + h);
+    if (!chamberAt(plan, p)) return;
+    const gap = Math.abs(h - roomLift(plan, p));
+    if (gap < bestGap - 0.001 || (Math.abs(gap - bestGap) < 0.001 && h > nearest)) {
+      picked = p;
+      nearest = h;
+      bestGap = gap;
     }
+  };
+  for (const index of [0, 2]) {
+    for (let k = 0; k <= landingSteps; k++) consider((chamberLift(plan, index) * k) / landingSteps);
   }
+  for (const stair of plan.stairs) for (const tread of stair.treads) consider(tread.height);
   return picked;
 }
 const cached = new Map<string, FloorPlan>();
@@ -164,20 +207,23 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
     { id: 'west', kind: 'arch', x: -hall, z: gap, side: -1 },
     { id: 'east', kind: 'arch', x: hall, z: gap, side: 1 },
   ];
+  // Reciprocal flights line up across floors, including the wider ground-floor hall.
+  const stairX = hall - (level === 'ground' ? 0.9 : 0) - 4.35,
+    stairBack = -deep + 1.75;
   if (!loft)
     passages.push({
       id: 'up',
       kind: 'up',
-      x: (basement ? -1 : 1) * (hall - 2.3),
-      z: -deep + 4.3,
+      x: (basement ? -1 : 1) * stairX,
+      z: stairBack + stairRun,
       target: basement ? 'ground' : 'loft',
     });
   if (!basement)
     passages.push({
       id: 'down',
       kind: 'down',
-      x: (loft ? 1 : -1) * (hall - 2.3),
-      z: -deep + 4.3,
+      x: (loft ? 1 : -1) * stairX,
+      z: stairBack,
       target: loft ? 'ground' : 'cellar',
     });
   if (level === 'ground') passages.push({ id: 'exit', kind: 'outside', x: 0, z: deep - 0.58 });
@@ -272,7 +318,8 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
   put(f('shelf'), -hall - 1.6, rooms[0].z0 + 1.05, 30, 0.86, 0.42);
   put(f(loft ? 'herbs' : 'pots'), hall + 1.78, rooms[2].z0 + 1.1, 23, 0.55, 0.38);
   if (level === 'ground') put(f('stool'), rx - 1.8, 2, 17, 0.38, 0.35);
-  const plan = { site, level, name, rooms, fixtures, passages, gap, stone };
+  const stairs = passages.filter((p) => p.target).map((p) => makeFlight(p, level));
+  const plan = { site, level, name, rooms, fixtures, passages, stairs, gap, stone };
   cached.set(id, plan);
   return plan;
 }
@@ -296,16 +343,34 @@ export function roomWalkable(plan: FloorPlan, p: V2) {
 }
 export function roomCanMove(plan: FloorPlan, a: V2, b: V2) {
   const steps = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / 0.3));
-  for (let i = 1; i <= steps; i++)
-    if (!roomWalkable(plan, { x: a.x + ((b.x - a.x) * i) / steps, z: a.z + ((b.z - a.z) * i) / steps }))
-      return false;
+  let previous = a,
+    flight = stairAt(plan, a);
+  for (let i = 1; i <= steps; i++) {
+    const next = { x: a.x + ((b.x - a.x) * i) / steps, z: a.z + ((b.z - a.z) * i) / steps };
+    if (!roomWalkable(plan, next)) return false;
+    const entered = stairAt(plan, next);
+    if (flight !== entered) {
+      const stair = (flight ?? entered)!;
+      // The mouth is the only break in the stringers and in the lip of the well.
+      if (stairDepth(stair, flight ? next : previous) > 0) return false;
+      if (next.z !== previous.z) {
+        const t = (stair.passage.z - previous.z) / (next.z - previous.z);
+        const crossingX = previous.x + (next.x - previous.x) * t;
+        if (crossingX < stair.x0 || crossingX > stair.x1) return false;
+      }
+    }
+    previous = next;
+    flight = entered;
+  }
   return true;
 }
 export function passageLanding(plan: FloorPlan, from?: InteriorLevel): V2 {
   const p = from
     ? plan.passages.find((p) => p.target === from)
     : plan.passages.find((p) => p.kind === 'outside');
-  return p ? { x: p.x, z: p.z + (p.kind === 'outside' ? -1.65 : 1.7) } : { x: 0, z: 2 };
+  return p
+    ? { x: p.x, z: p.z + (p.kind === 'outside' ? -1.65 : p.kind === 'up' ? 0.66 : -0.66) }
+    : { x: 0, z: 2 };
 }
 const fixtureApproaches = new WeakMap<Fixture, V2>();
 export function fixtureApproach(f: Fixture, plan: FloorPlan): V2 {
