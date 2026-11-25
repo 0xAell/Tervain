@@ -24,7 +24,7 @@ export class Atlas {
       const canvas = document.createElement('canvas');
       canvas.width = w;
       canvas.height = h;
-      const ctx = canvas.getContext('2d')!;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
       ctx.drawImage(this.image, x, y, w, h, 0, 0, w, h);
       return { pixels: new Uint32Array(ctx.getImageData(0, 0, w, h).data.buffer), w, h };
     });
