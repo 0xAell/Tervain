@@ -23,13 +23,13 @@ export interface Fixture extends V2 {
   label?: string;
   item?: ItemId;
 }
-export type PassageKind = 'outside' | 'up' | 'down' | 'arch';
-export interface Passage extends V2 {
-  id: string;
-  kind: PassageKind;
-  target?: InteriorLevel;
-  side?: -1 | 1;
+export interface RoomArch extends V2 {
+  side: -1 | 1;
 }
+export type Passage = V2 & { id: string } & (
+    | { kind: 'up' | 'down'; target: InteriorLevel }
+    | { kind: 'outside'; target?: never }
+  );
 export interface StairFlight extends RoomRect {
   passage: Passage;
   direction: number;
@@ -42,6 +42,7 @@ export interface FloorPlan {
   name: string;
   rooms: [Chamber, Chamber, Chamber];
   fixtures: Fixture[];
+  arches: RoomArch[];
   passages: Passage[];
   stairs: StairFlight[];
   gap: number;
@@ -203,10 +204,11 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
     fixtures.push({ id: (use ?? key) + '-' + fixtures.length, key, x, z, width, hx, hz, use, label, item });
   };
   // The clear central aisle links both wings. Stairs and every object have a reachable apron.
-  const passages: Passage[] = [
-    { id: 'west', kind: 'arch', x: -hall, z: gap, side: -1 },
-    { id: 'east', kind: 'arch', x: hall, z: gap, side: 1 },
+  const arches: RoomArch[] = [
+    { x: -hall, z: gap, side: -1 },
+    { x: hall, z: gap, side: 1 },
   ];
+  const passages: Passage[] = [];
   // Reciprocal flights line up across floors, including the wider ground-floor hall.
   const stairX = hall - (level === 'ground' ? 0.9 : 0) - 4.35,
     stairBack = -deep + 1.75;
@@ -319,7 +321,7 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
   put(f(loft ? 'herbs' : 'pots'), hall + 1.78, rooms[2].z0 + 1.1, 23, 0.55, 0.38);
   if (level === 'ground') put(f('stool'), rx - 1.8, 2, 17, 0.38, 0.35);
   const stairs = passages.filter((p) => p.target).map((p) => makeFlight(p, level));
-  const plan = { site, level, name, rooms, fixtures, passages, stairs, gap, stone };
+  const plan = { site, level, name, rooms, fixtures, arches, passages, stairs, gap, stone };
   cached.set(id, plan);
   return plan;
 }
@@ -388,11 +390,9 @@ export function fixtureApproach(f: Fixture, plan: FloorPlan): V2 {
   fixtureApproaches.set(f, at);
   return at;
 }
-export function passageLabel(plan: FloorPlan, p: Passage, at: V2) {
+export function passageLabel(plan: FloorPlan, p: Passage) {
   if (p.kind === 'outside') return 'Leave ' + households[plan.site.id]!.name;
-  if (p.target) return (p.kind === 'up' ? 'Up to ' : 'Down to ') + floorPlan(plan.site, p.target).name;
-  const wing = plan.rooms[p.side === -1 ? 0 : 2];
-  return 'Enter ' + (chamberAt(plan, at) === wing ? plan.rooms[1].name : wing.name);
+  return (p.kind === 'up' ? 'Up to ' : 'Down to ') + floorPlan(plan.site, p.target).name;
 }
 export function visibleAcrossWall(plan: FloorPlan, a: V2, b: V2) {
   for (const x of [plan.rooms[1].x0, plan.rooms[1].x1]) {

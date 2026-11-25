@@ -18,6 +18,7 @@ import { bridgeArt } from './bridgeArt';
 import { drawStrip } from './worldArt';
 import { worldView } from '../core/game/worldView';
 import { RoomView } from './roomView';
+import { landingHalfWidth } from './roomPlans';
 import { drawFocus, drawWaylight, pickRegion, type PickRegion } from './entryCues';
 import { targetDistance } from './roomTargets';
 import { AMBIENT_RESIDENTS } from '../core/content/ambientPeople';
@@ -603,12 +604,19 @@ export class Scene {
       py = (z: number) => h / 2 + z * scale;
     ctx.fillStyle = '#253030';
     ctx.fillRect(0, 0, w, h);
+    const walls = new Path2D();
+    walls.rect(0, 0, w, h);
+    for (const arch of plan.arches)
+      walls.rect(px(arch.x) - 2, py(arch.z - landingHalfWidth), 4, 2 * landingHalfWidth * scale);
     for (const [i, r] of plan.rooms.entries()) {
       ctx.fillStyle = i === 1 ? '#776042' : '#5a5646';
       ctx.strokeStyle = '#d6b784';
       ctx.lineWidth = 2;
       ctx.fillRect(px(r.x0), py(r.z0), (r.x1 - r.x0) * scale, (r.z1 - r.z0) * scale);
+      ctx.save();
+      ctx.clip(walls, 'evenodd');
       ctx.strokeRect(px(r.x0), py(r.z0), (r.x1 - r.x0) * scale, (r.z1 - r.z0) * scale);
+      ctx.restore();
     }
     ctx.imageSmoothingEnabled = false;
     for (const f of plan.fixtures) {
@@ -631,10 +639,6 @@ export class Scene {
       const x = px(p.x),
         y = py(p.z);
       ctx.fillStyle = '#ffe0a2';
-      if (p.kind === 'arch') {
-        ctx.fillRect(x - 3, y - scale, 6, 2 * scale);
-        continue;
-      }
       this.atlas.draw(ctx, 'room_waylight', x - 7, y + 2, 8, 0, false, 0.6);
       ctx.font = 'bold 15px monospace';
       ctx.textAlign = 'center';

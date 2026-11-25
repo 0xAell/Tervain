@@ -280,7 +280,7 @@ export class Valley {
   targets() {
     const room = this.room;
     const targets = room
-      ? indoorTargets(room, this.position, this.actors)
+      ? indoorTargets(room, this.actors)
       : [...outsideTargets(this.game.state), ...fieldTargets(this.game.state, this.actors)];
     return this.props
       ? [...targets.filter((t) => t.field !== 'seat'), ...physicalTargets(this.props, this.position, room)]
