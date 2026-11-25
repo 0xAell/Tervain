@@ -8,11 +8,13 @@ The coast has crossing swells, breaking crests, run-up on the sand and reflectio
 
 Gold lanterns mark entrances, side-room arches, stairs and exits. Click a lantern to walk to it or use the interact key up close. The 22 buildings each have a ground floor, a loft and a cellar. The map shows the current floor indoors. Household chests keep their contents between visits and the journal keeps the books you read.
 
+The wanderer can pet village cats and dogs, take a seat, gather wild herbs and mushrooms, and cook at a campfire or household hearth. Carry trail stew for later or eat at the fire. An equipped bow has a travelling stance, a held draw and a release. Arrows travel through the scene and woodland game can be harvested with a knife.
+
 The editable PNG sequences, original provider images and typeface are in `assets/pixellab/sources.zip`. The source ledger records frame hashes in `assets/pixellab/provenance.json`. Rebuild the atlas with `python3 tools/pack-vale.py` using Pillow.
 
 ## Status
 
-- **Version.** The current patch is [`0.1.5`](docs/production/releases/0.1.5.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is [`0.1.6`](docs/production/releases/0.1.6.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
@@ -28,7 +30,7 @@ The prototype is one small region, 580 m by 340 m: a coast, a wood, a waystation
 
 - Walkable household interiors with side rooms, staircases, animated hearths, storage, beds and trade workstations.
 - Twelve named residents with a day of their own. They work a trade, sit on benches, talk, go home and sleep.
-- Nineteen animals of eight kinds. Thirteen can be hunted with a bow and skinned. The cats, the dogs and the saddled deer are left alone, and the deer can be ridden.
+- Nineteen animals of eight kinds. Thirteen can be hunted with a bow and skinned. Cats and dogs respond to petting, and the saddled deer can be ridden.
 - Sword and bow against two kinds of hostile. One is the Thornback from the teaser, without the hat.
 - Reflective seas, flowing rivers and a spring. You can swim along the coast and wade among trout inland.
 - Planted banks, trout shoals, kingfishers and dragonflies.
@@ -47,7 +49,7 @@ Not in it yet: dialogue choices. The first quest exists as rules, data and scena
 The [live build](https://0xaell.github.io/Tervain/) is published from `main` on every merge.
 
 - Use a desktop browser with WebGL 2. There is no touch or phone layout.
-- Walk with WASD or click a destination. Shift runs, X jumps, Space attacks and E interacts. J or Tab opens the journal, M opens the map, I opens the inventory and Esc pauses.
+- Walk with WASD or click a destination. Shift runs, X jumps and E interacts. With a bow equipped, hold the right mouse button to aim with the pointer and release to shoot. Space draws and shoots in the facing direction. J or Tab opens the journal, M opens the map, I opens the inventory and Esc pauses.
 - A controller works too. Open Controls on the title screen to review or change key bindings.
 - Progress is saved in that browser. F5 saves and F9 loads.
 

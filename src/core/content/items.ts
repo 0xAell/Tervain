@@ -23,6 +23,7 @@ export const ITEMS: Record<ItemId, ItemDef> = {
   votive_reed: { id: 'votive_reed', nameKey: 'item.votive_reed', descKey: 'item.votive_reed.desc', kind: 'quest' },
   poultice: { id: 'poultice', nameKey: 'item.poultice', descKey: 'item.poultice.desc', kind: 'consumable', healAmount: 40 },
   shore_apple: { id: 'shore_apple', nameKey: 'item.shore_apple', descKey: 'item.shore_apple.desc', kind: 'consumable', healAmount: 8 },
+  trail_stew: { id: 'trail_stew', nameKey: 'item.trail_stew', descKey: 'item.trail_stew.desc', kind: 'consumable', healAmount: 30 },
   bread: { id: 'bread', nameKey: 'item.bread', descKey: 'item.bread.desc', kind: 'consumable', healAmount: 16 },
   healing_herb: { id: 'healing_herb', nameKey: 'item.healing_herb', descKey: 'item.healing_herb.desc', kind: 'consumable', healAmount: 24 },
   field_mushroom: { id: 'field_mushroom', nameKey: 'item.field_mushroom', descKey: 'item.field_mushroom.desc', kind: 'consumable', healAmount: 10 },
@@ -36,7 +37,7 @@ export const ITEMS: Record<ItemId, ItemDef> = {
 export const HEAL_KEY_ITEM: ItemId = 'poultice';
 
 /** Ordering for the small inventory panel. */
-export const ITEM_ORDER: ItemId[] = ['rusted_sword', 'hunting_bow', 'arrow', 'skinning_knife', 'animal_hide', 'raw_meat', 'coin', 'poultice', 'healing_herb', 'bread', 'shore_apple', 'field_mushroom', 'iron_scrap', 'sluice_brace', 'gate_wrench', 'votive_reed', 'archive_key', 'league_sash', 'contract_band', 'witness_cord'];
+export const ITEM_ORDER: ItemId[] = ['rusted_sword', 'hunting_bow', 'arrow', 'skinning_knife', 'animal_hide', 'raw_meat', 'coin', 'poultice', 'healing_herb', 'trail_stew', 'bread', 'shore_apple', 'field_mushroom', 'iron_scrap', 'sluice_brace', 'gate_wrench', 'votive_reed', 'archive_key', 'league_sash', 'contract_band', 'witness_cord'];
 
 export function isItemId(value: unknown): value is ItemId {
   return typeof value === 'string' && Object.hasOwn(ITEMS, value);

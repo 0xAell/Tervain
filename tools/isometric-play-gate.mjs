@@ -137,7 +137,17 @@ export async function playIsometricStages(page, { phase, hold, tap }) {
   await place(...at);
   await page.eval("const s = window.tervain.game.state; s.inventory.hunting_bow = 1; s.inventory.arrow = 6; s.equippedWeapon = 'hunting_bow';");
   await phase('bow');
-  for (let i = 0; i < 2; i++) { await tap('Space'); await page.wait(1250); }
+  await tap('Space');
+  await page.wait(1250);
+  const hasDraw = await page.eval("return typeof window.tervain.valley.releaseAttack === 'function'");
+  if (hasDraw) {
+    await page.key('keyDown', 'Space');
+    await page.wait(950);
+    const held = await page.eval("const c=window.tervain; return c.valley.bow?.phase==='hold' && c.game.state.inventory.arrow===5;");
+    if (!held) throw new Error('Holding the bow did not keep a nocked arrow in the quiver');
+    await page.key('keyUp', 'Space');
+  } else await tap('Space');
+  await page.wait(1250);
   const remaining = await page.eval('return window.tervain.game.state.inventory.arrow');
   if (remaining !== 4) throw new Error('The two bow inputs did not consume two arrows');
   const complete = await page.eval('return Object.fromEntries([...new Set(window.__gate.samples.map(s => s[1]))].map(p => [p,window.__gate.samples.filter(s => s[1] === p).length]))');

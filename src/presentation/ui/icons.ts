@@ -9,6 +9,7 @@ const SHAPES: Record<IconName, string> = {
   arrow: '<path d="m12 51 39-39m-15 0 16-1-1 16M7 45l12 12m-8-16 12 12M12 51l-5 6"/>',
   skinning_knife: '<path d="m12 51 15-15M7 48l9 9 15-15-9-9zM26 35C48 33 56 18 56 7L28 29zM47 19l-14 14"/>',
   animal_hide: '<path d="m14 7 11 7h14l11-7-1 15 8 10-8 10 1 15-11-7H25l-11 7 1-15-8-10 8-10zM20 20l6 4m12 0 6-4M23 43l6-3m7 0 6 3"/>',
+  trail_stew: '<image href="./vale/icons/trail_stew.png" x="5" y="5" width="54" height="54"/>',
   raw_meat: '<path d="M11 20c10-13 31-11 40 0 9 11 3 29-11 35-13 6-29 2-33-11-3-9-2-18 4-24zM17 23c6-8 21-8 28 0 7 9 2 22-8 26-9 4-20 1-23-7-2-6-1-13 3-19z"/><path d="M28 29c8-4 16 3 9 9-8 6-16-4-9-9"/>',
   sluice_brace: '<path d="M13 7h9v48h-9zm29 0h9v48h-9zM22 18h20v9H22zm0 20h20v9H22z"/>',
   gate_wrench: '<path d="m44 9 8 1-10 11 1 7 7 1L60 18l-1 11-12 12-11-2-18 18-8-8 18-18-2-11z"/>',

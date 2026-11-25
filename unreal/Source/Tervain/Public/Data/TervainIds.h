@@ -28,6 +28,7 @@ namespace TervainIds
 		inline constexpr const TCHAR* VotiveReed = TEXT("votive_reed");
 		inline constexpr const TCHAR* Poultice = TEXT("poultice");
 		inline constexpr const TCHAR* ShoreApple = TEXT("shore_apple");
+		inline constexpr const TCHAR* TrailStew = TEXT("trail_stew");
 		inline constexpr const TCHAR* Bread = TEXT("bread");
 		inline constexpr const TCHAR* HealingHerb = TEXT("healing_herb");
 		inline constexpr const TCHAR* FieldMushroom = TEXT("field_mushroom");
@@ -40,8 +41,8 @@ namespace TervainIds
 		inline constexpr const TCHAR* All[] = {
 			Coin, RustedSword, HuntingBow, Arrow, SkinningKnife, AnimalHide,
 			RawMeat, SluiceBrace, GateWrench, ArchiveKey, VotiveReed, Poultice,
-			ShoreApple, Bread, HealingHerb, FieldMushroom, IronScrap, LeagueSash,
-			ContractBand, WitnessCord,
+			ShoreApple, TrailStew, Bread, HealingHerb, FieldMushroom, IronScrap,
+			LeagueSash, ContractBand, WitnessCord,
 		};
 	}
 

@@ -58,6 +58,7 @@ export class Client implements Controls {
   scene!: Scene;
   private keys = new Set<string>();
   private buttons: boolean[] = [];
+  private aimPointer?: number;
   private lastTime = 0;
   private nextAuto = 0;
   private nextAudio = 0;
@@ -97,12 +98,44 @@ export class Client implements Controls {
     });
     this.canvas.addEventListener('contextmenu', (e) => {
       e.preventDefault();
-      if (this.mode === 'play') this.valley.attack(this.scene.pointAt(e.clientX, e.clientY));
+      // Right-button aiming is driven by pointer press and release.
     });
-    this.canvas.addEventListener('pointermove', (e) => this.scene.hover(e.clientX, e.clientY));
+    this.canvas.addEventListener('pointermove', (e) => {
+      this.scene.hover(e.clientX, e.clientY);
+      if (this.aimPointer === e.pointerId && this.mode === 'play') {
+        const aim = this.scene.aimAt(e.clientX, e.clientY),
+          p = this.valley.player;
+        this.valley.aimDirection(aim.at.x - p.x, aim.at.z - p.z, aim.head);
+      }
+    });
+    this.canvas.addEventListener('pointerup', (e) => {
+      if (e.pointerId !== this.aimPointer || e.button !== 2) return;
+      this.aimPointer = undefined;
+      this.valley.releaseAttack();
+    });
+    this.canvas.addEventListener('lostpointercapture', (e) => {
+      if (e.pointerId === this.aimPointer) {
+        this.aimPointer = undefined;
+        this.valley.bow = undefined;
+      }
+    });
     this.canvas.addEventListener('pointerleave', () => this.scene.hover());
     this.canvas.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0 || this.mode !== 'play') return;
+      if (this.mode !== 'play') return;
+      if (e.button === 2) {
+        e.preventDefault();
+        this.stopWalking();
+        this.controllerActive = false;
+        const aim = this.scene.aimAt(e.clientX, e.clientY);
+        this.valley.startAttack(aim.at, aim.head);
+        if (this.valley.bow) {
+          this.aimPointer = e.pointerId;
+          this.canvas.setPointerCapture(e.pointerId);
+        }
+        return;
+      }
+      if (e.button !== 0) return;
+      if (this.valley.activity) this.valley.cancelPose();
       this.controllerActive = false;
       this.canvas.focus();
       const point = this.scene.pointAt(e.clientX, e.clientY);
@@ -196,6 +229,7 @@ export class Client implements Controls {
     this.scene.resetCamera();
     this.ui.bind(this.valley, this.scene);
     this.valley.onMessage = (t) => this.ui.message(t);
+    this.valley.onFieldSound = (cue, range) => this.sound.field(cue, range);
     this.game.subscribe((events) => {
       for (const e of events) {
         if (e.t === 'toast') this.ui.message(S(e.key, e.params));
@@ -238,6 +272,8 @@ export class Client implements Controls {
     this.canvas.focus();
   }
   private page(screen: Screen) {
+    this.aimPointer = undefined;
+    this.valley.cancelPose();
     this.keys.clear();
     this.stopWalking();
     this.ui.open(screen);
@@ -292,16 +328,30 @@ export class Client implements Controls {
     if (act)
       this.valley.action(act === 'equip' ? { t: 'equipWeapon', item: id } : { t: 'useItem', item: id });
   }
+  pressAttack() {
+    if (this.mode === 'play') {
+      this.stopWalking();
+      this.valley.startAttack();
+    }
+  }
+  releaseAttack() {
+    if (this.mode === 'play') this.valley.releaseAttack();
+  }
   attack() {
     if (this.mode === 'play') this.valley.attack();
   }
   interact() {
+    if (this.valley.activity) {
+      this.valley.cancelPose();
+      return;
+    }
+    if (this.valley.bow) return;
     const offers = this.valley.offers();
     if (!offers.length) {
       this.ui.message('Nothing within reach');
       return;
     }
-    if (offers.length > 1 && !offers[0]!.target) {
+    if (this.valley.chooseNearby(offers)) {
       this.ui.chooseOffers();
       return;
     }
@@ -316,10 +366,6 @@ export class Client implements Controls {
     this.resume();
     if (offer.target) {
       this.activateTarget(offer.target);
-      return;
-    }
-    if (offer.skin) {
-      this.valley.skin(offer.skin);
       return;
     }
     const act = offer.entry!.act,
@@ -393,7 +439,10 @@ export class Client implements Controls {
     if (!this.inReach(target)) return;
     this.stopWalking();
     const v = this.valley;
-    if (target.door) {
+    if (target.field === 'fire') {
+      this.ui.cooking(target, 'Campfire');
+    } else if (target.field || target.fixture?.use === 'seat') v.interactField(target);
+    else if (target.door) {
       if (target.locked) {
         if (!target.door.rear) {
           this.ui.controlsAt({ do: 'try_archive_door' }, () => v.enterDoor(target.door!));
@@ -440,7 +489,9 @@ export class Client implements Controls {
   private key(e: KeyboardEvent, down: boolean) {
     if (down) this.controllerActive = false;
     if (!down) {
-      this.keys.delete(e.code);
+      const wasHeld = this.keys.delete(e.code);
+      if (wasHeld && this.mode === 'play' && e.code === this.settings.bindings.attack)
+        this.valley.releaseAttack();
       return;
     }
     if (e.code === 'Escape') {
@@ -456,9 +507,13 @@ export class Client implements Controls {
     if (e.repeat) return;
     const b = this.settings.bindings;
     if (e.code === b.interact) this.interact();
-    else if (e.code === b.attack) this.attack();
-    else if (e.code === b.jump && !this.valley.jump && !this.valley.swimming) this.valley.jump = 0.52;
-    else if (e.code === b.inventory) this.page('inventory');
+    else if (e.code === b.attack) {
+      this.stopWalking();
+      this.valley.startAttack();
+    } else if (e.code === b.jump && !this.valley.jump && !this.valley.swimming && !this.valley.bow) {
+      this.valley.cancelPose();
+      this.valley.jump = 0.52;
+    } else if (e.code === b.inventory) this.page('inventory');
     else if (e.code === b.journal || e.code === 'Tab') this.page('journal');
     else if (e.code === b.map) this.page('map');
     else if (e.code === 'F5') this.save('quick');
@@ -490,9 +545,22 @@ export class Client implements Controls {
       } else if (hit(0) && this.mode === 'play') this.interact();
       else if (this.mode !== 'play' && (hit(12) || hit(13) || hit(14) || hit(15) || hit(0)))
         this.ui.padMenu(hit(12) || hit(14) ? -1 : hit(13) || hit(15) ? 1 : 0, !!hit(0));
-      else if (hit(2) && this.mode === 'play') this.attack();
+      else if ((hit(2) || hit(7)) && this.mode === 'play') {
+        this.stopWalking();
+        this.valley.startAttack();
+      }
+      if (this.mode === 'play' && !buttons[2] && !buttons[7] && (this.buttons[2] || this.buttons[7]))
+        this.valley.releaseAttack();
       else if (hit(1) && this.mode !== 'title') this.resume();
+      if (this.mode === 'play' && this.valley.bow && Math.hypot(pad.axes[2] ?? 0, pad.axes[3] ?? 0) > 0.22) {
+        const x = pad.axes[2] ?? 0,
+          y = pad.axes[3] ?? 0;
+        this.valley.aimDirection(x + y, y - x);
+      }
       this.buttons = buttons;
+    } else if (this.buttons.length) {
+      this.buttons = [];
+      this.valley.bow = undefined;
     }
     if (this.mode === 'play') {
       const b = this.settings.bindings;
@@ -532,7 +600,9 @@ export class Client implements Controls {
       } else if (this.pendingTarget) {
         const target = this.valley.targets().find((t) => t.id === this.pendingTarget);
         if (target && this.inReach(target)) this.activateTarget(target);
-        else if (!target || !this.destination) this.stopWalking();
+        else if (!target) this.stopWalking();
+        else if (!this.destination && target.field === 'pet') this.walkTo(target.approach);
+        else if (!this.destination) this.stopWalking();
       }
       this.scene.render(this.valley, dt);
       this.sound.movement(this.valley);

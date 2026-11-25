@@ -5,6 +5,8 @@ import { NPCS } from '../core/content/npcs';
 import { getNode } from '../core/game/dialogue';
 import { buildJournal } from '../core/game/journal';
 import { formatClock } from '../core/game/state';
+import { gestureLabels } from './fieldcraft';
+import type { RoomTarget } from './roomTargets';
 import { households } from './households';
 import type { Fixture } from './roomPlans';
 import type { Game } from '../core/game/game';
@@ -66,6 +68,8 @@ export interface Controls {
   interact(): void;
   interactIndex(i: number): void;
   attack(): void;
+  pressAttack(): void;
+  releaseAttack(): void;
   quit(): void;
   setVolume(value: number): void;
   slot(i: number): void;
@@ -128,14 +132,22 @@ export class Interface {
       bars.append(row);
     }
     vitals.append(icon('seal'), bars);
-    this.hud.append(
-      this.titleBar,
-      nav,
-      vitals,
-      this.slots,
-      this.prompt,
-      button('Attack', () => controls.attack(), 'attack-touch')
-    );
+    const attack = el('button', 'attack-touch', 'Attack');
+    attack.type = 'button';
+    attack.onpointerdown = (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      attack.setPointerCapture(e.pointerId);
+      controls.pressAttack();
+    };
+    attack.onpointerup = (e) => {
+      if (e.button === 0) controls.releaseAttack();
+    };
+    attack.onpointercancel = () => this.valley.cancelPose();
+    attack.onclick = (e) => {
+      if (e.detail === 0) controls.attack();
+    };
+    this.hud.append(this.titleBar, nav, vitals, this.slots, this.prompt, attack);
     this.hud.hidden = true;
   }
   bind(valley: Valley, scene: Scene) {
@@ -218,6 +230,7 @@ export class Interface {
       this.controls.resume();
       return;
     }
+    this.valley.cancelPose();
     if (screen === 'title') {
       this.title();
       return;
@@ -248,7 +261,12 @@ export class Interface {
           'Walk through a lit threshold or click it. Arches join rooms and stairs change floors. A padlock marks a sealed entrance.',
         ],
         ['M indoors', 'See rooms, stairs and your position on this floor'],
-        ['Space / right-click', 'Attack with the equipped weapon'],
+        [
+          (this.controls.settings.bindings.attack ?? 'Space').replace(/^Key/, '') + ' / right mouse',
+          'Hold to draw the bow, release to shoot. Aim with the pointer or movement keys. Tap for a quick shot.',
+        ],
+        ['Controller X / RT', 'Hold to draw, aim with the right stick and release to shoot.'],
+        [this.interactKey() + ' / click', 'Pet a cat or dog, sit, gather or cook. Move to stop an activity.'],
         ['Shift / Q / X', 'Run / guard / jump'],
         ['I / J / M', 'Inventory / journal / map'],
         ['1–0', 'Use a belt slot'],
@@ -480,15 +498,49 @@ export class Interface {
     if (this.controls.controllerActive) return 'A';
     return (this.controls.settings.bindings.interact ?? 'KeyE').replace(/^Key/, '').replace(/^Digit/, '');
   }
+  cooking(target: RoomTarget, title: string) {
+    const v = this.valley,
+      held = this.game.state.inventory;
+    const cook = (pack: boolean) => {
+      this.controls.resume();
+      if (!(held.raw_meat || held.field_mushroom)) {
+        this.message('Bring raw meat or a field mushroom.');
+        return;
+      }
+      if (!pack && v.player.health >= v.player.maxHealth) {
+        this.message('Already at full health. Pack a portion for later.');
+        return;
+      }
+      v.perform('stir', target, 2.15, () => {
+        if (v.action({ t: 'roomCraft', recipe: pack ? 'pack_stew' : 'cook' }))
+          this.message(pack ? 'Trail stew packed × 1' : 'A hot meal restored your health');
+      });
+    };
+    this.actions(
+      title,
+      [
+        { text: 'Pack trail stew', run: () => cook(true) },
+        { text: 'Cook and eat a hot meal', run: () => cook(false) },
+      ],
+      'Use one portion of raw meat or one field mushroom. A portion restores up to 30 health. In your pack · meat ' +
+        (held.raw_meat ?? 0) +
+        ' · mushrooms ' +
+        (held.field_mushroom ?? 0)
+    );
+  }
   roomFixture(f: Fixture) {
     const v = this.valley,
       room = v.room;
     if (!room || !f.use) return;
+    const target = v.targets().find((t) => t.fixture === f)!;
     const home = households[room.site.id]!,
       finish = () => this.controls.resume();
     const read = () => {
-      v.action({ t: 'setFact', key: 'room_read:' + room.site.id, value: true });
-      this.actions(home.book, [{ text: 'Close the book', run: finish }], home.passage);
+      finish();
+      v.perform('read', target, 1.05, () => {
+        v.action({ t: 'setFact', key: 'room_read:' + room.site.id, value: true });
+        this.actions(home.book, [{ text: 'Close the book', run: finish }], home.passage);
+      });
     };
     if (f.use === 'book') {
       read();
@@ -503,9 +555,11 @@ export class Interface {
           {
             text: dye ? 'Weave an indigo runner' : 'Weave a madder-red runner',
             run: () => {
-              v.action({ t: 'setFact', key, value: dye });
               finish();
-              this.message('The new runner is laid in the entry hall.');
+              v.perform('work', target, 1.1, () => {
+                v.action({ t: 'setFact', key, value: dye });
+                this.message('The new runner is laid in the entry hall.');
+              });
             },
           },
           { text: 'Read the pattern book', run: read },
@@ -516,9 +570,11 @@ export class Interface {
     }
     if (f.use === 'lamp') {
       const on = v.lightsOn;
-      v.action({ t: 'setFact', key: 'room_dim:' + v.roomKey, value: on });
-      this.message(on ? 'Lights lowered' : 'Lights kindled');
       finish();
+      v.perform('work', target, 0.58, () => {
+        v.action({ t: 'setFact', key: 'room_dim:' + v.roomKey, value: on });
+        this.message(on ? 'Lights lowered' : 'Lights kindled');
+      });
       return;
     }
     if (f.use === 'chest') {
@@ -564,8 +620,10 @@ export class Interface {
           {
             text: 'Take ' + name,
             run: () => {
-              if (v.action({ t: 'pickup', pickupId: id, item, qty: 1 })) this.message(name + ' × 1');
               finish();
+              v.perform('gather', target, 0.85, () => {
+                if (v.action({ t: 'pickup', pickupId: id, item, qty: 1 })) this.message(name + ' × 1');
+              });
             },
           },
         ],
@@ -575,11 +633,13 @@ export class Interface {
     }
     if (f.use === 'bed') {
       const sleep = (mins: number) => {
-        v.action({ t: 'advanceClock', minutes: mins });
-        v.action({ t: 'healPlayer', amount: Math.max(5, Math.round(mins / 3)) });
-        v.stamina = 100;
         finish();
-        this.message('Rested · ' + formatClock(this.game.state.clock));
+        v.perform('sit', target, 1.05, () => {
+          v.action({ t: 'advanceClock', minutes: mins });
+          v.action({ t: 'healPlayer', amount: Math.max(5, Math.round(mins / 3)) });
+          v.stamina = 100;
+          this.message('Rested · ' + formatClock(this.game.state.clock));
+        });
       };
       this.actions(
         'Rest in the bed',
@@ -616,30 +676,27 @@ export class Interface {
       ]);
       return;
     }
+    if (task === 'cook') {
+      this.cooking(target, f.use === 'hearth' ? 'The hearth' : home.workroom);
+      return;
+    }
     const recipe = task;
-    const title =
-      recipe === 'cook' ? 'Cook a hot meal' : recipe === 'herbs' ? 'Bind a poultice' : 'Fletch four arrows';
+    const title = recipe === 'herbs' ? 'Bind a poultice' : 'Fletch four arrows';
     const detail =
-      recipe === 'cook'
-        ? 'One portion of raw meat or a field mushroom restores up to 30 health.'
-        : recipe === 'herbs'
-          ? 'Wrap one healing herb into a poultice.'
-          : 'Shape one iron scrap into four arrowheads.';
+      recipe === 'herbs'
+        ? 'Wrap one healing herb into a poultice.'
+        : 'Shape one iron scrap into four arrowheads.';
     this.actions(
       f.use === 'hearth' ? 'The hearth' : room.level === 'cellar' ? 'Cellar workbench' : home.workroom,
       [
         {
           text: title,
           run: () => {
-            if (v.action({ t: 'roomCraft', recipe }))
-              this.message(
-                recipe === 'cook'
-                  ? 'A hot meal restored your health'
-                  : recipe === 'herbs'
-                    ? 'Poultice × 1'
-                    : 'Arrows × 4'
-              );
             finish();
+            v.perform('work', target, 1.45, () => {
+              if (v.action({ t: 'roomCraft', recipe }))
+                this.message(recipe === 'herbs' ? 'Poultice × 1' : 'Arrows × 4');
+            });
           },
         },
       ],
@@ -735,13 +792,27 @@ export class Interface {
     this.vigor.style.width = this.valley.stamina + '%';
     this.health.parentElement!.title = 'Health ' + s.player.health + ' / ' + s.player.maxHealth;
     const offers = this.valley.offers();
-    this.prompt.hidden = !offers.length;
-    this.prompt.textContent = offers.length
-      ? this.interactKey() +
-        '  ·  ' +
-        offers[0]!.label +
-        (offers.length > 1 && !offers[0]!.target ? '  +' + (offers.length - 1) : '')
-      : '';
+    const act = this.valley.activity,
+      bow = this.valley.bow;
+    this.prompt.hidden = !offers.length && !act && !bow;
+    this.prompt.textContent = act
+      ? act.kind === 'sit'
+        ? Number.isFinite(act.duration)
+          ? 'Resting…'
+          : this.interactKey() + '  ·  Stand up'
+        : gestureLabels[act.kind] + '…'
+      : bow
+        ? bow.phase === 'hold'
+          ? 'Release to shoot'
+          : bow.phase === 'draw'
+            ? 'Drawing…'
+            : ''
+        : offers.length
+          ? this.interactKey() +
+            '  ·  ' +
+            offers[0]!.label +
+            (this.valley.chooseNearby(offers) ? '  +' + (offers.length - 1) : '')
+          : '';
     const signature = JSON.stringify([s.quickSlots, s.inventory, s.equippedWeapon]);
     if (this.slotSig !== signature) {
       this.slotSig = signature;

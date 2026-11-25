@@ -2,7 +2,14 @@ import { Game } from '../core/game/game';
 import { NPC_LIST } from '../core/content/npcs';
 import { ANIMALS } from '../core/content/animals';
 import { ENEMY_ARCHETYPES } from '../core/content/enemies';
-import { ANIMAL_IDS, ANIMAL_MODEL_IDS, isHuntableAnimalId, type AnimalId } from '../core/game/hunting';
+import {
+  ANIMAL_IDS,
+  ANIMAL_MODEL_IDS,
+  isHuntableAnimalId,
+  skinningSeconds,
+  withinSkinningReach,
+  type AnimalId,
+} from '../core/game/hunting';
 import { CLOCK_RATE } from '../core/game/constants';
 import { hourOfDay } from '../core/game/state';
 import { S } from '../core/content/strings';
@@ -23,7 +30,29 @@ import type { InteriorLevel } from '../core/game/types';
 import { frontDoor, doorOpen, doorsById, sitesById, crossedDoor, type Doorway } from './doorways';
 import { roomCanMove, roomWalkable, floorPlan, passageLanding, chamberAt, type Passage } from './roomPlans';
 import { households } from './households';
-import { indoorTargets, outsideTargets, targetDistance, outsideReturn, type RoomTarget } from './roomTargets';
+import {
+  ARROW_RANGE,
+  ARROW_SPEED,
+  DRAW_TIME,
+  RELEASE_TIME,
+  firstContact,
+  unit,
+  type Activity,
+  type Arrow,
+  type Draw,
+  type Gesture,
+  type FieldSound,
+} from './fieldcraft';
+import { ITEMS, itemAction } from '../core/content/items';
+import {
+  fieldTargets,
+  gatheringIds,
+  indoorTargets,
+  outsideTargets,
+  targetDistance,
+  outsideReturn,
+  type RoomTarget,
+} from './roomTargets';
 
 export interface Actor extends V2 {
   id: string;
@@ -42,10 +71,12 @@ export interface Actor extends V2 {
   enemy?: EncounterId;
   health: number;
 }
+export function facesLeft(species: string) {
+  return ['cat', 'wolf', 'tiger', 'bear'].includes(species);
+}
 export interface Offer {
   target?: RoomTarget;
   entry?: InteractableEntry;
-  skin?: AnimalId;
   label: string;
   score: number;
 }
@@ -84,11 +115,13 @@ export class Valley {
   swimming = false;
   facing = 'south-east';
   strike = 0;
-  swing = 'attack';
+  bow?: Draw;
+  readonly arrows: Arrow[] = [];
+  activity?: Activity;
   jump = 0;
   stamina = 100;
   private clockElapsed = 0;
-  private skinning: { id: AnimalId; remaining: number } | null = null;
+  onFieldSound: (cue: FieldSound, range?: number) => void = () => {};
   onMessage: (text: string) => void = () => {};
   constructor(game: Game) {
     this.game = game;
@@ -169,7 +202,9 @@ export class Valley {
   }
   targets() {
     const room = this.room;
-    return room ? indoorTargets(room, this.position, this.actors) : outsideTargets(this.game.state);
+    return room
+      ? indoorTargets(room, this.position, this.actors)
+      : [...outsideTargets(this.game.state), ...fieldTargets(this.game.state, this.actors)];
   }
   canWalk(a: V2, b: V2) {
     const room = this.room;
@@ -203,12 +238,14 @@ export class Valley {
     this.jump = 0;
     this.strike = 0;
     this.walk = false;
-    this.skinning = null;
+    this.cancelPose();
+    this.arrows.length = 0;
     return true;
   }
   leaveRoom() {
     const inside = this.player.interior;
     if (!inside) return;
+    this.cancelPose();
     const site = sitesById.get(inside.building)!;
     const door = inside.rear ? (doorsById.get(site.id + '/shutter') ?? frontDoor(site)) : frontDoor(site);
     const p = outsideReturn(door);
@@ -219,6 +256,7 @@ export class Valley {
   changeFloor(level: InteriorLevel) {
     const inside = this.player.interior;
     if (!inside) return;
+    this.cancelPose();
     const plan = floorPlan(sitesById.get(inside.building)!, level);
     Object.assign(inside, passageLanding(plan, inside.level), { level });
     this.walk = false;
@@ -288,7 +326,7 @@ export class Valley {
     a.x = next.x;
     a.z = next.z;
     a.move = true;
-    a.flip = project(dx, dz).x < 0;
+    a.flip = project(dx, dz).x < 0 !== facesLeft(a.key);
   }
   step(dt: number, dx: number, dz: number, run: boolean, walkThrough = true) {
     this.time += dt;
@@ -302,6 +340,14 @@ export class Valley {
     this.jump = Math.max(0, this.jump - dt);
     const p = this.player;
     if (!this.player.interior && inBuilding(p)) this.restoreFootprint();
+    if (this.player.health <= 0) this.cancelPose();
+    if (this.activity && (dx || dz || this.activity.room !== this.roomKey || this.guard))
+      this.activity = undefined;
+    if (this.bow && (this.game.state.equippedWeapon !== 'hunting_bow' || this.guard)) this.bow = undefined;
+    if (this.bow) {
+      if ((dx || dz) && this.bow.phase !== 'loose') this.aimDirection(dx, dz);
+      dx = dz = 0;
+    }
     if (this.room) this.stepInside(dt, dx, dz, run, walkThrough);
     else {
       const water = onBridge(p) ? null : wetPoint(p.x, p.z);
@@ -345,11 +391,21 @@ export class Valley {
       this.swimming = !this.room && waterAt(p.x, p.z) === 'sea' && !onBridge(p);
       if (this.swimming) this.riding = false;
     }
-    if (this.skinning) {
-      if (this.walk) this.skinning = null;
-      else if ((this.skinning.remaining -= dt) <= 0) {
-        this.action({ t: 'skinAnimal', id: this.skinning.id });
-        this.skinning = null;
+    this.stepArrows(dt);
+    this.stepBow(dt);
+    if (this.activity) {
+      const a = this.activity;
+      if (targetDistance(a.target, this.position, this.room) > a.target.reach || this.player.health <= 0)
+        this.activity = undefined;
+      else {
+        a.elapsed += dt;
+        if (a.kind === 'sit') this.stamina = Math.min(100, this.stamina + dt * 12);
+        if (a.finish && a.elapsed >= a.contact) {
+          const finish = a.finish;
+          a.finish = undefined;
+          finish();
+        }
+        if (a.elapsed >= a.duration) this.activity = undefined;
       }
     }
     for (const [id, loc] of placeList)
@@ -391,6 +447,10 @@ export class Valley {
         if (a.dead && record) {
           a.x = record.position.x;
           a.z = record.position.z;
+          continue;
+        }
+        if (this.activity?.kind === 'pet' && this.activity.target.animal === a) {
+          a.flip = project(p.x - a.x, p.z - a.z).x < 0 !== facesLeft(a.key);
           continue;
         }
         if (a === this.mount) {
@@ -435,6 +495,7 @@ export class Valley {
             a.timer = def.wind + def.recover + 0.6;
           }
           if (a.attack > 0.39 && a.attack - dt <= 0.39 && near < def.reach + 0.5) {
+            this.cancelPose();
             this.action({
               t: 'damagePlayer',
               amount: this.guard ? Math.ceil(def.damage * 0.18) : def.damage,
@@ -445,42 +506,226 @@ export class Valley {
       }
     }
   }
-  attack(target?: V2) {
-    if (this.room || this.strike > 0 || this.player.health <= 0) return;
-    const p = this.player,
-      bow = this.game.state.equippedWeapon === 'hunting_bow';
-    const hit = this.actors
-      .filter(
-        (a) =>
-          !a.dead &&
-          (a.enemy || (bow && a.animal && isHuntableAnimalId(a.animal))) &&
-          distance(a, p) < (bow ? 45 : 3.3)
-      )
-      .sort((a, b) => distance(a, target ?? p) - distance(b, target ?? p))[0];
-    if (bow) {
-      const animal = hit?.animal;
-      if (
-        !this.action({
-          t: 'fireBow',
-          hit: animal
-            ? { id: animal, zone: 'body', position: { x: hit!.x, y: p.y, z: hit!.z }, yaw: p.yaw }
-            : undefined,
-        })
-      )
-        return;
+  cancelPose() {
+    this.activity = undefined;
+    this.bow = undefined;
+  }
+  perform(kind: Gesture, target: RoomTarget, duration: number, finish?: () => void) {
+    if (
+      this.activity ||
+      this.bow ||
+      this.strike ||
+      this.jump ||
+      this.swimming ||
+      this.riding ||
+      this.player.health <= 0 ||
+      targetDistance(target, this.position, this.room) > target.reach
+    )
+      return false;
+    this.walk = false;
+    const p = this.position;
+    if (kind === 'sit') this.facing = target.fixture?.key === 'furniture_chair' ? 'south-west' : 'south-east';
+    else this.facing = facing(target.at.x - p.x, target.at.z - p.z);
+    this.activity = {
+      kind,
+      target,
+      duration,
+      elapsed: 0,
+      contact: kind === 'gather' ? duration * 0.55 : duration,
+      room: this.roomKey,
+      finish,
+    };
+    return true;
+  }
+  get displayPosition(): V2 {
+    const a = this.activity,
+      p = this.position;
+    if (!a) return p;
+    const toward = unit(p.x - a.target.at.x, p.z - a.target.at.z);
+    const reach = a.kind === 'sit' ? 0 : a.kind === 'gather' ? 0.9 : a.kind === 'stir' ? 1.85 : 1.5;
+    const at = { x: a.target.at.x + toward.x * reach, z: a.target.at.z + toward.z * reach };
+    if (a.kind === 'sit') {
+      at.x += 0.27;
+      at.z += 0.2;
     }
-    this.swing = bow ? 'bow' : 'attack';
-    this.strike = bow ? 0.65 : 0.48;
-    if (hit) {
-      this.facing = facing(hit.x - p.x, hit.z - p.z);
-      if (hit.enemy) {
-        hit.health -= bow ? 32 : this.game.state.equippedWeapon === 'rusted_sword' ? 29 : 8;
-        if (hit.health <= 0) {
-          this.action({ t: 'defeat', id: hit.enemy });
-          this.onMessage(hit.name + ' defeated');
+    const t = Math.min(1, a.elapsed / 0.16, (a.duration - a.elapsed) / 0.16);
+    return { x: p.x + (at.x - p.x) * t, z: p.z + (at.z - p.z) * t };
+  }
+  interactField(target: RoomTarget) {
+    if (target.field === 'pet') {
+      const a = target.animal!;
+      this.perform('pet', target, 1.45, () =>
+        this.onMessage(a.key === 'dog' ? 'The dog wags its tail.' : 'The cat leans into your hand.')
+      );
+    } else if (target.field === 'seat' || target.fixture?.use === 'seat')
+      this.perform('sit', target, Infinity);
+    else if (target.field === 'gather') {
+      const p = target.pickup!;
+      this.perform('gather', target, 0.97, () => {
+        if (!this.action({ t: 'pickup', pickupId: p.id, item: p.item, qty: p.qty })) return;
+        this.onMessage(S(ITEMS[p.item].nameKey) + ' × ' + p.qty);
+        const slots = this.game.state.quickSlots,
+          slot = slots.indexOf(null);
+        if (slot >= 0 && itemAction(p.item) && !slots.includes(p.item))
+          this.action({ t: 'assignQuickSlot', slot, item: p.item });
+      });
+    } else if (target.field === 'dress') {
+      const id = target.animal!.animal!,
+        record = this.game.state.hunting[id];
+      if (record?.status !== 'dead' || !withinSkinningReach(this.player, record.position)) return;
+      if (!this.game.state.inventory.skinning_knife) {
+        this.onMessage('You need a skinning knife.');
+        return;
+      }
+      this.perform('dress', target, skinningSeconds(this.game.state.huntTally), () => {
+        if (this.action({ t: 'skinAnimal', id })) {
+          this.onFieldSound('skinning_complete');
+          this.onMessage('Collected hide and raw meat');
+        }
+      });
+    }
+  }
+  get skinningActive() {
+    return this.activity?.kind === 'dress';
+  }
+  aimDirection(dx: number, dz: number, head?: string) {
+    if (!this.bow || this.bow.phase === 'loose' || Math.hypot(dx, dz) < 0.001) return;
+    this.bow.direction = unit(dx, dz);
+    this.bow.head = head;
+    this.facing = facing(dx, dz);
+    this.player.yaw = Math.atan2(dx, dz);
+  }
+  startAttack(target?: V2, head?: string) {
+    if (
+      this.room ||
+      this.strike ||
+      this.bow ||
+      this.activity ||
+      this.jump ||
+      this.swimming ||
+      this.player.health <= 0
+    )
+      return;
+    const p = this.player;
+    if (this.game.state.equippedWeapon !== 'hunting_bow') {
+      this.strike = 0.48;
+      const hit = this.actors
+        .filter((a) => a.enemy && !a.dead && distance(a, p) < 3.3)
+        .sort((a, b) => distance(a, target ?? p) - distance(b, target ?? p))[0];
+      if (hit) {
+        this.facing = facing(hit.x - p.x, hit.z - p.z);
+        this.damageEnemy(hit, this.game.state.equippedWeapon === 'rusted_sword' ? 29 : 8);
+      }
+      return;
+    }
+    if (this.riding) {
+      this.onMessage('Dismount to draw the bow.');
+      return;
+    }
+    if (!this.game.state.inventory.arrow) {
+      this.onMessage('Your quiver is empty.');
+      return;
+    }
+    this.walk = false;
+    this.onFieldSound('bow_draw');
+    this.bow = {
+      phase: 'draw',
+      elapsed: 0,
+      released: false,
+      direction: { x: Math.sin(p.yaw), z: Math.cos(p.yaw) },
+    };
+    if (target) this.aimDirection(target.x - p.x, target.z - p.z, head);
+  }
+  releaseAttack() {
+    if (this.bow && this.bow.phase !== 'loose') this.bow.released = true;
+  }
+  attack(target?: V2) {
+    this.startAttack(target);
+    this.releaseAttack();
+  }
+  private stepBow(dt: number) {
+    const bow = this.bow;
+    if (!bow) return;
+    bow.elapsed += dt;
+    if (bow.phase === 'draw' && bow.elapsed >= DRAW_TIME) {
+      bow.phase = 'hold';
+      bow.elapsed = 0;
+    }
+    if (bow.phase === 'hold' && bow.released) {
+      if (!this.action({ t: 'fireBow' })) {
+        this.bow = undefined;
+        return;
+      }
+      bow.phase = 'loose';
+      bow.elapsed = 0;
+      this.arrows.push({
+        x: this.player.x,
+        z: this.player.z,
+        direction: { ...bow.direction },
+        travelled: 0,
+        head: bow.head,
+      });
+      this.onFieldSound('bow_release');
+    } else if (bow.phase === 'loose' && bow.elapsed >= RELEASE_TIME) this.bow = undefined;
+  }
+  private damageEnemy(a: Actor, amount: number) {
+    a.health -= amount;
+    if (a.enemy && a.health <= 0 && this.action({ t: 'defeat', id: a.enemy })) {
+      a.dead = true;
+      this.onMessage(a.name + ' defeated');
+    }
+  }
+  private stepArrows(dt: number) {
+    for (let i = this.arrows.length - 1; i >= 0; i--) {
+      const arrow = this.arrows[i]!,
+        dir = arrow.direction;
+      const length = Math.min(dt * ARROW_SPEED, ARROW_RANGE - arrow.travelled);
+      let impact: Actor | undefined,
+        stop = length,
+        blocked = false;
+      // Short world-space samples stop thin walls even when a frame is late.
+      const steps = Math.max(1, Math.ceil(length / 0.35));
+      for (let j = 1; j <= steps; j++) {
+        const d = (length * j) / steps;
+        if (inBuilding({ x: arrow.x + dir.x * d, z: arrow.z + dir.z * d })) {
+          stop = d;
+          blocked = true;
+          break;
         }
       }
+      for (const a of this.actors) {
+        if (a.dead || !(a.enemy || isHuntableAnimalId(a.animal)) || inBuilding(a)) continue;
+        const d = firstContact(arrow, dir, stop, a, Math.max(0.55, a.width / 35));
+        if (d < stop || (d === stop && !blocked && !impact)) {
+          impact = a;
+          stop = d;
+        }
+      }
+      arrow.x += dir.x * stop;
+      arrow.z += dir.z * stop;
+      arrow.travelled += stop;
+      if (impact?.animal)
+        this.action({
+          t: 'hitAnimal',
+          hit: {
+            id: impact.animal,
+            zone: arrow.head === impact.id ? 'head' : 'body',
+            position: { x: impact.x, y: this.player.y, z: impact.z },
+            yaw: Math.atan2(dir.x, dir.z),
+          },
+        });
+      else if (impact?.enemy) this.damageEnemy(impact, 32);
+      if (impact || blocked || arrow.travelled >= ARROW_RANGE - 0.001) {
+        this.onFieldSound(impact ? 'arrow_flesh' : 'arrow_ground', arrow.travelled);
+        this.arrows.splice(i, 1);
+      }
     }
+  }
+  chooseNearby(offers: Offer[]) {
+    return (
+      offers.length > 1 &&
+      (!offers[0]!.target || (!!offers[0]!.target?.field && offers[1]!.score - offers[0]!.score < 0.65))
+    );
   }
   offers(): Offer[] {
     const p = this.player,
@@ -498,7 +743,11 @@ export class Valley {
     }
     if (plan) return offers.sort((a, b) => a.score - b.score);
     for (const entry of entries) {
-      if (['archive_door', 'archive_shutter', 'ledger'].includes(entry.id) || !entry.offered(this.game.state))
+      if (
+        (entry.act.do === 'pickup' && gatheringIds.has(entry.act.pickup)) ||
+        ['archive_door', 'archive_shutter', 'ledger'].includes(entry.id) ||
+        !entry.offered(this.game.state)
+      )
         continue;
       const at = entry.place;
       let loc: V2;
@@ -527,21 +776,7 @@ export class Valley {
           : entry.prompt(this.game.state);
       offers.push({ entry, label, score: d + entry.priority });
     }
-    for (const a of this.actors)
-      if (a.animal && this.game.state.hunting[a.animal]?.status === 'dead' && distance(a, p) < 2.8)
-        offers.push({ skin: a.animal, label: 'Skin ' + a.name, score: 0 });
     return offers.sort((a, b) => a.score - b.score);
-  }
-  skin(id: AnimalId) {
-    if (!this.game.state.inventory.skinning_knife) {
-      this.onMessage('You need a skinning knife.');
-      return;
-    }
-    this.skinning = { id, remaining: 3.2 };
-    this.onMessage('Skinning · stand still');
-  }
-  get skinningActive() {
-    return this.skinning !== null;
   }
   nearestPlace(): PlaceId {
     return (Object.keys(PLACES) as PlaceId[]).sort(

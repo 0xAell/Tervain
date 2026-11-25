@@ -131,6 +131,8 @@ export const EN: Record<string, string> = {
   'animal.boar': 'Boar',
   'animal.stag': 'Red deer stag',
   'animal.deer': 'Deer',
+  'item.trail_stew': 'Trail stew',
+  'item.trail_stew.desc': 'A lidded crock of rich camp stew. Eat it to restore up to 30 health.',
   'item.hunting_bow': 'Hunting bow',
   'item.hunting_bow.desc': 'A plain wooden bow. Equip it, aim, draw and release to loose an arrow. One hit to the head or two to the body brings an animal down.',
   'item.arrow': 'Arrows',

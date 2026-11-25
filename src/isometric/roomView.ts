@@ -1,3 +1,4 @@
+import { heroPose } from './heroPose';
 import { hourOfDay } from '../core/game/state';
 import type { Atlas } from './atlas';
 import { RoomArt } from './roomArt';
@@ -133,23 +134,11 @@ export class RoomView {
         shade: true,
       });
     }
-    const action = valley.jump ? 'jump' : valley.guard ? 'guard' : valley.walk ? 'walk' : 'idle';
-    const facing = 'hero-' + valley.facing,
-      cardinal = valley.facing.includes('east')
-        ? 'east'
-        : valley.facing.includes('west')
-          ? 'west'
-          : valley.facing;
-    const key = [facing + '--' + action, 'hero-' + cardinal + '--' + action, facing].find((k) =>
-      this.atlas.has(k)
-    )!;
     sprites.push({
-      ...p,
-      key,
-      width: 44,
+      ...valley.displayPosition,
+      ...heroPose(valley, this.atlas, 44),
       hero: true,
       shade: true,
-      frame: Math.floor(clock * (valley.walk ? 9 : 5)),
       lift: valley.jump ? Math.sin((Math.PI * valley.jump) / 0.52) * 10 : 0,
     });
     sprites.sort((a, b) => a.x + a.z - b.x - b.z || Number(!!a.hero) - Number(!!b.hero));
@@ -161,7 +150,15 @@ export class RoomView {
       if (s.shade) {
         ctx.fillStyle = 'rgba(37,25,33,.24)';
         ctx.beginPath();
-        ctx.ellipse(sx, sy - 1, s.width * 0.32, Math.max(2, s.width * 0.095), 0, 0, Math.PI * 2);
+        ctx.ellipse(
+          sx,
+          sy - 1,
+          (s.hero ? 33 : s.width) * 0.32,
+          Math.max(2, (s.hero ? 33 : s.width) * 0.095),
+          0,
+          0,
+          Math.PI * 2
+        );
         ctx.fill();
       }
       const hidden =

@@ -12,7 +12,7 @@ export interface Chamber extends RoomRect {
   name: string;
   rug: 'red' | 'blue';
 }
-export type Use = 'trade' | 'book' | 'lamp' | 'bed' | 'chest' | 'hearth' | 'supply';
+export type Use = 'trade' | 'book' | 'lamp' | 'bed' | 'chest' | 'hearth' | 'supply' | 'seat';
 export interface Fixture extends V2 {
   id: string;
   key: string;
@@ -105,6 +105,10 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
     label?: string,
     item?: ItemId
   ) => {
+    if (!use && (key === f('chair') || key === f('stool'))) {
+      use = 'seat';
+      label = key === f('chair') ? 'Sit in the chair' : 'Sit on the stool';
+    }
     fixtures.push({ id: (use ?? key) + '-' + fixtures.length, key, x, z, width, hx, hz, use, label, item });
   };
   // The clear central aisle links both wings. Stairs and every object have a reachable apron.
@@ -255,8 +259,21 @@ export function passageLanding(plan: FloorPlan, from?: InteriorLevel): V2 {
     : plan.passages.find((p) => p.kind === 'outside');
   return p ? { x: p.x, z: p.z + (p.kind === 'outside' ? -1.65 : 1.7) } : { x: 0, z: 2 };
 }
-export function fixtureApproach(f: Fixture): V2 {
-  return { x: f.x, z: f.z + f.hz + 0.73 };
+const fixtureApproaches = new WeakMap<Fixture, V2>();
+export function fixtureApproach(f: Fixture, plan: FloorPlan): V2 {
+  const known = fixtureApproaches.get(f);
+  if (known) return known;
+  const candidates = [
+    { x: f.x, z: f.z + f.hz + 0.73 },
+    { x: f.x - f.hx - 0.82, z: f.z },
+    { x: f.x + f.hx + 0.82, z: f.z },
+    { x: f.x, z: f.z - f.hz - 0.82 },
+    { x: f.x - f.hx - 0.65, z: f.z + f.hz + 0.68 },
+    { x: f.x + f.hx + 0.65, z: f.z + f.hz + 0.68 },
+  ];
+  const at = candidates.find((p) => roomWalkable(plan, p) && visibleAcrossWall(plan, p, f)) ?? candidates[0]!;
+  fixtureApproaches.set(f, at);
+  return at;
 }
 export function passageLabel(plan: FloorPlan, p: Passage, at: V2) {
   if (p.kind === 'outside') return 'Leave ' + households[plan.site.id]!.name;

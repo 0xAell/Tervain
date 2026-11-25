@@ -42,12 +42,12 @@
   },
   "totals": {
     "all": {
-      "files": 1777,
-      "bytes": 420974583
+      "files": 1778,
+      "bytes": 422300890
     },
     "shipped": {
-      "files": 839,
-      "bytes": 120973287
+      "files": 840,
+      "bytes": 121269714
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -59,8 +59,8 @@
         "bytes": 186290894
       },
       "keep": {
-        "files": 772,
-        "bytes": 95777571
+        "files": 773,
+        "bytes": 97103878
       },
       "rework": {
         "files": 0,
@@ -518,8 +518,8 @@
       "fab": null,
       "replaceWith": null,
       "replaceBeforeShip": null,
-      "files": 45,
-      "bytes": 1383117
+      "files": 46,
+      "bytes": 1674668
     },
     {
       "id": "vale-typeface",
@@ -545,7 +545,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 3,
-      "bytes": 4932381
+      "bytes": 5967137
     },
     {
       "id": "craft-trees",
@@ -9612,8 +9612,8 @@
       "path": "assets/pixellab/provenance.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 210741,
-      "sha256": "d20f35338031151ba1d1fc4c103a85f93f31ff63c6c70ce8424f708a87854006",
+      "bytes": 245569,
+      "sha256": "0f3865bb58a4e4e326c5bb56ebeaa7c9d5b9a7b08c9ac258273b947aecba035c",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -9626,8 +9626,8 @@
       "path": "assets/pixellab/sources.zip",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 4697183,
-      "sha256": "7d1b84e85abd012e3d3dd4d1e7128b266fd017e16eb958ba2807e24f8c642450",
+      "bytes": 5692235,
+      "sha256": "7717fd685724eeaabe500e09101fee22bff606c89834ee807a713d7774d3d04b",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -29377,6 +29377,20 @@
       "unreal": null
     },
     {
+      "path": "public/vale/icons/trail_stew.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 941,
+      "sha256": "1d139522f3ea5b91bb556301c95f1de1a853f87ff410b22063c982cf472a7413",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
       "path": "public/vale/icons/village_baker.png",
       "group": "vale-pixel-art",
       "kind": "image",
@@ -29436,8 +29450,8 @@
       "path": "public/vale/sprites.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 24457,
-      "sha256": "b24c41a286b005879a596019ef3526d9119338d2d5ee3862a275cbb8a458d92f",
+      "bytes": 29333,
+      "sha256": "e6525de1b7798e8fdd44a4c644a33a20869e2e061679497356e3b45b1e6fbc1b",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -29450,8 +29464,8 @@
       "path": "public/vale/sprites.png",
       "group": "vale-pixel-art",
       "kind": "image",
-      "bytes": 1282142,
-      "sha256": "42090680a757dc6fcb9f789d1c5ee746df0fc87b5b7cf889ef4e10542a626370",
+      "bytes": 1572752,
+      "sha256": "b4f1a0b1b43529ad1b6c2d6bfd1d17cdc2ecd264f216f96f3e222717b7d6fc4e",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-PixelLab-Generated",

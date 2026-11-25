@@ -87,6 +87,7 @@ export function pickupCues(item: ItemId): Cue[] {
       return [{ clip: 'item.herb', gain: 0.5, pitch: 0.06, from: 0, to: 1.6 }, bag];
     case 'shore_apple':
     case 'bread':
+    case 'trail_stew':
     case 'raw_meat':
       return [{ clip: 'item.satchel', gain: 0.4, pitch: 0.04, from: 0.6, to: 2.0 }];
     case 'poultice':

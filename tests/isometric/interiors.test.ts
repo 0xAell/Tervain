@@ -71,7 +71,7 @@ describe('walkable household interiors', () => {
     const v = new Valley(new Game());
     v.game.state.locationChanges.archive_door = 'open';
     v.game.state.locationChanges.archive_shutter = 'forced';
-    expect(v.targets().length).toBe(doorways.length);
+    expect(v.targets().filter((t) => t.door).length).toBe(doorways.length);
     for (const door of doorways) {
       v.game.setPlayerTransform(door.outside.x, 0, door.outside.z, 0);
       const t = v.targets().find((t) => t.door === door)!;

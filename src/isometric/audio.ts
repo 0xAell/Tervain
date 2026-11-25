@@ -4,6 +4,7 @@ import { hourOfDay } from '../core/game/state';
 import { distance, groundAt } from './land';
 import { onBridge, wetPoint } from './water';
 import { gameFile } from './files';
+import type { FieldSound } from './fieldcraft';
 import type { Valley } from './simulation';
 
 const stepMaterial: Record<string, string> = {
@@ -53,7 +54,9 @@ class Channel {
     };
     if (this.asset !== cue.file) {
       this.asset = cue.file;
-      a.src = gameFile(cue.file + (a.canPlayType('audio/ogg') ? '.ogg' : '.m4a'));
+      a.src = gameFile(
+        cue.file.endsWith('.mp3') ? cue.file : cue.file + (a.canPlayType('audio/ogg') ? '.ogg' : '.m4a')
+      );
     }
     if (a.readyState >= 1) start();
     else a.addEventListener('loadedmetadata', start, { once: true });
@@ -65,6 +68,8 @@ export class Sound {
   private tag = '';
   private airTag = '';
   private voice = new Channel();
+  private bow = new Channel();
+  private impact = new Channel();
   private strokes = [new Channel(), new Channel()];
   private serial = 0;
   private nextStep = 0;
@@ -80,6 +85,8 @@ export class Sound {
     this.music.volume = n * 0.7;
     this.air.volume = n * 0.42;
     if (n === 0) {
+      this.bow.stop();
+      this.impact.stop();
       this.voice.stop();
       for (const c of this.strokes) c.stop();
     }
@@ -139,6 +146,14 @@ export class Sound {
       volume * this.volume
     );
   }
+  field(cue: FieldSound, range = 0) {
+    if (!this.enabled || !this.volume) return;
+    const lane = cue.startsWith('bow_') ? this.bow : this.impact;
+    lane.play(
+      { file: 'assets/audio/hunting/' + cue + '.mp3', start: 0, length: 2 },
+      (this.volume * 0.65) / (1 + range / 22)
+    );
+  }
   movement(v: Valley) {
     if (!this.enabled || !this.volume) return;
     const p = v.player,
@@ -149,13 +164,7 @@ export class Sound {
     if (!v.walk || v.time < this.nextStep) return;
     if (wet) this.one('water', v.swimming ? 'water.swim' : 'water.wade', v.swimming ? 0.62 : 0.4);
     else {
-      const material = v.room
-        ? v.room.stone
-          ? 'stone'
-          : 'wood'
-        : onBridge(p)
-          ? 'wood'
-          : groundAt(p.x, p.z);
+      const material = v.room ? (v.room.stone ? 'stone' : 'wood') : onBridge(p) ? 'wood' : groundAt(p.x, p.z);
       this.one('steps', 'step.' + (stepMaterial[material] ?? material), 0.31);
     }
     this.nextStep = v.time + (v.swimming ? 0.85 : v.riding ? 0.36 : 0.48);
@@ -176,6 +185,8 @@ export class Sound {
     this.voice.stop();
   }
   reset() {
+    this.bow.stop();
+    this.impact.stop();
     this.lastWet = null;
     this.nextStep = 0;
     this.endLine();

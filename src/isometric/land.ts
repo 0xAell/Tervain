@@ -14,6 +14,7 @@ import {
   FOREST_RUIN,
   BUILDINGS,
   BENCHES,
+  COOKFIRES,
   BELL,
   FIELDS,
   FOREST_REGION,
@@ -145,8 +146,7 @@ export function scenery() {
   put('sign', ARRIVAL_SIGN, 37);
   put('beacon', LIGHTHOUSE, 114);
   put('table', HUNTER_CAMP, 33);
-  put('fire', { x: HUNTER_CAMP.x + 2, z: HUNTER_CAMP.z + 1 }, 23);
-  put('fire', { x: -86, z: 34 }, 25);
+  for (const fire of COOKFIRES) put('fire', fire, 24);
   put('ruin', FOREST_RUIN, 95);
   put('well', WELL, 41);
   put('bell', BELL, 40);

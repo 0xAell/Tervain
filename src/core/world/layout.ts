@@ -170,6 +170,11 @@ export const HUNTER_CAMP = {
   worker: { x: 1.62, z: 0 },
 } as const;
 
+export const COOKFIRES = [
+  { id: 'hunter', x: HUNTER_CAMP.x + 2, z: HUNTER_CAMP.z + 1 },
+  { id: 'waystation', x: -86, z: 34 },
+] as const;
+
 export function hunterCampPoint(localX: number, localZ: number): V2 {
   const c = Math.cos(HUNTER_CAMP.yaw), s = Math.sin(HUNTER_CAMP.yaw);
   return { x: HUNTER_CAMP.x + localX * c + localZ * s, z: HUNTER_CAMP.z - localX * s + localZ * c };
@@ -285,7 +290,7 @@ export const BENCH_SEAT_HEIGHT = 0.55;
 export const BENCHES = {
   inn: { x: -9, z: 35.6, yaw: 0 },
   ford: { x: 44, z: 32.4, yaw: 1.0 },
-  square: { x: 10, z: 17, yaw: 0.2 },
+  square: { x: 5.1, z: 17.5, yaw: 0.2 },
 } as const;
 
 /**

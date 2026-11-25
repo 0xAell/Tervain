@@ -20,6 +20,7 @@ export interface Stamp extends V2 {
   moving?: boolean;
   airborne?: boolean;
   reflect?: boolean;
+  angle?: number;
 }
 interface Trail extends V2 {
   born: number;

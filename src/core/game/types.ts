@@ -95,6 +95,7 @@ export type ItemId =
   | 'skinning_knife'
   | 'animal_hide'
   | 'raw_meat'
+  | 'trail_stew'
   | 'sluice_brace'
   | 'gate_wrench'
   | 'archive_key'
@@ -306,7 +307,7 @@ export type Command =
   | { t: 'equipWeapon'; item: ItemId | null }
   | { t: 'setMapMarker'; marker: MapMarker | null }
   | { t: 'roomStorage'; item: ItemId; direction: 'deposit' | 'withdraw' }
-  | { t: 'roomCraft'; recipe: 'herbs' | 'fletch' | 'cook' }
+  | { t: 'roomCraft'; recipe: 'herbs' | 'fletch' | 'cook' | 'pack_stew' }
   | { t: 'damagePlayer'; amount: number }
   | { t: 'healPlayer'; amount: number }
   | { t: 'setFact'; key: string; value: FactValue }
