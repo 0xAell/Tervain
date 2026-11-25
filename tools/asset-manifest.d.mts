@@ -1,5 +1,5 @@
 export interface ManifestAsset {
-  path: string; group: string; kind: 'model' | 'texture' | 'image' | 'audio' | 'data'; bytes: number; sha256: string; shipped: boolean;
+  path: string; group: string; kind: 'model' | 'texture' | 'image' | 'font' | 'audio' | 'data'; bytes: number; sha256: string; shipped: boolean;
   sourceId?: string; licence: { id: string; status: string }; plan: 'replace' | 'keep' | 'rework' | 'drop'; replaceWith?: string; replaceBeforeShip?: true;
   unreal: { type: string; folder: string; name: string; lod: number | null } | null;
 }

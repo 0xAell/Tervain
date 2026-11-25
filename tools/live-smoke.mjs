@@ -59,7 +59,8 @@ export async function smoke(page, { expectVersion = null, outDir = null, log = (
   // 2. The title menu.
   let title = false;
   for (let i = 0; i < 1200 && !title; i++) { title = (await state('return window.tervain?.mode === "title" && document.querySelectorAll(".menu-choices button").length > 0')) === true; if (!title) await page.wait(250); }
-  const printed = (await state(`return document.querySelector('.menu-build span')?.textContent ?? ''`)) ?? '';
+  const isometric = (await state('return !!window.tervain?.scene?.water')) === true;
+  const printed = (await state(`return document.querySelector('.menu-build span, .title-screen .version')?.textContent ?? ''`)) ?? '';
   if (!step('title menu', title && (!expectVersion || printed.includes(`v${expectVersion}`)), title ? `shows "${printed}"${expectVersion ? `, deployment states ${expectVersion}` : ''}` : 'the menu did not come up within five minutes')) return steps;
 
   // 3. A new journey, by a real click.
@@ -69,7 +70,14 @@ export async function smoke(page, { expectVersion = null, outDir = null, log = (
   for (const type of ['mousePressed', 'mouseReleased']) await page.cdp('Input.dispatchMouseEvent', { type, x: button[0], y: button[1], button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: 1 });
   const started = Date.now();
   try {
-    await waitUntilReady(page, { label: 'smoke test' });
+    if (isometric) {
+      let ready = false;
+      for (let i = 0; i < 1200 && !ready; i++) {
+        ready = await state('const t=window.tervain;return t.mode==="play" && t.scene.heroDrawn && t.scene.renderedFrames>0');
+        if (!ready) await page.wait(250);
+      }
+      if (!ready) throw new Error('The isometric world did not draw its first player frame.');
+    } else await waitUntilReady(page, { label: 'smoke test' });
     step('world loads', true, `playing after ${Math.round((Date.now() - started) / 1000)} s`);
   } catch (error) {
     step('world loads', false, String(error?.message ?? error).split('\n').slice(0, 4).join(' | '));
@@ -78,11 +86,16 @@ export async function smoke(page, { expectVersion = null, outDir = null, log = (
   }
 
   // 4. Rendering.
-  const frame = () => state('const i = window.tervain.renderer.info; return { frame: i.render.frame, calls: i.render.calls, triangles: i.render.triangles }');
+  const frame = () => isometric
+    ? state('const s = window.tervain.scene; return {frame:s.renderedFrames, calls:s.lastDraws, hero:s.heroDrawn}')
+    : state('const i = window.tervain.renderer.info; return { frame: i.render.frame, calls: i.render.calls, triangles: i.render.triangles }');
   const first = await frame();
   let last = first;
   for (let i = 0; i < 240 && last && first && last.frame < first.frame + 3; i++) { await page.wait(250); last = await frame(); }
-  step('frames complete', !!first && !!last && last.frame >= first.frame + 3 && last.calls > 0 && last.triangles > 0, last ? `${last.frame - first.frame} more frames; ${last.calls} draw calls, ${last.triangles} triangles in the last` : 'the renderer could not be read');
+  const drawn = isometric ? last?.hero === true : last?.triangles > 0;
+  const geometry = isometric ? 'the hero is visible' : `${last?.triangles} triangles`;
+  step('frames complete', !!first && !!last && last.frame >= first.frame + 3 && last.calls > 0 && drawn,
+    first && last ? `${last.frame - first.frame} more frames, ${last.calls} draw calls, ${geometry}` : 'the renderer could not be read');
   const png = await page.image('png');
   if (outDir) { fs.mkdirSync(outDir, { recursive: true }); fs.writeFileSync(path.join(outDir, 'playing.png'), png); }
   const spread = await imageSpread(png);
@@ -90,7 +103,7 @@ export async function smoke(page, { expectVersion = null, outDir = null, log = (
 
   // 5. Input: the pause key, then forward. A window without the pointer or the focus pauses itself, so the game may
   // already be paused here; the pause key must then resume it, and pause and resume it once more.
-  const overlay = () => state('return window.tervain.overlay');
+  const overlay = () => isometric ? state('const m=window.tervain.mode; return m==="play"?"none":m') : state('return window.tervain.overlay');
   // The key is held until the game has taken it: a tap between two slow frames is never seen.
   const press = async (wanted) => {
     await key('rawKeyDown', 'Escape');
@@ -109,7 +122,7 @@ export async function smoke(page, { expectVersion = null, outDir = null, log = (
 
   // Held until the hero has walked half a metre. On a software renderer the game runs far slower than the clock, and
   // a new journey begins with the wanderer getting to his feet, so this is given minutes, not seconds.
-  const where = () => state('const p = window.tervain.player; return { x: p.x, z: p.z }');
+  const where = () => state(isometric ? 'const p = window.tervain.valley.player; return {x:p.x,z:p.z}' : 'const p = window.tervain.player; return { x: p.x, z: p.z }');
   const from = await where();
   await key('rawKeyDown', 'KeyW');
   let to = from, moved = 0, held = Date.now();

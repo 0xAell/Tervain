@@ -544,6 +544,7 @@
               "model",
               "texture",
               "image",
+              "font",
               "audio",
               "data"
             ]

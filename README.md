@@ -1,19 +1,17 @@
 # Tervain
 
-A single-player fantasy RPG, playable in the browser today and on its way to Unreal Engine.
+Tervain is a single-player, isometric pixel-art RPG set in Bellwether Vale. You wake on the Grey Strand beside a shattered boat. Inland, a village, a quarry and a shrine compete for the same water.
 
-**[Launch Tervain](https://0xaell.github.io/Tervain/)** · [Documentation](docs/README.md)
+The browser game runs locally with `npm ci` and `npm run dev`. To create a single HTML file that opens offline, run `node tools/pack-isometric.mjs` and open `dist/Play Tervain.html`. Move with WASD or click a destination. E interacts, Space attacks, I opens the inventory, J opens the journal and M opens the map. F5 and F9 save and restore a journey.
 
-<p align="center">
-  <a href="https://0xaell.github.io/Tervain/"><img src="docs/media/screenshots/rillford-craft.jpg" width="100%" alt="The wanderer approaches the bakery and the village noticeboard on Rillford’s stone-studded lane."></a>
-</p>
+The coast has crossing swells, breaking crests, run-up on the sand and reflections from the wreck and surrounding world. Currents follow the bends of each inland channel and the sluice allocation changes their speed and water level. The spring has a separate surface driven by the inlet. The PixelLab art library includes the cast, animation sequences, terrain, structures, items, interface and typeface. The WebGL 2 water renderer shades each logical pixel and writes the local surface displacement into a second texture. That same displacement bends reflected sprites and swimming wakes. Canvas 2D provides a software rendering path. Run `node tools/check-isometric-water.mjs "dist/Play Tervain.html"` to check a standalone build, and append `--canvas` to exercise the software path.
 
-You wake on the Grey Strand with a torn sail in sight. There’s a blade in the wreck and a track inland through old woodland to a village that was managing fine without you. The browser build is the prototype, where the design is tried out. The destination is Unreal Engine (5.9 first, 6 when it arrives), and this repository is being reworked into the seed for that port: the game's rules and data are kept apart from the renderer so they can move.
+The editable PNG sequences, original provider images and typeface are in `assets/pixellab/sources.zip`. The source ledger records frame hashes in `assets/pixellab/provenance.json`. Rebuild the atlas with `python3 tools/pack-vale.py` using Pillow.
 
 ## Status
 
 - **Version.** The current patch is `0.1.3` in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
-- **Web build.** Playable and deployed. Every merge to `main` is built, tested and published, and the published build is then loaded and played by a smoke test. It is a prototype: it still contains prototype geometry, and nothing has been measured on reference hardware.
+- **Web build.** This checkout contains the isometric edition. The project also maintains a [published edition](https://0xaell.github.io/Tervain/) and a [separate Gothic 3 study](gothic3/).
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
 - **Not started.** A desktop package, and anything to do with a store release.

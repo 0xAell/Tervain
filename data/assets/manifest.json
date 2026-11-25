@@ -42,12 +42,12 @@
   },
   "totals": {
     "all": {
-      "files": 1728,
-      "bytes": 414644133
+      "files": 1777,
+      "bytes": 419990888
     },
     "shipped": {
-      "files": 792,
-      "bytes": 119550761
+      "files": 839,
+      "bytes": 120716502
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -59,8 +59,8 @@
         "bytes": 186290894
       },
       "keep": {
-        "files": 723,
-        "bytes": 89447121
+        "files": 772,
+        "bytes": 94793876
       },
       "rework": {
         "files": 0,
@@ -508,6 +508,45 @@
     }
   },
   "groups": [
+    {
+      "id": "vale-pixel-art",
+      "title": "Isometric valley artwork",
+      "role": "scenery",
+      "plan": "keep",
+      "why": "The sprite atlas, opening painting, portraits and interface are the custom art for the isometric edition.",
+      "source": "PixelLab outputs commissioned for Tervain, recorded in assets/pixellab/provenance.json.",
+      "fab": null,
+      "replaceWith": null,
+      "replaceBeforeShip": null,
+      "files": 45,
+      "bytes": 1128448
+    },
+    {
+      "id": "vale-typeface",
+      "title": "Vale interface typeface",
+      "role": "interface-art",
+      "plan": "keep",
+      "why": "The same pixel typeface appears in the HUD, journal and conversations.",
+      "source": "Custom PixelLab typeface recorded in assets/pixellab/provenance.json.",
+      "fab": null,
+      "replaceWith": null,
+      "replaceBeforeShip": null,
+      "files": 1,
+      "bytes": 14952
+    },
+    {
+      "id": "vale-sprite-data",
+      "title": "Sprite sources, atlas coordinates and provenance",
+      "role": "scenery",
+      "plan": "keep",
+      "why": "These files preserve the editable art, frame order and corresponding source hashes.",
+      "source": "The project sprite packer and the PixelLab source library for the isometric edition.",
+      "fab": null,
+      "replaceWith": null,
+      "replaceBeforeShip": null,
+      "files": 3,
+      "bytes": 4203355
+    },
     {
       "id": "craft-trees",
       "title": "Silver fir, shore pine and three coastal palms",
@@ -9567,6 +9606,34 @@
         "status": "service-terms"
       },
       "plan": "drop",
+      "unreal": null
+    },
+    {
+      "path": "assets/pixellab/provenance.json",
+      "group": "vale-sprite-data",
+      "kind": "data",
+      "bytes": 182078,
+      "sha256": "836f803a0f6c8d08ad9e3431eb299ce45ad714e1545efcad4d79c6a87e9fabe7",
+      "shipped": false,
+      "licence": {
+        "id": "LicenseRef-Tervain-PixelLab-Collection",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "assets/pixellab/sources.zip",
+      "group": "vale-sprite-data",
+      "kind": "data",
+      "bytes": 3998936,
+      "sha256": "224c4744ab8be4bd84188a3d7861dba3fcbca8291fbe627d8e5c659391529e5a",
+      "shipped": false,
+      "licence": {
+        "id": "LicenseRef-Tervain-PixelLab-Collection",
+        "status": "project-original"
+      },
+      "plan": "keep",
       "unreal": null
     },
     {
@@ -28761,6 +28828,664 @@
         "status": "project-original"
       },
       "plan": "drop",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/animal_hide.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 586,
+      "sha256": "829f4b81015f13ebc231ef2507afffb194b07c4bcd2ac7f9add572c197b1b590",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/archive_key.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 602,
+      "sha256": "f6abbc8ad34c129f7beaa528bfb917e972ac061549dd5eb59af747a05017cf32",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/arrow.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1091,
+      "sha256": "a399c16319a9ee31f8608640870114a9126f584fc18b9b36e7f3bf2cf211f875",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/ash_recorder.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 951,
+      "sha256": "bb4a8b41f431b1e2508117467b33d7a6ce923d74f0cc686d3e3581ea5e73fd39",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/bag_icon.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1445,
+      "sha256": "3befe4ec10e4ab64ac460d5ed68ee5a6303bad9c8a40f4f3b4966451d3e2fcd5",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/bandit.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1450,
+      "sha256": "9857bd7383eaf3506e42cd9aa07f725aa764e28136ddcda6638518551c6d7bd5",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/bread.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 520,
+      "sha256": "b4815da1af2fc643bdaf09b7f0572fd3df6b1e07fe0f218675a7588b93d1e9d2",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/caravan_master.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1335,
+      "sha256": "1d45ed33c74677c353bb8f3458c6fad6d57a63d97a7dff4d27bb1b0bb10316c7",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/coin.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 950,
+      "sha256": "683d1a7452d4f43283cdae1e0b9a80d71650ae4ee5c9e96094d75525063c5028",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/compass.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 2809,
+      "sha256": "81269c6cf2d5d2e7bb278e19a3c058c2fef85703a0c894ad0c2e574c6d087ebf",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/contract_band.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 416,
+      "sha256": "d01908a9b68d201407c12ae30d5b5909090c3ec763aa18efa9e3c2944e61f167",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/estate_steward.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1188,
+      "sha256": "28d92dd09f299c7978632bb566afc3cedbaf418bd264bd2d4aac5f8f331aa894",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/field_mushroom.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1001,
+      "sha256": "04bb667c7dd8799b907718496b7714d1ac74c076bdf36544783814f35b93d716",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/fireside.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 2783,
+      "sha256": "9f57a7d25272732d6ac5cba4f720e52aff4a81d8c221765d8f21250a62c5032e",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/fisher.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1897,
+      "sha256": "64c75c82de0ff2ed4f019fda094125525532e9b487c0ef42cedac500b91c4375",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/gate_wrench.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 563,
+      "sha256": "745f336742175d55059173eb6b581d51f90d1a76afdee894ab7250a83e9cecdf",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/healing_herb.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 639,
+      "sha256": "68922f854af88aea40abf82e9b64f9400a3f9df23c8c799476bc87a2ba43e5d8",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/hunting_bow.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 435,
+      "sha256": "fdddf8bfb56712cea70b558458326de03b4bf0fc61209a4f94ffdf67d2607a3c",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/iron_scrap.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1010,
+      "sha256": "b9d025efb0120fcb98446606e2a0170ab102206538eebf2ffb3d045b7a547a26",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/journal_icon.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 974,
+      "sha256": "77046b32ebb8a095037d688347b582a8b35f377306a7fd61b8ff5060ebd1e91c",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/keeper.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1492,
+      "sha256": "bcc106abbd6db7acc730b25b5012a6c897065589eb3bcf4df7c492c0998f732f",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/league_sash.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 783,
+      "sha256": "ec4d6150448c43c17c326fa98ce1991ea5aded35b512c8568b3e4765188f4e54",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/maintenance_worker.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1473,
+      "sha256": "b39507dd969cc7ca7d4f95ea3dbe0c65860921824fa5cedaa01e6ef6abdeab84",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/map_icon.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 926,
+      "sha256": "2e47e3f70ff8c96513c60da63916ca871c199bcbb92a2a11ab385a5ab3a1531a",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/mill_hand.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1305,
+      "sha256": "1ddb233f91b63aae616052e304426fe4a47e331c896ca1d379efb0f0f175d7dd",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/poultice.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 806,
+      "sha256": "b0e9933bb56491f162dba2a1283acc40b5a9887646a741adc54aaeaba48f7cde",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/quarry_foreman.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1457,
+      "sha256": "2a4fbbef29d5cada1eb9b9b55fd957475ee1b3cd6be83d8c819a8016461de377",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/quarry_hand.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1684,
+      "sha256": "8e310c06e277e337f1720ec988de9756440d2bb7d6d8f42166f9f40bee94634a",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/raw_meat.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 731,
+      "sha256": "2e626c1420faeb575af428d8968163ebddf190ce59a192c7f4a25a6f867d7795",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/rillford_reeve.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 929,
+      "sha256": "83efe368d31e2eb2312a5168d051319082ce74c74f96c4eedbb478f935fce770",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/rusted_sword.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 403,
+      "sha256": "aa4aced142c2ae77e6af396bba4863877bb5ba00b82367434e49d723543ceae2",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/seal.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 6226,
+      "sha256": "e6d16a4495b1ccfa253ed6e60a20833745eb93a6dde1b2c1e3a1fb7b7eef3e33",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/shore_apple.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 524,
+      "sha256": "d8d3a18796589e3f5c7243340003c5c4482794df3b631b08174f26d9e65174bc",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/shrine_warden.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1108,
+      "sha256": "0396c0ae4cb3cda191a6757db9e5bd3c12f186408fc4c30ce547f91be696de3e",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/skinning_knife.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 516,
+      "sha256": "951d5f0efdad861408ab805dd9aab32219adc3d8052799f36610741d7733ada1",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/sluice_brace.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 866,
+      "sha256": "0a4849515a03f96bec80730d7781cad357241b127a6030ff1da297fcf020bf09",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/spring_steward.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1038,
+      "sha256": "c6af73067700d24fdbc5f1af130d906cc7273b524ac5cf7fd58159dfe82243d4",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/thornback.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1709,
+      "sha256": "df88a02f3178e3da86229f3c0618ad5e48d2643dafdc1f4dcc4184eaadeb1612",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/trail_hunter.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1149,
+      "sha256": "b809644008005e12b0d2e437d7c586fd7017399fda0ad579a89e0793e467dbd2",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/village_baker.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 906,
+      "sha256": "c572ea93a601afb92e73feef273627289200f0c0df0cd01c5e721267a8223f05",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/votive_reed.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 641,
+      "sha256": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/icons/witness_cord.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 734,
+      "sha256": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/panel.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 9253,
+      "sha256": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/sprites.json",
+      "group": "vale-sprite-data",
+      "kind": "data",
+      "bytes": 22341,
+      "sha256": "966b57d0391df76543cb58a5a656e26595d4ad1f3bb6c0f45a0f64b1fac82c3a",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-PixelLab-Collection",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/sprites.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 1027473,
+      "sha256": "eefecd26dd4eec4a8bd2003ee4244010b67cf64685f178331ecb0e8cf9ce9696",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/title.png",
+      "group": "vale-pixel-art",
+      "kind": "image",
+      "bytes": 41671,
+      "sha256": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/vale/vale.ttf",
+      "group": "vale-typeface",
+      "kind": "font",
+      "bytes": 14952,
+      "sha256": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
       "unreal": null
     }
   ]

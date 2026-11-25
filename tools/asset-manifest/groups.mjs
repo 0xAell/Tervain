@@ -59,6 +59,27 @@ const TREES_WHY = 'The exact species of the game’s woods (oak, with birch, pin
  */
 export const GROUPS = [
   {
+    id: 'vale-pixel-art', title: 'Isometric valley artwork', kind: 'image', role: 'scenery',
+    match: /^public\/vale\/.*\.png$/, plan: 'keep', fab: null,
+    why: 'The sprite atlas, opening painting, portraits and interface are the custom art for the isometric edition.',
+    source: 'PixelLab outputs commissioned for Tervain, recorded in assets/pixellab/provenance.json.',
+    licence: { id: 'LicenseRef-PixelLab-Generated', status: 'project-original' }, unreal: none,
+  },
+  {
+    id: 'vale-typeface', title: 'Vale interface typeface', kind: 'font', role: 'interface-art',
+    match: /^public\/vale\/vale\.ttf$/, plan: 'keep', fab: null,
+    why: 'The same pixel typeface appears in the HUD, journal and conversations.',
+    source: 'Custom PixelLab typeface recorded in assets/pixellab/provenance.json.',
+    licence: { id: 'LicenseRef-PixelLab-Generated', status: 'project-original' }, unreal: none,
+  },
+  {
+    id: 'vale-sprite-data', title: 'Sprite sources, atlas coordinates and provenance', kind: 'data', role: 'scenery',
+    match: /^(?:public\/vale\/sprites\.json|assets\/pixellab\/(?:provenance\.json|sources\.zip))$/, plan: 'keep', fab: null,
+    why: 'These files preserve the editable art, frame order and corresponding source hashes.',
+    source: 'The project sprite packer and the PixelLab source library for the isometric edition.',
+    licence: { id: 'LicenseRef-Tervain-PixelLab-Collection', status: 'project-original' }, unreal: none,
+  },
+  {
     id: 'craft-trees', title: 'Silver fir, shore pine and three coastal palms', kind: 'model', role: 'tree',
     match: /^public\/models\/flora\/craft\/[^/]+\.glb$/, plan: 'keep', fab: null,
     why: 'Three original levels of detail preserve whorled branches, needle clusters and palm fronds.',
