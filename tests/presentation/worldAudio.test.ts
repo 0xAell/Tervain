@@ -77,10 +77,16 @@ describe('prepared world audio', () => {
       for (const match of JSON.stringify(archive).matchAll(/"([a-f0-9]{64})"/g)) forbidden.add(match[1]!);
     }
     const derivatives = Object.values(provenance.derivatives).flat();
+    const vale = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/spoken-vale.json'), 'utf8')) as {
+      deliveries: { file: string; bytes: number; sha256: string }[];
+    };
+    const playable = [...derivatives, ...vale.deliveries.map((f) => ({
+      path: 'public/assets/audio/vale/' + f.file, bytes: f.bytes, sha256: f.sha256,
+    }))];
     const allAudio = ['public/assets/audio', 'public/audio'].flatMap((dir) => fs.readdirSync(path.join(ROOT, dir), { recursive: true, encoding: 'utf8' })
       .filter((name) => /\.(ogg|m4a|mp3|wav|flac)$/i.test(name)).map((name) => portable(path.join(dir, name))));
-    expect(derivatives.map((f) => f.path).sort()).toEqual(allAudio.sort());
-    for (const file of [...derivatives, provenance.editableScore, ...provenance.renderSources]) {
+    expect(playable.map((f) => f.path).sort()).toEqual(allAudio.sort());
+    for (const file of [...playable, provenance.editableScore, ...provenance.renderSources]) {
       expect(fs.statSync(path.join(ROOT, file.path)).size, file.path).toBe(file.bytes);
       expect(sha256(path.join(ROOT, file.path)), file.path).toBe(file.sha256);
       expect(forbidden.has(file.sha256), file.path).toBe(false);
