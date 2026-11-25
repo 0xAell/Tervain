@@ -194,19 +194,17 @@ export class Interface {
     if (line) line.classList.add('voicing');
     else panel.querySelector('header')?.after(el('p', 'heard-reply', text));
   }
-  /** Only authored passages and performed lines get a reader. Controls never supply speech text. */
-  private readerFor(container: HTMLElement, play: () => boolean, initial?: () => boolean) {
-    if (this.controls.sound.mode === 'off') return;
-    const host = container.querySelector('header') ?? container;
+  private readerFor(panel: HTMLElement, play: () => boolean, initial = play) {
+    if (this.controls.sound.mode === 'off' || (this.mode !== 'dialogue' && this.mode !== 'actions')) return;
+    const host = panel.querySelector('header')!;
     const control = button('Read aloud', () => this.readAloud(), 'read-aloud');
     host.insertBefore(control, host.querySelector('.close'));
     this.passage = { play, button: control, playing: false };
-    if (initial) this.startReading(initial);
+    this.startReading(initial);
   }
-  private narrated(container: HTMLElement, lines: string[], automatic = true) {
+  private readWorldPage(panel: HTMLElement, lines: string[]) {
     if (this.controls.sound.mode !== 'full') return;
-    const play = () => this.controls.sound.narrate(lines, 5);
-    this.readerFor(container, play, automatic ? play : undefined);
+    this.readerFor(panel, () => this.controls.sound.narrate(lines, 5));
   }
   private startReading(play: () => boolean) {
     const passage = this.passage!;
@@ -283,7 +281,6 @@ export class Interface {
         this.open('settings');
       })
     );
-    this.narrated(choices, [premise], false);
     content.append(choices);
     screen.append(
       scene,
@@ -357,7 +354,7 @@ export class Interface {
         ['1–0', 'Use a belt slot'],
         ['F5 / F9', 'Quick save / quick load'],
         ['Esc', 'Close a page or pause'],
-        ['V', 'Read or stop the current passage or dialogue line'],
+        ['V', 'Replay or stop the current conversation, open book or note'],
         [
           'Controller',
           'Left stick moves, A interacts or selects, D-pad chooses, X attacks, B closes, Start pauses',
@@ -382,7 +379,7 @@ export class Interface {
         voiceMode = el('select');
       voiceMode.setAttribute('aria-label', 'Spoken audio');
       for (const [value, name] of [
-        ['full', 'Characters and narration'],
+        ['full', 'Characters and world narration'],
         ['characters', 'Characters only'],
         ['off', 'Off'],
       ] as const) {
@@ -460,14 +457,8 @@ export class Interface {
   private journal() {
     const panel = this.shell('Field journal', true),
       journal = buildJournal(this.game.state);
-    const lines: string[] = [];
-    const paragraph = (text: string, cls = '') => {
-      lines.push(text);
-      panel.append(el('p', cls, text));
-    };
-    panel.append(el('h3', '', 'The water of Bellwether Vale'));
-    paragraph(S(journal.statusKey));
-    if (journal.leadKey) paragraph(S(journal.leadKey), 'lead');
+    panel.append(el('h3', '', 'The water of Bellwether Vale'), el('p', '', S(journal.statusKey)));
+    if (journal.leadKey) panel.append(el('p', 'lead', S(journal.leadKey)));
     for (const [name, rows] of [
       ['Observations', journal.observed],
       ['Testimony', journal.reported],
@@ -476,24 +467,19 @@ export class Interface {
     ] as const) {
       if (!rows.length) continue;
       panel.append(el('h3', '', name));
-      for (const row of rows) paragraph(S(row.key, row.params), 'entry');
+      for (const row of rows) panel.append(el('p', 'entry', S(row.key, row.params)));
     }
     const books = Object.entries(households).filter(
       ([id]) => this.game.state.facts['room_read:' + id] === true
     );
     if (books.length) {
       panel.append(el('h3', '', 'Household readings'));
-      for (const [, home] of books) {
-        panel.append(el('strong', '', home.book));
-        lines.push(home.book);
-        paragraph(home.passage, 'entry');
-      }
+      for (const [, home] of books) panel.append(el('strong', '', home.book), el('p', 'entry', home.passage));
     }
     const met = journal.people.filter((p) => p.met);
     if (met.length) {
       panel.append(el('h3', '', 'People met'), el('p', '', met.map((p) => NPCS[p.npc].name).join(' · ')));
     }
-    this.narrated(panel, lines);
   }
   private inventory() {
     const panel = this.shell('Inventory', true);
@@ -537,7 +523,6 @@ export class Interface {
       );
     }
     panel.append(detail);
-    this.narrated(panel, [S(ITEMS[id].descKey)], false);
   }
   private map(world = false) {
     const room = !world && this.valley.room;
@@ -642,7 +627,7 @@ export class Interface {
             }
             page.append(button('Back to conversation', () => this.showConversation(nodeId)));
             const play = () => this.controls.sound.tell(ids, 5);
-            this.readerFor(page, play, play);
+            this.readerFor(page, play);
           },
           'reply'
         )
@@ -701,7 +686,7 @@ export class Interface {
       v.perform('read', target, 1.05, () => {
         v.action({ t: 'setFact', key: 'room_read:' + room.site.id, value: true });
         const page = this.actions(home.book, [{ text: 'Close the book', run: finish }], home.passage);
-        this.narrated(page, [home.book, home.passage]);
+        this.readWorldPage(page, [home.book, home.passage]);
       });
     };
     if (f.use === 'book') {
@@ -938,7 +923,7 @@ export class Interface {
         'Take the bow, knife and arrows. Rowan trades fresh meat and hides at this table.'
       );
       page.querySelector('header')!.after(el('p', '', note));
-      this.narrated(page, [note]);
+      this.readWorldPage(page, [note]);
     } else if (act.do === 'try_archive_door') {
       this.actions('The archive', [
         {
