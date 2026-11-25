@@ -4,7 +4,7 @@ export function installRenderCost(textureUploadBytes) {
   globalThis.__renderCostStates = states;
   function state(gl) {
     let s = states.get(gl);
-    if (!s) { s = { uploads: 0, draws: 0, textures: new Map(), bindings: new Map(), unit: 33984, unknownFormats: 0 }; states.set(gl, s); }
+    if (!s) { s = { uploads: 0, draws: 0, triangles: 0, textures: new Map(), bindings: new Map(), unit: 33984, unknownFormats: 0 }; states.set(gl, s); }
     return s;
   }
   const target = t => t >= 34069 && t <= 34074 ? 34067 : t;
@@ -38,7 +38,13 @@ export function installRenderCost(textureUploadBytes) {
       const original=proto[name];proto[name]=function(...a){const s=state(this);
         if(name==='bufferData'||name==='bufferSubData'){const i=name==='bufferData'?1:2,v=a[i];if(v?.byteLength!==undefined){const next=3;const offset=a[next]??0,length=a[next+1];s.uploads+=length>0?length*(v.BYTES_PER_ELEMENT??1):Math.max(0,v.byteLength-offset*(v.BYTES_PER_ELEMENT??1));}}
         else if (/^(texImage|texSubImage|compressedTex)/.test(name)) s.uploads+=textureUploadBytes(name,a);
-        if(name.startsWith('draw'))s.draws++;
+        if (name.startsWith('draw')) {
+          s.draws++;
+          const count = name.startsWith('drawArrays') ? a[2] : a[1];
+          const instances = name.endsWith('Instanced') ? a.at(-1) : 1;
+          const triangles = a[0] === 4 ? Math.floor(count / 3) : (a[0] === 5 || a[0] === 6) ? Math.max(0, count - 2) : 0;
+          s.triangles += triangles * instances;
+        }
         observe[name]?.(s,a);return original.apply(this,a);};
     }
   }

@@ -239,8 +239,8 @@ async function runProfile(name) {
   let page;
   const failures = [];
   const notes = [];
-  const keyCode = { KeyW: 87, KeyA: 65, KeyS: 83, KeyD: 68, KeyZ: 90, KeyC: 67, ShiftLeft: 16, Escape: 27 };
-  const key = (type, code) => page.cdp('Input.dispatchKeyEvent', { type, code, key: code === 'Escape' ? 'Escape' : code === 'ShiftLeft' ? 'Shift' : code.slice(3).toLowerCase(), windowsVirtualKeyCode: keyCode[code] ?? 0 });
+  const keyCode = { KeyW: 87, KeyA: 65, KeyS: 83, KeyD: 68, KeyZ: 90, KeyC: 67, ShiftLeft: 16, Escape: 27, Space: 32 };
+  const key = (type, code) => page.cdp('Input.dispatchKeyEvent', { type, code, key: code === 'Escape' ? 'Escape' : code === 'ShiftLeft' ? 'Shift' : code === 'Space' ? ' ' : code.slice(3).toLowerCase(), windowsVirtualKeyCode: keyCode[code] ?? 0 });
   const hold = async (codes, ms) => {
     for (const c of codes) await key('rawKeyDown', c);
     const end = Date.now() + ms;
@@ -258,41 +258,51 @@ async function runProfile(name) {
     if (prof.cpu > 1) await page.cdp('Emulation.setCPUThrottlingRate', { rate: prof.cpu });
     for (let i = 0; i < 1200 && !(await page.eval('return window.tervain?.mode === "title"').catch(() => false)); i++) await page.wait(250);
     await page.wait(3000);
-    const printed = await page.eval(`return document.querySelector('.menu-build span')?.textContent ?? ''`);
+    const printed = await page.eval(`return document.querySelector('.menu-build span, .title-screen .version')?.textContent ?? ''`);
+    const isometric = await page.eval('return !!window.tervain?.scene?.atlas');
     // Start a journey with a real click on the menu's first choice.
     const rect = await page.eval(`const b = [...document.querySelectorAll('.menu-choices button')].find((x) => /new/i.test(x.textContent)); const r = b.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]`);
     await page.cdp('Input.dispatchMouseEvent', { type: 'mousePressed', x: rect[0], y: rect[1], button: 'left', buttons: 1, clickCount: 1 });
     await page.cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', x: rect[0], y: rect[1], button: 'left', buttons: 0, clickCount: 1 });
-    for (let i = 0; i < 2400 && !(await page.eval('const T = window.tervain; return T.mode === "play" && !!T.world && T.loadingEl.classList.contains("off")').catch(() => false)); i++) await page.wait(250);
+    for (let i = 0; i < 2400 && !(await page.eval('const T = window.tervain; return T.mode === "play" && (T.scene?.renderedFrames > 0 || (!!T.world && T.loadingEl.classList.contains("off")))').catch(() => false)); i++) await page.wait(250);
     await page.wait(2000);
-    await page.eval(SAMPLER);
+    const iso = isometric ? await import('./isometric-play-gate.mjs') : null;
+    if (iso) await page.eval(`(${iso.observeIsometricFrames.toString()})(${VIDEO}, ${textureUploadBytes.toString()});`);
+    else await page.eval(SAMPLER);
     page.console();
     if (VIDEO) await page.cdp('Page.startScreencast', { format: 'jpeg', quality: 70, everyNthFrame: 1, maxWidth: 1280, maxHeight: 800 });
     await page.wait(500);
 
     await phase('pause'); await tap('Escape'); await page.wait(1200);
+    if (isometric && !await page.eval('return window.tervain.mode === "pause"')) throw new Error('Escape did not pause play');
     await phase('resume'); await tap('Escape'); await page.wait(1500);
 
-    await phase('setup'); await place(-2, 40, Math.PI); await page.wait(1200);
-    await phase('walk-fence'); await hold(['KeyW'], 4000);
-    await phase('turn-walk'); await hold(['KeyW', 'KeyC'], 2000);
-    await phase('run-fence'); await hold(['KeyW', 'ShiftLeft'], 4000);
-    await phase('run-turn'); await hold(['KeyW', 'ShiftLeft', 'KeyZ'], 2500);
-    await phase('run-round'); await hold(['KeyW', 'ShiftLeft', 'KeyD'], 3000);
+    if (iso) {
+      if (!await page.eval('return window.tervain.mode === "play"')) throw new Error('Escape did not resume play');
+      await iso.playIsometricStages(page, { phase, hold, tap });
+    } else {
+      await phase('setup'); await place(-2, 40, Math.PI); await page.wait(1200);
+      await phase('walk-fence'); await hold(['KeyW'], 4000);
+      await phase('turn-walk'); await hold(['KeyW', 'KeyC'], 2000);
+      await phase('run-fence'); await hold(['KeyW', 'ShiftLeft'], 4000);
+      await phase('run-turn'); await hold(['KeyW', 'ShiftLeft', 'KeyZ'], 2500);
+      await phase('run-round'); await hold(['KeyW', 'ShiftLeft', 'KeyD'], 3000);
 
-    await phase('setup'); await place(-5.43, -5.58, Math.atan2(-2.9 + 5.43, -1.0 + 5.58)); await page.wait(1200);
-    await phase('inside-window'); await hold(['KeyC'], 3000); await hold(['KeyW'], 800); await hold(['KeyZ'], 2000);
+      await phase('setup'); await place(-5.43, -5.58, Math.atan2(-2.9 + 5.43, -1.0 + 5.58)); await page.wait(1200);
+      await phase('inside-window'); await hold(['KeyC'], 3000); await hold(['KeyW'], 800); await hold(['KeyZ'], 2000);
 
-    await phase('setup');
-    await page.eval(`const T = window.tervain, S = T.game.state; S.inventory.hunting_bow = 1; S.inventory.arrow = 6; S.equippedWeapon = 'hunting_bow'; T.player.syncEquipment(T.game); return 1`);
-    await place(-4, 46, 0); await page.wait(1200);
-    await phase('bow');
-    for (let i = 0; i < 2; i++) { await mouse('mousePressed'); await hold(['KeyC'], 1500); await mouse('mouseReleased'); await page.wait(800); }
+      await phase('setup');
+      await page.eval(`const T = window.tervain, S = T.game.state; S.inventory.hunting_bow = 1; S.inventory.arrow = 6; S.equippedWeapon = 'hunting_bow'; T.player.syncEquipment(T.game); return 1`);
+      await place(-4, 46, 0); await page.wait(1200);
+      await phase('bow');
+      for (let i = 0; i < 2; i++) { await mouse('mousePressed'); await hold(['KeyC'], 1500); await mouse('mouseReleased'); await page.wait(800); }
+    }
     await phase('end'); await page.wait(300);
     if (VIDEO) await page.cdp('Page.stopScreencast');
 
     const gate = await page.eval('return window.__gate');
     const logs = page.console().filter((l) => l.startsWith('[error]') || l.startsWith('[exception]'));
+    if (isometric && gate.device) notes.push('Hardware renderer: ' + gate.device);
     fs.writeFileSync(path.join(dir, 'samples.json'), JSON.stringify(gate));
 
     // Clip: presented frames at their own timestamps.
@@ -347,6 +357,7 @@ async function runProfile(name) {
     for (let i = 1; i < play.length; i++) if (play[i].ph === play[i - 1].ph && !play[i].placed && !play[i - 1].placed && play[i].vis && play[i - 1].vis && Math.hypot(play[i].nx - play[i - 1].nx, play[i].ny - play[i - 1].ny) > LIMITS.screenJump) jumps++;
     const longTasks = gate.longTasks.filter(([, , ph]) => !['setup', 'pause', 'end'].includes(ph));
     const fail = (cond, msg) => { if (cond) failures.push(msg); };
+    fail(isometric && (!play.length || !timed.length), 'no presented gameplay frames');
     fail(hidden.length > 0, `hero hidden on ${hidden.length} frames with the camera clear of him`);
     fail(worstToggles > LIMITS.flickerTogglesPerSecond, `hero visibility flips ${worstToggles} times within one second`);
     fail(badPose.length > 0, `hero pose broken on ${badPose.length} frames (tilted or collapsed)`);
