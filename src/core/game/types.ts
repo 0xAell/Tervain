@@ -207,6 +207,8 @@ export interface QuestState {
 /** Plain transforms only; no physics-engine handles belong in a format-1 save. */
 export interface PhysicalObjectPose {
   id: string;
+  /** Isometric bodies may move between the open vale and individual household storeys. */
+  space?: string;
   position: { x: number; y: number; z: number };
   rotation: { x: number; y: number; z: number; w: number };
 }

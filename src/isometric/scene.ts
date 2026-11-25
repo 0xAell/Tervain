@@ -1,3 +1,5 @@
+import { drawProp } from './propArt';
+import { sceneryProp } from './propCatalogue';
 import { heroPose } from './heroPose';
 import { terrainHeight, groundProject, pickSurface, supportHeight } from './relief';
 import { Sunlight } from './sunlight';
@@ -49,6 +51,7 @@ export class Scene {
     }
     return { at: this.pointAt(clientX, clientY), head: undefined };
   }
+  hoveredProp?: string;
   hoverLabel = '';
   private pointer?: { x: number; y: number };
   private center = { x: 0, y: 0 };
@@ -101,6 +104,7 @@ export class Scene {
   private focus() {
     const point = this.pointer && this.pixel(this.pointer.x, this.pointer.y);
     const selected = point && pickRegion(this.regions, point.x, point.y);
+    this.hoveredProp = selected?.target.prop;
     this.hoverLabel = selected?.target.label ?? '';
     this.canvas.style.cursor = selected ? 'pointer' : '';
     if (selected) drawFocus(this.context, selected);
@@ -197,6 +201,7 @@ export class Scene {
     for (let i = Math.floor(xmin / 32); i <= Math.floor(xmax / 32); i++)
       for (let j = Math.floor(zmin / 32); j <= Math.floor(zmax / 32); j++) {
         for (const prop of this.props.get(i + ',' + j) ?? []) {
+          if (valley.props && sceneryProp(prop)) continue;
           const screen = groundProject(prop);
           if (
             screen.x + ox < -110 ||
@@ -248,6 +253,7 @@ export class Scene {
           const key = motion ? this.motion(prop.key, motion) : prop.key;
           stamps.push({
             ...prop,
+            sway: valley.props?.sway(prop),
             reflect: prop.key !== 'rill_lilies',
             anchor: prop.key === 'rill_lilies' ? 0.55 : 1,
             key,
@@ -346,8 +352,25 @@ export class Scene {
             : Math.floor(time * (a.attack ? 13 : a.move ? 8 : 4)) + i,
       });
     }
+    if (valley.props)
+      for (const v of valley.props.objects) {
+        const base = v.y - v.spec.height / 2,
+          at = project(v.x, v.z, base);
+        if (at.x + ox < -64 || at.x + ox > w + 64 || at.y + oy < -36 || at.y + oy > h + 70) continue;
+        stamps.push({
+          x: v.x,
+          z: v.z,
+          elevation: base,
+          key: v.spec.key,
+          width: v.spec.width,
+          prop: v,
+          moving: v.moving,
+          submerged: v.wet * 0.72,
+          wakeId: v.wet > 0.02 || v.moving ? 'cargo/' + v.spec.id : undefined,
+        });
+      }
     const pose = heroPose(valley, this.atlas, 38);
-    const hop = valley.jump > 0 ? Math.sin((Math.PI * valley.jump) / 0.52) * 12 : 0;
+    const hop = valley.hop * 8;
     const immersed = immersion(valley.player, valley.swimming);
     stamps.push({
       ...valley.displayPosition,
@@ -358,7 +381,7 @@ export class Scene {
       moving: valley.walk,
       airborne: hop > 1,
       submerged: immersed.submerged * Math.max(0, 1 - hop / 8),
-      lift: immersed.lift + hop + (valley.riding ? 16 : 0),
+      lift: immersed.lift + hop + valley.standingLift * 8 + (valley.riding ? 16 : 0),
     });
     for (const arrow of valley.arrows) {
       const dir = project(arrow.direction.x, arrow.direction.z, arrow.grade);
@@ -389,7 +412,11 @@ export class Scene {
     for (const stamp of stamps)
       if (!stamp.art && stamp.elevation === undefined)
         stamp.elevation = stamp.wakeId ? supportHeight(stamp) : terrainHeight(stamp.x, stamp.z);
-    stamps.sort((a, b) => a.x + a.z - (b.x + b.z) || (a.hero ? 1 : 0) - (b.hero ? 1 : 0));
+    stamps.sort(
+      (a, b) =>
+        a.x + a.z + (a.prop ? a.prop.y * 0.45 : 0) - (b.x + b.z + (b.prop ? b.prop.y * 0.45 : 0)) ||
+        (a.hero ? 1 : 0) - (b.hero ? 1 : 0)
+    );
     const nearWaterView = stamps.filter((p) => {
       if (!p.wakeId) return false;
       const pos = project(p.x, p.z, p.elevation);
@@ -446,41 +473,76 @@ export class Scene {
         ox,
         oy
       );
-      this.atlas.draw(
-        ctx,
-        stamp.key,
-        x,
-        y,
-        stamp.width,
-        Math.max(0, stamp.frame ?? 0),
-        stamp.flip,
-        stamp.anchor ?? 1,
-        stamp.submerged
-      );
+      if (stamp.prop) {
+        const submerged = stamp.prop.wet;
+        if (submerged > 0.04) {
+          const surfaceY = project(stamp.x, stamp.z).y + oy;
+          ctx.save();
+          ctx.globalAlpha *= Math.max(0.1, 0.44 - submerged * 0.31);
+          drawProp(ctx, this.atlas, stamp.prop, x, y, stamp.width);
+          ctx.restore();
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(x - stamp.width * 2, surfaceY - stamp.width * 4, stamp.width * 4, stamp.width * 4);
+          ctx.clip();
+        }
+        drawProp(ctx, this.atlas, stamp.prop, x, y, stamp.width);
+        if (submerged > 0.04) ctx.restore();
+      } else {
+        if (stamp.sway) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.transform(1, 0, stamp.sway * 0.15, 1, 0, 0);
+          ctx.translate(-x, -y);
+        }
+        this.atlas.draw(
+          ctx,
+          stamp.key,
+          x,
+          y,
+          stamp.width,
+          Math.max(0, stamp.frame ?? 0),
+          stamp.flip,
+          stamp.anchor ?? 1,
+          stamp.submerged
+        );
+        if (stamp.sway) ctx.restore();
+      }
       if (clip) ctx.restore();
       this.lastDraws++;
       if (stamp.hero) this.heroDrawn = true;
     }
     ctx.globalAlpha = 1;
 
+    const nearestProp = valley.props?.nearby()?.spec.id;
     for (const target of valley.targets()) {
       const door = target.door;
       if (!door) {
-        const at = groundProject(target.at),
+        const prop = target.prop ? valley.props?.object(target.prop) : undefined;
+        const at = prop ? project(prop.x, prop.z, prop.y - prop.spec.height / 2) : groundProject(target.at),
           x = at.x + ox,
           base = at.y + oy;
         if (x < -30 || x > w + 30 || base < 0 || base > h + 45) continue;
         const width =
-          target.animal?.width ?? (target.field === 'seat' ? 34 : target.field === 'fire' ? 24 : 20);
-        const high = target.animal
-          ? this.atlas.height(target.animal.key, width)
-          : target.field === 'seat'
-            ? 19
-            : target.field === 'fire'
-              ? 30
-              : 17;
+          prop?.spec.width ??
+          target.animal?.width ??
+          (target.field === 'seat' ? 34 : target.field === 'fire' ? 24 : 20);
+        const high = prop
+          ? this.atlas.height(prop.spec.key, width)
+          : target.animal
+            ? this.atlas.height(target.animal.key, width)
+            : target.field === 'seat'
+              ? 19
+              : target.field === 'fire'
+                ? 30
+                : 17;
         this.regions.push({ id: target.id, x, y: base - high * 0.47, w: width, h: high + 4, target });
-        if (!valley.activity && !valley.bow && targetDistance(target, valley.player) <= target.reach) {
+        if (
+          (!target.prop || target.prop === nearestProp) &&
+          !valley.activity &&
+          !valley.bow &&
+          targetDistance(target, valley.player) <= target.reach
+        ) {
           ctx.fillStyle = '#233c39';
           ctx.fillRect(Math.round(x) - 2, Math.round(base - high) - 5, 5, 5);
           ctx.fillStyle = '#b2efd5';

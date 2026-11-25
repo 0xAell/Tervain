@@ -1,3 +1,6 @@
+import { drawProp } from './propArt';
+import type { PropView } from './propPhysics';
+import { roomLift } from './roomPlans';
 import { heroPose } from './heroPose';
 import { hourOfDay } from '../core/game/state';
 import type { Atlas } from './atlas';
@@ -22,6 +25,7 @@ interface Sprite extends V2 {
   flip?: boolean;
   hero?: boolean;
   shade?: boolean;
+  prop?: PropView;
   lift?: number;
 }
 export class RoomView {
@@ -237,6 +241,18 @@ export class RoomView {
         );
       sprites.push({ ...f, key, frame: f.key === 'room_hearth' ? Math.floor(clock * 5) : 0, shade: true });
     }
+    if (valley.props)
+      for (const prop of valley.props.objects) {
+        sprites.push({
+          x: prop.x,
+          z: prop.z,
+          key: prop.spec.key,
+          width: (prop.spec.width * 11) / 6,
+          prop,
+          shade: true,
+          lift: (prop.y - prop.spec.height / 2) * roomRisePixels - roomLift(plan, prop),
+        });
+      }
     for (const { a, at } of residentSpots(plan, valley.actors)) {
       const action = a.move ? 'walk' : (a.posture ?? 'idle'),
         motion = a.key + '--' + action;
@@ -254,9 +270,13 @@ export class RoomView {
       ...heroPose(valley, this.atlas, 44),
       hero: true,
       shade: true,
-      lift: valley.jump ? Math.sin((Math.PI * valley.jump) / 0.52) * 10 : 0,
+      lift: (valley.standingLift + valley.hop) * roomRisePixels,
     });
-    sprites.sort((a, b) => a.x + a.z - b.x - b.z || Number(!!a.hero) - Number(!!b.hero));
+    sprites.sort(
+      (a, b) =>
+        a.x + a.z + (a.prop ? a.prop.y * 0.45 : 0) - b.x - b.z - (b.prop ? b.prop.y * 0.45 : 0) ||
+        Number(!!a.hero) - Number(!!b.hero)
+    );
     ctx.save();
     ctx.translate(ox, oy);
     this.castShadows(ctx, plan, plate, sprites, hour, valley.lightsOn);
@@ -286,7 +306,8 @@ export class RoomView {
         at.y - hero.y < this.atlas.height(s.key, s.width, s.frame) * 0.8 &&
         Math.abs(at.x - hero.x) < s.width * 0.34;
       ctx.globalAlpha = hidden ? 0.52 : 1;
-      this.atlas.draw(ctx, s.key, sx, sy - (s.lift ?? 0), s.width, s.frame ?? 0, s.flip);
+      if (s.prop) drawProp(ctx, this.atlas, s.prop, sx, sy - (s.lift ?? 0), s.width, true);
+      else this.atlas.draw(ctx, s.key, sx, sy - (s.lift ?? 0), s.width, s.frame ?? 0, s.flip);
       if (s.hero) heroDrawn = true;
     }
     ctx.globalAlpha = 1;
@@ -295,17 +316,19 @@ export class RoomView {
       ctx.fillRect(0, 0, w, h);
     }
     for (const target of valley.targets()) {
+      const prop = target.prop ? valley.props?.object(target.prop) : undefined;
       const s = roomFoot(plan, target.at),
         x = s.x + ox,
-        base = s.y + oy;
+        base =
+          s.y + oy - (prop ? (prop.y - prop.spec.height / 2) * roomRisePixels - roomLift(plan, prop) : 0);
       const close = Math.hypot(target.at.x - p.x, target.at.z - p.z) < 3.3;
       if (target.passage) {
         drawWaylight(ctx, this.atlas, x, base, clock, close, false, true, target.passage.kind);
         regions.push({ id: target.id, x, y: base - 7, w: 29, h: 33, target });
       } else {
         const f = target.fixture,
-          width = f?.width ?? 36,
-          height = f ? this.atlas.height(f.key, width) : 36;
+          width = prop ? (prop.spec.width * 11) / 6 : (f?.width ?? 36),
+          height = prop ? this.atlas.height(prop.spec.key, width) : f ? this.atlas.height(f.key, width) : 36;
         regions.push({ id: target.id, x, y: base - height * 0.45, w: width, h: height, target });
         if (close) {
           ctx.fillStyle = '#243b3b';

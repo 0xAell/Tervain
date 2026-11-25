@@ -421,6 +421,15 @@ export class Interface {
         ],
         ['Controller X / RT', 'Hold to draw, aim with the right stick and release to shoot.'],
         [this.interactKey() + ' / click', 'Pet a cat or dog, sit, gather or cook. Move to stop an activity.'],
+        [
+          (this.controls.settings.bindings.grab ?? 'KeyG').replace(/^Key/, '') + ' / controller Y',
+          'Lift a loose object or drag heavy furniture. Press again to let go.',
+        ],
+        [
+          (this.controls.settings.bindings.turn ?? 'KeyR').replace(/^Key/, '') + ' / wheel / RB',
+          'Turn the object in your hands. Click a nearby surface to set it down.',
+        ],
+        ['While carrying', 'Use the attack control to toss a light object or shove heavy furniture.'],
         ['Shift / Q / X', 'Run / guard / jump'],
         ['I / J / M', 'Inventory / journal / map'],
         ['1–0', 'Use a belt slot'],
@@ -1025,7 +1034,12 @@ export class Interface {
     const offers = this.valley.offers();
     const act = this.valley.activity,
       bow = this.valley.bow;
-    this.prompt.hidden = !offers.length && !act && !bow;
+    const grip = this.valley.props?.grip,
+      held = this.valley.props?.held;
+    const grabKey = this.controls.controllerActive
+      ? 'Y'
+      : (this.controls.settings.bindings.grab ?? 'KeyG').replace(/^Key/, '');
+    this.prompt.hidden = !offers.length && !act && !bow && !held;
     this.prompt.textContent = act
       ? act.kind === 'sit'
         ? Number.isFinite(act.duration)
@@ -1044,6 +1058,28 @@ export class Interface {
             offers[0]!.label +
             (this.valley.chooseNearby(offers) ? '  +' + (offers.length - 1) : '')
           : '';
+    if (grip && held) {
+      const turn = this.controls.controllerActive
+        ? 'RB'
+        : (this.controls.settings.bindings.turn ?? 'KeyR').replace(/^Key/, '');
+      const toss = this.controls.controllerActive
+        ? 'X'
+        : (this.controls.settings.bindings.attack ?? 'Space').replace(/^Key/, '');
+      const portal = offers[0]?.target;
+      this.prompt.textContent =
+        portal?.door || portal?.passage
+          ? this.interactKey() + ' · ' + portal.label + '   ' + grabKey + ' · Let go'
+          : held.spec.name +
+            '   ' +
+            grabKey +
+            ' · Let go   ' +
+            turn +
+            ' · Turn   ' +
+            toss +
+            ' · ' +
+            (grip.drag ? 'Shove' : 'Toss');
+    } else if (offers[0]?.target?.prop && offers[0].target.field === 'seat')
+      this.prompt.textContent += '   ' + grabKey + ' · Move';
     const prompt = this.scene.hoverLabel || (this.prompt.hidden ? '' : (this.prompt.textContent ?? ''));
     if (prompt !== this.seenPrompt) {
       this.seenPrompt = prompt;

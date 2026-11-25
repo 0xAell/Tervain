@@ -99,7 +99,7 @@ def record_speech(target, group):
     save(
         meta,
         json.dumps(
-            {"file": tag + ".mp3", "model": MODEL, "voice": NARRATOR, "items": items},
+            {"file": tag + ".mp3", "model": MODEL, "voice": NARRATOR, "recordedAt": int(time.time()), "items": items},
             ensure_ascii=False,
         ).encode(),
     )

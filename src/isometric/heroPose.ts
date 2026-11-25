@@ -8,6 +8,16 @@ export function heroPose(v: Valley, atlas: Atlas, width: number) {
   const activity = v.activity;
   const west = face.includes('west');
   const mirrorFace = face.replace('west', 'east');
+  if (v.props?.grip && !v.jump) {
+    const key = 'hero-' + (face.startsWith('north') ? 'north-east' : 'south-east') + '--work';
+    const count = atlas.frameCount(key);
+    return {
+      key,
+      frame: v.walk ? Math.floor(v.time * 5) % count : Math.min(2, count - 1),
+      width: width * 1.5,
+      flip: west,
+    };
+  }
   const bow = v.bow;
   if (
     activity ||

@@ -244,10 +244,16 @@ const spokenFiles = [
   'roomPlans',
   'simulation',
   'fieldcraft',
+  'propCatalogue',
 ];
 for (const name of spokenFiles) {
   const source = parseSync(name + '.ts', read('src/isometric/' + name + '.ts')).program;
   function visit(node) {
+    if (name === 'propCatalogue' && node.type === 'CallExpression' && node.callee.name === 'kind') {
+      const label = node.arguments[0]?.value,
+        mass = node.arguments[3]?.value;
+      if (typeof label === 'string') record((mass > 30 ? 'Drag the ' : 'Lift the ') + label.toLowerCase());
+    }
     if (name === 'households' && node.type === 'CallExpression' && node.callee.name === 'home') {
       const [house, shop, loft, cellar, , , , book, passage] = node.arguments.map((v) => v.value);
       for (const content of [house, shop, loft, cellar, book, passage]) record(content);

@@ -179,6 +179,23 @@ export class Sound {
       if (key) this.one(key, 0.45);
     }
   }
+  contact(
+    material: import('./propPhysics').ContactSound,
+    energy: number,
+    at: { x: number; z: number },
+    listener: { x: number; z: number }
+  ) {
+    if (!this.enabled) return;
+    const dx = at.x - listener.x,
+      dz = at.z - listener.z,
+      range = Math.hypot(dx, dz);
+    const cue = material === 'splash' ? 'water_enter' : 'cargo.' + material;
+    this.one(
+      cue,
+      (0.22 + 0.68 * energy) / (1 + range * 0.085),
+      Math.max(-0.85, Math.min(0.85, (dx - dz) * 0.065))
+    );
+  }
   field(cue: FieldSound, range = 0) {
     if (this.enabled) this.one(cue, 0.8 / (1 + range / 22));
   }
