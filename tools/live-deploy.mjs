@@ -10,6 +10,9 @@
  * The requests are made by Node, not by the browser. Behind a proxy that Node does not use on its own, start the gate
  * with NODE_USE_ENV_PROXY=1 (Node 22.21 or later); without it the gate stops with "could not be reached".
  */
+import { initSync, parse } from 'es-module-lexer';
+
+initSync();
 
 /** The scripts and styles a page's HTML names, as absolute addresses. */
 export function pageFiles(html, base) {
@@ -18,10 +21,13 @@ export function pageFiles(html, base) {
   return [...found];
 }
 
-/** The script files a built script can import: Vite lists them as "./name-hash.js" beside the script itself. */
+/** Follow module imports and Vite's fingerprinted preload entries. Other strings can be internal data. */
 export function importedFiles(script, address) {
   const found = new Set();
-  for (const match of script.matchAll(/["'](\.\/[A-Za-z0-9_.-]+\.(?:js|mjs|css))["']/g)) found.add(new URL(match[1], address).href);
+  for (const { n: specifier } of parse(script, address)[0])
+    if (/^\.{1,2}\/[^"'\s]+\.(?:js|mjs|css)$/.test(specifier ?? '')) found.add(new URL(specifier, address).href);
+  for (const match of script.matchAll(/["'](\.\/[A-Za-z0-9_.-]+-[A-Za-z0-9_-]{4,}\.(?:js|mjs|css))["']/g))
+    found.add(new URL(match[1], address).href);
   return [...found];
 }
 
@@ -51,13 +57,31 @@ export async function deployState(url, fetchImpl = fetch) {
   const entryAddress = direct.find((file) => /\.m?js$/.test(file));
   let entry = '';
   const files = new Set(direct);
-  if (entryAddress) {
-    const response = await get(entryAddress);
-    if (response.ok) { entry = await response.text(); for (const file of importedFiles(entry, entryAddress)) files.add(file); }
+  let pending = direct;
+  while (pending.length) {
+    const batch = await Promise.all(pending.map(async (file) => [file, await get(file)]));
+    pending = [];
+    for (const [file, response] of batch) {
+      const name = file.slice(base.length);
+      if (response.status !== 200) {
+        problems.push(`${name} was refused (${response.status || 'no answer'})`);
+        continue;
+      }
+      if (!/\.m?js$/.test(file)) continue;
+      const script = await response.text();
+      if (file === entryAddress) entry = script;
+      try {
+        if (/^\s*(?:<!doctype html|<html\b)/i.test(script)) throw new Error('HTML in place of JavaScript');
+        for (const dependency of importedFiles(script, file)) {
+          if (files.has(dependency)) continue;
+          files.add(dependency);
+          pending.push(dependency);
+        }
+      } catch {
+        problems.push(`${name} was served without readable JavaScript`);
+      }
+    }
   }
-  // Every file is asked for, the page's own script included: one refused file is enough to stop a load.
-  const statuses = await Promise.all([...files].map(async (file) => [file, (await get(file)).status]));
-  for (const [file, status] of statuses) if (status !== 200) problems.push(`${file.slice(base.length)} was refused (${status || 'no answer'})`);
   const version = await get(`${base}version.json`);
   const stated = version.ok ? (await version.json().catch(() => null))?.revision : null;
   const revision = typeof stated === 'string' && REVISION.test(stated) ? stated : null;
