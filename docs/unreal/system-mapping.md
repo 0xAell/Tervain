@@ -6,7 +6,7 @@ its page on 15 November 2026 ([`sources.json`](sources.json)). The choices in th
 proposals, to test in the port's first phases; none is a measured result.
 
 The size of the task: a world of 580 m × 340 m, 19 buildings (18 with a room), 451 planted trees and shrubs, 12 named
-residents, 3 silent ones, 3 hostiles, 19 animals, 20 items, 98 dialogue nodes, 245 spoken lines and one quest.
+residents, 3 silent ones, 3 hostiles, 19 animals, 21 items, 98 dialogue nodes, 245 spoken lines and one quest.
 
 ## The world
 
