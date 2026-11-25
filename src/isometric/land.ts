@@ -28,6 +28,7 @@ import {
   QUARRY_BOULDERS,
   SLUICE,
   WAGON,
+  WAGON_TALLY,
   WELL,
   WORLD,
   type BuildingSpec,
@@ -107,6 +108,7 @@ export interface Scenery extends V2 {
   building?: BuildingSpec;
   flip?: boolean;
   phase?: number;
+  paidKey?: string;
   submerged?: number;
 }
 let sceneryCache: Scenery[] | undefined;
@@ -152,6 +154,7 @@ export function scenery() {
   put('board', NOTICEBOARD, 40);
   put('sluice', SLUICE.gateCenter, 73);
   put('cart', WAGON, 62);
+  list.push({ ...WAGON_TALLY, key: 'chest', paidKey: 'room_open_chest', width: 21 });
   for (const p of QUARRY_BOULDERS) put('rockpile', p, p.width * 8);
   for (const p of FOREST_WAYMARKERS) put('marker', p, 25);
   for (const p of LANTERNS) put('lantern', p, 20);

@@ -35,7 +35,7 @@ describe('the English voice recordings in the playable vale', () => {
       sound.mode = 'characters';
       expect(sound.narrate([passage])).toBe(false);
       const answer = DIALOGUE_NODES.joss_intro!.choices[0]!.text;
-      const reply = DIALOGUE_NODES.joss_bell!.text;
+      const reply = DIALOGUE_NODES.joss_work!.text;
       expect(sound.story([answer, reply])).toBe(true);
       expect(say.mock.lastCall?.[0].map(({ cue, inWorld }) => [cue, inWorld])).toEqual([
         [catalogue.story[answer], true],

@@ -350,7 +350,7 @@ export class Interface {
     scene.src = artUrl('title.png');
     scene.alt = '';
     const content = el('div', 'title-content');
-    const premise = 'The tide left you a blade. Inland, a village is running dry.';
+    const premise = 'Past the pines, a wagon waits on the road to Rillford.';
     content.append(
       icon('seal'),
       el('p', 'locale', 'Bellwether Vale'),
@@ -559,7 +559,7 @@ export class Interface {
   private journal() {
     const panel = this.shell('Field journal', true),
       journal = buildJournal(this.game.state);
-    panel.append(el('h3', '', 'The water of Bellwether Vale'), el('p', '', S(journal.statusKey)));
+    panel.append(el('h3', '', 'Mill, quarry and spring'), el('p', '', S(journal.statusKey)));
     if (journal.leadKey) panel.append(el('p', 'lead', S(journal.leadKey)));
     for (const [name, rows] of [
       ['Observations', journal.observed],
@@ -775,6 +775,29 @@ export class Interface {
         ' · mushrooms ' +
         (held.field_mushroom ?? 0)
     );
+  }
+  wagonTally(target: RoomTarget) {
+    const v = this.valley;
+    const paid = this.game.state.facts.wagon_iron_paid === true;
+    if (!this.game.state.facts.read_wagon_tally)
+      v.action({ t: 'setFact', key: 'read_wagon_tally', value: true });
+    const close = () => this.controls.resume();
+    const options = [];
+    if (!paid && (this.game.state.inventory.iron_scrap ?? 0) > 0) {
+      options.push({
+        text: 'Leave one iron scrap for four coin',
+        run: () => {
+          close();
+          v.perform('work', target, 1.3, () => {
+            if (v.action({ t: 'deliverWagonIron' })) this.wagonTally(target);
+          });
+        },
+      });
+    }
+    options.push({ text: 'Close the tally', run: close });
+    const note = S(paid ? 'wagon.receipt' : 'wagon.order');
+    const panel = this.actions(S('wagon.title'), options, note);
+    this.readWorldPage(panel, [note]);
   }
   roomFixture(f: Fixture) {
     const v = this.valley,

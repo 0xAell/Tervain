@@ -250,7 +250,12 @@ export class Scene {
                     : ['oak', 'fir', 'birch', 'pine'].includes(prop.key)
                       ? 'sway'
                       : '';
-          const key = motion ? this.motion(prop.key, motion) : prop.key;
+          const key =
+            prop.paidKey && valley.game.state.facts.wagon_iron_paid
+              ? prop.paidKey
+              : motion
+                ? this.motion(prop.key, motion)
+                : prop.key;
           stamps.push({
             ...prop,
             sway: valley.props?.sway(prop),

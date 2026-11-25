@@ -77,6 +77,9 @@ export function buildJournal(s: WorldState): JournalView {
     (col === 'observed' ? observed : reported).push(entry);
   }
 
+  if (hasFact(s, 'wagon_iron_paid')) concluded.push({ id: 'wagon_iron', key: 'journal.wagon.paid' });
+  else if (hasFact(s, 'read_wagon_tally')) reported.push({ id: 'wagon_iron', key: 'journal.wagon.open' });
+
   for (const f of CLAIM_FACTS) {
     if (hasFact(s, f)) reported.push({ id: `claim:${f}`, key: `journal.claim.${f}` });
   }

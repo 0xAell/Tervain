@@ -49,7 +49,7 @@
     },
     "hero.place.rillford": {
       "speaker": "hero",
-      "text": "Rillford. The bell is louder here. So is the quiet.",
+      "text": "Rillford.",
       "seconds": 4.864
     },
     "hero.place.ford": {
@@ -119,7 +119,7 @@
     },
     "hero.settled": {
       "speaker": "hero",
-      "text": "The bell has changed. Either I fixed something, or I broke it properly.",
+      "text": "Either I fixed something, or I broke it properly.",
       "seconds": 5.41667
     },
     "hero.night": {
@@ -484,7 +484,7 @@
     },
     "joss.after": {
       "speaker": "caravan_master",
-      "text": "I heard the bell ring differently this morning. Whatever you did down there, it carried up the hill.",
+      "text": "Whatever you did down there, it carried up the hill.",
       "seconds": 6.49933
     },
     "joss.idle": {
@@ -509,7 +509,7 @@
     },
     "mara.intro": {
       "speaker": "rillford_reeve",
-      "text": "You heard the bell, then. It has not rung in my term until today. I am Mara Venn. Rillford elected me to keep it fed, and this morning I have very little to feed anyone with.",
+      "text": "I am Mara Venn. Rillford elected me to keep it fed, and this morning I have very little to feed anyone with.",
       "seconds": 11.44
     },
     "mara.water": {
@@ -529,7 +529,7 @@
     },
     "mara.channel": {
       "speaker": "rillford_reeve",
-      "text": "You have seen the channel, then. Now you know why I ring that bell myself, some mornings.",
+      "text": "A bucket a day. That is what I promised them.",
       "seconds": 5.36533
     },
     "mara.choose": {
@@ -1246,24 +1246,13 @@
   "talks": [
     {
       "npc": "caravan_master",
-      "ask": "hero.ask.where",
-      "reply": "joss.where"
-    },
-    {
-      "npc": "caravan_master",
-      "ask": "hero.ask.bell",
-      "reply": "joss.bell",
-      "when": [
-        {
-          "t": "phase",
-          "below": "settled"
-        }
-      ]
-    },
-    {
-      "npc": "caravan_master",
       "ask": "hero.ask.ashore",
       "reply": "joss.ashore"
+    },
+    {
+      "npc": "caravan_master",
+      "ask": "hero.ask.where",
+      "reply": "joss.where"
     },
     {
       "npc": "caravan_master",
@@ -1305,6 +1294,21 @@
         {
           "t": "defeated",
           "id": "cut_creature"
+        }
+      ]
+    },
+    {
+      "npc": "caravan_master",
+      "ask": "hero.ask.bell",
+      "reply": "joss.bell",
+      "when": [
+        {
+          "t": "phase",
+          "below": "settled"
+        },
+        {
+          "t": "evidence",
+          "id": "dry_channel"
         }
       ]
     },

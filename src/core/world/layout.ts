@@ -525,6 +525,8 @@ export const ENEMY_SPAWNS: EnemySpawn[] = [
 ];
 
 export const WAGON = { x: -96, z: 25.5, yaw: 1.2 };
+export const WAGON_TALLY = { x: WAGON.x - 2.6, z: WAGON.z + 1.6, reach: 2.6 };
+
 /** Connected wagon dimensions, shared by the mesh and collision authoring. Longitudinal axis is local x. */
 export const WAGON_CONSTRUCTION = {
   length: 4.6, width: 2.2, wheelRadius: 0.74, wheelTrack: 1.3,

@@ -52,6 +52,9 @@ const tracks = ['riverbank', 'banked-embers', 'bough-watch', 'lanterns', 'spring
 for (const track of tracks)
   for (const ext of ['m4a', 'ogg']) await add('assets/audio/world/ford/' + track + '.' + ext);
 
+for (const trade of ['mill', 'quarry'])
+  for (const ext of ['ogg', 'm4a']) await add('assets/audio/world/loop-' + trade + '.' + ext);
+
 const result = await build({
   root,
   configFile: false,

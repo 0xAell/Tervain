@@ -81,7 +81,7 @@ export const SPEECH_SOON_REACH = 30;
 export const WOUNDED_BELOW = 0.3;
 
 /** The drought bell: thought of first this long into a sitting (s), then rung this often (s) while the drought holds, heard out to `reach` (m), strikes this far apart (ms). */
-export const DROUGHT_BELL = { first: 3, every: 42, reach: 220, strikeGapMs: 1400, allClearGapMs: 600, strikes: 2, allClearStrikes: 3 } as const;
+export const DROUGHT_BELL = { first: 90, every: 240, reach: 52, strikeGapMs: 1400, allClearGapMs: 600, strikes: 2, allClearStrikes: 3 } as const;
 
 /** Seconds until the bell is next thought of: its interval while the drought holds, and as good as never otherwise (it is asked again when the world changes). */
 export function bellWait(drought: boolean): number {

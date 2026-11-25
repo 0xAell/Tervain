@@ -9,7 +9,7 @@
       "choices": [
         {
           "text": "d.joss_intro#0",
-          "next": "joss_bell",
+          "next": "joss_work",
           "intent": "ask",
           "effects": [
             {
@@ -20,7 +20,7 @@
         },
         {
           "text": "d.joss_intro#1",
-          "next": "joss_work",
+          "next": "joss_bell",
           "intent": "ask",
           "effects": [
             {
@@ -98,12 +98,12 @@
       "choices": [
         {
           "text": "d.joss_hub#0",
-          "next": "joss_bell",
+          "next": "joss_work",
           "intent": "ask"
         },
         {
           "text": "d.joss_hub#1",
-          "next": "joss_work",
+          "next": "joss_bell",
           "intent": "ask"
         },
         {

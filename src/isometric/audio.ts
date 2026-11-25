@@ -1,4 +1,6 @@
 import { hourOfDay, evalAll } from '../core/game/state';
+import { worldView } from '../core/game/worldView';
+import { ANCHORS, BUILDINGS } from '../core/world/layout';
 import { S } from '../core/content/strings';
 import { DIALOGUE_NODES } from '../core/content/dialogue';
 import { HERO_LINES, SPEAKER_NAMES, TALKS, VOICE_LINES, shown, type HeroCue } from '../core/content/voice';
@@ -24,6 +26,7 @@ const stepMaterial: Record<string, string> = {
 type Caption = (text: string) => void;
 // World speech uses positive priorities and can always take over the interface reader.
 const interfacePriority = 0;
+const mill = BUILDINGS.find((building) => building.kind === 'mill')!;
 
 export class Sound {
   readonly mixer: Mixer;
@@ -287,7 +290,18 @@ export class Sound {
       'music',
       score ? 'assets/audio/vale/' + catalogue.music[score] : 'assets/audio/world/ford/' + music + this.format
     );
-    void this.mixer.loop('air', 'assets/audio/vale/' + catalogue.beds[air]);
+    let ambience = 'assets/audio/vale/' + catalogue.beds[air];
+    if (!room && (distance(pos, mill) < 16 || distance(pos, ANCHORS.quarry_face!) < 22)) {
+      const work = worldView(v.game.state);
+      if (work.millTurning && distance(pos, mill) < 16)
+        ambience = 'assets/audio/world/loop-mill' + this.format;
+      if (
+        (work.quarryState === 'working' || work.quarryState === 'night_shift') &&
+        distance(pos, ANCHORS.quarry_face!) < 22
+      )
+        ambience = 'assets/audio/world/loop-quarry' + this.format;
+    }
+    void this.mixer.loop('air', ambience);
     this.residents(v, night);
     if (!room && v.time >= this.nextAnimal && !v.activity && !combat) {
       const animal = v.actors

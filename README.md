@@ -1,6 +1,6 @@
 # Tervain
 
-Tervain is a single-player, isometric pixel-art RPG set in Bellwether Vale. You wake on the Grey Strand beside a shattered boat. Inland, a village, a quarry and a shrine compete for the same water.
+Tervain is a single-player, isometric pixel-art RPG set in Bellwether Vale. You wake on the Grey Strand beside a shattered boat. Salvage from the beach can earn your first four coin at Joss Merrin’s wagon. Inland, mill hands need grain ground, quarry crews need wages and the shrine keeps the water records. Who gets the stream changes what you hear at the mill and the quarry.
 
 The browser game runs locally with `npm ci` and `npm run dev`. To create a single HTML file that opens offline, run `node tools/pack-isometric.mjs` and open `dist/Play Tervain.html`. Move with WASD or click a destination. E interacts, Space attacks, I opens the inventory, J opens the journal and M opens the map. F5 and F9 save and restore a journey.
 
@@ -26,7 +26,7 @@ The editable PNG sequences, original provider images and typeface are in `assets
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
 - **Not started.** A desktop package, and anything to do with a store release.
 
-At Lantern Point the keeper’s tide bell hangs beside the tower. An original waltz, *The Ford at First Light*, opens the journey.
+The road leads from the wreck through the old pines to a caravan camp above Rillford. An original waltz, *The Ford at First Light*, opens the journey.
 
 ## What is in the prototype
 

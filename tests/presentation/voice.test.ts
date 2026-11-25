@@ -176,7 +176,7 @@ describe('who says what, and when', () => {
     const { d, said, captions } = director();
     expect(d.hero('place.rillford')).toBe(true);
     expect(said.at(-1)!.line).toBe('hero.place.rillford');
-    expect(captions.at(-1)).toBe('hero: Rillford. The bell is louder here. So is the quiet.');
+    expect(captions.at(-1)).toBe('hero: Rillford.');
     // He is still speaking; another remark now is dropped rather than talked over.
     expect(d.hero('place.ford')).toBe(false);
     run(d, 10);
@@ -406,7 +406,7 @@ describe('speech in the world', () => {
     const d = new SpeechDirector({ say, caption: () => {} });
     d.talk('caravan_master', () => ({ x: 0, y: 0, z: 0 }), createInitialState('slot-1'));
     expect(say).toHaveBeenCalledTimes(1);
-    expect(say.mock.calls[0]![0]).toBe('hero.ask.where');
+    expect(say.mock.calls[0]![0]).toBe('hero.ask.ashore');
   });
 });
 
@@ -439,7 +439,7 @@ describe('speech waits for actual playback', () => {
   }
 
   it('starts the answer after a slowly loaded question finishes, using its playable duration', () => {
-    const p = playback((line, t) => line !== 'hero.ask.where' || t >= 2.5, () => 4);
+    const p = playback((line, t) => line !== 'hero.ask.ashore' || t >= 2.5, () => 4);
     expect(p.d.talk('caravan_master', here, createInitialState('slot-1'))).toBe(true);
     p.advance(2);
     expect(p.played).toEqual([]);
@@ -447,7 +447,7 @@ describe('speech waits for actual playback', () => {
     // The resident remains held throughout loading, and repeated interaction cannot start a second exchange.
     expect(p.d.talk('caravan_master', here, createInitialState('slot-1'))).toBe(false);
     p.advance(10);
-    expect(p.played.map((x) => x.line)).toEqual(['hero.ask.where', 'joss.where']);
+    expect(p.played.map((x) => x.line)).toEqual(['hero.ask.ashore', 'joss.ashore']);
     const [question, answer] = p.played;
     expect(answer!.at).toBeGreaterThanOrEqual(question!.at + question!.length + 0.35 - 1e-8);
     expect(p.d.busyFor('caravan_master')).toBe(0);
@@ -491,7 +491,7 @@ describe('speech waits for actual playback', () => {
 
   it('waits a full silent question duration after loading times out, and game-clock pauses hold the chain', () => {
     let ready = false;
-    const p = playback((line) => ready || line !== 'hero.ask.where', (line) => VOICE_AUDIO.lines[line as keyof typeof VOICE_AUDIO.lines][2]);
+    const p = playback((line) => ready || line !== 'hero.ask.ashore', (line) => VOICE_AUDIO.lines[line as keyof typeof VOICE_AUDIO.lines][2]);
     p.d.talk('caravan_master', here, createInitialState('slot-1'));
     // Advancing wall-clock readiness alone does not run a paused game or spend its loading retries.
     ready = true;
@@ -501,20 +501,20 @@ describe('speech waits for actual playback', () => {
     p.advance(3.05);
     expect(p.captions).toHaveLength(1);
     expect(p.played).toEqual([]);
-    const questionEnd = p.captions[0]!.at + VOICE_AUDIO.lines['hero.ask.where'][2];
+    const questionEnd = p.captions[0]!.at + VOICE_AUDIO.lines['hero.ask.ashore'][2];
     p.advance(2);
-    expect(p.played.map((x) => x.line)).toEqual(['joss.where']);
+    expect(p.played.map((x) => x.line)).toEqual(['joss.ashore']);
     expect(p.played[0]!.at).toBeGreaterThanOrEqual(questionEnd + 0.35 - 1e-8);
   });
 
   it('hushes active speakers and discards pending turns when a session is cleared', () => {
     const p = playback(() => true, () => 4);
     p.d.talk('caravan_master', here, createInitialState('slot-1'));
-    expect(p.played.map((x) => x.line)).toEqual(['hero.ask.where']);
+    expect(p.played.map((x) => x.line)).toEqual(['hero.ask.ashore']);
     p.d.clear();
     expect(p.hush).toHaveBeenCalledWith('hero');
     p.advance(20);
-    expect(p.played.map((x) => x.line)).toEqual(['hero.ask.where']);
+    expect(p.played.map((x) => x.line)).toEqual(['hero.ask.ashore']);
     expect(p.d.busyFor('hero')).toBe(0);
     expect(p.d.busyFor('caravan_master')).toBe(0);
     // Clear also stops spatial voices which have already started.
@@ -530,11 +530,11 @@ describe('speech waits for actual playback', () => {
     p.advance(0.5);
     p.d.clear();
     p.d.talk('caravan_master', here, s);
-    expect(p.played.map((x) => x.line)).toEqual(['hero.ask.where', 'hero.ask.where']);
+    expect(p.played.map((x) => x.line)).toEqual(['hero.ask.ashore', 'hero.ask.ashore']);
     p.advance(2.4);
-    expect(p.played.at(-1)!.line).toBe('joss.where');
+    expect(p.played.at(-1)!.line).toBe('joss.ashore');
     p.d.clear();
     p.d.talk('caravan_master', here, s);
-    expect(p.played.at(-1)!.line).toBe('hero.ask.bell');
+    expect(p.played.at(-1)!.line).toBe('hero.ask.where');
   });
 });
