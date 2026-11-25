@@ -52,14 +52,14 @@ const ev = (id: EvidenceId, via: 'observed' | 'testimony' | 'document', source: 
  * Joss Merrin — caravan master on the strand (opening)
  * ===================================================================== */
 N('joss_intro', 'caravan_master',
-  'Rillford is as far as the wagon goes. The ford road washed out in the thaw, and listen — that bell has been ringing since dawn. It is their drought bell. I have your six coin against passage; it will not stretch far. Walk inland, over the overlook, and find work; I will turn the wagon when the road is fit.',
+  'The overlook above Rillford, friend. You came up from the strand on foot? Nobody comes up from the strand. Sit a moment before you fall over.',
   [
-    ['What does the bell mean?', 'joss_bell', { intent: 'ask', fx: [met('caravan_master')] }],
     ['Where do I find work?', 'joss_work', { intent: 'ask', fx: [met('caravan_master')] }],
+    ['Where does the road go?', 'joss_bell', { intent: 'ask', fx: [met('caravan_master')] }],
     ['I will go down now.', 'end', { intent: 'leave', fx: [met('caravan_master')] }],
   ]);
 N('joss_bell', 'caravan_master',
-  'Rillford rings it when the household channels run dry. Nobody rings it lightly. Whatever the flood did upstream, the village is feeling it.',
+  'East to the ford, if the ford were standing. Further on, the Marcher estates, and folk who would charge you for the dust on your boots.',
   [
     ['Where do I find work?', 'joss_work', { intent: 'ask' }],
     ['I will go down now.', 'end', { intent: 'leave' }],
@@ -72,19 +72,19 @@ N('joss_work', 'caravan_master',
 N('joss_hub', 'caravan_master',
   'Wagon is not going anywhere yet. What do you need?',
   [
-    ['What does the bell mean?', 'joss_bell', { intent: 'ask' }],
     ['Where do I find work?', 'joss_work', { intent: 'ask' }],
+    ['Where does the road go?', 'joss_bell', { intent: 'ask' }],
     ['Nothing.', 'end', { intent: 'leave' }],
   ]);
 N('joss_after', 'caravan_master',
-  'I heard the bell ring differently this morning. You have earned your passage twice over. The wagon leaves whenever you are ready — though I think you may find reasons to stay a while.',
+  'You have earned your passage twice over. The wagon leaves whenever you are ready — though I think you may find reasons to stay a while.',
   [['Perhaps.', 'end', { intent: 'leave' }]]);
 
 /* =====================================================================
  * Mara Venn — Rillford reeve (Hearth League)
  * ===================================================================== */
 N('mara_intro', 'rillford_reeve',
-  'You came in along the shore road and over the overlook, so you heard the bell. It has not rung in my term until today. I am Mara Venn; Rillford elected me to keep it fed, and this morning I have very little to feed anyone with.',
+  'I am Mara Venn; Rillford elected me to keep it fed, and this morning I have very little to feed anyone with.',
   [
     ['What has happened to the water?', 'mara_cause', { intent: 'ask', fx: [met('rillford_reeve')] }],
     ['I need work and a bed. I can help.', 'mara_offer', { intent: 'offer', fx: [met('rillford_reeve')] }],

@@ -4,7 +4,8 @@ import { heroPose } from '../../src/isometric/heroPose';
 import type { Atlas } from '../../src/isometric/atlas';
 import { Game } from '../../src/core/game/game';
 import { reviveState } from '../../src/core/game/revive';
-import { COOKFIRES } from '../../src/core/world/layout';
+import { buildJournal } from '../../src/core/game/journal';
+import { COOKFIRES, WAGON_TALLY } from '../../src/core/world/layout';
 import { doorsById } from '../../src/isometric/doorways';
 import { DRAW_TIME, RELEASE_TIME, firstContact } from '../../src/isometric/fieldcraft';
 import { Valley } from '../../src/isometric/simulation';
@@ -221,5 +222,30 @@ describe('ranger fieldcraft', () => {
     v.interactField(t);
     advance(v, 3.5);
     expect(v.game.state.inventory.raw_meat).toBe(4);
+  });
+});
+
+describe('the wagoner’s iron order', () => {
+  it('pays once for delivered salvage, including after a save and reload', () => {
+    const game = new Game();
+    game.dispatch({ t: 'setFact', key: 'read_wagon_tally', value: true });
+    const iron = { t: 'deliverWagonIron' } as const;
+    expect(game.dispatch(iron).ok).toBe(false);
+    game.setPlayerTransform(WAGON_TALLY.x, 0, WAGON_TALLY.z, 0);
+    expect(game.dispatch(iron).ok).toBe(false);
+    expect(buildJournal(game.state).reported.some((e) => e.key === 'journal.wagon.open')).toBe(true);
+    game.dispatch({ t: 'pickup', item: 'iron_scrap', pickupId: 'wreck_iron_a', qty: 1 });
+    const wages = game.state.inventory.coin ?? 0;
+    const trust = game.state.npcs.caravan_master.trust;
+    expect(game.dispatch(iron).ok).toBe(true);
+    expect(game.state.inventory).toMatchObject({ coin: wages + 4, iron_scrap: 0 });
+    expect(game.state.npcs.caravan_master.trust).toBe(trust + 1);
+    const loaded = new Game(reviveState(JSON.parse(JSON.stringify(game.state)))!);
+    loaded.dispatch({ t: 'pickup', item: 'iron_scrap', pickupId: 'wreck_iron_b', qty: 1 });
+    expect(loaded.dispatch(iron).ok).toBe(false);
+    expect(loaded.state.inventory).toMatchObject({ coin: wages + 4, iron_scrap: 1 });
+    const journal = buildJournal(loaded.state);
+    expect(journal.reported.some((e) => e.key === 'journal.wagon.open')).toBe(false);
+    expect(journal.concluded.some((e) => e.key === 'journal.wagon.paid')).toBe(true);
   });
 });

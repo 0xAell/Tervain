@@ -1,0 +1,47 @@
+{
+  "d.joss_intro": {
+    "take": "joss.where"
+  },
+  "d.joss_intro#0": {
+    "take": "d.joss_intro#1"
+  },
+  "d.joss_intro#1": {
+    "take": "hero.ask.road"
+  },
+  "d.joss_bell": {
+    "take": "joss.roads"
+  },
+  "d.joss_hub#0": {
+    "take": "d.joss_hub#1"
+  },
+  "d.joss_hub#1": {
+    "take": "hero.ask.road"
+  },
+  "d.joss_after": {
+    "take": "d.joss_after",
+    "startSeconds": 3.24
+  },
+  "d.mara_intro": {
+    "take": "d.mara_intro",
+    "startSeconds": 7.68
+  },
+  "hero.place.rillford": {
+    "take": "hero.place.rillford",
+    "endSeconds": 0.8
+  },
+  "hero.settled": {
+    "take": "hero.settled",
+    "startSeconds": 1.98
+  },
+  "mara.channel": {
+    "take": "mara.bark.bucket"
+  },
+  "joss.after": {
+    "take": "joss.after",
+    "startSeconds": 3.06
+  },
+  "mara.intro": {
+    "take": "mara.intro",
+    "startSeconds": 4.31
+  }
+}

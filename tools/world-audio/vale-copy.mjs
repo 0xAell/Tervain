@@ -201,6 +201,7 @@ for (const [label, delivery] of Object.entries({
 for (const [id, original] of Object.entries(data('strings.en').strings)) {
   if (
     ![
+      'wagon',
       'journal',
       'toast',
       'item',

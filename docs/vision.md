@@ -8,6 +8,8 @@ Enter a beautiful, difficult land that already has people, work, beliefs, and di
 
 Tervain should provide the pleasure of discovering a road around a dangerous ruin, finding a trainer who respects a completed task, entering a settlement after dark, and realizing that yesterday's decision changed someone's working day. Its scale should come from connected places and competing interests as much as from map area.
 
+On a first visit, let the player see who works here, what that work costs and who gets paid. A wheelwright’s tally can lead to a first wage. A silent mill beside a busy quarry can tell a returning traveller who won the water. Build that knowledge into the scenery, voices and sounds of each place. Keep the bell local to Rillford, where a household waiting at the well has a reason to listen.
+
 Proposed pitch: **A wanderer arrives in a region held together by an ancient agreement between settlements and an order devoted to living land. After disasters give powerful houses a reason to impose emergency rule, towns resist, the order divides, and the player must decide which duties remain worth keeping—and who can be trusted to enforce them.**
 
 This pitch is a starting point. The title Tervain is selected; the protagonist, inciting incident, formal order name, and campaign ending are not yet fixed.

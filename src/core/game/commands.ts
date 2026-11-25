@@ -1,4 +1,4 @@
-import { COOKFIRES } from '../world/layout';
+import { COOKFIRES, WAGON_TALLY } from '../world/layout';
 import { INSPECT_POINTS } from '../content/inspect';
 import { hotbarEligible, isItemId, itemAction, ITEMS } from '../content/items';
 import { APPLY_DELAY_MIN, REPORT_DELAY_MIN, REWARD_COIN, RITE_CALM_MIN, TRAINING_COST, TRUST_LIMIT } from './constants';
@@ -257,7 +257,7 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
       if (s.discovered[cmd.place]) return ok();
       s.discovered[cmd.place] = true;
       events.push({ t: 'place', id: cmd.place });
-      // The bell brings people to Rillford; walking up to a broken sluice is its own way in.
+      // Keep the historic entry key for saves and the journal when a traveller reaches Rillford.
       if (cmd.place === 'rillford') enterInvestigation(s, 'bell', events);
       if (cmd.place === 'sluice') enterInvestigation(s, 'sluice', events);
       return ok();
@@ -680,6 +680,18 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
       if (err) return fail(err);
       s.facts[key] = stored - delta;
       return ok();
+    }
+    case 'deliverWagonIron': {
+      if (s.player.interior || Math.hypot(s.player.x - WAGON_TALLY.x, s.player.z - WAGON_TALLY.z) > WAGON_TALLY.reach)
+        return fail('out_of_reach');
+      if (hasFact(s, 'wagon_iron_paid') || !hasFact(s, 'read_wagon_tally')) return fail('order_closed');
+      const err = applyEffects(s, [
+        { t: 'item', id: 'iron_scrap', delta: -1 },
+        { t: 'item', id: 'coin', delta: 4 },
+        { t: 'trust', npc: 'caravan_master', delta: 1 },
+        { t: 'fact', key: 'wagon_iron_paid', value: true },
+      ], events);
+      return err ? fail(err) : ok();
     }
     case 'roomCraft': {
       const cooking = cmd.recipe === 'cook' || cmd.recipe === 'pack_stew';

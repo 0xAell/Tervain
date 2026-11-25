@@ -3,7 +3,8 @@
   "collection": "Tervain — Bellwether Vale",
   "title": {
     "tool": "create_image_pro_flash",
-    "sourceSha256": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30"
+    "sourceSha256": "fb706c9ae372fef79f58fbf7090a84d69b881ac2d8ea1ccf4c49e876c213bb5a",
+    "description": "Caravan hands sharing bread at the mill road, with quarry terraces beyond the ford."
   },
   "window": {
     "tool": "create_ui_asset",
@@ -3705,7 +3706,7 @@
     "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
     "sprites.json": "e6525de1b7798e8fdd44a4c644a33a20869e2e061679497356e3b45b1e6fbc1b",
     "sprites.png": "b4f1a0b1b43529ad1b6c2d6bfd1d17cdc2ecd264f216f96f3e222717b7d6fc4e",
-    "title.png": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30",
+    "title.png": "fbf2dab7ad6403e4caff7a94248822339792e0adf04d87f6722d0caea72d6505",
     "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
   }
 }

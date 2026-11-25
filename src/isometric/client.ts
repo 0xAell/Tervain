@@ -532,6 +532,8 @@ export class Client implements Controls {
       v.perform('gather', target, 0.65);
     } else if (target.prop && !target.field) {
       v.grabProp(target.prop);
+    } else if (target.field === 'wagon') {
+      v.perform('read', target, 0.8, () => this.ui.wagonTally(target));
     } else if (target.field === 'fire') {
       this.ui.cooking(target, 'Campfire');
     } else if (target.field || target.fixture?.use === 'seat') v.interactField(target);

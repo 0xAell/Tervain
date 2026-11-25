@@ -50,15 +50,15 @@ describe('witnesses of a trespass', () => {
 });
 
 describe('the drought bell', () => {
-  it('fades with distance to nothing at 220 m', () => {
+  it('fades with distance to nothing beyond the village', () => {
     expect(bellGain(0)).toBe(1);
-    expect(bellGain(110)).toBeCloseTo(0.5, 12);
-    expect(bellGain(220)).toBe(0);
+    expect(bellGain(26)).toBeCloseTo(0.5, 12);
+    expect(bellGain(52)).toBe(0);
     expect(bellGain(500)).toBe(0);
   });
 
-  it('tolls twice every 42 s in the drought, and three quicker strokes for the all-clear', () => {
-    expect(DROUGHT_BELL).toMatchObject({ every: 42, strikes: 2, allClearStrikes: 3 });
+  it('tolls twice every four minutes in the drought, and three quicker strokes for the all-clear', () => {
+    expect(DROUGHT_BELL).toMatchObject({ every: 240, strikes: 2, allClearStrikes: 3 });
     expect(DROUGHT_BELL.allClearGapMs).toBeLessThan(DROUGHT_BELL.strikeGapMs);
   });
 });

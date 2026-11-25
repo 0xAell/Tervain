@@ -125,8 +125,27 @@ def prepare(cache):
     for group in ("lines", "story"):
         for key, line in plan[group].items():
             out[group][key] = by_text[line["speaker"], line["text"]]
+    # Recut the original performances at sentence boundaries for the current story.
+    story = read(ROOT / "data/game/strings.en.json")["dialogue"]
+    world = read(ROOT / "data/game/voice.json")["lines"]
+    for key, edit in read(ROOT / "tools/world-audio/vale-cast-edits.json").items():
+        take = edit["take"]
+        source = plan["story" if take.startswith("d.") else "lines"][take]
+        group = "story" if key.startswith("d.") else "lines"
+        text = story[key] if group == "story" else world[key]["text"]
+        if text not in source["text"] or source["speaker"] != plan[group][key]["speaker"]:
+            raise ValueError("Spoken words or speaker differ from the edited take: " + key)
+        bank, offset, length = by_text[source["speaker"], source["text"]]
+        start = round(edit.get("startSeconds", 0) * RATE)
+        end = round(edit["endSeconds"] * RATE) if "endSeconds" in edit else length
+        if not 0 <= start < end <= length:
+            raise ValueError("Invalid recording trim: " + key)
+        out[group][key] = [bank, offset + start, end - start]
     script = json.loads(subprocess.check_output(["node", "tools/world-audio/vale-copy.mjs"], cwd=ROOT))
     # Append new sessions after earlier takes so existing speech banks keep their audio offsets.
+    # These earlier takes still occupy their original sample ranges in the shipped banks.
+    retired = set(read(ROOT / "tools/world-audio/vale-reader-retired.json")) - script.keys()
+    used_files = set()
     sessions = [read(f) for f in sorted(cache.glob("reader-*.json"))]
     for batch in sorted(sessions, key=lambda session: session.get("recordedAt", 0)):
         pcm = decode(
@@ -135,13 +154,14 @@ def prepare(cache):
         )
         for item in batch["items"]:
             key = item["key"]
-            if script.get(key) != item["say"] or key in out["reader"]:
+            if key in out["reader"] or (key not in retired and script.get(key) != item["say"]):
                 continue
             start, end = (round(item[x] * RATE) * 2 for x in ("start", "end"))
             clip = pcm[start:end]
             if len(clip) < RATE * 0.09 or max(abs(n) for n in array.array("h", clip)) < 64:
                 raise ValueError("Silent or empty reader segment: " + key)
             out["reader"][key] = banks.cue("reader", clip)
+            used_files.add(batch["file"])
     missing = script.keys() - out["reader"].keys()
     if missing:
         raise ValueError(f"Missing {len(missing)} reader takes, including {sorted(missing)[:5]}")
@@ -151,6 +171,7 @@ def prepare(cache):
         source = next((s for s in matches if all(s.get(k) == v for k, v in spec.items())), None)
         if not source:
             raise ValueError("Missing effect: " + id)
+        used_files.add(source["file"])
         if spec["loop"]:
             file = "bed-" + id + ".mp3"
             ff(
@@ -208,6 +229,7 @@ def prepare(cache):
         take = next((s for s in matches if all(s.get(k) == v for k, v in spec.items())), None)
         if not take:
             raise ValueError("Missing character: " + name)
+        used_files.add(take["file"])
         pcm = decode(cache / take["file"], "volume=-1dB,alimiter=limit=0.88:level=false:latency=true")
         out["encounters"][name] = {
             "cue": banks.cue("ford-voices", pcm),
@@ -225,6 +247,7 @@ def prepare(cache):
         source = next((s for s in matches if all(s.get(k) == v for k, v in spec.items())), None)
         if not source:
             raise ValueError("Missing score: " + name)
+        used_files.add(source["file"])
         file = "score-" + name + ".mp3"
         # Blend the ending into the first beat, then rotate the loop to the end of the splice.
         duration = float(
@@ -275,7 +298,7 @@ def prepare(cache):
     sources = []
     for file in sorted(cache.glob("*.json")):
         take = read(file)
-        if "file" not in take:
+        if take.get("file") not in used_files:
             continue
         source = cache / take["file"]
         sources.append(
@@ -289,7 +312,7 @@ def prepare(cache):
         "edition": read(ROOT / "package.json")["version"],
         "provider": "ElevenLabs",
         "generationLicence": "paid at time of generation",
-        "speech": "The original Tervain cast is credited in docs/engineering/voice-assets.json. George reads the English interface.",
+        "speech": "The original Tervain cast is credited in docs/engineering/voice-assets.json. George reads books, work orders, field observations and the optional English interface.",
         "effects": "Original wildlife and footstep sources are credited in animal-audio-assets.json and world-audio-assets.json. New field briefs are in tools/world-audio/vale-sounds.json.",
         "music": "Three instrumental commissions from the briefs in tools/world-audio/vale-score.json. Eleven Music terms apply.",
         "sources": sources,

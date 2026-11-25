@@ -203,6 +203,18 @@ function stock() {
     });
     make(name + '/sacks', 'furniture_sacks', outdoors, { x: x + 2.3, z: z - 0.85 }, 0.7, 0.44, 16);
   }
+  // Leave the doors and cart tracks clear. Players can handle the tools and stores here.
+  for (const [site, x, z, load] of [
+    ['mill', -26, -7, 'furniture_sacks'],
+    ['quarry-face', 98, -31, 'furniture_tools'],
+    ['spring-house', -35, -105, 'furniture_herbs'],
+  ] as const) {
+    const bench = make(site + '/sorting-table', 'table', outdoors, { x, z }, 1.15, 0.6, 33);
+    make(site + '/stock', load, outdoors, { x: x - 0.45, z }, 0.43, 0.28, 13, { onTop: bench.height });
+    make(site + '/water-jug', 'furniture_jug', outdoors, { x: x + 0.55, z }, 0.25, 0.22, 9, {
+      onTop: bench.height,
+    });
+  }
   for (const f of COOKFIRES) {
     make('firewood/' + f.id, 'furniture_firewood', outdoors, { x: f.x + 1.8, z: f.z + 0.8 }, 0.72, 0.29, 14);
   }

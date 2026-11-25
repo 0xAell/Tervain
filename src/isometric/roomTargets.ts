@@ -1,6 +1,6 @@
 import { fromBuildingLocal, toBuildingLocal } from '../core/world/interiors';
 import type { NpcId, WorldState } from '../core/game/types';
-import { BENCHES, COOKFIRES, PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
+import { BENCHES, COOKFIRES, PICKUP_LOCATIONS, WAGON_TALLY, type V2 } from '../core/world/layout';
 import { S } from '../core/content/strings';
 import { isHuntableAnimalId } from '../core/game/hunting';
 import { doorways, doorOpen, siteAtPoint, type Doorway } from './doorways';
@@ -29,7 +29,7 @@ export interface RoomTarget {
   passage?: Passage;
   fixture?: Fixture;
   npc?: NpcId;
-  field?: 'pet' | 'seat' | 'fire' | 'gather' | 'dress';
+  field?: 'pet' | 'seat' | 'fire' | 'gather' | 'dress' | 'wagon';
   pickup?: (typeof PICKUP_LOCATIONS)[number];
   animal?: Actor;
   prop?: string;
@@ -64,6 +64,7 @@ export function fieldTargets(state: WorldState, actors: Actor[]): RoomTarget[] {
   ) => {
     targets.push({ id, field, at, approach: { x: at.x - 1, z: at.z + 0.55 }, label, reach, ...extras });
   };
+  add('wagon/tally', 'wagon', WAGON_TALLY, 'Read the wagoner’s tally', WAGON_TALLY.reach);
   for (const [id, bench] of Object.entries(BENCHES))
     add('bench/' + id, 'seat', bench, 'Sit on the bench', 2.3);
   for (const fire of COOKFIRES) add('fire/' + fire.id, 'fire', fire, 'Cook at the fire', 2.6);

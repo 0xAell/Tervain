@@ -309,6 +309,7 @@ export type Command =
   | { t: 'equipWeapon'; item: ItemId | null }
   | { t: 'setMapMarker'; marker: MapMarker | null }
   | { t: 'roomStorage'; item: ItemId; direction: 'deposit' | 'withdraw' }
+  | { t: 'deliverWagonIron' }
   | { t: 'roomCraft'; recipe: 'herbs' | 'fletch' | 'cook' | 'pack_stew' }
   | { t: 'damagePlayer'; amount: number }
   | { t: 'healPlayer'; amount: number }

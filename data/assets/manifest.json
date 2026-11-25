@@ -42,12 +42,12 @@
   },
   "totals": {
     "all": {
-      "files": 1935,
-      "bytes": 481710629
+      "files": 1937,
+      "bytes": 482586630
     },
     "shipped": {
-      "files": 997,
-      "bytes": 180679453
+      "files": 999,
+      "bytes": 181535545
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -59,8 +59,8 @@
         "bytes": 186290894
       },
       "keep": {
-        "files": 930,
-        "bytes": 156513617
+        "files": 932,
+        "bytes": 157389618
       },
       "rework": {
         "files": 0,
@@ -519,7 +519,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 46,
-      "bytes": 1674668
+      "bytes": 1687598
     },
     {
       "id": "vale-typeface",
@@ -545,7 +545,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 3,
-      "bytes": 5967137
+      "bytes": 5987046
     },
     {
       "id": "craft-trees",
@@ -1239,8 +1239,8 @@
       "fab": null,
       "replaceWith": null,
       "replaceBeforeShip": null,
-      "files": 157,
-      "bytes": 59409739
+      "files": 159,
+      "bytes": 60252901
     },
     {
       "id": "voice-web",
@@ -9625,8 +9625,8 @@
       "path": "assets/pixellab/provenance.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 245569,
-      "sha256": "0f3865bb58a4e4e326c5bb56ebeaa7c9d5b9a7b08c9ac258273b947aecba035c",
+      "bytes": 245675,
+      "sha256": "998c9777a8cadf66bdc275610ce35681f5320095439ea0f061f9547cc3e88fad",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -9639,8 +9639,8 @@
       "path": "assets/pixellab/sources.zip",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 5692235,
-      "sha256": "7717fd685724eeaabe500e09101fee22bff606c89834ee807a713d7774d3d04b",
+      "bytes": 5712038,
+      "sha256": "7edc0ebb4d79cc375573913825bd82d0a846c077ea72622f62c98ae9cc61cafb",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -15571,8 +15571,8 @@
       "path": "public/assets/audio/vale/reader-81.mp3",
       "group": "vale-spoken-sound",
       "kind": "audio",
-      "bytes": 272109,
-      "sha256": "ed07042f6cdc0bbefc39bfa305a0a45e723fac8192efcf2e2bbd9bb7d1969c94",
+      "bytes": 415725,
+      "sha256": "0c6fd056a8e5bfcc04e84d6e12f467f34e5ef0f7f465d8c385c7360f1bb33225",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-ElevenLabs-Paid-Output",
@@ -15583,6 +15583,44 @@
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Bellwether",
         "name": "SW_Vale_Reader81",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/vale/reader-82.mp3",
+      "group": "vale-spoken-sound",
+      "kind": "audio",
+      "bytes": 419565,
+      "sha256": "1111c3584b33057dc688a50987df8534a550bb1aa363b5b985869e6ac5a9e63c",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-ElevenLabs-Paid-Output",
+        "status": "service-terms"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Bellwether",
+        "name": "SW_Vale_Reader82",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/vale/reader-83.mp3",
+      "group": "vale-spoken-sound",
+      "kind": "audio",
+      "bytes": 279981,
+      "sha256": "085d8570f983618d4008a96ead43b3253d533bb3ae78f8ff2cea196186406d53",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-ElevenLabs-Paid-Output",
+        "status": "service-terms"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Bellwether",
+        "name": "SW_Vale_Reader83",
         "lod": null
       }
     },
@@ -32474,8 +32512,8 @@
       "path": "public/vale/title.png",
       "group": "vale-pixel-art",
       "kind": "image",
-      "bytes": 41671,
-      "sha256": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30",
+      "bytes": 54601,
+      "sha256": "fbf2dab7ad6403e4caff7a94248822339792e0adf04d87f6722d0caea72d6505",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-PixelLab-Generated",

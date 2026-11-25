@@ -960,7 +960,6 @@ export class App {
     this.beginPlay(null);
     if (!this.quietStart) {
       this.speech.hero('arrival', { delay: HERO_CUE_DELAY.arrival });
-      this.speech.hero('arrival.bell', { delay: HERO_CUE_DELAY.arrivalBell });
     }
     // A brief notice leaves movement, look and the world clock running. The journal keeps the premise.
     this.hud.toast(S('arrival.wake'));

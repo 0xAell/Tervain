@@ -1,8 +1,8 @@
 {
-  "edition": "0.1.9",
+  "edition": "0.1.12",
   "provider": "ElevenLabs",
   "generationLicence": "paid at time of generation",
-  "speech": "The original Tervain cast is credited in docs/engineering/voice-assets.json. George reads the English interface.",
+  "speech": "The original Tervain cast is credited in docs/engineering/voice-assets.json. George reads books, work orders, field observations and the optional English interface.",
   "effects": "Original wildlife and footstep sources are credited in animal-audio-assets.json and world-audio-assets.json. New field briefs are in tools/world-audio/vale-sounds.json.",
   "music": "Three instrumental commissions from the briefs in tools/world-audio/vale-score.json. Eleven Music terms apply.",
   "sources": [
@@ -577,6 +577,11 @@
       "sha256": "bc64e58134f908de7f5996a3838b01b55fa80c1256b204236a1cac392ee15176"
     },
     {
+      "take": "reader-78ec26b9c5cb0a8feb",
+      "model": "eleven_multilingual_v2",
+      "sha256": "d2061da665fb668918fb42e42429dbccfe99fa7a1d7befff3f2b199002b2656b"
+    },
+    {
       "take": "reader-7a47565951853c7991",
       "model": "eleven_multilingual_v2",
       "sha256": "66527ee0e38c6046b3c6cd695010ff7d548198adee9291170780caf7ae4e14a0"
@@ -802,6 +807,11 @@
       "sha256": "f02a97bc12f4d40f54c34b8f41928e2e9dff46fe842388eff9f14692f2001ca8"
     },
     {
+      "take": "reader-bbeeb7fc1b6063e306",
+      "model": "eleven_multilingual_v2",
+      "sha256": "5d59eb6d9ceb256189bf39a81e99b20488342fefc7037a0c34570bf5ddd73f12"
+    },
+    {
       "take": "reader-bc4ec43f5b7fadce01",
       "model": "eleven_multilingual_v2",
       "sha256": "cdd46200357e031a68ac13dcd0c58f4ffe18b1145d048824e4d3a6ad66792421"
@@ -977,6 +987,11 @@
       "sha256": "21b68f42704a85aca6a40708a6df654ae28f9be547f60e387da6929061691c8e"
     },
     {
+      "take": "reader-ecae4d5468a85ea376",
+      "model": "eleven_multilingual_v2",
+      "sha256": "a33adb9cffdd72cc797159af1f507ee63855d17e17e8919230a66e5b65b97dce"
+    },
+    {
       "take": "reader-eec68e7714e1182050",
       "model": "eleven_multilingual_v2",
       "sha256": "78cc43076715db770727287c10aad7914095f3cf2fa40278a08c9e998ff4bed6"
@@ -990,6 +1005,11 @@
       "take": "reader-f1a00708f6ad3f1280",
       "model": "eleven_multilingual_v2",
       "sha256": "5dcc76476c5dee832acd5aece332d06f6d2632eb83664e9a7fbbff3ef702d601"
+    },
+    {
+      "take": "reader-f2375ea7cee1a64ba3",
+      "model": "eleven_multilingual_v2",
+      "sha256": "a20e9d899d11a290fc9725e027f97bee32327404c6c59b70a8c1c71dba854abe"
     },
     {
       "take": "reader-f5ece152343966d0d5",
@@ -1800,8 +1820,18 @@
     },
     {
       "file": "reader-81.mp3",
-      "bytes": 272109,
-      "sha256": "ed07042f6cdc0bbefc39bfa305a0a45e723fac8192efcf2e2bbd9bb7d1969c94"
+      "bytes": 415725,
+      "sha256": "0c6fd056a8e5bfcc04e84d6e12f467f34e5ef0f7f465d8c385c7360f1bb33225"
+    },
+    {
+      "file": "reader-82.mp3",
+      "bytes": 419565,
+      "sha256": "1111c3584b33057dc688a50987df8534a550bb1aa363b5b985869e6ac5a9e63c"
+    },
+    {
+      "file": "reader-83.mp3",
+      "bytes": 279981,
+      "sha256": "085d8570f983618d4008a96ead43b3253d533bb3ae78f8ff2cea196186406d53"
     },
     {
       "file": "score-first-light.mp3",

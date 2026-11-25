@@ -595,9 +595,9 @@
     "speechSoonReach": 30,
     "woundedBelow": 0.3,
     "droughtBell": {
-      "first": 3,
-      "every": 42,
-      "reach": 220,
+      "first": 90,
+      "every": 240,
+      "reach": 52,
       "strikeGapMs": 1400,
       "allClearGapMs": 600,
       "strikes": 2,
