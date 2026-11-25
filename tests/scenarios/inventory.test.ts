@@ -56,7 +56,7 @@ describe('carried items and player-created hotbar bindings', () => {
     rejectsWithoutChanging(game, { t: 'pickup', pickupId: 'extra_bread', item: 'bread', qty: 1 }, 'invalid_quantity');
   });
 
-  it.each(['shore_apple', 'bread', 'healing_herb', 'field_mushroom', 'poultice'] as const)('%s heals its authored amount and consumes exactly one stack unit', (item) => {
+  it.each(['shore_apple', 'bread', 'healing_herb', 'field_mushroom', 'poultice', 'trail_stew'] as const)('%s heals its authored amount and consumes exactly one stack unit', (item) => {
     const game = new Game();
     take(game, item, 2);
     game.state.player.health = 10;

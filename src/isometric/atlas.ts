@@ -49,6 +49,10 @@ export class Atlas {
     return Object.hasOwn(this.sheet.frames, key);
   }
 
+  frameCount(key: string) {
+    return this.sheet.frames[key]?.length ?? 0;
+  }
+
   height(key: string, width: number, frame = 0) {
     const frames = this.sheet.frames[key];
     if (!frames?.length) throw Error('Missing PixelLab sprite ' + key);

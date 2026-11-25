@@ -1272,7 +1272,7 @@
             "type": "object",
             "properties": {
               "x": {
-                "type": "integer"
+                "type": "number"
               },
               "z": {
                 "type": "number"

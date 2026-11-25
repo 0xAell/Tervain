@@ -1,6 +1,8 @@
 import { fromBuildingLocal, toBuildingLocal } from '../core/world/interiors';
 import type { NpcId, WorldState } from '../core/game/types';
-import type { V2 } from '../core/world/layout';
+import { BENCHES, COOKFIRES, PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
+import { S } from '../core/content/strings';
+import { isHuntableAnimalId } from '../core/game/hunting';
 import { doorways, doorOpen, siteAtPoint, type Doorway } from './doorways';
 import { households } from './households';
 import {
@@ -24,6 +26,9 @@ export interface RoomTarget {
   passage?: Passage;
   fixture?: Fixture;
   npc?: NpcId;
+  field?: 'pet' | 'seat' | 'fire' | 'gather' | 'dress';
+  pickup?: (typeof PICKUP_LOCATIONS)[number];
+  animal?: Actor;
   locked?: boolean;
 }
 export function outsideTargets(state: WorldState): RoomTarget[] {
@@ -37,6 +42,39 @@ export function outsideTargets(state: WorldState): RoomTarget[] {
       : 'Enter ' + name + (door.rear ? ' by the shutter' : '');
     return { id: door.id, at: door.sill, approach: door.outside, label, reach: 2.45, door, locked };
   });
+}
+const deposits = PICKUP_LOCATIONS.filter((p) =>
+  ['healing_herb', 'shore_apple', 'field_mushroom', 'iron_scrap'].includes(p.item)
+);
+export const gatheringIds = new Set(deposits.map((p) => p.id));
+export function fieldTargets(state: WorldState, actors: Actor[]): RoomTarget[] {
+  const targets: RoomTarget[] = [];
+  const add = (
+    id: string,
+    field: RoomTarget['field'],
+    at: V2,
+    label: string,
+    reach: number,
+    extras?: Partial<RoomTarget>
+  ) => {
+    targets.push({ id, field, at, approach: { x: at.x - 1, z: at.z + 0.55 }, label, reach, ...extras });
+  };
+  for (const [id, bench] of Object.entries(BENCHES))
+    add('bench/' + id, 'seat', bench, 'Sit on the bench', 2.3);
+  for (const fire of COOKFIRES) add('fire/' + fire.id, 'fire', fire, 'Cook at the fire', 2.6);
+  for (const p of deposits)
+    if (state.locationChanges['pickup:' + p.id] !== 'taken')
+      add('gather/' + p.id, 'gather', p, 'Gather ' + S('item.' + p.item).toLowerCase(), p.r + 0.45, {
+        pickup: p,
+      });
+  for (const a of actors) {
+    if (!a.animal || siteAtPoint(a)) continue;
+    const record = state.hunting[a.animal];
+    if (record?.status === 'dead') add('dress/' + a.id, 'dress', a, 'Skin ' + a.name, 2.8, { animal: a });
+    else if (!isHuntableAnimalId(a.animal) && a.key !== 'mount')
+      add('pet/' + a.id, 'pet', a, 'Pet the ' + a.name, 2.4, { animal: a });
+  }
+  return targets;
 }
 export function residentSpots(plan: FloorPlan, actors: Actor[]) {
   const people: { a: Actor; at: V2 }[] = [];
@@ -76,7 +114,7 @@ export function indoorTargets(plan: FloorPlan, at: V2, actors: Actor[]): RoomTar
   const fixtures = plan.fixtures
     .filter((f) => f.use)
     .map((f) => {
-      const approach = fixtureApproach(f);
+      const approach = fixtureApproach(f, plan);
       return { id: 'use/' + f.id, at: f, approach, label: f.label!, reach: 1.95, fixture: f };
     });
   const people = residentSpots(plan, actors).map(({ a, at }) => ({

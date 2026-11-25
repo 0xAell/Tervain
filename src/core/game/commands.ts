@@ -1,3 +1,4 @@
+import { COOKFIRES } from '../world/layout';
 import { INSPECT_POINTS } from '../content/inspect';
 import { hotbarEligible, isItemId, itemAction, ITEMS } from '../content/items';
 import { APPLY_DELAY_MIN, REPORT_DELAY_MIN, REWARD_COIN, RITE_CALM_MIN, TRAINING_COST, TRUST_LIMIT } from './constants';
@@ -681,7 +682,9 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
       return ok();
     }
     case 'roomCraft': {
-      if (!s.player.interior || !['herbs', 'fletch', 'cook'].includes(cmd.recipe))
+      const cooking = cmd.recipe === 'cook' || cmd.recipe === 'pack_stew';
+      const atFire = cooking && COOKFIRES.some(p => Math.hypot(p.x - s.player.x, p.z - s.player.z) <= 2.6);
+      if ((!s.player.interior && !atFire) || !['herbs', 'fletch', 'cook', 'pack_stew'].includes(cmd.recipe))
         return fail('no_workstation');
       const input =
         cmd.recipe === 'herbs'
@@ -703,8 +706,8 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
           s,
           {
             t: 'item',
-            id: cmd.recipe === 'herbs' ? 'poultice' : 'arrow',
-            delta: cmd.recipe === 'herbs' ? 1 : 4,
+            id: cmd.recipe === 'herbs' ? 'poultice' : cmd.recipe === 'pack_stew' ? 'trail_stew' : 'arrow',
+            delta: cmd.recipe === 'fletch' ? 4 : 1,
           },
           events
         );

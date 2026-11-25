@@ -96,6 +96,14 @@
       "action": "consume"
     },
     {
+      "id": "trail_stew",
+      "nameKey": "item.trail_stew",
+      "descKey": "item.trail_stew.desc",
+      "kind": "consumable",
+      "healAmount": 30,
+      "action": "consume"
+    },
+    {
       "id": "bread",
       "nameKey": "item.bread",
       "descKey": "item.bread.desc",
@@ -158,6 +166,7 @@
     "coin",
     "poultice",
     "healing_herb",
+    "trail_stew",
     "bread",
     "shore_apple",
     "field_mushroom",

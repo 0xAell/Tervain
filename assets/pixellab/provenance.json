@@ -3131,6 +3131,531 @@
       "sourceFrameSha256": [
         "e8b9eb60ee133505e62c1ef08e363a2da9dcc427cba886f13500d5540bdb829e"
       ]
+    },
+    "hero-east--ready": {
+      "tool": "edit_image_pro_flash",
+      "description": "Edit the existing Tervain wandering ranger. Exactly the same pixel size, green cloak, brown leather boots, face, hood, shading and 2:1 game camera as input. Boots remain over the same ground contact. One full-body transparent sprite, no scenery or shadow. side profile looking to screen RIGHT. Unequipped hands now carry a clearly visible tall curved warm golden wood fantasy longbow, lowered diagonally at the side. Relaxed bent knees, free arm easy to read.",
+      "sourceFrameSha256": [
+        "fcabfec60f2e4b4ed524ddb27d1a537f8f122423d2d3b9cad96d95461909d485"
+      ]
+    },
+    "hero-east--aim": {
+      "tool": "edit_image_pro_flash",
+      "description": "Edit the existing Tervain wandering ranger. Exactly the same pixel size, green cloak, brown leather boots, face, hood, shading and 2:1 game camera as input. Boots remain over the same ground contact. One full-body transparent sprite, no scenery or shadow. side profile looking to screen RIGHT. Dramatic full-draw archer game silhouette. Boots spread apart, torso turns sideways, front arm extended toward the aim direction, rear elbow projects behind the head, bright curved amber bow and taut pale string forming a visible triangular gap, one slender arrow level toward the aim direction. Same character size.",
+      "sourceFrameSha256": [
+        "b89c8228f64fb1a129710724eb3422237d561e8b97a5fb5d1626d4cea12fdb91"
+      ]
+    },
+    "hero-east--draw": {
+      "tool": "animate_image",
+      "description": "Raise the lowered bow into the final full draw pose in one smooth deliberate action. Plant both feet, open the arms wide, swing the cape. Finish on the provided held silhouette.",
+      "sourceFrameSha256": [
+        "fcabfec60f2e4b4ed524ddb27d1a537f8f122423d2d3b9cad96d95461909d485",
+        "a9f2ca48262e466871c9595d2077ddacefb9769505a3ba158f9671878cc99e64",
+        "3e024e1bc15b86d90b81a012cd9921e23bcf717eddd13874a8fb649aa4f8dfbe",
+        "4b128db65c78a03f3fdfb145bfa66a9960e57515537e008a7f1f86403b7f5712",
+        "a7e437637eb83edf39af26d4176bbe79ac9c55a11664fb89bde01e2252dce1ed",
+        "b767b729b50384110ad3e1c9a9477728bc40ce20b69a3925579ab6317f00d0a5",
+        "e085610b47dfa12ecc20dc13979f9d9df8cd01e0bc5fd8f15aeb57b7c7887593"
+      ]
+    },
+    "hero-east--loose": {
+      "tool": "animate_image",
+      "description": "The arrow disappears from the bow immediately, back hand springs behind the face, bow arm stays extended momentarily, cloak settles, arms lower to the ready pose. One release and recovery.",
+      "sourceFrameSha256": [
+        "5742a20d7d8424acbc349a306a75e29af6c727f2e939792959d0f8f16fc27c0b",
+        "82538b614fe62d84d448f01a791ee49feeafefbfbf37cb791920b041c07b6415",
+        "ffee6f3f95482bbe75837041b3f1a1dc3b4fbb9a0e1e240cf283214a3ca9d8b1",
+        "ad33a7a4a15d562437e8fdbda2145eaea06537713add3943cbd1c1b01d74a8f6"
+      ]
+    },
+    "hero-east--bowstep": {
+      "tool": "animate_image",
+      "description": "Seamless in-place travelling walk in the same facing direction. Legs alternate, cloak sways, lowered wooden bow stays in the hand.",
+      "sourceFrameSha256": [
+        "26d1df3098c62cf48d5ea3691fea306c369871cae82bbeee3614115818b71ea7",
+        "5714793082943b872b73bbd152e41ba2f54056d336f357bbd5834ee06a2c21b4",
+        "f6691aae6a78c63e621a9eae28a9b6dce6594d348e1bf3981ecc52eedb2b8d54",
+        "b0c1daa40e93841a3792bcc16129f0495507d84b9501c3f459fba5ac6803a2a0",
+        "709461094e38a72d18e91b3ecb6a4afc2321873581d67fe4027f4041776ef383",
+        "7a680095a41971f32d97c38893a3ec379cdb075f06a344458a3281494c25715c"
+      ]
+    },
+    "hero-south-east--ready": {
+      "tool": "edit_image_pro_flash",
+      "description": "Edit the existing Tervain wandering ranger. Exactly the same pixel size, green cloak, brown leather boots, face, hood, shading and 2:1 game camera as input. Boots remain over the same ground contact. One full-body transparent sprite, no scenery or shadow. three quarters toward viewer, facing screen RIGHT and slightly down. Unequipped hands now carry a clearly visible tall curved warm golden wood fantasy longbow, lowered diagonally at the side. Relaxed bent knees, free arm easy to read.",
+      "sourceFrameSha256": [
+        "de77c1b393457cb934cc4e93c08270d23f655ad1ddd83d62f4de7dd203b606b8"
+      ]
+    },
+    "hero-south-east--aim": {
+      "tool": "edit_image_pro_flash",
+      "description": "Rotate the bow and arm pose to match this RPG screen direction: to lower RIGHT. Front three-quarter view, pale arrow clearly slants toward the lower right corner, descending at least fifteen pixels between hand and tip. Preserve this exact ranger, drawing scale, planted boots and transparent canvas. A single very clear game firing pose, cropped to nothing, head and boots visible. Keep quiet earth tones, original medieval wooden bow.",
+      "sourceFrameSha256": [
+        "3a2c282999bc5eab031429bd6c4fcda4986b5e74ff3067ea044935c3efb0f53c"
+      ]
+    },
+    "hero-south-east--draw": {
+      "tool": "animate_image",
+      "description": "Open the stance and lift the bow from the side to the provided final aim pose. Preserve the exact angle and location of both finished hands and stay centred.",
+      "sourceFrameSha256": [
+        "de77c1b393457cb934cc4e93c08270d23f655ad1ddd83d62f4de7dd203b606b8",
+        "4fce18a5d4c1c2fd6639779664655cbf3f964965d624f3e752bf6daff226fac0",
+        "712a294023df592bcec680994f1502e45be652f89770d2b3eac8dea34771b6ab",
+        "f9e42d83b40dfd7b4854a635e62c8470ae409cf25acd85e77407507d4986f1f8",
+        "7d266c194c6076fa45e7fe8bf66b3625e460299d2c9e8b850f527cbd96863b78",
+        "c938b4fb25d1ef3ab0930e6e0f60c708bd60051b159b56647aa900afb2388027",
+        "2d903829ef7e15bde2bbffeeb87ff74df29070c6ccb57ff58e63130e6d95eb6d"
+      ]
+    },
+    "hero-south-east--loose": {
+      "tool": "animate_image",
+      "description": "Quick release and recoil, empty bow arm lingers then lowers. One action. Keep the body oriented in the given game direction.",
+      "sourceFrameSha256": [
+        "2ee627de990aaa8d32bcc420f87aa3f122d71715b2cff2e8e175f6872fb1b7a6",
+        "501c139f4b785b4c05b80240bb9915422ae8ac67beb4484c052fdedf139f0dfb",
+        "58afcba08d4dc83f59bb07f08b86e6ff01dde5a7f6c56b4055a2fcc10a1121bd",
+        "e2c72e19b121e1518121e6aae4141c4f8466ee62720731131869866a78db2478"
+      ]
+    },
+    "hero-south-east--bowstep": {
+      "tool": "animate_image",
+      "description": "Seamless in-place travelling walk in the same facing direction. Legs alternate, cloak sways, lowered wooden bow stays in the hand.",
+      "sourceFrameSha256": [
+        "71b2161ea38387d53d36f3a7c18bd6e41c950bab2915f8c472efd19b26687ac6",
+        "efb00891544e57a5249dea22a01aa660756992dce7e177b791229ca33a0c47ee",
+        "8ed94efd2d55db05fffff9640acee4b8743d40873807a5e00edb743964affb2f",
+        "119549af7da780b571bea37a3cccee2a597c19979534434c0d5fd4e539015b54",
+        "e6ff27775e9c14d1ac4cd389e31f04cc191ccceb9246ab389362a5a48fb8b996",
+        "5c3abc878f5e7fd43d0d6adb6bb38c269b529f83c8d7dd2248c004ec69c69661"
+      ]
+    },
+    "hero-south-east--pet": {
+      "tool": "animate_image",
+      "description": "A short quiet gesture between the two positions. Only the forearm, hand and shoulder move a little. Feet, outfit and handheld object stay consistent; no sparkles, symbols or effects.",
+      "sourceFrameSha256": [
+        "34c50bc23bc86894d81c6aa9e5a7eb33a6d644fad7006f18011ad38b7898e289",
+        "a5840f17561477d694f645742a5e63b56c53675a99d73d9ad861323fa0b0a7b8",
+        "9f7974a1b6abe7cc3b63ebd3ad44a9b043dbccc0777c1b2c55784648aaf46196",
+        "916a9afeb92a4ef23cc816b71d1f77f10b54b1270412598ff60f5cb3120c2895",
+        "99d39ca6c69a7687a96ca1cbe0d540737ed85b3eb4543fc1f519f35a5fab5df7",
+        "916a9afeb92a4ef23cc816b71d1f77f10b54b1270412598ff60f5cb3120c2895",
+        "9f7974a1b6abe7cc3b63ebd3ad44a9b043dbccc0777c1b2c55784648aaf46196",
+        "a5840f17561477d694f645742a5e63b56c53675a99d73d9ad861323fa0b0a7b8"
+      ]
+    },
+    "hero-south-east--gather": {
+      "tool": "animate_image",
+      "description": "Reach from the crouch, pluck with the fingers, pull back to the pouch, reach down again. Animate arms and upper torso.",
+      "sourceFrameSha256": [
+        "301b1dddec7e5e7983d9fcf4712d09c9dcc38644ba1bde811b05d1ef0e99b512",
+        "086709f7b767fe1694090c0b7d153919839ca10d3876b4b350a2a39904f53737",
+        "cd24b3dd48b2d1af33748e4298bc3f7dc0462a4e6040316ab666790c891f375a",
+        "814355c8261712357ffcbf6c27964663e66dc16a99e9be8be3f6f70ca6b84886",
+        "814355c8261712357ffcbf6c27964663e66dc16a99e9be8be3f6f70ca6b84886",
+        "cd24b3dd48b2d1af33748e4298bc3f7dc0462a4e6040316ab666790c891f375a",
+        "086709f7b767fe1694090c0b7d153919839ca10d3876b4b350a2a39904f53737",
+        "301b1dddec7e5e7983d9fcf4712d09c9dcc38644ba1bde811b05d1ef0e99b512"
+      ]
+    },
+    "hero-south-east--sit": {
+      "tool": "animate_image",
+      "description": "Gentle seated idle. Look around, breathe and shift hands on the knees slightly. Keep seated hips and boots anchored at the same place.",
+      "sourceFrameSha256": [
+        "e854b0c4b25d560f741f87dfac413e266982fc94556ad40ec1e6b688093fa0bc",
+        "a8c1dcb4843459f9f1e4550d9543eed0686a2a810ad3acf84afc96d38294d4b3",
+        "d008974cc901ccc15f814204f9ddf1e2a501d896fd9fa89e2e8a228d1939b049",
+        "a8c1dcb4843459f9f1e4550d9543eed0686a2a810ad3acf84afc96d38294d4b3"
+      ]
+    },
+    "hero-south-east--stir": {
+      "tool": "animate_image",
+      "description": "A short quiet gesture between the two positions. Only the forearm, hand and shoulder move a little. Feet, outfit and handheld object stay consistent; no sparkles, symbols or effects.",
+      "sourceFrameSha256": [
+        "2d90f50ea8684d78148f30aa090ec3ebdbfaf468a056ab44976648a653cd8f2c",
+        "48866cafb995d985f2c45caebe5ebaf4ce92a1da78846140fab021cb968ce638",
+        "e719284af63a87c9d685a9fb4cc09510ffbfcda50b6893fc83c2b665062cebef",
+        "e461a0cbcef5ea070ec908c0ed7735b3b2030d121c7eabd924a91dec9ab81b5f",
+        "f2d65c610f32f7154aa3f862d4747ab53013b1051a48df78abf54f1f956daeab",
+        "e461a0cbcef5ea070ec908c0ed7735b3b2030d121c7eabd924a91dec9ab81b5f",
+        "e719284af63a87c9d685a9fb4cc09510ffbfcda50b6893fc83c2b665062cebef",
+        "48866cafb995d985f2c45caebe5ebaf4ce92a1da78846140fab021cb968ce638"
+      ]
+    },
+    "hero-south-east--dress": {
+      "tool": "animate_image",
+      "description": "Hands work rhythmically low in front, lean forward, gather materials and pack the satchel. One quiet continuous working motion.",
+      "sourceFrameSha256": [
+        "f19662e7a8729f8df037ea1beb9969939e347987b139d68a67b5fa76648f1675",
+        "dc2351eebce103e8382663f8f4ed6252eeb6fd4aa925990c445a35e3b25758fa",
+        "f8939d5b40c8c6247cbb2db15d9284dbb2a18777bdbb95fc9514fce1e7fc348f",
+        "a41fe8abfb6a963874cced5fa95da9dbea346042cc41fcedd8bbf05ada964af6",
+        "f8939d5b40c8c6247cbb2db15d9284dbb2a18777bdbb95fc9514fce1e7fc348f",
+        "dc2351eebce103e8382663f8f4ed6252eeb6fd4aa925990c445a35e3b25758fa"
+      ]
+    },
+    "hero-south-east--work": {
+      "tool": "animate_image",
+      "description": "A short quiet gesture between the two positions. Only the forearm, hand and shoulder move a little. Feet, outfit and handheld object stay consistent; no sparkles, symbols or effects.",
+      "sourceFrameSha256": [
+        "a36fdb3827a73a04b9a10e86e1cad0b6dd48041aa2c81a15012da901ae292c4b",
+        "5f55e7c701d434e5b8aee1bfb8f04394015dc5b4b7a3fef6f1aab009a00af486",
+        "7b6be354c9cd349a5384b0aea9d818c858931a23b46d99367725c6107152d838",
+        "fa26bcee5ef99b9945d529f47740a3b56160f334cb48536cda88416ff20446cd",
+        "b5c2d7940f220615dd93aa7577ff9c09e8dcb95b1d561f3722960fb222af6c3c",
+        "fa26bcee5ef99b9945d529f47740a3b56160f334cb48536cda88416ff20446cd",
+        "7b6be354c9cd349a5384b0aea9d818c858931a23b46d99367725c6107152d838",
+        "5f55e7c701d434e5b8aee1bfb8f04394015dc5b4b7a3fef6f1aab009a00af486"
+      ]
+    },
+    "hero-north-east--ready": {
+      "tool": "edit_image_pro_flash",
+      "description": "Edit the existing Tervain wandering ranger. Exactly the same pixel size, green cloak, brown leather boots, face, hood, shading and 2:1 game camera as input. Boots remain over the same ground contact. One full-body transparent sprite, no scenery or shadow. three quarters away, facing screen RIGHT and slightly up. Unequipped hands now carry a clearly visible tall curved warm golden wood fantasy longbow, lowered diagonally at the side. Relaxed bent knees, free arm easy to read.",
+      "sourceFrameSha256": [
+        "4f8767805ac102bdc292ab8cf1518d11b4f60849c9fa7277d5668a252a6f5eef"
+      ]
+    },
+    "hero-north-east--aim": {
+      "tool": "edit_image_pro_flash",
+      "description": "Rotate the bow and arm pose to match this RPG screen direction: to upper RIGHT. Back three-quarter view, slanted pale arrow shaft clearly points toward the upper right corner, rising at least fifteen pixels from hand to tip. Preserve this exact ranger, drawing scale, planted boots and transparent canvas. A single very clear game firing pose, cropped to nothing, head and boots visible. Keep quiet earth tones, original medieval wooden bow.",
+      "sourceFrameSha256": [
+        "0ab5e3818996633a9e4eb54a855a3c3d64737573845917d9ee5ae2c7a26c1e40"
+      ]
+    },
+    "hero-north-east--draw": {
+      "tool": "animate_image",
+      "description": "Open the stance and lift the bow from the side to the provided final aim pose. Preserve the exact angle and location of both finished hands and stay centred.",
+      "sourceFrameSha256": [
+        "4f8767805ac102bdc292ab8cf1518d11b4f60849c9fa7277d5668a252a6f5eef",
+        "c412ac4b23b0c8e6e22ed741ae273a8f10d0a934b12a7c113fe760d70586489c",
+        "e905c26692ddef3d1de9724042b21225178a32c93e887e9637ebb2b5130afb7b",
+        "8945bb91881932845e786d908f0ac4fe933a2a1b7081ed371dc6d44dae2b4e8c",
+        "6b0276472b082b89d430d12c77271af2adae0624b65a52d165c9f0fec5ba050a",
+        "35756ab264dca5934d2377404949d068800943c1f8cebacd688cf6a02635222e",
+        "817995941125f83fbb1fb87789cfdbc3d21ae569ee3003a6cfd00f5985a318af"
+      ]
+    },
+    "hero-north-east--loose": {
+      "tool": "animate_image",
+      "description": "Quick release and recoil, empty bow arm lingers then lowers. One action. Keep the body oriented in the given game direction.",
+      "sourceFrameSha256": [
+        "414a155f327d49a0fe18e2c89b4a92eb6b505d53e962e755d44fb3b5b02bdb75",
+        "eceab6360427a66f4f8e204a0a307991fd597e595c21f38cd95fcf4bfd324819",
+        "581fdcc892fca79c6e5f34b0071dd90e1b832dc4a23a20f10cd75b60d394a359",
+        "02c490f743af03d5776660d3978e438b3f98491494447a43c9c707ceb1c014c0"
+      ]
+    },
+    "hero-north-east--bowstep": {
+      "tool": "animate_image",
+      "description": "Seamless in-place travelling walk in the same facing direction. Legs alternate, cloak sways, lowered wooden bow stays in the hand.",
+      "sourceFrameSha256": [
+        "8efe8ccce58ae8312f1e8793211475898a4ff096c1fb944c0f8853cd94819383",
+        "1f605349daf68f60a3cb38632368db95e722a767dbc7ee78bc3e062f4e3d7187",
+        "6e8366a8aa86cfac13c88ee6841b2948a37971da91dde650356f81f7011dcfe0",
+        "dc9ef151acb7fddc8107f36938f7bf493c4e1fd0061d10b867a852881ea6c288",
+        "b7f8d74c715e23c5605a6988febdcc7cfbc5ba9ffe8869de8c7ec02c475ad64c",
+        "d524263754f4127c6a8a31552fb81c52245c8772f18cf521e41ddc7200e8bab3"
+      ]
+    },
+    "hero-north-east--pet": {
+      "tool": "animate_image",
+      "description": "A short quiet gesture between the two positions. Only the forearm, hand and shoulder move a little. Feet, outfit and handheld object stay consistent; no sparkles, symbols or effects.",
+      "sourceFrameSha256": [
+        "cb8d3a49cb0df4eb667b8331e76faf3cb265cac65dd0a3f28e946b55f39d3ac4",
+        "54a99b2b32e83560bf857dba331cb9cae978e96fdabf745da5f824f5b6d077cf",
+        "76b42d2dfd9dc5671baec7436c1410480d79f5a1eae1a94b224c1d37f7cbc1b7",
+        "8f04ec4506c8c967b26517e1d27b76b6a3ec6193b6200afe2b0c62689df468c9",
+        "3f6a0a2cd269c0970f8c00399945241f0dd58b361ff1d3518c81d78f11c31856",
+        "8f04ec4506c8c967b26517e1d27b76b6a3ec6193b6200afe2b0c62689df468c9",
+        "76b42d2dfd9dc5671baec7436c1410480d79f5a1eae1a94b224c1d37f7cbc1b7",
+        "54a99b2b32e83560bf857dba331cb9cae978e96fdabf745da5f824f5b6d077cf"
+      ]
+    },
+    "hero-north-east--gather": {
+      "tool": "animate_image",
+      "description": "Reach from the crouch, pluck with the fingers, pull back to the pouch, reach down again. Animate arms and upper torso.",
+      "sourceFrameSha256": [
+        "8ed6aa48234d487771c65c19fb524cceef403dd2a37638846c9cee0b826be916",
+        "86e1c5df27dac72803aab5f0afb1fe9103ced53fa97c15dd6de153fb63e564c2",
+        "a48318ab093f9f0f52889bbe88c0f4ec46c34324a4853ed2f1b0f9beada13725",
+        "59ca3c17b0ebeaca98ea17d90c1e7d05b930e4c3210d29ce6f6b6ddcc5aeb525",
+        "59ca3c17b0ebeaca98ea17d90c1e7d05b930e4c3210d29ce6f6b6ddcc5aeb525",
+        "a48318ab093f9f0f52889bbe88c0f4ec46c34324a4853ed2f1b0f9beada13725",
+        "86e1c5df27dac72803aab5f0afb1fe9103ced53fa97c15dd6de153fb63e564c2",
+        "8ed6aa48234d487771c65c19fb524cceef403dd2a37638846c9cee0b826be916"
+      ]
+    },
+    "hero-north-east--sit": {
+      "tool": "animate_image",
+      "description": "Gentle seated idle. Look around, breathe and shift hands on the knees slightly. Keep seated hips and boots anchored at the same place.",
+      "sourceFrameSha256": [
+        "07146ff503d1b745596437ca9c03441066eb86b8cab31d547c62a35b75c475f0",
+        "9c37878f2c8cb0d4809353748630c80dbcc3f73b1009e6154cacdc6c3d7f536f",
+        "4b3c7e1c060ac2882ee1deb941a45ed4986c936712cbec684408c46308463607",
+        "9c37878f2c8cb0d4809353748630c80dbcc3f73b1009e6154cacdc6c3d7f536f"
+      ]
+    },
+    "hero-north-east--stir": {
+      "tool": "animate_image",
+      "description": "A short quiet gesture between the two positions. Only the forearm, hand and shoulder move a little. Feet, outfit and handheld object stay consistent; no sparkles, symbols or effects.",
+      "sourceFrameSha256": [
+        "1b579e55c7e8f3fd7b15f8712761e28fbf5ebc6b2c7bbe020511287594b1785d",
+        "1e732db1a3980ec9d08324285dcc693fdb5adb26f7fd815cbff15c55eddbda39",
+        "d6af91a374157aa65dc0035f12939be53fee2143f7b04a105a5ddd5b6a961c2b",
+        "fb4eb0215157ec537924a6598945e010f14c8c35fb8d27c0405d5a09bc0e36e7",
+        "c727e316a42468b8deb30ae0332a4115c4da7ecafdc606b79cc4e7a28071e89b",
+        "fb4eb0215157ec537924a6598945e010f14c8c35fb8d27c0405d5a09bc0e36e7",
+        "d6af91a374157aa65dc0035f12939be53fee2143f7b04a105a5ddd5b6a961c2b",
+        "1e732db1a3980ec9d08324285dcc693fdb5adb26f7fd815cbff15c55eddbda39"
+      ]
+    },
+    "hero-north-east--dress": {
+      "tool": "animate_image",
+      "description": "Hands work rhythmically low in front, lean forward, gather materials and pack the satchel. One quiet continuous working motion.",
+      "sourceFrameSha256": [
+        "10cc6b10f1245c51cf500dc284c9083574479608c885fc0139b299a3e9763d4e",
+        "9fe3d1ced0031d094e7840b13714eec76da0f2dc649dddbd803e1a5048ba243c",
+        "23a7d443945be94f5ae5fe052ebd67d97b196702feb0aff7c7f282a9bec2f749",
+        "6a5105507a65d528378c8cd0bb2bfe7a0e4542c71802e75854616375297ab87a",
+        "23a7d443945be94f5ae5fe052ebd67d97b196702feb0aff7c7f282a9bec2f749",
+        "9fe3d1ced0031d094e7840b13714eec76da0f2dc649dddbd803e1a5048ba243c"
+      ]
+    },
+    "hero-north-east--work": {
+      "tool": "animate_image",
+      "description": "A short quiet gesture between the two positions. Only the forearm, hand and shoulder move a little. Feet, outfit and handheld object stay consistent; no sparkles, symbols or effects.",
+      "sourceFrameSha256": [
+        "841ddca9958c12556b36e6a72310f9b9cac8eafbbbc556ea3be96a73d5bd2935",
+        "87c6b8d102648f37ef54f9968e9a786df361f7476716bce20920535fb10daeb8",
+        "ae1df3ac763cd57557c38c1df64feb5a70f3109c667faeecdf5822b61af849b1",
+        "cd16964ca8beba171124252b2a48b8ad52c5dbb374c2f3b98e635460543c1723",
+        "0f24662de2c84e4abf7706f8ee627244798ce3af1574d1c9ccaaf133087a0cdd",
+        "cd16964ca8beba171124252b2a48b8ad52c5dbb374c2f3b98e635460543c1723",
+        "ae1df3ac763cd57557c38c1df64feb5a70f3109c667faeecdf5822b61af849b1",
+        "87c6b8d102648f37ef54f9968e9a786df361f7476716bce20920535fb10daeb8"
+      ]
+    },
+    "hero-south--ready": {
+      "tool": "edit_image_pro_flash",
+      "description": "Edit the existing Tervain wandering ranger. Exactly the same pixel size, green cloak, brown leather boots, face, hood, shading and 2:1 game camera as input. Boots remain over the same ground contact. One full-body transparent sprite, no scenery or shadow. front view, facing DOWN the screen towards the viewer. Unequipped hands now carry a clearly visible tall curved warm golden wood fantasy longbow, lowered diagonally at the side. Relaxed bent knees, free arm easy to read.",
+      "sourceFrameSha256": [
+        "44ef887bafffc077361126a54bf07d146470213b8fb58d81d72a496a747db55d"
+      ]
+    },
+    "hero-south--aim": {
+      "tool": "edit_image_pro_flash",
+      "description": "Rotate the bow and arm pose to match this RPG screen direction: directly toward the viewer, hood and face visible. Aiming straight DOWN the screen, tipped arrow points toward the viewer at six o’clock, short foreshortened shaft in front of torso. Bow spans horizontally across body. Preserve this exact ranger, drawing scale, planted boots and transparent canvas. A single very clear game firing pose, cropped to nothing, head and boots visible. Keep quiet earth tones, original medieval wooden bow.",
+      "sourceFrameSha256": [
+        "1e8b18a4fa871e2bceba752d689303c07f6f6f31f2631f155f1e7eff6f19d1e3"
+      ]
+    },
+    "hero-south--draw": {
+      "tool": "animate_image",
+      "description": "Open the stance and lift the bow from the side to the provided final aim pose. Preserve the exact angle and location of both finished hands and stay centred.",
+      "sourceFrameSha256": [
+        "44ef887bafffc077361126a54bf07d146470213b8fb58d81d72a496a747db55d",
+        "d73ca0e819e6122a129124d3c109af54ab956aa3fcde09e7d796d7d2e0ccc6e9",
+        "5fcea9a4664b06238e8c0e27e919e37587725194b59cff1a773a93bbb082a75b",
+        "25b53e88e02ee2fdf9a6dcc03df0007129812b2ed8a87e322f2317640a9cc13b",
+        "55772278afc0ad8f1f6993c8a0b31dab832446d3b537a3c6e43ce1c5cfcf904d",
+        "f5fe11afdff90f08f29f5696ee921cd523e1b1a268dc578594141caad4d9b825",
+        "eba2aa21a8ec941844d7d251ac03e2ee76f54b23b726e04c5c20e4c22d292ffc"
+      ]
+    },
+    "hero-south--loose": {
+      "tool": "animate_image",
+      "description": "Quick release and recoil, empty bow arm lingers then lowers. One action. Keep the body oriented in the given game direction.",
+      "sourceFrameSha256": [
+        "efb5c74ade781d50822a84df0da4187c2a62b200231e94620768acca2f610936",
+        "40778f3098862c1bf5fd911af729cadb58687fccdba1e3b8bdd226589ea660c2",
+        "27465ada01689a843aaac05f96498079facbccdd8caaafb684f8c7546c587690",
+        "47604e0f313ea94809a3255e19165ddb1951f4704a1526309ac4247903f6caaa"
+      ]
+    },
+    "hero-south--bowstep": {
+      "tool": "animate_image",
+      "description": "Seamless in-place travelling walk in the same facing direction. Legs alternate, cloak sways, lowered wooden bow stays in the hand.",
+      "sourceFrameSha256": [
+        "e4a346e8175a1278b5bd44b8c3dab4113c7c23c4f3d6df4a96081ec83bd1fff7",
+        "767543d23521c175b2adac9c0d7636514f65a645893c8922ed8d479c4a3a3017",
+        "e5027aaa6db67d7af7ee06cd18ae97dbacddee2359f2157c0ffd2517321b4b5f",
+        "74d6f3461e4c367b3f2019b29c8dbba391c5166deb8d7e384c6cd4f2dd10a4ca",
+        "d89d8056bf0813efa9bd177586fa4b82eb1e31f7bf07f43648ecad1662540ed3",
+        "82c80808b749d72d6fd914b07ccb7f940fdf6c4006141d9ee7aecfdab6059b05"
+      ]
+    },
+    "hero-north--ready": {
+      "tool": "edit_image_pro_flash",
+      "description": "Edit the existing Tervain wandering ranger. Exactly the same pixel size, green cloak, brown leather boots, face, hood, shading and 2:1 game camera as input. Boots remain over the same ground contact. One full-body transparent sprite, no scenery or shadow. back view, facing UP the screen away from viewer. Unequipped hands now carry a clearly visible tall curved warm golden wood fantasy longbow, lowered diagonally at the side. Relaxed bent knees, free arm easy to read.",
+      "sourceFrameSha256": [
+        "d7db297f7c08dfd9925f3a7bf1fdb815fc8153885f67fa6c799c2f0d3300d4c4"
+      ]
+    },
+    "hero-north--aim": {
+      "tool": "edit_image_pro_flash",
+      "description": "Rotate the bow and arm pose to match this RPG screen direction: directly away, back visible, aiming straight UP the screen at twelve o’clock. Bright narrow arrow points vertically upward from behind the hood, bow turned across the shoulders, arms foreshortened. Preserve this exact ranger, drawing scale, planted boots and transparent canvas. A single very clear game firing pose, cropped to nothing, head and boots visible. Keep quiet earth tones, original medieval wooden bow.",
+      "sourceFrameSha256": [
+        "be604010fbf64f610db9957703ce934e74f7f4a1fb6d175f6fdcee24c70027b9"
+      ]
+    },
+    "hero-north--draw": {
+      "tool": "animate_image",
+      "description": "Open the stance and lift the bow from the side to the provided final aim pose. Preserve the exact angle and location of both finished hands and stay centred.",
+      "sourceFrameSha256": [
+        "d7db297f7c08dfd9925f3a7bf1fdb815fc8153885f67fa6c799c2f0d3300d4c4",
+        "61fb009d187c91944557faf4b7a4197265a0bb5afbaab8e310d5003c24cdd79c",
+        "e65052f49564f87178778b128f1e2d160bd37032f482c87fa33c54b5b3f872a7",
+        "d83e23068efe7fc72ec908b8f764c1231341009803963cb22d06bfa2ed682652",
+        "98f23f1dda34542b1545ba3e5a9915a0421116069506fc3b0734e293f2e846bf",
+        "4bf79b148a8d59ac2dc13f000cd17bd7bbdf238d4e2cd2a74b74949aa35b3ffb",
+        "22426e9ac37afb2bc97e0a9cb0772e8f0ee7dbae44114c84b921a328dd7c1954"
+      ]
+    },
+    "hero-north--loose": {
+      "tool": "animate_image",
+      "description": "Quick release and recoil, empty bow arm lingers then lowers. One action. Keep the body oriented in the given game direction.",
+      "sourceFrameSha256": [
+        "3433b5118c60b27e54c4efb86dc115cf459cd898b1ca26d07e4f81ae6a4779b4",
+        "0fc8f924cc2dd4e0ed7ae282d83577546771a4f80187331c7ad1cf034c6e8610",
+        "4b998663a44890a41c5ef695b520cc54c2765b029825a8172a72ba8e44dac607",
+        "3f84dd68669c6ee8fd212ee5d9004c94b88e64cefb485a740bd3e2b3e0318af9"
+      ]
+    },
+    "hero-north--bowstep": {
+      "tool": "animate_image",
+      "description": "Seamless in-place travelling walk in the same facing direction. Legs alternate, cloak sways, lowered wooden bow stays in the hand.",
+      "sourceFrameSha256": [
+        "fb7b5679f6d061e3d21a1737ef099c20928d989a4b081f4ff534aab25f53b055",
+        "f78aa6381de5b936e6440db643b2ae91260513550d79a79c28f4770f5502f005",
+        "fb369be2317e6c2465876e45f8022767d76c85d774f6a53853b8ad1651d9eeb0",
+        "58163926753128ca9498b9fd0e7b526b8c9d399fd5d254ce9097d82d8a164b69",
+        "88aa1922903ca8cde717218cc4af641b7d2f3e78a571366aa7c1aafe4b5792c7",
+        "1cfec4758dd661415efe7009675aeff72f78492c61288f82d86da32b26ecd816"
+      ]
+    },
+    "cat--affection": {
+      "tool": "animate_image",
+      "description": "Affectionate cat leans its cheek forward into a hand, arches its back, curls its tail and blinks. Remain in place.",
+      "sourceFrameSha256": [
+        "a911c97614078472a3fa1e1bd64e4f20cd89b9d840f17bc57c6c07792a7cde7a",
+        "6aa80380ab1b70e0cdce047e603f99be08fe5362f966a3080756700710e5cb4b",
+        "1f8171988ace0504e400e5f1e53225258730fe3710c5766ca73319c6ea8e30cf",
+        "14dacd7098ee5fb4ebfe41bca993a55485b2c77b18cb2833c760f12b92c1a766",
+        "d47be5802fb0c9e06338feda0c88a7c0662bf8133939b4d8308adcd3ee6fc636",
+        "047409dc2f41681a2c0bff0423c5d003935f5bf9d112f8df234ef8849bfd9cfe",
+        "6c0d6817d8c5365a71b5d5e019abf8990701c046fd90d8dee872fb56f211aa07"
+      ]
+    },
+    "dog--affection": {
+      "tool": "animate_image",
+      "description": "Happy dog responding to a gentle pat. Wag the tail rapidly, tip the muzzle upward, ears perk, paws stay planted.",
+      "sourceFrameSha256": [
+        "5325664691111f2da3ed22b3fd558883df3db6164ad390db2562d118b1f3979e",
+        "2b5bf7a3309c775b6718c9772e87df5f72f536bad52223510160370e7043c64c",
+        "59c6af8912db7e63c650e32aecd6db84eb432d0d94a3916cabd4dbd71dca6f4d",
+        "30ce34ee25b0980e3c6d1c1cece137ed75c6c32a255a8d2c528173c2846a24f1",
+        "d6a043093b8e2429b41a2ef5fba5326582fd2a7f8693c374284dfabd16a87ec3",
+        "5df4f3b9aa04f9f6642d97c2e8c4b8028e7c6a82e3af56a1207a78f6a83d5c88",
+        "ac0d458e2ffa65c1d4272b73e8d65b34cd7c5ccdd171a7178c310fc51e9b244b"
+      ]
+    },
+    "deer--down": {
+      "tool": "edit_image_pro_flash",
+      "description": "Draw this same animal resting completely on its side in profile, legs folded on the ground, compact horizontal silhouette. Same species, size, coat, light and pixel style. Peaceful, still, no blood, no shadow or objects. Transparent.",
+      "sourceFrameSha256": [
+        "3be46b4bfc084d08b8bc22d05d1cbea643458c6aa195036f4a016d9d20462461"
+      ]
+    },
+    "boar--down": {
+      "tool": "edit_image_pro_flash",
+      "description": "Draw this same animal resting completely on its side in profile, legs folded on the ground, compact horizontal silhouette. Same species, size, coat, light and pixel style. Peaceful, still, no blood, no shadow or objects. Transparent.",
+      "sourceFrameSha256": [
+        "839b60b333455f2ed3358379b573139926a2a5a83bdb3efebe65b60067c3df5c"
+      ]
+    },
+    "bear--down": {
+      "tool": "edit_image_pro_flash",
+      "description": "Draw this same animal resting completely on its side in profile, legs folded on the ground, compact horizontal silhouette. Same species, size, coat, light and pixel style. Peaceful, still, no blood, no shadow or objects. Transparent.",
+      "sourceFrameSha256": [
+        "0ab20dbecf561bc0e184b83b11e7d376e372d4e1a4830f5b778c19f0552a4908"
+      ]
+    },
+    "lion--down": {
+      "tool": "edit_image_pro_flash",
+      "description": "Draw this same animal resting completely on its side in profile, legs folded on the ground, compact horizontal silhouette. Same species, size, coat, light and pixel style. Peaceful, still, no blood, no shadow or objects. Transparent.",
+      "sourceFrameSha256": [
+        "d3389a8cdb619feca3b528563ef0fb07ea32ce894d762d74e1631383034aa9dd"
+      ]
+    },
+    "tiger--down": {
+      "tool": "edit_image_pro_flash",
+      "description": "Draw this same animal resting completely on its side in profile, legs folded on the ground, compact horizontal silhouette. Same species, size, coat, light and pixel style. Peaceful, still, no blood, no shadow or objects. Transparent.",
+      "sourceFrameSha256": [
+        "efdd8765488f26f1dc707922b706ab117f586bd68f758918cd76c3a7f9401cbc"
+      ]
+    },
+    "wolf--down": {
+      "tool": "edit_image_pro_flash",
+      "description": "Draw this same animal resting completely on its side in profile, legs folded on the ground, compact horizontal silhouette. Same species, size, coat, light and pixel style. Peaceful, still, no blood, no shadow or objects. Transparent.",
+      "sourceFrameSha256": [
+        "a66946e703c190d57b9a250a8fcf00b5c6edd4db718037617e80577b7a3982a4"
+      ]
+    },
+    "field_arrow": {
+      "tool": "create_image_pro_flash",
+      "description": "One narrow horizontal medieval game arrow in flight pointing exactly to the RIGHT, ivory metal tip on right, honey wooden shaft, bright pale feather fletching on left. Side view, readable two-tone outline, full-length slender silhouette, transparent background, no shadows, no other marks. Original Bellwether Vale pixel art.",
+      "sourceFrameSha256": [
+        "eedb720a166b9a44ae391bcc1aea1047098c0e1a22e4195c344b1b2fc8343add"
+      ]
+    },
+    "trail_stew": {
+      "tool": "create_image_pro_flash",
+      "description": "A single small lidded terracotta travelling crock of mushroom stew, honey ochre glaze, a little steam and a green sprig, clean strong inventory icon silhouette.",
+      "sourceFrameSha256": [
+        "35bcc85d3e831ea66bfbf28ebff6f6cdb0400441f177c5a44052649b2c8d493c"
+      ]
+    },
+    "field_herbs": {
+      "tool": "create_image_pro_flash",
+      "description": "A small living clump of five serrated silver-green healing herb leaves and two tiny ivory flower heads, pluckable wild herbs, earthy roots at base, no ground tile.",
+      "sourceFrameSha256": [
+        "4b0765c6cad318d23a332d93ed479cc2e545ba46a9c714cfef8e11907f2b28df"
+      ]
+    },
+    "field_caps": {
+      "tool": "create_image_pro_flash",
+      "description": "A living little bunch of three honey-red edible forest mushrooms. Broad umber caps with pale sunlit rims, cream stems, a tiny fern at their foot. No ground tile.",
+      "sourceFrameSha256": [
+        "cfb79bebb93808f874e54b89fd0209d77e18d55560df0d55770d1c31cfbee3e2"
+      ]
+    },
+    "hero-south-east--read": {
+      "tool": "animate_image",
+      "description": "Lean toward the book and turn a single page. Both feet remain still, hands cradle the book. No symbols or magic.",
+      "sourceFrameSha256": [
+        "c6f5cc9d4984937e261f35ec1c652281e051eff6538c094ed98f0e356018b25d",
+        "900fe98c37fce16ed851bfff0143c1ba762273e699717af873b53bb8996865fd",
+        "0747df5f536eb40b362a73188a403c6a898bfe9e4ea415123b4b5c06aa2c52f0",
+        "02b1d0f12bdd5361a0322c83ad772b01c3c2deae4f17116edc05113b3a75c99b",
+        "ce7e552b0064f5bfb2154d177d364153277c1e18bcac923185291c7238f6638e",
+        "02b1d0f12bdd5361a0322c83ad772b01c3c2deae4f17116edc05113b3a75c99b",
+        "0747df5f536eb40b362a73188a403c6a898bfe9e4ea415123b4b5c06aa2c52f0",
+        "900fe98c37fce16ed851bfff0143c1ba762273e699717af873b53bb8996865fd"
+      ]
+    },
+    "hero-north-east--read": {
+      "tool": "animate_image",
+      "description": "Lean toward the book and turn a single page. Both feet remain still, hands cradle the book. No symbols or magic.",
+      "sourceFrameSha256": [
+        "74b2f57dac91bff625d19e857212a34bbf3401becdd7993f8ead557f42f344ed",
+        "9522cc2ecc8dfec6055166ece72c7b5c09faa99b3ccb45d9565881318699185b",
+        "19b7b202318f1303f08dbf222dfed9b7244fc2dbd0ae5be2b80190eb96fe3552",
+        "e695807a14cda6297d1a3ec11b6c6a05f7f7bd7b83b1acdeeb70140d5e24b29d",
+        "8684b318daedc91ee201842bab7bd8a2ffeb1f597d73b2e7be8cd9b6a8c5d6f2",
+        "e695807a14cda6297d1a3ec11b6c6a05f7f7bd7b83b1acdeeb70140d5e24b29d",
+        "19b7b202318f1303f08dbf222dfed9b7244fc2dbd0ae5be2b80190eb96fe3552",
+        "9522cc2ecc8dfec6055166ece72c7b5c09faa99b3ccb45d9565881318699185b"
+      ]
     }
   },
   "runtimeFilesSha256": {
@@ -3173,12 +3698,13 @@
     "icons/spring_steward.png": "c6af73067700d24fdbc5f1af130d906cc7273b524ac5cf7fd58159dfe82243d4",
     "icons/thornback.png": "df88a02f3178e3da86229f3c0618ad5e48d2643dafdc1f4dcc4184eaadeb1612",
     "icons/trail_hunter.png": "b809644008005e12b0d2e437d7c586fd7017399fda0ad579a89e0793e467dbd2",
+    "icons/trail_stew.png": "1d139522f3ea5b91bb556301c95f1de1a853f87ff410b22063c982cf472a7413",
     "icons/village_baker.png": "c572ea93a601afb92e73feef273627289200f0c0df0cd01c5e721267a8223f05",
     "icons/votive_reed.png": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
     "icons/witness_cord.png": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
     "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
-    "sprites.json": "b24c41a286b005879a596019ef3526d9119338d2d5ee3862a275cbb8a458d92f",
-    "sprites.png": "42090680a757dc6fcb9f789d1c5ee746df0fc87b5b7cf889ef4e10542a626370",
+    "sprites.json": "e6525de1b7798e8fdd44a4c644a33a20869e2e061679497356e3b45b1e6fbc1b",
+    "sprites.png": "b4f1a0b1b43529ad1b6c2d6bfd1d17cdc2ecd264f216f96f3e222717b7d6fc4e",
     "title.png": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30",
     "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
   }

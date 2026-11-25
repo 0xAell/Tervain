@@ -104,6 +104,14 @@
     "Action": "Consume"
   },
   {
+    "Name": "trail_stew",
+    "NameKey": "item.trail_stew",
+    "DescriptionKey": "item.trail_stew.desc",
+    "Kind": "Consumable",
+    "HealAmount": 30,
+    "Action": "Consume"
+  },
+  {
     "Name": "bread",
     "NameKey": "item.bread",
     "DescriptionKey": "item.bread.desc",

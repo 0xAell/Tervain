@@ -31,6 +31,7 @@ const types = {
   json: 'application/json',
   ogg: 'audio/ogg',
   m4a: 'audio/mp4',
+  mp3: 'audio/mpeg',
 };
 async function add(relative) {
   const ext = relative.split('.').at(-1);
@@ -46,6 +47,7 @@ async function folder(directory) {
   }
 }
 await folder('vale');
+await folder('assets/audio/hunting');
 const tracks = [
   'ford/riverbank',
   'ford/banked-embers',
@@ -56,6 +58,9 @@ const tracks = [
   'loop-lap',
   'loop-brook',
   'loop-quarry',
+  'loop-fire',
+  'loop-interior',
+  'loop-hall_drone',
   'loop-forest_day',
   'loop-forest_night',
   'bank-water',
