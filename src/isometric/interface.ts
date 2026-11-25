@@ -321,6 +321,7 @@ export class Interface {
     this.layer.replaceChildren();
     this.layer.hidden = false;
     const panel = el('section', 'page plate' + (wide ? ' wide' : ''));
+    if (['pause', 'saves', 'help', 'settings'].includes(this.mode)) panel.classList.add('menu-panel');
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', title);
     const header = el('header');
@@ -347,9 +348,14 @@ export class Interface {
     this.layer.hidden = false;
     this.layer.replaceChildren();
     const screen = el('section', 'title-screen');
+    const landscape = el('div', 'title-landscape');
+    landscape.setAttribute('aria-hidden', 'true');
     const scene = el('img', 'title-art');
     scene.src = artUrl('title.png');
     scene.alt = '';
+    const fire = el('div', 'title-fire');
+    for (let i = 0; i < 4; i++) fire.append(el('i'));
+    landscape.append(scene, fire, el('div', 'title-mist'));
     const content = el('div', 'title-content');
     const premise = 'Past the pines, a wagon waits on the road to Rillford.';
     content.append(
@@ -376,7 +382,7 @@ export class Interface {
     );
     content.append(choices);
     screen.append(
-      scene,
+      landscape,
       content,
       el('small', 'version', 'Grey Strand  /  v' + __GAME_VERSION__ + ' · ' + __SOURCE_REVISION__)
     );
