@@ -27,16 +27,19 @@ interface Tracker extends V2 {
   emitted: number;
 }
 
-function layer(read = false) {
-  return document.createElement('canvas').getContext('2d', { willReadFrequently: read })!;
+function reflectionLayer() {
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d', { willReadFrequently: true })!;
+  return { context, pixels: ({ x, y, w, h }: Rect) => context.getImageData(x, y, w, h).data };
 }
 function intersects(a: Rect, b: Rect) {
   return a.x <= b.x + b.w + 2 && a.x + a.w + 2 >= b.x && a.y <= b.y + b.h + 2 && a.y + a.h + 2 >= b.y;
 }
 
 export class WaterReflections {
-  private mirror = layer(true);
-  private distorted = layer();
+  private layer = reflectionLayer();
+  private mirror = this.layer.context;
+  private distorted = document.createElement('canvas').getContext('2d')!;
   private regions: Rect[] = [];
   private wakes: Trail[] = [];
   private tracks = new Map<string, Tracker>();
@@ -202,7 +205,7 @@ export class WaterReflections {
     for (const wake of this.wakes) this.paintWake(wake, time, ox, oy);
     if (!this.regions.length || ground.compositeMirrors(ctx, this.mirror.canvas)) return;
     for (const rect of this.regions) {
-      ground.reflect(this.mirror, this.distorted, rect);
+      ground.reflect(this.layer.pixels(rect), this.distorted, rect);
       ctx.drawImage(this.distorted.canvas, rect.x, rect.y, rect.w, rect.h, rect.x, rect.y, rect.w, rect.h);
     }
   }

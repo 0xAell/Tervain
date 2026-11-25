@@ -432,9 +432,8 @@ export class Ground {
     ch.lastTick = tick;
   }
 
-  reflect(source: CanvasRenderingContext2D, destination: CanvasRenderingContext2D, bounds: Rect) {
-    const { x: left, y: top, w, h } = bounds,
-      src = source.getImageData(left, top, w, h).data;
+  reflect(src: Uint8ClampedArray, destination: CanvasRenderingContext2D, bounds: Rect) {
+    const { x: left, y: top, w, h } = bounds;
     const output = destination.createImageData(w, h),
       result = output.data;
     for (const { x, y, chunk } of this.visible) {
