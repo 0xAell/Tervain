@@ -88,7 +88,8 @@ export class Sound {
     if (!this.enabled) return;
     const night = hourOfDay(v.game.state.clock) < 6 || hourOfDay(v.game.state.clock) > 19,
       p = v.nearestPlace();
-    const combat = v.actors.some((a) => a.enemy && !a.dead && distance(a, v.player) < 10);
+    const room = v.room;
+    const combat = !room && v.actors.some((a) => a.enemy && !a.dead && distance(a, v.player) < 10);
     const track = combat
       ? 'timber'
       : night
@@ -100,8 +101,13 @@ export class Sound {
             : p === 'shore' || p === 'lantern_point'
               ? 'riverbank'
               : 'lanterns';
-    const air =
-      p === 'shore' || p === 'lantern_point'
+    const air = room
+      ? room.level === 'cellar'
+        ? 'hall_drone'
+        : room.level === 'ground' && v.lightsOn
+          ? 'fire'
+          : 'interior'
+      : p === 'shore' || p === 'lantern_point'
         ? 'lap'
         : p === 'deepwood'
           ? night
@@ -136,14 +142,20 @@ export class Sound {
   movement(v: Valley) {
     if (!this.enabled || !this.volume) return;
     const p = v.player,
-      wet = !!wetPoint(p.x, p.z) && !onBridge(p);
+      wet = !v.room && !!wetPoint(p.x, p.z) && !onBridge(p);
     if (this.lastWet !== null && wet !== this.lastWet)
       this.one('water', wet ? 'water.enter' : 'water.exit', 0.37);
     this.lastWet = wet;
     if (!v.walk || v.time < this.nextStep) return;
     if (wet) this.one('water', v.swimming ? 'water.swim' : 'water.wade', v.swimming ? 0.62 : 0.4);
     else {
-      const material = onBridge(p) ? 'wood' : groundAt(p.x, p.z);
+      const material = v.room
+        ? v.room.stone
+          ? 'stone'
+          : 'wood'
+        : onBridge(p)
+          ? 'wood'
+          : groundAt(p.x, p.z);
       this.one('steps', 'step.' + (stepMaterial[material] ?? material), 0.31);
     }
     this.nextStep = v.time + (v.swimming ? 0.85 : v.riding ? 0.36 : 0.48);

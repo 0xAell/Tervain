@@ -49,6 +49,7 @@ export class Game {
   /** Non-command mutation for high-frequency values that are not gameplay facts. */
   setPlayerTransform(x: number, y: number, z: number, yaw: number) {
     const p = this.state.player;
+    delete p.interior;
     p.x = x;
     p.y = y;
     p.z = z;

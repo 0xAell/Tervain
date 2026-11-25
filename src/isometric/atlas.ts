@@ -20,6 +20,20 @@ export class Atlas {
     return new Atlas(image, (await response.json()) as Sheet);
   }
 
+  private materials = new Map<string, HTMLCanvasElement>();
+  surface(key: string) {
+    let surface = this.materials.get(key);
+    if (!surface) {
+      const [x, y, w, h] = this.sheet.frames[key]![0]!;
+      surface = document.createElement('canvas');
+      surface.width = w;
+      surface.height = h;
+      surface.getContext('2d')!.drawImage(this.image, x, y, w, h, 0, 0, w, h);
+      this.materials.set(key, surface);
+    }
+    return surface;
+  }
+
   read(key: string) {
     return this.sheet.frames[key]!.map(([x, y, w, h]) => {
       const canvas = document.createElement('canvas');

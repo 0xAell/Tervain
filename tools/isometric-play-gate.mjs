@@ -79,7 +79,7 @@ export function observeIsometricFrames(recordStills, textureUploadBytes) {
 
 /** Place only at a stage boundary. Every measured movement and combat action goes through browser input. */
 export async function playIsometricStages(page, { phase, hold, tap }) {
-  const position = () => page.eval('const {x,z} = window.tervain.valley.player; return [x,z]');
+  const position = () => page.eval('const v=window.tervain.valley; const {x,z} = v.position ?? v.player; return [x,z]');
   const place = async (x, z) => {
     await phase('setup');
     await page.eval(`const t = window.tervain; t.game.setPlayerTransform(${x}, 0, ${z}, 0); t.scene.resetCamera();`);
@@ -108,11 +108,32 @@ export async function playIsometricStages(page, { phase, hold, tap }) {
   if (Math.hypot(crossed[0] - bridge.x, crossed[1] - bridge.z) > 0.85) throw new Error('Click-to-walk missed the bridge deck');
   await place(41, 5);
   await move('river-bank', ['KeyD'], 1700);
-  const house = await page.eval("const s = window.tervain.scene; const b = [...s.props.values()].flat().find(p => p.building?.id === 'house_a').building; return [b.x,b.z];");
-  await place(...house);
-  await move('inside-house', ['KeyA'], 600);
-  await phase('inside-house');
-  await page.wait(1200);
+  const hasRooms = await page.eval("return typeof window.tervain.valley.targets === 'function'");
+  if (hasRooms) {
+    const doorstep = await page.eval("const d=window.tervain.valley.targets().find(t=>t.id==='house_a/front').door; return [d.outside.x,d.outside.z]");
+    await place(...doorstep);
+    await tap('KeyE');
+    await page.wait(300);
+    if (!await page.eval("return window.tervain.valley.roomKey==='house_a/ground'")) throw new Error('The marked house entrance did not open');
+    await move('inside-house', ['KeyW'], 650);
+    await page.wait(750);
+    const stair=await page.eval("const s=window.tervain.scene,p=s.regions.find(r=>r.id==='pass/up'),r=s.context.canvas.getBoundingClientRect();return [r.left+r.width*p.x/s.context.canvas.width,r.top+r.height*p.y/s.context.canvas.height]");
+    await phase('setup');
+    await page.click(...stair);
+    let climbed=false;
+    for(let i=0;i<45&&!climbed;i++) {
+      await page.wait(150);
+      climbed=await page.eval("return window.tervain.valley.roomKey==='house_a/loft'");
+    }
+    if(!climbed) throw new Error('Clicking the lit stairs did not reach the loft');
+    await move('inside-loft',['KeyA'],660);
+    await page.wait(700);
+  } else {
+    const house = await page.eval("const s=window.tervain.scene; const b=[...s.props.values()].flat().find(p=>p.building?.id==='house_a').building; return [b.x,b.z];");
+    await place(...house);
+    await move('inside-house', ['KeyA'], 600);
+    await page.wait(1200);
+  }
   await place(...at);
   await page.eval("const s = window.tervain.game.state; s.inventory.hunting_bow = 1; s.inventory.arrow = 6; s.equippedWeapon = 'hunting_bow';");
   await phase('bow');

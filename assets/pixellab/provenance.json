@@ -3036,6 +3036,101 @@
         "76890a16ae9536c4eeb2e3713fbc31d37b383ad0c1e8047affc0ccc1b2b471ea",
         "3cc67a8e2d6ca9a09160219d021283aa83cdf0ba83fce8cf6bd6830c656f46d7"
       ]
+    },
+    "room_oak": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. An orthographic flat seamless texture swatch, filled fully edge to edge by a reclaimed honey-oak plank floor. Broad horizontal boards, occasional staggered joints, quiet flowing grain and knots, matte mid brown values. Surface only, no perspective or objects.",
+      "sourceFrameSha256": [
+        "9331f3ec7e5337431ebb89377eb1e1a2773c886333da6b9eca75cb85c7ccb66f"
+      ]
+    },
+    "room_plaster": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. Flat front-elevation repeating material tile with warm pale straw limewash plaster and fine hand-trowelled variation, subtle speckles, no simulated edges, no objects, timber or windows. Fill every pixel, seamless edge to edge.",
+      "sourceFrameSha256": [
+        "869290dfe3c4b9ef36f53a0fc50848935afbeeba1c48a12db52cb7ac39cb3065"
+      ]
+    },
+    "room_masonry": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. Flat front-elevation perfectly repeating medieval dressed limestone masonry texture, rows of small irregular grey-blue and warm ochre ashlar stones, modest contrast, seamless edges, fill every pixel. No objects, horizons or border.",
+      "sourceFrameSha256": [
+        "19dcdbc3e5f5db32572ec21d537052be3da4926cde8d30129405e10a8cb07908"
+      ]
+    },
+    "room_rug": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. Completely flat straight-on rectangular woven rug textile design filling the entire frame: deep madder red field, small golden ochre central lozenges, Nordic botanical edging, warm cream woven double border. Mirrored modest geometric design, no fringe, shadow or perspective.",
+      "sourceFrameSha256": [
+        "7ea30bbfe9544390f46f943d4dbf6ec362b0a8a764923ec6e35659c22e7b3821"
+      ]
+    },
+    "room_indigo": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. A rectangular deep peacock-teal and indigo woven carpet, antique gold narrow double border with diamond corners and small repetitive flowering motifs. Flat textile design covering all pixels of the complete image evenly; no perspective, shadows, or surround.",
+      "sourceFrameSha256": [
+        "0649761668e1657a253029eb1d52ca6db46fe6d8e75844592634a6baa41fc2aa"
+      ]
+    },
+    "room_casement": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. Straight-on FRONT ELEVATION of a single leaded casement window in a weathered oak frame, four to six small diamond panes of muted sky-blue and golden sun, dark muntins, worn ochre sill, chunky silhouette. Perfectly upright and rectangular, no perspective. A single complete isolated object on transparent background, no surrounding walls or ground, no text, no border around the image. ",
+      "sourceFrameSha256": [
+        "6adbbbdcb671816aba41f9512cf19b5a485a99238f006698665b2e047dc9eb7f"
+      ]
+    },
+    "room_archway": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. FRONT ELEVATION of a beautiful open medieval interior doorway. A heavy oak lintel with a subtle rounded peak, thick weathered vertical jambs, a dark blue-green empty passage in the centre and a thin warm interior rim. Bottom is completely open to the floor. Entire portal, straight-on, no perspective. A single complete isolated object on transparent background, no surrounding walls or ground, no text, no border around the image. ",
+      "sourceFrameSha256": [
+        "69dca2d894e09e615b3ed2b775228d8a933e1d4888742c95324283d15d2d4199"
+      ]
+    },
+    "room_waylight": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. One iconic small faceted golden lozenge shaped wayfinding lantern, diamond silhouette with a bright ivory heart inside an amber glass chamber, dark bronze pointed cap and base. Straight on, dramatic readable pixels, symmetrical, no arm or chain, isolated. A single complete isolated object on transparent background, no surrounding walls or ground, no text, no border around the image. ",
+      "sourceFrameSha256": [
+        "4be8b60737ada92d77c1e508094ad9870bc72706693ab02ddd9c54d24e6c2d15"
+      ]
+    },
+    "room_banner": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. Front elevation of a weathered medieval woven blue-green swallowtail wall hanging bearing a simple golden wheat sprig, with a dark oak crossbar and two brass end knobs. Upright, slim and readable from a distance. A single complete isolated object on transparent background, no surrounding walls or ground, no text, no border around the image. ",
+      "sourceFrameSha256": [
+        "60f239c35cad79f95608f29ba476110177f51f008299d98cca368734bce7a794"
+      ]
+    },
+    "room_hearth": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. A cosy medieval fieldstone fireplace, three-quarter 2:1 isometric view showing the front opening and the right side, low stone mantle with two small pots, worn terracotta bricks, bright amber flame in dark opening and stacked oak logs. It sits on the floor. No surrounding room. A single complete isolated object on transparent background, no surrounding walls or ground, no text, no border around the image. ",
+      "sourceFrameSha256": [
+        "47327ba7455f42a87b70350fd4271322c91892b902edc5b062b90a10bdf89fa2"
+      ]
+    },
+    "room_hearth--flame": {
+      "tool": "animate_image",
+      "description": "The little golden flame dances and shifts inside the firebox, embers glimmer, a wisp curls up within the black opening. Stone fireplace, objects, framing and silhouette remain perfectly stationary, seamless loop.",
+      "sourceFrameSha256": [
+        "47327ba7455f42a87b70350fd4271322c91892b902edc5b062b90a10bdf89fa2",
+        "4c899a24edadba0a81215333eb995c41ee9f535d082352191b86821f5c7cc52f",
+        "9c477baacd764e4bdc8ca1a540efd30fcb68598afc3c0cdf684c509e859d2d98",
+        "c04fde068f4d1cb40781fd5b01e9a5b2ed75e3fe5e20c76c88f7fd111a98f972",
+        "b9b544f292d77f826ba93e89f698f4e9f8c4a97ce16420b142b8414b56a7c1dd"
+      ]
+    },
+    "room_open_chest": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. A single open medieval oak storage chest with the lid raised back on brass hinges, folded linen and one small amber pouch inside. 2:1 isometric three-quarter view, face and right side visible. Chest only. A single complete isolated object on transparent background, no surrounding walls or ground, no text, no border around the image. ",
+      "sourceFrameSha256": [
+        "2bae037fcc1a7befd84e85ab15f24f8fe4924c723a999ed77108565e07053c7e"
+      ]
+    },
+    "room_slate": {
+      "tool": "create_image_pro_flash",
+      "description": "Original Tervain medieval fantasy RPG pixel art. Warm oak, aged brass, deep blue-green shadows, earthen umber, honey light from upper left. Fine clusters of hand-placed pixels in a restrained 18-colour palette, legible silhouettes. A flat seamless top-down pixel-art texture for the quiet floor of a cellar. Broad worn rectangular slate flagstones in cool desaturated blue-grey and mossy teal, very low contrast, shallow thin mortar seams, a few subdued chipped corners, diffuse light. Four broad flat stones across the tile. Flattish mid-dark surface to place bright furniture on. Fill every pixel, no bevel highlights, cobbles, dirt particles, objects or border.",
+      "sourceFrameSha256": [
+        "e8b9eb60ee133505e62c1ef08e363a2da9dcc427cba886f13500d5540bdb829e"
+      ]
     }
   },
   "runtimeFilesSha256": {
@@ -3082,8 +3177,8 @@
     "icons/votive_reed.png": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
     "icons/witness_cord.png": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
     "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
-    "sprites.json": "9209097ea38f82410bfdb2021ecd4274166eb4e559436b71b25c58d66e42b774",
-    "sprites.png": "8ec2e2e93517f8fcc8986d02e935d710580b24d2ce2a8431e7eb5a00b3d4a1b6",
+    "sprites.json": "b24c41a286b005879a596019ef3526d9119338d2d5ee3862a275cbb8a458d92f",
+    "sprites.png": "42090680a757dc6fcb9f789d1c5ee746df0fc87b5b7cf889ef4e10542a626370",
     "title.png": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30",
     "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
   }

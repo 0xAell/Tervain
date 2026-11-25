@@ -166,7 +166,18 @@ export interface KnownOffense {
   atClock: number;
 }
 
+export type InteriorLevel = 'ground' | 'loft' | 'cellar';
+export interface InteriorPosition {
+  building: string;
+  level: InteriorLevel;
+  x: number;
+  z: number;
+  rear?: boolean;
+}
+
 export interface PlayerState {
+  /** Local floor coordinates while x/z retain the building's position on the valley map. */
+  interior?: InteriorPosition;
   x: number;
   y: number;
   z: number;
@@ -294,6 +305,8 @@ export type Command =
   | { t: 'swapQuickSlots'; from: number; to: number }
   | { t: 'equipWeapon'; item: ItemId | null }
   | { t: 'setMapMarker'; marker: MapMarker | null }
+  | { t: 'roomStorage'; item: ItemId; direction: 'deposit' | 'withdraw' }
+  | { t: 'roomCraft'; recipe: 'herbs' | 'fletch' | 'cook' }
   | { t: 'damagePlayer'; amount: number }
   | { t: 'healPlayer'; amount: number }
   | { t: 'setFact'; key: string; value: FactValue }

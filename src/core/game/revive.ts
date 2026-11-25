@@ -80,6 +80,24 @@ export function reviveState(raw: unknown): WorldState | null {
     saveFormatVersion: SAVE_FORMAT_VERSION,
     contentRevision: CONTENT_REVISION,
   };
+  const room = p.interior;
+  delete merged.player.interior;
+  if (
+    isObj(room) &&
+    typeof room.building === 'string' &&
+    room.building.length <= 64 &&
+    (room.level === 'ground' || room.level === 'loft' || room.level === 'cellar') &&
+    isNum(room.x) &&
+    isNum(room.z)
+  ) {
+    merged.player.interior = {
+      building: room.building,
+      level: room.level,
+      x: room.x,
+      z: room.z,
+      rear: room.rear === true,
+    };
+  }
   for (const id of NPC_IDS) {
     const n = (raw.npcs as Record<string, unknown>)[id];
     if (!isObj(n)) continue;

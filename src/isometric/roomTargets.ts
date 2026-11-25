@@ -1,0 +1,108 @@
+import { fromBuildingLocal, toBuildingLocal } from '../core/world/interiors';
+import type { NpcId, WorldState } from '../core/game/types';
+import type { V2 } from '../core/world/layout';
+import { doorways, doorOpen, siteAtPoint, type Doorway } from './doorways';
+import { households } from './households';
+import {
+  fixtureApproach,
+  passageLabel,
+  roomWalkable,
+  visibleAcrossWall,
+  type Fixture,
+  type FloorPlan,
+  type Passage,
+} from './roomPlans';
+import type { Actor } from './simulation';
+
+export interface RoomTarget {
+  id: string;
+  at: V2;
+  approach: V2;
+  label: string;
+  reach: number;
+  door?: Doorway;
+  passage?: Passage;
+  fixture?: Fixture;
+  npc?: NpcId;
+  locked?: boolean;
+}
+export function outsideTargets(state: WorldState): RoomTarget[] {
+  return doorways.map((door) => {
+    const locked = !doorOpen(door, state),
+      name = households[door.site.id]!.name;
+    const label = locked
+      ? door.rear
+        ? 'Examine the archive shutter'
+        : 'Examine the locked archive door'
+      : 'Enter ' + name + (door.rear ? ' by the shutter' : '');
+    return { id: door.id, at: door.sill, approach: door.outside, label, reach: 2.45, door, locked };
+  });
+}
+export function residentSpots(plan: FloorPlan, actors: Actor[]) {
+  const people: { a: Actor; at: V2 }[] = [];
+  for (const a of actors) {
+    if (!a.npc || a.dead || siteAtPoint(a) !== plan.site) continue;
+    if (plan.level !== (a.posture === 'rest' ? 'loft' : 'ground')) continue;
+    const l = toBuildingLocal(plan.site, a.x, a.z);
+    const room = plan.rooms[a.posture === 'work' || a.posture === 'rest' ? 0 : 1];
+    const preferred = {
+      x: Math.max(room.x0 + 1.5, Math.min(room.x1 - 1.5, (room.x0 + room.x1) / 2 + l.x * 0.5)),
+      z: 1 + l.z * 0.21,
+    };
+    const candidates = [
+      preferred,
+      { x: preferred.x, z: preferred.z + 1.45 },
+      { x: preferred.x - 1.7, z: preferred.z },
+      { x: preferred.x + 1.7, z: preferred.z },
+      { x: 0, z: 1 },
+    ];
+    const at = candidates.find(
+      (p) =>
+        roomWalkable(plan, p) && people.every((other) => Math.hypot(p.x - other.at.x, p.z - other.at.z) > 1.2)
+    );
+    if (at) people.push({ a, at });
+  }
+  return people;
+}
+export function indoorTargets(plan: FloorPlan, at: V2, actors: Actor[]): RoomTarget[] {
+  const portals = plan.passages.map((p) => ({
+    id: 'pass/' + p.id,
+    at: p,
+    approach: p,
+    label: passageLabel(plan, p, at),
+    reach: p.kind === 'outside' ? 2.1 : 2,
+    passage: p,
+  }));
+  const fixtures = plan.fixtures
+    .filter((f) => f.use)
+    .map((f) => {
+      const approach = fixtureApproach(f);
+      return { id: 'use/' + f.id, at: f, approach, label: f.label!, reach: 1.95, fixture: f };
+    });
+  const people = residentSpots(plan, actors).map(({ a, at }) => ({
+    id: 'talk/' + a.id,
+    at,
+    approach: at,
+    label: 'Speak with ' + a.name,
+    reach: 2.3,
+    npc: a.npc!,
+  }));
+  return [...portals, ...fixtures, ...people];
+}
+export function targetDistance(target: RoomTarget, p: V2, plan?: FloorPlan) {
+  if (plan && !visibleAcrossWall(plan, p, target.at)) return Infinity;
+  if (target.door) {
+    const d = target.door,
+      local = toBuildingLocal(d.site, p.x, p.z);
+    if ((d.rear ? -local.z : local.z) < d.site.d / 2 - 0.22) return Infinity;
+  }
+  if (target.fixture) {
+    const f = target.fixture;
+    return Math.hypot(Math.max(0, Math.abs(p.x - f.x) - f.hx), Math.max(0, Math.abs(p.z - f.z) - f.hz));
+  }
+  return Math.hypot(p.x - target.at.x, p.z - target.at.z);
+}
+export function outsideReturn(door: Doorway): V2 {
+  const l = toBuildingLocal(door.site, door.sill.x, door.sill.z);
+  return fromBuildingLocal(door.site, l.x, l.z + (door.rear ? -1 : 1) * 2.05);
+}
