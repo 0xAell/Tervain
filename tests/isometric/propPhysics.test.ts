@@ -1,4 +1,5 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import RAPIER from '@dimforge/rapier3d-compat';
 import { initializePhysics } from '../../src/physics/initialize';
 import { Game } from '../../src/core/game/game';
 import { reviveState } from '../../src/core/game/revive';
@@ -7,7 +8,8 @@ import { Valley } from '../../src/isometric/simulation';
 import { PropPhysics, angleOf } from '../../src/isometric/propPhysics';
 import { propsNear, roomProps, staticRoom } from '../../src/isometric/propCatalogue';
 import { sites, frontDoor } from '../../src/isometric/doorways';
-import { floorPlan } from '../../src/isometric/roomPlans';
+import { floorPlan, roomRisePixels } from '../../src/isometric/roomPlans';
+import { buildRoom } from '../../src/isometric/propSurfaces';
 import { wetPoint, riverVelocity } from '../../src/isometric/water';
 import { worldView } from '../../src/core/game/worldView';
 import { supportHeight } from '../../src/isometric/relief';
@@ -33,6 +35,37 @@ function moveTo(v: Valley, x: number, z: number) {
   advance(v, 0.15);
 }
 describe('loose objects in the playable vale', () => {
+  it('supports dropped objects on each individual tread above and below the hall slab', () => {
+    const plan = floorPlan(sites.find((s) => s.id === 'house_a')!, 'ground');
+    const world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });
+    try {
+      buildRoom(world, plan);
+      world.step();
+      const surface = (x: number, z: number) => {
+        const hit = world.castRay(new RAPIER.Ray({ x, y: 8, z }, { x: 0, y: -1, z: 0 }), 20, true);
+        expect(hit).toBeTruthy();
+        return 8 - hit!.timeOfImpact;
+      };
+      for (const stair of plan.stairs) {
+        for (const t of stair.treads)
+          expect(surface(stair.passage.x, (t.start + t.end) / 2)).toBeCloseTo(t.height / roomRisePixels, 4);
+        expect(surface(stair.x1 + 0.28, (stair.z0 + stair.z1) / 2)).toBeCloseTo(0);
+      }
+    } finally {
+      world.free();
+    }
+  });
+  it('routes the approach to a staircase around the movable hall table', () => {
+    const v = journey();
+    v.enterDoor(frontDoor(sites.find((s) => s.id === 'house_a')!));
+    advance(v, 0.3);
+    const table = [...v.props!.objects].find((p) => p.spec.key === 'table')!;
+    const a = { x: table.x, z: table.z + 1.65 },
+      b = { x: table.x, z: table.z - 1.65 };
+    expect(v.canWalk(a, b)).toBe(false);
+    const side = table.x + table.spec.hx + 0.9;
+    expect(v.canWalk({ x: side, z: a.z }, { x: side, z: b.z })).toBe(true);
+  });
   it('stocks every storey, keeps service furniture usable and has one body for each loose fixture', () => {
     let count = 0;
     const ids = new Set<string>();

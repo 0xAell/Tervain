@@ -8,7 +8,10 @@ import { households } from './households';
 import {
   fixtureApproach,
   passageLabel,
+  roomLift,
+  roomRisePixels,
   roomWalkable,
+  stairAt,
   visibleAcrossWall,
   type Fixture,
   type FloorPlan,
@@ -177,6 +180,11 @@ export function physicalTargets(physics: PropPhysics, p: V2, plan?: FloorPlan) {
 }
 export function targetDistance(target: RoomTarget, p: V2, plan?: FloorPlan) {
   if (plan && !visibleAcrossWall(plan, p, target.at)) return Infinity;
+  const flight = plan && stairAt(plan, p);
+  if (flight && plan) {
+    if (flight.passage.id === target.passage?.id) return 0;
+    if (Math.abs(roomLift(plan, p) - roomLift(plan, target.at)) > 1.6 * roomRisePixels) return Infinity;
+  }
   if (target.door) {
     const d = target.door,
       local = toBuildingLocal(d.site, p.x, p.z);

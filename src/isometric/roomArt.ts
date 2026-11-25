@@ -6,9 +6,11 @@ import {
   landingRun,
   landingHalfWidth,
   roomProject,
+  upperLandingRun,
   type Chamber,
   type FloorPlan,
   type Passage,
+  type StairFlight,
 } from './roomPlans';
 
 type Point = { x: number; y: number };
@@ -211,51 +213,265 @@ function landing(ctx: CanvasRenderingContext2D, atlas: Atlas, plan: FloorPlan, p
     line(ctx, a, b, plan.stone ? '#cec4a9' : '#dcb578');
   }
 }
-function stairs(ctx: CanvasRenderingContext2D, atlas: Atlas, p: Passage) {
-  const x = p.x,
-    z = p.z + 0.2,
-    w = 1.55,
-    up = p.kind === 'up';
+function stairRailing(ctx: CanvasRenderingContext2D, s: StairFlight, x: number, stone: boolean) {
+  const first = s.treads[0]!,
+    last = s.treads[s.treads.length - 1]!,
+    rise = Math.max(0, last.height),
+    z0 = first.start,
+    z1 = last.end,
+    dark = stone ? '#424047' : '#50382c',
+    light = stone ? '#a59473' : '#b58a58';
+  for (const fraction of [0, 0.5, 1]) {
+    const z = z0 + (z1 - z0) * fraction,
+      h = rise * fraction;
+    line(ctx, at(x, z, h), at(x, z, h + 10), dark, 3);
+    line(ctx, at(x - 0.05, z, h + 1), at(x - 0.05, z, h + 10), light);
+    line(ctx, at(x - 0.07, z, h + 10.5), at(x + 0.07, z, h + 10.5), '#dbb57f', 2);
+  }
+  for (const h of [5, 10]) {
+    line(ctx, at(x, z0, h), at(x, z1, rise + h), dark, h === 10 ? 3 : 2);
+    line(ctx, at(x, z0, h + 1), at(x, z1, rise + h + 1), light);
+  }
+}
+
+function stairOpening(s: StairFlight) {
+  const outline = new Path2D();
+  const corners = [at(s.x0, s.z0), at(s.x0, s.z1), at(s.x1, s.z1), at(s.x1, s.z0)];
+  corners.forEach((p, i) => (i ? outline.lineTo(p.x, p.y) : outline.moveTo(p.x, p.y)));
+  outline.closePath();
+  return outline;
+}
+
+// The two near edges hide the part of a descending sprite that passes below the floor.
+export function clipBelowRim(ctx: CanvasRenderingContext2D, s: StairFlight) {
+  const left = at(s.x0, s.z1),
+    front = at(s.x1, s.z1),
+    right = at(s.x1, s.z0);
+  ctx.beginPath();
+  ctx.moveTo(left.x - 100, left.y - 50);
+  ctx.lineTo(left.x, left.y);
+  ctx.lineTo(front.x, front.y);
+  ctx.lineTo(right.x, right.y);
+  ctx.lineTo(right.x + 100, right.y - 50);
+  ctx.lineTo(right.x + 100, right.y - 220);
+  ctx.lineTo(left.x - 100, left.y - 220);
+  ctx.closePath();
+  ctx.clip();
+}
+
+function stairs(ctx: CanvasRenderingContext2D, atlas: Atlas, s: StairFlight, stone: boolean) {
+  const { x0, x1, z0, z1, treads } = s,
+    last = treads[treads.length - 1]!,
+    up = last.height > 0,
+    face = stone ? 'room_masonry' : 'room_oak',
+    surface = stone ? 'room_slate' : 'room_oak',
+    dark = stone ? '#47444c' : '#513a31',
+    nose = stone ? '#c7bd9e' : '#e1b884';
   if (up) {
+    polygon(
+      ctx,
+      [at(x0, z0), at(x1 + 1.05, z0 + 0.5), at(x1 + 0.35, z1 + 0.25), at(x0, z1)],
+      'rgba(34,26,31,.30)'
+    );
+  } else {
+    const outline = stairOpening(s);
+    ctx.fillStyle = '#191c26';
+    ctx.fill(outline);
+    ctx.save();
+    ctx.clip(outline);
+    const pit = last.height - 8;
+    for (const [x, z] of [
+      [x1, z0],
+      [x0, z1],
+    ] as const) {
+      const a = at(x0, z0),
+        b = at(x, z),
+        c = at(x0, z0, pit),
+        d = at(x, z, pit);
+      quad(ctx, atlas, 'room_masonry', a, b, c, Math.hypot(x - x0, z - z0) * 11, -pit);
+      polygon(ctx, [a, b, d, c], x === x0 ? 'rgba(32,30,43,.52)' : 'rgba(24,25,36,.35)');
+      line(ctx, a, b, dark, 3);
+    }
+  }
+  if (up) {
+    const front = last.end,
+      back = front - upperLandingRun,
+      h = last.height,
+      left = x0 - 0.14,
+      right = x1 + 0.14;
+    // A section of the next floor projects from the rear wall, with the head of the flight let into it.
+    quad(ctx, atlas, face, at(right, back, h), at(right, front, h), at(right, back, h - 5), 14, 5);
+    quad(ctx, atlas, face, at(left, front, h), at(right, front, h), at(left, front, h - 5), 36, 5);
+    quad(ctx, atlas, surface, at(left, back, h), at(right, back, h), at(left, front, h), 32, 13);
+    line(ctx, at(left, front, h), at(right, front, h), nose);
+    const high = h + 23;
     quad(
       ctx,
       atlas,
-      'room_archway',
-      at(x - w - 0.14, z - 3.4, 37),
-      at(x + w + 0.14, z - 3.4, 37),
-      at(x - w - 0.14, z - 3.4, 11)
+      stone ? 'room_masonry' : 'room_plaster',
+      at(left, back, high),
+      at(right, back, high),
+      at(left, back, h),
+      30,
+      23
     );
+    const jamb = (x: number, height: number) => at(x, back, h + height);
+    const opening = [
+      jamb(left + 0.42, 0),
+      jamb(left + 0.42, 15),
+      jamb(left + 0.74, 19),
+      jamb(right - 0.72, 19),
+      jamb(right - 0.42, 15),
+      jamb(right - 0.42, 0),
+    ];
+    polygon(ctx, opening, '#302b2f');
+    ctx.save();
+    ctx.clip();
+    const recess = back - 0.95,
+      inside = (x: number, lift: number) => at(x, recess, h + lift);
+    quad(ctx, atlas, face, inside(left, 21), inside(right, 21), inside(left, 0), 27, 21);
+    line(ctx, inside(left + 1.55, 0), inside(left + 1.55, 20), dark, 2);
+    quad(ctx, atlas, surface, inside(left, 0), inside(right, 0), jamb(left, 0), 30, 9);
+    quad(ctx, atlas, face, inside(left + 0.42, 20), jamb(left + 0.42, 20), inside(left + 0.42, 0), 9, 20);
+    polygon(ctx, opening, 'rgba(29,30,40,.58)');
+    line(ctx, inside(left + 0.5, 1), inside(right, 1), '#8b7659');
+    ctx.restore();
+    for (const x of [left + 0.18, right - 0.18]) {
+      line(ctx, jamb(x, 0), jamb(x, 21), dark, 3);
+      line(ctx, jamb(x - 0.06, 0), jamb(x - 0.06, 21), stone ? '#aa9e83' : '#c29c6b');
+    }
+    line(ctx, jamb(left - 0.08, 22), jamb(right + 0.08, 22), dark, 4);
+    line(ctx, jamb(left - 0.08, 23.5), jamb(right + 0.08, 23.5), nose);
+    stairRailing(ctx, s, x0, stone);
   }
-  if (!up)
-    polygon(
-      ctx,
-      [at(x - w - 0.2, z), at(x + w + 0.2, z), at(x + w + 0.2, z - 3.9), at(x - w - 0.2, z - 3.9)],
-      '#241f2b'
-    );
-  for (let i = 6; i >= 0; i--) {
-    const near = z - i * 0.54,
-      far = near - 0.56,
-      h = (up ? 2.1 : -0.85) * (i + 1);
-    const a = at(x - w, near, h),
-      b = at(x + w, near, h),
-      c = at(x - w, far, h);
-    quad(ctx, atlas, 'room_oak', a, b, c, 29, 4);
-    polygon(ctx, [a, b, at(x + w, near, h - 2.2), at(x - w, near, h - 2.2)], up ? '#725039' : '#403338');
-    if (!up) polygon(ctx, [a, b, at(x + w, far, h), c], 'rgba(13,19,27,' + Math.min(0.65, 0.08 * i) + ')');
-    line(ctx, a, b, up ? '#e3be81' : '#bb976d');
+  // Both directions are painted from the back of the house toward the viewer.
+  for (let j = 0; j < treads.length; j++) {
+    const i = up ? treads.length - 1 - j : j,
+      tread = treads[i]!,
+      back = Math.min(tread.start, tread.end),
+      front = Math.max(tread.start, tread.end),
+      h = tread.height,
+      lower = treads[i + (up ? -1 : 1)]?.height ?? h,
+      a = at(x0, front, h),
+      b = at(x1, front, h),
+      c = at(x0, back, h),
+      d = at(x1, back, h);
+    if (up && h > 0) {
+      quad(ctx, atlas, face, d, b, at(x1, back), (front - back) * 12, h);
+      polygon(ctx, [d, b, at(x1, front), at(x1, back)], 'rgba(34,28,35,.48)');
+      line(ctx, d, b, dark, 2);
+    }
+    if (lower < h) {
+      quad(ctx, atlas, face, a, b, at(x0, front, lower), (x1 - x0) * 9, h - lower);
+      polygon(ctx, [a, b, at(x1, front, lower), at(x0, front, lower)], 'rgba(53,38,41,.36)');
+    }
+    quad(ctx, atlas, surface, c, d, a, (x1 - x0) * 10, (front - back) * 9);
+    line(ctx, a, b, nose);
+    if (!up) {
+      const alpha = 0.08 + (0.72 * i) / (treads.length - 1);
+      polygon(ctx, [c, d, at(x1, front, lower), at(x0, front, lower)], 'rgba(19,25,39,' + alpha + ')');
+    }
   }
-  const top = up ? 15 : -5;
-  for (const side of [-1, 1]) {
-    const a = at(x + w * side, z, 2),
-      b = at(x + w * side, z - 3.2, top);
-    line(ctx, a, { x: a.x, y: a.y - 7 }, '#735035', 3);
-    line(ctx, b, { x: b.x, y: b.y - 7 }, '#735035', 3);
-    line(ctx, { x: a.x, y: a.y - 7 }, { x: b.x, y: b.y - 7 }, '#ad8957', 2);
+  if (up) {
+    line(ctx, at(x1, z0, last.height - 4), at(x1, z1, -1), dark, 4);
+    line(ctx, at(x1, z0, last.height - 3), at(x1, z1), stone ? '#928571' : '#b38d5d');
+    // Peg heads along the timber stringer.
+    if (!stone)
+      for (const i of [2, 5, 8]) {
+        const t = treads[i]!,
+          p = at(x1, t.start, t.height - 3);
+        ctx.fillStyle = '#332d2d';
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 2);
+      }
+  } else {
+    // A lantern hangs inside the far cheek. Its light falls off within the well.
+    const lamp = at(x0 + 0.12, z0 + (z1 - z0) * 0.69, -9);
+    const light = ctx.createRadialGradient(lamp.x, lamp.y, 0, lamp.x, lamp.y, 15);
+    light.addColorStop(0, 'rgba(255,185,91,.38)');
+    light.addColorStop(1, 'rgba(228,153,68,0)');
+    ctx.fillStyle = light;
+    ctx.fillRect(lamp.x - 15, lamp.y - 15, 30, 30);
+    const lx = Math.round(lamp.x),
+      ly = Math.round(lamp.y);
+    ctx.fillStyle = '#3d3030';
+    ctx.fillRect(lx - 2, ly - 3, 4, 6);
+    ctx.fillStyle = '#d7964d';
+    ctx.fillRect(lx - 1, ly - 2, 2, 4);
+    ctx.fillStyle = '#ffe4a1';
+    ctx.fillRect(lx, ly - 1, 1, 2);
+    ctx.restore();
+    for (const [a, b] of [
+      [at(x0, z1), at(x1, z1)],
+      [at(x1, z1), at(x1, z0)],
+      [at(x0, z0), at(x0, z1)],
+    ] as const) {
+      line(ctx, a, b, dark, 4);
+      line(ctx, { x: a.x, y: a.y - 1 }, { x: b.x, y: b.y - 1 }, stone ? '#ae9f88' : '#bc9869');
+    }
+    stairRailing(ctx, s, x0, stone);
+  }
+  stairRailing(ctx, s, x1, stone);
+}
+interface StairLayer {
+  flight: StairFlight;
+  left: number;
+  top: number;
+  image: HTMLCanvasElement;
+  rail: HTMLCanvasElement;
+}
+function stairLayer(atlas: Atlas, flight: StairFlight, stone: boolean): StairLayer {
+  const { x0, x1, z0, z1, treads } = flight;
+  const height = Math.max(0, treads[treads.length - 1]!.height);
+  const back = height ? z0 - upperLandingRun : z0;
+  const left = Math.floor(at(x0, z1).x) - 16,
+    top = Math.floor(at(x0, back, height + 24).y) - 4;
+  const image = document.createElement('canvas');
+  image.width = Math.ceil(at(x1, back).x) - left + 16;
+  image.height = Math.ceil(at(x1, z1).y) - top + 11;
+  const rail = document.createElement('canvas');
+  rail.width = image.width;
+  rail.height = image.height;
+  for (const canvas of [image, rail]) {
+    const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(-left, -top);
+    if (canvas === image) stairs(ctx, atlas, flight, stone);
+    else stairRailing(ctx, flight, x1, stone);
+  }
+  return { flight, image, rail, left, top };
+}
+export function stairForeground(
+  ctx: CanvasRenderingContext2D,
+  plate: RoomPlate,
+  p: V2,
+  box: { x: number; y: number; w: number; h: number },
+  hero: boolean
+) {
+  for (const layer of plate.stairs) {
+    if (
+      box.x + box.w < layer.left ||
+      box.x > layer.left + layer.image.width ||
+      box.y + box.h < layer.top ||
+      box.y > layer.top + layer.image.height
+    )
+      continue;
+    const s = layer.flight,
+      aboard = p.x >= s.x0 && p.x <= s.x1 && p.z >= s.z0 && p.z <= s.z1;
+    const behind = (p.x < s.x0 && p.z < s.z1) || (p.z < s.z0 && p.x < s.x1);
+    if (!aboard && !behind) continue;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(box.x, box.y, box.w, box.h);
+    ctx.clip();
+    ctx.globalAlpha = hero && behind ? 0.68 : 1;
+    ctx.drawImage(behind && s.passage.kind === 'up' ? layer.image : layer.rail, layer.left, layer.top);
+    ctx.restore();
   }
 }
 export interface RoomPlate {
   casements: Casement[];
   floors: Path2D;
+  stairs: StairLayer[];
   image: HTMLCanvasElement;
   left: number;
   top: number;
@@ -306,6 +522,7 @@ export class RoomArt {
       }
       floors.closePath();
     }
+    for (const stair of plan.stairs) floors.addPath(stairOpening(stair));
     const [west, hall, east] = plan.rooms;
     for (const [i, r] of plan.rooms.entries()) {
       ctx.save();
@@ -344,6 +561,9 @@ export class RoomArt {
       recordWindow(0)
     );
     ctx.restore();
+    const stairLayers = plan.stairs.map((s) =>
+      stairLayer(this.atlas, s, plan.stone || s.passage.target === 'cellar')
+    );
     for (const p of plan.passages) {
       if (p.kind === 'arch') {
         landing(ctx, this.atlas, plan, p);
@@ -351,8 +571,10 @@ export class RoomArt {
         ctx.translate(0, -chamberLift(plan, p.side === -1 ? 0 : 2));
         arch(ctx, this.atlas, plan, p);
         ctx.restore();
-      } else if (p.target) stairs(ctx, this.atlas, p);
-      else {
+      } else if (p.target) {
+        const layer = stairLayers.find((l) => l.flight.passage === p)!;
+        ctx.drawImage(layer.image, layer.left, layer.top);
+      } else {
         floorRect(ctx, this.atlas, 'room_rug', p.x - 1.65, p.z - 1.1, p.x + 1.65, hall.z1);
         const a = at(p.x - 1.6, hall.z1),
           b = at(p.x + 1.6, hall.z1);
@@ -382,7 +604,7 @@ export class RoomArt {
         line(ctx, b, { x: b.x + 1, y: b.y - 1 }, '#eac184', 3);
       }
     }
-    const out = { image, left, top, casements, floors };
+    const out = { image, left, top, casements, floors, stairs: stairLayers };
     if (this.plates.size >= 6) this.plates.delete(this.plates.keys().next().value!);
     this.plates.set(style, out);
     return out;

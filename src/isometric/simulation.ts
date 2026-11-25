@@ -40,6 +40,10 @@ import {
   chamberAt,
   roomLift,
   roomRisePixels,
+  floorElevation,
+  stairAt,
+  stairDepth,
+  stairRun,
   type Passage,
 } from './roomPlans';
 import { households } from './households';
@@ -249,7 +253,7 @@ export class Valley {
       (plan && inside
         ? terrainHeight(plan.site.x, plan.site.z) +
           footingHeight +
-          { ground: 0, loft: 3.5, cellar: -3 }[plan.level] +
+          floorElevation[plan.level] +
           roomLift(plan, inside) / roomRisePixels
         : supportHeight(this.player));
   }
@@ -285,7 +289,7 @@ export class Valley {
   canWalk(a: V2, b: V2) {
     const room = this.room;
     return room
-      ? roomCanMove(room, a, b)
+      ? roomCanMove(room, a, b) && (!this.props || this.props.roomRouteClear(a, b))
       : navigable(a, b, this.game.state) && (!this.props || passesTrunks(a, b));
   }
   private restoreFootprint() {
@@ -361,6 +365,9 @@ export class Valley {
     const amount = (walkThrough ? stride : Math.min(stride, length)) / length,
       before = { x: p.x, z: p.z };
     const next = { x: p.x + dx * amount, z: p.z + dz * amount };
+    const flight = stairAt(plan, before);
+    if (flight && stairDepth(flight, next) >= stairRun)
+      next.z = flight.passage.z + flight.direction * (stairRun - 0.01);
     if (roomCanMove(plan, p, next)) {
       p.x = next.x;
       p.z = next.z;
@@ -374,17 +381,18 @@ export class Valley {
     this.player.yaw = Math.atan2(dx, dz);
     this.walk = distance(before, p) > 0.0001;
     this.stamina = Math.max(0, Math.min(100, this.stamina + dt * (run ? -5 : 5)));
-    if (!walkThrough) return;
-    for (const link of plan.passages) {
-      if (Math.abs(p.x - link.x) > 1.13) continue;
-      if (
-        (link.kind === 'outside' && dz > 0 && before.z < link.z && p.z >= link.z) ||
-        (link.target && dz < 0 && before.z > link.z - 0.4 && p.z <= link.z - 0.4)
-      ) {
-        this.usePassage(link);
-        break;
-      }
+    if (
+      flight &&
+      stairAt(plan, p) === flight &&
+      (p.z - before.z) * flight.direction > 0 &&
+      stairDepth(flight, p) >= stairRun - 0.22
+    ) {
+      this.usePassage(flight.passage);
+      return;
     }
+    const door = plan.passages.find((link) => link.kind === 'outside');
+    if (walkThrough && door && Math.abs(p.x - door.x) <= 1.13 && before.z < door.z && p.z >= door.z)
+      this.usePassage(door);
   }
   get mount() {
     return this.actors.find((a) => a.animal === 'deer-mount')!;

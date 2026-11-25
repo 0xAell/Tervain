@@ -7,8 +7,14 @@ import { doorways, doorsById, frontDoor, sites } from '../../src/isometric/doorw
 import { enteredThroughDoor, navigable } from '../../src/isometric/land';
 import {
   floorPlan,
+  floorElevation,
+  pickRoomFloor,
   passageLanding,
   roomCanMove,
+  roomFoot,
+  roomLift,
+  roomRisePixels,
+  roomWalkable,
   roomUnproject,
   roomProject,
   type FloorPlan,
@@ -57,6 +63,18 @@ describe('walkable household interiors', () => {
       }
       for (const room of plan.rooms)
         expect(points.some((p) => p.x > room.x0 + 0.8 && p.x < room.x1 - 0.8)).toBe(true);
+      for (const flight of plan.stairs) {
+        const apron = passageLanding(plan, flight.passage.target);
+        expect(roomWalkable(plan, apron)).toBe(true);
+        expect(roomLift(plan, apron)).toBe(0);
+        const goal = flight.treads.at(-1)!;
+        expect(
+          points.some(
+            (p) =>
+              Math.abs(p.x - flight.passage.x) < 0.7 && Math.abs(p.z - (goal.start + goal.end) / 2) < 0.38
+          )
+        ).toBe(true);
+      }
       for (const f of plan.fixtures) expect(roomCanMove(plan, { x: f.x, z: f.z + 2 }, f)).toBe(false);
       const wall = plan.rooms[1].x1;
       expect(
@@ -103,13 +121,61 @@ describe('walkable household interiors', () => {
       const stair = valley.room!.passages.find((p) =>
         target === 'outside' ? p.kind === 'outside' : p.target === target
       )!;
-      const dir = target === 'outside' ? 1 : -1;
-      Object.assign(valley.player.interior!, { x: stair.x, z: stair.z - dir * 1.1 });
+      const dir = stair.kind === 'up' ? -1 : 1;
+      Object.assign(valley.player.interior!, { x: stair.x, z: stair.z - dir * 0.6 });
+      valley.step(0, 0, 0, false);
       const initial = valley.roomKey;
-      for (let i = 0; i < 20 && valley.roomKey === initial; i++) valley.step(0.04, 0, dir, false);
+      const floor = valley.room!.level,
+        heights = [valley.player.y];
+      for (let i = 0; i < 48 && valley.roomKey === initial; i++) {
+        valley.step(0.04, 0, dir, false);
+        heights.push(valley.player.y);
+      }
       expect(valley.room?.level ?? 'outside').toBe(target);
+      if (target !== 'outside') {
+        const rise = floorElevation[target] - floorElevation[floor];
+        expect(new Set(heights.map((h) => h.toFixed(3))).size).toBe(11);
+        for (let i = 1; i < heights.length; i++) {
+          const gain = (heights[i]! - heights[i - 1]!) * Math.sign(rise);
+          expect(gain).toBeGreaterThanOrEqual(-0.0001);
+          expect(gain).toBeLessThan(0.37);
+        }
+        expect(heights.at(-1)! - heights[0]!).toBeCloseTo(rise);
+      }
       for (let i = 0; i < 3; i++) valley.step(0.04, 0, dir, false);
       expect(valley.room?.level ?? 'outside').toBe(target);
+    }
+  });
+
+  it('picks exposed treads, bars the sides and preserves a half-finished climb or descent across a save', () => {
+    for (const kind of ['up', 'down']) {
+      const v = new Valley(new Game());
+      v.enterDoor(doorsById.get('house_a/front')!);
+      const plan = v.room!,
+        s = plan.stairs.find((f) => f.passage.kind === kind)!;
+      for (const [i, tread] of s.treads.entries()) {
+        const p = { x: s.passage.x, z: (tread.start + tread.end) / 2 };
+        expect(roomLift(plan, p)).toBeCloseTo(tread.height);
+        if (i === 1 || (kind === 'up' && i === 6)) {
+          const screen = roomFoot(plan, p),
+            hit = pickRoomFloor(plan, screen.x, screen.y);
+          expect(hit.x).toBeCloseTo(p.x);
+          expect(hit.z).toBeCloseTo(p.z);
+        }
+        if (i !== 5) continue;
+        expect(roomCanMove(plan, { x: s.x0 - 0.3, z: p.z }, p)).toBe(false);
+        expect(roomCanMove(plan, p, { x: s.x1 + 0.3, z: p.z })).toBe(false);
+        Object.assign(v.position, p);
+        v.step(0, 0, 0, false);
+        const loaded = new Valley(new Game(reviveState(JSON.parse(JSON.stringify(v.game.state)))!));
+        expect(loaded.position).toEqual(v.position);
+        expect(loaded.player.y).toBeCloseTo(v.player.y);
+        loaded.step(0.08, 0, -s.direction, false);
+        expect(loaded.roomKey).toBe(v.roomKey);
+        expect((loaded.player.y - v.player.y) * Math.sign(tread.height)).toBeCloseTo(
+          -Math.abs(tread.height) / i / roomRisePixels
+        );
+      }
     }
   });
 
