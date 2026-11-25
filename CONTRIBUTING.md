@@ -46,9 +46,9 @@ and tests, the check of the exported data and the hygiene check in turn; the C++
 - `npm run hygiene:check -- --base origin/main`: nothing private in the new commits (below).
 - The play gate on the pull request's head, which branch protection requires: `npm run build`, `npm run preview`, then `npm run play-gate -- --budget-url https://0xaell.github.io/Tervain/ --url http://127.0.0.1:4173/ --head <head commit>`, and its last line, `play-gate: PASS <commit>`, in the pull request's description or a comment. [The play gate](docs/engineering/play-gate.md) says how to run it without a GPU.
 
-## A public repository
+## Repository privacy
 
-This repository is public, so a pull request must not add anything private to it. CI checks every pull request (*Hygiene / Nothing private in new commits*), and `npm run hygiene:check -- --base origin/main` runs the same check before a push:
+Keep private information out of commits and pull requests, including while the repository is private. CI checks every pull request (*Hygiene / Nothing private in new commits*), and `npm run hygiene:check -- --base origin/main` runs the same check before a push:
 
 - Commit with a GitHub no-reply address as both author and committer: `git config user.email "<id>+<login>@users.noreply.github.com"`.
 - Keep links to working sessions, machine host names, network addresses, paths inside a home or temporary folder, and keys or tokens out of commit messages, pull request titles and descriptions, branch names and committed files.

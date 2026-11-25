@@ -69,9 +69,18 @@ This product includes material from the Warpkeep project (https://github.com/ael
 
 Warpkeep names, logos and the Hegemony identity are not licensed by this notice.
 
-Active Tervain audio since 0.1.1 is composed and synthesized in code. The Ford at
-First Light, regional arrangements, ambient beds, foley and character gestures
-are documented in docs/engineering/ford-audio.md and tervain-audio.json.
+Bellwether Vale uses PixelLab for its isometric art, animations, interface
+artwork and typeface. See assets/pixellab/provenance.json and the PixelLab
+Terms of Service (https://www.pixellab.ai/termsofservice).
+
+The current game uses ElevenLabs (elevenlabs.io) for prerecorded dialogue,
+narration, ambience and effects. Its title, river and hearth music was created
+with Eleven Music. The Vale production ledger is docs/engineering/spoken-vale.json.
+LICENSE-SCOPE.md details commercial-use conditions for each provider and media type.
+
+The Ford at First Light and its regional arrangements are original code-composed
+music. The project also synthesizes sounds in code, as documented in
+docs/engineering/ford-audio.md and docs/engineering/tervain-audio.json.
 
 Historical audio credits for the archived prototype follow. Its effects, ambience, score, songs and voices were made with
 ElevenLabs (https://elevenlabs.io) from original descriptions, lyrics and lines.

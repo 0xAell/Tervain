@@ -129,6 +129,8 @@ Neither route grants rights to Gothic 3 material or establishes commercial-relea
 
 ## License and commercial permissions
 
+**AI-generated media.** Tervain used PixelLab to make the isometric sprites, animations, scenery, title art, interface artwork and typeface. ElevenLabs generated prerecorded character voices, narration, sound effects and ambience. Eleven Music generated the title, riverside and hearthside instrumentals. The game plays these assets locally. Commercial use depends on the provider, the type of asset and, for ElevenLabs, the terms of the plan used for generation. [Commercial terms and provenance](LICENSE-SCOPE.md#ai-generated-game-media) · [Game credits](public/world-audio-licenses.html).
+
 Source-available, not open source. Eligible original Tervain software code is offered under the [PolyForm Noncommercial License 1.0.0](LICENSE), subject to the [exact scope and exceptions](LICENSE-SCOPE.md). **Commercial use of covered code requires separate permission**; [how to ask](LICENSE-SCOPE.md#commercial-permissions) is in the same document.
 
 The license covers code only. Public access does not make the art, music, 3D models, story, branding or other non-code content freely reusable: those keep their own rights and provenance. Dependencies and separately licensed files keep their existing terms; see [NOTICE](NOTICE) and the [third-party notices](public/third-party-notices.txt). The Gothic 3 study and reconstruction material is expressly outside the grant.
