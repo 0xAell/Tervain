@@ -105,6 +105,7 @@ interface Cell {
   paths: Path[];
 }
 const cells = new Map<number, Cell>();
+const approaches: Path[] = [];
 const bin = (x: number, z: number) => (Math.floor(x / 8) + 512) * 1024 + Math.floor(z / 8) + 512;
 function cover(x0: number, z0: number, x1: number, z1: number, put: (c: Cell) => void) {
   for (let x = Math.floor(x0 / 8) * 8; x <= x1; x += 8)
@@ -124,6 +125,7 @@ for (const b of buildings) {
     const a = pts[i - 1]!,
       end = pts[i]!,
       path = { a, b: end, radius: b.kind === 'shrine' || b.kind === 'inn' ? 1.04 : 0.76 };
+    approaches.push(path);
     cover(
       Math.min(a.x, end.x) - 2,
       Math.min(a.z, end.z) - 2,
@@ -140,6 +142,22 @@ const soilShade = rgba(57, 54, 41),
   edgeLight = rgba(167, 158, 132);
 /** Dress the existing biome with worn ground, wall contact and actual door treads at world-pixel resolution. */
 export const yardAt = (x: number, z: number) => cells.get(bin(x, z));
+export function onFootpath(x: number, z: number, margin = 0) {
+  const paths = margin > 0.6 ? approaches : (yardAt(x, z)?.paths ?? []);
+  for (const path of paths) {
+    const reach = path.radius + 0.34 + margin;
+    if (
+      x < Math.min(path.a.x, path.b.x) - reach ||
+      x > Math.max(path.a.x, path.b.x) + reach ||
+      z < Math.min(path.a.z, path.b.z) - reach ||
+      z > Math.max(path.a.z, path.b.z) + reach
+    )
+      continue;
+    const p = closest(path.a, path.b, x, z);
+    if (Math.hypot(x - p.x, z - p.z) < reach) return true;
+  }
+  return false;
+}
 export function yardPixel(
   cell: Cell,
   x: number,

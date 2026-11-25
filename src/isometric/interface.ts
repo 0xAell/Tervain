@@ -20,6 +20,7 @@ import { HAND_SAVE_SLOTS } from '../core/rules/session';
 import { type SaveStore, type SlotId } from '../platform/storage';
 import type { Valley } from './simulation';
 import type { Scene } from './scene';
+import { chartMarker } from './valeMap';
 import type { InteractableAct } from '../core/rules/interactables';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls = '', text = '') {
@@ -649,13 +650,15 @@ export class Interface {
       );
       return;
     }
-    canvas.setAttribute('aria-label', 'Map of the vale with Hegemony standards and the player position');
+    canvas.setAttribute(
+      'aria-label',
+      'Map of the vale with roads, rivers, Hegemony standards and the player position'
+    );
     this.scene.drawMap(canvas, this.valley);
     canvas.onclick = (e) => {
       const r = canvas.getBoundingClientRect();
-      const x = Math.max(-352, Math.min(198, ((e.clientX - r.left) / r.width) * 580 - 380)),
-        z = Math.max(-162, Math.min(168, ((e.clientY - r.top) / r.height) * 340 - 170));
-      this.valley.action({ t: 'setMapMarker', marker: { x, z } });
+      const at = chartMarker(e.clientX - r.left, e.clientY - r.top, r.width, r.height);
+      this.valley.action({ t: 'setMapMarker', marker: at });
       this.scene.drawMap(canvas, this.valley);
     };
     panel.append(

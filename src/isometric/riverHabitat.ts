@@ -3,6 +3,7 @@ import { roadWeight } from '../core/world/terrain';
 import { toBuildingLocal } from '../core/world/interiors';
 import { channelLength, channelPoint, waterProfile, wetPoint, type Flow } from './channels';
 import { crossings, crossingLocal } from './crossing';
+import { canRootTree, isTree, treeSetback } from './treeHabitat';
 
 export interface BankPlant extends V2 {
   key: string;
@@ -50,15 +51,9 @@ function space(p: V2, r: number, allowWet: boolean) {
   });
 }
 function plant(k: string, p: V2, width: number, seed: number, water = false) {
-  const willow = k === 'rill_willow' || k === 'rill_alder';
-  if (!space(p, willow ? 2.4 : 0.42, water)) return;
-  if (
-    willow &&
-    bankPlants.some(
-      (b) => (b.key === 'rill_alder' || b.key === 'rill_willow') && Math.hypot(p.x - b.x, p.z - b.z) < 13
-    )
-  )
-    return;
+  const willow = isTree(k);
+  if (willow ? !canRootTree(p, width) : !space(p, 0.42, water)) return false;
+  if (willow && bankPlants.some((b) => isTree(b.key) && Math.hypot(p.x - b.x, p.z - b.z) < 13)) return false;
   const prop = { ...p, key: k, width, flip: noise01(seed + 1) > 0.5, phase: seed };
   bankPlants.push(prop);
   if (willow)
@@ -69,6 +64,21 @@ function plant(k: string, p: V2, width: number, seed: number, water = false) {
         list.push(prop);
         shadeBins.set(key, list);
       }
+  return true;
+}
+function plantBankTree(
+  course: keyof Flow,
+  s: number,
+  side: number,
+  width: number,
+  seed: number,
+  key: string
+) {
+  const bank = atBank(course, s, side);
+  for (const extra of [0, 1.35, 2.9]) {
+    const offset = treeSetback(width) + 1.05 + extra;
+    if (plant(key, channelPoint(course, s, bank + side * offset), width, seed)) return;
+  }
 }
 function placeRock(course: keyof Flow, s: number, offset: number, w: number) {
   const p = channelPoint(course, s, offset),
@@ -104,11 +114,13 @@ for (const [idx, course] of (['main', 'village', 'quarry', 'spring'] as const).e
         plant('rill_spirea', pos(1.9 + noise01(seed + 5), -0.85), 15 + noise01(seed + 8) * 11, seed + 4);
     }
     if (j % 7 === 3 && course !== 'spring')
-      plant(
-        noise01(seed + 3) > 0.45 ? 'rill_willow' : 'rill_alder',
-        pos(2.35 + noise01(seed) * 1.3),
+      plantBankTree(
+        course,
+        s,
+        sign,
         56 + noise01(seed + 8) * 28,
-        seed
+        seed,
+        noise01(seed + 3) > 0.45 ? 'rill_willow' : 'rill_alder'
       );
     if (j % 4 === 1 && course !== 'spring') {
       const pad = pos(-0.85 - noise01(seed + 6) * 0.65);
@@ -140,8 +152,7 @@ for (const bridge of crossings) {
     const d = atBank(c, s + along, sign);
     plant('rill_iris', channelPoint(c, s + along, d + sign * 0.5), 22, s + along);
     placeRock(c, s + along, d - sign * 1.05, along < 0 ? 29 : 23);
-    if (along === -10 || along === 10)
-      plant('rill_willow', channelPoint(c, s + along, d + sign * 2.5), 78, s + along);
+    if (along === -10 || along === 10) plantBankTree(c, s + along, sign, 78, s + along, 'rill_willow');
   }
   habitats.push({ course: c, s: s + 5, side: -1, seed: 70.6 }, { course: c, s: s - 9, side: 1, seed: 90.9 });
 }

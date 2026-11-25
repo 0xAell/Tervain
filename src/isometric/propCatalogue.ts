@@ -3,6 +3,7 @@ import { SPAWN, BENCHES, COOKFIRES, type V2 } from '../core/world/layout';
 import { scenery, type Scenery } from './land';
 import { sites } from './doorways';
 import { floorPlan, type Fixture, type FloorPlan } from './roomPlans';
+import { isTree, trunkRadius } from './treeHabitat';
 
 export const outdoors = 'vale';
 export type Shape = 'box' | 'round' | 'rock' | 'log' | 'chair' | 'table';
@@ -280,8 +281,6 @@ export function rootsNear(p: V2, radius: number) {
         if (Math.hypot(s.x - p.x, s.z - p.z) <= radius) found.push(s);
   return found;
 }
-export const isTree = (key: string) => /^(pine|birch|oak|fir|rill_willow|rill_alder)$/.test(key);
-export const trunkRadius = (p: Scenery) => Math.max(0.22, p.width / 125);
 /** Click routes and hand-driven movement use the same trunk footprint as thrown objects. */
 export function passesTrunks(a: V2, b: V2) {
   const dx = b.x - a.x,

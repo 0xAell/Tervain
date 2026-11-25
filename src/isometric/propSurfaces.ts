@@ -22,7 +22,8 @@ import {
   landingHalfWidth,
   type FloorPlan,
 } from './roomPlans';
-import { staticRoom, surfaceHeight, isTree, trunkRadius } from './propCatalogue';
+import { staticRoom, surfaceHeight } from './propCatalogue';
+import { isTree, trunkRadius } from './treeHabitat';
 
 export const tileSize = 32;
 export const yawRotation = (angle: number) => ({
