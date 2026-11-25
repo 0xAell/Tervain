@@ -7,7 +7,7 @@ import { waterProfile } from './channels';
 import type { Ground } from './ground';
 import { cropHeadland, cropRowSpacing, landMaterial, woodlandCover } from './landCover';
 import { random } from './land';
-import { project } from './projection';
+import { PROJECTION, project } from './projection';
 import { groundProject, terrainSlope } from './relief';
 import { onFootpath, yardAt } from './settlement';
 import { windFrame, windPhase, type WindSprite } from './wind';
@@ -128,6 +128,8 @@ export class Meadow {
       j1 = Math.floor(Math.min(WORLD.maxZ, zmax) / sectorSize);
     for (let i = i0; i <= i1; i++)
       for (let j = j0; j <= j1; j++) {
+        const x = (i - j) * sectorSize * PROJECTION + ox;
+        if (x < -sectorSize * PROJECTION - 13 || x > w + sectorSize * PROJECTION + 13) continue;
         const p = this.plant(i, j);
         if (!p.plants.length || p.right + ox < 0 || p.left + ox >= w || p.bottom + oy < 0 || p.top + oy >= h)
           continue;
