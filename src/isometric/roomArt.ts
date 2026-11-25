@@ -9,7 +9,7 @@ import {
   upperLandingRun,
   type Chamber,
   type FloorPlan,
-  type Passage,
+  type RoomArch,
   type StairFlight,
 } from './roomPlans';
 
@@ -166,10 +166,10 @@ function slab(ctx: CanvasRenderingContext2D, atlas: Atlas, r: Chamber, stone: bo
   line(ctx, a, b, stone ? '#b4a596' : '#cfaa72', 2);
   line(ctx, b, c, stone ? '#8d817f' : '#a17b51', 2);
 }
-function arch(ctx: CanvasRenderingContext2D, atlas: Atlas, plan: FloorPlan, p: Passage) {
+function arch(ctx: CanvasRenderingContext2D, atlas: Atlas, plan: FloorPlan, p: RoomArch) {
   const x = p.x,
     z = p.z,
-    half = 1.72;
+    half = landingHalfWidth;
   const wing = plan.rooms[p.side === -1 ? 0 : 2];
   wall(ctx, atlas, { x, z: wing.z0 }, { x, z: z - half }, 22, plan.stone, false, false);
   wall(ctx, atlas, { x, z: z + half }, { x, z: wing.z1 }, 5, plan.stone, false, false);
@@ -184,8 +184,8 @@ function arch(ctx: CanvasRenderingContext2D, atlas: Atlas, plan: FloorPlan, p: P
   line(ctx, at(x, z - half, 25), at(x, z + half, 25), '#d2a46b', 2);
   line(ctx, b, at(x, z + half, 22), '#c29960', 1);
 }
-function landing(ctx: CanvasRenderingContext2D, atlas: Atlas, plan: FloorPlan, p: Passage) {
-  const side = p.side!,
+function landing(ctx: CanvasRenderingContext2D, atlas: Atlas, plan: FloorPlan, p: RoomArch) {
+  const side = p.side,
     top = chamberLift(plan, side < 0 ? 0 : 2),
     w = landingHalfWidth,
     z = p.z;
@@ -564,22 +564,18 @@ export class RoomArt {
     const stairLayers = plan.stairs.map((s) =>
       stairLayer(this.atlas, s, plan.stone || s.passage.target === 'cellar')
     );
-    for (const p of plan.passages) {
-      if (p.kind === 'arch') {
-        landing(ctx, this.atlas, plan, p);
-        ctx.save();
-        ctx.translate(0, -chamberLift(plan, p.side === -1 ? 0 : 2));
-        arch(ctx, this.atlas, plan, p);
-        ctx.restore();
-      } else if (p.target) {
-        const layer = stairLayers.find((l) => l.flight.passage === p)!;
-        ctx.drawImage(layer.image, layer.left, layer.top);
-      } else {
-        floorRect(ctx, this.atlas, 'room_rug', p.x - 1.65, p.z - 1.1, p.x + 1.65, hall.z1);
-        const a = at(p.x - 1.6, hall.z1),
-          b = at(p.x + 1.6, hall.z1);
-        line(ctx, a, b, '#f2c97e', 2);
-      }
+    for (const p of plan.arches) {
+      landing(ctx, this.atlas, plan, p);
+      ctx.save();
+      ctx.translate(0, -chamberLift(plan, p.side === -1 ? 0 : 2));
+      arch(ctx, this.atlas, plan, p);
+      ctx.restore();
+    }
+    for (const layer of stairLayers) ctx.drawImage(layer.image, layer.left, layer.top);
+    const portal = plan.passages.find((p) => p.kind === 'outside');
+    if (portal) {
+      floorRect(ctx, this.atlas, 'room_rug', portal.x - 1.65, portal.z - 1.1, portal.x + 1.65, hall.z1);
+      line(ctx, at(portal.x - 1.6, hall.z1), at(portal.x + 1.6, hall.z1), '#f2c97e', 2);
     }
     // Low cutaway sills leave the furniture and people visible on the near side.
     ctx.save();
@@ -595,7 +591,6 @@ export class RoomArt {
       false
     );
     ctx.restore();
-    const portal = plan.passages.find((p) => p.kind === 'outside');
     if (portal) {
       for (const side of [-1, 1]) {
         const a = at(side * 1.85, hall.z1),

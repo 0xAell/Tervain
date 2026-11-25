@@ -54,7 +54,18 @@ describe('walkable household interiors', () => {
       const plan = floorPlan(site, level),
         points = reachable(plan);
       expect(points.length).toBeGreaterThan(350);
-      for (const t of indoorTargets(plan, passageLanding(plan), [])) {
+      const targets = indoorTargets(plan, []);
+      const marked = targets.flatMap((t) => (t.passage ? [t.passage.kind] : []));
+      expect(marked.sort()).toEqual(
+        level === 'ground' ? ['down', 'outside', 'up'] : [level === 'loft' ? 'down' : 'up']
+      );
+      for (const arch of plan.arches) {
+        const west = { x: arch.x - 0.8, z: arch.z },
+          east = { x: arch.x + 0.8, z: arch.z };
+        expect(roomCanMove(plan, west, east)).toBe(true);
+        expect(roomCanMove(plan, east, west)).toBe(true);
+      }
+      for (const t of targets) {
         const accessible = points.some(
           (p) => Math.hypot(p.x - t.approach.x, p.z - t.approach.z) < 0.65 && roomCanMove(plan, p, t.approach)
         );

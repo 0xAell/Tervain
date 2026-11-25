@@ -1,5 +1,6 @@
 import type { Atlas } from './atlas';
 import type { RoomTarget } from './roomTargets';
+import type { Passage } from './roomPlans';
 
 export interface PickRegion {
   id: string;
@@ -24,7 +25,7 @@ export function pickRegion(regions: PickRegion[], x: number, y: number) {
   }
   return found;
 }
-/** The same lamp and bright sill mark every traversable threshold, indoors and outdoors. */
+/** Mark building entrances, exits and stairs between floors. */
 export function drawWaylight(
   ctx: CanvasRenderingContext2D,
   atlas: Atlas,
@@ -34,7 +35,7 @@ export function drawWaylight(
   near: boolean,
   locked = false,
   wide = false,
-  kind?: 'up' | 'down' | 'outside' | 'arch'
+  kind?: Passage['kind']
 ) {
   const cx = Math.round(x),
     cy = Math.round(y),

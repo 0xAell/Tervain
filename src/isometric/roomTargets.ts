@@ -111,12 +111,12 @@ export function residentSpots(plan: FloorPlan, actors: Actor[]) {
   }
   return people;
 }
-export function indoorTargets(plan: FloorPlan, at: V2, actors: Actor[]): RoomTarget[] {
+export function indoorTargets(plan: FloorPlan, actors: Actor[]): RoomTarget[] {
   const portals = plan.passages.map((p) => ({
     id: 'pass/' + p.id,
     at: p,
     approach: p,
-    label: passageLabel(plan, p, at),
+    label: passageLabel(plan, p),
     reach: p.kind === 'outside' ? 2.1 : 2,
     passage: p,
   }));

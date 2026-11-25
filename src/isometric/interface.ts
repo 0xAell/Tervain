@@ -424,7 +424,7 @@ export class Interface {
         [this.interactKey(), 'Use the nearest door, object or person'],
         [
           'Gold lantern',
-          'Walk through a lit threshold or click it. Arches join rooms and stairs change floors. A padlock marks a sealed entrance.',
+          'Gold lanterns mark building entrances, exits and stairs. Walk through or click a lantern to use the passage. A padlock marks a sealed entrance.',
         ],
         ['M indoors', 'See rooms, stairs and your position on this floor'],
         [
@@ -638,14 +638,13 @@ export class Interface {
         room.rooms.map((r) => r.name).join(', ') +
           '. ' +
           room.passages
-            .filter((p) => p.kind !== 'arch')
             .map((p) => (p.kind === 'outside' ? 'Exit' : p.kind === 'up' ? 'Stairs up' : 'Stairs down'))
             .join(', ')
       );
       this.scene.drawFloorMap(canvas, this.valley);
       panel.append(
         canvas,
-        el('p', 'map-note', 'Gold marks passages. ↑ upstairs · ↓ downstairs · ◆ outside'),
+        el('p', 'map-note', '↑ Upstairs · ↓ Downstairs · ◆ Outside'),
         button('Map of the vale', () => this.map(true))
       );
       return;

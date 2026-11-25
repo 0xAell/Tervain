@@ -569,10 +569,7 @@ export class Client implements Controls {
       v.enterDoor(target.door);
     } else if (target.passage) {
       const p = target.passage;
-      if (p.kind === 'arch') {
-        const direction = v.position.x > p.x ? -1 : v.position.x < p.x ? 1 : p.side!;
-        this.walkTo({ x: p.x + direction * 2.25, z: p.z });
-      } else if (p.target) {
+      if (p.target) {
         const flight = v.room!.stairs.find((s) => s.passage.id === p.id)!;
         this.walkTo({ x: p.x, z: p.z + flight.direction * (stairRun - 0.02) });
       } else v.usePassage(p);
