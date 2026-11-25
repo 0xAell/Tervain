@@ -19,6 +19,7 @@ import {
 } from './roomPlans';
 import type { Valley } from './simulation';
 import type { V2 } from '../core/world/layout';
+import { windPhase } from './wind';
 
 interface Sprite extends V2 {
   key: string;
@@ -221,6 +222,7 @@ export class RoomView {
       daylight = Math.max(0, Math.sin(((hour - 6) * Math.PI) / 12));
     ctx.save();
     ctx.translate(ox, oy);
+    this.art.drawHangings(ctx, plate, windPhase(plan.site.x, plan.site.z, valley.time, 0.47));
     this.windowLight(ctx, plate, daylight, hour, valley.time);
     ctx.restore();
     const clock = valley.time,
@@ -363,7 +365,7 @@ export class RoomView {
         }
       }
     }
-    return { heroDrawn, draws: sprites.length + plan.passages.length + 1 };
+    return { heroDrawn, draws: sprites.length + plan.passages.length + plate.hangings.length + 1 };
   }
   leave() {
     this.last = undefined;

@@ -2,6 +2,8 @@ import { terrainTile } from './relief';
 import { risePixels } from './projection';
 import { canopyShade } from './riverHabitat';
 import { roadWeight } from '../core/world/terrain';
+import { toBuildingLocal } from '../core/world/interiors';
+import type { FieldSpec } from '../core/world/layout';
 import { riverSpark } from './riverLight';
 import { bridgeShade } from './crossing';
 import { yardAt, yardPixel } from './settlement';
@@ -11,7 +13,7 @@ import { impactsForTile, visibleWaterImpacts, waterImpactAt, type WaterImpact } 
 import type { PropView } from './propPhysics';
 import { foamCell } from './foam';
 import type { Atlas } from './atlas';
-import { landMaterial, woodlandCover } from './landCover';
+import { cropHeadland, cropRowSpacing, fieldAt, landMaterial, woodlandCover } from './landCover';
 import { PROJECTION } from './projection';
 import { coursesInFrame, stoneFlow, waveFrame, waterProfile, type Flow, type WetPoint } from './water';
 import { bedDepth, seaClock, seaPhases, sinPhase, cosPhase } from './swell';
@@ -50,7 +52,7 @@ const SAND = 1,
   ROCK = 6,
   POOL = 11;
 type Texture = ReturnType<Atlas['read']>[number];
-type Sample = { dry: number; wood: number; lane: number; nearWater: boolean };
+type Sample = { dry: number; wood: number; lane: number; nearWater: boolean; field?: FieldSpec };
 type Chunk = ReturnType<Ground['makeChunk']>;
 interface VisibleChunk {
   x: number;
@@ -137,6 +139,7 @@ export class Ground {
         wood: soil === 'grass' ? woodlandCover(ix / 2, iz / 2) : 0,
         lane: roadWeight(ix / 2, iz / 2),
         nearWater: !!wet,
+        field: soil === 'field' ? fieldAt(ix / 2, iz / 2) : undefined,
       };
       this.samples.set(key, s);
     }
@@ -193,6 +196,23 @@ export class Ground {
           0.23 * Math.sin(wx * 0.15 + wz * 0.08) +
           0.18 * Math.cos(wz * 0.29 - wx * 0.07) +
           0.09 * Math.sin(wx * 0.54 + wz * 0.36);
+        if (sample.field) {
+          const f = sample.field,
+            p = toBuildingLocal(f, wx, wz),
+            gap = cropRowSpacing[f.crop],
+            position = (p.z + f.d / 2 - cropHeadland) / gap,
+            ridge = sat(1 - Math.abs(position - Math.round(position)) * 2.45),
+            grit = pixels[i]!,
+            value = ((grit & 255) + 2 * ((grit >>> 8) & 255) + ((grit >>> 16) & 255)) / 4,
+            soil = mix(rgba(78, 56, 43), rgba(163, 129, 86), value * 0.52 + light * 76 + ridge * 46),
+            raised = f.crop === 'grain' ? rgba(156, 134, 76) : f.crop === 'greens' ? rgba(116, 131, 77) : soil,
+            edge = sat(Math.min(f.w / 2 - Math.abs(p.x), f.d / 2 - Math.abs(p.z)) / 0.86 + jitter * 0.35);
+          pixels[i] = mix(
+            texel(this.meadow, wx * 2.6, wz * 2.6),
+            mix(soil, raised, ridge * 89),
+            edge * 256
+          );
+        }
         const wild = sample.dry === 0;
         if (wild || sample.dry === 9) {
           const blades = texel(
@@ -622,6 +642,9 @@ export class Ground {
     const ch = this.chunks.get(bx + ',' + by);
     if (!ch) return -Infinity;
     return y + ch.elevations[(Math.floor(y) - by * SIZE) * SIZE + Math.floor(x) - bx * SIZE]! * risePixels;
+  }
+  groundVisible(x: number, y: number, depth: number) {
+    return this.landDepth(x, y) <= depth + 3;
   }
   clipUpright(
     ctx: CanvasRenderingContext2D,

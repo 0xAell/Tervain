@@ -222,11 +222,13 @@ export class WaterReflections {
         y = Math.round(s.y + oy + ((stamp.lift ?? 0) + (stamp.elevation ?? 0) * risePixels) * 0.78);
       const anchor = stamp.anchor ?? 1,
         left = x - stamp.width / 2,
-        depth = height * anchor * 0.78;
+        depth = height * anchor * 0.78,
+        sway = (stamp.sway ?? 0) * 0.15,
+        drift = Math.abs(sway) * height;
       if (
         y > h + 3 ||
         y + depth < 0 ||
-        !ground.touchesWater(left - 4, y - 2, left + stamp.width + 4, y + depth + 3)
+        !ground.touchesWater(left - drift - 4, y - 2, left + stamp.width + drift + 4, y + depth + 3)
       )
         continue;
       this.mirror.save();
@@ -244,6 +246,7 @@ export class WaterReflections {
       }
       this.mirror.translate(x, y);
       this.mirror.scale(1, -0.78);
+      if (sway) this.mirror.transform(1, 0, sway, 1, 0, 0);
       if (stamp.prop) drawProp(this.mirror, this.atlas, stamp.prop, 0, 0, stamp.width);
       else
         this.atlas.draw(
@@ -260,7 +263,7 @@ export class WaterReflections {
         );
       this.mirror.restore();
       this.reflected++;
-      this.include(left, y, stamp.width, depth);
+      this.include(left - drift, y, stamp.width + 2 * drift, depth);
     }
     for (const wake of this.wakes) if (wake.course === 0) this.paintWake(wake, time, ox, oy);
     if (!this.regions.length || ground.compositeMirrors(ctx, this.mirror.canvas)) return;
