@@ -6,6 +6,7 @@ interface Sheet {
 }
 
 export class Atlas {
+  private reflections = new Map<string, HTMLCanvasElement>();
   private constructor(
     readonly image: HTMLImageElement,
     private sheet: Sheet
@@ -50,7 +51,8 @@ export class Atlas {
     frame = 0,
     flip = false,
     anchor = 1,
-    submerged = 0
+    submerged = 0,
+    reflected = false
   ) {
     const frames = this.sheet.frames[key];
     if (!frames?.length) throw new Error('Missing PixelLab sprite ' + key);
@@ -66,7 +68,25 @@ export class Atlas {
       ctx.translate(left + w, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(this.image, sx, sy, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
+    if (reflected) {
+      const id = key + '/' + (Math.floor(frame) % frames.length);
+      let copy = this.reflections.get(id);
+      if (!copy) {
+        copy = document.createElement('canvas');
+        copy.width = sw;
+        copy.height = sh;
+        const layer = copy.getContext('2d')!;
+        layer.drawImage(this.image, sx, sy, sw, sh, 0, 0, sw, sh);
+        const fog = layer.createLinearGradient(0, 0, 0, sh);
+        fog.addColorStop(0, 'rgba(0,0,0,.17)');
+        fog.addColorStop(1, 'rgba(0,0,0,.9)');
+        layer.globalCompositeOperation = 'destination-in';
+        layer.fillStyle = fog;
+        layer.fillRect(0, 0, sw, sh);
+        this.reflections.set(id, copy);
+      }
+      ctx.drawImage(copy, 0, 0, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
+    } else ctx.drawImage(this.image, sx, sy, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
     if (flip) ctx.restore();
   }
 }

@@ -1,3 +1,7 @@
+import { bankPlants } from './riverHabitat';
+import { passesRails } from './crossing';
+import { campShelter, buildingSprite } from './settlement';
+import { toBuildingLocal } from '../core/world/interiors';
 import { buildingEntry } from '../core/world/buildingEntries';
 import { wetPoint, waterProfile, riverStones } from './water';
 import { coastX, shoreDistance } from '../core/world/coast';
@@ -22,7 +26,6 @@ import {
   WAGON,
   WELL,
   WORLD,
-  DECKS,
   type BuildingSpec,
   type V2,
 } from '../core/world/layout';
@@ -44,11 +47,7 @@ export function random(x: number, z: number, salt = 0) {
   return ((value ^ (value >>> 16)) >>> 0) / 4294967296;
 }
 export function buildingLocal(p: V2, b: BuildingSpec) {
-  const dx = p.x - b.x,
-    dz = p.z - b.z,
-    c = Math.cos(b.yaw),
-    s = Math.sin(b.yaw);
-  return { x: dx * c - dz * s, z: dx * s + dz * c };
+  return toBuildingLocal(b, p.x, p.z);
 }
 export function inBuilding(p: V2) {
   return BUILDINGS.find((b) => {
@@ -76,8 +75,8 @@ export function waterAt(x: number, z: number) {
 export function groundAt(x: number, z: number) {
   return waterAt(x, z) ?? dryGroundAt(x, z);
 }
-export function dryGroundAt(x: number, z: number) {
-  if (roadWeight(x, z) > 0.36) return 'trail';
+export function dryGroundAt(x: number, z: number, lane = roadWeight(x, z)) {
+  if (lane > 0.36) return 'trail';
   if (shoreDistance(x, z) < 15 + 2 * Math.sin(z * 0.2)) return 'sand';
   if (FIELDS.some((f) => Math.abs(f.x - x) < f.w / 2 && Math.abs(f.z - z) < f.d / 2)) return 'field';
   if (Math.hypot(x - 88, z + 23) < 20 || realmRadius(x, z) > 1.03) return 'rock';
@@ -99,6 +98,7 @@ export function navigable(from: V2, to: V2, open: boolean) {
     to.z > WORLD.minZ + 1 &&
     to.z < WORLD.maxZ - 1 &&
     realmRadius(to.x, to.z) < 1.01 &&
+    passesRails(from, to) &&
     enteredThroughDoor(from, to, open)
   );
 }
@@ -113,34 +113,15 @@ export interface Scenery extends V2 {
   key: string;
   width: number;
   building?: BuildingSpec;
+  flip?: boolean;
+  phase?: number;
+  submerged?: number;
 }
 export function scenery() {
   const list: Scenery[] = [];
   const put = (key: string, p: V2, width: number) => list.push({ x: p.x, z: p.z, key, width });
-  const buildings: Record<BuildingSpec['kind'], string> = {
-    house: 'house',
-    mill: 'mill',
-    shrine: 'shrine',
-    archive: 'archive',
-    office: 'office',
-    hut: 'hut',
-    inn: 'inn',
-    bakery: 'bakery',
-    reeve: 'house',
-    bunks: 'bunks',
-    lodge: 'house',
-    fisher: 'hut',
-    store: 'bunks',
-    keeper: 'house',
-  };
-  for (const b of BUILDINGS)
-    list.push({
-      x: b.x,
-      z: b.z,
-      key: buildings[b.kind],
-      width: (b.w + b.d) * PROJECTION * 1.13,
-      building: b,
-    });
+  for (const b of [...BUILDINGS, campShelter])
+    list.push({ ...b, key: buildingSprite[b.kind], width: (b.w + b.d) * PROJECTION, building: b });
   // The stern rests at the tide line; the salvage remains reachable at the inland end of the wreck.
   put('wreck', { x: coastX(ARRIVAL_WRECK.z) - 0.9, z: ARRIVAL_WRECK.z }, 143);
   for (const [z, offshore, width] of [
@@ -152,14 +133,23 @@ export function scenery() {
     [90, 7, 55],
   ] as const)
     put('tide_rocks', { x: coastX(z) - offshore, z }, width);
-  for (const s of riverStones) put('tide_rocks', s, s.width);
+  for (const [i, s] of riverStones.entries()) {
+    const k = random(s.x * 3, s.z * 3, 501),
+      key = k < 0.34 ? 'rill_slab' : k < 0.62 ? 'rill_pebbles' : 'rill_boulder';
+    list.push({
+      ...s,
+      key,
+      flip: i % 3 === 0,
+      submerged: wetPoint(s.x, s.z)?.kind === 'river' ? (key === 'rill_pebbles' ? 0.12 : 0.17 + k * 0.1) : 0,
+    });
+  }
+  for (const plant of bankPlants) list.push({ ...plant });
   put('driftwood', { x: coastX(35) - 0.2, z: 35 }, 43);
   put('driftwood', { x: coastX(7) + 3, z: 7 }, 35);
   put('reeds', { x: -12.6, z: -93 }, 23);
   put('tide_rocks', { x: -11.9, z: -95.5 }, 28);
   put('sign', ARRIVAL_SIGN, 37);
   put('beacon', LIGHTHOUSE, 114);
-  put('hut', { x: HUNTER_CAMP.x - 3, z: HUNTER_CAMP.z + 2 }, 70);
   put('table', HUNTER_CAMP, 33);
   put('fire', { x: HUNTER_CAMP.x + 2, z: HUNTER_CAMP.z + 1 }, 23);
   put('fire', { x: -86, z: 34 }, 25);
@@ -169,7 +159,6 @@ export function scenery() {
   put('board', NOTICEBOARD, 40);
   put('sluice', SLUICE.gateCenter, 73);
   put('cart', WAGON, 62);
-  for (const p of DECKS) put('bridge', p, 92);
   for (const p of QUARRY_BOULDERS) put('rockpile', p, p.width * 8);
   for (const p of FOREST_WAYMARKERS) put('marker', p, 25);
   for (const p of LANTERNS) put('lantern', p, 20);
@@ -194,7 +183,6 @@ export function scenery() {
         continue;
       const bank = waterProfile(p.x, p.z);
       if (bank && bank.course !== 'ocean' && bank.bank < 0) {
-        if (r > 0.62) put(r > 0.94 ? 'tide_rocks' : 'reeds', p, 8 + random(x, z, 92) * 10);
         continue;
       }
       const wood = g === 'woodland',
@@ -213,7 +201,11 @@ export function scenery() {
               ? 'rockpile'
               : k > 0.84
                 ? 'flowers'
-                : 'brush',
+                : g === 'grass'
+                  ? k > 0.61
+                    ? 'rill_fern'
+                    : 'rill_spirea'
+                  : 'brush',
           p,
           10 + random(x, z, 23) * (g === 'rock' ? 42 : 19)
         );

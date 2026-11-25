@@ -11,7 +11,8 @@ import { interactableTable, MOUNT_ID, type InteractableEntry } from '../core/rul
 import { ANCHORS, ENEMY_SPAWNS, PLACES, type V2 } from '../core/world/layout';
 import type { NpcId, Command, EncounterId, PlaceId } from '../core/game/types';
 import { distance, inBuilding, navigable, placeList, project, waterAt } from './land';
-import { onBridge } from './water';
+import { onBridge, wetPoint, riverVelocity } from './water';
+import { worldView } from '../core/game/worldView';
 import { FURNITURE } from '../core/world/furniture';
 import { fromBuildingLocal } from '../core/world/interiors';
 import { RESIDENT_HOMES, INDOOR_POSTS } from '../core/world/homes';
@@ -172,6 +173,8 @@ export class Valley {
     this.strike = Math.max(0, this.strike - dt);
     this.jump = Math.max(0, this.jump - dt);
     const p = this.player;
+    const water = onBridge(p) ? null : wetPoint(p.x, p.z);
+    const wade = water?.kind === 'river' ? Math.min(1, water.bank / 1.9) : 0;
     const norm = Math.hypot(dx, dz);
     this.walk = false;
     if (norm > 0 && p.health > 0 && this.strike < 0.2) {
@@ -180,15 +183,29 @@ export class Valley {
       this.facing = facing(dx, dz);
       const fast = run && this.stamina > 1 && !this.swimming;
       const speed = this.riding ? (fast ? 14 : 9) : this.swimming ? 3 : this.guard ? 2 : fast ? 9 : 5;
-      const x = p.x + dx * dt * speed,
-        z = p.z + dz * dt * speed;
+      const x = p.x + dx * dt * speed * (1 - wade * 0.27),
+        z = p.z + dz * dt * speed * (1 - wade * 0.27);
       const start = { x: p.x, z: p.z };
-      if (navigable(p, { x, z: p.z }, this.archiveOpen)) p.x = x;
-      if (navigable(p, { x: p.x, z }, this.archiveOpen)) p.z = z;
+      if (navigable(p, { x, z }, this.archiveOpen)) {
+        p.x = x;
+        p.z = z;
+      } else {
+        if (navigable(p, { x, z: p.z }, this.archiveOpen)) p.x = x;
+        if (navigable(p, { x: p.x, z }, this.archiveOpen)) p.z = z;
+      }
       this.walk = distance(start, p) > 0.0001;
       p.yaw = Math.atan2(dx, dz);
       this.stamina = Math.max(0, Math.min(100, this.stamina + dt * (fast ? -7 : 5)));
     } else this.stamina = Math.min(100, this.stamina + dt * 10);
+    if (wade && water && !this.jump && p.health > 0 && !onBridge(p)) {
+      const v = riverVelocity(water, worldView(this.game.state).flow),
+        pull = dt * wade * (this.guard ? 0.06 : 0.24);
+      const next = { x: p.x + v.x * pull, z: p.z + v.z * pull };
+      if (!onBridge(next) && navigable(p, next, this.archiveOpen)) {
+        p.x = next.x;
+        p.z = next.z;
+      }
+    }
     this.swimming = waterAt(p.x, p.z) === 'sea' && !onBridge(p);
     if (this.swimming) this.riding = false;
     if (this.skinning) {

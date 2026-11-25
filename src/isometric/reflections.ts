@@ -1,10 +1,13 @@
 import { Atlas } from './atlas';
+import { coursesInFrame, wetPoint, onBridge, riverVelocity, type Flow, type Ripple } from './water';
+import type { ArtStrip } from './worldArt';
 import { project } from './land';
 import type { Ground, Rect } from './ground';
 import type { V2 } from '../core/world/layout';
 
 export interface Stamp extends V2 {
   key: string;
+  art?: ArtStrip;
   width: number;
   frame?: number;
   flip?: boolean;
@@ -15,6 +18,7 @@ export interface Stamp extends V2 {
   submerged?: number;
   wakeId?: string;
   moving?: boolean;
+  airborne?: boolean;
   reflect?: boolean;
 }
 interface Trail extends V2 {
@@ -22,9 +26,13 @@ interface Trail extends V2 {
   dx: number;
   dz: number;
   speed: number;
+  vx: number;
+  vz: number;
+  course: number;
 }
 interface Tracker extends V2 {
   emitted: number;
+  wet: boolean;
 }
 
 function reflectionLayer() {
@@ -80,28 +88,62 @@ export class WaterReflections {
     }
     this.regions.push(rect);
   }
-  private track(stamp: Stamp, time: number) {
+  private track(stamp: Stamp, time: number, flow: Flow) {
     if (!stamp.wakeId) return;
     const previous = this.tracks.get(stamp.wakeId);
-    if (!previous || !stamp.moving || !stamp.submerged) {
-      this.tracks.set(stamp.wakeId, { x: stamp.x, z: stamp.z, emitted: time });
+    const wet = !!stamp.submerged && !stamp.airborne;
+    if (!previous || !wet) {
+      this.tracks.set(stamp.wakeId, { x: stamp.x, z: stamp.z, emitted: time, wet });
       return;
     }
     const dx = stamp.x - previous.x,
       dz = stamp.z - previous.z,
-      dist = Math.hypot(dx, dz);
-    if (time - previous.emitted < 0.24 || dist < 0.28) return;
+      dist = Math.hypot(dx, dz),
+      elapsed = time - previous.emitted;
+    const p = wetPoint(stamp.x, stamp.z);
+    if (!p) return;
+    const current = riverVelocity(p, flow),
+      speed = Math.hypot(current.x, current.z);
+    const step = stamp.moving && dist >= 0.33 && elapsed >= 0.23;
+    const bow = p.kind === 'river' && speed > 0.26 && elapsed > 0.93;
+    if (previous.wet && !step && !bow) return;
     if (dist < 3.8) {
+      const dir = dist > 0.08 ? dist : Math.max(0.01, speed),
+        incoming = !previous.wet;
       this.wakes.push({
-        x: previous.x,
-        z: previous.z,
-        dx: dx / dist,
-        dz: dz / dist,
+        x: stamp.x,
+        z: stamp.z,
+        dx: (dist > 0.08 ? dx : -current.x) / dir,
+        dz: (dist > 0.08 ? dz : -current.z) / dir,
+        speed: incoming ? 0.97 : step ? Math.min(0.88, 0.37 + dist * 0.34) : 0.24,
         born: time,
-        speed: Math.min(1, dist / 1.35),
+        vx: current.x,
+        vz: current.z,
+        course: coursesInFrame.indexOf(p.course),
       });
     }
-    this.tracks.set(stamp.wakeId, { x: stamp.x, z: stamp.z, emitted: time });
+    this.tracks.set(stamp.wakeId, { x: stamp.x, z: stamp.z, emitted: time, wet });
+  }
+  advance(stamps: Stamp[], time: number, flow: Flow): Ripple[] {
+    if (time < this.lastTime) this.reset();
+    this.lastTime = time;
+    this.wakes = this.wakes.filter((w) => time - w.born < 1.75);
+    for (const stamp of stamps) if (stamp.wakeId) this.track(stamp, time, flow);
+    if (this.wakes.length > 48) this.wakes.splice(0, this.wakes.length - 48);
+    this.wakeCount = this.wakes.length;
+    return this.wakes
+      .filter((w) => w.course > 0)
+      .slice(-16)
+      .map((w) => {
+        const age = time - w.born;
+        return {
+          x: w.x + w.vx * age,
+          z: w.z + w.vz * age,
+          radius: 0.2 + age * (1.45 + w.speed * 0.52),
+          amplitude: (1 - age / 1.75) ** 1.5 * (0.38 + w.speed * 0.85),
+          course: w.course,
+        };
+      });
   }
 
   private paintWake(wake: Trail, time: number, ox: number, oy: number) {
@@ -133,13 +175,7 @@ export class WaterReflections {
   draw(ctx: CanvasRenderingContext2D, ground: Ground, stamps: Stamp[], ox: number, oy: number, time: number) {
     const w = ctx.canvas.width,
       h = ctx.canvas.height;
-    if (time < this.lastTime) this.reset();
-    this.lastTime = time;
     this.reflected = 0;
-    this.wakes = this.wakes.filter((wake) => time - wake.born < 1.75);
-    for (const stamp of stamps) if (stamp.wakeId) this.track(stamp, time);
-    if (this.wakes.length > 64) this.wakes.splice(0, this.wakes.length - 64);
-    this.wakeCount = this.wakes.length;
     if (!ground.hasWater) return;
     for (const target of [this.mirror, this.distorted]) {
       if (target.canvas.width !== w || target.canvas.height !== h) {
@@ -150,8 +186,30 @@ export class WaterReflections {
       target.clearRect(0, 0, w, h);
     }
     this.regions.length = 0;
-    for (const stamp of stamps) {
+    // Seen from below, the underside occludes an occupant's feet in the virtual image.
+    const deckWalkers = stamps.filter((p) => p.wakeId && onBridge(p));
+    const mirrored = deckWalkers.length
+      ? [...deckWalkers, ...stamps.filter((p) => !deckWalkers.includes(p))]
+      : stamps;
+    for (const stamp of mirrored) {
       if (stamp.reflect === false || stamp.key === 'cursor') continue;
+      if (stamp.art) {
+        const m = stamp.art.mirror;
+        if (
+          m &&
+          ground.touchesWater(
+            m.left + ox,
+            m.top + oy,
+            m.left + ox + m.canvas.width,
+            m.top + oy + m.canvas.height
+          )
+        ) {
+          this.mirror.drawImage(m.canvas, m.left + ox, m.top + oy);
+          this.include(m.left + ox, m.top + oy, m.canvas.width, m.canvas.height);
+          this.reflected++;
+        }
+        continue;
+      }
       const frame = Math.max(0, stamp.frame ?? 0),
         height = this.atlas.height(stamp.key, stamp.width, frame) * (1 - (stamp.submerged ?? 0));
       const s = project(stamp.x, stamp.z),
@@ -167,6 +225,13 @@ export class WaterReflections {
       )
         continue;
       this.mirror.save();
+      this.mirror.globalAlpha = ['rill_boulder', 'rill_pebbles', 'rill_slab'].includes(stamp.key)
+        ? 0.5
+        : stamp.submerged
+          ? 0.74
+          : stamp.hero
+            ? 0.68
+            : 0.85;
       if (anchor !== 1) {
         this.mirror.beginPath();
         this.mirror.rect(Math.floor(left) - 1, y, stamp.width + 2, Math.ceil(depth) + 1);
@@ -174,14 +239,26 @@ export class WaterReflections {
       }
       this.mirror.translate(x, y);
       this.mirror.scale(1, -0.78);
-      this.atlas.draw(this.mirror, stamp.key, 0, 0, stamp.width, frame, stamp.flip, anchor, stamp.submerged);
+      this.atlas.draw(
+        this.mirror,
+        stamp.key,
+        0,
+        0,
+        stamp.width,
+        frame,
+        stamp.flip,
+        anchor,
+        stamp.submerged,
+        height > 32
+      );
       this.mirror.restore();
       this.reflected++;
       this.include(left, y, stamp.width, depth);
     }
     for (const stamp of stamps) {
       const wreck = stamp.key === 'wreck',
-        rock = stamp.key === 'tide_rocks';
+        rock =
+          stamp.key === 'tide_rocks' || ['rill_boulder', 'rill_pebbles', 'rill_slab'].includes(stamp.key);
       if (!wreck && !rock && !stamp.submerged) continue;
       const s = project(stamp.x, stamp.z),
         x = s.x + ox,
@@ -202,7 +279,7 @@ export class WaterReflections {
       }
       this.mirror.globalAlpha = 1;
     }
-    for (const wake of this.wakes) this.paintWake(wake, time, ox, oy);
+    for (const wake of this.wakes) if (wake.course === 0) this.paintWake(wake, time, ox, oy);
     if (!this.regions.length || ground.compositeMirrors(ctx, this.mirror.canvas)) return;
     for (const rect of this.regions) {
       ground.reflect(this.layer.pixels(rect), this.distorted, rect);

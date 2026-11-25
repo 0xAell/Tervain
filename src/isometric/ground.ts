@@ -1,3 +1,9 @@
+import { canopyShade } from './riverHabitat';
+import { roadWeight } from '../core/world/terrain';
+import { riverSpark } from './riverLight';
+import { bridgeShade } from './crossing';
+import { yardAt, yardPixel } from './settlement';
+import { rippleAt, type Ripple } from './water';
 import { WaterGL } from './waterGL';
 import { foamCell } from './foam';
 import type { Atlas } from './atlas';
@@ -39,7 +45,7 @@ const SAND = 1,
   ROCK = 6,
   POOL = 11;
 type Texture = ReturnType<Atlas['read']>[number];
-type Sample = { dry: number; nearWater: boolean };
+type Sample = { dry: number; lane: number; nearWater: boolean };
 type Chunk = ReturnType<Ground['makeChunk']>;
 interface VisibleChunk {
   x: number;
@@ -78,12 +84,14 @@ function skyAt(sky: Texture, x: number, y: number) {
   );
 }
 const transmission = Float32Array.from({ length: 256 }, (_, d) => Math.exp(-d / 36));
-const bend = (p: WetPoint) => (p.kind === 'river' ? stoneFlow(p) : { deflection: 0, eddy: 0 });
+const bend = (p: WetPoint) => (p.kind === 'river' ? stoneFlow(p) : { deflection: 0, eddy: 0, bow: 0 });
 
 /** Persistent world-space channels and seabeds, with dynamic surface buffers only for wet chunks. */
 export class Ground {
   private textures: Texture[][];
   private sky: Texture;
+  private meadow: Texture;
+  private shingle: Texture;
   private chunks = new Map<string, Chunk>();
   private samples = new Map<number, Sample>();
   private visible: VisibleChunk[] = [];
@@ -105,8 +113,10 @@ export class Ground {
       const clip = 'texture-' + material + '--ripple';
       return atlas.read(atlas.has(clip) ? clip : 'texture-' + material);
     });
+    this.meadow = atlas.read('rill_meadow')[0]!;
+    this.shingle = atlas.read('rill_shingle')[0]!;
     this.sky = atlas.read('water-sky')[0]!;
-    this.gpu = WaterGL.create(this.textures);
+    this.gpu = WaterGL.create(this.textures, this.shingle);
   }
   private sample(x: number, z: number) {
     const ix = Math.round(x * 2),
@@ -116,7 +126,8 @@ export class Ground {
     if (!s) {
       const wet = waterProfile(ix / 2, iz / 2);
       s = {
-        dry: wet?.course === 'ocean' ? SAND : materials.indexOf(dryGroundAt(ix / 2, iz / 2)),
+        dry: wet?.course === 'ocean' ? SAND : materials.indexOf(dryGroundAt(ix / 2, iz / 2, 0)),
+        lane: roadWeight(ix / 2, iz / 2),
         nearWater: !!wet,
       };
       this.samples.set(key, s);
@@ -147,6 +158,7 @@ export class Ground {
       width = new Uint8Array(n);
     const grain = new Uint8Array(n),
       pocket = new Uint8Array(n),
+      pressure = new Uint8Array(n),
       sky = new Uint32Array(n),
       land = new Uint32Array(n);
     const shearX = new Int8Array(n),
@@ -162,9 +174,66 @@ export class Ground {
         const sample = this.sample(wx + jitter, wz - jitter * 0.7);
         const dry = this.textures[sample.dry]![0]!;
         pixels[i] = texel(dry, wx * 4, wz * 4);
-        if (!sample.nearWater) continue;
-        const wet = waterProfile(wx, wz);
-        if (!wet) continue;
+        const wet = sample.nearWater ? waterProfile(wx, wz) : null;
+        const inland = wet && wet.course !== 'ocean';
+        const light =
+          0.5 +
+          0.23 * Math.sin(wx * 0.15 + wz * 0.08) +
+          0.18 * Math.cos(wz * 0.29 - wx * 0.07) +
+          0.09 * Math.sin(wx * 0.54 + wz * 0.36);
+        const wild = sample.dry === 0 || sample.dry === 5;
+        if (wild || sample.dry === 9) {
+          const blades = texel(
+            this.meadow,
+            wx * 2.6 + 3 * Math.sin(wz * 0.26),
+            wz * 2.6 + 2.7 * Math.cos(wx * 0.31)
+          );
+          const lush = mix(rgba(41, 110, 89), rgba(197, 224, 113), light * 240);
+          const meadow = mix(blades, lush, sample.dry === 5 ? 140 : 156);
+          pixels[i] = mix(pixels[i]!, meadow, sample.dry === 5 ? 92 : 216);
+          if (sample.dry === 9) {
+            const radius = Math.hypot(wx - 3, wz - 9),
+              patch = sat((12.3 - radius + 0.6 * Math.sin(wz * 1.6) + jitter) / 2.65);
+            const cobble = texel(this.textures[9]![0]!, wx * 5, wz * 5);
+            const value = ((cobble & 255) + ((cobble >>> 8) & 255) * 2 + ((cobble >>> 16) & 255)) * 0.25;
+            pixels[i] = mix(
+              pixels[i]!,
+              mix(rgba(88, 93, 79), rgba(166, 161, 132), value * 1.83),
+              patch * 218
+            );
+          }
+        }
+        const trail = texel(this.textures[4]![0]!, wx * 4, wz * 4);
+        const path = mix(trail, rgba(227, 194, 128), 74 + light * 38);
+        if (inland && wet.bank < 1.1) {
+          const verge = sat(1 + wet.bank / 6.2),
+            open = 0.5 + 0.5 * Math.sin(wet.along * 0.29 + wet.across * 0.25);
+          const gravel = texel(this.shingle, wx * 3.3, wz * 3.3);
+          if (wild) {
+            const moss = mix(rgba(61, 135, 89), rgba(174, 208, 94), light * 256);
+            pixels[i] = mix(pixels[i]!, moss, verge * 68);
+          }
+          const shelf = sat((wet.bank + 0.72 + open * 1.6 + jitter) / 1.72);
+          pixels[i] = mix(pixels[i]!, mix(gravel, path, 91), shelf * (112 + open * 91));
+        }
+        if (sample.lane > 0 && wet?.course !== 'ocean') {
+          const wheel = sat((sample.lane - 0.09 + jitter * 0.24) / 0.79);
+          pixels[i] = mix(pixels[i]!, path, wheel * 237);
+        }
+        const yard = yardAt(wx, wz);
+        if (yard)
+          pixels[i] = yardPixel(
+            yard,
+            wx,
+            wz,
+            pixels[i]!,
+            path,
+            texel(this.textures[ROCK]![0]!, wx * 7, wz * 7),
+            jitter * 4
+          );
+        const treeShadow = inland ? canopyShade(wx, wz) : 0;
+        if (treeShadow) pixels[i] = mix(pixels[i]!, rgba(30, 76, 80), treeShadow * 175);
+        if (!wet || wet.bank < -1.65) continue;
         const ocean = wet.course === 'ocean',
           stone = bend(wet);
         const mat = materials.indexOf(wet.kind),
@@ -176,14 +245,14 @@ export class Ground {
         material[i] = mat;
         course[i] = coursesInFrame.indexOf(wet.course);
         uv[i] = wrap(Math.floor(v), tex.h) * tex.w + wrap(Math.floor(u), tex.w);
-        const bed = this.textures[ocean ? SAND : ROCK]![0]!;
+        const bed = ocean ? this.textures[SAND]![0]! : this.shingle;
         floorUV[i] = wrap(Math.floor(wz * 3.8), bed.h) * bed.w + wrap(Math.floor(wx * 3.8), bed.w);
         bank[i] = Math.round(Math.min(80, wet.bank) * 64);
         waves[i] = seaPhases(wx, wz, wet.bank);
         const sourceDist = Math.hypot(wx + 8.8, wz + 92.5);
         along[i] = Math.round((wet.kind === 'pool' ? sourceDist : wet.along) * 64);
         across[i] = Math.round((wet.across + stone.deflection) * 64);
-        width[i] = Math.min(255, Math.round(wet.halfWidth * 48));
+        width[i] = Math.min(255, Math.round(wet.halfWidth * 24));
         const noise =
           0.5 +
           0.22 * Math.sin(wx * 0.64 + wz * 0.78 + 2.1 * Math.sin(wz * 0.39)) +
@@ -191,8 +260,12 @@ export class Ground {
           0.09 * Math.sin(wx * 2.8 + wz * 1.72);
         grain[i] = byte(noise);
         pocket[i] = byte(stone.eddy);
+        pressure[i] = byte(stone.bow);
         land[i] = pixels[i]!;
-        sky[i] = skyAt(this.sky, sx / 25 + 0.65 * Math.sin(wz * 0.13), sy / 23);
+        const skyColor = skyAt(this.sky, sx / 25 + 0.65 * Math.sin(wz * 0.13), sy / 23);
+        sky[i] =
+          (skyColor & 0xffffff) |
+          (Math.round(255 * (ocean ? 0 : Math.max(bridgeShade(wx, wz), treeShadow))) << 24);
         wetBlocks[((y / BLOCK) | 0) * BLOCKS + ((x / BLOCK) | 0)] = 1;
         waterPixels.push(i);
       }
@@ -218,6 +291,7 @@ export class Ground {
       width,
       grain,
       pocket,
+      pressure,
       sky,
       land,
       shearX,
@@ -225,16 +299,22 @@ export class Ground {
       mirrorAlpha,
       wetBlocks,
       waterPixels: Uint16Array.from(waterPixels),
-      lastTick: -1,
+      lastWaterFrame: '',
     };
   }
 
-  private paintWater(ch: Chunk, tick: number, hour: number, flow: Flow) {
+  private paintWater(ch: Chunk, tick: number, hour: number, flow: Flow, ripples: Ripple[], frame: string) {
     const t = tick / 15,
       clock = seaClock(t),
       sun = sat(0.38 + 0.62 * Math.cos(((hour - 10) * Math.PI) / 12));
     const fc = this.currents.map((v) => Math.floor(v * 29));
     const stages = [0, flow.main, flow.village, flow.quarry, flow.spring];
+    const nearby = ripples.filter((r) => {
+      const sx = (r.x - r.z) * 6 - ch.worldX,
+        sy = (r.x + r.z) * 3 - ch.worldY,
+        rx = (r.radius + 0.7) * 9;
+      return sx >= -rx && sx <= SIZE + rx && sy >= -rx * 0.5 && sy <= SIZE + rx * 0.5;
+    });
     const archives = this.textures;
     for (const i of ch.waterPixels) {
       const mat = ch.material[i]!,
@@ -357,7 +437,7 @@ export class Ground {
         optical = Math.max(0, cover) * (0.45 + 0.06 * h);
         strength = 0.65 - 0.13 * Math.abs(slope);
       } else {
-        const r = ch.width[i]! / 48,
+        const r = ch.width[i]! / 24,
           p = ch.pocket[i]! / 255,
           run = local * 0.029;
         // Two advected current lanes shear past one another. A stone splits a lane and sheds a small eddy.
@@ -375,13 +455,26 @@ export class Ground {
         const pulse = sinPhase(along * 49 - t * 51);
         dx = basin ? pulse * 0.69 : rip * 0.86 + rip2 * 0.63 + p * sinPhase(fast * 31) * 1.8;
         dy = basin ? cosPhase(along * 42 - t * 53) * 0.55 : sinPhase(fast * 18 + side * 17) * 0.82;
+        const curl = p * sinPhase(fast * 39 + side * 33 + 19 * sweep);
+        if (!basin) {
+          dx += curl * 1.45;
+          dy += p * cosPhase(slow * 32 - side * 41) * 1.18;
+        }
         const sample = texel(frame, u + dx, v - local * 0.12 + dy);
         const ink = sat((((sample >>> 8) & 255) - 85) / 107);
         const channelDepth = sat(cover / Math.max(0.42, r * 0.85));
         const grainLine = foamCell(along * 6.8 - run * 9 + 18 * sinPhase(side * 35), side * 15 + sweep * 3.5);
         const riffle =
           sat(1 - Math.abs(smallWave - 61) / 8) * sat((cosPhase(fast * 12 - side * 43) + 0.12) * 1.15);
-        const level = index(13 + (1 - channelDepth) * 6 + rip * 3.8 + rip2 * 2.8 + ink * 3 + riffle * 3);
+        const level = index(
+          13 +
+            (1 - channelDepth) * 6 +
+            rip * 3.8 +
+            rip2 * 2.8 +
+            ink * 3 +
+            riffle * 3 +
+            (basin ? 0 : cosPhase(fast * 12 + side * 31 + 17 * sweep) * 1.8 + curl * 2.1)
+        );
         deep = (basin ? poolRamp : streamRamp)[level]!;
         deep = mix(deep, sky, basin ? 28 : 19);
         const rings = sat((pulse - 0.915) * 12) * sat(1 - along / 6.5) * (0.22 + 0.26 * n);
@@ -397,10 +490,30 @@ export class Ground {
               riffle * 0.29 * sat(1 - cover / 1.8) * (1 - grainLine)
             );
         if (!basin) foam = Math.max(foam, sat(1 - cover / 0.12) * 0.19 * breaks);
+        if (!basin) foam = Math.max(foam, p * sat((curl - 0.12) * 1.35) * (0.28 + 0.36 * breaks));
+        if (!basin) {
+          const bow = ch.pressure[i]! / 255,
+            wash = 0.57 + 0.31 * sinPhase(fast * 35 + side * 44) + 0.12 * cosPhase(fast * 18);
+          foam = Math.max(foam, bow * wash * (0.68 + stages[course]! * 0.32), p * riffle * breaks * 0.65);
+          shine += bow * 0.21;
+        }
         optical = basin ? cover * 0.58 : cover * 0.57 + channelDepth * 0.31;
-        strength = basin ? 0.82 : 0.72;
+        strength = basin ? 0.82 : 0.57 + 0.31 * channelDepth - 0.13 * p;
+        if (nearby.length) {
+          const sx = ch.worldX + (i % SIZE),
+            sy = ch.worldY + Math.floor(i / SIZE);
+          for (const r of nearby) {
+            if (r.course !== course) continue;
+            const pulse = rippleAt(r, (sy + sx * 0.5) / 6, (sy - sx * 0.5) / 6);
+            if (!pulse) continue;
+            dx += pulse.dx * 2.9;
+            dy += pulse.dy * 1.8;
+            shine += pulse.crest * 0.68;
+            foam = Math.max(foam, pulse.crest * 0.43);
+          }
+        }
       }
-      const bedTex = archives[ocean ? SAND : ROCK]![0]!,
+      const bedTex = ocean ? archives[SAND]![0]! : this.shingle,
         uvBed = ch.floorUV[i]!;
       const bed = texel(
         bedTex,
@@ -410,18 +523,42 @@ export class Ground {
       const pebble = ocean
         ? 0
         : foamCell((uvBed % bedTex.w) * 1.2 + dx, ((uvBed / bedTex.w) | 0) * 1.14 + dy);
-      let riverBed = mix(bed, tint, ocean ? 88 : 92);
+      let riverBed = mix(bed, ocean ? tint : rgba(62, 142, 159), ocean ? 88 : 84);
       if (!ocean)
         riverBed = mix(
           riverBed,
-          pebble < 0.12 ? rgba(65, 73, 61) : rgba(157, 158, 125),
-          pebble < 0.12 ? 116 : pebble * 75
+          pebble < 0.12 ? rgba(88, 99, 133) : rgba(194, 203, 159),
+          pebble < 0.12 ? 111 : pebble * 48
         );
       const laid = mix(wetEarth, riverBed, sat(cover / (ocean ? 1.7 : 1.05)) * 256);
       const trans = transmission[Math.min(255, Math.max(0, Math.round(optical * 49)))]!;
       let color = mix(deep, laid, trans * 256);
+      const shelter = (sky >>> 24) / 255;
+      if (shelter) {
+        color = mix(color, rgba(22, 42, 44), shelter * 102);
+        shine *= 1 - shelter * 0.76;
+        foam *= 1 - shelter * 0.34;
+      }
       if (shine > 0.025) color = mix(color, glint, Math.min(0.68, shine) * 219 * sat(cover / 0.25));
-      if (foam > 0.022) color = mix(color, foam > 0.35 ? foamLit : foamShade, Math.min(1, foam) * 243);
+      if (foam > 0.022)
+        color = mix(
+          color,
+          ocean
+            ? foam > 0.35
+              ? foamLit
+              : foamShade
+            : foam > 0.35
+              ? rgba(222, 246, 218)
+              : rgba(146, 211, 209),
+          Math.min(1, foam) * 243
+        );
+      const sparkle = ocean
+        ? 0
+        : riverSpark(ch.worldX + (i % SIZE), ch.worldY + Math.floor(i / SIZE), t, n) *
+          (1 - shelter * 0.96) *
+          sat(cover / 0.3);
+      if (sparkle) color = mix(color, rgba(237, 253, 208), sparkle * 250);
+      strength *= 1 - sparkle * 0.85;
       ch.pixels[i] = color;
       ch.shearX[i] = Math.round(dx);
       ch.shearY[i] = Math.round(dy);
@@ -429,7 +566,7 @@ export class Ground {
     }
     ch.ctx.putImageData(ch.image, 0, 0);
     ch.maskCtx.putImageData(ch.maskImage, 0, 0);
-    ch.lastTick = tick;
+    ch.lastWaterFrame = frame;
   }
 
   reflect(src: Uint8ClampedArray, destination: CanvasRenderingContext2D, bounds: Rect) {
@@ -453,9 +590,9 @@ export class Ground {
             opacity = src[from + 3]!;
           if (!opacity) continue;
           const into = ((sy - top) * w + sx - left) * 4;
-          result[into] = src[from]!;
-          result[into + 1] = src[from + 1]!;
-          result[into + 2] = src[from + 2]!;
+          result[into] = src[from]! * 0.78 + 48 * 0.22;
+          result[into + 1] = src[from + 1]! * 0.78 + 82 * 0.22;
+          result[into + 2] = src[from + 2]! * 0.78 + 84 * 0.22;
           result[into + 3] = (opacity * alpha) / 255;
         }
     }
@@ -469,7 +606,8 @@ export class Ground {
     h: number,
     time: number,
     flow: Flow,
-    hour: number
+    hour: number,
+    ripples: Ripple[] = []
   ) {
     const x0 = Math.floor(-ox / SIZE),
       y0 = Math.floor(-oy / SIZE),
@@ -477,6 +615,18 @@ export class Ground {
       y1 = Math.floor((h - oy) / SIZE);
     const tick = Math.floor(time * 15),
       rates = [0.72, 0.35 + flow.main, 0.25 + flow.village, 0.25 + flow.quarry, 0.24 + flow.spring * 0.25];
+    const pulseKey = ripples
+      .map((r) =>
+        [
+          r.course,
+          Math.round(r.x * 24),
+          Math.round(r.z * 24),
+          Math.round(r.radius * 24),
+          Math.round(r.amplitude * 32),
+        ].join(',')
+      )
+      .join('/');
+    const frame = [tick, Math.floor(hour * 12), ...rates, pulseKey].join(';');
     if (this.lastTime < 0 || time < this.lastTime) this.currents = rates.map((rate) => rate * time);
     else
       for (let i = 0; i < rates.length; i++)
@@ -497,24 +647,30 @@ export class Ground {
         if (ch.waterPixels.length) {
           this.hasWater = true;
           this.visible.push({ x, y, chunk: ch });
-          if (!this.accelerated && ch.lastTick !== tick) this.paintWater(ch, tick, hour, flow);
+          if (!this.accelerated && ch.lastWaterFrame !== frame)
+            this.paintWater(ch, tick, hour, flow, ripples, frame);
         }
         ctx.drawImage(ch.canvas, x, y);
       }
     if (this.hasWater && this.accelerated) {
       try {
-        this.gpu!.draw(ctx, this.visible, ox, oy, Math.floor(time * 30), hour, this.currents, [
-          0,
-          flow.main,
-          flow.village,
-          flow.quarry,
-          flow.spring,
-        ]);
+        this.gpu!.draw(
+          ctx,
+          this.visible,
+          ox,
+          oy,
+          Math.floor(time * 30),
+          hour,
+          this.currents,
+          [0, flow.main, flow.village, flow.quarry, flow.spring],
+          ripples,
+          pulseKey
+        );
       } catch (e) {
         console.warn('Switching to the Canvas water renderer.', e);
         this.gpu = null;
         for (const { x, y, chunk } of this.visible) {
-          this.paintWater(chunk, tick, hour, flow);
+          this.paintWater(chunk, tick, hour, flow, ripples, frame);
           ctx.drawImage(chunk.canvas, x, y);
         }
       }

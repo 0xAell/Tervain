@@ -2824,6 +2824,218 @@
         "d76ebc10b33a99f9aa297e67e12bacb4b4f48aa89b8e33ddf7416f6450d7bfcd"
       ],
       "derivedFrom": "stone"
+    },
+    "rill_trout": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. One slender little speckled river trout swimming to the RIGHT, dorsal 3/4 view, slightly arched long tapered body, forked tail to the left, native silvery blue flanks and a small warm copper stripe, an elegant readable fish silhouette. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "cb9efba8d6eefac0d6863f74656324e47b8d5511c9137640660cd070b9216f9b"
+      ]
+    },
+    "rill_trout--swim": {
+      "tool": "animate_image",
+      "description": "A seamless natural swimming cycle, tail waves from side to side, fins flick. The fish stays centred, swimming to screen right. No splashes or water.",
+      "sourceFrameSha256": [
+        "cb9efba8d6eefac0d6863f74656324e47b8d5511c9137640660cd070b9216f9b",
+        "40ea6678b5b3cabbb2392e347670d0d469665740a8dba0a7e3541b098f708f13",
+        "9aff69a6abe1f3b21e51372e347807881615ae79cbb6f29b16d07d864745c89d",
+        "d8d2753279184ccaa4f46dae99273872ea5dcffa9a284135bb9e1f5db8bc3a10",
+        "22cb0404f65dc08dd97c10089cbaf7d136f16bb7993cbb4859afda1716536590",
+        "8115b7eb0d85cd500f5db1cce256ecf821683c7149772a6de796dc929e2f6902",
+        "8af0a1b8f7150eef35e2ceffba87986059b730aa7c231f687dea531f92640063"
+      ]
+    },
+    "rill_kingfisher": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A single kingfisher flying towards screen RIGHT: long dark pointed beak, burnt orange underside, cobalt and electric turquoise wings, poised over a river. Have the wings open and legs tucked, distinctly a bird in flight, side-three-quarter view. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "13dbe6de22270b2e3bafd030d0d5bee180e5413e549956af8b760b5d49b90916"
+      ]
+    },
+    "rill_kingfisher--fly": {
+      "tool": "animate_image",
+      "description": "Cycle of an elegant kingfisher in fast level flight to screen right, two long wing beats going up and down, the head and body staying at the same place.",
+      "sourceFrameSha256": [
+        "13dbe6de22270b2e3bafd030d0d5bee180e5413e549956af8b760b5d49b90916",
+        "cb7dfc348c8090486a8a5d1892ffb8a5ec75a091c2b87d37cd18a80d62cf1788",
+        "29bf7aa0125bee714d2d7e788eb08c82b2ebed12172b92d23e52c7764d123c99",
+        "f19aa7a561553fca78b138a5f84f8fea1f41a3ce65f4fc0c13ef42730c368e48",
+        "f32865c406dbfc44d2d79dc5f3bf149e4c3864eba8b07ddf356da0d7eb066e83",
+        "bb4859fcb50d12dc007f73e3667e343e9f4b72877eb304f7a7851a3a0ada3e30",
+        "02329fcc974609231ad6c7b525fc19f38f364e48df5e4047e70c485d4e404407"
+      ]
+    },
+    "rill_dragonfly": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. One jewel-like damselfly, emerald and gold slender abdomen and four translucent ice blue wings extended east and west. Seen diagonally from just above, lightly outlined glass wings and single-pixel flashes. Graceful distinct silhouette. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "11fa4ede5f3eefa9d2d4fc360b5afdd26ed5a5f021fb2e1c7e2dff277d1ba3c3"
+      ]
+    },
+    "rill_dragonfly--hover": {
+      "tool": "animate_image",
+      "description": "An iridescent dragonfly hovers in place, all four translucent wings flutter open and closed rapidly. Its long body is steady.",
+      "sourceFrameSha256": [
+        "11fa4ede5f3eefa9d2d4fc360b5afdd26ed5a5f021fb2e1c7e2dff277d1ba3c3",
+        "b5f58ab4896af7591cf6e16bc1c519ac46f07a1c65ae6e31490d8c61a7298f23",
+        "c41fc120da4695c714efa200a832908b8d39499417fa0fb29c114e50e5624872",
+        "ebafcc00d4c12eed30af0b34410bdaef3875e382f5997dcf45d46a1a4e879cbe",
+        "738cb1d30686ab30cb6ba01e5daca806cddc95079aa8f075d8a2e0fe1d9a597d"
+      ]
+    },
+    "rill_lilies": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A loose group of FOUR round notched lily pads at water level in a staggered natural asymmetric arrangement. Top faces pale spring green with dark jade undersides, one white water-lily bloom with gold centre. Open transparent spaces between leaves, flat projected 2:1 ellipses. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "663cf6723e633a60e593a780d834f86070d0058f7aa547188f17a22ebcab0a0f"
+      ]
+    },
+    "rill_lilies--bob": {
+      "tool": "animate_image",
+      "description": "Lily pads and one white flower gently pitch at water level; a subtle bob of individual leaves, fixed composition and empty transparent gaps.",
+      "sourceFrameSha256": [
+        "663cf6723e633a60e593a780d834f86070d0058f7aa547188f17a22ebcab0a0f",
+        "3ddb91b078027322f21acaa9a8d5be314cdd21bf477b74d0c28a5a176dc297d9",
+        "1bc8ae81b3d286fd8cdf26a85b75fdfc31f26eb053bbeff2a5ce5d9d44827de7",
+        "a9d45b94361b8aab4084626738d736c0f1d6692244243a2a2cba2c8f3889898b",
+        "0f880003e0c89e0d35503fea0d3eb4bc4c5cc752d85beaf704ed3396792d3402"
+      ]
+    },
+    "rill_iris": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A living tuft of blue flag iris and rushes on a riverbank: three blue-violet iris flowers with golden throats at staggered heights, slender sword-like jade leaves, several golden-green blades of grass at their foot. Clear delicately pointed silhouette. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "c3378d3dc7b28908472b1972cfa9c805811932476d2eddc86ab3651785c4d3bf"
+      ]
+    },
+    "rill_iris--sway": {
+      "tool": "animate_image",
+      "description": "The leaves and three iris flower heads nod gently in a river breeze, roots stationary, subtle side-to-side motion.",
+      "sourceFrameSha256": [
+        "c3378d3dc7b28908472b1972cfa9c805811932476d2eddc86ab3651785c4d3bf",
+        "c1bcb76eda36586171cb3d49a30df26ad7e3721b0944f0da2c7792a503018d34",
+        "23d83cbba19120935799503179ce2e6c66cf56809d7bdccbdd732548a3c3974b",
+        "a2e12ebc7fe29ef8108f0f4f4f9717e71bd5c677b375815cd678c62f2abca6f5",
+        "5ece2b6d6f763c0d57164aefa9f612f94b9187128620e1b2d78c70aebda1c8e2",
+        "32d1181ea189a06102434dcfaf2cd4fc8e7658698ac3aff7e14c0dc9349ec923",
+        "f2eeacb58ac14111ad5d971008b563736a6e8d6355bc372b890a39c48100bf41"
+      ]
+    },
+    "rill_sedge": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. One wild limy-green river sedge tussock, elegantly arching blades from a narrow root, a few cream flowering spikes, sage shadows and bright yellow-green sunlit outer blades. Natural irregular asymmetric silhouette with gaps. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "51a44b2b7e9965f112f6f4c91b2b1d8b63a87e21bcae0146028cac49237a705e"
+      ]
+    },
+    "rill_sedge--sway": {
+      "tool": "animate_image",
+      "description": "The flexible blades ripple from the tips in a breeze. Grass roots absolutely motionless; light glides over the leaves.",
+      "sourceFrameSha256": [
+        "51a44b2b7e9965f112f6f4c91b2b1d8b63a87e21bcae0146028cac49237a705e",
+        "0d200991e0c12b976d02c65d5a0976f82a937d1cc34854650a9973247237f3a2",
+        "4c244e16a46507cb4144520addb56c1c57b8b72176bc8a83c04962d8d5e71579",
+        "66be099bc1f9f4e3f01169b2b56e2320bd7a1887d40a73324468511151a1042e",
+        "7b8aab6244dc7cce1f7100377b5a3cca899b376dfafadb1b14fe2e16123c6512"
+      ]
+    },
+    "rill_boulder": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A group of three irregular partly submerged river boulders resting together, a long large angular pale grey limestone stone with two smaller salmon-grey rocks alongside. Broad sunlit ivory and warm ochre tops, cool lilac to slate-blue facets, small moss patches at the joint. No landscape. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "26544f726d543630f75554891ae45c486358e5fc1b80f23f6da92ac18f99193e"
+      ]
+    },
+    "rill_willow": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A mature riverside pollard willow tree with twisty charcoal-brown trunk, visible spreading roots, broad vaulting irregular canopy, glades of rich emerald foliage, butter-yellow-green tips in sunlight, individual long cascading leaf fronds and gaps between boughs, organic silhouette. Full tree including trunk foot. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "be2d6db2c03b300e4161067e137f8d2b940d01a7cb18938a7fcf3c71c3e0a4a3"
+      ]
+    },
+    "rill_willow--sway": {
+      "tool": "animate_image",
+      "description": "Only the hanging leafy shoots of the willow sway gently in a breeze, foliage twinkling in the sun. Trunk, roots and main boughs remain planted.",
+      "sourceFrameSha256": [
+        "be2d6db2c03b300e4161067e137f8d2b940d01a7cb18938a7fcf3c71c3e0a4a3",
+        "90df08fd5f377832abb055ba24280beb5576eb9cecaf50eeb59d2e0ac3bbcd04",
+        "a492ea48d1e8d9807eadec9a859c0ec4196708a805df9acee4d65557e5208349",
+        "273ce2031c2eb557127f796664739b72b4c5ced6dc2314bb34624f10ee73256d",
+        "00ed543c76850e00b2249d8904030e1ee54009c996170766529c8a43932c83c3",
+        "1201a24cd29ecf4bb82f7e72f468444f0a2cea2057a223af4bd4fae2584ddf0c",
+        "8a1a8f77ae98f688cbd24e5c32ebf5f769f4ee1e66ebe4a6cdb70dfeafc13bca"
+      ]
+    },
+    "rill_meadow": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A seamless top-down square swatch of lush riverbank meadow, entirely covered edge to edge with meadow green grass. Broad soft interlocking masses of jade, fresh spring green and luminous yellow-green, occasional tiny sparse pale clover leaves; quiet low-contrast texture for a painted RPG landscape. Even brightness across all four edges. NO isolated objects or tiles.",
+      "sourceFrameSha256": [
+        "3a809789b575f6df8353a4005d93a2392cca01429a61205e646cd6e9d6c4f29e"
+      ]
+    },
+    "rill_shingle": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. Seamless flat overhead natural river shingle texture, scattered clusters of rounded ochre, pearl limestone and golden grey pebbles against fine blond sand with cool periwinkle pockets, broad flat patches with a few shaped stones, sunlight, painting in chunky few-colour readable pixels. Full bleed square texture, no water, no border.",
+      "sourceFrameSha256": [
+        "179ea1fb10af6468f2e8fc6295f7f56e9d950bff2364139c91bba3c4d1a778c1"
+      ]
+    },
+    "rill_slab": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A SINGLE low broad glacial river stone with one long flat face sloping down to screen right. Warm cream limestone top, two or three large soft lilac facets at the waterline, sunlit edge and a patch of yellow-green lichen. One elegant asymmetrical boulder; minimal outline, natural painterly shapes. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "45a0851911292b422cb054e16f03fc59c2c3081680d74659c0efb099ba5c4cd9"
+      ]
+    },
+    "rill_pebbles": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A naturally scattered shoal of five low stepping stones, soft rounded grey-lavender cobbles with pale warm ivory tops. One broad flat stone and four little pebbles with gaps between them, sitting nearly flush at water level. Sparse organic grouping, fine painted edges. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "bb459dc5580a30769eddd1a67e72c35aa82e928b5c4a5a3d00715bc675346023"
+      ]
+    },
+    "rill_fern": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A low spreading riverbank fern with seven lace-like fronds at different heights. Deep jade lower leaves, grass green middle plane and lime gold sunlit tips, gently asymmetric, fern curls and small clover at the foot. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "4b0b86bd9eb5d95d0eae38b2632b9978c9a07e610d1d45fa9c9c9baa6897e8aa"
+      ]
+    },
+    "rill_fern--sway": {
+      "tool": "animate_image",
+      "description": "A small gentle wave travels through the fern fronds, tips incline and recover in a seamless loop. Keep the roots anchored.",
+      "sourceFrameSha256": [
+        "4b0b86bd9eb5d95d0eae38b2632b9978c9a07e610d1d45fa9c9c9baa6897e8aa",
+        "1e10000f9c56685b302f35c41f969066e45b041808a0142e3920d90e0bf542db",
+        "76c220111f2c60dde2e53f77b85291b1ad6793f5669b74d24ac4042ced146cc3",
+        "9201f769db49ead94b72501d4cb26de249b76262d06dc54ca5436ceb27c78e1a",
+        "c8067685cdc8da1859527a587e9f9c4a3b53307e82c48b2b62bbc1ee532bcfc9"
+      ]
+    },
+    "rill_spirea": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. A compact round river meadow shrub, lush spring green leaves with airy clusters of cream white and a few coral-pink small blossoms, sunlit yellow tips, cool green deep shadow. Silhouette is wider than tall with loose projecting stems. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "e9d7f1813c8a6a20d5c86f8507e80d0c2854961cd6fcbca80023bccf4b022c27"
+      ]
+    },
+    "rill_alder": {
+      "tool": "create_image_pro_flash",
+      "description": "Art for Tervain, a magical European medieval pixel-art RPG. Exquisitely hand-pixelled 2:1 isometric game asset, daylight from upper left, chunky readable pixel clusters, beautiful painted light, restrained single-pixel contours. One broad round riverside alder in summer sun, short forked trunk, generous canopy of varied branching clumps, luminous/chartreuse yellow-green outer leaves, azure-jade shadow planes. Different from a weeping willow: rounded deciduous boughs, no drooping strands. A few roots visible. One isolated subject on transparent alpha, no platform, no ground tile, no cutaway, no cast shadow, no surrounding water, no lettering. ",
+      "sourceFrameSha256": [
+        "cf87a05f5e57baaccf404ea713de3a64400252b361bdf5d412ccf41970c4e45c"
+      ]
+    },
+    "rill_alder--sway": {
+      "tool": "animate_image",
+      "description": "A warm breeze ripples scattered groups of alder leaves, soft glints on the sunlit tips. Trunk and footing fixed, subtle seamless loop.",
+      "sourceFrameSha256": [
+        "cf87a05f5e57baaccf404ea713de3a64400252b361bdf5d412ccf41970c4e45c",
+        "06b924abd74309a5754550871a6a58419a3d41d8ed36ae2f67f927024d6f8452",
+        "dc30b3dc5e47e860e4390c0384090b416ec8415848955c7fdf0079d50c1adc38",
+        "76890a16ae9536c4eeb2e3713fbc31d37b383ad0c1e8047affc0ccc1b2b471ea",
+        "3cc67a8e2d6ca9a09160219d021283aa83cdf0ba83fce8cf6bd6830c656f46d7"
+      ]
     }
   },
   "runtimeFilesSha256": {
@@ -2870,8 +3082,8 @@
     "icons/votive_reed.png": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
     "icons/witness_cord.png": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
     "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
-    "sprites.json": "966b57d0391df76543cb58a5a656e26595d4ad1f3bb6c0f45a0f64b1fac82c3a",
-    "sprites.png": "eefecd26dd4eec4a8bd2003ee4244010b67cf64685f178331ecb0e8cf9ce9696",
+    "sprites.json": "9209097ea38f82410bfdb2021ecd4274166eb4e559436b71b25c58d66e42b774",
+    "sprites.png": "8ec2e2e93517f8fcc8986d02e935d710580b24d2ce2a8431e7eb5a00b3d4a1b6",
     "title.png": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30",
     "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
   }
