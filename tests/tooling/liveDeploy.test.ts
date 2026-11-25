@@ -51,6 +51,22 @@ describe('reading a deployment', () => {
     expect(skewed.problems.join(' ')).toContain('version.json names revision 2222bbb, which the page\'s script does not carry');
   });
 
+  it('follows actual imports through chunks and ignores the embedded Rapier import-map key', async () => {
+    const files = {
+      ...build('abc1234', '1111'),
+      [`${BASE}assets/world-1111.js`]: 'const wasm = {"./rapier_wasm3d_bg.js": {}}; export {wasm}; import("./interior.js");',
+    };
+    const missing = site(files);
+    expect((await deployState(BASE, missing.fetchImpl)).problems).toEqual(['assets/interior.js was refused (404)']);
+    expect(missing.asked).not.toContain(`${BASE}assets/rapier_wasm3d_bg.js`);
+    expect((await deployState(BASE, site({ ...files, [`${BASE}assets/interior.js`]: 'export{}' }).fetchImpl)).ok).toBe(true);
+  });
+
+  it('rejects an HTML fallback served where the browser needs a module', async () => {
+    const fallback = site({ ...build('abc1234', '1111'), [`${BASE}assets/world-1111.js`]: '<!doctype html><html></html>' });
+    expect((await deployState(BASE, fallback.fetchImpl)).problems).toEqual(['assets/world-1111.js was served without readable JavaScript']);
+  });
+
   it('says when the page itself, its script or version.json is missing', async () => {
     expect(await deployState(BASE, site({}).fetchImpl)).toMatchObject({ reached: true, problems: ['the page was not served (404)'] });
     // No answer at all is the machine's network, and says which fault it was.
