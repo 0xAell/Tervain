@@ -36,10 +36,17 @@ export interface Draw {
   phase: 'draw' | 'hold' | 'loose';
   elapsed: number;
   released: boolean;
+  grade?: number;
   direction: V2;
   head?: string;
 }
+export function arrowLift(travelled: number) {
+  const range = travelled / ARROW_RANGE;
+  return 20 * (1 - 0.55 * range) + 3 * Math.sin(Math.PI * range);
+}
 export interface Arrow extends V2 {
+  launchHeight: number;
+  grade: number;
   direction: V2;
   travelled: number;
   head?: string;

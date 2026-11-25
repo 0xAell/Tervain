@@ -4,6 +4,8 @@ Tervain is a single-player, isometric pixel-art RPG set in Bellwether Vale. You 
 
 The browser game runs locally with `npm ci` and `npm run dev`. To create a single HTML file that opens offline, run `node tools/pack-isometric.mjs` and open `dist/Play Tervain.html`. Move with WASD or click a destination. E interacts, Space attacks, I opens the inventory, J opens the journal and M opens the map. F5 and F9 save and restore a journey.
 
+The Grey Strand rises into coastal terraces, the woodland roads pass exposed ledges and the quarry has stepped rock faces. The wanderer, wildlife and shadows follow the shape of the land. Rillford’s houses stand on masonry foundations. Inside, stairs connect raised chambers, and window light falls across their floors.
+
 The coast has crossing swells, breaking crests, run-up on the sand and reflections from the wreck and surrounding world. Currents follow the bends of each inland channel and the sluice allocation changes their speed and water level. Rillford’s timber footbridge follows the quarry road across the main channel. Current curls around its piers and the pale stones at the banks. Wading sends ripples downstream and scatters nearby trout. Kingfishers and dragonflies fly above planted shallows. Village doorsteps and footpaths meet the local ground. The spring has a separate surface driven by the inlet. The PixelLab art library includes the cast, animation sequences, terrain, structures, items, interface and typeface. The WebGL 2 water renderer shades each logical pixel and writes the local surface displacement into a second texture. That same displacement bends reflected sprites and swimming wakes. Canvas 2D provides a software rendering path. Run `node tools/check-isometric-water.mjs "dist/Play Tervain.html"` to check a standalone build, and append `--canvas` to exercise the software path.
 
 Gold lanterns mark entrances, side-room arches, stairs and exits. Click a lantern to walk to it or use the interact key up close. The 22 buildings each have a ground floor, a loft and a cellar. The map shows the current floor indoors. Household chests keep their contents between visits and the journal keeps the books you read.
@@ -16,7 +18,7 @@ The editable PNG sequences, original provider images and typeface are in `assets
 
 ## Status
 
-- **Version.** The current patch is [`0.1.7`](docs/production/releases/0.1.7.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is [`0.1.8`](docs/production/releases/0.1.8.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).

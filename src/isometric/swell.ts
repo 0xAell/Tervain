@@ -21,6 +21,14 @@ export function seaPhases(x: number, z: number, depth: number) {
   return (a | (b << 8) | (c << 16) | (d << 24)) >>> 0;
 }
 
+/** Metres below the surface. Channel floors flatten towards the thalweg, with exposed gravel near the bank. */
+export function bedDepth(bank: number, halfWidth: number, ocean: boolean, grain: number) {
+  const distance = Math.max(0, bank);
+  if (ocean) return Math.min(5.5, distance * 0.34) * (0.91 + grain * 0.18);
+  const section = Math.min(1, distance / Math.max(0.8, halfWidth)),
+    bowl = section * (2 - section);
+  return Math.min(2.65, 0.54 + halfWidth * 0.38) * bowl * (0.83 + 0.32 * grain);
+}
 export function seaClock(time: number) {
   return [phase(time * 0.192), phase(time * 0.255), phase(time * 0.352), phase(time * 0.042)] as const;
 }

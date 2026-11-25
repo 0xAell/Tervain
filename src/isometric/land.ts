@@ -1,3 +1,5 @@
+import { canClimb } from './relief';
+import { PROJECTION } from './projection';
 import { bankPlants } from './riverHabitat';
 import { passesRails } from './crossing';
 import { campShelter, buildingSprite } from './settlement';
@@ -34,14 +36,8 @@ import {
 import type { PlaceId } from '../core/game/types';
 
 export const CELL = 4;
-export const PROJECTION = 6;
+export { project, unproject, PROJECTION } from './projection';
 export const tileSpan = CELL * 2 * PROJECTION;
-export function project(x: number, z: number) {
-  return { x: (x - z) * PROJECTION, y: ((x + z) * PROJECTION) / 2 };
-}
-export function unproject(x: number, y: number): V2 {
-  return { x: (y + x / 2) / PROJECTION, z: (y - x / 2) / PROJECTION };
-}
 export const distance = (a: V2, b: V2) => Math.hypot(a.x - b.x, a.z - b.z);
 export function random(x: number, z: number, salt = 0) {
   let value = Math.imul(Math.floor(x), 73856093) ^ Math.imul(Math.floor(z), 19349663) ^ salt;
@@ -94,6 +90,7 @@ export function navigable(from: V2, to: V2, open: boolean | WorldState) {
     to.z < WORLD.maxZ - 1 &&
     realmRadius(to.x, to.z) < 1.01 &&
     passesRails(from, to) &&
+    canClimb(from, to) &&
     enteredThroughDoor(from, to, open)
   );
 }

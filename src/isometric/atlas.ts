@@ -20,6 +20,26 @@ export class Atlas {
     return new Atlas(image, (await response.json()) as Sheet);
   }
 
+  private shadowMasks = new Map<string, HTMLCanvasElement>();
+  shadow(key: string, frame = 0) {
+    const index = Math.floor(frame) % this.frameCount(key),
+      id = key + '/' + index;
+    let image = this.shadowMasks.get(id);
+    if (!image) {
+      image = document.createElement('canvas');
+      image.width = 48;
+      image.height = Math.max(1, this.height(key, 48, index));
+      const ink = image.getContext('2d')!;
+      ink.imageSmoothingEnabled = false;
+      this.draw(ink, key, 24, image.height, 48, index);
+      ink.globalCompositeOperation = 'source-in';
+      ink.fillStyle = '#283544';
+      ink.fillRect(0, 0, image.width, image.height);
+      this.shadowMasks.set(id, image);
+    }
+    return image;
+  }
+
   private materials = new Map<string, HTMLCanvasElement>();
   surface(key: string) {
     let surface = this.materials.get(key);

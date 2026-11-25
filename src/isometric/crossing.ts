@@ -1,7 +1,8 @@
 import { DECKS, ROADS, type V2, type DeckSpec } from '../core/world/layout';
 import { waterProfile } from './channels';
 
-export const risePixels = 8;
+import { risePixels } from './projection';
+export { risePixels } from './projection';
 export interface Crossing extends V2 {
   tx: number;
   tz: number;

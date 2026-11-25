@@ -1,3 +1,5 @@
+import { terrainTile } from './relief';
+import { risePixels } from './projection';
 import { canopyShade } from './riverHabitat';
 import { roadWeight } from '../core/world/terrain';
 import { riverSpark } from './riverLight';
@@ -9,7 +11,7 @@ import { foamCell } from './foam';
 import type { Atlas } from './atlas';
 import { dryGroundAt, PROJECTION } from './land';
 import { coursesInFrame, stoneFlow, waveFrame, waterProfile, type Flow, type WetPoint } from './water';
-import { seaClock, seaPhases, sinPhase, cosPhase } from './swell';
+import { bedDepth, seaClock, seaPhases, sinPhase, cosPhase } from './swell';
 import {
   oceanRamp,
   bankRamp,
@@ -147,6 +149,7 @@ export class Ground {
       waterPixels: number[] = [];
     const worldX = bx * SIZE,
       worldY = by * SIZE;
+    const relief = terrainTile(worldX, worldY, SIZE);
     const material = new Uint8Array(n),
       course = new Uint8Array(n),
       waves = new Uint32Array(n);
@@ -168,8 +171,10 @@ export class Ground {
       for (let x = 0; x < SIZE; x++, i++) {
         const sx = bx * SIZE + x,
           sy = by * SIZE + y,
-          wx = (sy + sx * 0.5) / PROJECTION,
-          wz = (sy - sx * 0.5) / PROJECTION;
+          height = relief.elevation[i]!,
+          planeY = sy + height * risePixels,
+          wx = (planeY + sx * 0.5) / PROJECTION,
+          wz = (planeY - sx * 0.5) / PROJECTION;
         const jitter = ((Math.imul(sx, 17) ^ Math.imul(sy, 53)) & 7) / 18 - 0.2;
         const sample = this.sample(wx + jitter, wz - jitter * 0.7);
         const dry = this.textures[sample.dry]![0]!;
@@ -231,6 +236,31 @@ export class Ground {
             texel(this.textures[ROCK]![0]!, wx * 7, wz * 7),
             jitter * 4
           );
+        const cliff = relief.steepness[i]!;
+        if (cliff) {
+          // Strata use horizontal distance and vertical metres so the rock retains grain on a sheer face.
+          const seam =
+            height * 1.2 + 0.32 * Math.sin(wx * 0.35 + wz * 0.21) + 0.08 * Math.sin(wx * 1.13 - wz * 0.61);
+          const band = seam - Math.floor(seam);
+          const rock = texel(
+            this.shingle,
+            (wx - wz) * 2.6 + height * 0.65,
+            height * 5.7 + Math.sin(wx * 0.37) * 1.55
+          );
+          const value = ((rock & 255) + ((rock >>> 8) & 255) * 2 + ((rock >>> 16) & 255)) / 4;
+          const patina = mix(
+            rgba(56, 66, 70),
+            rgba(190, 172, 139),
+            (value - 32) * 1.49 + (band < 0.15 ? -45 : band > 0.82 ? 25 : 0)
+          );
+          pixels[i] = mix(pixels[i]!, patina, cliff * (0.89 - sample.lane * 0.54));
+        }
+        const tone = relief.light[i]!;
+        if (tone)
+          pixels[i] =
+            tone > 0
+              ? mix(pixels[i]!, rgba(250, 225, 156), tone)
+              : mix(pixels[i]!, rgba(35, 48, 70), -tone * 1.3);
         const treeShadow = inland ? canopyShade(wx, wz) : 0;
         if (treeShadow) pixels[i] = mix(pixels[i]!, rgba(30, 76, 80), treeShadow * 175);
         if (!wet || wet.bank < -1.65) continue;
@@ -246,7 +276,6 @@ export class Ground {
         course[i] = coursesInFrame.indexOf(wet.course);
         uv[i] = wrap(Math.floor(v), tex.h) * tex.w + wrap(Math.floor(u), tex.w);
         const bed = ocean ? this.textures[SAND]![0]! : this.shingle;
-        floorUV[i] = wrap(Math.floor(wz * 3.8), bed.h) * bed.w + wrap(Math.floor(wx * 3.8), bed.w);
         bank[i] = Math.round(Math.min(80, wet.bank) * 64);
         waves[i] = seaPhases(wx, wz, wet.bank);
         const sourceDist = Math.hypot(wx + 8.8, wz + 92.5);
@@ -259,6 +288,10 @@ export class Ground {
           0.15 * Math.cos(wx * 1.27 - wz * 0.41) +
           0.09 * Math.sin(wx * 2.8 + wz * 1.72);
         grain[i] = byte(noise);
+        // Follow the refracted view ray down to the riverbed. Surface rings and pebbles occupy different planes.
+        const offset = bedDepth(wet.bank, wet.halfWidth, ocean, noise) * 0.86;
+        floorUV[i] =
+          wrap(Math.floor((wz - offset) * 3.8), bed.h) * bed.w + wrap(Math.floor((wx - offset) * 3.8), bed.w);
         pocket[i] = byte(stone.eddy);
         pressure[i] = byte(stone.bow);
         land[i] = pixels[i]!;
@@ -277,6 +310,7 @@ export class Ground {
       pixels,
       worldX,
       worldY,
+      elevations: relief.elevation,
       mask,
       maskCtx,
       maskImage,
@@ -567,6 +601,58 @@ export class Ground {
     ch.ctx.putImageData(ch.image, 0, 0);
     ch.maskCtx.putImageData(ch.maskImage, 0, 0);
     ch.lastWaterFrame = frame;
+  }
+
+  /** Nearest projected terrain depth in camera pixels, shared by foreground occlusion and the ground pass. */
+  private landDepth(x: number, y: number) {
+    const bx = Math.floor(x / SIZE),
+      by = Math.floor(y / SIZE);
+    const ch = this.chunks.get(bx + ',' + by);
+    if (!ch) return -Infinity;
+    return y + ch.elevations[(Math.floor(y) - by * SIZE) * SIZE + Math.floor(x) - bx * SIZE]! * risePixels;
+  }
+  clipUpright(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    foot: number,
+    width: number,
+    height: number,
+    depth: number,
+    ox: number,
+    oy: number
+  ) {
+    const left = Math.floor(x - width * 0.5) - 1,
+      right = Math.ceil(x + width * 0.5) + 1;
+    const top = Math.floor(foot - height) - 1,
+      bottom = Math.ceil(foot) + 1;
+    let stops: number[] | undefined;
+    for (let col = left; col < right + 3; col += 3) {
+      const at = Math.min(right, col),
+        sx = at - ox;
+      let lo = top,
+        hi = bottom;
+      if (this.landDepth(sx, hi - oy) <= depth) lo = hi;
+      else {
+        while (hi - lo > 1) {
+          const mid = (lo + hi) >> 1;
+          if (this.landDepth(sx, mid - oy) > depth) hi = mid;
+          else lo = mid;
+        }
+        if (!stops) stops = [];
+      }
+      if (stops) stops.push(at, lo);
+    }
+    if (!stops) return false;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(left, top);
+    ctx.lineTo(right, top);
+    for (let i = stops.length - 2; i >= 0; i -= 2) ctx.lineTo(stops[i]!, stops[i + 1]!);
+    ctx.lineTo(Math.max(left, stops[0]! - 3), bottom);
+    ctx.lineTo(left, bottom);
+    ctx.closePath();
+    ctx.clip();
+    return true;
   }
 
   reflect(src: Uint8ClampedArray, destination: CanvasRenderingContext2D, bounds: Rect) {
