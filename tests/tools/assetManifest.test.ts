@@ -155,12 +155,24 @@ describe('the asset manifest', () => {
     expect(validate({ ...committed, assets: [{ ...marked, replaceBeforeShip: false }] })).toBe(false);
   });
 
-  it('ships only assets with original Tervain provenance in the playable build', () => {
+  it('ships original Tervain assets and the receipted Bellwether audio commission', () => {
+    const audio = read('docs/engineering/spoken-vale.json') as {
+      generationLicence: string;
+      deliveries: { file: string; sha256: string }[];
+    };
+    expect(audio.generationLicence).toBe('paid at time of generation');
+    const deliveries = new Map(audio.deliveries.map((d) => ['public/assets/audio/vale/' + d.file, d.sha256]));
     const shipped = committed.assets.filter((asset) => asset.shipped);
     for (const asset of shipped) {
-      expect(asset.licence.status, asset.path).toMatch(/^(project-original|tervain-original-procedural)$/);
+      if (asset.group === 'vale-spoken-sound') {
+        expect(asset.kind).toBe('audio');
+        expect(asset.licence).toMatchObject({ id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' });
+        expect(deliveries.get(asset.path), asset.path).toBe(asset.sha256);
+        deliveries.delete(asset.path);
+      } else expect(asset.licence.status, asset.path).toMatch(/^(project-original|tervain-original-procedural)$/);
       expect(asset.replaceBeforeShip, asset.path).toBeFalsy();
     }
+    expect(deliveries.size).toBe(0);
     const archives = committed.assets.filter((asset) => asset.path.startsWith('public/models/npcs/') || asset.path.startsWith('public/models/animals/'));
     expect(archives.length).toBeGreaterThan(0);
     expect(archives.every((asset) => !asset.shipped)).toBe(true);

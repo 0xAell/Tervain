@@ -500,6 +500,7 @@ export class Valley {
               t: 'damagePlayer',
               amount: this.guard ? Math.ceil(def.damage * 0.18) : def.damage,
             });
+            this.onFieldSound(this.guard ? 'block' : 'hit');
             this.onMessage(this.guard ? 'Blow guarded' : a.name + ' struck you');
           }
         } else this.stepActor(a, a.home, def.speed * 0.65, dt);

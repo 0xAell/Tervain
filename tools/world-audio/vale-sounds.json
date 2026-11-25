@@ -1,0 +1,152 @@
+{
+  "coast": {
+    "duration": 18,
+    "prompt": "Seamless stereo field recording at dawn on a sheltered medieval coast. Small salt waves draw over round stones and quietly retreat, a distant gull, airy open horizon. Even perspective, restful natural sound, no music.",
+    "loop": true
+  },
+  "river": {
+    "duration": 18,
+    "prompt": "Seamless close stereo recording of a lively clear woodland river winding around mossy stones, distinct little ripples travelling left and right over a deeper gentle current, occasional soft lapping. No birds or music.",
+    "loop": true
+  },
+  "woodland": {
+    "duration": 18,
+    "prompt": "Seamless late morning woodland ambience, canopy leaves moving overhead, scattered thrushes at different distances, earthy stillness between bird phrases, sheltered forest, no music and no voices.",
+    "loop": true
+  },
+  "night": {
+    "duration": 18,
+    "prompt": "Seamless nocturnal woodland at the edge of a mountain village. Gentle breeze through fir needles, sparse distant crickets and a single soft owl far off, restful low bed. No music.",
+    "loop": true
+  },
+  "quarry": {
+    "duration": 16,
+    "prompt": "Seamless open limestone quarry ambience. Wind in high rock walls, occasional distant muted stone tap with a natural short echo; long quiet gaps. No industrial motors, no speech, no music.",
+    "loop": true
+  },
+  "hearth": {
+    "duration": 16,
+    "prompt": "Seamless small domestic cooking hearth inside a timber cottage. Low log fire with tiny wooden ticks and ember crackles, intimate but very gentle; a quiet room around it. No speech or music.",
+    "loop": true
+  },
+  "interior": {
+    "duration": 16,
+    "prompt": "Seamless quiet medieval timber house interior. Soft air under a wooden door, very occasional house timber settling, soft distant wind muffled by walls. No footsteps, voices or music.",
+    "loop": true
+  },
+  "cellar": {
+    "duration": 16,
+    "prompt": "Seamless quiet cool stone cellar, damp air and distant single water drops with a short stone resonance, deep still room tone. Natural low sound; no music.",
+    "loop": true
+  },
+  "village": {
+    "duration": 18,
+    "prompt": "Seamless village lane in a hand-built medieval valley. Soft open air, sparrows in a gutter, distant woodwork, leaves stirring at the edges. No intelligible voices, traffic, music or loud isolated hits.",
+    "loop": true
+  },
+  "shorestep": {
+    "duration": 0.8,
+    "prompt": "One soft leather boot planting on damp pebbles beside a river. Close dry foley, crisp grains of stone under weight.",
+    "loop": false
+  },
+  "pet_cat": {
+    "duration": 2.3,
+    "prompt": "One friendly domestic cat gives a tiny chirrup then purrs warmly as a hand brushes its fur. Intimate natural foley only.",
+    "loop": false
+  },
+  "pet_dog": {
+    "duration": 1.8,
+    "prompt": "Friendly village hound greeting a hand with a happy soft huff and a little collar jingle, tail gently tapping wood, close natural foley, no barking attack.",
+    "loop": false
+  },
+  "sit": {
+    "duration": 1.1,
+    "prompt": "A traveller settles onto an old wooden bench. Brief cloth rustle, soft weight and a warm timber creak.",
+    "loop": false
+  },
+  "stir": {
+    "duration": 2,
+    "prompt": "A wooden spoon circles twice around a small iron stewpot, subtle wet stirring and one light rim tap. Close foley, no fire roar.",
+    "loop": false
+  },
+  "gather": {
+    "duration": 1,
+    "prompt": "One hand plucks a fresh herb from the earth. Leaves brush, stem snaps softly, a pinch of crumbly soil.",
+    "loop": false
+  },
+  "work": {
+    "duration": 1.4,
+    "prompt": "A small hand tool works a medieval wooden bench with a short scrape and two quiet wooden taps. Intimate dry foley.",
+    "loop": false
+  },
+  "loom": {
+    "duration": 1.6,
+    "prompt": "A hand loom in a cottage. One shuttle knocks through taut threads, followed by a short wooden heddle clack and yarn sliding.",
+    "loop": false
+  },
+  "read": {
+    "duration": 1.1,
+    "prompt": "One thick dry parchment leaf gently turned in a leatherbound book, soft fibrous flutter with a quiet settle.",
+    "loop": false
+  },
+  "dress": {
+    "duration": 1.3,
+    "prompt": "Close gentle leatherworking movement: leather folds, a cutting tool draws briefly and an unrolled hide settles on soft earth.",
+    "loop": false
+  },
+  "bow_draw": {
+    "duration": 1.1,
+    "prompt": "One taut wooden longbow slowly drawn, supple wood creak and tight string tension, close textured foley, then silence.",
+    "loop": false
+  },
+  "bow_release": {
+    "duration": 0.65,
+    "prompt": "Single medieval longbow string snaps forward with a clean woody twang and a short feathered swish away. Crisp isolated game foley.",
+    "loop": false
+  },
+  "arrow_ground": {
+    "duration": 0.7,
+    "prompt": "A single wooden arrow hits soft damp earth with a low dull thup and a small shaft vibration. Isolated outdoor foley.",
+    "loop": false
+  },
+  "arrow_flesh": {
+    "duration": 0.65,
+    "prompt": "A blunt, muffled impact on heavy leather, with a soft shaft tremor. Close understated game impact sound.",
+    "loop": false
+  },
+  "skinning_complete": {
+    "duration": 0.9,
+    "prompt": "A folded piece of thick leather settles into a cloth satchel, soft rustle and a small buckle tap.",
+    "loop": false
+  },
+  "door": {
+    "duration": 1.25,
+    "prompt": "A latch lifts and a cottage door turns on an old iron hinge, a soft solid foot-level thud. One close gentle wood sound.",
+    "loop": false
+  },
+  "blade": {
+    "duration": 0.8,
+    "prompt": "A short blade sweeps through the air in a single swift arc, light leather grip movement and clean airy edge. Dry foley only.",
+    "loop": false
+  },
+  "water_enter": {
+    "duration": 1.3,
+    "prompt": "One boot steps from a bank into a clear shallow river, low plop and delicate water droplets in the foreground.",
+    "loop": false
+  },
+  "water_exit": {
+    "duration": 1.3,
+    "prompt": "One wet leather boot pulls free of a shallow stream and lands on sand, soft splash with a brief trickle.",
+    "loop": false
+  },
+  "water_wade": {
+    "duration": 0.85,
+    "prompt": "One soft knee-deep wading step in a small river, a rounded watery swish and ripples, isolated, no river bed.",
+    "loop": false
+  },
+  "water_swim": {
+    "duration": 1.1,
+    "prompt": "A single smooth swimming stroke across open river water, palm moves a sheet of water with small splashes. Isolated close foley.",
+    "loop": false
+  }
+}

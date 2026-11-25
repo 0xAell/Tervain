@@ -1,5 +1,7 @@
 import { AUTOSAVE_SECONDS } from '../core/rules/journey';
 import { Sound } from './audio';
+import { defaultMix, type MixLevels } from './mixer';
+import type { VoiceMode } from './reading';
 import { Game } from '../core/game/game';
 import { createInitialState } from '../core/game/state';
 import { S } from '../core/content/strings';
@@ -32,7 +34,12 @@ const defaults: Record<string, string> = {
 };
 const store = new BrowserStore();
 function readSettings() {
-  let saved: { volume?: number; bindings?: Record<string, string> } = {};
+  let saved: {
+    volume?: number;
+    mix?: Partial<MixLevels>;
+    voiceMode?: VoiceMode;
+    bindings?: Record<string, string>;
+  } = {};
   try {
     saved = JSON.parse(store.get('tervain:vale:settings') ?? '{}') ?? {};
   } catch {
@@ -41,7 +48,16 @@ function readSettings() {
   const bindings = { ...defaults };
   for (const key of Object.keys(bindings))
     if (typeof saved.bindings?.[key] === 'string') bindings[key] = saved.bindings[key]!;
+  const mix = { ...defaultMix };
+  for (const k of Object.keys(mix) as (keyof MixLevels)[]) {
+    const value = saved.mix?.[k];
+    if (typeof value === 'number' && Number.isFinite(value)) mix[k] = Math.max(0, Math.min(1, value));
+  }
+  const voiceMode: VoiceMode =
+    saved.voiceMode === 'off' || saved.voiceMode === 'characters' ? saved.voiceMode : 'full';
   return {
+    mix,
+    voiceMode,
     volume: typeof saved.volume === 'number' ? Math.max(0, Math.min(1, saved.volume)) : 0.36,
     bindings,
   };
@@ -51,7 +67,7 @@ export class Client implements Controls {
   controllerActive = false;
   readonly settings = readSettings();
   readonly saves = new SaveStore(store);
-  readonly sound = new Sound(this.settings.volume);
+  readonly sound = new Sound(this.settings.volume, this.settings.voiceMode, this.settings.mix);
   readonly ui: Interface;
   game = new Game();
   valley = new Valley(this.game);
@@ -72,6 +88,7 @@ export class Client implements Controls {
     root: HTMLElement
   ) {
     this.ui = new Interface(root, this.saves, this);
+    this.sound.setCaption((text) => this.ui.caption(text));
   }
   get mode() {
     return this.ui.mode;
@@ -80,6 +97,12 @@ export class Client implements Controls {
     this.scene = new Scene(this.canvas, await Atlas.load());
     this.ui.bind(this.valley, this.scene);
     this.ui.title();
+    const unlock = () => {
+      this.sound.unlock();
+      if (this.mode === 'title') this.sound.titleMusic();
+    };
+    window.addEventListener('pointerdown', unlock, { capture: true, passive: true });
+    window.addEventListener('keydown', unlock, { capture: true });
     window.addEventListener('keydown', (e) => this.key(e, true));
     window.addEventListener('keyup', (e) => this.key(e, false));
     window.addEventListener('blur', () => {
@@ -88,6 +111,8 @@ export class Client implements Controls {
       if (this.mode === 'play') this.page('pause');
     });
     document.addEventListener('visibilitychange', () => {
+      if (document.hidden) this.sound.mixer.sleep();
+      else this.sound.unlock();
       if (document.hidden && this.mode === 'play') {
         this.save('auto', true);
         this.page('pause');
@@ -233,6 +258,7 @@ export class Client implements Controls {
     this.game.subscribe((events) => {
       for (const e of events) {
         if (e.t === 'toast') this.ui.message(S(e.key, e.params));
+        this.sound.event(e, this.valley);
         if (e.t === 'autosave' && this.valley.player.health > 0) this.save('auto', true);
       }
     });
@@ -242,6 +268,7 @@ export class Client implements Controls {
     this.nextAuto = performance.now() + AUTOSAVE_SECONDS * 1000;
     this.nextAudio = 0;
     this.sound.enabled = true;
+    this.sound.unlock();
   }
   start(load: boolean) {
     const latest = load ? this.saves.latest() : null;
@@ -251,9 +278,7 @@ export class Client implements Controls {
     }
     this.resume();
     this.sound.update(this.valley);
-  }
-  line(id: string) {
-    this.sound.line(id);
+    if (!latest) this.sound.tell(['hero.arrival'], 3);
   }
   resume() {
     this.valley.openChest = undefined;
@@ -282,6 +307,7 @@ export class Client implements Controls {
     if (this.playing && this.valley.player.health > 0) this.save('auto', true);
     this.playing = false;
     this.sound.stop();
+    this.sound.titleMusic();
     this.ui.title();
   }
   save(slot: SlotId, silent = false) {
@@ -301,6 +327,17 @@ export class Client implements Controls {
   setVolume(v: number) {
     this.settings.volume = v;
     this.sound.setVolume(v);
+    this.storeSettings();
+  }
+  setVoiceMode(mode: VoiceMode) {
+    this.settings.voiceMode = mode;
+    this.sound.mode = mode;
+    this.sound.endLine();
+    this.storeSettings();
+  }
+  setMix(key: keyof MixLevels, value: number) {
+    this.settings.mix[key] = value;
+    this.sound.mixer.setLevels(this.settings.mix);
     this.storeSettings();
   }
   setBindings(action: string, key: string) {
@@ -494,6 +531,16 @@ export class Client implements Controls {
         this.valley.releaseAttack();
       return;
     }
+    if (
+      e.code === 'KeyV' &&
+      !e.ctrlKey &&
+      !e.metaKey &&
+      !Object.values(this.settings.bindings).includes(e.code)
+    ) {
+      if (!e.repeat) this.ui.readAloud();
+      e.preventDefault();
+      return;
+    }
     if (e.code === 'Escape') {
       if (e.repeat) return;
       if (this.mode === 'play') this.page('pause');
@@ -544,7 +591,11 @@ export class Client implements Controls {
         else this.resume();
       } else if (hit(0) && this.mode === 'play') this.interact();
       else if (this.mode !== 'play' && (hit(12) || hit(13) || hit(14) || hit(15) || hit(0)))
-        this.ui.padMenu(hit(12) || hit(14) ? -1 : hit(13) || hit(15) ? 1 : 0, !!hit(0));
+        this.ui.padMenu(
+          hit(12) || hit(14) ? -1 : hit(13) || hit(15) ? 1 : 0,
+          !!hit(0),
+          hit(14) ? -1 : hit(15) ? 1 : 0
+        );
       else if ((hit(2) || hit(7)) && this.mode === 'play') {
         this.stopWalking();
         this.valley.startAttack();
@@ -595,6 +646,7 @@ export class Client implements Controls {
         !this.destination
       );
       if (previousRoom !== this.valley.roomKey) {
+        this.sound.endLine();
         this.stopWalking();
         this.nextAudio = 0;
       } else if (this.pendingTarget) {

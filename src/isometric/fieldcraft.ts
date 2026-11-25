@@ -1,7 +1,14 @@
 import type { V2 } from '../core/world/layout';
 import type { RoomTarget } from './roomTargets';
 
-export type FieldSound = 'bow_draw' | 'bow_release' | 'arrow_flesh' | 'arrow_ground' | 'skinning_complete';
+export type FieldSound =
+  | 'bow_draw'
+  | 'bow_release'
+  | 'arrow_flesh'
+  | 'arrow_ground'
+  | 'skinning_complete'
+  | 'block'
+  | 'hit';
 export type Gesture = 'pet' | 'gather' | 'sit' | 'stir' | 'dress' | 'work' | 'read';
 export interface Activity {
   kind: Gesture;

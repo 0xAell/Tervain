@@ -10,11 +10,13 @@ Gold lanterns mark entrances, side-room arches, stairs and exits. Click a lanter
 
 The wanderer can pet village cats and dogs, take a seat, gather wild herbs and mushrooms, and cook at a campfire or household hearth. Carry trail stew for later or eat at the fire. An equipped bow has a travelling stance, a held draw and a release. Arrows travel through the scene and woodland game can be harvested with a knife.
 
+The wanderer and all twelve residents speak their dialogue. Choose a reply to hear the wanderer answer. Press V or select **Read aloud** to hear a book, journal page, menu or your surroundings. Voice, music and effects have separate controls in Settings. [Music and recording credits](public/world-audio-licenses.html).
+
 The editable PNG sequences, original provider images and typeface are in `assets/pixellab/sources.zip`. The source ledger records frame hashes in `assets/pixellab/provenance.json`. Rebuild the atlas with `python3 tools/pack-vale.py` using Pillow.
 
 ## Status
 
-- **Version.** The current patch is [`0.1.6`](docs/production/releases/0.1.6.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is [`0.1.7`](docs/production/releases/0.1.7.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).

@@ -47,29 +47,10 @@ async function folder(directory) {
   }
 }
 await folder('vale');
-await folder('assets/audio/hunting');
-const tracks = [
-  'ford/riverbank',
-  'ford/banked-embers',
-  'ford/bough-watch',
-  'ford/lanterns',
-  'ford/spring-stones',
-  'ford/timber',
-  'loop-lap',
-  'loop-brook',
-  'loop-quarry',
-  'loop-fire',
-  'loop-interior',
-  'loop-hall_drone',
-  'loop-forest_day',
-  'loop-forest_night',
-  'bank-water',
-  'bank-steps',
-];
+await folder('assets/audio/vale');
+const tracks = ['riverbank', 'banked-embers', 'bough-watch', 'lanterns', 'spring-stones', 'timber'];
 for (const track of tracks)
-  for (const ext of ['m4a', 'ogg']) await add('assets/audio/world/' + track + '.' + ext);
-for (const filename of await fs.readdir(path.join(root, 'public/assets/audio/voice')))
-  if (filename.startsWith('voice-story-')) await add('assets/audio/voice/' + filename);
+  for (const ext of ['m4a', 'ogg']) await add('assets/audio/world/ford/' + track + '.' + ext);
 
 const result = await build({
   root,

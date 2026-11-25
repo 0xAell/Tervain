@@ -1,0 +1,14 @@
+{
+  "first-light": {
+    "seconds": 42,
+    "prompt": "Instrumental opening for a sunlit but weathered medieval valley. Small intimate chamber group: plucked gut strings, breathy wooden flute and low bowed viol. D Dorian, lilting three-beat pulse near 84 BPM. First phrase is a small ascending third with a gentle answering descent. Play immediately with space between notes. Warm human timing. No vocals, modern drums, synth pads or fanfare. End softly on the tonic, compatible with the beginning."
+  },
+  "hearthside": {
+    "seconds": 52,
+    "prompt": "Intimate instrumental underscoring for the interior of a medieval cottage. Soft fingerpicked lute with a warm bowed drone, occasional wooden flute answers from the room. Quiet D Dorian waltz around 84 BPM, distant small rising third motif. Sparse and unhurried under conversation; natural close wood room reverb. No voices or percussion, no big crescendo. Begin and end a similar quiet sustained tonic texture for looping."
+  },
+  "reedwater": {
+    "seconds": 50,
+    "prompt": "Instrumental river exploration music for a bright isometric medieval valley. Soft hammered dulcimer droplets, lightly brushed frame drum and wooden flute over flowing plucked low strings. D Dorian in three, restrained pace around 84 BPM, small rising-third idea passed between instruments. Open air and a feeling of moving water. Sparse melody, no vocals, no actual water sound effects. A gentle repeating texture with a quiet matching start and ending."
+  }
+}

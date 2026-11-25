@@ -235,6 +235,13 @@ export const GROUPS = [
     unreal: none,
   },
   {
+    id: 'vale-spoken-sound', title: 'Bellwether voice performances, field recordings and music', kind: 'audio', role: 'sound', match: /^public\/assets\/audio\/vale\//,
+    plan: 'keep', fab: null, why: 'The web and standalone editions share the dialogue, narration, footsteps, wildlife, environmental beds and region music.',
+    source: 'ElevenLabs paid output, mastered by tools/world-audio/prepare-vale.py. See public/world-audio-licenses.html and the per-file hashes.',
+    licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' },
+    unreal: (file) => ({ type: 'SoundWave', folder: '/Game/Tervain/Audio/Bellwether', name: `SW_Vale_${pascal(stem(file))}`, lod: null }),
+  },
+  {
     id: 'voice-web', title: 'Tervain speaker gestures, Opus and AAC', kind: 'audio', role: 'voice', match: /^public\/assets\/audio\/voice\//,
     plan: 'keep', fab: null, why: 'Each bank carries a distinct character’s nonverbal gestures. The dialogue is written on screen.',
     source: 'Tervain synthesis. See tools/world-audio/ford_foley.py and docs/engineering/tervain-audio.json.',
@@ -242,7 +249,7 @@ export const GROUPS = [
   },
   {
     id: 'voice-source', title: 'Historical ElevenLabs spoken lines', kind: 'audio', role: 'archive', match: /^assets\/audio\/source\/voice\//,
-    plan: 'drop', fab: null, why: 'Historical actor takes, excluded from playable content and port imports since 0.1.1.',
+    plan: 'drop', fab: null, why: 'Original actor takes used to master the Bellwether speech banks. Port imports use the prepared recordings.',
     source: 'ElevenLabs text to speech; see the historical docs/engineering/voice-assets.json.', licence: { id: 'LicenseRef-ElevenLabs-Paid-Output', status: 'service-terms' }, unreal: none,
   },
   {
