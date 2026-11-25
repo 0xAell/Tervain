@@ -128,7 +128,9 @@ void main(){
       float crest=max(0.,sin(delta*8.5+.7))*strength;shine+=crest*.68;foam=max(foam,crest*.43);
     }
   }
-  vec2 floorUV=floor(world*3.8);
+  float section=sat(max(0.,depth)/max(.8,g.w));
+  float bedDepth=ocean?min(5.5,max(0.,depth)*.34)*(.91+.18*n):min(2.65,.54+g.w*.38)*section*(2.-section)*(.83+.32*n);
+  vec2 floorUV=floor((world-vec2(bedDepth*.86))*3.8);
   vec3 bed=mix(paint(ocean?28:29,floorUV+round(normal*vec2(1.25,1.65))),(ocean?vec3(30.,61.,63.):vec3(62.,142.,159.))/255.,ocean?.344:.328);
   if(!ocean){
     float gravel=cell(mod(floorUV,64.)*vec2(1.2,1.14)+normal);

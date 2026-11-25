@@ -629,7 +629,13 @@ export class Client implements Controls {
       if (dx || dz) {
         this.stopWalking();
       } else if (this.destination) {
-        if (distance(this.destination, this.valley.position) < (this.valley.room ? 0.16 : 0.35))
+        const remaining = distance(this.destination, this.valley.position),
+          next = this.route[0];
+        if (
+          remaining < 0.025 ||
+          (remaining < (this.valley.room ? 0.16 : 0.35) &&
+            (!next || this.valley.canWalk(this.valley.position, next)))
+        )
           this.destination = this.route.shift() ?? null;
         if (this.destination) {
           dx = this.destination.x - this.valley.position.x;

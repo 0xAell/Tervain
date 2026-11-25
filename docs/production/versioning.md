@@ -1,6 +1,6 @@
 # Version policy
 
-The owner authorized **0.1.0** for the Alderweir patch, led by Astra 6.2 Ultra. All Astra 6.2 development takes place on `0.1.x`. The original-art rebuild shipped as `0.1.1`. The valley, character and rendering update shipped as `0.1.2`. The Grey Strand, jumping and camera update was `0.1.3`. The isometric Bellwether riverlands release is [`0.1.4`](releases/0.1.4.md). The household interiors release is [`0.1.5`](releases/0.1.5.md). The fieldcraft release is [`0.1.6`](releases/0.1.6.md). The spoken-vale release is [`0.1.7`](releases/0.1.7.md). **Moving to `0.2.0` or any later series requires the project owner’s explicit authorization.**
+The owner authorized **0.1.0** for the Alderweir patch, led by Astra 6.2 Ultra. All Astra 6.2 development takes place on `0.1.x`. The original-art rebuild shipped as `0.1.1`. The valley, character and rendering update shipped as `0.1.2`. The Grey Strand, jumping and camera update was `0.1.3`. The isometric Bellwether riverlands release is [`0.1.4`](releases/0.1.4.md). The household interiors release is [`0.1.5`](releases/0.1.5.md). The fieldcraft release is [`0.1.6`](releases/0.1.6.md). The spoken-vale release is [`0.1.7`](releases/0.1.7.md). The terrain and household relief release is [`0.1.8`](releases/0.1.8.md). **Moving to `0.2.0` or any later series requires the project owner’s explicit authorization.**
 
 ## Builds and releases
 

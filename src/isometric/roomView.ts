@@ -1,10 +1,17 @@
 import { heroPose } from './heroPose';
 import { hourOfDay } from '../core/game/state';
 import type { Atlas } from './atlas';
-import { RoomArt } from './roomArt';
+import { RoomArt, type RoomPlate } from './roomArt';
 import { drawWaylight, type PickRegion } from './entryCues';
 import { residentSpots } from './roomTargets';
-import { roomProject, roomUnproject, type FloorPlan } from './roomPlans';
+import {
+  roomUnproject,
+  roomProject,
+  roomFoot,
+  pickRoomFloor,
+  roomRisePixels,
+  type FloorPlan,
+} from './roomPlans';
 import type { Valley } from './simulation';
 import type { V2 } from '../core/world/layout';
 
@@ -26,7 +33,9 @@ export class RoomView {
     this.art = new RoomArt(atlas);
   }
   point(x: number, y: number) {
-    return roomUnproject(x - this.ox, y - this.oy);
+    return this.last
+      ? pickRoomFloor(this.last, x - Math.round(this.ox), y - Math.round(this.oy))
+      : roomUnproject(x - this.ox, y - this.oy);
   }
   private glow(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, bright: number) {
     const g = ctx.createRadialGradient(x, y, 1, x, y, r);
@@ -34,6 +43,130 @@ export class RoomView {
     g.addColorStop(1, 'rgba(255,165,67,0)');
     ctx.fillStyle = g;
     ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  private windowLight(
+    ctx: CanvasRenderingContext2D,
+    plate: RoomPlate,
+    day: number,
+    hour: number,
+    clock: number
+  ) {
+    if (!plate.casements.length || day < 0.025) return;
+    const distance = 0.58 + (1 - day) * 0.64,
+      xRay = 0.3 + 0.72 * Math.cos(((hour - 6) * Math.PI) / 12),
+      zRay = 0.78;
+    for (const [i, w] of plate.casements.entries()) {
+      if (w.half.z !== 0 && xRay < 0.04) continue;
+      const aperture = (along: number, raise: number, drop: number) => {
+        const t = (drop * distance) / roomRisePixels;
+        const p = roomProject({
+          x: w.centre.x + w.half.x * along + xRay * t,
+          z: w.centre.z + w.half.z * along + zRay * t,
+        });
+        p.y -= w.floor + raise - drop;
+        return p;
+      };
+      const polygon = (points: { x: number; y: number }[]) => {
+        ctx.beginPath();
+        points.forEach((q, n) => (n ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)));
+        ctx.closePath();
+        ctx.fill();
+      };
+      // Light travels from the actual window head and sill to its raised chamber floor.
+      ctx.fillStyle = 'rgba(255,225,146,' + day * 0.064 + ')';
+      polygon([
+        aperture(-0.92, w.height, 0),
+        aperture(0.92, w.height, 0),
+        aperture(0.92, w.height, w.height),
+        aperture(-0.92, w.height, w.height),
+      ]);
+      ctx.save();
+      ctx.clip(plate.floors);
+      ctx.fillStyle = 'rgba(255,227,163,' + day * 0.22 + ')';
+      for (const [l, r] of [
+        [-0.92, -0.09],
+        [0.09, 0.92],
+      ]) {
+        for (const [lo, hi] of [
+          [8.5, w.height * 0.52],
+          [w.height * 0.59, w.height - 1],
+        ])
+          polygon([
+            aperture(l!, lo!, lo!),
+            aperture(r!, lo!, lo!),
+            aperture(r!, hi!, hi!),
+            aperture(l!, hi!, hi!),
+          ]);
+      }
+      ctx.restore();
+      for (let k = 0; k < 3; k++) {
+        const phase = (clock * 0.052 + i * 0.347 + k * 0.31) % 1;
+        const q = aperture(
+          0.75 * Math.sin(clock * 0.39 + i * 2.1 + k * 5.3),
+          w.height * (0.68 + 0.16 * k),
+          phase * w.height * 0.62
+        );
+        ctx.fillStyle = 'rgba(255,239,188,' + day * 0.48 * Math.sin(phase * Math.PI) + ')';
+        ctx.fillRect(Math.round(q.x), Math.round(q.y), 1, 1);
+      }
+    }
+  }
+  private castShadows(
+    ctx: CanvasRenderingContext2D,
+    plan: FloorPlan,
+    plate: RoomPlate,
+    sprites: Sprite[],
+    hour: number,
+    lights: boolean
+  ) {
+    const daylight = plan.level === 'cellar' ? 0 : Math.max(0, Math.sin(((hour - 6) * Math.PI) / 12));
+    const lamps = lights ? plan.fixtures.filter((f) => f.use === 'lamp' || f.key === 'room_hearth') : [];
+    if (daylight < 0.02 && !lamps.length) return;
+    ctx.save();
+    ctx.clip(plate.floors);
+    ctx.globalCompositeOperation = 'multiply';
+    for (const s of sprites) {
+      const at = roomFoot(plan, s),
+        image = this.atlas.shadow(s.key, s.frame ?? 0);
+      let dx = daylight * (0.28 + 0.64 * Math.cos(((hour - 6) * Math.PI) / 12)),
+        dz = daylight * 0.69,
+        weight = daylight;
+      let nearest = Infinity,
+        source: (typeof lamps)[number] | undefined;
+      for (const f of lamps) {
+        const x = s.x - f.x,
+          z = s.z - f.z,
+          d = Math.hypot(x, z);
+        if (d < 0.8 || d >= nearest || d > 8) continue;
+        nearest = d;
+        source = f;
+      }
+      if (source) {
+        const f = source;
+        const strength = (1 - nearest / 9) * 0.95;
+        dx += ((s.x - f.x) / nearest) * strength;
+        dz += ((s.z - f.z) / nearest) * strength;
+        weight += strength;
+      }
+      if (weight < 0.02) continue;
+      const height = this.atlas.height(s.key, s.width, s.frame),
+        length = (height * (0.5 + 0.14 * (1 - daylight))) / roomRisePixels;
+      const tip = roomFoot(plan, { x: s.x + (dx / weight) * length, z: s.z + (dz / weight) * length });
+      const scale = ((s.flip ? -1 : 1) * s.width * 0.68) / image.width;
+      ctx.save();
+      ctx.globalAlpha = 0.12 + 0.17 * Math.min(1, weight);
+      ctx.transform(
+        scale,
+        0,
+        (at.x - tip.x) / image.height,
+        (at.y - tip.y) / image.height,
+        tip.x - (scale * image.width) / 2,
+        tip.y
+      );
+      ctx.drawImage(image, 0, 0);
+      ctx.restore();
+    }
+    ctx.restore();
   }
   draw(ctx: CanvasRenderingContext2D, valley: Valley, regions: PickRegion[], dt: number) {
     const plan = valley.room!,
@@ -43,7 +176,7 @@ export class RoomView {
       ),
       { width: w, height: h } = ctx.canvas,
       p = valley.position;
-    const hero = roomProject(p),
+    const hero = roomFoot(plan, p),
       midX = plate.left + plate.image.width / 2,
       midY = plate.top + plate.image.height / 2;
     const center = (mid: number, follow: number, span: number, viewport: number) => {
@@ -78,30 +211,12 @@ export class RoomView {
     ctx.shadowOffsetY = 7;
     ctx.drawImage(plate.image, plate.left + ox, plate.top + oy);
     ctx.restore();
-    const daylight = Math.max(0, Math.sin(((hourOfDay(valley.game.state.clock) - 6) * Math.PI) / 12));
-    if (plan.level !== 'cellar' && daylight > 0.03) {
-      ctx.fillStyle = 'rgba(255,231,158,' + daylight * 0.14 + ')';
-      for (const r of plan.rooms) {
-        const x = (r.x0 + r.x1) / 2,
-          z = r.z0 + 1.5;
-        for (const offset of [-0.7, 0.15]) {
-          const corners = [
-            [x + offset, z],
-            [x + offset + 0.52, z],
-            [x + offset + 1.9, z + 2.8],
-            [x + offset + 1.28, z + 2.8],
-          ];
-          ctx.beginPath();
-          corners.forEach(([x, z], i) => {
-            const s = roomProject({ x: x!, z: z! });
-            if (i) ctx.lineTo(ox + s.x, oy + s.y);
-            else ctx.moveTo(ox + s.x, oy + s.y);
-          });
-          ctx.closePath();
-          ctx.fill();
-        }
-      }
-    }
+    const hour = hourOfDay(valley.game.state.clock),
+      daylight = Math.max(0, Math.sin(((hour - 6) * Math.PI) / 12));
+    ctx.save();
+    ctx.translate(ox, oy);
+    this.windowLight(ctx, plate, daylight, hour, valley.time);
+    ctx.restore();
     const clock = valley.time,
       sprites: Sprite[] = [];
     for (const f of plan.fixtures) {
@@ -111,7 +226,7 @@ export class RoomView {
         : f.key === 'room_hearth' && valley.lightsOn
           ? 'room_hearth--flame'
           : f.key;
-      const s = roomProject(f);
+      const s = roomFoot(plan, f);
       if (valley.lightsOn && (f.key === 'room_hearth' || f.use === 'lamp'))
         this.glow(
           ctx,
@@ -142,9 +257,13 @@ export class RoomView {
       lift: valley.jump ? Math.sin((Math.PI * valley.jump) / 0.52) * 10 : 0,
     });
     sprites.sort((a, b) => a.x + a.z - b.x - b.z || Number(!!a.hero) - Number(!!b.hero));
+    ctx.save();
+    ctx.translate(ox, oy);
+    this.castShadows(ctx, plan, plate, sprites, hour, valley.lightsOn);
+    ctx.restore();
     let heroDrawn = false;
     for (const s of sprites) {
-      const at = roomProject(s),
+      const at = roomFoot(plan, s),
         sx = Math.round(at.x + ox),
         sy = Math.round(at.y + oy);
       if (s.shade) {
@@ -176,7 +295,7 @@ export class RoomView {
       ctx.fillRect(0, 0, w, h);
     }
     for (const target of valley.targets()) {
-      const s = roomProject(target.at),
+      const s = roomFoot(plan, target.at),
         x = s.x + ox,
         base = s.y + oy;
       const close = Math.hypot(target.at.x - p.x, target.at.z - p.z) < 3.3;

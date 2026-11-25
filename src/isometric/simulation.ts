@@ -17,6 +17,8 @@ import { resolveGoal } from '../core/rules/schedule';
 import { interactableTable, MOUNT_ID, type InteractableEntry } from '../core/rules/interactables';
 import { ANCHORS, ENEMY_SPAWNS, PLACES, type V2 } from '../core/world/layout';
 import type { NpcId, Command, EncounterId, PlaceId } from '../core/game/types';
+import { supportHeight, travelScale, terrainHeight, footingHeight } from './relief';
+import { risePixels } from './projection';
 import { distance, inBuilding, navigable, placeList, project, waterAt } from './land';
 import { onBridge, wetPoint, riverVelocity } from './water';
 import { worldView } from '../core/game/worldView';
@@ -28,11 +30,21 @@ import { buildingEntry } from '../core/world/buildingEntries';
 import type { Goal } from '../core/rules/schedule';
 import type { InteriorLevel } from '../core/game/types';
 import { frontDoor, doorOpen, doorsById, sitesById, crossedDoor, type Doorway } from './doorways';
-import { roomCanMove, roomWalkable, floorPlan, passageLanding, chamberAt, type Passage } from './roomPlans';
+import {
+  roomCanMove,
+  roomWalkable,
+  floorPlan,
+  passageLanding,
+  chamberAt,
+  roomLift,
+  roomRisePixels,
+  type Passage,
+} from './roomPlans';
 import { households } from './households';
 import {
   ARROW_RANGE,
   ARROW_SPEED,
+  arrowLift,
   DRAW_TIME,
   RELEASE_TIME,
   firstContact,
@@ -181,6 +193,21 @@ export class Valley {
       delete this.player.interior;
       this.restoreFootprint();
     }
+    this.updateFooting();
+    for (const record of Object.values(game.state.hunting)) {
+      if (record) record.position.y = supportHeight(record.position);
+    }
+  }
+  private updateFooting() {
+    const plan = this.room,
+      inside = this.player.interior;
+    this.player.y =
+      plan && inside
+        ? terrainHeight(plan.site.x, plan.site.z) +
+          footingHeight +
+          { ground: 0, loft: 3.5, cellar: -3 }[plan.level] +
+          roomLift(plan, inside) / roomRisePixels
+        : supportHeight(this.player);
   }
   get player() {
     return this.game.state.player;
@@ -218,7 +245,7 @@ export class Valley {
     if (door && doorOpen(door, this.game.state)) this.enterDoor(door);
     else {
       const p = outsideReturn(front);
-      this.game.setPlayerTransform(p.x, 0, p.z, this.player.yaw);
+      this.game.setPlayerTransform(p.x, supportHeight(p), p.z, this.player.yaw);
     }
   }
   enterDoor(door: Doorway) {
@@ -240,6 +267,7 @@ export class Valley {
     this.walk = false;
     this.cancelPose();
     this.arrows.length = 0;
+    this.updateFooting();
     return true;
   }
   leaveRoom() {
@@ -249,7 +277,7 @@ export class Valley {
     const site = sitesById.get(inside.building)!;
     const door = inside.rear ? (doorsById.get(site.id + '/shutter') ?? frontDoor(site)) : frontDoor(site);
     const p = outsideReturn(door);
-    this.game.setPlayerTransform(p.x, 0, p.z, site.yaw + (door.rear ? Math.PI : 0));
+    this.game.setPlayerTransform(p.x, supportHeight(p), p.z, site.yaw + (door.rear ? Math.PI : 0));
     this.facing = facing(Math.sin(this.player.yaw), Math.cos(this.player.yaw));
     this.walk = false;
   }
@@ -259,6 +287,7 @@ export class Valley {
     this.cancelPose();
     const plan = floorPlan(sitesById.get(inside.building)!, level);
     Object.assign(inside, passageLanding(plan, inside.level), { level });
+    this.updateFooting();
     this.walk = false;
   }
   usePassage(p: Passage) {
@@ -275,7 +304,8 @@ export class Valley {
       this.stamina = Math.min(100, this.stamina + dt * 5);
       return;
     }
-    const amount = (dt * (run && this.stamina > 1 ? 8.2 : this.guard ? 2.4 : 5.4)) / length,
+    const stride = dt * (run && this.stamina > 1 ? 8.2 : this.guard ? 2.4 : 5.4);
+    const amount = (walkThrough ? stride : Math.min(stride, length)) / length,
       before = { x: p.x, z: p.z };
     const next = { x: p.x + dx * amount, z: p.z + dz * amount };
     if (roomCanMove(plan, p, next)) {
@@ -311,6 +341,10 @@ export class Valley {
     );
   }
   action(command: Command) {
+    if (command.t === 'hitAnimal') {
+      const p = command.hit.position;
+      command = { ...command, hit: { ...command.hit, position: { ...p, y: supportHeight(p) } } };
+    }
     const r = this.game.dispatch(command);
     if (!r.ok) this.onMessage(r.reason.replaceAll('_', ' ').replaceAll(':', ' · '));
     return r.ok;
@@ -360,8 +394,12 @@ export class Valley {
         this.facing = facing(dx, dz);
         const fast = run && this.stamina > 1 && !this.swimming;
         const speed = this.riding ? (fast ? 14 : 9) : this.swimming ? 3 : this.guard ? 2 : fast ? 9 : 5;
-        const x = p.x + dx * dt * speed * (1 - wade * 0.27),
-          z = p.z + dz * dt * speed * (1 - wade * 0.27);
+        const stride = Math.min(
+          walkThrough ? Infinity : norm,
+          dt * speed * (1 - wade * 0.27) * travelScale(p.x, p.z, dx, dz)
+        );
+        const x = p.x + dx * stride,
+          z = p.z + dz * stride;
         const start = { x: p.x, z: p.z };
         if (navigable(p, { x, z }, this.game.state)) {
           p.x = x;
@@ -391,6 +429,7 @@ export class Valley {
       this.swimming = !this.room && waterAt(p.x, p.z) === 'sea' && !onBridge(p);
       if (this.swimming) this.riding = false;
     }
+    this.updateFooting();
     this.stepArrows(dt);
     this.stepBow(dt);
     if (this.activity) {
@@ -592,6 +631,11 @@ export class Valley {
   aimDirection(dx: number, dz: number, head?: string) {
     if (!this.bow || this.bow.phase === 'loose' || Math.hypot(dx, dz) < 0.001) return;
     this.bow.direction = unit(dx, dz);
+    const from = this.player,
+      range = Math.hypot(dx, dz),
+      look = range < 1.5 ? 10 : range;
+    const end = { x: from.x + this.bow.direction.x * look, z: from.z + this.bow.direction.z * look };
+    this.bow.grade = (supportHeight(end) - supportHeight(from)) / look;
     this.bow.head = head;
     this.facing = facing(dx, dz);
     this.player.yaw = Math.atan2(dx, dz);
@@ -664,6 +708,8 @@ export class Valley {
         z: this.player.z,
         direction: { ...bow.direction },
         travelled: 0,
+        launchHeight: supportHeight(this.player),
+        grade: bow.grade ?? 0,
         head: bow.head,
       });
       this.onFieldSound('bow_release');
@@ -688,7 +734,15 @@ export class Valley {
       const steps = Math.max(1, Math.ceil(length / 0.35));
       for (let j = 1; j <= steps; j++) {
         const d = (length * j) / steps;
-        if (inBuilding({ x: arrow.x + dir.x * d, z: arrow.z + dir.z * d })) {
+        const x = arrow.x + dir.x * d,
+          z = arrow.z + dir.z * d;
+        if (
+          inBuilding({ x, z }) ||
+          terrainHeight(x, z) >=
+            arrow.launchHeight +
+              (arrow.travelled + d) * arrow.grade +
+              arrowLift(arrow.travelled + d) / risePixels
+        ) {
           stop = d;
           blocked = true;
           break;
@@ -697,6 +751,11 @@ export class Valley {
       for (const a of this.actors) {
         if (a.dead || !(a.enemy || isHuntableAnimalId(a.animal)) || inBuilding(a)) continue;
         const d = firstContact(arrow, dir, stop, a, Math.max(0.55, a.width / 35));
+        if (!Number.isFinite(d)) continue;
+        const distance = arrow.travelled + d,
+          above =
+            arrow.launchHeight + distance * arrow.grade + arrowLift(distance) / risePixels - supportHeight(a);
+        if (above < 0 || above > Math.max(3.1, a.width / risePixels)) continue;
         if (d < stop || (d === stop && !blocked && !impact)) {
           impact = a;
           stop = d;
@@ -711,7 +770,7 @@ export class Valley {
           hit: {
             id: impact.animal,
             zone: arrow.head === impact.id ? 'head' : 'body',
-            position: { x: impact.x, y: this.player.y, z: impact.z },
+            position: { x: impact.x, y: supportHeight(impact), z: impact.z },
             yaw: Math.atan2(dir.x, dir.z),
           },
         });

@@ -2,7 +2,8 @@ import type { Atlas } from './atlas';
 import { buildingEntry } from '../core/world/buildingEntries';
 import { fromBuildingLocal } from '../core/world/interiors';
 import type { BuildingSpec } from '../core/world/layout';
-import { project } from './land';
+import { project, risePixels } from './projection';
+import { houseSolid, HousePainter } from './houseSolid';
 import { bitmap, depthStrips, finishBitmap } from './worldArt';
 import { mix, rgba } from './waterPalette';
 
@@ -253,7 +254,9 @@ export class Architecture {
   private sources = new Map<string, Painting[]>();
   private cache = new Map<string, ReturnType<typeof depthStrips>>();
   private thatch: number[];
+  private painter: HousePainter;
   constructor(private atlas: Atlas) {
+    this.painter = new HousePainter(atlas);
     const flecks = atlas.read('bridge')[0]!.pixels;
     this.thatch = [...new Set(flecks)]
       .filter((c) => c >>> 24 > 0 && (c & 255) > ((c >>> 8) & 255))
@@ -373,7 +376,15 @@ export class Architecture {
     }
     finishBitmap(face, image);
     finishBitmap(reflected, mirror);
-    const strips = depthStrips(base, face, (x) => column(x).foot, reflected);
+    const lift = houseSolid(b).floor * risePixels;
+    face.top -= Math.round(lift);
+    reflected.top += Math.round(lift * 0.82);
+    const strips = depthStrips(
+      base,
+      this.painter.paint(b, face),
+      (x) => column(x).foot,
+      this.painter.paint(b, reflected, true)
+    );
     this.cache.set(id, strips);
     return strips;
   }

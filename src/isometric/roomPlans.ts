@@ -41,11 +41,59 @@ export interface FloorPlan {
   stone: boolean;
 }
 export const roomScale = 11;
+export const roomRisePixels = 14;
 export const roomProject = (p: V2) => ({ x: (p.x - p.z) * roomScale, y: ((p.x + p.z) * roomScale) / 2 });
 export const roomUnproject = (x: number, y: number): V2 => ({
   x: (y + x / 2) / roomScale,
   z: (y - x / 2) / roomScale,
 });
+// Local elevations are in native pixels, matching the existing room wall and stair dimensions.
+export const landingSteps = 4,
+  landingRun = 2.4,
+  landingHalfWidth = 1.72;
+export function chamberLift(plan: FloorPlan, index: number) {
+  if (index === 1) return 0;
+  if (plan.level === 'cellar') return index === 0 ? 12 : 23;
+  if (plan.level === 'loft') return index === 0 ? 22 : 14;
+  return index === 0 ? 21 : 12;
+}
+export function roomLift(plan: FloorPlan, p: V2) {
+  const hall = plan.rooms[1],
+    left = p.x <= hall.x0;
+  if (left || p.x >= hall.x1) return chamberLift(plan, left ? 0 : 2);
+  if (Math.abs(p.z - plan.gap) > landingHalfWidth) return 0;
+  const west = p.x - hall.x0,
+    east = hall.x1 - p.x,
+    dist = Math.min(west, east);
+  if (dist >= landingRun) return 0;
+  const t = Math.ceil(((landingRun - dist) * landingSteps) / landingRun);
+  return (t * chamberLift(plan, west < east ? 0 : 2)) / landingSteps;
+}
+export function roomFoot(plan: FloorPlan, p: V2) {
+  const q = roomProject(p);
+  q.y -= roomLift(plan, p);
+  return q;
+}
+export function pickRoomFloor(plan: FloorPlan, x: number, y: number) {
+  let picked = roomUnproject(x, y),
+    nearest = -Infinity,
+    bestGap = Infinity;
+  // A point on a vertical riser selects its closest tread. The frontmost exact hit wins.
+  for (const index of [0, 2]) {
+    for (let k = 0; k <= landingSteps; k++) {
+      const h = (chamberLift(plan, index) * k) / landingSteps,
+        p = roomUnproject(x, y + h);
+      if (!chamberAt(plan, p)) continue;
+      const gap = Math.abs(h - roomLift(plan, p));
+      if (gap < bestGap - 0.001 || (Math.abs(gap - bestGap) < 0.001 && h > nearest)) {
+        picked = p;
+        nearest = h;
+        bestGap = gap;
+      }
+    }
+  }
+  return picked;
+}
 const cached = new Map<string, FloorPlan>();
 const middle = (a: number, b: number) => (a + b) / 2;
 

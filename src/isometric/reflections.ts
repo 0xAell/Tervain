@@ -1,7 +1,7 @@
 import { Atlas } from './atlas';
 import { coursesInFrame, wetPoint, onBridge, riverVelocity, type Flow, type Ripple } from './water';
 import type { ArtStrip } from './worldArt';
-import { project } from './land';
+import { project, risePixels } from './projection';
 import type { Ground, Rect } from './ground';
 import type { V2 } from '../core/world/layout';
 
@@ -12,6 +12,7 @@ export interface Stamp extends V2 {
   frame?: number;
   flip?: boolean;
   lift?: number;
+  elevation?: number;
   hero?: boolean;
   alpha?: number;
   anchor?: number;
@@ -215,7 +216,7 @@ export class WaterReflections {
         height = this.atlas.height(stamp.key, stamp.width, frame) * (1 - (stamp.submerged ?? 0));
       const s = project(stamp.x, stamp.z),
         x = Math.round(s.x + ox),
-        y = Math.round(s.y + oy + (stamp.lift ?? 0) * 0.78);
+        y = Math.round(s.y + oy + ((stamp.lift ?? 0) + (stamp.elevation ?? 0) * risePixels) * 0.78);
       const anchor = stamp.anchor ?? 1,
         left = x - stamp.width / 2,
         depth = height * anchor * 0.78;

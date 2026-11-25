@@ -1,12 +1,15 @@
 import { heroPose } from './heroPose';
-import { ARROW_RANGE } from './fieldcraft';
+import { terrainHeight, groundProject, pickSurface, supportHeight } from './relief';
+import { Sunlight } from './sunlight';
+import type { BuildingSpec } from '../core/world/layout';
+import { arrowLift } from './fieldcraft';
 import { isHuntableAnimalId } from '../core/game/hunting';
 import { Atlas } from './atlas';
 import { Ground } from './ground';
 import { WaterReflections, type Stamp } from './reflections';
 import { floatHeight } from './swell';
 import { wetPoint } from './water';
-import { crossings, deckAt, deckHeight, pickDeck, risePixels } from './crossing';
+import { crossings, deckAt } from './crossing';
 import { RiverLife } from './riverLife';
 import { Architecture } from './architecture';
 import { bridgeArt } from './bridgeArt';
@@ -16,7 +19,7 @@ import { RoomView } from './roomView';
 import { drawFocus, drawWaylight, pickRegion, type PickRegion } from './entryCues';
 import { targetDistance } from './roomTargets';
 import { AMBIENT_RESIDENTS } from '../core/content/ambientPeople';
-import { project, unproject, PROJECTION, groundAt, inBuilding, scenery, type Scenery } from './land';
+import { project, unproject, groundAt, inBuilding, scenery, type Scenery } from './land';
 import { COOKFIRES, PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
 import { hourOfDay } from '../core/game/state';
 import { facesLeft, type Valley } from './simulation';
@@ -24,6 +27,7 @@ import { facesLeft, type Valley } from './simulation';
 export class Scene {
   readonly context: CanvasRenderingContext2D;
   private ground: Ground;
+  private sun: Sunlight;
   readonly water: WaterReflections;
   private architecture: Architecture;
   private riverLife: RiverLife;
@@ -61,6 +65,7 @@ export class Scene {
     this.context = canvas.getContext('2d', { alpha: false })!;
     this.rooms = new RoomView(atlas);
     this.ground = new Ground(atlas);
+    this.sun = new Sunlight(atlas);
     this.water = new WaterReflections(atlas);
     this.architecture = new Architecture(atlas);
     this.riverLife = new RiverLife(atlas);
@@ -106,11 +111,12 @@ export class Scene {
       const p = this.pixel(clientX, clientY);
       return this.rooms.point(p.x, p.y);
     }
-    const ground = unproject(
-      ((clientX - r.left) / r.width) * this.canvas.width - this.canvas.width / 2 + this.center.x,
-      ((clientY - r.top) / r.height) * this.canvas.height - this.canvas.height * 0.54 - 24 + this.center.y
-    );
-    return pickDeck(ground, PROJECTION);
+    const sx =
+      ((clientX - r.left) / r.width) * this.canvas.width - Math.round(this.canvas.width / 2 - this.center.x);
+    const sy =
+      ((clientY - r.top) / r.height) * this.canvas.height -
+      Math.round(this.canvas.height * 0.54 - this.center.y + 24);
+    return pickSurface(sx, sy);
   }
   resetCamera() {
     this.initialized = false;
@@ -148,7 +154,7 @@ export class Scene {
       this.indoors = false;
       this.resetCamera();
     }
-    const target = project(valley.player.x, valley.player.z);
+    const target = project(valley.player.x, valley.player.z, supportHeight(valley.player));
     const follow = this.initialized ? 1 - Math.exp(-Math.max(dt, 0) * 12) : 1;
     this.center.x += (target.x - this.center.x) * follow;
     this.center.y += (target.y - this.center.y) * follow;
@@ -158,21 +164,23 @@ export class Scene {
     const corners = [
       unproject(-ox - 100, -oy - 160),
       unproject(w - ox + 100, -oy - 160),
-      unproject(-ox - 100, h - oy + 160),
-      unproject(w - ox + 100, h - oy + 160),
+      unproject(-ox - 100, h - oy + 250),
+      unproject(w - ox + 100, h - oy + 250),
     ];
     const xmin = Math.min(...corners.map((p) => p.x)),
       xmax = Math.max(...corners.map((p) => p.x));
     const zmin = Math.min(...corners.map((p) => p.z)),
       zmax = Math.max(...corners.map((p) => p.z));
     const stamps: Stamp[] = [];
+    const buildings: BuildingSpec[] = [];
     this.lastDraws = 0;
     this.heroDrawn = false;
     const time = valley.time;
     const subject = valley.displayPosition;
-    const focal = project(subject.x, subject.z);
+    const focusAt = (p: V2) => ({ ...groundProject(p), depth: project(p.x, p.z).y });
+    const focal = focusAt(subject);
     const object = valley.activity?.target.at;
-    const focusPoints = object ? [focal, project(object.x, object.z)] : [focal];
+    const focusPoints = object ? [focal, focusAt(object)] : [focal];
     const fieldwork = !!valley.activity || !!valley.bow;
     const view = worldView(valley.game.state),
       hour = hourOfDay(valley.game.state.clock);
@@ -189,7 +197,7 @@ export class Scene {
     for (let i = Math.floor(xmin / 32); i <= Math.floor(xmax / 32); i++)
       for (let j = Math.floor(zmin / 32); j <= Math.floor(zmax / 32); j++) {
         for (const prop of this.props.get(i + ',' + j) ?? []) {
-          const screen = project(prop.x, prop.z);
+          const screen = groundProject(prop);
           if (
             screen.x + ox < -110 ||
             screen.x + ox > w + 110 ||
@@ -198,6 +206,7 @@ export class Scene {
           )
             continue;
           if (prop.building) {
+            buildings.push(prop.building);
             const strips = this.architecture.exterior(prop.building, view.millTurning, Math.floor(time * 6));
             const behind = focusPoints.some((p) =>
               strips.some((q) => {
@@ -206,7 +215,7 @@ export class Scene {
                 return (
                   p.x + 12 >= left &&
                   p.x - 12 < left + q.width &&
-                  project(q.x, q.z).y > p.y - 0.5 &&
+                  project(q.x, q.z).y > p.depth - 0.5 &&
                   p.y > art.top + 3 &&
                   p.y - 23 < art.top + art.canvas.height
                 );
@@ -285,7 +294,7 @@ export class Scene {
     }
     const immersion = (p: V2, swimmer: boolean) => {
       const deck = deckAt(p);
-      if (deck) return { submerged: 0, lift: deckHeight(deck.b, deck.s) * risePixels };
+      if (deck) return { submerged: 0, lift: 0 };
       const wet = wetPoint(p.x, p.z);
       if (!wet) return { submerged: 0, lift: 0 };
       const submerged =
@@ -312,7 +321,8 @@ export class Scene {
         a.dead ? 'down' : pet ? 'affection' : a.attack ? 'attack' : a.move ? 'walk' : (a.posture ?? 'idle')
       );
       if (!a.dead && (a.enemy || isHuntableAnimalId(a.animal))) {
-        const at = project(a.x, a.z);
+        const at = project(a.x, a.z, supportHeight(a));
+        at.y -= immersion(a, false).lift;
         this.aimRegions.push({
           x: at.x + ox,
           y: at.y + oy,
@@ -351,15 +361,15 @@ export class Scene {
       lift: immersed.lift + hop + (valley.riding ? 16 : 0),
     });
     for (const arrow of valley.arrows) {
-      const dir = project(arrow.direction.x, arrow.direction.z);
-      const range = arrow.travelled / ARROW_RANGE;
+      const dir = project(arrow.direction.x, arrow.direction.z, arrow.grade);
       stamps.push({
         ...arrow,
         key: 'field_arrow',
         width: 23,
         angle: Math.atan2(dir.y, dir.x),
         reflect: false,
-        lift: 20 * (1 - 0.55 * range) + 3 * Math.sin(Math.PI * range),
+        lift: arrowLift(arrow.travelled),
+        elevation: arrow.launchHeight + arrow.travelled * arrow.grade,
       });
     }
     const mapMark = valley.game.state.mapMarker;
@@ -376,16 +386,20 @@ export class Scene {
       h,
       stamps
     );
+    for (const stamp of stamps)
+      if (!stamp.art && stamp.elevation === undefined)
+        stamp.elevation = stamp.wakeId ? supportHeight(stamp) : terrainHeight(stamp.x, stamp.z);
     stamps.sort((a, b) => a.x + a.z - (b.x + b.z) || (a.hero ? 1 : 0) - (b.hero ? 1 : 0));
     const nearWaterView = stamps.filter((p) => {
       if (!p.wakeId) return false;
-      const pos = project(p.x, p.z);
+      const pos = project(p.x, p.z, p.elevation);
       return pos.x + ox > -48 && pos.x + ox < w + 48 && pos.y + oy > -48 && pos.y + oy < h + 48;
     });
     const ripples = [...fishRipples, ...this.water.advance(nearWaterView, time, view.flow)].slice(-16);
     this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, time, view.flow, hour, ripples);
     this.riverLife.drawShoals(ctx, this.ground, ox, oy, time);
     this.water.draw(ctx, this.ground, stamps, ox, oy, time);
+    this.sun.draw(ctx, stamps, buildings, ox, oy, hour);
     for (const stamp of stamps) {
       if (stamp.art) {
         ctx.globalAlpha = stamp.alpha ?? 1;
@@ -393,7 +407,7 @@ export class Scene {
         this.lastDraws++;
         continue;
       }
-      const s = project(stamp.x, stamp.z);
+      const s = project(stamp.x, stamp.z, stamp.elevation);
       const x = s.x + ox,
         y = s.y + oy - (stamp.lift ?? 0);
       if (x < -130 || x > w + 130 || y < -20 || y > h + 180) continue;
@@ -407,6 +421,31 @@ export class Scene {
         this.lastDraws++;
         continue;
       }
+      if (stamp.wakeId && deckAt(stamp)) {
+        ctx.fillStyle = 'rgba(41,38,42,.30)';
+        ctx.beginPath();
+        ctx.ellipse(
+          s.x + ox,
+          s.y + oy,
+          stamp.width * 0.18,
+          Math.max(1, stamp.width * 0.058),
+          0,
+          0,
+          2 * Math.PI
+        );
+        ctx.fill();
+      }
+      const spriteHeight = this.atlas.height(stamp.key, stamp.width, stamp.frame);
+      const clip = this.ground.clipUpright(
+        ctx,
+        x,
+        y + spriteHeight * (1 - (stamp.anchor ?? 1)),
+        stamp.width,
+        spriteHeight,
+        project(stamp.x, stamp.z).y + Math.max(4, stamp.width * 0.09),
+        ox,
+        oy
+      );
       this.atlas.draw(
         ctx,
         stamp.key,
@@ -418,6 +457,7 @@ export class Scene {
         stamp.anchor ?? 1,
         stamp.submerged
       );
+      if (clip) ctx.restore();
       this.lastDraws++;
       if (stamp.hero) this.heroDrawn = true;
     }
@@ -426,7 +466,7 @@ export class Scene {
     for (const target of valley.targets()) {
       const door = target.door;
       if (!door) {
-        const at = project(target.at.x, target.at.z),
+        const at = groundProject(target.at),
           x = at.x + ox,
           base = at.y + oy;
         if (x < -30 || x > w + 30 || base < 0 || base > h + 45) continue;
@@ -449,10 +489,10 @@ export class Scene {
         }
         continue;
       }
-      const s = project(
-        door.sill.x * 0.68 + door.outside.x * 0.32,
-        door.sill.z * 0.68 + door.outside.z * 0.32
-      );
+      const s = groundProject({
+        x: door.sill.x * 0.68 + door.outside.x * 0.32,
+        z: door.sill.z * 0.68 + door.outside.z * 0.32,
+      });
       const x = s.x + ox,
         y = s.y + oy;
       if (x < -16 || x > w + 16 || y < -12 || y > h + 20) continue;
@@ -463,7 +503,7 @@ export class Scene {
     if (valley.bow && valley.bow.phase !== 'loose') {
       const dir = valley.bow.direction,
         dist = 12;
-      const at = project(valley.player.x + dir.x * dist, valley.player.z + dir.z * dist);
+      const at = groundProject({ x: valley.player.x + dir.x * dist, z: valley.player.z + dir.z * dist });
       const x = Math.round(at.x + ox),
         y = Math.round(at.y + oy - 17),
         spread = valley.bow.phase === 'hold' ? 3 : 5;
