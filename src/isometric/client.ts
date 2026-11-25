@@ -52,6 +52,18 @@ function readSettings() {
   const bindings = { ...defaults };
   for (const key of Object.keys(bindings))
     if (typeof saved.bindings?.[key] === 'string') bindings[key] = saved.bindings[key]!;
+  for (const action of ['grab', 'turn']) {
+    if (typeof saved.bindings?.[action] === 'string') continue;
+    const used = new Set(
+      Object.entries(bindings)
+        .filter(([key]) => key !== action)
+        .map(([, code]) => code)
+    );
+    if (used.has(bindings[action]!)) {
+      const letters = Array.from({ length: 26 }, (_, index) => 'Key' + String.fromCharCode(65 + index));
+      bindings[action] = letters.find((code) => code !== 'KeyV' && !used.has(code))!;
+    }
+  }
   const mix = { ...defaultMix };
   for (const k of Object.keys(mix) as (keyof MixLevels)[]) {
     const value = saved.mix?.[k];
