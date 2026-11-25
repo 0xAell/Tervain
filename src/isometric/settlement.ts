@@ -34,6 +34,32 @@ export const campShelter: BuildingSpec = {
 };
 const buildings = [...BUILDINGS, campShelter];
 const pieces = ROADS.flatMap((r) => r.points.slice(1).map((b, i) => ({ a: r.points[i]!, b })));
+const wagonWays = ROADS.filter((road) => road.width >= 3).flatMap((road) =>
+  road.points.slice(1).map((b, i) => {
+    const a = road.points[i]!;
+    return {
+      a,
+      b,
+      left: Math.min(a.x, b.x) - 3,
+      right: Math.max(a.x, b.x) + 3,
+      top: Math.min(a.z, b.z) - 3,
+      bottom: Math.max(a.z, b.z) + 3,
+    };
+  })
+);
+
+/** Two wheel paths follow the centre of roads broad enough to take a cart. */
+export function wheelWear(x: number, z: number) {
+  let wear = 0;
+  for (const s of wagonWays) {
+    if (x < s.left || x > s.right || z < s.top || z > s.bottom) continue;
+    const near = closest(s.a, s.b, x, z);
+    const distance = Math.hypot(x - near.x, z - near.z);
+    const rut = 0.89 + 0.13 * Math.sin(near.x * 0.45 + near.z * 0.25);
+    wear = Math.max(wear, 1 - Math.abs(distance - rut) / 0.68);
+  }
+  return wear;
+}
 const distance = (a: V2, b: V2) => Math.hypot(a.x - b.x, a.z - b.z);
 function closest(a: V2, b: V2, x: number, z: number) {
   const dx = b.x - a.x,

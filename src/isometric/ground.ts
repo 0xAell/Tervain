@@ -6,14 +6,14 @@ import { toBuildingLocal } from '../core/world/interiors';
 import type { FieldSpec } from '../core/world/layout';
 import { riverSpark } from './riverLight';
 import { bridgeShade } from './crossing';
-import { yardAt, yardPixel } from './settlement';
+import { wheelWear, yardAt, yardPixel } from './settlement';
 import { rippleAt, type Ripple } from './water';
 import { WaterGL } from './waterGL';
 import { impactsForTile, visibleWaterImpacts, waterImpactAt, type WaterImpact } from './waterImpact';
 import type { PropView } from './propPhysics';
 import { foamCell } from './foam';
 import type { Atlas } from './atlas';
-import { cropHeadland, cropRowSpacing, fieldAt, landMaterial, woodlandCover } from './landCover';
+import { cropHeadland, cropRowSpacing, fieldAt, landMaterial, sandCover, woodlandCover } from './landCover';
 import { PROJECTION } from './projection';
 import { coursesInFrame, stoneFlow, waveFrame, waterProfile, type Flow, type WetPoint } from './water';
 import { bedDepth, seaClock, seaPhases, sinPhase, cosPhase } from './swell';
@@ -52,7 +52,15 @@ const SAND = 1,
   ROCK = 6,
   POOL = 11;
 type Texture = ReturnType<Atlas['read']>[number];
-type Sample = { dry: number; wood: number; lane: number; nearWater: boolean; field?: FieldSpec };
+type Sample = {
+  dry: number;
+  wood: number;
+  lane: number;
+  rut: number;
+  sand: number;
+  nearWater: boolean;
+  field?: FieldSpec;
+};
 type Chunk = ReturnType<Ground['makeChunk']>;
 interface VisibleChunk {
   x: number;
@@ -148,10 +156,13 @@ export class Ground {
     if (!s) {
       const wet = waterProfile(ix / 2, iz / 2);
       const soil = wet?.course === 'ocean' ? 'sand' : landMaterial(ix / 2, iz / 2);
+      const lane = roadWeight(ix / 2, iz / 2);
       s = {
         dry: materials.indexOf(soil),
         wood: soil === 'grass' ? woodlandCover(ix / 2, iz / 2) : 0,
-        lane: roadWeight(ix / 2, iz / 2),
+        lane,
+        rut: lane > 0.4 ? wheelWear(ix / 2, iz / 2) : 0,
+        sand: soil === 'sand' || soil === 'grass' ? sandCover(ix / 2, iz / 2) : 0,
         nearWater: !!wet,
         field: soil === 'field' ? fieldAt(ix / 2, iz / 2) : undefined,
       };
@@ -227,7 +238,7 @@ export class Ground {
             edge * 256
           );
         }
-        const wild = sample.dry === 0;
+        const wild = sample.dry === 0 || (sample.dry === SAND && sample.sand < 1);
         if (wild || sample.dry === 9) {
           const blades = texel(
             this.meadow,
@@ -249,8 +260,24 @@ export class Ground {
             );
           }
         }
-        const trail = texel(this.textures[4]![0]!, wx * 4, wz * 4);
-        const path = mix(trail, rgba(227, 194, 128), 74 + light * 38);
+        if (sample.sand > 0) {
+          const sand = texel(
+            this.textures[SAND]![0]!,
+            wx * 3 + 8 * Math.sin(wz * 0.17),
+            wz * 3 + 6 * Math.sin(wx * 0.24)
+          );
+          const fleck = texel(this.shingle, wx * 3.5, wz * 3.5);
+          const dune = 0.5 + 0.5 * Math.sin(wx * 1.35 + wz * 0.51 + 2.8 * Math.sin(wz * 0.16));
+          const tint = mix(rgba(174, 151, 116), rgba(245, 224, 174), 87 + light * 89 + dune * 67);
+          const beach = mix(mix(sand, fleck, 27), tint, 128);
+          pixels[i] = mix(pixels[i]!, beach, sat(sample.sand + jitter * (1 - sample.sand) * 0.36) * 256);
+        }
+        const trail = texel(
+          this.textures[4]![0]!,
+          wx * 3.6 + 4 * Math.sin(wz * 0.31),
+          wz * 3.6 + 3 * Math.sin(wx * 0.24)
+        );
+        const path = mix(trail, rgba(222, 189, 132), 90 + light * 48);
         if (inland && wet.bank < 1.1) {
           const verge = sat(1 + wet.bank / 6.2),
             open = 0.5 + 0.5 * Math.sin(wet.along * 0.29 + wet.across * 0.25);
@@ -264,7 +291,8 @@ export class Ground {
         }
         if (sample.lane > 0 && wet?.course !== 'ocean') {
           const wheel = sat((sample.lane - 0.09 + jitter * 0.24) / 0.79);
-          pixels[i] = mix(pixels[i]!, path, wheel * 237);
+          const worn = mix(path, rgba(120, 91, 67), sample.rut * (43 + light * 27));
+          pixels[i] = mix(pixels[i]!, worn, wheel * 237);
         }
         const yard = yardAt(wx, wz);
         if (yard)

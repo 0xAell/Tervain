@@ -1,8 +1,11 @@
 import { drawProp } from './propArt';
 import { sceneryProp } from './propCatalogue';
-import { heroPose } from './heroPose';
+import { buildSwordPoses, heroPose } from './heroPose';
 import { terrainHeight, groundProject, pickSurface, supportHeight } from './relief';
 import { Sunlight } from './sunlight';
+import { SkyLighting, skyLight, type LightSource } from './skyLight';
+import { doorOpen, frontDoor } from './doorways';
+import { drawFootprints, drawContact, drawFireAir } from './fieldEffects';
 import type { BuildingSpec } from '../core/world/layout';
 import { arrowLift } from './fieldcraft';
 import { isHuntableAnimalId } from '../core/game/hunting';
@@ -38,6 +41,8 @@ export class Scene {
   readonly context: CanvasRenderingContext2D;
   private ground: Ground;
   private sun: Sunlight;
+  private sky: SkyLighting;
+  private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   readonly water: WaterReflections;
   private architecture: Architecture;
   private riverLife: RiverLife;
@@ -65,9 +70,9 @@ export class Scene {
   hoverLabel = '';
   private pointer?: { x: number; y: number };
   private center = { x: 0, y: 0 };
+  private lead = { x: 0, y: 0 };
   private initialized = false;
   private mapBase: HTMLCanvasElement | null = null;
-  private lastLight = '';
   renderedFrames = 0;
   lastDraws = 0;
   heroDrawn = false;
@@ -76,6 +81,8 @@ export class Scene {
     readonly atlas: Atlas
   ) {
     this.context = canvas.getContext('2d', { alpha: false })!;
+    this.sky = new SkyLighting(atlas);
+    buildSwordPoses(atlas);
     const wind = buildWindArt(atlas);
     this.windSprites = wind.sprites;
     this.meadow = new Meadow(atlas, wind);
@@ -137,6 +144,7 @@ export class Scene {
   }
   resetCamera() {
     this.initialized = false;
+    this.lead.x = this.lead.y = 0;
     this.regions.length = 0;
     this.rooms.leave();
     this.water.reset();
@@ -144,9 +152,10 @@ export class Scene {
   }
   render(valley: Valley, dt: number) {
     const ctx = this.context;
-    const zoom = Math.max(1, Math.min(4, Math.round(window.innerHeight / 360)));
-    const w = Math.ceil((this.canvas.clientWidth / zoom) * (zoom > 1 ? 1.11 : 1)),
-      h = Math.ceil((this.canvas.clientHeight / zoom) * (zoom > 1 ? 1.11 : 1));
+    const dpr = window.devicePixelRatio || 1;
+    const scale = Math.max(1, Math.round((this.canvas.clientHeight * dpr) / 368)) / dpr;
+    const w = Math.max(1, Math.round(this.canvas.clientWidth / scale)),
+      h = Math.max(1, Math.round(this.canvas.clientHeight / scale));
     if (this.canvas.width !== w || this.canvas.height !== h) {
       this.canvas.width = w;
       this.canvas.height = h;
@@ -160,10 +169,6 @@ export class Scene {
       this.heroDrawn = frame.heroDrawn;
       this.lastDraws = frame.draws;
       this.renderedFrames++;
-      if (this.lastLight !== 'none') {
-        this.lastLight = 'none';
-        this.canvas.style.filter = 'none';
-      }
       this.focus();
       return;
     }
@@ -172,9 +177,21 @@ export class Scene {
       this.resetCamera();
     }
     const target = project(valley.player.x, valley.player.z, supportHeight(valley.player));
+    const dir = valley.bow?.direction ?? { x: Math.sin(valley.player.yaw), z: Math.cos(valley.player.yaw) };
+    const ahead = this.reducedMotion.matches
+      ? 0
+      : valley.bow
+        ? 4.6
+        : valley.walk
+          ? Math.min(3.8, valley.gait.speed * 0.39)
+          : 0;
+    const gaze = project(dir.x * ahead, dir.z * ahead);
+    const ease = 1 - Math.exp(-Math.max(dt, 0) * (ahead ? 3.6 : 2.8));
+    this.lead.x += (gaze.x - this.lead.x) * ease;
+    this.lead.y += (gaze.y - this.lead.y) * ease;
     const follow = this.initialized ? 1 - Math.exp(-Math.max(dt, 0) * 12) : 1;
-    this.center.x += (target.x - this.center.x) * follow;
-    this.center.y += (target.y - this.center.y) * follow;
+    this.center.x += (target.x + this.lead.x - this.center.x) * follow;
+    this.center.y += (target.y + this.lead.y - this.center.y) * follow;
     this.initialized = true;
     const ox = Math.round(w / 2 - this.center.x),
       oy = Math.round(h * 0.54 - this.center.y + 24);
@@ -201,6 +218,8 @@ export class Scene {
     const fieldwork = !!valley.activity || !!valley.bow;
     const view = worldView(valley.game.state),
       hour = hourOfDay(valley.game.state.clock);
+    const sky = skyLight(hour),
+      lights: LightSource[] = [];
     for (const bridge of this.bridges) {
       const image = bridge[0]!.art!;
       if (
@@ -225,7 +244,20 @@ export class Scene {
             continue;
           if (prop.building) {
             buildings.push(prop.building);
-            const strips = this.architecture.exterior(prop.building, view.millTurning, Math.floor(time * 6));
+            const lamps =
+              sky.night > 0.002 && !valley.game.state.facts['room_dim:' + prop.building.id + '/ground'];
+            const windowsLit = lamps && sky.night > 0.24 + Math.abs(Math.sin(prop.x * 3 + prop.z)) * 0.23;
+            const strips = this.architecture.exterior(
+              prop.building,
+              view.millTurning,
+              Math.floor(time * 6),
+              windowsLit
+            );
+            if (lamps) {
+              const door = frontDoor(prop.building);
+              if (doorOpen(door, valley.game.state))
+                lights.push({ ...groundProject(door.outside), kind: 'door' });
+            }
             const behind = focusPoints.some((p) =>
               strips.some((q) => {
                 const art = q.art!,
@@ -243,6 +275,8 @@ export class Scene {
             continue;
           }
           const furniture = prop.key === 'seat' || prop.key === 'fire';
+          if (sky.night > 0.002 && (prop.key === 'fire' || prop.key === 'lantern'))
+            lights.push({ ...screen, kind: prop.key });
           const standard = isHegemonyStandard(prop.key);
           const wind = this.windSprites.get(prop.key);
           const overlaps =
@@ -375,7 +409,12 @@ export class Scene {
           ? 0
           : pet
             ? Math.floor(valley.activity!.elapsed * 7)
-            : Math.floor(time * (a.attack ? 13 : a.move ? 8 : 4)) + i,
+            : a.attack
+              ? Math.min(
+                  this.atlas.frameCount(key) - 1,
+                  Math.floor((1 - a.attack / 0.85) * this.atlas.frameCount(key))
+                )
+              : Math.floor(time * (a.move ? 8 : 4)) + i,
       });
     }
     const floating: PropView[] = [];
@@ -423,6 +462,16 @@ export class Scene {
         elevation: arrow.launchHeight + arrow.travelled * arrow.grade,
       });
     }
+    for (const contact of valley.contacts)
+      stamps.push({
+        x: contact.x,
+        z: contact.z,
+        key: 'field_arrow',
+        width: 1,
+        elevation: contact.height,
+        contact,
+        reflect: false,
+      });
     const mapMark = valley.game.state.mapMarker;
     if (mapMark) stamps.push({ ...mapMark, key: 'cursor', width: 15, lift: 3 });
     const fishRipples = this.riverLife.frame(
@@ -456,6 +505,7 @@ export class Scene {
       ...(valley.props?.waterRipples() ?? []),
     ].slice(-16);
     this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, time, view.flow, hour, ripples, floating);
+    drawFootprints(ctx, valley.gait.prints, ox, oy, time);
     this.lastDraws += this.meadow.draw(ctx, this.ground, ox, oy, time, { xmin, xmax, zmin, zmax });
     this.riverLife.drawShoals(ctx, this.ground, ox, oy, time);
     this.water.draw(ctx, this.ground, stamps, ox, oy, time);
@@ -474,6 +524,10 @@ export class Scene {
         y = s.y + oy - (stamp.lift ?? 0);
       if (x < -130 || x > w + 130 || y < -20 || y > h + 180) continue;
       ctx.globalAlpha = stamp.alpha ?? 1;
+      if (stamp.contact) {
+        drawContact(ctx, stamp.contact, time, ox, oy);
+        continue;
+      }
       if (stamp.angle !== undefined) {
         ctx.save();
         ctx.translate(Math.round(x), Math.round(y));
@@ -541,6 +595,8 @@ export class Scene {
           stamp.anchor ?? 1,
           stamp.submerged
         );
+        if (stamp.key.startsWith('fire--') && !this.reducedMotion.matches)
+          drawFireAir(ctx, x, y, time, stamp.x, stamp.z, sky.night);
         if (stamp.sway) ctx.restore();
       }
       if (clip) ctx.restore();
@@ -548,6 +604,7 @@ export class Scene {
       if (stamp.hero) this.heroDrawn = true;
     }
     ctx.globalAlpha = 1;
+    this.sky.draw(ctx, ox, oy, time, sky, lights, stamps);
 
     const nearestProp = valley.props?.nearby()?.spec.id;
     for (const target of valley.targets()) {
@@ -611,17 +668,7 @@ export class Scene {
       ctx.fillRect(x, y + spread, 1, 3);
     }
     this.focus();
-    const light =
-      hour < 5.5 || hour > 20.5
-        ? 'brightness(.56) saturate(.75)'
-        : hour < 7 || hour > 18
-          ? 'brightness(.82) sepia(.13)'
-          : 'none';
     this.renderedFrames++;
-    if (light !== this.lastLight) {
-      this.canvas.style.filter = light;
-      this.lastLight = light;
-    }
   }
   drawFloorMap(canvas: HTMLCanvasElement, valley: Valley) {
     const plan = valley.room!;

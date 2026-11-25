@@ -29,6 +29,15 @@ export const gestureLabels: Record<Gesture, string> = {
   read: 'Reading',
 };
 export const DRAW_TIME = 0.42;
+export const SWING_TIME = 0.48;
+export const SWING_CONTACT = (SWING_TIME * 4) / 7;
+export interface Contact extends V2 {
+  height: number;
+  dx: number;
+  dz: number;
+  born: number;
+  kind: 'blade' | 'guard' | 'body' | 'earth';
+}
 export const RELEASE_TIME = 0.34;
 export const ARROW_RANGE = 45;
 export const ARROW_SPEED = 39;

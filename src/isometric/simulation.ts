@@ -21,6 +21,7 @@ import { ANCHORS, ENEMY_SPAWNS, PLACES, type V2 } from '../core/world/layout';
 import type { NpcId, Command, EncounterId, PlaceId } from '../core/game/types';
 import { supportHeight, travelScale, terrainHeight, footingHeight } from './relief';
 import { risePixels } from './projection';
+import { Footfalls } from './footfalls';
 import { distance, inBuilding, navigable, placeList, project, waterAt } from './land';
 import { onBridge, wetPoint, riverVelocity } from './water';
 import { worldView } from '../core/game/worldView';
@@ -53,6 +54,8 @@ import {
   arrowLift,
   DRAW_TIME,
   RELEASE_TIME,
+  SWING_TIME,
+  SWING_CONTACT,
   firstContact,
   unit,
   type Activity,
@@ -60,6 +63,7 @@ import {
   type Draw,
   type Gesture,
   type FieldSound,
+  type Contact,
 } from './fieldcraft';
 import { ITEMS, itemAction } from '../core/content/items';
 import {
@@ -131,9 +135,14 @@ export class Valley {
   walk = false;
   riding = false;
   guard = false;
+  guardTime = 0;
   swimming = false;
   facing = 'south-east';
   strike = 0;
+  swordSwing = false;
+  private swingTarget?: Actor;
+  readonly contacts: Contact[] = [];
+  readonly gait = new Footfalls();
   bow?: Draw;
   readonly arrows: Arrow[] = [];
   activity?: Activity;
@@ -321,6 +330,8 @@ export class Valley {
     this.swimming = false;
     this.jump = 0;
     this.strike = 0;
+    this.swingTarget = undefined;
+    this.contacts.length = 0;
     this.walk = false;
     this.cancelPose();
     this.arrows.length = 0;
@@ -438,7 +449,10 @@ export class Valley {
       this.game.tickClock(this.clockElapsed * CLOCK_RATE);
       this.clockElapsed = 0;
     }
+    const previousStrike = this.strike;
+    this.guardTime = this.guard && !previousStrike ? this.guardTime + dt : 0;
     this.strike = Math.max(0, this.strike - dt);
+    while (this.contacts.length && this.time - this.contacts[0]!.born >= 0.28) this.contacts.shift();
     this.jump = Math.max(0, this.jump - dt);
     const p = this.player;
     if (!this.player.interior && inBuilding(p)) this.restoreFootprint();
@@ -450,6 +464,8 @@ export class Valley {
       if ((dx || dz) && this.bow.phase !== 'loose') this.aimDirection(dx, dz);
       dx = dz = 0;
     }
+    const from = { x: this.position.x, z: this.position.z },
+      fromRoom = this.roomKey;
     if (this.room) this.stepInside(dt, dx, dz, run, walkThrough);
     else {
       const water = onBridge(p) ? null : wetPoint(p.x, p.z);
@@ -513,6 +529,27 @@ export class Valley {
       if (this.swimming) this.riding = false;
     }
     this.updateFooting();
+    const room = this.room;
+    this.gait.advance(
+      from,
+      this.position,
+      dt,
+      this.time,
+      this.walk && !this.jump && p.health > 0 && fromRoom === this.roomKey,
+      room ? (room.stone ? 'stone' : 'wood') : this.standingLift > 0.1 ? 'wood' : '',
+      this.riding,
+      this.swimming
+    );
+    const contactFrame = SWING_TIME - SWING_CONTACT;
+    if (previousStrike > contactFrame && this.strike <= contactFrame && !room && p.health > 0) {
+      const a = this.swingTarget;
+      this.swingTarget = undefined;
+      if (a && !a.dead && distance(a, p) < 3.3) {
+        this.damageEnemy(a, this.swordSwing ? 29 : 8);
+        this.contactAt(a, p, this.swordSwing ? 'blade' : 'body');
+        this.onFieldSound('hit');
+      }
+    }
     if (this.props) {
       if (this.riding || this.swimming || p.health <= 0) this.props.release();
       this.props.tick(
@@ -546,6 +583,7 @@ export class Valley {
         this.game.dispatch({ t: 'discover', place: id });
     for (const [i, a] of this.actors.entries()) {
       a.move = false;
+      const previousAttack = a.attack;
       a.attack = Math.max(0, a.attack - dt);
       a.timer = Math.max(0, a.timer - dt);
       if (a.npc) {
@@ -625,15 +663,17 @@ export class Valley {
           if (near > def.reach && !a.attack) this.stepActor(a, p, def.speed, dt);
           else if (!a.timer && near <= def.reach) {
             a.attack = 0.85;
+            a.flip = project(p.x - a.x, p.z - a.z).x < 0 !== facesLeft(a.key);
             a.timer = def.wind + def.recover + 0.6;
           }
-          if (a.attack > 0.39 && a.attack - dt <= 0.39 && near < def.reach + 0.5) {
+          if (previousAttack > 0.39 && a.attack <= 0.39 && near < def.reach + 0.5) {
             this.cancelPose();
             this.action({
               t: 'damagePlayer',
               amount: this.guard ? Math.ceil(def.damage * 0.18) : def.damage,
             });
             this.onFieldSound(this.guard ? 'block' : 'hit');
+            this.contactAt(p, a, this.guard ? 'guard' : 'body');
             this.onMessage(this.guard ? 'Blow guarded' : a.name + ' struck you');
           }
         } else this.stepActor(a, a.home, def.speed * 0.65, dt);
@@ -752,13 +792,16 @@ export class Valley {
       return;
     const p = this.player;
     if (this.game.state.equippedWeapon !== 'hunting_bow') {
-      this.strike = 0.48;
+      this.strike = SWING_TIME;
+      this.swordSwing = this.game.state.equippedWeapon === 'rusted_sword';
       const hit = this.actors
         .filter((a) => a.enemy && !a.dead && distance(a, p) < 3.3)
         .sort((a, b) => distance(a, target ?? p) - distance(b, target ?? p))[0];
-      if (hit) {
-        this.facing = facing(hit.x - p.x, hit.z - p.z);
-        this.damageEnemy(hit, this.game.state.equippedWeapon === 'rusted_sword' ? 29 : 8);
+      this.swingTarget = hit;
+      const face = hit ?? target;
+      if (face && distance(face, p) > 0.01) {
+        this.facing = facing(face.x - p.x, face.z - p.z);
+        p.yaw = Math.atan2(face.x - p.x, face.z - p.z);
       }
       return;
     }
@@ -821,6 +864,17 @@ export class Valley {
       this.onMessage(a.name + ' defeated');
     }
   }
+  private contactAt(at: V2, from: V2, kind: Contact['kind']) {
+    this.contacts.push({
+      x: at.x,
+      z: at.z,
+      dx: at.x - from.x,
+      dz: at.z - from.z,
+      kind,
+      height: supportHeight(at) + 1.7,
+      born: this.time,
+    });
+  }
   private stepArrows(dt: number) {
     for (let i = this.arrows.length - 1; i >= 0; i--) {
       const arrow = this.arrows[i]!,
@@ -875,6 +929,18 @@ export class Valley {
         });
       else if (impact?.enemy) this.damageEnemy(impact, 32);
       if (impact || blocked || arrow.travelled >= ARROW_RANGE - 0.001) {
+        if (impact || blocked) {
+          this.contacts.push({
+            x: arrow.x,
+            z: arrow.z,
+            dx: dir.x,
+            dz: dir.z,
+            born: this.time,
+            height:
+              arrow.launchHeight + arrow.travelled * arrow.grade + arrowLift(arrow.travelled) / risePixels,
+            kind: impact ? 'body' : 'earth',
+          });
+        }
         this.onFieldSound(impact ? 'arrow_flesh' : 'arrow_ground', arrow.travelled);
         this.arrows.splice(i, 1);
       }

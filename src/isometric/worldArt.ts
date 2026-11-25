@@ -7,6 +7,7 @@ export interface WorldImage {
   top: number;
 }
 export interface ArtStrip extends WorldImage {
+  windowLight?: HTMLCanvasElement;
   start: number;
   width: number;
   mirror?: WorldImage;
@@ -59,9 +60,15 @@ export function depthStrips(
   }
   return result;
 }
-export function drawStrip(ctx: CanvasRenderingContext2D, art: ArtStrip, ox: number, oy: number) {
+export function drawStrip(
+  ctx: CanvasRenderingContext2D,
+  art: ArtStrip,
+  ox: number,
+  oy: number,
+  image = art.canvas
+) {
   ctx.drawImage(
-    art.canvas,
+    image,
     art.start,
     0,
     art.width,

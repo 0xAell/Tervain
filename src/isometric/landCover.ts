@@ -11,6 +11,12 @@ export const cropRowSpacing = { grain: 1.7, greens: 2.1, fallow: 2.25 } satisfie
 export function onBeach(x: number, z: number, margin = 0) {
   return x < -220 + margin && shoreDistance(x, z) < 15 + 2 * Math.sin(z * 0.2) + margin;
 }
+
+export function sandCover(x: number, z: number) {
+  if (x > -216) return 0;
+  const edge = Math.min(-220 - x, 15 + 2 * Math.sin(z * 0.2) - shoreDistance(x, z));
+  return smoothstep(-3.6, 3.2, edge);
+}
 export function fieldAt(x: number, z: number, margin = 0) {
   for (const field of FIELDS) {
     if (Math.abs(x - field.x) + Math.abs(z - field.z) > field.w + field.d + margin * 2) continue;

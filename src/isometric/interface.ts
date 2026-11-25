@@ -117,6 +117,7 @@ export class Interface {
   private health = el('span');
   private vigor = el('span');
   private prompt = el('button', 'prompt');
+  private promptText = '';
   private slots = el('div', 'belt');
   private notice = el('div', 'notice');
   private noticeUntil = 0;
@@ -196,6 +197,9 @@ export class Interface {
       const row = el('div', 'meter ' + cls),
         track = el('div', 'track');
       row.append(el('span', 'meter-label', label));
+      track.setAttribute('role', 'meter');
+      track.setAttribute('aria-label', label);
+      track.setAttribute('aria-valuemin', '0');
       track.append(value);
       row.append(track);
       bars.append(row);
@@ -1110,6 +1114,10 @@ export class Interface {
     this.health.style.width = (s.player.health / s.player.maxHealth) * 100 + '%';
     this.vigor.style.width = this.valley.stamina + '%';
     this.health.parentElement!.title = 'Health ' + s.player.health + ' / ' + s.player.maxHealth;
+    this.health.parentElement!.setAttribute('aria-valuenow', String(s.player.health));
+    this.health.parentElement!.setAttribute('aria-valuemax', String(s.player.maxHealth));
+    this.vigor.parentElement!.setAttribute('aria-valuenow', String(Math.round(this.valley.stamina)));
+    this.vigor.parentElement!.setAttribute('aria-valuemax', '100');
     const offers = this.valley.offers();
     const act = this.valley.activity,
       bow = this.valley.bow;
@@ -1118,8 +1126,7 @@ export class Interface {
     const grabKey = this.controls.controllerActive
       ? 'Y'
       : (this.controls.settings.bindings.grab ?? 'KeyG').replace(/^Key/, '');
-    this.prompt.hidden = !offers.length && !act && !bow && !held;
-    this.prompt.textContent = act
+    let prompt = act
       ? act.kind === 'sit'
         ? Number.isFinite(act.duration)
           ? 'Resting…'
@@ -1145,7 +1152,7 @@ export class Interface {
         ? 'X'
         : (this.controls.settings.bindings.attack ?? 'Space').replace(/^Key/, '');
       const portal = offers[0]?.target;
-      this.prompt.textContent =
+      prompt =
         portal?.door || portal?.passage
           ? this.interactKey() + ' · ' + portal.label + '   ' + grabKey + ' · Let go'
           : held.spec.name +
@@ -1158,7 +1165,19 @@ export class Interface {
             ' · ' +
             (grip.drag ? 'Shove' : 'Toss');
     } else if (offers[0]?.target?.prop && offers[0].target.field === 'seat')
-      this.prompt.textContent += '   ' + grabKey + ' · Move';
+      prompt += '   ' + grabKey + ' · Move';
+    this.prompt.hidden = !prompt;
+    if (this.promptText !== prompt) {
+      this.promptText = prompt;
+      const binding = /^(\S+)\s+·\s+/.exec(prompt);
+      if (binding) {
+        this.prompt.replaceChildren(
+          el('kbd', '', binding[1]),
+          el('span', 'key-separator', ' · '),
+          document.createTextNode(prompt.slice(binding[0].length))
+        );
+      } else this.prompt.textContent = prompt;
+    }
     if (this.controls.sound.mode === 'interface') this.announcePrompt(act || bow ? '' : this.promptLabel());
     const signature = JSON.stringify([s.quickSlots, s.inventory, s.equippedWeapon]);
     if (this.slotSig !== signature) {
@@ -1168,7 +1187,7 @@ export class Interface {
         const b = button(
           '',
           () => this.controls.slot(i),
-          'slot' + (id && id === s.equippedWeapon ? ' equipped' : '')
+          'slot' + (id ? ' filled' : ' empty') + (id && id === s.equippedWeapon ? ' equipped' : '')
         );
         b.setAttribute(
           'aria-label',
