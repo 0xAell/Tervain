@@ -42,8 +42,7 @@ export { FLOAT_LINE };
 const WATER_DRAG = PROP_WATER_DRAG;
 export interface PhysicalActor { id: string; x: number; y: number; z: number; radius: number; height: number; active: boolean }
 interface ActorContact { body: RAPIER.RigidBody; collider: RAPIER.Collider; from: Vec3; target: Vec3; active: boolean; radius: number; halfHeight: number }
-let initialization: Promise<void> | undefined;
-export function initializePhysics() { return initialization ??= RAPIER.init(); }
+export { initializePhysics } from './initialize';
 const STEP = 1 / 60;
 const CAPSULE_CENTER = PLAYER_BODY_HEIGHT / 2;
 const capsulePosition = (p: Vec3): Vec3 => ({ x: p.x, y: p.y + CAPSULE_CENTER, z: p.z });

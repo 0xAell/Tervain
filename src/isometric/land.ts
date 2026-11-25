@@ -109,7 +109,9 @@ export interface Scenery extends V2 {
   phase?: number;
   submerged?: number;
 }
+let sceneryCache: Scenery[] | undefined;
 export function scenery() {
+  if (sceneryCache) return sceneryCache;
   const list: Scenery[] = [];
   const put = (key: string, p: V2, width: number) => list.push({ x: p.x, z: p.z, key, width });
   for (const b of [...BUILDINGS, campShelter])
@@ -202,5 +204,6 @@ export function scenery() {
         );
       }
     }
+  sceneryCache = list;
   return list;
 }

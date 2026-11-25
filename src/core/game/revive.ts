@@ -22,7 +22,7 @@ const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
 /** A loose thing's saved place must lie within the realm (m), and no more of them are read than this. */
-export const SAVED_PROP_BOUNDS = { minX: -380, maxX: 200, minZ: -170, maxZ: 170, minY: -50, maxY: 120, most: 64 } as const;
+export const SAVED_PROP_BOUNDS = { minX: -380, maxX: 200, minZ: -170, maxZ: 170, minY: -50, maxY: 120, most: 8192 } as const;
 
 /** The loose things' saved places: missing ones keep where they were set out, and a malformed one is left out. */
 function physicalObjects(raw: unknown): WorldState['physicalObjects'] {
@@ -41,7 +41,9 @@ function physicalObjects(raw: unknown): WorldState['physicalObjects'] {
     if (position.x < within.minX || position.x > within.maxX || position.z < within.minZ || position.z > within.maxZ
       || position.y < within.minY || position.y > within.maxY || n < .9 || n > 1.1) continue;
     rotation.x /= n; rotation.y /= n; rotation.z /= n; rotation.w /= n;
-    seen.add(value.id); result.push({ id: value.id, position, rotation });
+    const space = value.space;
+    if (space !== undefined && (typeof space !== 'string' || (space !== 'vale' && !/^[a-z0-9_]{1,40}\/(ground|loft|cellar)$/.test(space)))) continue;
+    seen.add(value.id); result.push({ id: value.id, position, rotation, ...(space !== undefined ? { space } : {}) });
   }
   return result;
 }

@@ -1,3 +1,4 @@
+import { drawProp } from './propArt';
 import { Atlas } from './atlas';
 import { coursesInFrame, wetPoint, onBridge, riverVelocity, type Flow, type Ripple } from './water';
 import type { ArtStrip } from './worldArt';
@@ -22,6 +23,8 @@ export interface Stamp extends V2 {
   airborne?: boolean;
   reflect?: boolean;
   angle?: number;
+  prop?: import('./propPhysics').PropView;
+  sway?: number;
 }
 interface Trail extends V2 {
   born: number;
@@ -241,18 +244,20 @@ export class WaterReflections {
       }
       this.mirror.translate(x, y);
       this.mirror.scale(1, -0.78);
-      this.atlas.draw(
-        this.mirror,
-        stamp.key,
-        0,
-        0,
-        stamp.width,
-        frame,
-        stamp.flip,
-        anchor,
-        stamp.submerged,
-        height > 32
-      );
+      if (stamp.prop) drawProp(this.mirror, this.atlas, stamp.prop, 0, 0, stamp.width);
+      else
+        this.atlas.draw(
+          this.mirror,
+          stamp.key,
+          0,
+          0,
+          stamp.width,
+          frame,
+          stamp.flip,
+          anchor,
+          stamp.submerged,
+          height > 32
+        );
       this.mirror.restore();
       this.reflected++;
       this.include(left, y, stamp.width, depth);

@@ -42,12 +42,12 @@
   },
   "totals": {
     "all": {
-      "files": 1933,
-      "bytes": 480921035
+      "files": 1935,
+      "bytes": 481710629
     },
     "shipped": {
-      "files": 995,
-      "bytes": 179889859
+      "files": 997,
+      "bytes": 180679453
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -59,8 +59,8 @@
         "bytes": 186290894
       },
       "keep": {
-        "files": 928,
-        "bytes": 155724023
+        "files": 930,
+        "bytes": 156513617
       },
       "rework": {
         "files": 0,
@@ -1239,8 +1239,8 @@
       "fab": null,
       "replaceWith": null,
       "replaceBeforeShip": null,
-      "files": 155,
-      "bytes": 58620145
+      "files": 157,
+      "bytes": 59409739
     },
     {
       "id": "voice-web",
@@ -13994,8 +13994,8 @@
       "path": "public/assets/audio/vale/foley-01.mp3",
       "group": "vale-spoken-sound",
       "kind": "audio",
-      "bytes": 218349,
-      "sha256": "1b9adc929c056ab190b8d3e25537f62a96aac0512865c001429b4ec7bd304ab4",
+      "bytes": 262125,
+      "sha256": "599d65e9598b8a52149885c4488e4c084a8828db83198ce306616f68856d392a",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-ElevenLabs-Paid-Output",
@@ -14165,8 +14165,8 @@
       "path": "public/assets/audio/vale/reader-07.mp3",
       "group": "vale-spoken-sound",
       "kind": "audio",
-      "bytes": 421101,
-      "sha256": "a80142ef6cb98b6d87c3dddf9f8587a79b02de24c95f6c0c5efa159dbd8de107",
+      "bytes": 415725,
+      "sha256": "59b95a3f1ea33472ba1241d24b6b12c65e933eff55458fc512545930034a5b06",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-ElevenLabs-Paid-Output",
@@ -15533,8 +15533,8 @@
       "path": "public/assets/audio/vale/reader-79.mp3",
       "group": "vale-spoken-sound",
       "kind": "audio",
-      "bytes": 341613,
-      "sha256": "aba97250ae313f1dd427dd8d99a46932693a0787b46a53073b6080001ca1fd05",
+      "bytes": 396717,
+      "sha256": "999d5dcc4aa35935b11beab7a42b83ea5cf06832c602fbced631c5c5702bf09c",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-ElevenLabs-Paid-Output",
@@ -15545,6 +15545,44 @@
         "type": "SoundWave",
         "folder": "/Game/Tervain/Audio/Bellwether",
         "name": "SW_Vale_Reader79",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/vale/reader-80.mp3",
+      "group": "vale-spoken-sound",
+      "kind": "audio",
+      "bytes": 423981,
+      "sha256": "4f3dc9c9062ec72b8c3c0d248f5dff719d4d45644a4d7382a1080a5ff695461e",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-ElevenLabs-Paid-Output",
+        "status": "service-terms"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Bellwether",
+        "name": "SW_Vale_Reader80",
+        "lod": null
+      }
+    },
+    {
+      "path": "public/assets/audio/vale/reader-81.mp3",
+      "group": "vale-spoken-sound",
+      "kind": "audio",
+      "bytes": 272109,
+      "sha256": "ed07042f6cdc0bbefc39bfa305a0a45e723fac8192efcf2e2bbd9bb7d1969c94",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-ElevenLabs-Paid-Output",
+        "status": "service-terms"
+      },
+      "plan": "keep",
+      "unreal": {
+        "type": "SoundWave",
+        "folder": "/Game/Tervain/Audio/Bellwether",
+        "name": "SW_Vale_Reader81",
         "lod": null
       }
     },

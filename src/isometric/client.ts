@@ -1,4 +1,6 @@
 import { AUTOSAVE_SECONDS } from '../core/rules/journey';
+import { initializePhysics } from '../physics/initialize';
+import { PropPhysics } from './propPhysics';
 import { Sound } from './audio';
 import { defaultMix, type MixLevels } from './mixer';
 import type { VoiceMode } from './reading';
@@ -25,6 +27,8 @@ const defaults: Record<string, string> = {
   west: 'KeyA',
   east: 'KeyD',
   interact: 'KeyE',
+  grab: 'KeyG',
+  turn: 'KeyR',
   attack: 'Space',
   guard: 'KeyQ',
   jump: 'KeyX',
@@ -94,7 +98,8 @@ export class Client implements Controls {
     return this.ui.mode;
   }
   async init() {
-    this.scene = new Scene(this.canvas, await Atlas.load());
+    const [atlas] = await Promise.all([Atlas.load(), initializePhysics()]);
+    this.scene = new Scene(this.canvas, atlas);
     this.ui.bind(this.valley, this.scene);
     this.ui.title();
     const unlock = () => {
@@ -144,6 +149,16 @@ export class Client implements Controls {
         this.valley.bow = undefined;
       }
     });
+    this.canvas.addEventListener(
+      'wheel',
+      (e) => {
+        if (this.mode === 'play' && this.valley.props?.grip) {
+          e.preventDefault();
+          this.valley.props.turn(Math.sign(e.deltaY));
+        }
+      },
+      { passive: false }
+    );
     this.canvas.addEventListener('pointerleave', () => this.scene.hover());
     this.canvas.addEventListener('pointerdown', (e) => {
       if (this.mode !== 'play') return;
@@ -169,6 +184,15 @@ export class Client implements Controls {
         this.scene.targetAt(e.clientX, e.clientY) ??
         (site ? this.valley.targets().find((t) => t.door?.site === site && !t.door.rear) : undefined);
       this.stopWalking();
+      const physics = this.valley.props;
+      if (physics?.grip && !target?.door && !target?.passage) {
+        const surface = target?.prop ? physics.object(target.prop) : target?.fixture;
+        if (physics.placeAt(surface ?? point)) {
+          this.ui.update(true);
+          return;
+        }
+        if (target?.prop) return;
+      }
       if (target && this.inReach(target)) this.activateTarget(target);
       else {
         this.walkTo(target?.approach ?? point);
@@ -248,9 +272,14 @@ export class Client implements Controls {
     this.destination = null;
   }
   private bind(state: WorldState) {
+    this.valley.props?.dispose();
     this.sound.reset();
     this.game = new Game(state);
     this.valley = new Valley(this.game);
+    const physics = new PropPhysics(() => this.game.state);
+    this.valley.enableProps(physics);
+    physics.onContact = (material, energy, at) =>
+      this.sound.contact(material, energy, at, this.valley.position);
     this.scene.resetCamera();
     this.ui.bind(this.valley, this.scene);
     this.valley.onMessage = (t) => this.ui.message(t);
@@ -311,6 +340,7 @@ export class Client implements Controls {
     this.ui.title();
   }
   save(slot: SlotId, silent = false) {
+    this.valley.props?.checkpoint();
     const r = this.saves.save(slot, this.game.state);
     if (!r.ok || !silent) this.ui.message(r.ok ? 'Journey saved' : r.message);
   }
@@ -377,6 +407,14 @@ export class Client implements Controls {
   attack() {
     if (this.mode === 'play') this.valley.attack();
   }
+  grab() {
+    const physics = this.valley.props;
+    if (!physics) return;
+    this.stopWalking();
+    if (physics.grip) physics.release();
+    else if (!this.valley.grabProp(this.scene.hoveredProp)) this.ui.message('Nothing within reach');
+    this.ui.update(true);
+  }
   interact() {
     if (this.valley.activity) {
       this.valley.cancelPose();
@@ -384,6 +422,10 @@ export class Client implements Controls {
     }
     if (this.valley.bow) return;
     const offers = this.valley.offers();
+    if (this.valley.props?.grip && !offers[0]?.target?.door && !offers[0]?.target?.passage) {
+      this.grab();
+      return;
+    }
     if (!offers.length) {
       this.ui.message('Nothing within reach');
       return;
@@ -476,7 +518,12 @@ export class Client implements Controls {
     if (!this.inReach(target)) return;
     this.stopWalking();
     const v = this.valley;
-    if (target.field === 'fire') {
+    if (target.plant && v.props) {
+      v.props.touch(target.plant);
+      v.perform('gather', target, 0.65);
+    } else if (target.prop && !target.field) {
+      v.grabProp(target.prop);
+    } else if (target.field === 'fire') {
       this.ui.cooking(target, 'Campfire');
     } else if (target.field || target.fixture?.use === 'seat') v.interactField(target);
     else if (target.door) {
@@ -554,6 +601,8 @@ export class Client implements Controls {
     if (e.repeat) return;
     const b = this.settings.bindings;
     if (e.code === b.interact) this.interact();
+    else if (e.code === b.grab) this.grab();
+    else if (e.code === b.turn) this.valley.props?.turn(e.shiftKey ? -1 : 1);
     else if (e.code === b.attack) {
       this.stopWalking();
       this.valley.startAttack();
@@ -596,6 +645,8 @@ export class Client implements Controls {
           !!hit(0),
           hit(14) ? -1 : hit(15) ? 1 : 0
         );
+      else if (hit(3) && this.mode === 'play') this.grab();
+      else if (hit(5) && this.mode === 'play') this.valley.props?.turn(1);
       else if ((hit(2) || hit(7)) && this.mode === 'play') {
         this.stopWalking();
         this.valley.startAttack();

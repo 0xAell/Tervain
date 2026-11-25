@@ -14,6 +14,9 @@ import {
   type FloorPlan,
   type Passage,
 } from './roomPlans';
+import type { Scenery } from './land';
+import { rootsNear, locationId, carryMass } from './propCatalogue';
+import type { PropPhysics } from './propPhysics';
 import type { Actor } from './simulation';
 
 export interface RoomTarget {
@@ -29,6 +32,8 @@ export interface RoomTarget {
   field?: 'pet' | 'seat' | 'fire' | 'gather' | 'dress';
   pickup?: (typeof PICKUP_LOCATIONS)[number];
   animal?: Actor;
+  prop?: string;
+  plant?: Scenery;
   locked?: boolean;
 }
 export function outsideTargets(state: WorldState): RoomTarget[] {
@@ -126,6 +131,48 @@ export function indoorTargets(plan: FloorPlan, at: V2, actors: Actor[]): RoomTar
     npc: a.npc!,
   }));
   return [...portals, ...fixtures, ...people];
+}
+export function physicalTargets(physics: PropPhysics, p: V2, plan?: FloorPlan) {
+  const targets: RoomTarget[] = [];
+  for (const v of physics.objects) {
+    const s = v.spec,
+      d = Math.hypot(v.x - p.x, v.z - p.z);
+    if (d > 29 || physics.grip?.id === s.id) continue;
+    const f = s.fixture ? { ...s.fixture, x: v.x, z: v.z } : undefined;
+    const upright = 1 - 2 * (v.rotation.x ** 2 + v.rotation.z ** 2) > 0.82;
+    const seat = upright && (s.key === 'seat' || f?.use === 'seat');
+    const id = s.benchId ? 'bench/' + s.benchId : f?.use === 'seat' ? 'use/' + f.id : 'prop/' + s.id;
+    const nearSide = {
+      x: v.x + ((p.x - v.x) / Math.max(0.05, d)) * (s.hx + 0.66),
+      z: v.z + ((p.z - v.z) / Math.max(0.05, d)) * (s.hz + 0.66),
+    };
+    const approach = plan && f ? fixtureApproach(f, plan) : nearSide;
+    targets.push({
+      id,
+      at: v,
+      approach,
+      prop: s.id,
+      fixture: seat ? f : undefined,
+      field: seat ? 'seat' : undefined,
+      reach: 2.8 + Math.min(0.6, s.hx),
+      label: seat
+        ? (f?.label ?? 'Sit on the bench')
+        : (s.mass > carryMass ? 'Drag the ' : 'Lift the ') + s.name.toLowerCase(),
+    });
+  }
+  if (!plan)
+    for (const plant of rootsNear(p, 4.8)) {
+      const tree = /pine|birch|oak|fir|willow|alder/.test(plant.key);
+      targets.push({
+        id: 'shake/' + locationId(plant),
+        plant,
+        at: plant,
+        approach: { x: plant.x - 0.9, z: plant.z + 0.7 },
+        reach: 1.9,
+        label: tree ? 'Shake the branches' : 'Brush the leaves',
+      });
+    }
+  return targets;
 }
 export function targetDistance(target: RoomTarget, p: V2, plan?: FloorPlan) {
   if (plan && !visibleAcrossWall(plan, p, target.at)) return Infinity;

@@ -126,8 +126,9 @@ def prepare(cache):
         for key, line in plan[group].items():
             out[group][key] = by_text[line["speaker"], line["text"]]
     script = json.loads(subprocess.check_output(["node", "tools/world-audio/vale-copy.mjs"], cwd=ROOT))
-    for f in sorted(cache.glob("reader-*.json")):
-        batch = read(f)
+    # Append new sessions after earlier takes so existing speech banks keep their audio offsets.
+    sessions = [read(f) for f in sorted(cache.glob("reader-*.json"))]
+    for batch in sorted(sessions, key=lambda session: session.get("recordedAt", 0)):
         pcm = decode(
             cache / batch["file"],
             "highpass=f=60,volume=-1.4dB,alimiter=limit=0.88:level=false:latency=true",
@@ -285,7 +286,7 @@ def prepare(cache):
             }
         )
     ledger = {
-        "edition": "0.1.7",
+        "edition": read(ROOT / "package.json")["version"],
         "provider": "ElevenLabs",
         "generationLicence": "paid at time of generation",
         "speech": "The original Tervain cast is credited in docs/engineering/voice-assets.json. George reads the English interface.",

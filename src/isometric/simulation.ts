@@ -1,3 +1,5 @@
+import type { PropPhysics } from './propPhysics';
+import { staticRoom, passesTrunks } from './propCatalogue';
 import { Game } from '../core/game/game';
 import { NPC_LIST } from '../core/content/npcs';
 import { ANIMALS } from '../core/content/animals';
@@ -58,6 +60,7 @@ import {
 import { ITEMS, itemAction } from '../core/content/items';
 import {
   fieldTargets,
+  physicalTargets,
   gatheringIds,
   indoorTargets,
   outsideTargets,
@@ -132,6 +135,9 @@ export class Valley {
   activity?: Activity;
   jump = 0;
   stamina = 100;
+  props?: PropPhysics;
+  standingLift = 0;
+  private lastFootSpace = '';
   private clockElapsed = 0;
   onFieldSound: (cue: FieldSound, range?: number) => void = () => {};
   onMessage: (text: string) => void = () => {};
@@ -198,16 +204,54 @@ export class Valley {
       if (record) record.position.y = supportHeight(record.position);
     }
   }
+  enableProps(physics: PropPhysics) {
+    this.props = physics;
+    this.lastFootSpace = '';
+    this.updateFooting();
+  }
+  private get localFloor() {
+    const r = this.room;
+    return r ? roomLift(r, this.position) / roomRisePixels : supportHeight(this.position);
+  }
+  get hop() {
+    return this.jump ? Math.sin((Math.PI * this.jump) / 0.52) * 1.45 : 0;
+  }
+  grabProp(id?: string) {
+    if (!this.props || this.riding || this.swimming || this.player.health <= 0 || this.bow || this.jump)
+      return false;
+    const v = this.props.nearby(id);
+    if (!v) return false;
+    this.cancelPose();
+    const a = this.position,
+      dx = v.x - a.x,
+      dz = v.z - a.z;
+    if (Math.hypot(dx, dz) > 0.01) {
+      this.player.yaw = Math.atan2(dx, dz);
+      this.facing = facing(dx, dz);
+    }
+    return this.props.grab(v.spec.id);
+  }
   private updateFooting() {
     const plan = this.room,
       inside = this.player.interior;
+    const base = this.localFloor,
+      space = this.roomKey || 'vale';
+    if (space !== this.lastFootSpace) {
+      this.standingLift = 0;
+      this.lastFootSpace = space;
+      this.props?.sync(plan, this.position, base, this.player.yaw);
+    }
+    this.standingLift = this.props
+      ? Math.max(0, this.props.supporting(this.position, base, base + this.standingLift, this.hop) - base)
+      : 0;
     this.player.y =
-      plan && inside
+      this.standingLift +
+      (plan && inside
         ? terrainHeight(plan.site.x, plan.site.z) +
           footingHeight +
           { ground: 0, loft: 3.5, cellar: -3 }[plan.level] +
           roomLift(plan, inside) / roomRisePixels
-        : supportHeight(this.player);
+        : supportHeight(this.player));
   }
   get player() {
     return this.game.state.player;
@@ -217,7 +261,9 @@ export class Valley {
   }
   get room() {
     const inside = this.player.interior;
-    return inside ? floorPlan(sitesById.get(inside.building)!, inside.level) : undefined;
+    if (!inside) return undefined;
+    const plan = floorPlan(sitesById.get(inside.building)!, inside.level);
+    return this.props ? staticRoom(plan) : plan;
   }
   openChest?: string;
   get roomKey() {
@@ -229,13 +275,18 @@ export class Valley {
   }
   targets() {
     const room = this.room;
-    return room
+    const targets = room
       ? indoorTargets(room, this.position, this.actors)
       : [...outsideTargets(this.game.state), ...fieldTargets(this.game.state, this.actors)];
+    return this.props
+      ? [...targets.filter((t) => t.field !== 'seat'), ...physicalTargets(this.props, this.position, room)]
+      : targets;
   }
   canWalk(a: V2, b: V2) {
     const room = this.room;
-    return room ? roomCanMove(room, a, b) : navigable(a, b, this.game.state);
+    return room
+      ? roomCanMove(room, a, b)
+      : navigable(a, b, this.game.state) && (!this.props || passesTrunks(a, b));
   }
   private restoreFootprint() {
     const site = inBuilding(this.player);
@@ -280,6 +331,7 @@ export class Valley {
     this.game.setPlayerTransform(p.x, supportHeight(p), p.z, site.yaw + (door.rear ? Math.PI : 0));
     this.facing = facing(Math.sin(this.player.yaw), Math.cos(this.player.yaw));
     this.walk = false;
+    this.updateFooting();
   }
   changeFloor(level: InteriorLevel) {
     const inside = this.player.interior;
@@ -304,7 +356,8 @@ export class Valley {
       this.stamina = Math.min(100, this.stamina + dt * 5);
       return;
     }
-    const stride = dt * (run && this.stamina > 1 ? 8.2 : this.guard ? 2.4 : 5.4);
+    const stride =
+      dt * (this.props?.grip?.drag ? 2.65 : run && this.stamina > 1 ? 8.2 : this.guard ? 2.4 : 5.4);
     const amount = (walkThrough ? stride : Math.min(stride, length)) / length,
       before = { x: p.x, z: p.z };
     const next = { x: p.x + dx * amount, z: p.z + dz * amount };
@@ -315,6 +368,8 @@ export class Valley {
       if (roomCanMove(plan, p, { x: next.x, z: p.z })) p.x = next.x;
       if (roomCanMove(plan, p, { x: p.x, z: next.z })) p.z = next.z;
     }
+    if (this.props)
+      Object.assign(p, this.props.move(before, p, this.localFloor + this.standingLift + this.hop));
     this.facing = facing(dx, dz);
     this.player.yaw = Math.atan2(dx, dz);
     this.walk = distance(before, p) > 0.0001;
@@ -392,8 +447,20 @@ export class Valley {
         dx /= norm;
         dz /= norm;
         this.facing = facing(dx, dz);
-        const fast = run && this.stamina > 1 && !this.swimming;
-        const speed = this.riding ? (fast ? 14 : 9) : this.swimming ? 3 : this.guard ? 2 : fast ? 9 : 5;
+        const fast = run && !this.props?.grip && this.stamina > 1 && !this.swimming;
+        const speed = this.props?.grip?.drag
+          ? 2.6
+          : this.riding
+            ? fast
+              ? 14
+              : 9
+            : this.swimming
+              ? 3
+              : this.guard
+                ? 2
+                : fast
+                  ? 9
+                  : 5;
         const stride = Math.min(
           walkThrough ? Infinity : norm,
           dt * speed * (1 - wade * 0.27) * travelScale(p.x, p.z, dx, dz)
@@ -401,13 +468,15 @@ export class Valley {
         const x = p.x + dx * stride,
           z = p.z + dz * stride;
         const start = { x: p.x, z: p.z };
-        if (navigable(p, { x, z }, this.game.state)) {
+        if (this.canWalk(p, { x, z })) {
           p.x = x;
           p.z = z;
         } else {
-          if (navigable(p, { x, z: p.z }, this.game.state)) p.x = x;
-          if (navigable(p, { x: p.x, z }, this.game.state)) p.z = z;
+          if (this.canWalk(p, { x, z: p.z })) p.x = x;
+          if (this.canWalk(p, { x: p.x, z })) p.z = z;
         }
+        if (this.props)
+          Object.assign(p, this.props.move(start, p, this.localFloor + this.standingLift + this.hop));
         this.walk = distance(start, p) > 0.0001;
         const entered = inBuilding(p);
         if (entered) {
@@ -421,7 +490,7 @@ export class Valley {
         const v = riverVelocity(water, worldView(this.game.state).flow),
           pull = dt * wade * (this.guard ? 0.06 : 0.24);
         const next = { x: p.x + v.x * pull, z: p.z + v.z * pull };
-        if (!onBridge(next) && navigable(p, next, this.game.state)) {
+        if (!onBridge(next) && this.canWalk(p, next)) {
           p.x = next.x;
           p.z = next.z;
         }
@@ -430,6 +499,17 @@ export class Valley {
       if (this.swimming) this.riding = false;
     }
     this.updateFooting();
+    if (this.props) {
+      if (this.riding || this.swimming || p.health <= 0) this.props.release();
+      this.props.tick(
+        dt,
+        this.room,
+        this.position,
+        this.localFloor + this.standingLift + this.hop,
+        p.yaw,
+        worldView(this.game.state).flow
+      );
+    }
     this.stepArrows(dt);
     this.stepBow(dt);
     if (this.activity) {
@@ -562,6 +642,7 @@ export class Valley {
       targetDistance(target, this.position, this.room) > target.reach
     )
       return false;
+    this.props?.release();
     this.walk = false;
     const p = this.position;
     if (kind === 'sit') this.facing = target.fixture?.key === 'furniture_chair' ? 'south-west' : 'south-east';
@@ -641,6 +722,10 @@ export class Valley {
     this.player.yaw = Math.atan2(dx, dz);
   }
   startAttack(target?: V2, head?: string) {
+    if (this.props?.grip) {
+      this.props.release(true, target);
+      return;
+    }
     if (
       this.room ||
       this.strike ||
@@ -798,7 +883,10 @@ export class Valley {
         offers.push({
           target,
           label: target.label,
-          score: d - (target.door || target.passage?.target || target.passage?.kind === 'outside' ? 0.32 : 0),
+          score:
+            d +
+            (target.plant ? 5 : target.prop && !target.field ? 2.4 : 0) -
+            (target.door || target.passage?.target || target.passage?.kind === 'outside' ? 0.32 : 0),
         });
     }
     if (plan) return offers.sort((a, b) => a.score - b.score);

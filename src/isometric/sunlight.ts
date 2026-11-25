@@ -104,7 +104,7 @@ export class Sunlight {
         image = this.atlas.shadow(s.key, frame);
       const height = this.atlas.height(s.key, s.width, frame),
         lift = s.lift ?? 0;
-      const feet = lift > 1 ? castOnLand({ ...s, h: base + lift / risePixels }, sun) : p;
+      const feet = lift > 1 || s.prop ? castOnLand({ ...s, h: base + lift / risePixels }, sun) : p;
       const tip = castOnLand(
         { ...s, h: base + (height * (high ? 0.91 : person ? 0.81 : 0.55) + lift) / risePixels },
         sun

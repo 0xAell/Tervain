@@ -148,5 +148,35 @@
     "duration": 1.1,
     "prompt": "A single smooth swimming stroke across open river water, palm moves a sheet of water with small splashes. Isolated close foley.",
     "loop": false
+  },
+  "cargo.wood": {
+    "duration": 0.8,
+    "prompt": "One solid hollow timber crate set down on an oak floor in a medieval workshop. Immediate low woody knock, subtle rattle of slats, short dry decay. Isolated game Foley with an immediate attack. No speech, music or background.",
+    "loop": false
+  },
+  "cargo.stone": {
+    "duration": 0.7,
+    "prompt": "A small fist sized river stone drops onto hard stone, one crisp mineral contact followed by one tiny tick, close and dry. Isolated game Foley with an immediate attack. No speech, music or background.",
+    "loop": false
+  },
+  "cargo.pottery": {
+    "duration": 0.85,
+    "prompt": "A thick empty glazed earthenware jug set firmly on a wooden tabletop. One bright resonant ceramic clink, followed by a tiny settling tick. Intact vessel. Isolated game Foley with an immediate attack. No speech, music or background.",
+    "loop": false
+  },
+  "cargo.metal": {
+    "duration": 0.85,
+    "prompt": "One light iron tool taps a rough stone floor. Brief textured metallic clank and a soft short ring. Isolated game Foley with an immediate attack. No speech, music or background.",
+    "loop": false
+  },
+  "cargo.cloth": {
+    "duration": 0.7,
+    "prompt": "A heavy grain sack drops on an indoor timber floor. Short low muffled thump with a little movement of grain and coarse cloth. Isolated game Foley with an immediate attack. No speech, music or background.",
+    "loop": false
+  },
+  "cargo.leaves": {
+    "duration": 0.95,
+    "prompt": "A hand brushes a branch full of small green leaves. A quick close rustle tapering to silence. Quiet woodland foley. Isolated game Foley with an immediate attack. No speech, music or background.",
+    "loop": false
   }
 }
