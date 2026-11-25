@@ -1,0 +1,2878 @@
+{
+  "provider": "PixelLab",
+  "collection": "Tervain — Bellwether Vale",
+  "title": {
+    "tool": "create_image_pro_flash",
+    "sourceSha256": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30"
+  },
+  "window": {
+    "tool": "create_ui_asset",
+    "sourceSha256": "12d2a3cb04528e17421c80130eeb2ec7265636872732d9e99a920390bef7fbfa"
+  },
+  "typeface": {
+    "tool": "create_font",
+    "sourceSha256": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
+  },
+  "sprites": {
+    "hero-east": {
+      "tool": "create_character",
+      "description": "Weathered young shipwreck survivor, russet hood folded down, old moss-green travel cloak, charcoal fitted tunic, leather boots and satchel, auburn hair.",
+      "sourceFrameSha256": [
+        "d88837e132eb582f2e14727d3771cb3756097cf3903d9b27660a2bce78fecf3f"
+      ]
+    },
+    "hero-north-east": {
+      "tool": "create_character",
+      "description": "Weathered young shipwreck survivor, russet hood folded down, old moss-green travel cloak, charcoal fitted tunic, leather boots and satchel, auburn hair.",
+      "sourceFrameSha256": [
+        "6712b6fab310d6827658e1f1e5163cbaa75805b08c2e7ab0c43defbbdc24f668"
+      ]
+    },
+    "hero-north-west": {
+      "tool": "create_character",
+      "description": "Weathered young shipwreck survivor, russet hood folded down, old moss-green travel cloak, charcoal fitted tunic, leather boots and satchel, auburn hair.",
+      "sourceFrameSha256": [
+        "54b0ad867ae70904332d8be3ea1792e01b5222a7d4edf7d48525fe5bb8623e51"
+      ]
+    },
+    "hero-north": {
+      "tool": "create_character",
+      "description": "Weathered young shipwreck survivor, russet hood folded down, old moss-green travel cloak, charcoal fitted tunic, leather boots and satchel, auburn hair.",
+      "sourceFrameSha256": [
+        "471a469eec6b796e39455252816198bb9eab8d67d54a69fcf4ae053cb1a4b906"
+      ]
+    },
+    "hero-south-east": {
+      "tool": "create_character",
+      "description": "Weathered young shipwreck survivor, russet hood folded down, old moss-green travel cloak, charcoal fitted tunic, leather boots and satchel, auburn hair.",
+      "sourceFrameSha256": [
+        "83cce5e5e2b70b24cb55c1559284f68c084b488e5b10bad89bbbaace8a2df6b2"
+      ]
+    },
+    "hero-south-west": {
+      "tool": "create_character",
+      "description": "Weathered young shipwreck survivor, russet hood folded down, old moss-green travel cloak, charcoal fitted tunic, leather boots and satchel, auburn hair.",
+      "sourceFrameSha256": [
+        "91034f1b23ef3f833bc7e1df865480967ffc304f781b9ed3f3669691a4b45c5d"
+      ]
+    },
+    "hero-south": {
+      "tool": "create_character",
+      "description": "Weathered young shipwreck survivor, russet hood folded down, old moss-green travel cloak, charcoal fitted tunic, leather boots and satchel, auburn hair.",
+      "sourceFrameSha256": [
+        "261c6dae59ef2f8b2835021fef4ec093b3ddb9accd7cd7a132f01f6ed43f1eef"
+      ]
+    },
+    "hero-west": {
+      "tool": "create_character",
+      "description": "Weathered young shipwreck survivor, russet hood folded down, old moss-green travel cloak, charcoal fitted tunic, leather boots and satchel, auburn hair.",
+      "sourceFrameSha256": [
+        "3a745426fd7dfbd1d8aba50a052ef9e86fea2f0ef71a44b30e746120977da8bb"
+      ]
+    },
+    "hero-east--walk": {
+      "tool": "animate_character",
+      "description": "Walking in place, east",
+      "sourceFrameSha256": [
+        "5a6fb492631b8f998e2c5dae68cdc656bba02aa00b08236d6bc7df7b4fe7fb02",
+        "38b8c1dae749901e13070dd3731c67353f568c269b5566de709a482d1db11f4a",
+        "5f35dc35d40f291cf8a5253cc65f83a86a8abc7f5a731fb7728e64e4651559d7",
+        "919e5b83322d8b656f6b6b63e47fb3f0abcafaa65d905ad7bba72893475e6045",
+        "96d8f6f44a15672f11adc91269eb277af2534cb9ca897ff8a79c8e9b2f16bd4a",
+        "1eb321ead80abcf7cd233843569f7e0757e46926b5de093d22751b46b2683866"
+      ]
+    },
+    "hero-north--walk": {
+      "tool": "animate_character",
+      "description": "Walking in place, north",
+      "sourceFrameSha256": [
+        "7c6d1f660b3b1bdff388dedb73bebd548e54e9dbd6934729c6a3cc4f05b1c877",
+        "109a773561d6bf37e8ce3117373a6cf6c8490a0175ecbd781a9cb36ac78f8a55",
+        "23d565cfbd3b9c09a8c86c3f2c597c15a1e7689a65e887cc651611a742f5fd15",
+        "9a447d6037328ac249943cfe380f5c883e0d606dd0ddd7f8b37316acd9f93aad",
+        "1239e960f48e91c77b71f8863e3fe335f6af9b084d534af5e6a2b2347e7f11b3",
+        "9a8f71154e59b1400ca2791a133282aad8052154b548dc9f9a49d54225e0d25c"
+      ]
+    },
+    "hero-south--walk": {
+      "tool": "animate_character",
+      "description": "Walking in place, south",
+      "sourceFrameSha256": [
+        "e85140ed4d5485fda1366c273e380f2b0aefc735c7ea5d5ef235fe8bdf1dc288",
+        "4816efbb599a0351ef35e81032059321ce63a9daf65aec5fdb6a58626d5f3225",
+        "c83f6437d65b8b43384289cca615d44b3f93ceaf667e30822b6c9b1dc67de5df",
+        "0fc93fa1ac94c84d23f753245e24a92830d269ccaacaaf03fff0973640fb12b3",
+        "a5e8c912d33c40c5988553c314d98e9e4526de5f50eab350bcfdc3ec1e69dff7",
+        "d767efc842703248633f79abe6914374ddc5a2eb7a94d00e0407202a64da89be"
+      ]
+    },
+    "hero-west--walk": {
+      "tool": "animate_character",
+      "description": "Walking in place, west",
+      "sourceFrameSha256": [
+        "83a469bb6174f7c71f7e48125729d37af8fb1ed70aa2b48c6ad57ca9d5a26d1b",
+        "f95e7ee76d3161f2aec2b30ba21f280e5e93df493737cc5429272f011d1ed6b2",
+        "70d698086c62600d53bcd026a9df57a61f447410c658bc2299a82b4710d055a7",
+        "bfd79e902056034c82bf7430a6ddd7afd37317a0a0af36428c4153528073f3ae",
+        "dc8a3be7e02db401a20fedcf74d6e44e9e2a605b7db5a6dc5551fb14224924b1",
+        "28d87648462156e933c830310047ac063e17ee9e18a4c479fbbb862ad4250cd0"
+      ]
+    },
+    "grass": {
+      "tool": "create_image_pro_flash",
+      "description": "Windswept olive meadow and sage grass blades. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "87ef535ed60f5a2e017f8f34a77b8d83adaa6ccd0e6bd5b1155a1dc6f9ab051f"
+      ]
+    },
+    "sand": {
+      "tool": "create_image_pro_flash",
+      "description": "Fine damp grey-gold beach sand with scattered small shale pebbles. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "0c528e27392dcf4fab065a969afd870c4dbd0736e4b124d1d64bcddee42cd506"
+      ]
+    },
+    "shallows": {
+      "tool": "create_image_pro_flash",
+      "description": "Shallow muted turquoise sea with finely broken ivory surf on jade water. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "b12d08636b4533d3cf1491176ad5d6d8ea507ecceeadc8d52c748a68a7c1e908"
+      ]
+    },
+    "sea": {
+      "tool": "create_image_pro_flash",
+      "description": "Dark blue-green open sea, ripples with short pewter flashes. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "a250a89130feaedf737d328baa00ebe69285e224241fcacfa505630f3dd6ad28"
+      ]
+    },
+    "trail": {
+      "tool": "create_image_pro_flash",
+      "description": "Packed warm umber earth, tiny pale stones, an old cart lane, no foliage. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "6a964ef4b19586a33c74b99d866fda0c7d9801bfda587bd692df85b90c7fae36"
+      ]
+    },
+    "woodland": {
+      "tool": "create_image_pro_flash",
+      "description": "Deep forest floor of dark moss, pine needles and leaf litter. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "4406c1d86c76a0205cc1346c15801e27985fe5b153d9fa68cfd37a4c3f8690e6"
+      ]
+    },
+    "rock": {
+      "tool": "create_image_pro_flash",
+      "description": "Broken blue-grey slate scree, hairline seams and ochre lichen. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "c306d9a7c506d7f12ba842345be8f7c079042a96bba3994889a59a5c8c77f261"
+      ]
+    },
+    "floor": {
+      "tool": "create_isometric_tile",
+      "description": "Brown chestnut plank floor, warm muted wood grain. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "9de9f3e4bfd0579b517f93d84ce7d13e4ece9db314aae6ac45a15100d5baeaea"
+      ]
+    },
+    "field": {
+      "tool": "create_isometric_tile",
+      "description": "Tilled dark soil with narrow rows of golden wheat shoots. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "c11ed59c6e4734575e98fd9538eee2b84ff12c7047e6b4a326de45a5cc3d1910"
+      ]
+    },
+    "stone": {
+      "tool": "create_isometric_tile",
+      "description": "Old limestone cobbled courtyard, weathered dark greys, sparse lichen. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "d76ebc10b33a99f9aa297e67e12bacb4b4f48aa89b8e33ddf7416f6450d7bfcd"
+      ]
+    },
+    "wreck": {
+      "tool": "create_image_pro_flash",
+      "description": "One broken medieval clinker-built shipwreck lying on its side, keel split, splintered dark oak ribs rising like fingers and a snapped mast with a torn triangular old linen sail sagging over them. A wrecked hull, visibly shattered. Precise 2:1 isometric, three quarter view, grounded proportions, sombre coastal RPG. Single cut-out object, bare transparent background and transparent around and between ribs. No patch of ground, oval, island, water, plinth, pedestal, shadow plate or scenery.",
+      "sourceFrameSha256": [
+        "d87ea9f6cc6b9bf490d49dd6e918dfd9137270fdcf18e7ea3b7772a82e417efb"
+      ]
+    },
+    "beacon": {
+      "tool": "create_image_pixflux",
+      "description": "Tall medieval stone lighthouse, square base, squat bronze lantern burning gold at its summit, small annex, isometric building. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "e0e4fa4f0c40e7b2b5e31226631c26a9561b30748ddf6b7efde341454beddc9f"
+      ]
+    },
+    "pine": {
+      "tool": "create_image_pro_flash",
+      "description": "One windswept gnarled maritime Scots pine tree with an exposed twisted trunk, ragged broad layered crown, shadowed muted sage foliage. Old European coastal gothic fantasy. Isolated isometric tree on transparent, bare roots, no ground disc or landscape.",
+      "sourceFrameSha256": [
+        "e2abe875a8e4b6893e3ac839f5beff0dad72ae2a6cfc9baa2ce7840ecb11970c"
+      ]
+    },
+    "oak": {
+      "tool": "create_image_pixflux",
+      "description": "Single massive gnarled old oak with hanging clusters of bronze-olive oak leaves, no ground, isometric tree. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "5a5626f92dc33081f02650ce555d47263d98e3a44ebc3493d490de8814121ec1"
+      ]
+    },
+    "fir": {
+      "tool": "create_image_pixflux",
+      "description": "Single densely needled dark blue-green silver fir with irregular branches, no ground, isometric tree. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "72d3e01bc9740007a058db4fb4555dfbbaee4357ec5392d09b0bc87ea5c97bbd"
+      ]
+    },
+    "birch": {
+      "tool": "create_image_pro_flash",
+      "description": "One silver birch tree with fine white trunk and sparse dull yellow-green leaves. Isometric temperate coastal valley in autumn, detailed mature silhouette, pale northwestern light. Isolated cutout. Transparent air all around the roots. No base, no disc, no visible terrain.",
+      "sourceFrameSha256": [
+        "adce733321d91a89627818380a16bc8132e0feef1e1cf4fc6ed9687bc1dd2490"
+      ]
+    },
+    "rockpile": {
+      "tool": "create_image_pixflux",
+      "description": "Low cluster of blue-grey granite boulders, pale ochre lichen, isometric. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "305072e93b8d1589f98799f27deff264c352dcd8e6dbc2a74913d000f4d048b9"
+      ]
+    },
+    "brush": {
+      "tool": "create_image_pixflux",
+      "description": "Low clump of dry copper bracken, sage-green seaside grass, short reeds and small seed heads. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "33adc27459b0755cfc06598567844f3125d10089d203a0516455e86a696f7d4e"
+      ]
+    },
+    "flowers": {
+      "tool": "create_image_pixflux",
+      "description": "Compact wild medicinal herbs with small pale yellow flowerheads in old grass. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "5a9da5c30716bd738a53e75de9a840e62b58e0237693a2c81d5558b9f2b1dc8d"
+      ]
+    },
+    "sign": {
+      "tool": "create_image_pixflux",
+      "description": "Rustic crooked oak fingerpost with a single arrow-shaped unlettered plank pointing inland. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "4c394734a7c1309c1287109d857ca6cf2c9179473c9362842c4eb4491f49c30b"
+      ]
+    },
+    "fire": {
+      "tool": "create_image_pixflux",
+      "description": "Small bright amber campfire in a ring of grey stones with three short charred logs, no surrounding terrain. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "47368b448eac86c1faf5c3746ccb09fabe826ebcdbf9449df5dbfe77081915e9"
+      ]
+    },
+    "house": {
+      "tool": "create_image_pixflux",
+      "description": "Complete small medieval timber-frame cottage, ochre lime walls, thick amber thatched roof, doorway facing viewer, cut out isometric building. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "2a8954c3ce90354fb8f8c31ad815f85943e42dede6a6852d6569bfe1c87a4c77"
+      ]
+    },
+    "mill": {
+      "tool": "create_image_pixflux",
+      "description": "Complete timber medieval mill with dark shingled roof, big wooden water wheel clearly visible at side. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "f7c64b749c0cab323c0ab2f2f93c0da22fec82bbc3827bab539029121b5cfa87"
+      ]
+    },
+    "shrine": {
+      "tool": "create_image_pixflux",
+      "description": "Small complete sombre grey stone roadside chapel with bronze bell, pointed steep dark slate roof and a single lit candle. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "59218abfe23e027c486958362d556d92b1d1ff15bc9640b88b707d2902c93df5"
+      ]
+    },
+    "archive": {
+      "tool": "create_image_pixflux",
+      "description": "Medieval stone archive hall, steep charcoal slate roof, tall barred windows, heavy oak door. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "a1e2b9a41db171fe981cb9cda19ba7f0bbc9782ea7a80ac4042e9df3c0e43964"
+      ]
+    },
+    "inn": {
+      "tool": "create_image_pixflux",
+      "description": "Complete timber-framed medieval tavern with steep red tiled roof, lit windows and copper tankard sign. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "26092ae775b674daa1e12c97d6c77579c46ef99fbe9a09c4d6e1a49580c11363"
+      ]
+    },
+    "hut": {
+      "tool": "create_image_pixflux",
+      "description": "Forest hunter lean-to of hides and rough poles, drying rack and small leather bag, open front. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "d60cd7db910407bd74ae8bd84739a83c60e999c50c1629f204016f7c2cd58468"
+      ]
+    },
+    "bakery": {
+      "tool": "create_image_pixflux",
+      "description": "Medieval timber-frame bakehouse with big outdoor brick oven and ochre roof. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "93f13317eec05c5fed320cb052523e069fa81e0bae6c383726574b2806cfc18a"
+      ]
+    },
+    "office": {
+      "tool": "create_image_pixflux",
+      "description": "Fortified stone administrative lodge with a weathered blue banner and slate roof. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "9aa223331d3ba0b8bbd3512539ada09313eccea9f2f577586eb9341f5d276ebd"
+      ]
+    },
+    "bunks": {
+      "tool": "create_image_pixflux",
+      "description": "Low long quarry-workers log bunkhouse, mud plaster and mossy shingles. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "45d5e85df13db4c34a27859fcc2fe91416ab204d7ba59d3909ec3537894e3f67"
+      ]
+    },
+    "bridge": {
+      "tool": "create_image_pixflux",
+      "description": "Short isometric diagonal rustic timber footbridge over empty transparent space, two rails, no river or landscape. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "2e2b74cba69e615164a5699922fe5f983417ebaa75cbf4474ddb215a6cde0e8f"
+      ]
+    },
+    "ruin": {
+      "tool": "create_image_pixflux",
+      "description": "Broken roofless medieval stone wayside tower shell, wild ivy and ruined arch, no surrounding scenery. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "6f818fe0d0f39bc42c6d1159aea4c0d6ae6aede8dcfb7e41e35d300e5c72fb67"
+      ]
+    },
+    "bell": {
+      "tool": "create_image_pixflux",
+      "description": "Large bronze tide bell hanging in simple chestnut timber frame with pull rope. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "ae2319cf7364fbd065f30879a25a1c7f7ecb2bf6bcd6e810502c8c4d5dd15b93"
+      ]
+    },
+    "well": {
+      "tool": "create_image_pixflux",
+      "description": "Old round stone village well, wooden windlass and bucket, simple little roof. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "983c7ecbc1492fe4874aeab0cc986d2002e45c92278372811d30f28d58a42ed1"
+      ]
+    },
+    "sluice": {
+      "tool": "create_image_pixflux",
+      "description": "Weathered canal sluice with a timber lock gate, iron lifting wheel and two stone supports. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "55d825e538915af51053e3d3be391f33cf72cda39f82c489cdf988b0f4eb4420"
+      ]
+    },
+    "lantern": {
+      "tool": "create_image_pixflux",
+      "description": "Small lit amber lantern hung on a rough timber post beside a road. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "4c90da9d7748673a6ba5db9487381f85abd73b73fb4d72273ff059a4b7b05b5e"
+      ]
+    },
+    "cart": {
+      "tool": "create_image_pixflux",
+      "description": "Wooden medieval two wheel handcart with sack of grain, no horse. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "22ebd6f35e934c0c15dfdadf183173afe3b27bb1394e956fbd6361ed49177f1c"
+      ]
+    },
+    "marker": {
+      "tool": "create_image_pixflux",
+      "description": "Single ancient mossy standing boundary stone with a chipped cross-shaped notch near the top. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "fe1506c11fef0883f96f923eee844af4500806a0895db497a9a0296e2e78fcc5"
+      ]
+    },
+    "board": {
+      "tool": "create_image_pixflux",
+      "description": "Timber village noticeboard with two scraps of parchment pinned below a narrow rain hood. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "cc7b112fd82e4313d67a55e14c87ea07c2921a192f7658d8a91f2d794881b74b"
+      ]
+    },
+    "chest": {
+      "tool": "create_image_pixflux",
+      "description": "Old iron-bound oak storage chest with brass clasp, leather straps, seen from above. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "f72635f5196d29c9d4f8ebacf70adb243acd7b80c89ac8ed63a616a62ff7c09f"
+      ]
+    },
+    "table": {
+      "tool": "create_image_pixflux",
+      "description": "Rough medieval work table with a clay bowl and brass tool sitting on top. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "f03349784dd4062170c641b912ee17025738fe9b85d01627bfafb9d16451ed3a"
+      ]
+    },
+    "bed": {
+      "tool": "create_image_pixflux",
+      "description": "Wooden medieval bedstead with russet wool blanket and straw pillow, diagonal isometric. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "26c7ad4a448e5478eb53109eb1d90cb137c6c9ce801db34ee2d307b133d7e430"
+      ]
+    },
+    "seat": {
+      "tool": "create_image_pixflux",
+      "description": "Rustic small oak bench on carved legs with worn brown seat, diagonal isometric. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "a221d4973790ea0f65ce5aa3d9946488e52897a5bd26d624af15909b1b6b17ad"
+      ]
+    },
+    "seal": {
+      "tool": "create_image_pixflux",
+      "description": "One heraldic bronze tide bell within a circular embossed medieval bronze seal medal, dark patina, luminous fine golden rim, straight front view, isolated. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "fb1501e81e3ed469f666a7a61da14b51b296242405bd925339a5d2c20eb98776"
+      ]
+    },
+    "journal_icon": {
+      "tool": "create_image_pixflux",
+      "description": "Small closed green leather field journal with a warm brass clasp. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "7169781aef4d51dbaa8a91c2b14927a9032b7a6b2a06d8fcfdf025122315cf06"
+      ]
+    },
+    "map_icon": {
+      "tool": "create_image_pixflux",
+      "description": "Folded aged parchment road map tied with a leather thong. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "307d953ef2c5f9f5d4fd92e90315728ee6501a7b6bbdb77e53976319b684d413"
+      ]
+    },
+    "bag_icon": {
+      "tool": "create_image_pixflux",
+      "description": "Weathered chestnut leather adventurer satchel, brass buckles. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "a30c550ffea7a7a6535319e722b09bf04f382d2ba2cc2f2854746885d069cfbb"
+      ]
+    },
+    "compass": {
+      "tool": "create_image_pixflux",
+      "description": "Small round brass and ivory compass rose with crimson north needle viewed straight overhead, clear silhouette. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "f7386e9c564707b4dfa0c654c86a3326b984133e1fd3a34270c40c84a3bad4b1"
+      ]
+    },
+    "cursor": {
+      "tool": "create_image_pixflux",
+      "description": "Small elegant downward-pointing hollow gold diamond marker used to mark selection in a medieval RPG. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "00d74f886bd5f75aa9bf5625d2981ad6b181589a5e34f1b878c84d5bedbe5bc9"
+      ]
+    },
+    "caravan_master": {
+      "tool": "create_image_pixflux",
+      "description": "Joss Merrin, grey-bearded caravan master in ochre felt cap with travel pack, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "1d45ed33c74677c353bb8f3458c6fad6d57a63d97a7dff4d27bb1b0bb10316c7"
+      ]
+    },
+    "rillford_reeve": {
+      "tool": "create_image_pixflux",
+      "description": "Mara Venn, stern middle-aged woman in burgundy shawl and olive-green formal dress, braided dark hair, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "83efe368d31e2eb2312a5168d051319082ce74c74f96c4eedbb478f935fce770"
+      ]
+    },
+    "spring_steward": {
+      "tool": "create_image_pixflux",
+      "description": "Sister Edda Sorn, composed older woman in a pale grey and sage green templar robe, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "c6af73067700d24fdbc5f1af130d906cc7273b524ac5cf7fd58159dfe82243d4"
+      ]
+    },
+    "quarry_foreman": {
+      "tool": "create_image_pixflux",
+      "description": "Darin Kest, stocky quarry foreman in rust-brown work coat and iron cap, black beard, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "2a4fbbef29d5cada1eb9b9b55fd957475ee1b3cd6be83d8c819a8016461de377"
+      ]
+    },
+    "maintenance_worker": {
+      "tool": "create_image_pixflux",
+      "description": "Ila Rusk, young mechanic with rolled linen sleeves, dark braid and leather tool apron, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "b39507dd969cc7ca7d4f95ea3dbe0c65860921824fa5cedaa01e6ef6abdeab84"
+      ]
+    },
+    "estate_steward": {
+      "tool": "create_image_pixflux",
+      "description": "Oren Halvek, thin silver-haired official in indigo coat and an ochre sash carrying a ledger, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "28d92dd09f299c7978632bb566afc3cedbaf418bd264bd2d4aac5f8f331aa894"
+      ]
+    },
+    "ash_recorder": {
+      "tool": "create_image_pixflux",
+      "description": "Sel Anrit, travelling chronicler, dark ash-grey hood and leather writing case, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "bb4a8b41f431b1e2508117467b33d7a6ce923d74f0cc686d3e3581ea5e73fd39"
+      ]
+    },
+    "shrine_warden": {
+      "tool": "create_image_pixflux",
+      "description": "Tolan Harrow, weathered shrine guard in steel cap and moss-green tabard, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "0396c0ae4cb3cda191a6757db9e5bd3c12f186408fc4c30ce547f91be696de3e"
+      ]
+    },
+    "mill_hand": {
+      "tool": "create_image_pixflux",
+      "description": "Bess Corran, sturdy mill worker in flour-dusted linen, red headscarf and tan apron, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "1ddb233f91b63aae616052e304426fe4a47e331c896ca1d379efb0f0f175d7dd"
+      ]
+    },
+    "quarry_hand": {
+      "tool": "create_image_pixflux",
+      "description": "Pell Dunmore, burly stoneworker in rolled linen sleeves and iron-grey work trousers, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "8e310c06e277e337f1720ec988de9756440d2bb7d6d8f42166f9f40bee94634a"
+      ]
+    },
+    "village_baker": {
+      "tool": "create_image_pixflux",
+      "description": "Hesper Lowe, female baker in a white floury apron over maroon wool, chestnut hair tied back, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "c572ea93a601afb92e73feef273627289200f0c0df0cd01c5e721267a8223f05"
+      ]
+    },
+    "trail_hunter": {
+      "tool": "create_image_pixflux",
+      "description": "Rowan Vale, lean hunter in russet hood with leather bracers and dark green coat, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "b809644008005e12b0d2e437d7c586fd7017399fda0ad579a89e0793e467dbd2"
+      ]
+    },
+    "bandit": {
+      "tool": "create_image_pixflux",
+      "description": "Ragged medieval toll bandit in a red-brown hood and patched leather jerkin, short rusty sword, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "9857bd7383eaf3506e42cd9aa07f725aa764e28136ddcda6638518551c6d7bd5"
+      ]
+    },
+    "thornback": {
+      "tool": "create_image_pixflux",
+      "description": "Hunched broad-shouldered forest beast with spiny bark plates on its back, long claws, russet grey hide, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "df88a02f3178e3da86229f3c0618ad5e48d2643dafdc1f4dcc4184eaadeb1612"
+      ]
+    },
+    "deer": {
+      "tool": "create_image_pixflux",
+      "description": "Red deer with small antlers, tawny coat, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "7bdf699bb7b259fcc3e7e5dc091c8db427a048d637b167dee8bc7951bb41128e"
+      ]
+    },
+    "boar": {
+      "tool": "create_image_pixflux",
+      "description": "Wild tusked boar with bristled dark brown hide, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "808b6ed3da5c26e492a400be234d78473de247adc353d21074b27bebc2d5a845"
+      ]
+    },
+    "wolf": {
+      "tool": "create_image_pixflux",
+      "description": "Grey forest wolf, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "4ca7a919f2caccaab964482ca1cfbf4b8f3014228006a8681f80657cac889bd5"
+      ]
+    },
+    "bear": {
+      "tool": "create_image_pixflux",
+      "description": "Large brown bear, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "6697bff57970ad14ee417cf52b0e5f5399019bca6a6839c86ab638e38371f1cb"
+      ]
+    },
+    "cat": {
+      "tool": "create_image_pixflux",
+      "description": "Small ginger tabby farm cat, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "a911c97614078472a3fa1e1bd64e4f20cd89b9d840f17bc57c6c07792a7cde7a"
+      ]
+    },
+    "dog": {
+      "tool": "create_image_pixflux",
+      "description": "Scruffy grey-brown farm dog, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "5325664691111f2da3ed22b3fd558883df3db6164ad390db2562d118b1f3979e"
+      ]
+    },
+    "tiger": {
+      "tool": "create_image_pixflux",
+      "description": "Tawny striped woodland tiger, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "d84ec1e90965d08a075c78062d28b8108c9651571a260449d90c23e42ac73fc0"
+      ]
+    },
+    "lion": {
+      "tool": "create_image_pixflux",
+      "description": "Golden male lion with dark ochre mane, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "eac596abbda2abe403888fd0b50009379d513e3fac9e09b7b0b9b064091d2d04"
+      ]
+    },
+    "mount": {
+      "tool": "create_image_pixflux",
+      "description": "Saddled red deer, small antlers, simple leather saddle and moss-green blanket, one full body three-quarter sprite looking toward the lower right of the screen, entire body and feet visible on empty transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "b75179690ba7fcc519ba82a52242230ae77dc68f772ff4abf01fe48b36c2c5b6"
+      ]
+    },
+    "coin": {
+      "tool": "create_image_pixflux",
+      "description": "Small pile of worn copper coins, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "38b19937f268f56b1671afad1b0bd49d4390c70c3b587e19584b84cc1db3a036"
+      ]
+    },
+    "rusted_sword": {
+      "tool": "create_image_pixflux",
+      "description": "Notched narrow medieval iron longsword with a leather grip, angled across canvas, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "78b4cbcc12f448113e9772b1986b470c0092968f2d50e9e0356c9326cc490505"
+      ]
+    },
+    "hunting_bow": {
+      "tool": "create_image_pixflux",
+      "description": "Curved yew hunting bow, strung, diagonal, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "0633833743922acd1c46920885e2cae3c17f74a04edf65b6aa2e0155d1315ea4"
+      ]
+    },
+    "arrow": {
+      "tool": "create_image_pixflux",
+      "description": "Three goose-fletched arrows bound together, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "4a65ca2c5e48146dfd709476de67fcaf782a676e2d9432b3a5a1cea2de33c205"
+      ]
+    },
+    "skinning_knife": {
+      "tool": "create_image_pixflux",
+      "description": "Short curved hunting knife with antler handle, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "dcd6e285ba3620685e62321ed6018e3356649b67ab4590b3670fa4c116aff086"
+      ]
+    },
+    "animal_hide": {
+      "tool": "create_image_pixflux",
+      "description": "Rolled russet deer hide, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "be34b0b60fc2efd5bc62963dd058013abf36daec05d32bedd5ccf4f0c358c945"
+      ]
+    },
+    "raw_meat": {
+      "tool": "create_image_pixflux",
+      "description": "Fresh venison haunch, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "cb8f2168fb0a7c3258c459c1410d1b8ff4324e47718324ad083779c4156b1111"
+      ]
+    },
+    "sluice_brace": {
+      "tool": "create_image_pixflux",
+      "description": "A heavy iron U-shaped sluice repair brace, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "ee3259eaee0bdf13f5ade9c359b50e849e752f545ba54bbc5a93360025de4cdb"
+      ]
+    },
+    "gate_wrench": {
+      "tool": "create_image_pixflux",
+      "description": "Long iron square-headed gate wrench, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "5b73ced2857938bf6d25b7bd0f65fbff960da950467ee7d38ca9f7765866e8bc"
+      ]
+    },
+    "archive_key": {
+      "tool": "create_image_pixflux",
+      "description": "Old brass warded key, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "f569b2a9a4fa2ffdc84b1e1225823e915e47bb23d0606c9c81648800473d7f4d"
+      ]
+    },
+    "votive_reed": {
+      "tool": "create_image_pixflux",
+      "description": "Bound green ceremonial reeds, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "6e072594f6852740e4db6192b453141d0f6ebecfbd3d8e23b48ab7edb2b74c92"
+      ]
+    },
+    "poultice": {
+      "tool": "create_image_pixflux",
+      "description": "Rolled white linen healing poultice tied with twine, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "cda3970ea76f63a0d721e15e7db2c9bf8a678a844f83d860ec5ced6cf040d61e"
+      ]
+    },
+    "shore_apple": {
+      "tool": "create_image_pixflux",
+      "description": "One red wild apple with a small leaf, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "fde00b54f2a09b1e56a85dfbe37255f39902a37c97d1387a3743165a27858558"
+      ]
+    },
+    "bread": {
+      "tool": "create_image_pixflux",
+      "description": "Crusty round loaf of dark bread, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "b892a26f654a207fd416363444a9dd1aef34acdec501089f65349853d6f9d656"
+      ]
+    },
+    "healing_herb": {
+      "tool": "create_image_pixflux",
+      "description": "Sage-green medicinal sprig with fine golden buds, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "ad07dfa4e36d3308a026495ad6f400369f601e8ee526e8e868c5d2cfef7285e1"
+      ]
+    },
+    "field_mushroom": {
+      "tool": "create_image_pixflux",
+      "description": "Pair of copper-brown field mushrooms, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "f4e4106d4d37e5b8719e99bde0bd1664fe80eb59e2f5b4b9fb6c9b02ebcacf28"
+      ]
+    },
+    "iron_scrap": {
+      "tool": "create_image_pixflux",
+      "description": "Short dull iron scrap bars, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "a3ee4967f293f230df9fe5db4e4d5efed50f1967ee8c4bd596e5807cc3dc7001"
+      ]
+    },
+    "league_sash": {
+      "tool": "create_image_pixflux",
+      "description": "Folded red cloth sash with a brass clasp, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "e2004dc6738750f23530f9f4d0f53b0da76b929a437fd228b64068585cf9f4ff"
+      ]
+    },
+    "contract_band": {
+      "tool": "create_image_pixflux",
+      "description": "Blue cloth armband with small silver seal, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "c43e994e8adcb26c17ff8800d90dbf478ebaaccdf3c7e501203f1e2e7cc4eda2"
+      ]
+    },
+    "witness_cord": {
+      "tool": "create_image_pixflux",
+      "description": "Knotted ochre ceremonial cord, a single readable inventory icon isolated on transparent background. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "31debca18f45497ccb58c0acdcc7acef8312135a5d2751cfe583c20e9c73acf7"
+      ]
+    },
+    "furniture_altar": {
+      "tool": "create_image_pixflux",
+      "description": "Mossy medieval carved limestone altar with a copper bowl, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "b4e4154580a154b1c8cfa38056b2f2a8c21f247f9f18f41142a25f8cf5474e8e"
+      ]
+    },
+    "furniture_antlers": {
+      "tool": "create_image_pixflux",
+      "description": "Weathered stag antlers mounted on a wooden plaque, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "9a75e6f574a48ef654b40f57e5f52636bc4169396e3b249b1f1367d7898494a3"
+      ]
+    },
+    "furniture_barrel": {
+      "tool": "create_image_pixflux",
+      "description": "Single coopered oak cask with two black iron hoops, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "14d7b1703bea2479e18a3a584e51287eaf17bef096571cbd7696a25171cca35c"
+      ]
+    },
+    "furniture_bookshelf": {
+      "tool": "create_image_pixflux",
+      "description": "Medieval oak bookcase full of worn leather books, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "fd4b20333d9d9b5f707beccbd5ac52503b9e6251c2b35e8b842b12b7fe289018"
+      ]
+    },
+    "furniture_bunk": {
+      "tool": "create_image_pixflux",
+      "description": "Wooden double bunk bed with straw mattresses, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "b4955e6e191b251c3bc185b7037ed7c17559d2277f9a0d7fb215759523354b09"
+      ]
+    },
+    "furniture_candle": {
+      "tool": "create_image_pixflux",
+      "description": "Single burning ivory tallow candle on a bronze dish, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "a176f7c105908ef698dfbc610cb3389883d634863042f63252a26b825077794f"
+      ]
+    },
+    "furniture_cauldron": {
+      "tool": "create_image_pixflux",
+      "description": "Cast iron cauldron over a few glowing embers, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "487ab879e81fe4a14c90e7f638acc4657c1608ddcc0ffaf1d3f19ecc3300256c"
+      ]
+    },
+    "furniture_chair": {
+      "tool": "create_image_pixflux",
+      "description": "High-backed medieval oak chair, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "b063c6a551b94ef9f686e20bc89b058250903b775b73884ac30a7b1011026857"
+      ]
+    },
+    "furniture_counter": {
+      "tool": "create_image_pixflux",
+      "description": "A stout merchant counter with a few brass weights, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "fde73ab3f4dbf7aa6b00eba92261ef75d2241c986c3b1403f202d8a0ea6346ad"
+      ]
+    },
+    "furniture_crate": {
+      "tool": "create_image_pixflux",
+      "description": "A single small timber packing crate, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "6af36cb229bafe02a57ec7424c7e9746017fd542480173d3ddfcfb320fdf88b8"
+      ]
+    },
+    "furniture_cupboard": {
+      "tool": "create_image_pixflux",
+      "description": "Tall weathered oak cupboard with iron hinges, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "db3e637461e7c9b1851da640526d7a706ab67ed2ab2005a27b0a6db4a9507966"
+      ]
+    },
+    "furniture_desk": {
+      "tool": "create_image_pixflux",
+      "description": "Medieval writing desk with rolled parchment and a quill, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "2f1a2adaf0aa3090daf39e2ff30e5aff3a613f04e5fd7f0d1a8ee14f98d3a77c"
+      ]
+    },
+    "furniture_firewood": {
+      "tool": "create_image_pixflux",
+      "description": "Split firewood neatly stacked, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "f6678ad88172a4f3b5ad8f8bcba13016124e7712e4922d37bb3104ee75d596b4"
+      ]
+    },
+    "furniture_herbs": {
+      "tool": "create_image_pixflux",
+      "description": "Bunch of drying medicinal herbs tied with twine, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "783e771815a622cd5847cf3ec482c20569484259790b5d52841de7861fb3a690"
+      ]
+    },
+    "furniture_jug": {
+      "tool": "create_image_pixflux",
+      "description": "Single glazed ochre stoneware water jug, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "c121ee987c42bc681813655fdfb44acdd1f1abedff443ba616f04dfca390fcf5"
+      ]
+    },
+    "furniture_loom": {
+      "tool": "create_image_pixflux",
+      "description": "Standing medieval wooden handloom with a partially woven ochre cloth, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "9e0e96e8903043ce40529bfd24eeb14cf67670fdd1ad6c8af1c939094beb7663"
+      ]
+    },
+    "furniture_oven": {
+      "tool": "create_image_pixflux",
+      "description": "A rounded brick baker’s oven with a glowing hearth and stone base, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "d68eb4d0b284138b2185ec6341d9c0629a63c8cb19bf7cb181da380cfb91912f"
+      ]
+    },
+    "furniture_pelt": {
+      "tool": "create_image_pixflux",
+      "description": "Soft russet fur pelt spread on a floor, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "74d8bf4b3dbccf0614d45ab9e6b3aedfbfcc1b97858bbd7a3449695c6ebafebf"
+      ]
+    },
+    "furniture_pots": {
+      "tool": "create_image_pixflux",
+      "description": "Three dark earthware cooking pots, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "d842a0c9f9c8a65a978cabb76282edf49c8645700900f1de65e2feb060c0c439"
+      ]
+    },
+    "furniture_rack": {
+      "tool": "create_image_pixflux",
+      "description": "Simple timber rack hung with quarry tools, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "fd33d431aa6a2606df2114e10ccc7f390c4c5e0f0424152463a3f86c9defd622"
+      ]
+    },
+    "furniture_sacks": {
+      "tool": "create_image_pixflux",
+      "description": "Two linen grain sacks tied with rope, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "865b94a703e7d42714b98f8ab06be30eba55f39e84be9ec81943be46322fdd5d"
+      ]
+    },
+    "furniture_shelf": {
+      "tool": "create_image_pixflux",
+      "description": "Wall shelf holding three earthenware jars, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "f7a79f5c7cad91751a40e1b54ed2c6141fe8eaf0962d00d71543bb8c075fc985"
+      ]
+    },
+    "furniture_stool": {
+      "tool": "create_image_pixflux",
+      "description": "Small three-legged wooden stool, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "16a0e40dddaf8bf0b6337cb2d0dfddd8f49a9826fc2b5b0d5fa09d7af1edae3d"
+      ]
+    },
+    "furniture_tools": {
+      "tool": "create_image_pixflux",
+      "description": "Rustic iron tools leaning against a wooden stand, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "6efa1259d871db067d7db65d074c538ab7ce0717a7141b0c5aa726e6a9fb8d3f"
+      ]
+    },
+    "furniture_workbench": {
+      "tool": "create_image_pixflux",
+      "description": "Heavy oak maintenance workbench with a bronze wrench, isolated isometric interior furnishing. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "a3092309002a63a318c103da4abe8be666499e49c38e215635d3890b0a5c83df"
+      ]
+    },
+    "fisher": {
+      "tool": "create_image_pixflux",
+      "description": "Weathered grey-haired fisher mending a net in clay-brown trousers and a green jacket, full figure medieval townsfolk, three-quarter view to lower right. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "64c75c82de0ff2ed4f019fda094125525532e9b487c0ef42cedac500b91c4375"
+      ]
+    },
+    "fireside": {
+      "tool": "create_image_pixflux",
+      "description": "Older brown-skinned woman with a grey wool shawl at the village hearth, full figure medieval townsfolk, three-quarter view to lower right. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "5b011b079cbc8fca95a39a3ece53c976ef34e124004d331665090acf71157e90"
+      ]
+    },
+    "keeper": {
+      "tool": "create_image_pixflux",
+      "description": "Lighthouse keeper with dark teal coat and brass lantern, grey sideburns, full figure medieval townsfolk, three-quarter view to lower right. Grounded medieval frontier RPG pixel art. Muted lichen green, weathered timber, iron grey, ochre linen and warm copper. Northwest daylight, restrained hand-clustered shading, elegant readable silhouette. Entire subject visible. No writing, border or symbols.",
+      "sourceFrameSha256": [
+        "bcc106abbd6db7acc730b25b5012a6c897065589eb3bcf4df7c492c0998f732f"
+      ]
+    },
+    "ash_recorder--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "bb4a8b41f431b1e2508117467b33d7a6ce923d74f0cc686d3e3581ea5e73fd39",
+        "b67e2272a2a06972a988e4a4a02506863f0dce5a44974c83bdac0f36c006c890",
+        "d64ac7cd5f14679d137ee490210c2d646aef4ca6544d36bec902b7b7ec9a21c4",
+        "3711accead68f27b22cac295d6b6ccae47de33458c47efe49222ceb3d9098fc1",
+        "28e86a854f7e93507c6c96267ead2c3bb7a4dd9a3ba9f02f33ce3e136d634df3"
+      ]
+    },
+    "ash_recorder--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "bb4a8b41f431b1e2508117467b33d7a6ce923d74f0cc686d3e3581ea5e73fd39",
+        "8dc3f7a157e69a3f78adaedc27f03338ff62432050d0d5e67fb6ca8da2bc5dee",
+        "197d4b0f1e81831fa32ce09f3a65694401ee87ada8e9af8c58ae1e0bb9b557bf",
+        "013391501d8c58fbe2bda8eb04682d2112f5dd530d0e4c771005b34f41a52fc4",
+        "ff0e71668fd6ddff54294a21066b21f86700109af37ad40f9652f8d75b201e22"
+      ]
+    },
+    "ash_recorder--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "bb4a8b41f431b1e2508117467b33d7a6ce923d74f0cc686d3e3581ea5e73fd39",
+        "e37d7dbf71e15cd1988168f1553fb82301679039e93fce183988a1c937ded5ac",
+        "daa51a790ffc776cefb0c4770d0f54fa11928739cee43bc84c5e0d5c7043185b",
+        "1d2c5eda5f3146aca3369aad01ef941697237cf39c9362b708c3cb1463ec9e46",
+        "4d4920acd8f313d724cd26a32bbcbeabbf497b47dcd5db16e1f65d8f7cde4669",
+        "3008e55922adec8ae7fb4e6feca7c427922aafc42739c81f87f2c57ffff3596e",
+        "6edc8c4de0c285d863349e27be27fb6a84f1058bdf56f65de957d315d62cef13"
+      ]
+    },
+    "ash_recorder--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "bb4a8b41f431b1e2508117467b33d7a6ce923d74f0cc686d3e3581ea5e73fd39",
+        "de4699422beabec7f6f6e876aa617152fe0debd9b72e9dd2c9378241ce3089cd",
+        "9f11cab254b7410355453e39fbc8b5fad9bd12c1d581549e46f25fb673c0c529",
+        "681cb875cf05f857eb2aeeac02ee55f8fb438cdc07085ba2b4b26f969d3cdf42",
+        "8f32bdd26992921185a9878a15433279c854396ba6a14d750dd1cafc74c46ed5",
+        "022bd85fa8a7eb30b99a2434c809f7e76473c5a36ce12fd7d7a2cc37c7ac6b84",
+        "884bc6e71d413107930f3b1f22f112f6540f487470e0fa78c1154ac940f5efdb"
+      ]
+    },
+    "bandit--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "9857bd7383eaf3506e42cd9aa07f725aa764e28136ddcda6638518551c6d7bd5",
+        "fb3223495da60ff4232b3b43745374bcd4c94b51ffbae001b2cd750e0ed57acb",
+        "a0e58766fd0e0fed2b293e714d18775f86d84698e217b861412f063b81149c83",
+        "ea3eb4101fcc98b1a1cf3fa3b912a26d3e98a096228d79500266c12414eb3400",
+        "e702ba702ae3e74039715e6dcc98769fa13a7449db0e5b5ed5da5cb2240c5122",
+        "87402d733cacbbb41f68bf86f60ad495ca6926e7165a9f7202da839b14a5ff9c",
+        "88242c4c3421d8a39df47ccc8d82145104dabb2c04bc451848062f04f2e90e8e"
+      ]
+    },
+    "bandit--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "9857bd7383eaf3506e42cd9aa07f725aa764e28136ddcda6638518551c6d7bd5",
+        "eaeed96ba3ca108c6c8861387ead0406b38f2797ec3681daa54295efd4e22365",
+        "3e569fdf23dae31babb9d7fbd2f75b5f701a15c72d9b27ba6183917cbeae98cd",
+        "9ff6d78c29fe92cf48ef1ca33d48e1c0aa49436be653afa250f47a652ebcd2f1",
+        "630d19fd9c285cc70623a7df325fd57a254259f68c911a1e4fb561231c0605af"
+      ]
+    },
+    "bandit--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "9857bd7383eaf3506e42cd9aa07f725aa764e28136ddcda6638518551c6d7bd5",
+        "7579f5f1a6dc14a7e84f360e76c0c744ffe549f324914f3d0f8cb06bdd9c91c4",
+        "a4423ba407e857584a75f0550d78a87c9fa1bde1e67e0a1fd136922efdb85e0c",
+        "fce1ca3e04644a2c08ac11425c3e40284dd3cfb28dce2b4774ca3639d5755d47",
+        "38c23c30055bd4072b3b204b37784467aa456abe89e01e25fd8ff80975d57a40",
+        "081adb10aee4743bd3ff515be2bbda4e9dd75c21cef7c8a5562b0ce89b9ed4f6",
+        "790e38e6837f3b6c46b6710a511c6c42e58822993bafba0ca2b00d0f0ea3a7a3"
+      ]
+    },
+    "bear--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "6697bff57970ad14ee417cf52b0e5f5399019bca6a6839c86ab638e38371f1cb",
+        "4350c226beaa0cfb9418f82d9f0d958b768acebac2bb37d8716379862055d108",
+        "a7cd8cb3ba325e1d727442d95d684bc703d675776b73d2fb3b52c598df5e94fc",
+        "49df94296ad0c32b7e872ecdfec789bcecd05d5f78afbf45818413a26316b6d6",
+        "b2513b980edf9e80b796f9e3afa6e2c0be6ed4b50f41b21e4ac37640b1947f50"
+      ]
+    },
+    "bear--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "6697bff57970ad14ee417cf52b0e5f5399019bca6a6839c86ab638e38371f1cb",
+        "d27d91ad7a4eac8c1a98827eea368af393dbeb0644b2d08b62afaf8434b98b05",
+        "03dc938e5cf88e22c06ca8444fbf401250a6cdbc7f92b01141fae9f15683a9fd",
+        "c0b12b77d4627fc4ec52f09dc9160ef6e9555fecb38ffe7d9c14a7c7bbf3f4fd",
+        "715339fcc31ab722e11c566c26f0e9dd35288fd2d17c632f298e7e5f5fd169d8",
+        "6999b8f11fb92f29eaa51cbc2f9cbf627e249c03ff8543ab4ea2e0fa4e777453",
+        "53be93791525209f373a644e5ae27885a4c6b7fca33fdf5b5e419db6bd3d21c0"
+      ]
+    },
+    "birch--sway": {
+      "tool": "animate_image",
+      "description": "Tree tip and small branches gently sway in a coastal breeze, leaves flutter, trunk base stays fixed. Seamless loop.",
+      "sourceFrameSha256": [
+        "adce733321d91a89627818380a16bc8132e0feef1e1cf4fc6ed9687bc1dd2490",
+        "8c629fb4675c5c3f0bcd6c51f8a80153f487296837de22642bef717b6aab2bc7",
+        "81b6e7f8fd066e63696e54d6a5e5cb287abdeff4969caeb60ba324ff44bce706",
+        "95364495d1adf463e13127bb05492a0aa3f500853f5499b67a44b8a74c5f9a31",
+        "35873a560d7412a8fcf5f257866205338e06a6a7b2bdfd6034a56679f63b19d0"
+      ]
+    },
+    "boar--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "808b6ed3da5c26e492a400be234d78473de247adc353d21074b27bebc2d5a845",
+        "2e658b81042fb388cd5c807529fd62791197d73e7ca9d7b84c64cad06c2a0d64",
+        "cfd5da7949c595b92759570adb2a34fccead91e7d8fc5f228dd57d71b071fa24",
+        "771976a07dd045a4ac7634fbf0a534542125f57dbc1a55e903b34d2e50b65d18",
+        "9239f95735760ef2dc5f3dd2e1a31c4f4e66ba3f5aca40c2281ffb655eda3c96"
+      ]
+    },
+    "boar--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "808b6ed3da5c26e492a400be234d78473de247adc353d21074b27bebc2d5a845",
+        "591b14da97883ed8fcc2ae9dc4484a6b6dcdc7c5098359eadf6e5b519f5cd563",
+        "e09b341dbf9cd9d8bacddf4c707411bd6f1cd7d88d9fbc4bd5e691037639c8a2",
+        "de19a2e52eab0b2cb8bbd4d7e332946d8c3238d34a72e26833fa3a70430ef078",
+        "85094844c5b50b9a00cb137c2b31e160185c7b7ac4264451d50fe7fddc48456e",
+        "0dbdea335d1b04fefdd4e758dafb2608394e3fbe3bf00bdce3c36c43850730ab",
+        "e00a110f0a6de6202377dbaa6a98a00a42daab5a027ef50a2c7d2731f374a74a"
+      ]
+    },
+    "caravan_master--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "1d45ed33c74677c353bb8f3458c6fad6d57a63d97a7dff4d27bb1b0bb10316c7",
+        "75fbd26905a0d15d1063f1aface1acaf08f918c82248ebc90c2face4e59fb542",
+        "5f3d9b28541435c73857f2507f9c30cec0824ef00ad89dc72ff268358e634e5f",
+        "e9db28ab5b0e70e00b0197ef7f1096f05af7ad76a95531fc6df67869aaf45c9d",
+        "a49a311396ffc8ead4c232d8d531980247fc2617e0e0dd5515f553936fa56083"
+      ]
+    },
+    "caravan_master--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "1d45ed33c74677c353bb8f3458c6fad6d57a63d97a7dff4d27bb1b0bb10316c7",
+        "a40fcb9525f87c7e040a4dbe225bf60c22d0d6562b461c228f5f52eeb77a6a39",
+        "634a5b681934200bcf7c0903ded3ea998ec626edc33ccdeb3958e352b32b6d6f",
+        "5dd9b4f306958e35b861634752a56e2a60fa41853b11acd77b5d628657c64e9c",
+        "72c771c2924629964fecef40d46b0d3d617034f5d104c769f687b66925965f05"
+      ]
+    },
+    "caravan_master--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "1d45ed33c74677c353bb8f3458c6fad6d57a63d97a7dff4d27bb1b0bb10316c7",
+        "653fcac4dfa42f03562e0ff8c1bb8ef6aa6605b3bc6683205b3a8c949bda5d16",
+        "a31f5c6f833c32689caf400a99f3b269cf844a8a8a11339dae2643f175af6a84",
+        "79f7f4d42edde5eac33e65b9612e63f8032cb81f5f19d1c8252ac21dff73ee6e",
+        "baec8d71a8c5dd733ac36bfa7710b9e397501b65f498dfff0ef0b818d7e4c30c",
+        "e9fd344e6df8380cd40f996df399590a619271b8ec734fe7fe07d29b25f1b318",
+        "58dff1636e95eea368f537bd89f673b28a87ec53db69364812f9e5e6163cac16"
+      ]
+    },
+    "caravan_master--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "1d45ed33c74677c353bb8f3458c6fad6d57a63d97a7dff4d27bb1b0bb10316c7",
+        "aa51cc5f3afaf75923f0115a0f554aa60a25bbd147d6e98fb5178b83c646a564",
+        "cae4802712f721859694c4191db324cdba87dd987d33b9e49362e34da433dbb4",
+        "76b38a199667a91675fe60b767507a7f9b388333959f3c4624bc636943b7c5c4",
+        "4c88b3f19de2c0c04b7fac6b442325967a1ec3a5167f598b05dd78e343d6eb6b",
+        "9ab6f8504f6fcc768a1794c71bb37c3eed55f6be73bf1a4a96596889821f2a94",
+        "9a3fdbbc0d80cfe028662fe00022249d1691f3f62e0f2970c303c65b59a6ad44"
+      ]
+    },
+    "cat--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "a911c97614078472a3fa1e1bd64e4f20cd89b9d840f17bc57c6c07792a7cde7a",
+        "bfc66084a4b98e8d639a9305dd59ab77f3e855d3923329d4fbac69e964325e4b",
+        "656e41ed377b974793dbafca26f059201591842421a2b7474c3b870fd29ea1b0",
+        "4076751779f28b11d8c4d0f23f3c5902163e10b5eeca206cd53ca30103b1f60a",
+        "74d43cea1e0f57e0edaf777d110f2dbe20781a5fc4527eb33664013f4f2d187c"
+      ]
+    },
+    "cat--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "a911c97614078472a3fa1e1bd64e4f20cd89b9d840f17bc57c6c07792a7cde7a",
+        "f61297aadc4e1e05e391d294e2f38921bb66392cd5e50d0adcb27364b3c92397",
+        "df85334d8b637e9d34e74f799835bc28185928647006123a5937adccdf785c1f",
+        "d8ee85bb4b020aa7e66d40d69882af2f72f4ae9a45f789e65c6f10b5236c1c51",
+        "d117c7c617bff0637d5c1b59649bfcaa32dcab411aff7c58473303114a7cef74",
+        "c7f626242e1ff2a483e59d44021340437f3c8a8d9f42b5d21583539e1c34e5f3",
+        "f4fbfb6916c8ee4d9bba44002acc5a6b20c1b7ba1a6c965948ac43247316f430"
+      ]
+    },
+    "deer--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "7bdf699bb7b259fcc3e7e5dc091c8db427a048d637b167dee8bc7951bb41128e",
+        "0046bf2a51f15de39786b490b70f1de966e2dcdca19b2a20f1e05242e180669a",
+        "beb5bced221a6f713bb4245410c738a84b4ad227288483870d9405a477cc1ab8",
+        "ea3a9b1a990c7c28cec638949bb3f10e2ae070f226c43decdb688b9b5631afa1",
+        "f4f2ba4d00e012150768948b9c4f31b162aa7157eed3c29dbd340ef54392d5a5"
+      ]
+    },
+    "deer--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "7bdf699bb7b259fcc3e7e5dc091c8db427a048d637b167dee8bc7951bb41128e",
+        "df2cd5597ab0469411e8d9412f6b12fef6862e490c467fcd6b8cf6c50ceeeeb6",
+        "c5b232fef942cb72c7d3202d6b8b365f12683df858ea72f30ea01e40246c456c",
+        "036e9ad834d54d72ec554e948896089a4c9ad8593d12a73f0aa3f4901efa3684",
+        "6468c8c59b386b3850328c4abcbc5a30e530da531f92c8b4e477a43a56f087de",
+        "3c1378698bafa25ae7da3dcb8c9f3485dda552dfe18d2e9dd2a5c616edcdf24a",
+        "39fe88418eca9579d42791bd7813d86efa3010d2c6137192f21b776a2dbabb49"
+      ]
+    },
+    "dog--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "5325664691111f2da3ed22b3fd558883df3db6164ad390db2562d118b1f3979e",
+        "34e2b181504988cc43eee6f17d95ffbd401ab4b955b2945942fa78ebe371646d",
+        "520660e7e3eb38c119de727b06b70291a236fca50c58a2323fd5458b2ec1bf02",
+        "9ec40c05373a0f06418872e6e556af12e079b2db1be07c41b3faf8e0388c1399",
+        "11bcd6abb318a04a4190e44223149545321e4b5aeecb593baea8440c43b813fb"
+      ]
+    },
+    "dog--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "5325664691111f2da3ed22b3fd558883df3db6164ad390db2562d118b1f3979e",
+        "092042e968c89556b5e422a1ddc82c24387a11bcc998e71c84d822f182b7d165",
+        "fc03673164f97f1f4d7cbce5445811f835aa4a95339bf5cf262f195e29f3f310",
+        "90bf86f0f33f0f04f2dddf3fb6882b31b1e49f80114a230011dfb9679953ced7",
+        "7ad004a2b7a3ff5e1bdf8b4251e09cab8c89ecf448232bab03401559220c6e4f",
+        "a39abb2a9aecc68956ba0aa73985d2fa6da56ee43b9931ab3a6481e3a1056c60",
+        "7075e27894af7baa3ffb603166c7c8c12e752a224dfd093e333fe7f146fa139b"
+      ]
+    },
+    "estate_steward--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "28d92dd09f299c7978632bb566afc3cedbaf418bd264bd2d4aac5f8f331aa894",
+        "7c301ed1218e66088cd415b9da904e7a7478193b7ac8df13c2d512eb05beb365",
+        "0e790a36adf46779ddfa72921fc6fa5c9e92ac29736ef997d945f4a1fe7a2336",
+        "316484da90099cb08493be0625bd4f0142dd6f97e5d0fd19fb27f8fef09f6575",
+        "2be9aa902a800137b0c231109b376f10e6808984894139984a1496ede4953d0a"
+      ]
+    },
+    "estate_steward--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "28d92dd09f299c7978632bb566afc3cedbaf418bd264bd2d4aac5f8f331aa894",
+        "8104351d9afe89d88edacb8d05e0eba381ce6a34abe2646104a8621daad77dcf",
+        "fd8203f1964c8ce8e6f09d7403ddc0b716c943bf385dd5e5527d9e73692ddb23",
+        "89e9def3e7574002a0492886b2df08a27874969bd3b102d50574a14c7869c6ce",
+        "639b0e7751d53863aea018d1bc51f24f1499f41e4534fee81cfcab52f1812a7e"
+      ]
+    },
+    "estate_steward--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "28d92dd09f299c7978632bb566afc3cedbaf418bd264bd2d4aac5f8f331aa894",
+        "3a5f125d2e59e717158a333dadb3957ea925d63aee6729f0fbe2c7aa168922f3",
+        "bc87453b8f90618e05f22b20c426f481d4a0aef0ea4579c34055291fa8ff6086",
+        "b9aca7d57f328a2af08806feec24b11be59497168ec1c4b77ed16ea9a344dea5",
+        "e79745f8f9cc41ca30f5c12c500b35ad8925a2b5f24e80da66dee5e8a5be8672",
+        "6a288baa5b2dc2bebecfd245277cebe3595145e8de2d53fce1ea5374226bbb97",
+        "f24ad9ec2c77224eb689edd073ed487ab62b67c92969e0b9f814817db34fb3c9"
+      ]
+    },
+    "estate_steward--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "28d92dd09f299c7978632bb566afc3cedbaf418bd264bd2d4aac5f8f331aa894",
+        "f250a48efed0c38bab3d8e08a8821b7db889132453e6e26cc668f35fdfe315ae",
+        "740bcf722963f870bcc10df8d7d26cb72766de4d7275e919cef986ea680283c8",
+        "2163e248d9d476eb311f7923336861c23958a9020dd4a11c2d30483853f4c42a",
+        "6358cd3f26a47dcb7d308b77f59ac868676d39e284f5df6cc427085104545c87",
+        "93478226c67b65705616d50463330c5f501b5d0fcdfc1606e64c504485b9d17d",
+        "9eb587b22a9a70734a797779d29439b63506a6206d8a49ec000de786b8130b7d"
+      ]
+    },
+    "fir--sway": {
+      "tool": "animate_image",
+      "description": "Tree tip and small branches gently sway in a coastal breeze, leaves flutter, trunk base stays fixed. Seamless loop.",
+      "sourceFrameSha256": [
+        "72d3e01bc9740007a058db4fb4555dfbbaee4357ec5392d09b0bc87ea5c97bbd",
+        "8e312bfbd5ae15ad39349f953b5d3f3de0d96c3b242dee7610ef4cbe36cb6f1f",
+        "dea2a42bab59c4ca588d72951226da81c509f8dbb2148362002815b0d1fc54e4",
+        "fbe49562d4251e9932019c93962e5ea1f99a5736f16cead6086c8cbd5a6e31a7",
+        "10023a4600b91145b8857b12f27e7ce6cdd3bdb7bcf10184ac0d95384c7a4bd7"
+      ]
+    },
+    "fire--firelight": {
+      "tool": "animate_image",
+      "description": "Flames flicker upward gently while the logs and stones remain still.",
+      "sourceFrameSha256": [
+        "47368b448eac86c1faf5c3746ccb09fabe826ebcdbf9449df5dbfe77081915e9",
+        "d7e2cf64f890d713845fa277bd542f287cfa477cea6614a28e2a8375d753d969",
+        "78ea221e3197e990398f489c3592b0b26c7cfeb27d8879e126b8baf6fe8c85dd",
+        "bad5f9f244f82cea29d68979801236667d7f8ad5914360944af6907079b0541d",
+        "69b0a3dc2a7ad2b298046c2dac2aa814a8f8acb66039fa4a80a842ec89c709e0",
+        "255afdef5977cebafa4d8616fb4b7a8f10dbf724fdf62f19f9f0952d1f9d5388",
+        "dbf92bdc016dc3cfee1802f75c9c75392a21fc1a329527d0c27a8d24ec72b6b4"
+      ]
+    },
+    "fireside--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "5b011b079cbc8fca95a39a3ece53c976ef34e124004d331665090acf71157e90",
+        "8172206c76fb6fb7776ea8a58301c5072c9102e93c263f11fa992be8f259298a",
+        "50137e2f9a15869176ae22fe971fa69aa40be369f7455bfc4e7e4c126a30a330",
+        "284b383154dfbc736b007920247870f6e89ab275ec2b1994e6ea49091f559d37",
+        "73726ed2ec85e534151f20cae543ea78b681555d0a26ce71aea81cdb89fa925c"
+      ]
+    },
+    "fireside--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "5b011b079cbc8fca95a39a3ece53c976ef34e124004d331665090acf71157e90",
+        "b3e0824ce881ce2f4e27693a2c84c39a00c5c0269f8c139595a3571942d5e20a",
+        "18ce545359eef500b1df273d1c6b804cb5b914861c266499c0a19f073bfcf8e5",
+        "b160ce7c9ec5d18d07753e6ebcf33aad9a84b26bce5f9313a7bf847f7a3bcd0d",
+        "4b28ad207282a62b043359498675c71200ccb1b5c22f4cc728648eadb2ecfa10"
+      ]
+    },
+    "fireside--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "5b011b079cbc8fca95a39a3ece53c976ef34e124004d331665090acf71157e90",
+        "bd621598b18d2611cfe4b40d914b7e221805237329f37563c04464a3b80456a2",
+        "1fe2e4e9e387429fc188ddf5858db5f4101079c7bcff6e55ec61f9bd1d39baaf",
+        "4e8ab2a9753e38e4380366b4a37f252722b16b5517e5cbc4b519103311e9f623",
+        "ce50bf1d9ef8b201f2bf3e9b0c380345937e2e0c6e57c777a9b6b576b5acdb2a",
+        "d04f3530a276d96b390804c710246d4852200efe5b34b4f253effa81f2ee7cc6",
+        "db7bd1ec8c74485b659229964df8302eb0d1641854392b9991231188e4496e65"
+      ]
+    },
+    "fireside--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "5b011b079cbc8fca95a39a3ece53c976ef34e124004d331665090acf71157e90",
+        "1ef097b69086016c205a07deecabe3ec0d329c4cad414edf810729e84d003903",
+        "4bf6e7f94234eed88396087734b330ffc1ada85f15fcd6357f198c646d34175c",
+        "6ed6b955c4cadf3a11e060e136b1be8aff8bc830e8d76d3fee2834c5b0a6e93d",
+        "683bf6d73c8be4ef8c30ca27269c7c93fb89b589cab792eb815c35cf4483b66e",
+        "c2046ec7f82ef600e3594c2ab92d7c250624bebed7f5d418b80a652805880889",
+        "1b8dac42a0652034763cd33d3005c670f173897ad4f8adf2558274a490785b43"
+      ]
+    },
+    "fisher--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "64c75c82de0ff2ed4f019fda094125525532e9b487c0ef42cedac500b91c4375",
+        "7f43f0563308673406119e840b37ff11e95783b31184a4bce72674a71db05d05",
+        "4a0cc56632a4adb219d96b8cf1541e850c096f86ba7c63e003aa35876a625fa0",
+        "1e8bfccc113861bd657bbbeb54913fba4027eb2ad2c2988030f660d334b7529a",
+        "6328b76db2bd900e6b2ca6209b049908506f193b4ded7abf9cae03b906995aa6"
+      ]
+    },
+    "fisher--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "64c75c82de0ff2ed4f019fda094125525532e9b487c0ef42cedac500b91c4375",
+        "339987608396950c9d37f70ae7cfc418e7261628b01dde0a5dc14c601e682601",
+        "da59fae6a13e7aad5eb555d6da0ecbb5f13d0c05ac266b452d9f017a63789d21",
+        "679ae0c00b6e18987846ff04ee544c367a4b9669f57f563c8620307b1e3dafb6",
+        "a258d19d070ce991ca6aa07ada406a4f4bf8805e5b5ff483c98bf6199d3ad69a"
+      ]
+    },
+    "fisher--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "64c75c82de0ff2ed4f019fda094125525532e9b487c0ef42cedac500b91c4375",
+        "5448141b50cb326b4c5cb79f367544db236ae51eb63bb5bb6f0a33a12974305d",
+        "2bf06b9b2298d437c00fe79cab0162b557a323fba37f0b14457ded52dca29170",
+        "08d257d0d845ae7dbfaeae350b61c871e43cf7f7d4916ed01a320ff9a4a0c586",
+        "1eb285780cf7c90bd6b9c75142b4b3153864b6ef203cb782c57ac42bc34ee727",
+        "24c79d5d135d282df21da4b70b397cad1723b4e07b5b6919d13b8f3d4ecc80c7",
+        "22d8ae065fccc3b69c042b60e3c057c946fcf6149c2bb93771c228c9fb508083"
+      ]
+    },
+    "fisher--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "64c75c82de0ff2ed4f019fda094125525532e9b487c0ef42cedac500b91c4375",
+        "fd8d999cd7d4f25cedd2919871067f68aaeb85a27d61b500b72e493b425b571d",
+        "14d093a8311400d44e5ad2a04b62982a0640bbc6fbf1eab93dffc4ffa049dbb3",
+        "0ae0246f84d1e08e8c91f0225702b6775eb5ef6a9e4350b6295f382857519022",
+        "7ff95c8d39354a71d5803330f44c760c9e7d2774903a8a3559eaf7d42c17da14",
+        "88a9060dce46ce6e18009ee7dbb92fb423f24cd1396bea91fdd907e5b4908e49",
+        "c522d55697b1eea8d956848eebf5137a1855cac7ad74027a766c138676a0d391"
+      ]
+    },
+    "hero-east--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "d88837e132eb582f2e14727d3771cb3756097cf3903d9b27660a2bce78fecf3f",
+        "f4b1614b4815cdda3bccb138526ceb48cd380c829c405e4be580a90570e105c0",
+        "6f84e32188cdc07529cdf76bccaee83b7c4c716568e663f713b38266ef3568c2",
+        "97d8666ffc572566cdb092d7430ccb19912404211d1211024eb47f099492bd51",
+        "53b116a727eb00199d774bf6dbee9fdbc0c75eee7c02b62b1083291a0ff6fe52",
+        "17fe335b7eeaf2b3f7ac6a0feb3f5c70e61e73083616dd6b32a9c54b70c615be",
+        "d32d584140851205378f942421c91f5c83044cd1016782a8c025e16492bb2395"
+      ]
+    },
+    "hero-east--bow": {
+      "tool": "animate_image",
+      "description": "Drawing a hunting bow, releasing an arrow, returning to rest.",
+      "sourceFrameSha256": [
+        "d88837e132eb582f2e14727d3771cb3756097cf3903d9b27660a2bce78fecf3f",
+        "e85a557f504ca765ce884b151b358c5d56cce3d86eb96b52db4996a4172cbfd1",
+        "b3d89e15c10fa0205f84c0adae5c8b723069e6fda24059de8ac5c11a46061212",
+        "79ed34b04292bb047862dfa0f60ff5f79610addb2495343652a06c03cb8c23a0",
+        "fd78ca4f330430aa7e647383dc74c24d8d8202c1c6b74978660ee7595cd57443",
+        "2101fc5f38b1c09091f81d792886415a4958427355ead3f94e27ee5c65319caf",
+        "6b05d4b3d13747919e5c1fbcd059cf1e3386eb09ab62e8343d45aeca54a88397"
+      ]
+    },
+    "hero-east--guard": {
+      "tool": "animate_image",
+      "description": "Bracing both arms in front in a compact medieval guard and holding a wary stance, breathing.",
+      "sourceFrameSha256": [
+        "d88837e132eb582f2e14727d3771cb3756097cf3903d9b27660a2bce78fecf3f",
+        "0bed81619dd59044801cc99db28736cbc5ee573db7e581470fbce11a47671247",
+        "422bea5b96d140b96ea388ce8ef10d1c31ba3d96d9080ce4756b2fc4c2487092",
+        "713983ea61a26f02750c7ba5ee278b23a15220b668aa9467d346759709e72259",
+        "e5264333c8f71f85c2cc2be87dbefccbf659e6b68e411e63b59f0543caeca5f1"
+      ]
+    },
+    "hero-east--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "d88837e132eb582f2e14727d3771cb3756097cf3903d9b27660a2bce78fecf3f",
+        "59ed62c57d6fc72048d995175ccd70d9f73964d6e3399754538b23f7a6b716d2",
+        "59a9b9880912288a4f35dc4a344e3894023dd46c581ab9ca766a700514338744",
+        "a711aeaf6d3b97569b2e8434dfa2630510078cce9da7d7c5cd71ae710aa92aae",
+        "1ebd7cfe1119918165a89d2ac7a2482ceee6120a2ca0b320997aa31e937e2274"
+      ]
+    },
+    "hero-east--jump": {
+      "tool": "animate_image",
+      "description": "Crouching, springing into a short jump, bending knees for a landing, then standing. Keep the centre grounded in the same frame.",
+      "sourceFrameSha256": [
+        "d88837e132eb582f2e14727d3771cb3756097cf3903d9b27660a2bce78fecf3f",
+        "6c2411e40fb33424fb98f76b2be78a023dd4dfeaf3f799856374be63d2c82343",
+        "8266ec409c9b0571c6b81830fe447868a6812a78f74e9f6d8acf322a7e0a0aca",
+        "b6cbbafa25be8bdfee2536ff45fe1d653d5e7e32766ea674e7a7ea945a6423b7",
+        "ba5eaaa7897dcbab86eb274c541d36d88b47b7d7201a2e57f769e17464398b9e",
+        "123a95b578a750a4da2139e65721ece9edfbbcde7b8f932452a947539ace5ca9",
+        "d8cd4c97b4f52106345675e9264f2e0e57a0b254ccee884dff61170c350118b0"
+      ]
+    },
+    "hero-east--ride": {
+      "tool": "animate_image",
+      "description": "Riding in place in a seated posture, holding imaginary reins.",
+      "sourceFrameSha256": [
+        "d88837e132eb582f2e14727d3771cb3756097cf3903d9b27660a2bce78fecf3f",
+        "015fb3fb88e654f17d1caa36fd4d0813e9410f8c85de669beeefbdd55fe0a4c5",
+        "3ed452f6b92e068be13439b7af7e8da29469b58df0bb4e4bd6263a87da1a11dd",
+        "efc2c6215ac401daec4e5f3de0573f39fdce4e736ec2ada1dcac90c50cf9df61",
+        "09ec35200655a863936a76dada3fa2fe2d895809444ea7ec3cd60bf2d3d856ae"
+      ]
+    },
+    "hero-east--swim": {
+      "tool": "animate_image",
+      "description": "Swimming forward in place with alternating arm strokes.",
+      "sourceFrameSha256": [
+        "d88837e132eb582f2e14727d3771cb3756097cf3903d9b27660a2bce78fecf3f",
+        "7e975b9e747803191a3fe20de267cd6b268871bc101e9eaa06a35de2ccbf2851",
+        "fffc277323927fdc9e0b56b217590e685423c440fcaf801061b4243193860203",
+        "43822e0a095bf2f9e7f87a07afeafd5bbc7200a46a884ee767143871a914a37b",
+        "6f0ee1652833033b669b6bd5eeeea5154433806ccb278ad906fbfed38ea680dd",
+        "fe5ce92797fdcc1e4f1df6590f9f73612f224df998606708e8a23a8b21ce0d60",
+        "696e516d629305884414864e5e75f7a0aedbab6e8ade580b670bb918d120b1b9"
+      ]
+    },
+    "hero-north--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "471a469eec6b796e39455252816198bb9eab8d67d54a69fcf4ae053cb1a4b906",
+        "166d8db23278c481c3a3ec76f5110d25a8c07fa9ad5e432147f1f32f463e77f4",
+        "194d4a097790b5bbfd1d1a22236eb9e0fb13115f20d96591ccde921d8b1f60fe",
+        "399b245f4b7e2e946cbed250ba1791ac88c64f4def9191d6e244e9a1534e52e1",
+        "5eb0c6473923d8ed6871cb109102b50c5b9ae683c6f24064b6c22085d522be65",
+        "7cfa41f068937b51ac7b1c70979ed53fad00a174098cc9c1033a57c9717fbcd9",
+        "1abf0c3434f0129cf4717d77cdc42376a2787f960d950ca0ee3f9b18651526a7"
+      ]
+    },
+    "hero-north--bow": {
+      "tool": "animate_image",
+      "description": "Drawing a hunting bow, releasing an arrow, returning to rest.",
+      "sourceFrameSha256": [
+        "471a469eec6b796e39455252816198bb9eab8d67d54a69fcf4ae053cb1a4b906",
+        "9760e555aad7b0e359fdcd869f9241924a8dab62921ad899ce96f91dac563502",
+        "1fb7d686f65079b16774734372b9b8f201591e2491824e5de78d0e622832d8ef",
+        "5d5367dca32aaf3bbe68d05440821c790223b9c8ed6d859a7ae17350c7c2a766",
+        "3db56661de5c3dfbc24e9c94d5e192da8cbfca708f7a860b39f8c47dbf0a0582",
+        "9c814cafadf15e16eff4ef650e6f235c1b9464ef7418b76f6bd8fc3cdc2a7682",
+        "7de84ce881d9318a639edae64f01f607b1c131fbe17b4b0a706c76dad6cbbbea"
+      ]
+    },
+    "hero-north--guard": {
+      "tool": "animate_image",
+      "description": "Bracing both arms in front in a compact medieval guard and holding a wary stance, breathing.",
+      "sourceFrameSha256": [
+        "471a469eec6b796e39455252816198bb9eab8d67d54a69fcf4ae053cb1a4b906",
+        "8c680f4a6cf19019ab5866e5e97ab9e20ff11aae7571e8da87871852a6cb0375",
+        "2166abff378712b46accffe5caf9e9762d0f48b6f8ef76dc4c7e6f83c85f1cab",
+        "22b4bcc2a2edae1ae31dbbcd44f25ada0c824d215f971bd7d8328094045c6a4e",
+        "a5ab646d509c8fde535f72b4e491c59616e74c4bd769aeb1242ba67941ae19e8"
+      ]
+    },
+    "hero-north--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "471a469eec6b796e39455252816198bb9eab8d67d54a69fcf4ae053cb1a4b906",
+        "00698be7db1c43cf78ea0fa0138cf00524ec200512a2db17e128adf5e2613566",
+        "219a3c70a3b9bebe16df5294a6c5ba0aee274ec1dcbe5840882e5c0bba1cc0d2",
+        "8ee7e29a416b8cb4496c91b7dadb777a98f3dcd9b0328fe4090499431812d708",
+        "ed23b61b529398ba66a8fdb09c27931365fd4da0ea7f09bd0957e844a9283088"
+      ]
+    },
+    "hero-north--jump": {
+      "tool": "animate_image",
+      "description": "Crouching, springing into a short jump, bending knees for a landing, then standing. Keep the centre grounded in the same frame.",
+      "sourceFrameSha256": [
+        "471a469eec6b796e39455252816198bb9eab8d67d54a69fcf4ae053cb1a4b906",
+        "52df487f61f16a42691658093c243e3b1236a533d8da008d5653f5277fd6d14f",
+        "f2ed12f924b1476765fb71857ea079bd153ee89233e277d3f36105e0d210e70a",
+        "1446f7a75cae5b22922ba003ac60153cecd62ab366de186006c666c43fd70eb5",
+        "83fc7e34c36f45098d3332f0f21c582acf3fe3c8a1cc28fec374d8d62ad2159f",
+        "6a189f6ee5790788bfa4aa0217d0b78902cc6c8d51a583a5f743afcc0dc41bc4",
+        "a183ec0c112fc72efb0b146a1ee98d4e235d333131e57540cfc36eba41c6ac02"
+      ]
+    },
+    "hero-north--ride": {
+      "tool": "animate_image",
+      "description": "Riding in place in a seated posture, holding imaginary reins.",
+      "sourceFrameSha256": [
+        "471a469eec6b796e39455252816198bb9eab8d67d54a69fcf4ae053cb1a4b906",
+        "ed202b53cc93fc11062e00aaa229a1761e6edb53dbf1a1532d0a3fcac6308323",
+        "08bcf9c541c26334d5081fa279e52071bc0419c352595037182650b470ed6e9f",
+        "8d34843c5a348e401f414828c6a4be5059c359874ba5932c495c057f0b97f46e",
+        "133183b249b97b93b54fea9499223f3c57a8c10b2de1f5a8728d9a00410c7bfe"
+      ]
+    },
+    "hero-north--swim": {
+      "tool": "animate_image",
+      "description": "Swimming forward in place with alternating arm strokes.",
+      "sourceFrameSha256": [
+        "471a469eec6b796e39455252816198bb9eab8d67d54a69fcf4ae053cb1a4b906",
+        "2de46e4ab3005a41fba8b23e406f7373e73380fba526780c7998b3f35d228dd1",
+        "4d47db56b00b15dcda94944493d6b9cb5586bf21ae97923e6183a2c6fe831529",
+        "a18983d2ae22f1406e1a1762405767e74bc53f12d2b0976cae5037c9a62a2e2a",
+        "5c618ada8df7be61f3ad065e950fe800367e0a54785ea8d0a96e04c63255f4c7",
+        "0c398ed1b769243131dbed8037e1a702e78e7af415e031020077449728cf1dc8",
+        "c9ec33aae1f949dc42121526a75185fbb66fb0d5c05e2f2f533b0caf134869d9"
+      ]
+    },
+    "hero-north-east--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "6712b6fab310d6827658e1f1e5163cbaa75805b08c2e7ab0c43defbbdc24f668",
+        "7f385d9bd31e9f469009d4bfea109be6246349771becfa0d51be74092b18d4eb",
+        "480b96ba94e6479105a2648d3ee379595b55c410a5eeb1111435ae2e04722077",
+        "b703f464681781dde615bac8a12272234345e4e59ddb2fc11b5d91ee65186dbd",
+        "0ab00f7c6f92268902f4483768632517e2b71bc6e2fc78fac9b78021f02fca8a",
+        "a3f01afea201c8b85406f6d2279e33d896c9792fd536cd687d2e19d6d6349db1",
+        "6d86c7ff531c480e93aabc93899fbb5e27054c22dd163da9293a3e9c7e09d6d6"
+      ]
+    },
+    "hero-north-east--bow": {
+      "tool": "animate_image",
+      "description": "Drawing a hunting bow, releasing an arrow, returning to rest.",
+      "sourceFrameSha256": [
+        "6712b6fab310d6827658e1f1e5163cbaa75805b08c2e7ab0c43defbbdc24f668",
+        "abd96c00453e37dbcaa8bc070cc3773d5b06cb4fc39987ed9bf4b56ce5ad28ec",
+        "975dc03e7eac1048c5e089bd84c1e607dcdca5fa5d95cc598bb8afa81579b5ee",
+        "0eca59f8d3486dea377f23bbadcc33a78a4bf23f63033a1ccb1fff02d385b9fe",
+        "a694b78af85617fea3deef66e5deaee0aa5bdb07ecd3c7240e08074f10ca1ace",
+        "bc56aae4bae33e003ebbd214435264bfedbdb7b67f81a4c3ad1c786de1a6b6f1",
+        "37a68336dacc36c4a36048ef8c5b46faf898d7ad8706c57be50071f6076aa9b4"
+      ]
+    },
+    "hero-north-east--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "6712b6fab310d6827658e1f1e5163cbaa75805b08c2e7ab0c43defbbdc24f668",
+        "bc75505439caeba0eb6e266829b1b3be8edec661e2b0c4c48f66a78f0611f93f",
+        "17a9e72005534b397b572dba14a47b6189daf4cf6f952ecf42a3590d13a6789c",
+        "092207c2ddbe4316f5ef783d3036dc067c5b0e73d68379f25763cdf8ca3122f7",
+        "a4e0cd5d4cc88f5dd1553f1c471c190b4cd5242f64ec75093568442898a9c0d7"
+      ]
+    },
+    "hero-north-east--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "6712b6fab310d6827658e1f1e5163cbaa75805b08c2e7ab0c43defbbdc24f668",
+        "dbe87a41e89683eb362eb2463bb83903b9c7edb25321e7cfcaef5616f8423240",
+        "549ae5ffa38bdbbb616ef2dd32d1bf5c2196c6f0c375bcb8f09ec75b6c93a969",
+        "138d0f9ad4afb1c8a9892dbcbba9b98025614b68f8bd4d30c9dc5fae72044cee",
+        "040e2137707ca3c2c5a5a403b5c82ff670f456ae0770359af9e13ba6411a5f11",
+        "71c97ee8b5cc5776d245c406bb88731e1a46b07838456336d2d9fc1d25d27d88",
+        "45ed398f8b9ece872b9d098caf47d6c9da10864146699743d0adc160506ae1e5"
+      ]
+    },
+    "hero-north-west--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "54b0ad867ae70904332d8be3ea1792e01b5222a7d4edf7d48525fe5bb8623e51",
+        "0525e868cce8fced010971a86865af5bdf440a0dcef93a98312536ce6ddf3de1",
+        "5ab05d008605b9a00aca8f2403378446c2ff2d734d5015e42f3a0af04f788fbd",
+        "5db595e441952942720cde4fdcc3132373f2e18f837586cf1542198f6d849a6c",
+        "eb4bcbaa1e2380873769df04290fbf9ff64b93dcdc6bce7114ee11fec0f28f19",
+        "5b5415f70681cd9b8614ff93c444f46afabfd7fbfc50970210c7283cde5e8ff0",
+        "52b377a58a6752f98dc65d3fff2e65f51179e16d03b12e68420cd497a9accdd5"
+      ]
+    },
+    "hero-north-west--bow": {
+      "tool": "animate_image",
+      "description": "Drawing a hunting bow, releasing an arrow, returning to rest.",
+      "sourceFrameSha256": [
+        "54b0ad867ae70904332d8be3ea1792e01b5222a7d4edf7d48525fe5bb8623e51",
+        "6f148178e0c722e774eb37918ba117c842d68be2b55cdac031d8e19f08cb9bdf",
+        "62077376d85f1e7771030fbbcad3cf0d09583e2fc864d9dea33090b3b9557f6b",
+        "d66ce5dcd22e6e8b6989ac009f45f48f0defb4f796ed5ae469d18c3d1064030f",
+        "2210858c799b5f799fc3261fc4e8ce5939385ecd327d2d05b0d8db3e4fc3bcc8",
+        "4c6da380617dff5914fcbe88babb2108b8a2099e828b0bfaade9a6bfb0aa911d",
+        "4248e259d0b35e5386667092e1205ff99963398df6d5650fb82529a0c2a41eaf"
+      ]
+    },
+    "hero-north-west--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "54b0ad867ae70904332d8be3ea1792e01b5222a7d4edf7d48525fe5bb8623e51",
+        "25b05c2bef3594a0267952347f318ef26f7d9da1466c7df9e324188e688a4230",
+        "63bb51763734d92eeaee895cb30f945991267036e55d1e4cb4b340a1a05a487f",
+        "78babb90506334ff199445bb94c61f71a35d094de088e5bf114fff9794b81aa3",
+        "96c874d06e703d6cacecaeeb8dfe8e0f049fe2bd6852fbd5e0ba9ec731a8bfba"
+      ]
+    },
+    "hero-north-west--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "54b0ad867ae70904332d8be3ea1792e01b5222a7d4edf7d48525fe5bb8623e51",
+        "495a8bf50ac5df57fb50e0c913e87e317194e5a0d1fef46dff6d9ca2c851f1ae",
+        "31aa303c0dfdcdf1d72075e873d326ccf3368243f01f43bd5feaa68cfd6b59ab",
+        "be7e75b62ef6ca46061f41295a88158bb9027b9027e13199c5e9c79ca4643728",
+        "ea07696600d237728538140158de0c1616cd833eeac38428aff7fdd45dc0da20",
+        "f063b8314d4059e4fc9b388fd3a82bff7f2e74391026d4c4d9e2791eaac4054f",
+        "1450ce2abdd337fb7c19f993ea81a6d4905779daa8da007e2e2e4ba69b0085fc"
+      ]
+    },
+    "hero-south--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "261c6dae59ef2f8b2835021fef4ec093b3ddb9accd7cd7a132f01f6ed43f1eef",
+        "dd7b80d987d36475a64b3940fc8e46be95cef0ec2718f113ed2ee4f7a9cf0b1d",
+        "d3a6d61ef0a8fde8623e34d948ba0ddb4e0cac7e1e02f229e406edab420cf14f",
+        "e6806d9d686bb0d705afa0828896fcb70eaa74f90bded8e2fa4302910c686864",
+        "afb8beb7ffc2debf0ba649b21cb49d6cd0fbda0937a27cee39ea07b59c75a880",
+        "b86358719d44f037e9c6bf7cd4bc112fbdccb2ac610c9139a4dd06ed05634e38",
+        "6c114ec0dff0e99208fe82c19f51201ae1521f6c16154b2fe9710337eae520cd"
+      ]
+    },
+    "hero-south--bow": {
+      "tool": "animate_image",
+      "description": "Drawing a hunting bow, releasing an arrow, returning to rest.",
+      "sourceFrameSha256": [
+        "261c6dae59ef2f8b2835021fef4ec093b3ddb9accd7cd7a132f01f6ed43f1eef",
+        "45f2d4c4ebb067889554f757078fa259a09110f44ced66b78ffe7fcddaae2db3",
+        "d5bd4e5673bdaa746b3c223281f42fbda2021e3c734ecb8237e872514664a7ec",
+        "de3c44fdd7a253326a43251a4d93f2dfed6397b4b19fe9ddcf4ac222141f06a0",
+        "05d1dbbdd277c3892a4d8980e21f0888480580969b2844cec892aaab5c2694e8",
+        "41fbdeb286824739aa4ddff511302b764c1164b1bb0fd749554be6d1f9d24b9a",
+        "bdd3d3c3fc58ef11c4af4a04cdde65b036ed719a38557400d392758baab78422"
+      ]
+    },
+    "hero-south--guard": {
+      "tool": "animate_image",
+      "description": "Bracing both arms in front in a compact medieval guard and holding a wary stance, breathing.",
+      "sourceFrameSha256": [
+        "261c6dae59ef2f8b2835021fef4ec093b3ddb9accd7cd7a132f01f6ed43f1eef",
+        "4d05892e35ec75f86fa56f3de6ef44ee177619f993bc212e56dcd92331f90091",
+        "26e3378517ef123a9664d952fa2ede95d29d49a5ff1e8be2277ae4ddc3d7cf28",
+        "8e0efd76a5ea1a8272e2117cdf6d6da353000a84aa29cfd9bd8eba39fbbe3573",
+        "c483e64a1e4efd02d522424d1a244cf5face614aaecb3ca0db9d9f4b68acdb93"
+      ]
+    },
+    "hero-south--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "261c6dae59ef2f8b2835021fef4ec093b3ddb9accd7cd7a132f01f6ed43f1eef",
+        "5c64af2f8e5f41734b1b1f758ed637180237585d8236b9285b091eaac72afd20",
+        "e947ae636964bb83b39e7a1867431ade87d76f3eb7b5ba69accdde51b2c2f7de",
+        "2f8e946a1a6d6ddb1fa8aa4aa03dadbc1a88a94be619db831bf5f4af55b71cba",
+        "d2b4bce9b2f7c87ae1d16212042c494e79040431fc175fae731e0d790ba87915"
+      ]
+    },
+    "hero-south--jump": {
+      "tool": "animate_image",
+      "description": "Crouching, springing into a short jump, bending knees for a landing, then standing. Keep the centre grounded in the same frame.",
+      "sourceFrameSha256": [
+        "261c6dae59ef2f8b2835021fef4ec093b3ddb9accd7cd7a132f01f6ed43f1eef",
+        "c7d31a571434d0a475e9997cc7c6253a31a6a213b0d0f43c681ec448fc53b866",
+        "ff73dea322d0949778d64b479bb9dfad986677dfe39afb91196a0dce28a577b8",
+        "96298c93b6c2340dc14b2f1970b864abd1898e693a187f5f1870e86d5540b6ff",
+        "ab229dd0ecfc2be2a375d7e136a4bc0a64a472a03e6c20aa8febaf056e520359",
+        "8aba0a08a3626a7e11b39697fd2051748ebac403015d9a271dce75fa1118ee39",
+        "b9ee719bed5005722c3e68ebe45ae2c9edbb57b8526310f5afefa0d0fd25532f"
+      ]
+    },
+    "hero-south--ride": {
+      "tool": "animate_image",
+      "description": "Riding in place in a seated posture, holding imaginary reins.",
+      "sourceFrameSha256": [
+        "261c6dae59ef2f8b2835021fef4ec093b3ddb9accd7cd7a132f01f6ed43f1eef",
+        "6d4733fa4275835ba7292de70bb1c2448eb6078d873907b97bb598950effb901",
+        "6b5a4e48297e9d40cd5b34d7ad754127ac9c734a58df84096b1cae7fb7dc1a2b",
+        "aad1f7f084d3c183b466054cc6d39c8cca9ccc1a5006b060eb8703d059ccc3f2",
+        "cee38d12435368309f50c19bb5c4755c797645ae821a8e9003f8574645836b66"
+      ]
+    },
+    "hero-south--swim": {
+      "tool": "animate_image",
+      "description": "Swimming forward in place with alternating arm strokes.",
+      "sourceFrameSha256": [
+        "261c6dae59ef2f8b2835021fef4ec093b3ddb9accd7cd7a132f01f6ed43f1eef",
+        "2978aac5576946d72e0fe6bcab7c1321a128966063f7ce6869af3db1c79483b5",
+        "3586ace331cc0204e430fd1c39b67b3037d96c7c6ad7221f4f730621420767f2",
+        "84b5b44b8247b426800ae7f5b492157e394994c00f7edb16a5ab93accec52342",
+        "efc983367dfad479b45bbd12df50f75b840c45ab652daf3abf3ee4db12d38ca0",
+        "7c56b17ba680c5c981d310da019ac6d21ce8642b420f8ce7a3c4a7394722dac4",
+        "899a6dd2f3f67bf5ebcb1a6c923409668eaea123a3116d897060987194668b28"
+      ]
+    },
+    "hero-south-east--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "83cce5e5e2b70b24cb55c1559284f68c084b488e5b10bad89bbbaace8a2df6b2",
+        "b11dfb8e6c382389b228a65ca991c7adae686035d8b3dc06d2cc2554bce97fa3",
+        "241224a89beba8a36a7b3f5a5e06d6178e4ef3209af4a5282ec03eaa57cf6598",
+        "317f8c42df632fb975f1f9972f9ff7db974cf7c7b30ca455ea99a03bf31f7b7f",
+        "323b8b691ef6569be3112472ce70ff74e393cdfdf19610f976dff17157e0bff1",
+        "a6ea2d32cf4428ce9176ccf3450fccb89569e0f45d54a956195399e7c590e51c",
+        "2a164c56fc0e46251f2719bfc9997b498b02f9dfc9e6a297cbd0e025cab8ca2d"
+      ]
+    },
+    "hero-south-east--bow": {
+      "tool": "animate_image",
+      "description": "Drawing a hunting bow, releasing an arrow, returning to rest.",
+      "sourceFrameSha256": [
+        "83cce5e5e2b70b24cb55c1559284f68c084b488e5b10bad89bbbaace8a2df6b2",
+        "3aca0c7284247e4a865b40b06c9ae7224fcd1baa7d50c1f6fab09ada5f54741e",
+        "432ad5dad2de16c02f8e97d60656b5be05afed50ac4c4f948586db7dcef96164",
+        "a53dec9c620d253dbd53e18e31cec0dc584751c239826ba7d3975b8a810899f7",
+        "19a9dd7c429ea74d0081eda524b7c80f94628226efaf61bf6f07d81c227dcef1",
+        "1a0d201e9229df5bf49b741e4cdd4cf941a96586c42754eba389104ad6b437fd",
+        "e27301e21f4706e708794a7814f68d673179b4856369e5404c01e9f598d7aeb3"
+      ]
+    },
+    "hero-south-east--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "83cce5e5e2b70b24cb55c1559284f68c084b488e5b10bad89bbbaace8a2df6b2",
+        "4882e0df0208e9145fa485b7c7f185c43cef39178bd09b77494ddb154618ebad",
+        "d0515140ebc862bf5e99f39c6ecf993ea0c766d29cce29df5dbefe8e74f92e48",
+        "f6b38a1545af77363fe79149131fdff5dd575a86edad7d1f2b8153e394e01f3b",
+        "406afd36409da31be37e9f75ea92545b2be45d051c373382dd16b5764d430648"
+      ]
+    },
+    "hero-south-east--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "83cce5e5e2b70b24cb55c1559284f68c084b488e5b10bad89bbbaace8a2df6b2",
+        "51ca9307a5194e245f1d5c6851379f6f4108f865217eeffc22436fa2cec9b571",
+        "8bfb0b59adab99dc29735fb2af19635a5ef68d263b19d2daa67ead7b367b479d",
+        "1093cbfd4f77fbe423b86a568511a11d5bfd470e9403d6208ad3599e56573e1f",
+        "551bb411d97466343f50d7188064b7e0582be6df5123d624463ace5095d6cfc8",
+        "9136f9fd586e8c9f2e45df7b08702e6dd6fbdebff0fff371b7831c9e27e43ad3",
+        "140dc64c280432f99ca4290ee2f64a71aca2bca3dccb7e51a800bac3e4163cdb"
+      ]
+    },
+    "hero-south-west--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "91034f1b23ef3f833bc7e1df865480967ffc304f781b9ed3f3669691a4b45c5d",
+        "0bf87e1af35b016ee7750e144533a9156232e3b364b43c7c5449270561ac12b8",
+        "5409d1d7b324c48b86cb0dfa64c0855bc509a152bbcf304c5ed08f1f6d23764e",
+        "2cefaa8a7391ec2b6225e919f0ccc201317989235fd721fe5cf85e12a00f3e3f",
+        "ca3189a575bba890b5554302890e9a148f5a17da96be46342fafbbbfb17c02c8",
+        "53f950ffb34c2461ce6b9751f7ee78ab6bcfb6a88306ccf2a31a0ac9fc7c8e71",
+        "17b87e55977157cad376fce96195e4c4ff7a9f338607b1567a1c3597be96a9b5"
+      ]
+    },
+    "hero-south-west--bow": {
+      "tool": "animate_image",
+      "description": "Drawing a hunting bow, releasing an arrow, returning to rest.",
+      "sourceFrameSha256": [
+        "91034f1b23ef3f833bc7e1df865480967ffc304f781b9ed3f3669691a4b45c5d",
+        "83856ce1b62e486b084a5ca41611e4126cb30521e27073ae85b0ce022d598a86",
+        "ff74e2d98831e37c15aef51cc6364479626498f9f4e77c3c9c31d18374c571dd",
+        "1e17f9fcc54e424215df41d42cb75a0b3bdafa6a1f23040a967f731d471b7442",
+        "6286fa9cdb78009f3f84fcd8baf2b6276a82fc6c13b7d8bf3db7373746d8f80e",
+        "4ea75134ded06945ed09066e068f45b8e1d2011f7a674b1b2fc7b4ca64a13f09",
+        "088bccbeaed94d8e7be30274b31902cc3431787b598adc68016d0d183182b4c6"
+      ]
+    },
+    "hero-south-west--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "91034f1b23ef3f833bc7e1df865480967ffc304f781b9ed3f3669691a4b45c5d",
+        "0a49c3f75cbf55836a90d9a9d302277bde8fd2155b39b6d5556f8a0808653881",
+        "d956ef6ef40ca24983c4a85f0ab527aec330ba9d29f00428563305818ea60eb7",
+        "3f23cbbc60959ab683b056690dc2e48acf8fdbdf0f9099190fd0a53052890449",
+        "91597433a8a475091afc9a32d1d5f69462996a845a80fdbb5d0f6879c88ab460"
+      ]
+    },
+    "hero-south-west--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "91034f1b23ef3f833bc7e1df865480967ffc304f781b9ed3f3669691a4b45c5d",
+        "0d5c09211b3defc05c33ddd843d1c2885dc57de5fe9a374edfa90fca37d4e721",
+        "c365b6a808fe6b5556c2691ef33132f2375c500f1b9d9c8b2962a701929a925b",
+        "d12e5b93d82b9f245a4b5033cd8575153fcd26c2e5a64f7a465c50d8e17451ec",
+        "24a0ee66540a204f4325ac5cb8b66e9d30ed7df58618433c17688f1dcdf7b0fb",
+        "d7d3257922b7ca3ddbd60d3f053fc91c1f058b3768dac4453694887c94c3702c",
+        "037db5c223e880ee18b1cb3cfe077284a428c2f720b778e6893c91645ace09ed"
+      ]
+    },
+    "hero-west--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "3a745426fd7dfbd1d8aba50a052ef9e86fea2f0ef71a44b30e746120977da8bb",
+        "3d2f886ebfb6fc61d541d894766ba16d5bc39566b22ab9d0e6e3b63d330f6f56",
+        "b9e91509bb0d04659a12295cae332c6445c6efa4c95a6cbc2f5ff5292ba4aa11",
+        "eb202ffe566a2c0f418e693df8d5011a6b056d02c9d2586736711e99c1ff074c",
+        "9a73a49b244fc7a03a952466381291a93dcefba3251f1e63b01447a9acc8db25",
+        "d4ef835a3942f536ff5a22dd9cdc1f31df819a16d41a94000f1b743761ce9788",
+        "2d9e1309061434e47ff3a8d151a36fb75c7214010f74c090ac9d237c127c4797"
+      ]
+    },
+    "hero-west--bow": {
+      "tool": "animate_image",
+      "description": "Drawing a hunting bow, releasing an arrow, returning to rest.",
+      "sourceFrameSha256": [
+        "3a745426fd7dfbd1d8aba50a052ef9e86fea2f0ef71a44b30e746120977da8bb",
+        "d6e345864e3dc48bd0cc1a91295faa7ae60c8cacededde6d3cab51f9bfb8a3ab",
+        "6b405ee531956870e960d8c89c507e44a5e83b9b1313567cecb922c97a2bc429",
+        "0f08528d8fcdbdae2752eb933912942146ad2687e7673ccdd71e0a56278099bb",
+        "61742f75dc1b2bbfe7d3eff368d212ee10fa409ea0e623551ef772bbad68fe8f",
+        "b3be9d8f7166ff8dc538de8f828c31d7ef274ff8f741d2943163de29824a94b8",
+        "b287af3dd137963528a842b14d1b123133d39782942c770e613dfff83cad4a99"
+      ]
+    },
+    "hero-west--guard": {
+      "tool": "animate_image",
+      "description": "Bracing both arms in front in a compact medieval guard and holding a wary stance, breathing.",
+      "sourceFrameSha256": [
+        "3a745426fd7dfbd1d8aba50a052ef9e86fea2f0ef71a44b30e746120977da8bb",
+        "abe09423ea535d3fabb3bd0a09ecbab3e7b653d215861df730045b589ce3376e",
+        "3db4e58f19304d62165f6efc50a6e232dabc1f1e880412a32eb771f933b8539d",
+        "fd0f02bfd1021a9adba9228dd5284c64337c1e305aecdb64e14abf6d29dda096",
+        "57c13708eebb1ea57ba192b1284fdcd1f2fdc8c21eee9156dca78a6620d6ba55"
+      ]
+    },
+    "hero-west--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "3a745426fd7dfbd1d8aba50a052ef9e86fea2f0ef71a44b30e746120977da8bb",
+        "114db6581a145c35522f907872b8d2446c075def3d50544a66e9291b97158ab7",
+        "b4e4216a71ed86d5ef28c8f25c00eef14e2f9410eba2ecb1402dac56a2d2d666",
+        "9da22c343ec78528d9e59ab6fdb4fe0717afb9d0864c580fc9ea7b8242369513",
+        "d8facf51b66534a31c8502433356a418f7f4b49be05d96ad480d10a694a82d0e"
+      ]
+    },
+    "hero-west--jump": {
+      "tool": "animate_image",
+      "description": "Crouching, springing into a short jump, bending knees for a landing, then standing. Keep the centre grounded in the same frame.",
+      "sourceFrameSha256": [
+        "3a745426fd7dfbd1d8aba50a052ef9e86fea2f0ef71a44b30e746120977da8bb",
+        "643bb4b5e72c6e2556cdf1284716161cecae69dcb4b5703eaca2dea4782037af",
+        "dcc8a305143d60f80a60a3d0b417e56f1584af322e211dbc258a7562b01b37f6",
+        "5a403b46e9afbff1481f22ff9638fe727c237789df354ad128c17db292aaf6b5",
+        "51b506e758066970b10ed303c8eab52f62d5d3aea38a914dd3b15b14ef6aaf28",
+        "98fa6611bf6c259aeae9cbda267da6b063c881b4b6321b4b211b9acbfed4d26d",
+        "97f8982bc08371bf27a81b052d6cacad322c8d736d784b38d2933032eb4b5040"
+      ]
+    },
+    "hero-west--ride": {
+      "tool": "animate_image",
+      "description": "Riding in place in a seated posture, holding imaginary reins.",
+      "sourceFrameSha256": [
+        "3a745426fd7dfbd1d8aba50a052ef9e86fea2f0ef71a44b30e746120977da8bb",
+        "09de94657c83f5a137678e7f2b0ddb6e19e6661572474ab4adbde24258fb6ee8",
+        "0c2952d67b37175d655fa00912159cfe7bcf82d9fa391e3b1557a1acbbfe4369",
+        "66bb86523abcce35c86c04cf303a5d34b3675c29fad446e02a5bbc872f958361",
+        "eea1f866a4128fea41b24ec4c042c0c8f2d930f523c6240db81f1d7068961506"
+      ]
+    },
+    "hero-west--swim": {
+      "tool": "animate_image",
+      "description": "Swimming forward in place with alternating arm strokes.",
+      "sourceFrameSha256": [
+        "3a745426fd7dfbd1d8aba50a052ef9e86fea2f0ef71a44b30e746120977da8bb",
+        "477048e43a8968f4baf86111376340ebf87d16a3014e3876308edaf928afce67",
+        "676eab9207140eacffef7f207b40aafe59ea3c8b213637d8ab13e1945fcb9ec2",
+        "e0175892475884e47bb6d139df1ba0cd021231843cd066eb26125a5698e1651a",
+        "20d3ccbfd9bee032590857fd616471d8e9c110a73387cd6eb2ea6c68ff1523f4",
+        "7ffffab77172f777a96800f0054fea20dc2e63dd2b7b5b41e3124ccd43c9f542",
+        "08e4d9229a871e12eb48e921c8a5fdc1467b271f5f881279b053831d1b32daff"
+      ]
+    },
+    "keeper--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "bcc106abbd6db7acc730b25b5012a6c897065589eb3bcf4df7c492c0998f732f",
+        "40a0fe2d963ffa5a03dc0c4e41c2b5a015eda23f46fc769c2e744b261fc7b545",
+        "0d4b58e6bde3eb969a8038225856ba170566e6b44c233993f9c34f12fc23b7df",
+        "dfc06a9f85da712028cebe54cf1ae95ccba2b826ed875d0583c67b9b4f1d0840",
+        "ce687755675f1c7a57ee815bc121fb5f9437049b34ff9f79f63e14e05a0c4cd2"
+      ]
+    },
+    "keeper--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "bcc106abbd6db7acc730b25b5012a6c897065589eb3bcf4df7c492c0998f732f",
+        "a444578eee158803f2805659d84cd6fe8cf95afb762b59e87b43f69e5e9d1f11",
+        "d8f865e9857af58b18615544bd17d4246927b1cf2d3f816a359dca4222efb7aa",
+        "0a09abd18ee3b354a0096c726e2354755704682cf47f0d153adf7212329a3d70",
+        "d4cdd7da2519f89cdad844d9957ac1754e96c998742bbd389fde74584d1b8584"
+      ]
+    },
+    "keeper--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "bcc106abbd6db7acc730b25b5012a6c897065589eb3bcf4df7c492c0998f732f",
+        "9a5f419f5a92d57e62f6fd26f8e81b1d51c74a14c0eaabeb7b048927c9727000",
+        "d538250e32dc8d00d2119ae71b141987ea0f9dcb83a98fe0caa4f63274d32365",
+        "a78a24b0bd3af2652fc1dc6dd5cf01b09fdcdfc4288713957932256754ac522b",
+        "c14b3ebcd3ee5522eeea48d2badbae53c833afe9ed85d3f21968c3e446f11d0d",
+        "889983f45e9a912d86e65e51fa7f465f34f0afc53c12012b00ebf00f21a2138a",
+        "ccf3500ad1f4e471e46ff073a9aa6470f47da651a12da1e89245c4900399d41b"
+      ]
+    },
+    "keeper--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "bcc106abbd6db7acc730b25b5012a6c897065589eb3bcf4df7c492c0998f732f",
+        "2466ed553eaab73e447de0daeb0e8a5eb0e6e7403baedb436432222e4b92bbeb",
+        "6fa12366a5b5227003756e2e4227f0b8c555792690c31dd4e9b1f84fc4bf7f4e",
+        "808a15670734191f957093c82b33a06cbf87f5ffc7b81a7e677b062d166f4082",
+        "db79a201ecb345cfa5718d24e62854dde1aa8e81bd64a9dc699b4405f7f0ff27",
+        "a27ba2de1e99269f380c35367ac05fb28cb1ae72a09bb586d519166f2b71450b",
+        "2a4c083308eeac36f40f90fc357f90916359b86e73bc694c7c079718cee5db38"
+      ]
+    },
+    "lantern--light": {
+      "tool": "animate_image",
+      "description": "Only the small flame in the lantern flickers, warm moving light, the post remains still, seamless loop.",
+      "sourceFrameSha256": [
+        "4c90da9d7748673a6ba5db9487381f85abd73b73fb4d72273ff059a4b7b05b5e",
+        "0004605e92dfac6041a6fc00cb98b99b2a35687619453f8049917b26fbde1379",
+        "0004605e92dfac6041a6fc00cb98b99b2a35687619453f8049917b26fbde1379",
+        "40d6715720d82be965af088c44ce58736e1fdc874173d1c0bfbff32422143519",
+        "5a19c7c01ee676cc3922c2a3540363dc2b01eadc9dc2a368db62a127ca9a4b29"
+      ]
+    },
+    "lion--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "eac596abbda2abe403888fd0b50009379d513e3fac9e09b7b0b9b064091d2d04",
+        "d4fee01df823ccf14ef401c1d1c68ec9fc6a2df7b87dcfc976f95446547f9123",
+        "e48a371e7f1bf721cdaac5334d3f4a39c1b6d691166e283a88d4e8a3f1d86fe0",
+        "4c0d01ab39069b3236e0412df856dfb4f229ae083309bdcb7642da053ad5ca09",
+        "e4e7aac4fb8ff3e0ea77417f28e9d916c03c5ed79e0486b6a1c8e8146dae328d"
+      ]
+    },
+    "lion--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "eac596abbda2abe403888fd0b50009379d513e3fac9e09b7b0b9b064091d2d04",
+        "49b4648513da0228d4c1159ace6bf1c1cf4e331e0367fcd19440f4e774fe78a8",
+        "c112ff224b3b29f977b3647bb6bf8780be93407a2b2e4261cd0c423a50906ebf",
+        "f8de951267f680c0e6ef2d798bdd0be114267baa7b85e8a2069d42caabc26e79",
+        "e55c51ac0610761e2e76f31104a65afa053e457f7e58c66c1dae030897fc00b1",
+        "9d8491bfc16b2ba1330a5fbd9cfc5bfa5ee0f23e4d892e7bfa5aaeefe000918a",
+        "ab805e22fe711213dd9fee7b35e5bdf90b13cd9c98694b42bba8e35e47e71b90"
+      ]
+    },
+    "maintenance_worker--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "b39507dd969cc7ca7d4f95ea3dbe0c65860921824fa5cedaa01e6ef6abdeab84",
+        "e4bf31ba668380606aaeac8def12ed23e44885e36d46c4835b9b350651653d54",
+        "14386f115d66717f7174bfa661ab006144f0af0991a3497f76fb400dcd1d4a75",
+        "b76e4c9513163b13e100fa1d6257366a9ecc7d7b3287b9468381a882934b4779",
+        "99116ede6751b9779f87b619e5c7e03b3da1a53e70823a7bcc1d53d2f8d7e1f9"
+      ]
+    },
+    "maintenance_worker--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "b39507dd969cc7ca7d4f95ea3dbe0c65860921824fa5cedaa01e6ef6abdeab84",
+        "a8c915e61ed851f0dc04aa2ff687b98852469f14862c34cdb08c993dbc9d8fac",
+        "82a501036e59d55b0e6ca09b50387c1fd84e911793630342bc5254bdbf234ca3",
+        "f012cf42c1919b2f82ded3023f8ee3dba9b35c648c10e98132e7eb7bd4d6d536",
+        "718ae9182bc926e01bc1c40db754726e5ec41bd027ead666e9e0cf95ba8c3012"
+      ]
+    },
+    "maintenance_worker--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "b39507dd969cc7ca7d4f95ea3dbe0c65860921824fa5cedaa01e6ef6abdeab84",
+        "97ffddb3db558aa4d333023827cddd09397ff843abd0aabb90264489331031fd",
+        "3c5c6d60c36f219de4c9f89bf9c657c6eae73c9cb28d8251f8033855b44775cd",
+        "3b08d8759df1caf671520103ecfcb064c9634575f02b2d3364fa1970b3d11e79",
+        "fab256764d8fb2ce8af2d1e8061b9b7d2b335800213fedcd65e6ba692c44d4f6",
+        "afb683377915b01a1ce8190b995a1e19386e201df8bba665caba0c2b592f5cc1",
+        "15b8038f5f32446d6a18a486438b2960e0e48613513c2d479ab610b32f970436"
+      ]
+    },
+    "maintenance_worker--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "b39507dd969cc7ca7d4f95ea3dbe0c65860921824fa5cedaa01e6ef6abdeab84",
+        "8d60b5ce207a9e10e0baceb3d30fe37d18cea097c6e818f3105197018f87f032",
+        "4e4775ceeb96e33341ff65172a2382d0cc3a30706eb1f0874dfb2ac876be5d99",
+        "8762db86dcee15b5fdfd0073ac2ba2837cf8a64d6f2a37567ea085280c8ba815",
+        "7b20cf43da763f9443991bdf45c91ecff805bd83f4a99d15be7ac2defca74950",
+        "3fa34b1117c50c0548308ae96d80c0ca4bd7fb7154791e44c94e5d510fbf54d3",
+        "a34bd9e7387555657dc92fe64d64cafc03a19a4b51a522538ec5068d8f7482bd"
+      ]
+    },
+    "mill--turn": {
+      "tool": "animate_image",
+      "description": "Waterwheel turns slowly and continuously in place while the building stays absolutely still. Seamless loop.",
+      "sourceFrameSha256": [
+        "f7c64b749c0cab323c0ab2f2f93c0da22fec82bbc3827bab539029121b5cfa87",
+        "b5459721c7e70a87f7335a10c9354087caf4a5e32ef3527dadd8d7ff8e614ee5",
+        "b5be215071e60f0f06b567577475c51ef4d8b366bfb30b03e17a634db09ec429",
+        "c84ca9b29b526354a84e58058a402b91b4e769d080efc4ae7664dffa51dafb97",
+        "72e7d804c6af4258cb018c2330c19f7cda09c3411f6e6a0bc65cf3251769f89f",
+        "9bea5522a7a45964254c0257aac2899cd38b3987fa7d7ec854a6e800a5967f38",
+        "fca0bcfc0f9693d970fcca05de59c77d7c082ab7665bb5d7f16686ca71c9832e"
+      ]
+    },
+    "mill_hand--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "1ddb233f91b63aae616052e304426fe4a47e331c896ca1d379efb0f0f175d7dd",
+        "7c2c29a47c0d4a663912591f4e412c18e69e9b0c422b33db700251d308c4aa77",
+        "d4a2cc736ae9cc87726bb87c842bce918eef391b57ea444d2445e49ed999c601",
+        "450bbd374dcd2c6d7f06f77b9084e0d53cfc8da63de5921e235c98395aa322ad",
+        "303f55085d728799a4010338ab0d4ac7c8df7f16b96a367a1e829bd24399ee2f"
+      ]
+    },
+    "mill_hand--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "1ddb233f91b63aae616052e304426fe4a47e331c896ca1d379efb0f0f175d7dd",
+        "b3ca14c9e4c5529a49c907932b6758ac119c150753d4e43f497e5a35d85fb931",
+        "5b88c8f0b4a76580a69ee33b6eb3bd08cc66b2bdab04455dee51380e604d7b60",
+        "f363610c2fdf91e498ad30445fb0074e55b9d3d62ca18f4fa41034ea4c105c96",
+        "eb9c2e969ccf520f8d587bc26e14eb93f9eedebe4eb08aa581c6e9394f9afab3"
+      ]
+    },
+    "mill_hand--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "1ddb233f91b63aae616052e304426fe4a47e331c896ca1d379efb0f0f175d7dd",
+        "a5b54e45b5c965c1077532704d1a1a5fb60f4075acd2c71cb5c2ab55b6a43e5e",
+        "53913dab493f80dfb1d700f0001f144b5a3c52ebcb6131e338f6889fe42df417",
+        "7c2a4e9c1dface079fea04c09d47ea201b2ff77f83eb8c675fa6b46d7312759f",
+        "8a5546c67b39dbc72ebb34adba574c74f95e1945f7a8f09f315e4719db525da1",
+        "fb503c5d1bf1524a82747c751b0c1cae283b49bea36c74baa22d6c5b688c756c",
+        "c718c6459bc04b5a903760319f91762dd2b6cc0cf65618f33a29347b320036c1"
+      ]
+    },
+    "mill_hand--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "1ddb233f91b63aae616052e304426fe4a47e331c896ca1d379efb0f0f175d7dd",
+        "a703911c4d68bff02d266c093a37fb3eed860a553274e3fbb808168f0b59fa39",
+        "e089780dcb08581826526ccd58f9af9bd016fb05d4e5f22d0cb738212bea9b28",
+        "2b0cf64ea3cf1d9f041e91affaa0761f0246cef1556dd709d91d43eddb35d871",
+        "44c2d5d01c2154900bf17c08d7f05309988dfae21b6ae026627f7643e9212427",
+        "ec3dda2c0f45a438465cc7ce350c77f069f126fe9eb0e0e495110410ed8f1cba",
+        "ad4e1163e01d42b28109a2d78b7c4bac3671514c34c44479835191c97c121bab"
+      ]
+    },
+    "mount--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "b75179690ba7fcc519ba82a52242230ae77dc68f772ff4abf01fe48b36c2c5b6",
+        "8a308c14604090ca234cd3bf65991d3d199c7e60f6b0349c6d8bcd0f5bc59e40",
+        "9ad17ac201fd6189289e4cc5cd60141ebe89d09a8c064932b2b9b3ceaecc813e",
+        "04f36de349d0aedfcf7f0b1ba33d8926674ca71050c932305bae917146822b3a",
+        "9287a64a073941970ba7b00ccc78e6e2cf49a742237a6f4992ab300986af949b"
+      ]
+    },
+    "mount--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "b75179690ba7fcc519ba82a52242230ae77dc68f772ff4abf01fe48b36c2c5b6",
+        "6fad1195b465bc815ce6bda019b00f86294a4a5c532de5491898eb2e1634f389",
+        "8078c916f2f733474923f9c64ce47f94d6ec612f677fadfc15c123f5e0342dfa",
+        "752ae97a1611571fb148cada4cb4ea9d755793050e00111945f6a39d476dcb13",
+        "2da8f6ad192aa6ed54ccda81cdb59b3627148b794232b5cf5c653ff89740e1c9",
+        "004a42b5f29143b81a57161f31314868b1aaed2aa0c2f4b3411e17275ec3a67e",
+        "c77738dbd501f70e2ba21027028c498f66bc0f2fbac587fe04b34b9cdbd22370"
+      ]
+    },
+    "oak--sway": {
+      "tool": "animate_image",
+      "description": "Tree tip and small branches gently sway in a coastal breeze, leaves flutter, trunk base stays fixed. Seamless loop.",
+      "sourceFrameSha256": [
+        "5a5626f92dc33081f02650ce555d47263d98e3a44ebc3493d490de8814121ec1",
+        "ed5ebdad9741b263b5f3852449a06793911e126a07e2aec9e3a0bbc6274c0d2a",
+        "6f31e406804d7e79466b6dec5acda87dc09b2004326576262888fc90b54aa36d",
+        "33b43cc1bb8a270668d0ee0be76445710e6dd17a07da87bbb68179f35d527eb6",
+        "839bc1cfb7cb29ae1139b7974c1a410a8032d89db661beb3e3fdcb791f45a997"
+      ]
+    },
+    "pine--sway": {
+      "tool": "animate_image",
+      "description": "Tree tip and small branches gently sway in a coastal breeze, leaves flutter, trunk base stays fixed. Seamless loop.",
+      "sourceFrameSha256": [
+        "e2abe875a8e4b6893e3ac839f5beff0dad72ae2a6cfc9baa2ce7840ecb11970c",
+        "80ef520b18fee937183c60d539333aa2089c4f7315b4510cfaf8685a8abed7a8",
+        "c76605add5f9b4f51340a029a18386143eaeed832ae15c2e052f6a3bbc391753",
+        "cbd9de816fbee64898ba08bf2b56579d7794b218f6fde032fe6fcc57f39cdc77",
+        "d8cb8b36a8cc947d2d6210d5844b0b26594b91aa0930fe1d1bdec823938906a7"
+      ]
+    },
+    "quarry_foreman--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "2a4fbbef29d5cada1eb9b9b55fd957475ee1b3cd6be83d8c819a8016461de377",
+        "8fb0c3f8bab10066f695c9b36f3f5c1fe694bbe39949e3f46a32a56acde5b4a0",
+        "5a80c4c732adf6ec6d06904a4e1ba555de53bcb4ec8f2b73b149685b078cf49a",
+        "59abe1520c840d1987a0a752da2aa94f08041688ff910429935589a2f7b345f9",
+        "22a4bfc7c8c660706a1b94eae8e881984043d1b6b1a4f0bf8ac589fb1d20df23"
+      ]
+    },
+    "quarry_foreman--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "2a4fbbef29d5cada1eb9b9b55fd957475ee1b3cd6be83d8c819a8016461de377",
+        "e5fb232fafc2378b45054a3ce050678fcb34bf55af6da50a7b4601802a8401c9",
+        "a2c3d77d60cfaf3a3037cb5c9594f4b39cbf06a7a219285c3f49582a180104e2",
+        "5b3238c53263be137d76c23221d1f92a8577901362e3354373dc5c36a2c2368b",
+        "e36c7208c3d4ecd6ed87060ecc10d45e3eb1ec1a0600e58e0fc1ffb19ea2c0a8"
+      ]
+    },
+    "quarry_foreman--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "2a4fbbef29d5cada1eb9b9b55fd957475ee1b3cd6be83d8c819a8016461de377",
+        "54ce842be9b513ef1642efe92696c880b2576e81d123a8dec7598e5c1a492229",
+        "6a90db23621ce0091556e417be1468ae9251c706cb12f89334d309c7cea8c511",
+        "f32c62e77d72c41ad7eea82d8830dd17e4dab6cc330ec9e045a2f7b3d67858cc",
+        "d799073420e7d707d1a25128fc56a19042e33a2c2a3036c3a19acdb886860b5d",
+        "3c946dc8f6107d34b149b35d64adf23301ca6a1e831a43eba3843eadc56bb5e5",
+        "3b9fa20c0c4415098227fd84d66b78c118d1f818ffba6022f60e92394d990d6d"
+      ]
+    },
+    "quarry_foreman--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "2a4fbbef29d5cada1eb9b9b55fd957475ee1b3cd6be83d8c819a8016461de377",
+        "1202593f230e4f767f70083df6be4e6cb61db882fbb7d3a1cf7db86be4e32b73",
+        "f96952467879f7b62e1e720da8b4e00327c48489a528e56885b845d031c958fe",
+        "5448f3581e83588a754faf5b86f8575a1a80475c48ab61511eede000ebd03427",
+        "8e3b205d74e68cc2be0335beb8864491a88827242ed48bb168f00acd6c3b7808",
+        "f6a5f679c0f6e051faa0227f7d896d127b623862c92e47e260dfc9fec8cda8ed",
+        "1e5f352ff44687038dfafb5e1766b17b0b18754aa3e99747c13f0e2693d5b057"
+      ]
+    },
+    "quarry_hand--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "8e310c06e277e337f1720ec988de9756440d2bb7d6d8f42166f9f40bee94634a",
+        "358a8f2716a5eb7ceded852bf0f358a4119ab2dff31f891114baa49e5d476495",
+        "514ca3719aca503d0c9a99a6f220b173e49b8e6f020f7d0ace7885964ad18109",
+        "21627911eba61569a9a614a5673ad7f2c831bab5968206eafb15e0b7c0082a2b",
+        "071fabe40ed2f03139b271d44768450ac5346885c951cb2b50743fe66833069b"
+      ]
+    },
+    "quarry_hand--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "8e310c06e277e337f1720ec988de9756440d2bb7d6d8f42166f9f40bee94634a",
+        "e19a40b482ce9b17c808f8eecd233dc5d6e0b8bdc778eec3f31d36349c6876a4",
+        "12706d4c09a7d0ea46f06da6269141309a780e0b4497f0a9d63c124ff081940c",
+        "4895733b79426ac3a22b3fedd62f5c062fad53e85c7fb0757276761e10e3c0f7",
+        "8feb2252ac6e65faf526ed2d72bfa5323dc085178174b76585d6f0c42cab43e8"
+      ]
+    },
+    "quarry_hand--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "8e310c06e277e337f1720ec988de9756440d2bb7d6d8f42166f9f40bee94634a",
+        "445da4fe58d6b3adbdac5451bfc348b221e85a99d334d78c032f3b179b2684d9",
+        "e9baa9f7a218b343def16cbb138153dbff6feff77c9be542d2ffde750af9ea85",
+        "6eedb82b137dbfd298681100bee9d60ba7ac7e82e97d2a7a43178f57b9c2fa5a",
+        "b665e20e1ebf39446b4a18fa703ec0c7ddcae38a331d2adb001061f753f38192",
+        "c45dbe32e2810ae7fd7c961b615998ac37f2b677eb7831e835f7f4e566257c80",
+        "1c6d707f855cc816a09ace6d3aff7a78ee795d2e3a4645d5d1ddc117e1517e59"
+      ]
+    },
+    "quarry_hand--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "8e310c06e277e337f1720ec988de9756440d2bb7d6d8f42166f9f40bee94634a",
+        "14e6fdd90fca5e7713d8a96254ed038b03f6a45e7ec659b6da2dba741f13ec34",
+        "6a626b876ad9eab94a2c57d394a6a19be1cd741833d7c453e646a90fb4fc7fbe",
+        "8c378ffe80202fb3e39513da9bc7fc8d0c20760b0fbf7ecf87a55ef88f2e3419",
+        "46c1b3f6f11711e7a95348bcceba9727c4585ac838a759bd614440a06098828e",
+        "41e27b24c25d099f50602c0e47272d10ec4b1291cb2490ad329b7947b1c21340",
+        "596520c44be9aba2cdad725bdf16159b64b30b6d6004e9f8b6eae61e8ef6dec9"
+      ]
+    },
+    "rillford_reeve--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "83efe368d31e2eb2312a5168d051319082ce74c74f96c4eedbb478f935fce770",
+        "396c36bc615f744b19e74cd444ca7f4927af2b1cd25d454bebd37381e94047ab",
+        "9344a12df9dec0279df9f998eccb24cdc4b1f7c9a9f74545899d822412c84aa1",
+        "a113fb3b6d498064c3f3caae6a5108fe3553b7ebc3dbb9adea1db5b0470eead5",
+        "8752be77c6165a635b4dcc0f3c7a1a88100cc478d5216ea98f0a6fea7a99b699"
+      ]
+    },
+    "rillford_reeve--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "83efe368d31e2eb2312a5168d051319082ce74c74f96c4eedbb478f935fce770",
+        "f77776a41a27731b13f795c706f4bcf6b1a469748e45820594b4cb0aae8caeb2",
+        "05bd1e6bc8fe39dc4b9d92edcb2057d8e7c539a016b09039914c8a2d137f815a",
+        "dde21fbc0fdc48336bd02c6791b3233e55c678326f932ed3dc0fdc37b53c4b4c",
+        "95227dc0b7291dde8677b900ee733fe021f08f8dfb37780d7620eded3b230ec8"
+      ]
+    },
+    "rillford_reeve--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "83efe368d31e2eb2312a5168d051319082ce74c74f96c4eedbb478f935fce770",
+        "474fac5a8327842e3e066290cac81e63b8643735def12d24616fd05b7d61ef53",
+        "641c19853ab27ce0f6a9c4d3d793d8619f76a4977f2817cc5b9349fefeab7066",
+        "fb9de64b69146bcdb8e80986b4dff118abc383c22531ef17bfdabd63488b2329",
+        "daf9c8faddba02e441c3457344b6d4237ea7ed4fbf750b891bec81f8035720dd",
+        "6014c6adbd6a73a5f35336fcfe9d39ebf119028a67e123a20d0866c346429a5a",
+        "7bea8fbf75076af687bc3e62a56fcfa6bcf83949d5c7c7a211b41d5803fafb9a"
+      ]
+    },
+    "rillford_reeve--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "83efe368d31e2eb2312a5168d051319082ce74c74f96c4eedbb478f935fce770",
+        "3c7988a88996248a001f81677b7f76d98059974ed1b5ac309404c7580995ab1d",
+        "d5439f3c8605f698df91b3d0e777659d16b82bbb64dda598185b38f6fd07f426",
+        "babf1f2ab7607ad4f2e3e3c9435335da03aea07503cdc959b22d380c94581c22",
+        "2043873a79b361aec82b053685ddbd344f742bd334bbe09438a44e341b8e8d89",
+        "bf338a1f474b0cb368a9bb0b05e33b7ee9cefd8ba3ea0eeeb60d5a3a91829df0",
+        "8291a9705ab625f5ff0d96cd5efbe762e428fd70a5e533ec8f45ca5537e8053f"
+      ]
+    },
+    "sea--ripple": {
+      "tool": "animate_image",
+      "description": "Gentle rhythmic water wavelets gleam and fade, loop, the diamond tile boundaries remain still.",
+      "sourceFrameSha256": [
+        "a250a89130feaedf737d328baa00ebe69285e224241fcacfa505630f3dd6ad28",
+        "f9fd35c653f9f91218b3cc15b6bbde9d95d18fa279757a673fee543da115b017",
+        "f98c4da850f82e56c3773cec0a19ed71bb80442f9928e5d2c5523da9a3551c3a",
+        "050f855ab53ba60f71b07d1599aa3220b728a874f7cd23c27f63e1280038b384",
+        "4b627b7491184230e13d9c73602fd21a72d715120476797bc1c19e8c76a892e5",
+        "a7614e79d54044cc379d824c0c13b06061d1b46605e4bc0a1872afc5d631acdb",
+        "57a3d88d308b57e99e160b9f50ebb676ff4094a0f1a8104a49e76c84a2594980"
+      ]
+    },
+    "shallows--ripple": {
+      "tool": "animate_image",
+      "description": "Gentle rhythmic water wavelets gleam and fade, loop, the diamond tile boundaries remain still.",
+      "sourceFrameSha256": [
+        "b12d08636b4533d3cf1491176ad5d6d8ea507ecceeadc8d52c748a68a7c1e908",
+        "68e3d3d42f770812456bff9b35c9d6743e92ccee0513728c3c1a807f69101448",
+        "4eacbcf0acb36bfe196ab67388995004e1fe8c10e7ac440aa8ccdef0311c968f",
+        "1cd34b3ce39d3b1157cf86c625d8b9c1c3f3833b1a1f34f9dca368f8dfb3b388",
+        "5a46e8a1ae380760435b06afc763d58d7ac8da8e5007986d8257607b5f10e7f4",
+        "8c8dd41c637311ea5190397d83446d32df7af7bb0aed560361fbca0f1912c743",
+        "2164abd891c1053589d8f292d637f6a6dc71ebda36b326566f7b0255c7c7528a"
+      ]
+    },
+    "shrine_warden--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "0396c0ae4cb3cda191a6757db9e5bd3c12f186408fc4c30ce547f91be696de3e",
+        "76266b7a10bd87b0f3d24bf1bc126ef21721e00c638157c7f72a35b89704f2f9",
+        "62836da907888fcbc7cf094317f72eefcce447855b73639e00053ba6f6480d34",
+        "4348099bcc2a24d97ecabe69cf031ae86b1506b394940de693d36eb454fef423",
+        "248e0948b80d67f2ac849b76db8a1325a47a1613708afec482aca3fda0ec7d12"
+      ]
+    },
+    "shrine_warden--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "0396c0ae4cb3cda191a6757db9e5bd3c12f186408fc4c30ce547f91be696de3e",
+        "406aa3abc0c7be7aa295380594fdca85cd1d3712ec86b3b68ebf635c22fa5cbc",
+        "4f17f84263f0e4e7479cd783793157a3837ba1ee7e1a2fe10b06e25053f7b2d9",
+        "db8ad47bd9d546588be5fd5cec3d2574594ca5a23ab873456ff9c221db965f9a",
+        "a9140e2e189abaae651a682d8303c1b1c572f2bbdfc7a1c9c40db9d609594f57"
+      ]
+    },
+    "shrine_warden--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "0396c0ae4cb3cda191a6757db9e5bd3c12f186408fc4c30ce547f91be696de3e",
+        "c88d560d4611ba8d274fbe149ab209183c01d0c30a00743a673d2c172bacadd2",
+        "9f139c6132ab2f5c0140da88902a05c2fd216dd5cf9d07f7496f514aaaaf2db8",
+        "801d6d05d0aa60b816ab7864ce3e15624cdf366b0f9b85cbdbed1c66bad49476",
+        "c364f404c75ed285dda6f78f422187a0081609d4381453acaa9047ca6bf617f0",
+        "9f83325bd0e10d43850bdb603a16d14d2dec4a9ea7a0c7686668a008bd6a974c",
+        "babc7cbc09bbc7cc36ecd66bc39fd65281d3d776af46410029de841bb429ac18"
+      ]
+    },
+    "shrine_warden--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "0396c0ae4cb3cda191a6757db9e5bd3c12f186408fc4c30ce547f91be696de3e",
+        "2c3e0b81e5fab0caf56b9f4ba2c7b9b99aa7c6e3def2d243e945a02a8b9ff03b",
+        "783f59f33695cebf8c0ecab03be62600c63e0d476762fefdcda83367dc539ecd",
+        "360f9290a8f0411b3ef744e8cb19d88d5d9a6a1c9b8f139c3b0f19be157c6b3a",
+        "650cea4ca01e5ed2a83a830a0a146fb3f75c24fbb3e9ca32572811ec979b76e3",
+        "5c5dcdd02eca66dcba4a20f3518fd0ff66134d3194dd5d9e1a84ec1b9fa27831",
+        "4b4a3d093d9677d7e9ee233a041b28c2cff9d66a8b8dd6c7519a88ef375b6401"
+      ]
+    },
+    "spring_steward--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "c6af73067700d24fdbc5f1af130d906cc7273b524ac5cf7fd58159dfe82243d4",
+        "2df2bea74c79c3324fae79e427329de5515b73182020f720243b0f83f8c6ecf1",
+        "4d428e428ca5f209af5dd81f8e1d4a0c666daee566281394e252b2e465b0858f",
+        "c34a6339b27fd8ee6148bc38489e830991e777f9a87cb2f87881321774d0f89f",
+        "051751dc42928cda5d4f20528b8a20b8e0af20b74cdeb506f69369f20271bf03"
+      ]
+    },
+    "spring_steward--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "c6af73067700d24fdbc5f1af130d906cc7273b524ac5cf7fd58159dfe82243d4",
+        "9c8106e1d8db1fe427028c03065b882529f29c9b9a4e9d3cb8b577370c590fe3",
+        "86292cfd3e0719c31c707555fdbbe72e8ac021ff2b141ccc6386bb5ff9d04047",
+        "3dc391680868261757530ad6f7e25a319fc997a0fb40773677c49c13ac4b33ec",
+        "72b92818e73c719de27019636c64827708eb330890fd6c86392b1661b3481b36"
+      ]
+    },
+    "spring_steward--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "c6af73067700d24fdbc5f1af130d906cc7273b524ac5cf7fd58159dfe82243d4",
+        "c2e9094f05aa164facc6bd8c87babdacdff391fc6913a09b0a95acf3cd2b6610",
+        "d613a50ff3b10e3bae3e2502b2f2907541a94bf2a85a2d1e070ad3a0e627f13f",
+        "7d7e52b73b19028f6140dcac3097f270cc999b8acb9edd424b783676f3f0adc3",
+        "73e0c8402336cd6e48e2ce6fcbe022460f8859a95ee50d09d30e5c848a144903",
+        "6bfab6fd8000c4c7fcbde01954cd8a5ed2068e3fae4a78b067695ca69db242c0",
+        "c6782b325ab71972c5235fbb5bd65804d4ad4157590a2222569420a9f9c55c1b"
+      ]
+    },
+    "spring_steward--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "c6af73067700d24fdbc5f1af130d906cc7273b524ac5cf7fd58159dfe82243d4",
+        "42cb2cf8a1da1fd7cba0d3dcb7bb7f515df18bf3e284bca78bd758d8e10e2e63",
+        "63de516e89274eba69aba240f76853ffaf35598e7d031438b860a8880aa5eae2",
+        "983c5fc0e0138fd1a8d3d59ea87b99d61581d3e09346c32c3f782f2b59e78de4",
+        "2a96d80413e88ce9c4e7126929574055caba47d69d6309cec3d178fd742dcf55",
+        "79c6cfe8e86a5e221be68d16d7fb26369412e560e25bc524976969e718221be4",
+        "734e45dd0c2b11be7141087348c7206254c71a8ffc558394abe3eceed708179c"
+      ]
+    },
+    "thornback--attack": {
+      "tool": "animate_image",
+      "description": "One decisive melee attack followed by recovery to the starting stance, in place.",
+      "sourceFrameSha256": [
+        "df88a02f3178e3da86229f3c0618ad5e48d2643dafdc1f4dcc4184eaadeb1612",
+        "1e96d59dde344f9f9c3048a090cb5c438d2467cd5434530233906da3132f9199",
+        "64404735d8bdf4fea7164c470ee4cbc25aba578e19de54afd9c6cfd2e2905e5c",
+        "91530faf20f170aa2597a42ee8907452dc433b8eebdfa72297384af77c832a23",
+        "2eb7707c808202f4f35a411d8a768fa22821c49e14c03ae240bbf506c13e7bbd",
+        "cbe7dc30b5b9d462e93287b123302b9cec2a6811f6bc4185340bfc4fcdae21c1",
+        "ce991cf08c84e44576fd5ff9b463c8ffcbd6d44bd03565bfa4b4bfbf65ec7540"
+      ]
+    },
+    "thornback--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "df88a02f3178e3da86229f3c0618ad5e48d2643dafdc1f4dcc4184eaadeb1612",
+        "d1b414554d9744204596ed8c43417e198cbee0fb4da8346e9425d6f62f4b8edb",
+        "41c8d1847155ff171dadea2a7d8b735a62c6dd5a0dcdabf727b4bb32f1160b66",
+        "52cbe2bab02e949b0fc9e1ffaa4d03c7fb7f9facce7678c6749c26874ef9721f",
+        "2e7215bc2c2e146561420153c322076bb9498ca4faf120002c982d697fa2234e"
+      ]
+    },
+    "thornback--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "df88a02f3178e3da86229f3c0618ad5e48d2643dafdc1f4dcc4184eaadeb1612",
+        "378eee1b0280d16c2951bf920d00ce15fa2f45020c4e45871aca198fd12aa20b",
+        "e7aa310c3ec2a412a1bf10984a128d6fd5e47ea6429d58bda29b2c1e5cd2f492",
+        "e77b209e22d5b41f340b0225025facbe4c08256025914672d8d37b009d2ff328",
+        "71d888c4c67154aaecf8f5fa65b910f4bdeb79c615b4158bad718dc8c552db9c",
+        "0b3f0f860603d7aadd90dd731e902e49e4c2654b23006948114f7ce140bd032a",
+        "cb841505eda676fac152665b3f63f6dfaadad38a5575412059d48a510adcbfe5"
+      ]
+    },
+    "tiger--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "d84ec1e90965d08a075c78062d28b8108c9651571a260449d90c23e42ac73fc0",
+        "28e1d5ae4fda6556d69b22c595b0d52a0b433ed0449cd1c58ee346d9aaa8ab1a",
+        "c342e7dca1a1ed0c961d7c55d5c565aa595975e0e9ca16aeec832d48534c90f3",
+        "2ebcf87f2b48d3d5e1cb2d0bc3279767f2b301b8cf8da7bbb782e54ac4c485cd",
+        "748396bb00851bc5182f921dce300447919141b38ff53fe2e72104ee898c3775"
+      ]
+    },
+    "tiger--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "d84ec1e90965d08a075c78062d28b8108c9651571a260449d90c23e42ac73fc0",
+        "b54ab8c6a0701e41061e6fe9127915b46f5648315a92a94a7e30e1ba4dd8fddd",
+        "fc72978e1c61292a470924b3d5ffcaf4978a9e39d0c9a4f513cf079465d82b2c",
+        "dfc825fe2b75edc64feb78da126c18b65c97391ebe7b2d1394eaa8cb8c02a2f4",
+        "6101421ab345c621da86b5f7ef97c14552fe97d62c3eb7b4da43e41e9a35597c",
+        "ccd98753a008bc9cb75c9ffbe2e2543ccb0fc919b9de3c96dc13604bfea5e0b9",
+        "6206242337d5b4acbc815e0795162eb1eb106de9dd639f08e856fe0ba866f62a"
+      ]
+    },
+    "trail_hunter--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "b809644008005e12b0d2e437d7c586fd7017399fda0ad579a89e0793e467dbd2",
+        "790620817050aeb6f8ffeb38c1abb6b6fcd647b49e15d1153b0b02a6ef52cb47",
+        "30d4bbf43491a38806040faac730075a2034e338437ea4bfa505985322012843",
+        "85193c52a8a72ae9699e24225f9bfa7e0656c5da6670cfd040aac7b5e6250f02",
+        "b5244fd307d39d59c4966e5184f382fb93940cd849095999ee9260aa7093b6c0"
+      ]
+    },
+    "trail_hunter--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "b809644008005e12b0d2e437d7c586fd7017399fda0ad579a89e0793e467dbd2",
+        "6c7341c1a428f3680966455c20f60ef2d5fc575edbe288f3acb3eaf897bc6736",
+        "2cac3d9c229e23462ea60f43f133bf2f980bab8c8fc4662b72079d92ac0f2071",
+        "c35a17f9324e0675224826b57483163bc744f1ac22ed3ec351bac028741f6685",
+        "925941725b30df3eb352c5ffab5e2ddf497b243a551a76f8d81efb9aa2b6f75e"
+      ]
+    },
+    "trail_hunter--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "b809644008005e12b0d2e437d7c586fd7017399fda0ad579a89e0793e467dbd2",
+        "5b11b564bec23bec3caa2d7667675f511a23f8bdb085db1dea3cfa4671f72d76",
+        "1a1044533fec861900105f5f6e74989e4ca62c47088877b5d6f4d50a37b20bba",
+        "e07f809fe779ca0dfc1804f37e0b0bf86407b4bb3a59c67df21d602cd834cb53",
+        "08a054ab43896e12de35ac42eb2d49682959246a0467ea2e2a51648da167fa77",
+        "0339ff528de4750ff8f3db7d629a9938f87fa4ec967779d5b464a2792432cc73",
+        "5e9bbd1e4865482e44b3cb94533d6e425e812e14155c76f3469624630518f935"
+      ]
+    },
+    "trail_hunter--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "b809644008005e12b0d2e437d7c586fd7017399fda0ad579a89e0793e467dbd2",
+        "9e946ce624f73925d7867480c00bba804c32d0655b1bbb7d1bd9f12a3c43bd76",
+        "eb786c62fa179106c6b54d388698ee5281821267cec63caf135774974b9bba8c",
+        "91f3956c5c36dce4f1d19541ddd2735b219f42eda0f845bcbef2d8a3021905d4",
+        "fc9b2c29f9e7eeb7df327ebac18cd154c670382d26b1545b5cee11ffc79bd3fa",
+        "b5f16696e80107183ac43f8f26ba66dfbb3e5ce129ea44460e4eb5bdefc37a5c",
+        "fd6edaade5837f13d7c603d705b1b23b9da4720403db7468b841217e9896797b"
+      ]
+    },
+    "village_baker--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "c572ea93a601afb92e73feef273627289200f0c0df0cd01c5e721267a8223f05",
+        "b958276dd5f835aadc07a1a99c48ee84bf7d80828ad7a87b6f842e55b1a0d4cb",
+        "48d1e4c00a155dade88e734c21fcaddff9e245da84d6ca4b393ab512f9950957",
+        "568ef8fb5630e07a47573c8738578e73ab8c433e80ae9435ede054986142865b",
+        "31f17fd1f5673763f717267f34593c48fb6c83eaf29effb90d9a11827a660daa"
+      ]
+    },
+    "village_baker--rest": {
+      "tool": "animate_image",
+      "description": "Settling down to rest on a simple bed in side view, calm resting pose and slow breathing.",
+      "sourceFrameSha256": [
+        "c572ea93a601afb92e73feef273627289200f0c0df0cd01c5e721267a8223f05",
+        "7e4516a5af5f13513c3d197fcae98f6341538386eaf36557f0405909d951dcf9",
+        "88448d8a212c764855cb87408366cd77cb0b0a20b38473b2fa630766bad39336",
+        "7623f4a9c42a95f8dd26f6e2888ccaaac9ba1e66f9a667683602205767da2146",
+        "ce15b568b48fc770d63ea88024f459c8f530b8fe29ab4ad3275670d62ebd501d"
+      ]
+    },
+    "village_baker--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "c572ea93a601afb92e73feef273627289200f0c0df0cd01c5e721267a8223f05",
+        "bb0bd8f93365f1cb38bca510ffd28aa16dcaef16317b29dda96fa2927e9dc054",
+        "94bc54041a4293420ad3283d4c40d083df82964028d0005532f6638a89530bee",
+        "a0a875dd61a1da6ae358687d58f70a03a7943a1e5932a50c728a01da1cf9464c",
+        "6acfdddc37f1abe92d20f832fea1327c5a12c2a48905651fcfd1eb2c167bdbb1",
+        "881f5a8bb14d7e31d185fc0c7e438374f71dd9e16e847666bfe6035e9722c398",
+        "8a631689484d7062cee7806b9f06ce4b2f409b2484b5822a6aa072522c70df3c"
+      ]
+    },
+    "village_baker--work": {
+      "tool": "animate_image",
+      "description": "Standing in place and working deliberately with hands in front of the body, measured natural movements, loop.",
+      "sourceFrameSha256": [
+        "c572ea93a601afb92e73feef273627289200f0c0df0cd01c5e721267a8223f05",
+        "2903af2964e3e6bc3aafadc932e08a10ff8fe0f9818ffff27f2d7b9454dc7a29",
+        "53d2c4b5052fd24d5a0134b5c71dfa93b2f1e22ab84898c730be1f82900489be",
+        "f051ba5d2457db46c0ab36ee816e66c95261ad0d34d7fbe91da6f7715f138833",
+        "127ad60a21d0eb6483b1f16e8fa6e81079beeac0e55cbd55ab401c226941ed43",
+        "3158974bd6fe734fe184473e6788d3bf07cbfedaa8acb485e19561e7ed4f7b14",
+        "f2be61698ee4bda9fe00731eee1f981765def5f4cddde59e8a563dc2dc62d38c"
+      ]
+    },
+    "wake--spread": {
+      "tool": "animate_image",
+      "description": "Two thin elliptical ripples expand gently outwards and separate into fading broken arcs, centered in place on transparency, subtle action, no new objects.",
+      "sourceFrameSha256": [
+        "4bec8b80b48e6ae8a283fd567e59a28e0ead3e7a1d2cc6230a1807311351ef9e",
+        "efbece7c8780362dd59fd95e459cd26eddd7e1e1fc2f82a7aa194777062e3561",
+        "2c2b4180995baa2177527702af54deba659a548b8f4537f109d0c34723c2f654",
+        "ccbd3e0776c9f38adc44fa50abdfb2c7988ce7d41a8f733d745d14d2ac341384",
+        "0516f80c140ec9e56925e44526b1f068cbd0f80880380be66cadc17c917244c4",
+        "c526cf779f7fdf52d4752b3c314a78dbb98034b3a829af2306095bdc769410c3",
+        "13acc5098942262e5ef1c239e2ddc2494b137c6be5d6e9aa51079a4b55e3b715"
+      ]
+    },
+    "wolf--idle": {
+      "tool": "animate_image",
+      "description": "Breathing calmly in place in a seamless loop, natural restful posture.",
+      "sourceFrameSha256": [
+        "4ca7a919f2caccaab964482ca1cfbf4b8f3014228006a8681f80657cac889bd5",
+        "c250c85aab06721f5db67d1894950ab7df2d8c480bbd709b5e2a46ce47ec1310",
+        "81533b03923365fb17a0c38b7d914d87c48ccbc6159fec0d66b3715395a46e3b",
+        "4ab40727675e2be29298fec7470ce20f69beb37cfb8d305caf75d2f37c88bf9d",
+        "a90481fb9123102845a620a54ef4a4ada8d3d5c12d1b1d2e22addd2fd561c824"
+      ]
+    },
+    "wolf--walk": {
+      "tool": "animate_image",
+      "description": "Walking forward in place in a steady alternating stride.",
+      "sourceFrameSha256": [
+        "4ca7a919f2caccaab964482ca1cfbf4b8f3014228006a8681f80657cac889bd5",
+        "f1320faec5058164752fd429910a80e82b799c1b19db8570bfa6463955e1172f",
+        "81c6fde1fbccd0dcec04b6526109c5b6f2463895a6e8280000bac9631c52d44c",
+        "121eb82914d618ff368c3db1fb775618cabceed1e79efa699bdcad67e83ddcc4",
+        "76b8bbe3b27c8da35fe37aab148a7f903674f9724373bcc95296e50c05de0e3b",
+        "07885c788c2e907da9e54cc8b6527eb17b520ebace0fc9e17a7cc833c711730c",
+        "0afff03412b89547a31d864a383c53d5566a5e50520fe78eb5fdce84933a5173"
+      ]
+    },
+    "driftwood": {
+      "tool": "create_image_pro_flash",
+      "description": "One bleached fallen driftwood log with branches twisted in the wind, salt stains and broken root ball. Low isometric object propped on two small grey stones. Bare transparent cutout, no ground or surrounding scene.",
+      "sourceFrameSha256": [
+        "dfe0abb2f929a32e37f8a2cb1be21f5849c7ddd37cdc559240cdb3d616acdfc3"
+      ]
+    },
+    "reeds": {
+      "tool": "create_image_pro_flash",
+      "description": "A loose tuft of wind-bent tawny dune grass with a few dark seed heads, uneven low tussocks, coastal weeds, muted beige and sage. Isolated on transparent, no pedestal or island.",
+      "sourceFrameSha256": [
+        "c6a7043e5bd8d434582ca92c26dd42d7c0746d5d8cb3ff93f61acd76272c33d1"
+      ]
+    },
+    "tide_rocks": {
+      "tool": "create_image_pro_flash",
+      "description": "A low shelf of layered coastal blue-grey slate with a fractured front ledge, mussel shells and two small loose stones. Isometric 2:1 object, clustered rock on transparent background. No pedestal or landscape.",
+      "sourceFrameSha256": [
+        "03c8d00020d23534f22b1b9480f11b3cd5f53ba409d79df3cc1c04b8df35bdfa"
+      ]
+    },
+    "river": {
+      "tool": "create_image_pro_flash",
+      "description": "Tervain, muted European coastal valley RPG. Seamless full bleed square water surface texture, exact overhead view: a deep clear slate-teal river. Flat quiet pools alternate with a FEW broken silver-olive lines of current; faint darker pebbles below. Medium-sized handmade pixel clusters, long horizontal interrupted glints, soft contrast. No bank, island, white breakers, plinth or objects.",
+      "sourceFrameSha256": [
+        "15b22b391ff9d1856fc3e8098f742935d122c9005a176e71c93665f346564fa1"
+      ]
+    },
+    "texture-river": {
+      "tool": "create_image_pro_flash",
+      "description": "Tervain, muted European coastal valley RPG. Seamless full bleed square water surface texture, exact overhead view: a deep clear slate-teal river. Flat quiet pools alternate with a FEW broken silver-olive lines of current; faint darker pebbles below. Medium-sized handmade pixel clusters, long horizontal interrupted glints, soft contrast. No bank, island, white breakers, plinth or objects.",
+      "sourceFrameSha256": [
+        "15b22b391ff9d1856fc3e8098f742935d122c9005a176e71c93665f346564fa1"
+      ]
+    },
+    "texture-river--ripple": {
+      "tool": "animate_image",
+      "description": "Soft broken water glints drift a short distance downstream, maintaining low contrast, even illumination and a seamless loop. Ground still and invisible; the full square stays water.",
+      "sourceFrameSha256": [
+        "15b22b391ff9d1856fc3e8098f742935d122c9005a176e71c93665f346564fa1",
+        "ecd9e77cdc68a768b5d8c190c2f590dbe20986fc51520c8175d57bba52dac827",
+        "871926fe7e359f70abe66ea3b7e07add3ce2d8eb7d302530eba614310212da88",
+        "0e6a07ba07ed664d8dda3c870019a1249d1ff2df639477d98fdd4fbcbb881f0f",
+        "b6061e1108637ab64125a55aa8ea055e0362ef51f99fab48630e7561d3347dba",
+        "a6f2af723000718594346d5b2357f5dbdd1d2fa596687b17ce116a59f35c9a67",
+        "3ce3eeee07e432b5a8748b2a39dff4be834d6b968023a1a66a0d267e9ba67b9d"
+      ]
+    },
+    "pool": {
+      "tool": "create_image_pro_flash",
+      "description": "Seamless full bleed rectangular swatch of a still spring pool. Subdued dark grey jade, deep mineral green, a scattering of soft lighter mossy stones below the clear surface, occasional two-pixel pale sky glints. Broad quiet areas for reflections; sparse and low contrast. Muted atmospheric medieval CRPG pixel art. Top-down WATER ONLY edge to edge.",
+      "sourceFrameSha256": [
+        "7eeacb040b552ca7a6605333d1b9c056d8f872ba16034ab841a983a0f1a2d254"
+      ]
+    },
+    "texture-pool": {
+      "tool": "create_image_pro_flash",
+      "description": "Seamless full bleed rectangular swatch of a still spring pool. Subdued dark grey jade, deep mineral green, a scattering of soft lighter mossy stones below the clear surface, occasional two-pixel pale sky glints. Broad quiet areas for reflections; sparse and low contrast. Muted atmospheric medieval CRPG pixel art. Top-down WATER ONLY edge to edge.",
+      "sourceFrameSha256": [
+        "7eeacb040b552ca7a6605333d1b9c056d8f872ba16034ab841a983a0f1a2d254"
+      ]
+    },
+    "texture-pool--ripple": {
+      "tool": "animate_image",
+      "description": "Very gentle slow travelling light ripples on still green spring water, still stones beneath, steady palette; loop.",
+      "sourceFrameSha256": [
+        "7eeacb040b552ca7a6605333d1b9c056d8f872ba16034ab841a983a0f1a2d254",
+        "5fe2166a5b5692fa9fcd996d784890b070d18ec13aa45144d46486ccf670ed8c",
+        "6abd8a20355d741e4dc79d9144c2fd31aeec2aefda6dafe445b86eac9147e49a",
+        "a9028a2b52f33247e433fde95b4a928cc3d79c0590d0d9105d5d2e4d36d5e521",
+        "2acb42f7c0469125ce8ba51565679520731b27bb48a83e04ca98e699f034e5ce",
+        "0a0ea8bea2f927d1ee6d4c67a8fbd66e99b839be5aef798b01eb4b7282565fdb",
+        "18d901fb932e35b9534d2c0f2ca2621acfb8e96740b1f803ede846cb78a52ce6"
+      ]
+    },
+    "wake": {
+      "tool": "create_image_pro_flash",
+      "description": "Tiny isolated WATER RIPPLE sprite on transparent background, two thin broken pale sage-grey elliptical arcs with empty transparent space between them. A horizontal 2-to-1 ellipse as seen in an isometric pixel-art medieval RPG, tiny subtle splash flecks at the back. Graphic consists solely of a few elegant silver blue strokes; center and exterior entirely transparent. No dark pool, character, circular medallion, disc or ground tile.",
+      "sourceFrameSha256": [
+        "4bec8b80b48e6ae8a283fd567e59a28e0ead3e7a1d2cc6230a1807311351ef9e"
+      ]
+    },
+    "water-sky": {
+      "tool": "create_image_pro_flash",
+      "description": "Sky sampled from the custom Tervain title painting",
+      "sourceFrameSha256": [
+        "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30"
+      ]
+    },
+    "texture-grass": {
+      "tool": "create_image_pro_flash",
+      "description": "Windswept olive meadow and sage grass blades. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "87ef535ed60f5a2e017f8f34a77b8d83adaa6ccd0e6bd5b1155a1dc6f9ab051f"
+      ],
+      "derivedFrom": "grass"
+    },
+    "texture-sand": {
+      "tool": "create_image_pro_flash",
+      "description": "Fine damp grey-gold beach sand with scattered small shale pebbles. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "0c528e27392dcf4fab065a969afd870c4dbd0736e4b124d1d64bcddee42cd506"
+      ],
+      "derivedFrom": "sand"
+    },
+    "texture-shallows": {
+      "tool": "create_image_pro_flash",
+      "description": "Shallow muted turquoise sea with finely broken ivory surf on jade water. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "b12d08636b4533d3cf1491176ad5d6d8ea507ecceeadc8d52c748a68a7c1e908"
+      ],
+      "derivedFrom": "shallows"
+    },
+    "texture-shallows--ripple": {
+      "tool": "animate_image",
+      "description": "Gentle rhythmic water wavelets gleam and fade, loop, the diamond tile boundaries remain still.",
+      "sourceFrameSha256": [
+        "b12d08636b4533d3cf1491176ad5d6d8ea507ecceeadc8d52c748a68a7c1e908",
+        "68e3d3d42f770812456bff9b35c9d6743e92ccee0513728c3c1a807f69101448",
+        "4eacbcf0acb36bfe196ab67388995004e1fe8c10e7ac440aa8ccdef0311c968f",
+        "1cd34b3ce39d3b1157cf86c625d8b9c1c3f3833b1a1f34f9dca368f8dfb3b388",
+        "5a46e8a1ae380760435b06afc763d58d7ac8da8e5007986d8257607b5f10e7f4",
+        "8c8dd41c637311ea5190397d83446d32df7af7bb0aed560361fbca0f1912c743",
+        "2164abd891c1053589d8f292d637f6a6dc71ebda36b326566f7b0255c7c7528a"
+      ],
+      "derivedFrom": "shallows--ripple"
+    },
+    "texture-sea": {
+      "tool": "create_image_pro_flash",
+      "description": "Dark blue-green open sea, ripples with short pewter flashes. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "a250a89130feaedf737d328baa00ebe69285e224241fcacfa505630f3dd6ad28"
+      ],
+      "derivedFrom": "sea"
+    },
+    "texture-sea--ripple": {
+      "tool": "animate_image",
+      "description": "Gentle rhythmic water wavelets gleam and fade, loop, the diamond tile boundaries remain still.",
+      "sourceFrameSha256": [
+        "a250a89130feaedf737d328baa00ebe69285e224241fcacfa505630f3dd6ad28",
+        "f9fd35c653f9f91218b3cc15b6bbde9d95d18fa279757a673fee543da115b017",
+        "f98c4da850f82e56c3773cec0a19ed71bb80442f9928e5d2c5523da9a3551c3a",
+        "050f855ab53ba60f71b07d1599aa3220b728a874f7cd23c27f63e1280038b384",
+        "4b627b7491184230e13d9c73602fd21a72d715120476797bc1c19e8c76a892e5",
+        "a7614e79d54044cc379d824c0c13b06061d1b46605e4bc0a1872afc5d631acdb",
+        "57a3d88d308b57e99e160b9f50ebb676ff4094a0f1a8104a49e76c84a2594980"
+      ],
+      "derivedFrom": "sea--ripple"
+    },
+    "texture-trail": {
+      "tool": "create_image_pro_flash",
+      "description": "Packed warm umber earth, tiny pale stones, an old cart lane, no foliage. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "6a964ef4b19586a33c74b99d866fda0c7d9801bfda587bd692df85b90c7fae36"
+      ],
+      "derivedFrom": "trail"
+    },
+    "texture-woodland": {
+      "tool": "create_image_pro_flash",
+      "description": "Deep forest floor of dark moss, pine needles and leaf litter. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "4406c1d86c76a0205cc1346c15801e27985fe5b153d9fa68cfd37a4c3f8690e6"
+      ],
+      "derivedFrom": "woodland"
+    },
+    "texture-rock": {
+      "tool": "create_image_pro_flash",
+      "description": "Broken blue-grey slate scree, hairline seams and ochre lichen. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "c306d9a7c506d7f12ba842345be8f7c079042a96bba3994889a59a5c8c77f261"
+      ],
+      "derivedFrom": "rock"
+    },
+    "texture-floor": {
+      "tool": "create_isometric_tile",
+      "description": "Brown chestnut plank floor, warm muted wood grain. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "9de9f3e4bfd0579b517f93d84ce7d13e4ece9db314aae6ac45a15100d5baeaea"
+      ],
+      "derivedFrom": "floor"
+    },
+    "texture-field": {
+      "tool": "create_isometric_tile",
+      "description": "Tilled dark soil with narrow rows of golden wheat shoots. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "c11ed59c6e4734575e98fd9538eee2b84ff12c7047e6b4a326de45a5cc3d1910"
+      ],
+      "derivedFrom": "field"
+    },
+    "texture-stone": {
+      "tool": "create_isometric_tile",
+      "description": "Old limestone cobbled courtyard, weathered dark greys, sparse lichen. Flat continuous ground surface for an isometric serious medieval RPG, homogeneous edge to edge, no standing objects, no border. Light upper left.",
+      "sourceFrameSha256": [
+        "d76ebc10b33a99f9aa297e67e12bacb4b4f48aa89b8e33ddf7416f6450d7bfcd"
+      ],
+      "derivedFrom": "stone"
+    }
+  },
+  "runtimeFilesSha256": {
+    "icons/animal_hide.png": "829f4b81015f13ebc231ef2507afffb194b07c4bcd2ac7f9add572c197b1b590",
+    "icons/archive_key.png": "f6abbc8ad34c129f7beaa528bfb917e972ac061549dd5eb59af747a05017cf32",
+    "icons/arrow.png": "a399c16319a9ee31f8608640870114a9126f584fc18b9b36e7f3bf2cf211f875",
+    "icons/ash_recorder.png": "bb4a8b41f431b1e2508117467b33d7a6ce923d74f0cc686d3e3581ea5e73fd39",
+    "icons/bag_icon.png": "3befe4ec10e4ab64ac460d5ed68ee5a6303bad9c8a40f4f3b4966451d3e2fcd5",
+    "icons/bandit.png": "9857bd7383eaf3506e42cd9aa07f725aa764e28136ddcda6638518551c6d7bd5",
+    "icons/bread.png": "b4815da1af2fc643bdaf09b7f0572fd3df6b1e07fe0f218675a7588b93d1e9d2",
+    "icons/caravan_master.png": "1d45ed33c74677c353bb8f3458c6fad6d57a63d97a7dff4d27bb1b0bb10316c7",
+    "icons/coin.png": "683d1a7452d4f43283cdae1e0b9a80d71650ae4ee5c9e96094d75525063c5028",
+    "icons/compass.png": "81269c6cf2d5d2e7bb278e19a3c058c2fef85703a0c894ad0c2e574c6d087ebf",
+    "icons/contract_band.png": "d01908a9b68d201407c12ae30d5b5909090c3ec763aa18efa9e3c2944e61f167",
+    "icons/estate_steward.png": "28d92dd09f299c7978632bb566afc3cedbaf418bd264bd2d4aac5f8f331aa894",
+    "icons/field_mushroom.png": "04bb667c7dd8799b907718496b7714d1ac74c076bdf36544783814f35b93d716",
+    "icons/fireside.png": "9f57a7d25272732d6ac5cba4f720e52aff4a81d8c221765d8f21250a62c5032e",
+    "icons/fisher.png": "64c75c82de0ff2ed4f019fda094125525532e9b487c0ef42cedac500b91c4375",
+    "icons/gate_wrench.png": "745f336742175d55059173eb6b581d51f90d1a76afdee894ab7250a83e9cecdf",
+    "icons/healing_herb.png": "68922f854af88aea40abf82e9b64f9400a3f9df23c8c799476bc87a2ba43e5d8",
+    "icons/hunting_bow.png": "fdddf8bfb56712cea70b558458326de03b4bf0fc61209a4f94ffdf67d2607a3c",
+    "icons/iron_scrap.png": "b9d025efb0120fcb98446606e2a0170ab102206538eebf2ffb3d045b7a547a26",
+    "icons/journal_icon.png": "77046b32ebb8a095037d688347b582a8b35f377306a7fd61b8ff5060ebd1e91c",
+    "icons/keeper.png": "bcc106abbd6db7acc730b25b5012a6c897065589eb3bcf4df7c492c0998f732f",
+    "icons/league_sash.png": "ec4d6150448c43c17c326fa98ce1991ea5aded35b512c8568b3e4765188f4e54",
+    "icons/maintenance_worker.png": "b39507dd969cc7ca7d4f95ea3dbe0c65860921824fa5cedaa01e6ef6abdeab84",
+    "icons/map_icon.png": "2e47e3f70ff8c96513c60da63916ca871c199bcbb92a2a11ab385a5ab3a1531a",
+    "icons/mill_hand.png": "1ddb233f91b63aae616052e304426fe4a47e331c896ca1d379efb0f0f175d7dd",
+    "icons/poultice.png": "b0e9933bb56491f162dba2a1283acc40b5a9887646a741adc54aaeaba48f7cde",
+    "icons/quarry_foreman.png": "2a4fbbef29d5cada1eb9b9b55fd957475ee1b3cd6be83d8c819a8016461de377",
+    "icons/quarry_hand.png": "8e310c06e277e337f1720ec988de9756440d2bb7d6d8f42166f9f40bee94634a",
+    "icons/raw_meat.png": "2e626c1420faeb575af428d8968163ebddf190ce59a192c7f4a25a6f867d7795",
+    "icons/rillford_reeve.png": "83efe368d31e2eb2312a5168d051319082ce74c74f96c4eedbb478f935fce770",
+    "icons/rusted_sword.png": "aa4aced142c2ae77e6af396bba4863877bb5ba00b82367434e49d723543ceae2",
+    "icons/seal.png": "e6d16a4495b1ccfa253ed6e60a20833745eb93a6dde1b2c1e3a1fb7b7eef3e33",
+    "icons/shore_apple.png": "d8d3a18796589e3f5c7243340003c5c4482794df3b631b08174f26d9e65174bc",
+    "icons/shrine_warden.png": "0396c0ae4cb3cda191a6757db9e5bd3c12f186408fc4c30ce547f91be696de3e",
+    "icons/skinning_knife.png": "951d5f0efdad861408ab805dd9aab32219adc3d8052799f36610741d7733ada1",
+    "icons/sluice_brace.png": "0a4849515a03f96bec80730d7781cad357241b127a6030ff1da297fcf020bf09",
+    "icons/spring_steward.png": "c6af73067700d24fdbc5f1af130d906cc7273b524ac5cf7fd58159dfe82243d4",
+    "icons/thornback.png": "df88a02f3178e3da86229f3c0618ad5e48d2643dafdc1f4dcc4184eaadeb1612",
+    "icons/trail_hunter.png": "b809644008005e12b0d2e437d7c586fd7017399fda0ad579a89e0793e467dbd2",
+    "icons/village_baker.png": "c572ea93a601afb92e73feef273627289200f0c0df0cd01c5e721267a8223f05",
+    "icons/votive_reed.png": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
+    "icons/witness_cord.png": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
+    "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
+    "sprites.json": "966b57d0391df76543cb58a5a656e26595d4ad1f3bb6c0f45a0f64b1fac82c3a",
+    "sprites.png": "eefecd26dd4eec4a8bd2003ee4244010b67cf64685f178331ecb0e8cf9ce9696",
+    "title.png": "7ef9c7e659a9d454fde713e71ba54d1bc2c844ccbd643fb103b8ab1af29ffe30",
+    "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
+  }
+}

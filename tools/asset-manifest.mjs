@@ -22,7 +22,7 @@ const target = path.join(root, 'data', 'assets', 'manifest.json');
 
 /** The folders that hold assets. Gothic 3 study material is a separate project and is not catalogued here. */
 export const ASSET_ROOTS = ['public', 'assets'];
-const KIND_BY_EXTENSION = { glb: 'model', jpg: 'texture', jpeg: 'texture', png: 'image', webp: 'image', ogg: 'audio', m4a: 'audio', mp3: 'audio', json: 'data' };
+const KIND_BY_EXTENSION = { glb: 'model', jpg: 'texture', jpeg: 'texture', png: 'image', webp: 'image', ogg: 'audio', m4a: 'audio', mp3: 'audio', ttf: 'font', json: 'data' };
 
 export function trackedAssetFiles(directory = root) {
   const listed = execFileSync('git', ['ls-files', '-z', '--', ...ASSET_ROOTS], { cwd: directory, maxBuffer: 256 * 1024 * 1024 }).toString().split('\0').filter(Boolean);
