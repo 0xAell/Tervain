@@ -22,6 +22,8 @@ const stepMaterial: Record<string, string> = {
   field: 'grass',
 };
 type Caption = (text: string) => void;
+// World speech uses positive priorities and can always take over the interface reader.
+const interfacePriority = 0;
 
 export class Sound {
   readonly mixer: Mixer;
@@ -68,8 +70,20 @@ export class Sound {
   endLine() {
     this.mixer.stopVoice();
   }
+  get worldNarration() {
+    return this.mode === 'full' || this.mode === 'interface';
+  }
+  get readingInterface() {
+    return this.mixer.speaking && this.mixer.speechPriority === interfacePriority;
+  }
+  readInterface(lines: string[]) {
+    return this.mode === 'interface' && this.mixer.say(lines.flatMap(readText), interfacePriority);
+  }
+  stopInterface() {
+    if (this.readingInterface) this.endLine();
+  }
   narrate(text: string[], priority = 3) {
-    if (this.mode !== 'full') return false;
+    if (!this.worldNarration) return false;
     return this.mixer.say(text.flatMap(readText), priority);
   }
   private actorPart(id: string): SpokenPart | undefined {
@@ -93,7 +107,7 @@ export class Sound {
       if (!cue) continue;
       const speaker = id.includes('#') ? 'hero' : DIALOGUE_NODES[id.slice(2)]?.speaker;
       const caption = speaker && speaker !== 'narrator' ? SPEAKER_NAMES[speaker] + ' · ' + S(id) : S(id);
-      if (speaker !== 'narrator' || this.mode === 'full')
+      if (speaker !== 'narrator' || this.worldNarration)
         parts.push({ cue, caption, inWorld: !!speaker && speaker !== 'narrator' });
     }
     return this.mixer.say(parts, priority);
@@ -130,7 +144,7 @@ export class Sound {
   private residents(v: Valley, night: boolean) {
     if (this.night !== null && this.night !== night) this.remark(night ? 'night' : 'dawn', v.time);
     this.night = night;
-    if (this.mode === 'off' || this.mixer.speaking) return;
+    if (this.mode === 'off' || (this.mixer.speaking && !this.readingInterface)) return;
     const pending = this.pending;
     if (pending && v.time >= pending.due) {
       this.pending = undefined;

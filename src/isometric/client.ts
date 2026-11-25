@@ -3,7 +3,7 @@ import { initializePhysics } from '../physics/initialize';
 import { PropPhysics } from './propPhysics';
 import { Sound } from './audio';
 import { defaultMix, type MixLevels } from './mixer';
-import type { VoiceMode } from './reading';
+import { savedVoiceMode, type VoiceMode } from './reading';
 import { Game } from '../core/game/game';
 import { createInitialState } from '../core/game/state';
 import { S } from '../core/content/strings';
@@ -69,11 +69,9 @@ function readSettings() {
     const value = saved.mix?.[k];
     if (typeof value === 'number' && Number.isFinite(value)) mix[k] = Math.max(0, Math.min(1, value));
   }
-  const voiceMode: VoiceMode =
-    saved.voiceMode === 'off' || saved.voiceMode === 'characters' ? saved.voiceMode : 'full';
   return {
     mix,
-    voiceMode,
+    voiceMode: savedVoiceMode(saved.voiceMode),
     volume: typeof saved.volume === 'number' ? Math.max(0, Math.min(1, saved.volume)) : 0.36,
     bindings,
   };
@@ -371,9 +369,12 @@ export class Client implements Controls {
     this.storeSettings();
   }
   setVoiceMode(mode: VoiceMode) {
+    if (this.sound.mode === mode) return;
+    const wasReadingWorld = this.sound.worldNarration;
     this.settings.voiceMode = mode;
     this.sound.mode = mode;
-    this.sound.endLine();
+    if (wasReadingWorld && this.sound.worldNarration) this.sound.stopInterface();
+    else this.sound.endLine();
     this.storeSettings();
   }
   setMix(key: keyof MixLevels, value: number) {

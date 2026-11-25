@@ -271,6 +271,13 @@ button img {
 .volume input {
   flex: 1;
 }
+.spoken-audio {
+  flex-wrap: wrap;
+  gap: 0.3em 1em;
+}
+.spoken-audio select {
+  max-width: 100%;
+}
 .save-row {
   display: flex;
   align-items: center;

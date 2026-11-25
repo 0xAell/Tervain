@@ -13,7 +13,10 @@ export const catalogue = recorded as unknown as {
   music: Record<string, string>;
   encounters: Record<string, { cue: Cue; text: string; speaker: string }>;
 };
-export type VoiceMode = 'full' | 'characters' | 'off';
+export type VoiceMode = 'full' | 'interface' | 'characters' | 'off';
+export function savedVoiceMode(value: unknown): VoiceMode {
+  return value === 'interface' || value === 'characters' || value === 'off' ? value : 'full';
+}
 export type SpokenPart = { cue: Cue; caption?: string; inWorld?: boolean };
 export const readKey = (text: string) =>
   text
