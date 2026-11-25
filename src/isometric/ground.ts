@@ -11,7 +11,8 @@ import { impactsForTile, visibleWaterImpacts, waterImpactAt, type WaterImpact } 
 import type { PropView } from './propPhysics';
 import { foamCell } from './foam';
 import type { Atlas } from './atlas';
-import { dryGroundAt, PROJECTION } from './land';
+import { landMaterial, woodlandCover } from './landCover';
+import { PROJECTION } from './projection';
 import { coursesInFrame, stoneFlow, waveFrame, waterProfile, type Flow, type WetPoint } from './water';
 import { bedDepth, seaClock, seaPhases, sinPhase, cosPhase } from './swell';
 import {
@@ -49,7 +50,7 @@ const SAND = 1,
   ROCK = 6,
   POOL = 11;
 type Texture = ReturnType<Atlas['read']>[number];
-type Sample = { dry: number; lane: number; nearWater: boolean };
+type Sample = { dry: number; wood: number; lane: number; nearWater: boolean };
 type Chunk = ReturnType<Ground['makeChunk']>;
 interface VisibleChunk {
   x: number;
@@ -130,8 +131,10 @@ export class Ground {
     let s = this.samples.get(key);
     if (!s) {
       const wet = waterProfile(ix / 2, iz / 2);
+      const soil = wet?.course === 'ocean' ? 'sand' : landMaterial(ix / 2, iz / 2);
       s = {
-        dry: wet?.course === 'ocean' ? SAND : materials.indexOf(dryGroundAt(ix / 2, iz / 2, 0)),
+        dry: materials.indexOf(soil),
+        wood: soil === 'grass' ? woodlandCover(ix / 2, iz / 2) : 0,
         lane: roadWeight(ix / 2, iz / 2),
         nearWater: !!wet,
       };
@@ -181,6 +184,8 @@ export class Ground {
         const sample = this.sample(wx + jitter, wz - jitter * 0.7);
         const dry = this.textures[sample.dry]![0]!;
         pixels[i] = texel(dry, wx * 4, wz * 4);
+        if (sample.wood)
+          pixels[i] = mix(pixels[i]!, texel(this.textures[5]![0]!, wx * 4, wz * 4), sample.wood * 256);
         const wet = sample.nearWater ? waterProfile(wx, wz) : null;
         const inland = wet && wet.course !== 'ocean';
         const light =
@@ -188,7 +193,7 @@ export class Ground {
           0.23 * Math.sin(wx * 0.15 + wz * 0.08) +
           0.18 * Math.cos(wz * 0.29 - wx * 0.07) +
           0.09 * Math.sin(wx * 0.54 + wz * 0.36);
-        const wild = sample.dry === 0 || sample.dry === 5;
+        const wild = sample.dry === 0;
         if (wild || sample.dry === 9) {
           const blades = texel(
             this.meadow,
@@ -196,8 +201,8 @@ export class Ground {
             wz * 2.6 + 2.7 * Math.cos(wx * 0.31)
           );
           const lush = mix(rgba(41, 110, 89), rgba(197, 224, 113), light * 240);
-          const meadow = mix(blades, lush, sample.dry === 5 ? 140 : 156);
-          pixels[i] = mix(pixels[i]!, meadow, sample.dry === 5 ? 92 : 216);
+          const meadow = mix(blades, lush, 156 - sample.wood * 16);
+          pixels[i] = mix(pixels[i]!, meadow, 216 - sample.wood * 124);
           if (sample.dry === 9) {
             const radius = Math.hypot(wx - 3, wz - 9),
               patch = sat((12.3 - radius + 0.6 * Math.sin(wz * 1.6) + jitter) / 2.65);

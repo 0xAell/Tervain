@@ -2,8 +2,12 @@ import { canClimb } from './relief';
 import { PROJECTION } from './projection';
 import { bankPlants } from './riverHabitat';
 import { hegemonyStandards } from './hegemony';
+import { landMaterial, woodlandCover } from './landCover';
+import { canRootTree, isTree } from './treeHabitat';
 import { passesRails } from './crossing';
-import { campShelter, buildingSprite } from './settlement';
+import { campShelter, buildingSprite, onFootpath } from './settlement';
+import { forestStandAt } from '../core/world/forestStands';
+import { fbm, smoothstep } from '../core/world/noise';
 import { toBuildingLocal } from '../core/world/interiors';
 import { crossedDoor, doorOpen, siteAtPoint } from './doorways';
 import type { WorldState } from '../core/game/types';
@@ -17,7 +21,7 @@ import {
   passesRocks,
   type StoneObstacle,
 } from './waterObstacles';
-import { coastX, shoreDistance } from '../core/world/coast';
+import { coastX } from '../core/world/coast';
 import { roadWeight, realmRadius } from '../core/world/terrain';
 import {
   ARRIVAL_WRECK,
@@ -28,8 +32,6 @@ import {
   BENCHES,
   COOKFIRES,
   BELL,
-  FIELDS,
-  FOREST_REGION,
   HUNTER_CAMP,
   LANTERNS,
   LIGHTHOUSE,
@@ -75,23 +77,11 @@ export function waterAt(x: number, z: number) {
   return wetPoint(x, z)?.kind ?? null;
 }
 export function groundAt(x: number, z: number) {
-  return waterAt(x, z) ?? dryGroundAt(x, z);
-}
-export function dryGroundAt(x: number, z: number, lane = roadWeight(x, z)) {
-  if (lane > 0.36) return 'trail';
-  if (shoreDistance(x, z) < 15 + 2 * Math.sin(z * 0.2)) return 'sand';
-  if (FIELDS.some((f) => Math.abs(f.x - x) < f.w / 2 && Math.abs(f.z - z) < f.d / 2)) return 'field';
-  if (Math.hypot(x - 88, z + 23) < 20 || realmRadius(x, z) > 1.03) return 'rock';
-  if (Math.hypot(x - 3, z - 9) < 12) return 'stone';
-  if (
-    x > FOREST_REGION.minX &&
-    x < FOREST_REGION.maxX &&
-    z > FOREST_REGION.minZ &&
-    z < FOREST_REGION.maxZ &&
-    Math.hypot(x + 82, z - 34) > 26
-  )
-    return 'woodland';
-  return 'grass';
+  const wet = waterAt(x, z);
+  if (wet) return wet;
+  if (roadWeight(x, z) > 0.36 || onFootpath(x, z)) return 'trail';
+  const soil = landMaterial(x, z);
+  return soil === 'grass' && woodlandCover(x, z) > 0.43 ? 'woodland' : soil;
 }
 export function navigable(from: V2, to: V2, open: boolean | WorldState, lift = 0) {
   return (
@@ -167,10 +157,11 @@ export function scenery() {
   for (const p of LANTERNS) put('lantern', p, 20);
   for (const p of Object.values(BENCHES)) put('seat', p, 34);
   list.push(...hegemonyStandards);
+  const riversideTrees = bankPlants.filter((p) => isTree(p.key));
   for (let x = WORLD.minX; x < WORLD.maxX; x += 6)
     for (let z = WORLD.minZ; z < WORLD.maxZ; z += 6) {
       const p = { x: x + random(x, z, 11) * 5, z: z + random(x, z, 21) * 5 };
-      const g = groundAt(p.x, p.z),
+      const g = waterAt(p.x, p.z) ?? (roadWeight(p.x, p.z) > 0.36 ? 'trail' : landMaterial(p.x, p.z)),
         r = random(x, z, 92);
       if (
         g === 'sea' ||
@@ -191,11 +182,35 @@ export function scenery() {
       if (bank && bank.course !== 'ocean' && bank.bank < 0) {
         continue;
       }
-      const wood = g === 'woodland',
+      const wood = g === 'grass' ? woodlandCover(p.x, p.z) : 0,
         beach = g === 'sand';
-      if (r < (wood ? 0.7 : g === 'grass' ? 0.095 : 0) && roadWeight(p.x, p.z) < 0.08) {
-        const trees = ['pine', 'oak', 'fir', 'birch'];
-        put(trees[Math.floor(random(x, z, 1) * 4)]!, p, (wood ? 58 : 48) + random(x, z, 2) * 36);
+      if (g === 'grass' && r < 0.62) {
+        const copse = smoothstep(0.05, 0.53, fbm(p.x / 35, p.z / 41, 2, 67)),
+          density = Math.min(0.62, 0.022 + copse * 0.16 + wood * 0.86),
+          width = 45 + wood * 12 + random(x, z, 2) * 34;
+        if (
+          r < density &&
+          canRootTree(p, width) &&
+          !riversideTrees.some((tree) => distance(tree, p) < (tree.width + width) / 28)
+        ) {
+          const source =
+            wood > 0.25
+              ? forestStandAt(p.x, p.z).sp
+              : bank && bank.course !== 'ocean'
+                ? 'birch'
+                : copse > 0.58
+                  ? 'oak'
+                  : 'pine';
+          // Tall fir sprites close the sheltered stands. The spreading pine silhouettes suit exposed ground.
+          const shelter = fbm(p.x / 23 + 5, p.z / 25 - 4, 2, 183);
+          const family =
+            source === 'pine' && wood > 0.32 && shelter > -0.32
+              ? 'fir'
+              : source === 'oak' && wood > 0.24 && shelter > 0.22
+                ? 'birch'
+                : source;
+          put(family, p, width);
+        }
       } else if (r > (beach ? 0.51 : 0.62)) {
         const k = random(x, z, 34);
         put(
@@ -207,7 +222,7 @@ export function scenery() {
               ? 'rockpile'
               : k > 0.84
                 ? 'flowers'
-                : g === 'grass'
+                : g === 'grass' && wood < 0.48
                   ? k > 0.61
                     ? 'rill_fern'
                     : 'rill_spirea'

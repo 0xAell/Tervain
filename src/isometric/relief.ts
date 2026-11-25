@@ -119,6 +119,10 @@ function facet(x: number, z: number, out: Facet) {
 }
 const sample: Facet = { h: 0, dx: 0, dz: 0 };
 export const terrainHeight = (x: number, z: number) => facet(x, z, sample).h;
+export function terrainSlope(x: number, z: number) {
+  const f = facet(x, z, sample);
+  return Math.hypot(f.dx, f.dz);
+}
 /** Floor under a walker's feet, including bridge decks and the modelled front steps. */
 export function supportHeight(p: V2) {
   const deck = deckAt(p);

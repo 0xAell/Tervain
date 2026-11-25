@@ -16,7 +16,8 @@ import type { PropView } from './propPhysics';
 import { crossings, deckAt } from './crossing';
 import { RiverLife } from './riverLife';
 import { Architecture } from './architecture';
-import { hegemonyStandards, isHegemonyStandard } from './hegemony';
+import { isHegemonyStandard } from './hegemony';
+import { chartPoint, paintValeMap } from './valeMap';
 import { bridgeArt } from './bridgeArt';
 import { drawStrip } from './worldArt';
 import { worldView } from '../core/game/worldView';
@@ -25,7 +26,7 @@ import { landingHalfWidth } from './roomPlans';
 import { drawFocus, drawWaylight, pickRegion, type PickRegion } from './entryCues';
 import { targetDistance } from './roomTargets';
 import { AMBIENT_RESIDENTS } from '../core/content/ambientPeople';
-import { project, unproject, groundAt, inBuilding, scenery, type Scenery } from './land';
+import { project, unproject, inBuilding, scenery, type Scenery } from './land';
 import { COOKFIRES, PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
 import { hourOfDay } from '../core/game/state';
 import { facesLeft, type Valley } from './simulation';
@@ -665,33 +666,13 @@ export class Scene {
     const w = canvas.width,
       h = canvas.height,
       ctx = canvas.getContext('2d')!;
-    if (!this.mapBase) {
-      const base = document.createElement('canvas');
-      base.width = w;
-      base.height = h;
-      const c = base.getContext('2d')!;
-      c.imageSmoothingEnabled = false;
-      for (let y = 0; y < h; y += 3)
-        for (let x = 0; x < w; x += 3) {
-          const g = groundAt((x / w) * 580 - 380, (y / h) * 340 - 170);
-          this.atlas.draw(c, g, x + 1.5, y + 2, 8, 0, false, 0.5);
-        }
-      for (const standard of hegemonyStandards) {
-        if (!standard.chart) continue;
-        this.atlas.draw(
-          c,
-          'standard_chart',
-          ((standard.x + 380) / 580) * w,
-          ((standard.z + 170) / 340) * h,
-          9
-        );
-      }
-      this.mapBase = base;
-    }
+    if (this.mapBase?.width !== w || this.mapBase.height !== h) this.mapBase = paintValeMap(w, h, this.atlas);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(this.mapBase, 0, 0);
-    const plot = (p: V2, key: string, size: number) =>
-      this.atlas.draw(ctx, key, ((p.x + 380) / 580) * w, ((p.z + 170) / 340) * h, size, 0, false, 0.75);
+    const plot = (p: V2, key: string, size: number) => {
+      const at = chartPoint(p, w, h);
+      this.atlas.draw(ctx, key, at.x, at.y, size, 0, false, 0.75);
+    };
     if (valley.game.state.mapMarker) plot(valley.game.state.mapMarker, 'cursor', 13);
     plot(valley.player, 'hero-south', 19);
   }
