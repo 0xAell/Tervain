@@ -30,7 +30,6 @@ import { observeHeroDraws } from './hero-draw-observer.mjs';
 import { recordBudgetFrames } from './budget-frame-samples.mjs';
 import { comparePopulatedBudgets, completePopulation, expectedPopulation, maximumBudget, populationLabel, readPopulation, servedRoster, waitForPopulation } from './budget-population.mjs';
 import { LoadFailure, PROBE_INIT, waitUntilReady } from './budget-probe.mjs';
-import { waitForSettledDeploy } from './live-deploy.mjs';
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith('--') ? [...acc, [a.slice(2), all[i + 1]?.startsWith('--') || all[i + 1] === undefined ? 'true' : all[i + 1]]] : acc), []));
 const URL_ = args.url ?? 'https://0xaell.github.io/Tervain/';
@@ -56,6 +55,7 @@ const VIDEO = args.video !== 'false';
 // is still being published is waited for, not measured. A page that is merely slow still fails after ten minutes,
 // with what it was showing.
 if (args['budget-url']) {
+  const { waitForSettledDeploy } = await import('./live-deploy.mjs');
   const probe = async (url, label) => {
     const page = await openPage(url + '?shot=1&quality=high&settle=1&hud=0', { w: 1440, h: 900, headed: true, init: PROBE_INIT, flags: [NO_GPU_WATCHDOG] });
     try {
