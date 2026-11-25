@@ -12,7 +12,7 @@ Deepwood thins into glades and meadow, with taller firs in sheltered stands. Tre
 
 Gusts travel inland from the Grey Strand. Grass, crops, reeds and tree canopies bend as the wind passes. The wreck’s sail, the Hegemony standards and the cloth hanging in houses move at their ties.
 
-Hegemony standards fly at bridges, civic buildings and roadside posts across the vale. The local embroidery shows a gold gate over two river bars. The world map marks the principal standards with gold pennants.
+The Hegemony marks a handful of civic buildings and checkpoints with its gold sword-and-wings crest on plum cloth. The world map shows the principal standards. Loose apples can be found among the Grey Strand wreck provisions and by Rillford’s supply crates.
 
 Gold lanterns mark building entrances, exits and stairs between floors. Click a lantern to walk to it or use the interact key up close. Walk through interior arches to move between rooms. The 22 buildings each have a ground floor, a loft and a cellar. The map shows the current floor indoors. Household chests keep their contents between visits and the journal keeps the books you read.
 
@@ -26,7 +26,7 @@ The editable PNG sequences, original provider images and typeface are in `assets
 
 ## Status
 
-- **Version.** The current patch is [`0.1.20`](docs/production/releases/0.1.20.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is [`0.1.21`](docs/production/releases/0.1.21.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).

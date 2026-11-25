@@ -2038,17 +2038,6 @@
       "y": 1.016548
     },
     {
-      "id": "shoretrack_apple",
-      "x": -246,
-      "z": 31,
-      "r": 1.85,
-      "item": "shore_apple",
-      "qty": 1,
-      "nameKey": "item.shore_apple",
-      "yaw": 2.1,
-      "y": 1.107933
-    },
-    {
       "id": "dune_herb",
       "x": -253,
       "z": 47,
@@ -2091,17 +2080,6 @@
       "nameKey": "item.field_mushroom",
       "yaw": -0.7,
       "y": 0.913983
-    },
-    {
-      "id": "deepwood_apple_a",
-      "x": -184,
-      "z": 12,
-      "r": 1.85,
-      "item": "shore_apple",
-      "qty": 1,
-      "nameKey": "item.shore_apple",
-      "yaw": 1.9,
-      "y": 0.856773
     },
     {
       "id": "deepwood_herb_b",
@@ -2159,17 +2137,6 @@
       "y": 4.002929
     },
     {
-      "id": "waystation_apple_a",
-      "x": -104,
-      "z": 14,
-      "r": 1.85,
-      "item": "shore_apple",
-      "qty": 1,
-      "nameKey": "item.shore_apple",
-      "yaw": 0.6,
-      "y": 1.490986
-    },
-    {
       "id": "waystation_bread_a",
       "x": -101,
       "z": 22,
@@ -2179,17 +2146,6 @@
       "nameKey": "item.bread",
       "yaw": -0.6,
       "y": 1.832816
-    },
-    {
-      "id": "waystation_apple_b",
-      "x": -90,
-      "z": 46,
-      "r": 1.85,
-      "item": "shore_apple",
-      "qty": 1,
-      "nameKey": "item.shore_apple",
-      "yaw": 1.4,
-      "y": 1.219684
     },
     {
       "id": "waystation_bread_b",
@@ -2258,26 +2214,15 @@
       "y": 11.952917
     },
     {
-      "id": "lantern_apple",
-      "x": -327,
-      "z": 114,
-      "r": 1.85,
-      "item": "shore_apple",
-      "qty": 1,
-      "nameKey": "item.shore_apple",
-      "yaw": 1.4,
-      "y": 11.952917
-    },
-    {
       "id": "rillford_apple",
-      "x": -18,
-      "z": 32,
+      "x": -2.1,
+      "z": 18.7,
       "r": 1.85,
       "item": "shore_apple",
       "qty": 1,
       "nameKey": "item.shore_apple",
       "yaw": 0.2,
-      "y": 0.806695
+      "y": 1.060217
     },
     {
       "id": "rillford_bread",

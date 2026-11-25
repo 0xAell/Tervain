@@ -15,7 +15,7 @@ Near-grass rendering retains the clumps whose blades can reach the camera’s vi
 | In the game | How it is made |
 | --- | --- |
 | Lantern Point fog bell | A revolved bronze wall folds back into its mouth. The clapper, timber pegs, iron straps and stone feet are separate solids. The [same faces](../../src/presentation/strandBell.ts) enter the lighthouse material batches and the journey screen. The latter projects them without opening a second WebGL context. |
-| Warden’s standard | Three ward stakes stitched into dyed wool. The [cloth material](../../src/presentation/menu/menuBanner.ts) paints the stitch pattern and its light-through mask before the fabric moves in the wind. |
+| Warden’s standard | The Hegemony’s sword, wings, stars and rings come from the crest supplied by the project owner. The [cloth material](../../src/presentation/menu/menuBanner.ts) paints the embroidery and its light-through mask before the fabric moves in the wind. |
 | Wanderer and residents | [Sculpted figures and wardrobes](../../src/presentation/human) use named colour schemes, articulated limbs and equipment. |
 | Wildlife | [Animal bodies and movement](../../src/presentation/animals/valleyAnimals.ts) are shaped for the eight species. Their persistent identities also carry hunting and riding state. |
 | Woods, rooms and shore | The [environment sources](../../tools/craft-environment) make the trees, household furnishings and coastal schist. [Tree geometry](../../tools/tree-gen) and [needle and leaf patterns](../../tools/leaf-atlas) supply the other forest families. |

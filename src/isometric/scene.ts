@@ -301,10 +301,11 @@ export class Scene {
       if (valley.game.state.locationChanges['pickup:' + p.id] === 'taken') continue;
       const herb = p.item === 'healing_herb' ? this.windSprites.get('field_herbs') : undefined;
       const key = herb?.key ?? (p.item === 'field_mushroom' ? 'field_caps' : p.item);
+      const width = p.item === 'shore_apple' ? 8 : p.item === 'field_mushroom' ? 16 : 14;
       stamps.push({
         ...p,
         key,
-        width: p.id === 'wreck_blade' ? 24 : herb ? 16 * herb.widthScale : p.item === 'field_mushroom' ? 16 : 14,
+        width: p.id === 'wreck_blade' ? 24 : herb ? 16 * herb.widthScale : width,
         frame: herb ? windFrame(windPhase(p.x, p.z, time), this.atlas.frameCount(key)) : 0,
         lift: p.id === 'wreck_blade' ? 4 : 1,
       });

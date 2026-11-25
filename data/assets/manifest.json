@@ -43,11 +43,11 @@
   "totals": {
     "all": {
       "files": 1937,
-      "bytes": 482825744
+      "bytes": 482820279
     },
     "shipped": {
       "files": 999,
-      "bytes": 181628891
+      "bytes": 181625391
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -60,7 +60,7 @@
       },
       "keep": {
         "files": 932,
-        "bytes": 157628732
+        "bytes": 157623267
       },
       "rework": {
         "files": 0,
@@ -519,7 +519,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 46,
-      "bytes": 1779754
+      "bytes": 1776544
     },
     {
       "id": "vale-typeface",
@@ -545,7 +545,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 3,
-      "bytes": 6134004
+      "bytes": 6131749
     },
     {
       "id": "craft-trees",
@@ -9625,8 +9625,8 @@
       "path": "assets/pixellab/provenance.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 252720,
-      "sha256": "09f30319976bcbbc7965b3bb23ae9790235548db861048f2ae0ff25ac20431f8",
+      "bytes": 252414,
+      "sha256": "735e575f7026f88796d9bed2d511cead0635bfea723e21efc6d5417a881c346b",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -9639,8 +9639,8 @@
       "path": "assets/pixellab/sources.zip",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 5850761,
-      "sha256": "2c440fe757f3c5a8c1262f4bb010c7c0158ff49e849a66f3e27b2b701ddde9e6",
+      "bytes": 5849102,
+      "sha256": "d5da204ffdcd04f39a39e4df6ef434b58522f827f3ddddbfad4d508a4d6c739f",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -32484,8 +32484,8 @@
       "path": "public/vale/sprites.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 30523,
-      "sha256": "5021cd03abaeb4fc4e21de58086d2272367ac3b27e0a8e5f896b0aaa87ffc7b0",
+      "bytes": 30233,
+      "sha256": "cf79f1ff3debc7cde207c6f8f27135f9332c3f16212ac5097a0435e61759552d",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -32498,8 +32498,8 @@
       "path": "public/vale/sprites.png",
       "group": "vale-pixel-art",
       "kind": "image",
-      "bytes": 1664908,
-      "sha256": "b4672b66015ce5ed0d018ada92d619cdea419bae14d78a678f07368558fd0d40",
+      "bytes": 1661698,
+      "sha256": "544cb0a1fb79a06b96fc467b715e3a5ca61bd56ccd89ad79a534c55f34ef7da9",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-PixelLab-Generated",

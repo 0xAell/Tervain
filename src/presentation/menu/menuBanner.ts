@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { mulberry32 } from '../../core/world/noise';
 import { createWindCloth, type WindCloth } from '../menuWind';
+import crest from './hegemonyCrest.json';
 
-/** The warden's field standard: three crossed ward stakes stitched into weathered wool. */
 export interface CanvasSource {
   /** A 2D canvas; in tests a stub. */
   canvas(w: number, h: number): HTMLCanvasElement;
@@ -169,28 +169,20 @@ export function weatherEmblemPixels(data: Uint8ClampedArray, w: number, h: numbe
  * With `thickness`, only its shape is painted, dark: embroidered thread stops the light that shines through the cloth.
  */
 function paintBannerEmblem(c: Ctx2D, w: number, h: number, scratch: HTMLCanvasElement, thickness = false) {
-  const size = 128;
-  scratch.width = scratch.height = size;
+  const columns = crest[0]!.length, rows = crest.length;
+  scratch.width = columns;
+  scratch.height = rows;
   const s = scratch.getContext('2d', { willReadFrequently: true })!;
-  // A forked stake above a double chevron. All motifs use the same diagonal stitch angle.
-  s.fillStyle = '#ead7a6';
-  const patch = (points: readonly number[][]) => {
-    s.beginPath();
-    points.forEach(([px, py], i) => { if (i) s.lineTo(px!, py!); else s.moveTo(px!, py!); });
-    s.closePath(); s.fill();
-  };
-  patch([[61,24],[64,10],[67,24],[67,74],[64,80],[61,74]]);
-  for (const side of [-1,1]) {
-    s.save(); s.translate(64, 0); s.scale(side, 1);
-    patch([[4,57],[34,30],[37,22],[40,31],[8,66]]);
-    patch([[0,83],[42,46],[48,46],[48,50],[0,94]]);
-    patch([[0,101],[32,74],[40,74],[0,112]]);
-    s.fillStyle = '#b18d58';
-    patch([[15,87],[19,84],[19,97],[15,101]]);
-    s.restore();
+  const img = s.getImageData(0, 0, columns, rows);
+  const gold = [233, 179, 98, 255], rose = [175, 104, 134, 255];
+  for (const [y, row] of crest.entries()) {
+    for (let x = 0; x < columns; x++) {
+      const thread = row[x];
+      if (thread === '.') continue;
+      img.data.set(thread === 'g' ? gold : rose, (y * columns + x) * 4);
+    }
   }
-  const img = s.getImageData(0, 0, size, size);
-  weatherEmblemPixels(img.data, size, size);
+  weatherEmblemPixels(img.data, columns, rows);
   if (thickness) {
     for (let i = 0; i < img.data.length; i += 4) {
       img.data[i] = img.data[i + 1] = img.data[i + 2] = 20;
@@ -201,13 +193,14 @@ function paintBannerEmblem(c: Ctx2D, w: number, h: number, scratch: HTMLCanvasEl
   c.save();
   // Only where the cloth still exists (not in the tears).
   c.globalCompositeOperation = 'source-atop';
-  const width = Math.round(w * .78), x = (w - width) / 2, y = h * .19;
-  c.drawImage(scratch, x, y, width, width);
+  c.imageSmoothingEnabled = false;
+  const width = Math.round(w * .78), height = width * rows / columns, x = (w - width) / 2, y = h * .14;
+  c.drawImage(scratch, x, y, width, height);
   // Weave and grime over the print.
   if (!thickness) {
     c.globalAlpha = 0.2;
     c.fillStyle = '#1a0f10';
-    for (let yy = y; yy < y + width; yy += 3) c.fillRect(x, yy, width, 1);
+    for (let yy = y; yy < y + height; yy += 3) c.fillRect(x, yy, width, 1);
   }
   c.restore();
 }

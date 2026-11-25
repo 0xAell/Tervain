@@ -35,7 +35,7 @@ export const yawRotation = (angle: number) => ({
 export const floorAt = (room: FloorPlan | undefined, p: V2) =>
   room ? roomLift(room, p) / roomRisePixels : terrainHeight(p.x, p.z);
 const solid =
-  /^(well|fire|sign|board|bell|sluice|wreck|beacon|ruin|tide_rocks|rockpile|cart|standard_court|standard_watch|standard_road)$/;
+  /^(well|fire|sign|board|bell|sluice|wreck|beacon|ruin|tide_rocks|rockpile|cart|standard_court|standard_watch)$/;
 const tile = (x: number, z: number) => Math.floor(x / tileSize) + ',' + Math.floor(z / tileSize);
 let sceneryTiles: Map<string, Scenery[]> | undefined;
 function obstacles() {
