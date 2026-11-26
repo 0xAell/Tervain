@@ -73,6 +73,10 @@ Bellwether Vale uses PixelLab for its isometric art, animations, interface
 artwork and typeface. See assets/pixellab/provenance.json and the PixelLab
 Terms of Service (https://www.pixellab.ai/termsofservice).
 
+The coastal village fixtures, residents, woodland trees, trail landmarks and
+four field-item icons in public/valley were made for Tervain with OpenAI image
+generation and edited at game resolution. See docs/production/valley-art.md.
+
 The current game uses ElevenLabs (elevenlabs.io) for prerecorded dialogue,
 narration, ambience and effects. Its title, river and hearth music was created
 with Eleven Music. The Vale production ledger is docs/engineering/spoken-vale.json.

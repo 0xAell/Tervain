@@ -1,5 +1,6 @@
 import { canClimb } from './relief';
 import { PROJECTION } from './projection';
+import { passesFixtures, villageFixtures, warmingFire } from './villageFixtures';
 import { bankPlants } from './riverHabitat';
 import { hegemonyStandards } from './hegemony';
 import { landMaterial, woodlandCover } from './landCover';
@@ -92,6 +93,7 @@ export function navigable(from: V2, to: V2, open: boolean | WorldState, lift = 0
     realmRadius(to.x, to.z) < 1.01 &&
     passesRails(from, to) &&
     passesRocks(from, to, lift) &&
+    passesFixtures(from, to, lift) &&
     canClimb(from, to) &&
     enteredThroughDoor(from, to, open)
   );
@@ -105,6 +107,7 @@ export function location(p: V2): PlaceId {
 
 export interface Scenery extends V2 {
   key: string;
+  sprite?: string;
   width: number;
   building?: BuildingSpec;
   flip?: boolean;
@@ -116,10 +119,21 @@ export interface Scenery extends V2 {
   rock?: StoneObstacle;
 }
 let sceneryCache: Scenery[] | undefined;
+const trees: Record<string, readonly string[]> = {
+  pine: ['pine', 'pine--broad', 'pine--lean'],
+  fir: ['fir', 'fir--young'],
+  oak: ['oak', 'oak--lean'],
+  birch: ['birch', 'birch--fork'],
+};
+const workedGround = [WELL, BELL, NOTICEBOARD, WAGON, ...LANTERNS, ...COOKFIRES, warmingFire, ...Object.values(BENCHES)];
 export function scenery() {
   if (sceneryCache) return sceneryCache;
   const list: Scenery[] = [];
-  const put = (key: string, p: V2, width: number) => list.push({ x: p.x, z: p.z, key, width });
+  const put = (key: string, p: V2, width: number, sprite?: string) => {
+    const variants = trees[key];
+    if (variants) sprite = variants[Math.floor(random(p.x, p.z, 155) * variants.length) % variants.length];
+    list.push({ x: p.x, z: p.z, key, width: key === 'flowers' ? width * 0.6 : width, sprite });
+  };
   for (const b of [...BUILDINGS, campShelter])
     list.push({ ...b, key: buildingSprite[b.kind], width: (b.w + b.d) * PROJECTION, building: b });
   // The stern rests at the tide line; the salvage remains reachable at the inland end of the wreck.
@@ -140,21 +154,20 @@ export function scenery() {
   put('driftwood', { x: coastX(35) - 0.2, z: 35 }, 43);
   put('driftwood', { x: coastX(7) + 3, z: 7 }, 35);
   put('reeds', { x: -12.6, z: -93 }, 23);
-  put('sign', ARRIVAL_SIGN, 37);
-  put('beacon', LIGHTHOUSE, 114);
+  put('sign', ARRIVAL_SIGN, 24);
+  put('beacon', LIGHTHOUSE, 61);
   put('table', HUNTER_CAMP, 33);
-  for (const fire of COOKFIRES) put('fire', fire, 24);
+  for (const fire of COOKFIRES) put('fire', fire, 25, 'cookfire');
+  put('fire', warmingFire, 20);
   put('ruin', FOREST_RUIN, 95);
-  put('well', WELL, 41);
-  put('bell', BELL, 40);
-  put('board', NOTICEBOARD, 40);
+  for (const fixture of villageFixtures) put(fixture.key, fixture.at, fixture.width);
   put('sluice', SLUICE.gateCenter, 73);
-  put('cart', WAGON, 62);
+  put('cart', WAGON, 49);
   list.push({ ...WAGON_TALLY, key: 'chest', paidKey: 'room_open_chest', width: 21 });
   for (const p of QUARRY_BOULDERS) if (p.width * 8 < 30) put('rockpile', p, p.width * 8);
   for (const p of quarryRocks) list.push({ x: p.x, z: p.z, width: p.width, key: 'rockpile', rock: p });
-  for (const p of FOREST_WAYMARKERS) put('marker', p, 25);
-  for (const p of LANTERNS) put('lantern', p, 20);
+  for (const p of FOREST_WAYMARKERS) put('marker', p, 16);
+  for (const p of LANTERNS) put('lantern', p, 25);
   for (const p of Object.values(BENCHES)) put('seat', p, 34);
   list.push(...hegemonyStandards);
   const riversideTrees = bankPlants.filter((p) => isTree(p.key));
@@ -176,6 +189,11 @@ export function scenery() {
         continue;
       if (BUILDINGS.some((b) => distance(b, p) < Math.max(b.w, b.d) * 1.02) || distance(p, ARRIVAL_WRECK) < 8)
         continue;
+      // Loose stones have persistent identities and can already be in a player's house.
+      // Keep that stock; give rooted growth and new shore debris clearance around worked ground.
+      const k = random(x, z, 34);
+      const looseStone = g !== 'sand' && r > 0.62 && (g === 'rock' || k < 0.35);
+      if (!looseStone && (onFootpath(p.x, p.z) || workedGround.some((at) => distance(at, p) < 2.25))) continue;
       if (hegemonyStandards.some((standard) => standard.lift === undefined && distance(standard, p) < 1.8))
         continue;
       const bank = waterProfile(p.x, p.z);
@@ -211,13 +229,12 @@ export function scenery() {
                 : source;
           put(family, p, width);
         }
-      } else if (r > (beach ? 0.51 : 0.62)) {
-        const k = random(x, z, 34);
+      } else if (r > (beach ? 0.82 : 0.62)) {
         put(
           beach
             ? k < 0.32
               ? 'tide_rocks'
-              : 'reeds'
+              : bank && bank.course !== 'ocean' ? 'reeds' : 'driftwood'
             : g === 'rock' || k < 0.35
               ? 'rockpile'
               : k > 0.84

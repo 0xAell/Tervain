@@ -42,12 +42,12 @@
   },
   "totals": {
     "all": {
-      "files": 1937,
-      "bytes": 482820279
+      "files": 1943,
+      "bytes": 482970372
     },
     "shipped": {
-      "files": 999,
-      "bytes": 181625391
+      "files": 1005,
+      "bytes": 181775484
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -59,8 +59,8 @@
         "bytes": 186290894
       },
       "keep": {
-        "files": 932,
-        "bytes": 157623267
+        "files": 938,
+        "bytes": 157773360
       },
       "rework": {
         "files": 0,
@@ -508,6 +508,19 @@
     }
   },
   "groups": [
+    {
+      "id": "vale-village-art",
+      "title": "Coastal village, trail and woodland sprites",
+      "role": "scenery",
+      "plan": "keep",
+      "why": "The ground-registered cels and matching item icons are used directly in the isometric game.",
+      "source": "Original Tervain image generation and pixel editing documented in docs/production/valley-art.md.",
+      "fab": null,
+      "replaceWith": null,
+      "replaceBeforeShip": null,
+      "files": 6,
+      "bytes": 150093
+    },
     {
       "id": "vale-pixel-art",
       "title": "Isometric valley artwork",
@@ -32531,6 +32544,90 @@
       "shipped": true,
       "licence": {
         "id": "LicenseRef-PixelLab-Generated",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/valley/icons/field_mushroom.png",
+      "group": "vale-village-art",
+      "kind": "image",
+      "bytes": 2124,
+      "sha256": "a90ccc1a96eb7e6cee286993c070f355906abc9b959af7ac86fe5bb448edef81",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Generated-Art",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/valley/icons/iron_scrap.png",
+      "group": "vale-village-art",
+      "kind": "image",
+      "bytes": 1742,
+      "sha256": "956c374744c2e4785520fe4ce46db0e7528f7530d17eaf0120b4aa55abb5c506",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Generated-Art",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/valley/icons/raw_meat.png",
+      "group": "vale-village-art",
+      "kind": "image",
+      "bytes": 2342,
+      "sha256": "0c30583910bd2c7d1b27357ae3d802e82775dc030f095e565c70086241beca02",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Generated-Art",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/valley/icons/shore_apple.png",
+      "group": "vale-village-art",
+      "kind": "image",
+      "bytes": 2366,
+      "sha256": "89b2f14b435485b98d3e9a2a37b9d3043b744a9c10e4cf8de642637fcb0a614e",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Generated-Art",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/valley/scenery.json",
+      "group": "vale-village-art",
+      "kind": "data",
+      "bytes": 1906,
+      "sha256": "a852ccfe71b296b26074f3c3e712535a2704e0d48acac548aa828ed383709c06",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Generated-Art",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/valley/scenery.png",
+      "group": "vale-village-art",
+      "kind": "image",
+      "bytes": 139613,
+      "sha256": "484afef9a6a1474b33af31ddffc297a98204c63435ec0f292a782dda1f8d35e9",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Generated-Art",
         "status": "project-original"
       },
       "plan": "keep",

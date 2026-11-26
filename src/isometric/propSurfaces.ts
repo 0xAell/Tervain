@@ -24,6 +24,7 @@ import {
 } from './roomPlans';
 import { staticRoom, surfaceHeight } from './propCatalogue';
 import { isTree, trunkRadius } from './treeHabitat';
+import { fixtureFootprints } from './villageFixtures';
 
 export const tileSize = 32;
 export const yawRotation = (angle: number) => ({
@@ -35,7 +36,7 @@ export const yawRotation = (angle: number) => ({
 export const floorAt = (room: FloorPlan | undefined, p: V2) =>
   room ? roomLift(room, p) / roomRisePixels : terrainHeight(p.x, p.z);
 const solid =
-  /^(well|fire|sign|board|bell|sluice|wreck|beacon|ruin|tide_rocks|rockpile|cart|standard_court|standard_watch)$/;
+  /^(sign|sluice|wreck|beacon|ruin|tide_rocks|rockpile|cart|standard_court|standard_watch)$/;
 const tile = (x: number, z: number) => Math.floor(x / tileSize) + ',' + Math.floor(z / tileSize);
 let sceneryTiles: Map<string, Scenery[]> | undefined;
 function obstacles() {
@@ -126,6 +127,11 @@ export function outdoorTile(world: RAPIER.World, i: number, j: number) {
     group
   );
   const key = i + ',' + j;
+  for (const p of fixtureFootprints) {
+    if (tile(p.x, p.z) !== key) continue;
+    world.createCollider(RAPIER.ColliderDesc.cylinder(p.height / 2, p.radius)
+      .setTranslation(p.x, floorAt(undefined, p) + p.height / 2, p.z).setFriction(0.83), group);
+  }
   for (const b of sites) if (tile(b.x, b.z) === key) house(world, group, b);
   for (const b of crossings) {
     if (tile(b.x, b.z) !== key) continue;
@@ -198,9 +204,7 @@ export function outdoorTile(world: RAPIER.World, i: number, j: number) {
         ? pole.height / risePixels
         : trunk
           ? 4.4
-          : s.key === 'fire'
-            ? 0.36
-            : Math.min(2.8, s.width / 15),
+          : Math.min(2.8, s.width / 15),
       floor = floorAt(undefined, s);
     world.createCollider(
       RAPIER.ColliderDesc.cylinder(hi / 2, radius)

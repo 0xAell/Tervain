@@ -21,6 +21,7 @@ import type { Scenery } from './land';
 import { rootsNear, locationId, carryMass } from './propCatalogue';
 import type { PropPhysics } from './propPhysics';
 import type { Actor } from './simulation';
+import { villageFixtures } from './villageFixtures';
 
 export interface RoomTarget {
   id: string;
@@ -32,7 +33,8 @@ export interface RoomTarget {
   passage?: Passage;
   fixture?: Fixture;
   npc?: NpcId;
-  field?: 'pet' | 'seat' | 'fire' | 'gather' | 'dress' | 'wagon';
+  field?: 'pet' | 'seat' | 'fire' | 'gather' | 'dress' | 'wagon' | 'bell' | 'well' | 'board';
+  sprite?: { key: string; width: number };
   pickup?: (typeof PICKUP_LOCATIONS)[number];
   animal?: Actor;
   prop?: string;
@@ -68,9 +70,13 @@ export function fieldTargets(state: WorldState, actors: Actor[]): RoomTarget[] {
     targets.push({ id, field, at, approach: { x: at.x - 1, z: at.z + 0.55 }, label, reach, ...extras });
   };
   add('wagon/tally', 'wagon', WAGON_TALLY, 'Read the wagoner’s tally', WAGON_TALLY.reach);
+  for (const fixture of villageFixtures)
+    add('square/' + fixture.key, fixture.key, fixture.at, fixture.label, fixture.reach,
+      { approach: fixture.approach, sprite: fixture });
   for (const [id, bench] of Object.entries(BENCHES))
     add('bench/' + id, 'seat', bench, 'Sit on the bench', 2.3);
-  for (const fire of COOKFIRES) add('fire/' + fire.id, 'fire', fire, 'Cook at the fire', 2.6);
+  for (const fire of COOKFIRES) add('fire/' + fire.id, 'fire', fire, 'Cook at the fire', 2.6,
+    { sprite: { key: 'cookfire', width: 25 } });
   for (const p of deposits)
     if (state.locationChanges['pickup:' + p.id] !== 'taken')
       add('gather/' + p.id, 'gather', p, 'Gather ' + S('item.' + p.item).toLowerCase(), p.r + 0.45, {
@@ -179,6 +185,7 @@ export function physicalTargets(physics: PropPhysics, p: V2, plan?: FloorPlan) {
   return targets;
 }
 export function targetDistance(target: RoomTarget, p: V2, plan?: FloorPlan) {
+  if (target.field === 'board') return Math.hypot(p.x - target.approach.x, p.z - target.approach.z);
   if (plan && !visibleAcrossWall(plan, p, target.at)) return Infinity;
   const flight = plan && stairAt(plan, p);
   if (flight && plan) {

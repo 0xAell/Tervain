@@ -1,4 +1,5 @@
 import { artUrl } from './atlas';
+import { gameFile } from './files';
 import type { VoiceMode } from './reading';
 import type { Sound, MixLevels } from './audio';
 import { SPEAKER_NAMES, VOICE_LINES, shown } from '../core/content/voice';
@@ -35,9 +36,10 @@ function button(label: string, action: () => void, cls = '') {
   b.onclick = action;
   return b;
 }
+const fieldIcons = new Set(['raw_meat', 'iron_scrap', 'shore_apple', 'field_mushroom']);
 function icon(key: string) {
   const i = el('img');
-  i.src = artUrl('icons/' + key + '.png');
+  i.src = fieldIcons.has(key) ? gameFile('valley/icons/' + key + '.png') : artUrl('icons/' + key + '.png');
   i.alt = '';
   i.draggable = false;
   return i;
@@ -1214,10 +1216,15 @@ export class Interface {
     }
   }
   observation(point: string) {
-    const lines =
-      point === 'noticeboard'
-        ? worldView(this.game.state).noticeboard.map((k) => S(k))
-        : [S('inspect.' + point)];
+    if (point === 'noticeboard') {
+      const lines = worldView(this.game.state).noticeboard.map((key) => S(key));
+      const board = this.actions('Rillford noticeboard', []);
+      for (const line of lines) board.append(el('p', '', line));
+      board.append(button('Step back', () => this.controls.resume(), 'reply'));
+      this.readWorldPage(board, lines);
+      return;
+    }
+    const lines = [S('inspect.' + point)];
     this.message(lines.join(' '), false);
     this.controls.sound.narrate(lines);
   }

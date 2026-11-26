@@ -111,7 +111,11 @@ function wreckSail(atlas: Atlas): WindSprite {
 export function buildWindArt(atlas: Atlas) {
   const sprites = new Map<string, WindSprite>();
   for (const [key, bend] of [
-    ['brush', 4.2],
+    ['pine', 1.35], ['pine--broad', 1.0], ['pine--lean', 1.2],
+    ['fir', 1.1], ['fir--young', 1.5],
+    ['birch', 1.65], ['birch--fork', 1.35],
+    ['oak', 0.85], ['oak--lean', 1.0],
+    ['brush', 1.25],
     ['flowers', 3.9],
     ['reeds', 4.7],
     ['rill_spirea', 4],

@@ -587,7 +587,7 @@ export const LEDGE = { x: 122, z: -72, r: 12, h: 0 };
 
 /** Bench and lantern positions for the environment art. */
 export const LANTERNS: V2[] = [
-  { x: -88, z: 20 }, { x: -74, z: 38 }, { x: -94, z: 62 }, { x: 2, z: 12 }, { x: 22, z: 4 }, { x: -20, z: -3 }, { x: -8, z: 32 }, { x: 14, z: 21 },
+  { x: -88, z: 20 }, { x: -74, z: 38 }, { x: -94, z: 62 }, { x: 2, z: 12 }, { x: 22, z: 4 }, { x: -23, z: -3 }, { x: -8, z: 32 }, { x: 14, z: 21 },
   { x: -16, z: -96 }, { x: -44, z: -95 }, { x: 88, z: -20 }, { x: 78, z: -10 }, { x: -132, z: 30 },
 ];
 

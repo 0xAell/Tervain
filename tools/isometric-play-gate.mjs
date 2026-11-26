@@ -5,7 +5,7 @@ export function observeIsometricFrames(recordStills, textureUploadBytes) {
   const debug = gl?.getExtension('WEBGL_debug_renderer_info');
   const device = debug && gl.getParameter(debug.UNMASKED_RENDERER_WEBGL);
   if (!device || /swiftshader|llvmpipe|software rasterizer/i.test(device)) throw new Error('The clip gate requires a hardware WebGL device');
-  const gate = window.__gate = { phase: 'setup', samples: [], longTasks: [], shots: [], device };
+  const gate = window.__gate = { phase: 'setup', samples: [], longTasks: [], shots: [], device, cameraError: 0 };
   const observer = new PerformanceObserver(list => {
     for (const entry of list.getEntries()) gate.longTasks.push([entry.startTime, entry.duration, gate.phase]);
   });
@@ -60,6 +60,14 @@ export function observeIsometricFrames(recordStills, textureUploadBytes) {
     render(...args);
     if (scene.renderedFrames !== before + 1) throw new Error('The isometric frame did not finish');
     const t = document.timeline.currentTime ?? performance.now();
+    if (gate.phase === 'walk-strand') {
+      // Measure a stationary world point after the browser has positioned the canvas.
+      const frame = canvas.getBoundingClientRect(), viewport = canvas.parentElement.getBoundingClientRect();
+      const scale = frame.width / canvas.width;
+      const origin = frame.left + Math.round(canvas.width / 2 - scene.center.x) * scale;
+      const expected = viewport.left + viewport.width / 2 - scene.center.x * scale;
+      gate.cameraError = Math.max(gate.cameraError, Math.abs(origin - expected));
+    }
     const wet = scene.water.tracks.get('player')?.wet;
     gate.samples.push([t, gate.phase, Number(!!hero?.visible && scene.heroDrawn), null, hero?.upright ?? 0,
       hero?.height ?? 0, hero?.nx ?? 0, hero?.ny ?? 0, scene.renderedFrames, Number(!!wet || valley.swimming),
@@ -153,4 +161,6 @@ export async function playIsometricStages(page, { phase, hold, tap }) {
   const complete = await page.eval('return Object.fromEntries([...new Set(window.__gate.samples.map(s => s[1]))].map(p => [p,window.__gate.samples.filter(s => s[1] === p).length]))');
   for (const name of ['resume', 'walk-strand', 'run-strand', 'footbridge', 'river-bank', 'inside-house', 'bow'])
     if (!(complete[name] >= 3)) throw new Error('Missing presented frames during ' + name);
+  const error = await page.eval('return window.__gate.cameraError');
+  if (error > 0.12) throw new Error('Displayed camera drifted from the follow position by ' + error + ' CSS pixels');
 }

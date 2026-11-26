@@ -1,4 +1,4 @@
-import { drawProp } from './propArt';
+import { drawProp, propSprite } from './propArt';
 import { sceneryProp } from './propCatalogue';
 import { buildSwordPoses, drawSwordSweep, heroPose } from './heroPose';
 import { terrainHeight, groundProject, pickSurface, supportHeight } from './relief';
@@ -27,11 +27,11 @@ import { drawStrip } from './worldArt';
 import { worldView } from '../core/game/worldView';
 import { RoomView } from './roomView';
 import { landingHalfWidth } from './roomPlans';
-import { drawFocus, drawWaylight, pickRegion, type PickRegion } from './entryCues';
+import { drawFocus, drawThreshold, pickRegion, type PickRegion } from './entryCues';
 import { targetDistance } from './roomTargets';
 import { AMBIENT_RESIDENTS } from '../core/content/ambientPeople';
 import { project, unproject, inBuilding, scenery, type Scenery } from './land';
-import { COOKFIRES, PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
+import { PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
 import { hourOfDay } from '../core/game/state';
 import { facesLeft, type Valley } from './simulation';
 import { isTree } from './treeHabitat';
@@ -51,6 +51,7 @@ export class Scene {
   private windSprites: Map<string, WindSprite>;
   private bridges: Stamp[][];
   private props = new Map<string, Scenery[]>();
+  private occlusion = new WeakMap<Scenery, { alpha: number; frame: number }>();
   private rooms: RoomView;
   private indoors = false;
   private regions: PickRegion[] = [];
@@ -73,6 +74,10 @@ export class Scene {
   private center = { x: 0, y: 0 };
   private lead = { x: 0, y: 0 };
   private initialized = false;
+  private pixelScale = 1;
+  private viewWidth = 0;
+  private viewHeight = 0;
+  private density = 0;
   private mapBase: HTMLCanvasElement | null = null;
   renderedFrames = 0;
   lastDraws = 0;
@@ -108,6 +113,21 @@ export class Scene {
     const clip = sprite + '--' + action;
     return this.atlas.has(clip) ? clip : sprite;
   }
+  private opacity(prop: Scenery, target: number, dt: number) {
+    const previous = this.occlusion.get(prop);
+    if (!previous && target === 1) return 1;
+    let alpha = target;
+    if (previous && previous.frame === this.renderedFrames - 1 && !this.reducedMotion.matches) {
+      const rate = target < previous.alpha ? 24 : 12;
+      alpha += (previous.alpha - target) * Math.exp(-dt * rate);
+      if (Math.abs(alpha - target) < 0.008) alpha = target;
+    } else if (!previous && this.initialized && dt > 0 && !this.reducedMotion.matches) {
+      alpha += (1 - target) * Math.exp(-dt * 24);
+    }
+    if (alpha === 1) this.occlusion.delete(prop);
+    else this.occlusion.set(prop, { alpha, frame: this.renderedFrames });
+    return alpha;
+  }
   private pixel(clientX: number, clientY: number) {
     const r = this.canvas.getBoundingClientRect();
     return {
@@ -131,42 +151,57 @@ export class Scene {
     if (selected) drawFocus(this.context, selected);
   }
   pointAt(clientX: number, clientY: number): V2 {
-    const r = this.canvas.getBoundingClientRect();
-    if (this.indoors) {
-      const p = this.pixel(clientX, clientY);
-      return this.rooms.point(p.x, p.y);
-    }
-    const sx =
-      ((clientX - r.left) / r.width) * this.canvas.width - Math.round(this.canvas.width / 2 - this.center.x);
-    const sy =
-      ((clientY - r.top) / r.height) * this.canvas.height -
-      Math.round(this.canvas.height * 0.54 - this.center.y + 24);
+    const p = this.pixel(clientX, clientY);
+    if (this.indoors) return this.rooms.point(p.x, p.y);
+    const sx = p.x - Math.round(this.canvas.width / 2 - this.center.x);
+    const sy = p.y - Math.round(this.canvas.height * 0.54 - this.center.y + 24);
     return pickSurface(sx, sy);
   }
   resetCamera() {
     this.initialized = false;
+    this.occlusion = new WeakMap();
     this.lead.x = this.lead.y = 0;
     this.regions.length = 0;
     this.rooms.leave();
     this.water.reset();
     this.riverLife.reset();
   }
+  private sizeViewport() {
+    const viewport = this.canvas.parentElement!;
+    const width = viewport.clientWidth, height = viewport.clientHeight;
+    const density = window.devicePixelRatio || 1;
+    if (width === this.viewWidth && height === this.viewHeight && density === this.density) return;
+    this.viewWidth = width;
+    this.viewHeight = height;
+    this.density = density;
+    this.pixelScale = Math.max(1, Math.round(height * density / 368)) / density;
+    // An extra texel on each side covers the compositor's fractional pan, even at the viewport edges.
+    const w = Math.max(1, Math.ceil(width / this.pixelScale)) + 2;
+    const h = Math.max(1, Math.ceil(height / this.pixelScale)) + 2;
+    this.canvas.width = w;
+    this.canvas.height = h;
+    const style = this.canvas.style;
+    style.width = w * this.pixelScale + 'px';
+    style.height = h * this.pixelScale + 'px';
+    style.left = (width - w * this.pixelScale) * 0.5 + 'px';
+    style.top = (height - h * this.pixelScale) * 0.5 + 'px';
+  }
+  private present(x: number, y: number) {
+    const dx = (x - Math.round(x)) * this.pixelScale;
+    const dy = (y - Math.round(y)) * this.pixelScale;
+    this.canvas.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+  }
   render(valley: Valley, dt: number) {
     const ctx = this.context;
-    const dpr = window.devicePixelRatio || 1;
-    const scale = Math.max(1, Math.round((this.canvas.clientHeight * dpr) / 368)) / dpr;
-    const w = Math.max(1, Math.round(this.canvas.clientWidth / scale)),
-      h = Math.max(1, Math.round(this.canvas.clientHeight / scale));
-    if (this.canvas.width !== w || this.canvas.height !== h) {
-      this.canvas.width = w;
-      this.canvas.height = h;
-    }
+    this.sizeViewport();
+    const { width: w, height: h } = this.canvas;
     ctx.imageSmoothingEnabled = false;
     this.regions.length = 0;
     this.aimRegions.length = 0;
     if (valley.room) {
       this.indoors = true;
       const frame = this.rooms.draw(ctx, valley, this.regions, dt);
+      this.present(frame.cameraX, frame.cameraY);
       this.heroDrawn = frame.heroDrawn;
       this.lastDraws = frame.draws;
       this.renderedFrames++;
@@ -182,6 +217,7 @@ export class Scene {
     const ahead = valley.bow && !this.reducedMotion.matches ? 3.8 : 0;
     const gaze = project(dir.x * ahead, dir.z * ahead);
     const elapsed = Math.max(dt, 0);
+    const fadeTime = this.initialized ? elapsed : 0;
     const ease = 1 - Math.exp(-elapsed * 8);
     this.lead.x += (gaze.x - this.lead.x) * ease;
     this.lead.y += (gaze.y - this.lead.y) * ease;
@@ -191,8 +227,9 @@ export class Scene {
     this.center.x += (target.x + this.lead.x - this.center.x) * across;
     this.center.y += (target.y + this.lead.y - this.center.y) * vertical;
     this.initialized = true;
-    const ox = Math.round(w / 2 - this.center.x),
-      oy = Math.round(h * 0.54 - this.center.y + 24);
+    const cameraX = w / 2 - this.center.x, cameraY = h * 0.54 - this.center.y + 24;
+    const ox = Math.round(cameraX), oy = Math.round(cameraY);
+    this.present(cameraX, cameraY);
     const corners = [
       unproject(-ox - 100, -oy - 160),
       unproject(w - ox + 100, -oy - 160),
@@ -208,6 +245,9 @@ export class Scene {
     this.lastDraws = 0;
     this.heroDrawn = false;
     const time = valley.time;
+    const ringAge = time - valley.bellStruckAt;
+    const bellFrame = !this.reducedMotion.matches && ringAge < 1.1
+      ? Math.min(this.atlas.frameCount('bell--ring') - 1, 1 + Math.floor(ringAge * 12)) : 0;
     const subject = valley.displayPosition;
     const focusAt = (p: V2) => ({ ...groundProject(p), depth: project(p.x, p.z).y });
     const focal = focusAt(subject);
@@ -269,38 +309,39 @@ export class Scene {
                 );
               })
             );
-            stamps.push(...(behind ? strips.map((q) => ({ ...q, alpha: fieldwork ? 0.1 : 0.35 })) : strips));
+            const alpha = this.opacity(prop, behind ? (fieldwork ? 0.1 : 0.35) : 1, fadeTime);
+            stamps.push(...(alpha < 1 ? strips.map((q) => ({ ...q, alpha })) : strips));
             continue;
           }
           const furniture = prop.key === 'seat' || prop.key === 'fire';
           if (sky.night > 0.002 && (prop.key === 'fire' || prop.key === 'lantern'))
-            lights.push({ ...screen, kind: prop.key });
+            lights.push({ x: screen.x + (prop.key === 'lantern' ? 8 : 0), y: screen.y, kind: prop.key });
           const standard = isHegemonyStandard(prop.key);
-          const wind = this.windSprites.get(prop.key);
+          const sprite = prop.sprite ?? (prop.key === 'rockpile' && prop.width < 30 ? 'fieldstone' : prop.key);
+          const wind = this.windSprites.get(sprite);
           const overlaps =
-            !furniture &&
+            !furniture && (standard || this.atlas.height(sprite, prop.width) >= 25) &&
             focusPoints.some(
               (p) =>
                 screen.y >= p.y - 0.6 &&
                 Math.abs(screen.x - p.x) < prop.width * 0.47 + 10 &&
-                screen.y - p.y < this.atlas.height(prop.key, prop.width) + 16
+                screen.y - p.y < this.atlas.height(sprite, prop.width) + 16
             );
           const motion =
             prop.key === 'rill_lilies'
               ? 'bob'
-              : this.atlas.has(prop.key + '--sway')
+              : !wind && this.atlas.has(sprite + '--sway')
                 ? 'sway'
                 : prop.key === 'fire'
                   ? 'firelight'
-                  : prop.key === 'lantern'
-                    ? 'light'
-                    : '';
-          const key =
+                  : '';
+          const ringing = prop.key === 'bell' && bellFrame > 0;
+          const key = ringing ? 'bell--ring' :
             prop.paidKey && valley.game.state.facts.wagon_iron_paid
               ? prop.paidKey
-              : (wind?.key ?? (motion ? this.motion(prop.key, motion) : prop.key));
+              : (wind?.key ?? (motion ? this.motion(sprite, motion) : sprite));
           const offset = prop.phase ?? Math.abs(prop.z) % 5;
-          const frame =
+          const frame = ringing ? bellFrame :
             standard || wind || motion === 'sway'
               ? windFrame(
                   windPhase(prop.x, prop.z, time, isTree(prop.key) ? 0.61 : standard ? 1.12 : 1),
@@ -316,30 +357,21 @@ export class Scene {
             key,
             width: prop.width * (wind?.widthScale ?? 1),
             frame,
-            alpha: overlaps && (standard || prop.width > 27) ? (fieldwork ? 0.08 : 0.26) : 1,
+            alpha: this.opacity(prop, overlaps ? (fieldwork ? 0.08 : 0.26) : 1, fadeTime),
           });
         }
       }
-    for (const fire of COOKFIRES)
-      stamps.push({
-        ...fire,
-        x: fire.x + 0.06,
-        z: fire.z + 0.07,
-        key: 'furniture_cauldron',
-        width: 20,
-        lift: 5,
-      });
     for (const p of PICKUP_LOCATIONS) {
       if (valley.game.state.locationChanges['pickup:' + p.id] === 'taken') continue;
       const herb = p.item === 'healing_herb' ? this.windSprites.get('field_herbs') : undefined;
       const key = herb?.key ?? (p.item === 'field_mushroom' ? 'field_caps' : p.item);
-      const width = p.item === 'shore_apple' ? 8 : p.item === 'field_mushroom' ? 16 : 14;
+      const width = p.item === 'shore_apple' ? 7 : p.item === 'field_mushroom' ? 10 : p.item === 'iron_scrap' ? 9 : 14;
       stamps.push({
         ...p,
         key,
         width: p.id === 'wreck_blade' ? 24 : herb ? 16 * herb.widthScale : width,
         frame: herb ? windFrame(windPhase(p.x, p.z, time), this.atlas.frameCount(key)) : 0,
-        lift: p.id === 'wreck_blade' ? 4 : 1,
+        lift: p.id === 'wreck_blade' ? 4 : 0,
       });
     }
     for (const resident of AMBIENT_RESIDENTS) {
@@ -352,7 +384,7 @@ export class Scene {
       stamps.push({
         ...resident,
         key: this.motion(resident.id, posture === 'work' ? 'work' : posture === 'sit' ? 'rest' : 'idle'),
-        width: 32,
+        width: resident.id === 'keeper' ? 30 : 28,
         frame: Math.floor(time * 4),
       });
     }
@@ -436,7 +468,7 @@ export class Scene {
           x: v.x,
           z: v.z,
           elevation: base,
-          key: v.spec.key,
+          key: propSprite(v.spec),
           width: v.spec.width,
           prop: v,
           moving: v.moving,
@@ -619,18 +651,10 @@ export class Scene {
         }
         if (stamp.hero && valley.strike && valley.swordSwing && !this.reducedMotion.matches)
           drawSwordSweep(ctx, x, y, stamp.width, valley.facing, SWING_TIME - valley.strike);
-        this.atlas.draw(
-          ctx,
-          stamp.key,
-          x,
-          y,
-          stamp.width,
-          Math.max(0, stamp.frame ?? 0),
-          stamp.flip,
-          stamp.anchor ?? 1,
-          stamp.submerged
-        );
-        if (stamp.key.startsWith('fire--') && !this.reducedMotion.matches)
+        const frame = Math.max(0, stamp.frame ?? 0);
+        this.atlas.draw(ctx, stamp.key, x, y + (stamp.hero ? 1 : 0), stamp.width, frame, stamp.flip,
+          stamp.anchor ?? 1, stamp.submerged, false, stamp.hero || stamp.moving);
+        if ((stamp.key.startsWith('fire--') || stamp.key.startsWith('cookfire--')) && !this.reducedMotion.matches)
           drawFireAir(ctx, x, y, time, stamp.x, stamp.z, sky.night);
         if (stamp.sway || stamp.fall) ctx.restore();
       }
@@ -652,11 +676,11 @@ export class Scene {
           base = at.y + oy;
         if (x < -30 || x > w + 30 || base < 0 || base > h + 45) continue;
         const width =
-          prop?.spec.width ??
+          target.sprite?.width ?? prop?.spec.width ??
           target.animal?.width ??
           (target.field === 'seat' ? 34 : target.field === 'fire' ? 24 : 20);
-        const high = prop
-          ? this.atlas.height(prop.spec.key, width)
+        const high = target.sprite ? this.atlas.height(target.sprite.key, width) : prop
+          ? this.atlas.height(propSprite(prop.spec), width)
           : target.animal
             ? this.atlas.height(target.animal.key, width)
             : target.field === 'seat'
@@ -686,8 +710,11 @@ export class Scene {
       const x = s.x + ox,
         y = s.y + oy;
       if (x < -16 || x > w + 16 || y < -12 || y > h + 20) continue;
-      const near = targetDistance(target, valley.player) <= target.reach;
-      drawWaylight(ctx, this.atlas, x, y, time, near, target.locked);
+      const proximity = Math.min(1, (target.reach + 4 - targetDistance(target, valley.player)) / 4);
+      if (proximity > 0) {
+        const side = project(Math.cos(door.site.yaw) * door.halfWidth, -Math.sin(door.site.yaw) * door.halfWidth);
+        drawThreshold(ctx, x, y, side, proximity, !!target.locked);
+      }
       this.regions.push({ id: target.id, x, y: y - 6, w: 24, h: 26, target });
     }
     const guide = valley.bowGuide();

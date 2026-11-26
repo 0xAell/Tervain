@@ -59,6 +59,13 @@ const TREES_WHY = 'The exact species of the game’s woods (oak, with birch, pin
  */
 export const GROUPS = [
   {
+    id: 'vale-village-art', title: 'Coastal village, trail and woodland sprites', kind: 'image', role: 'scenery',
+    match: /^public\/valley\/(?:scenery\.(?:png|json)|icons\/[^/]+\.png)$/, plan: 'keep', fab: null,
+    why: 'The ground-registered cels and matching item icons are used directly in the isometric game.',
+    source: 'Original Tervain image generation and pixel editing documented in docs/production/valley-art.md.',
+    licence: { id: 'LicenseRef-Tervain-Generated-Art', status: 'project-original' }, unreal: none,
+  },
+  {
     id: 'vale-pixel-art', title: 'Isometric valley artwork', kind: 'image', role: 'scenery',
     match: /^public\/vale\/.*\.png$/, plan: 'keep', fab: null,
     why: 'The sprite atlas, opening painting, portraits and interface are the custom art for the isometric edition.',
