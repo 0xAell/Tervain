@@ -43,11 +43,11 @@
   "totals": {
     "all": {
       "files": 1967,
-      "bytes": 497739829
+      "bytes": 497748088
     },
     "shipped": {
       "files": 1025,
-      "bytes": 190478970
+      "bytes": 190487117
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -60,7 +60,7 @@
       },
       "keep": {
         "files": 960,
-        "bytes": 166618365
+        "bytes": 166626624
       },
       "rework": {
         "files": 0,
@@ -532,7 +532,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 46,
-      "bytes": 1402765
+      "bytes": 1410386
     },
     {
       "id": "vale-typeface",
@@ -558,7 +558,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 3,
-      "bytes": 6134400
+      "bytes": 6135038
     },
     {
       "id": "craft-trees",
@@ -9651,8 +9651,8 @@
       "path": "assets/pixellab/provenance.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 252414,
-      "sha256": "7c7b88d9ec88e69218ae7d4a98ae17f23ef1824b43528301f90fa9f4b9acc5f2",
+      "bytes": 252526,
+      "sha256": "ff334493869da835a9a77825620f14b892edecf707ab66cbc9a49a161615bc6b",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -32846,8 +32846,8 @@
       "path": "public/vale/sprites.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 32884,
-      "sha256": "5a17bad1e26132aa486754cc2a7a4379b9caf073b17f755509072ad753f61643",
+      "bytes": 33410,
+      "sha256": "6ffc87eb013b2d649e4254e29188ad6092560ff8d8797154466573df51e72da5",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -32860,8 +32860,8 @@
       "path": "public/vale/sprites.png",
       "group": "vale-pixel-art",
       "kind": "image",
-      "bytes": 1287919,
-      "sha256": "7832b8e474cd309c62ab8307691bed7795724e3f228b51093a33b635f0bbd3da",
+      "bytes": 1295540,
+      "sha256": "4e0d119726fdc8ae9eeca03e1188927b06b4259c4ff8fb6d9b0eea08c8e7f20a",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-PixelLab-Generated",

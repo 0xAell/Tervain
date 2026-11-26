@@ -3813,9 +3813,14 @@
     "icons/votive_reed.png": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
     "icons/witness_cord.png": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
     "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
-    "sprites.json": "5a17bad1e26132aa486754cc2a7a4379b9caf073b17f755509072ad753f61643",
-    "sprites.png": "7832b8e474cd309c62ab8307691bed7795724e3f228b51093a33b635f0bbd3da",
+    "sprites.json": "6ffc87eb013b2d649e4254e29188ad6092560ff8d8797154466573df51e72da5",
+    "sprites.png": "4e0d119726fdc8ae9eeca03e1188927b06b4259c4ff8fb6d9b0eea08c8e7f20a",
     "title.png": "fbf2dab7ad6403e4caff7a94248822339792e0adf04d87f6722d0caea72d6505",
     "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
+  },
+  "workshopMaterials": {
+    "author": "Tervain",
+    "source": "tools/vale_interiors.py",
+    "count": 14
   }
 }

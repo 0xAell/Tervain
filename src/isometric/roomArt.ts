@@ -1,4 +1,4 @@
-import { houseStyle } from './houseStyles';
+import { houseStyle, workshopWall } from './houseStyles';
 import type { HeroReveal } from './heroReveal';
 import type { Atlas } from './atlas';
 import type { V2 } from '../core/world/layout';
@@ -102,7 +102,8 @@ function wall(
   windows: boolean,
   loft: boolean,
   casement?: (centre: V2, half: V2, height: number) => void,
-  hanging?: (a: Point, b: Point, c: Point) => void
+  hanging?: (a: Point, b: Point, c: Point) => void,
+  surface = stone ? 'room_masonry' : 'room_plaster'
 ) {
   const p = at(a.x, a.z),
     q = at(b.x, b.z),
@@ -118,7 +119,7 @@ function wall(
   polygon(ctx, [farB, end, q, at(b.x + dx, b.z + dz)], stone ? '#4c4c54' : '#523c33');
   line(ctx, farA, farB, stone ? '#b1a999' : '#bd9b6e');
   const point = (t: number, raise: number) => at(a.x + (b.x - a.x) * t, a.z + (b.z - a.z) * t, raise);
-  quad(ctx, atlas, stone ? 'room_masonry' : 'room_plaster', top, end, p, length * 8, h);
+  quad(ctx, atlas, surface, top, end, p, length * 8, h);
   if (a.x === b.x) polygon(ctx, [top, end, q, p], 'rgba(40,38,51,.21)');
   line(ctx, p, q, '#493933', 3);
   line(ctx, { x: p.x, y: p.y + 1 }, { x: q.x, y: q.y + 1 }, 'rgba(52,39,35,.52)', 2);
@@ -154,14 +155,14 @@ function wall(
       );
       const sill = point(m + half + 0.02, 7);
       polygon(ctx, [b0, b1, sill, { x: b0.x + 3, y: b0.y + 3 }], stone ? '#a49a85' : '#c8a978');
-    } else if (!stone && i % 2 === 1) {
+    } else if (hanging && i % 2 === 1) {
       const half = 0.52 / length;
       hanging?.(point(m - half, h - 3), point(m + half, h - 3), point(m - half, 7));
     }
   }
   if (!stone) line(ctx, point(0, 5), point(1, 5), '#99754d', 2);
 }
-function slab(ctx: CanvasRenderingContext2D, atlas: Atlas, r: Chamber, stone: boolean, lift: number) {
+function slab(ctx: CanvasRenderingContext2D, atlas: Atlas, r: Chamber, stone: boolean, lift: number, floor: string) {
   const a = at(r.x0, r.z1),
     b = at(r.x1, r.z1),
     c = at(r.x1, r.z0),
@@ -173,7 +174,8 @@ function slab(ctx: CanvasRenderingContext2D, atlas: Atlas, r: Chamber, stone: bo
   if (lift > 0) line(ctx, { x: a.x, y: a.y + 5 }, { x: b.x, y: b.y + 5 }, stone ? '#6c6769' : '#7c6653', 2);
   line(ctx, bottom(a), bottom(b), '#231f27', 2);
   line(ctx, bottom(b), bottom(c), '#241f29', 2);
-  floorRect(ctx, atlas, stone ? 'room_slate' : 'room_oak', r.x0, r.z0, r.x1, r.z1, stone ? 22 : 7);
+  const grain = floor === 'room_slate' ? 22 : floor === 'room_oak' ? 7 : 13;
+  floorRect(ctx, atlas, floor, r.x0, r.z0, r.x1, r.z1, grain);
   line(ctx, a, b, stone ? '#b4a596' : '#cfaa72', 2);
   line(ctx, b, c, stone ? '#8d817f' : '#a17b51', 2);
 }
@@ -526,9 +528,15 @@ export class RoomArt {
     }
   }
   plate(plan: FloorPlan, indigo = false): RoomPlate {
-    const style = plan.site.id + '/' + plan.level + '/' + indigo;
-    const cached = this.plates.get(style);
+    const cacheKey = plan.site.id + '/' + plan.level + '/' + indigo;
+    const cached = this.plates.get(cacheKey);
     if (cached) return cached;
+    const style = houseStyle(plan.site.id);
+    const finish = workshopWall(style.motif);
+    const workshopFloor = finish && (plan.level === 'ground' || (plan.level === 'cellar' ? finish.masonryFloor : !finish.masonryFloor));
+    const floor = workshopFloor ? 'room_floor_' + style.motif : plan.stone ? 'room_slate' : 'room_oak';
+    const surface = plan.stone ? 'room_masonry' : finish?.surface;
+    const wallHeight = plan.level === 'ground' && finish ? finish.height : plan.level === 'loft' ? 31 : 33;
     const points = plan.rooms.flatMap((r) => [
       at(r.x0, r.z0),
       at(r.x1, r.z0),
@@ -547,7 +555,7 @@ export class RoomArt {
       const lift = chamberLift(plan, i);
       ctx.save();
       ctx.translate(0, -lift);
-      slab(ctx, this.atlas, r, plan.stone, lift);
+      slab(ctx, this.atlas, r, plan.stone, lift, floor);
       ctx.restore();
     }
     const casements: Casement[] = [],
@@ -557,6 +565,13 @@ export class RoomArt {
       casements.push({ centre, half, height, floor: chamberLift(plan, index) });
     const recordHanging = (index: number) => (a: Point, b: Point, c: Point) => {
       const lift = chamberLift(plan, index);
+      if (finish) {
+        const dx = (b.x - a.x) * 0.48, dy = (b.y - a.y) * 0.48;
+        const left = (p: Point) => ({ x: p.x - dx, y: p.y - dy });
+        quad(ctx, this.atlas, 'room_wall_' + style.motif, left(a), { x: b.x + dx, y: b.y + dy }, left(c));
+        return;
+      }
+      if (plan.stone) return;
       const raised = (p: Point) => ({ x: p.x, y: p.y - lift });
       hangings.push({ a: raised(a), b: raised(b), c: raised(c) });
     };
@@ -584,7 +599,6 @@ export class RoomArt {
         rx = (r.x1 - r.x0) * (i === 1 ? 0.245 : 0.31),
         rz = (r.z1 - r.z0) * 0.25;
       const weave = r.rug === 'blue' || (indigo && i === 1) ? 'room_indigo' : 'room_rug';
-      const style = houseStyle(plan.site.id);
       const formal = style.motif === 'record' || style.motif === 'bell';
       const tiled = style.motif === 'garden' || style.motif === 'grain';
       if (tiled && i === 1) {
@@ -604,12 +618,13 @@ export class RoomArt {
         this.atlas,
         { x: r.x0, z: r.z0 },
         { x: r.x1, z: r.z0 },
-        plan.level === 'loft' ? 31 : 33,
+        wallHeight,
         plan.stone,
         plan.level !== 'cellar',
         plan.level === 'loft',
         recordWindow(i),
-        recordHanging(i)
+        recordHanging(i),
+        surface
       );
       const z = r.z0, height = plan.level === 'loft' ? 24 : 26;
       polygon(ctx, [at(r.x0,z,height),at(r.x1,z,height),at(r.x1,z,height-5),at(r.x0,z,height-5)], style.wall);
@@ -633,12 +648,13 @@ export class RoomArt {
       this.atlas,
       { x: west.x0, z: west.z0 },
       { x: west.x0, z: west.z1 },
-      29,
+      wallHeight - 4,
       plan.stone,
       plan.level !== 'cellar',
       false,
       recordWindow(0),
-      recordHanging(0)
+      recordHanging(0),
+      surface
     );
     ctx.restore();
     const stairLayers = plan.stairs.map((s) =>
@@ -681,7 +697,7 @@ export class RoomArt {
     }
     const out = { image, left, top, casements, hangings, floors, stairs: stairLayers };
     if (this.plates.size >= 6) this.plates.delete(this.plates.keys().next().value!);
-    this.plates.set(style, out);
+    this.plates.set(cacheKey, out);
     return out;
   }
 }

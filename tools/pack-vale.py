@@ -7,6 +7,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 from vale_palette import prepare
 from vale_poses import equipped, dash, fall, regional_coat
+from vale_interiors import workshop_art
 
 root = Path(__file__).resolve().parent.parent
 art = root / 'assets/pixellab'
@@ -116,12 +117,17 @@ with zipfile.ZipFile(art / 'sources.zip') as library:
                 raise ValueError('Invalid interface asset path')
             (dest / file).parent.mkdir(parents=True, exist_ok=True)
             (dest / file).write_bytes(library.read(name))
+workshops = dict(workshop_art())
+for key, image in workshops.items():
+    mapping[key] = []
+    append_cel(key, image)
 atlas = Image.new('RGBA', (width, y + row))
 for x, y, im in sprites:
     atlas.paste(im, (x, y))
 atlas.save(dest / 'sprites.png', optimize=True)
 (dest / 'sprites.json').write_text(json.dumps({'frames': mapping}, separators=(',', ':')) + '\n')
 ledger = json.loads((art / 'provenance.json').read_text())
+ledger['workshopMaterials'] = {'author': 'Tervain', 'source': 'tools/vale_interiors.py', 'count': len(workshops)}
 ledger['runtimeFilesSha256'] = {p.relative_to(dest).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                               for p in sorted(dest.rglob('*')) if p.is_file()}
 (art / 'provenance.json').write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + '\n')

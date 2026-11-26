@@ -22,4 +22,14 @@ const occupations: Record<string, HouseCraft> = {
   archive: 'record', quarry_office: 'record', crew_bunks: 'timber', overlook_lodge: 'hunt', fisher_house: 'tide',
   net_store: 'tide', keeper_cottage: 'garden', hunter_lean_to: 'hunt', lantern_tower: 'bell', forest_ruin: 'bell',
 };
+// Plaster, boarded walls and wet masonry belong to different working rooms.
+const workshopWalls: Partial<Record<HouseCraft, { surface: string; height: number; masonryFloor?: boolean }>> = {
+  weave: { surface: 'room_plaster', height: 38 },
+  timber: { surface: 'room_floor_timber', height: 30 },
+  garden: { surface: 'room_plaster', height: 36, masonryFloor: true },
+  hunt: { surface: 'room_floor_hunt', height: 31 },
+  grain: { surface: 'room_plaster', height: 32, masonryFloor: true },
+  cask: { surface: 'room_masonry', height: 35, masonryFloor: true },
+};
+export function workshopWall(motif: HouseCraft) { return workshopWalls[motif]; }
 export function houseStyle(id: string): HouseStyle { return houses[occupations[id] ?? 'timber']; }

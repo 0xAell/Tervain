@@ -236,7 +236,7 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
   const threshold = { weave: -1.7, timber: 0.8, garden: -2.4, hunt: 2.15, grain: -1.4, cask: -2.2, record: 0, tide: 1.45, bell: 0 }[form.motif];
   if (level === 'ground') passages.push({ id: 'exit', kind: 'outside', x: threshold, z: deep - 0.58 });
   const f = (type: string) => 'furniture_' + type;
-  const workKey = ['bed', 'table', 'chest'].includes(home.tool) ? home.tool : f(home.tool);
+  const workKey = home.tool === 'herbs' ? 'room_herb_dryer' : ['bed', 'table', 'chest'].includes(home.tool) ? home.tool : f(home.tool);
   if (level === 'ground') {
     put(
       workKey,
@@ -253,7 +253,7 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
           : 'Use the ' + home.workroom.toLowerCase()
     );
     put('room_hearth', rx, rooms[2].z0 + 1.7, 53, 1.6, 0.85, 'hearth', 'Tend the hearth');
-    const display = { weave: 'table', timber: f('workbench'), garden: f('herbs'), hunt: f('rack'),
+    const display = { weave: 'table', timber: f('workbench'), garden: 'room_herbal_table', hunt: f('rack'),
       grain: f('sacks'), cask: f('barrel'), record: f('desk'), bell: f('altar'), tide: f('rack') }[form.motif];
     const dx = form.motif === 'hunt' || form.motif === 'tide' ? -3.15 : 2.8;
     put(display, dx, 2.5, form.motif === 'bell' ? 47 : 40, 1.35, 0.68);
@@ -329,7 +329,7 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
   put(f('shelf'), -hall - 1.6, rooms[0].z0 + 1.05, 30, 0.86, 0.42);
   put(f(loft ? 'herbs' : 'pots'), hall + 1.78, rooms[2].z0 + 1.1, 23, 0.55, 0.38);
   if (level === 'ground') put(f('stool'), rx - 1.8, 2, 17, 0.38, 0.35);
-  const extra = { weave: ['loom', 'shelf'], timber: ['firewood','workbench'], garden: ['herbs','pots'],
+  const extra = { weave: ['loom', 'shelf'], timber: ['firewood','workbench'], garden: ['pots','herbs'],
     hunt: ['pelt','rack'], grain: ['sacks','sacks'], cask: ['barrel','barrel'], bell: ['candle','candle'],
     record: ['bookshelf','bookshelf'], tide: ['rack','jug'] }[form.motif];
   // Appended so persistent chest/fixture identifiers in earlier saves retain their meaning.

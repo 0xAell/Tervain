@@ -251,13 +251,22 @@ try {
     layouts.push(view);
   }
   const slabCoverage = await run(c => {
-    const v = c.valley, samples = [];
-    for (const house of ['house_a', 'house_b', 'house_c', 'house_d', 'house_e', 'house_f']) {
+    const v = c.valley, samples = [], atlas = c.scene.atlas, art = c.scene.rooms.art;
+    const trades = { house_a:'weave', house_b:'timber', house_c:'garden', house_d:'hunt', house_e:'grain', house_f:'cask' };
+    art.plates.clear();
+    for (const [house, trade] of Object.entries(trades)) {
       const door = v.targets().find(t => t.door?.id === house + '/front').door;
       v.enterDoor(door);
       for (const level of ['ground', 'loft', 'cellar']) {
         v.player.interior.level = level;
-        const plate = c.scene.rooms.art.plate(v.room);
+        const used = new Set(), surface = atlas.surface;
+        let plate;
+        try {
+          atlas.surface = function(key, ...args) { used.add(key); return surface.call(this, key, ...args); };
+          plate = art.plate(v.room);
+        } finally { atlas.surface = surface; }
+        if (level === 'ground' && (!used.has('room_floor_' + trade) || !used.has('room_wall_' + trade)))
+          throw Error(house + ' did not draw its workshop floor and fittings');
         const mask = document.createElement('canvas');
         const w = mask.width = plate.image.width, h = mask.height = plate.image.height;
         const g = mask.getContext('2d');
