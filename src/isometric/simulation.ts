@@ -165,6 +165,7 @@ export class Valley {
   private focusUntil = 0;
   private swingTarget?: Actor;
   hitStopRemaining = 0;
+  hitStopContact?: Contact;
   dash?: { direction: V2; elapsed: number; origin: V2; trail: V2[] };
   private dashReady = 0;
   tiredUntil = 0;
@@ -404,6 +405,8 @@ export class Valley {
     this.opponent = undefined;
     for (const actor of this.actors) actor.openedUntil = undefined;
     this.contacts.length = 0;
+    this.hitStopRemaining = 0;
+    this.hitStopContact = undefined;
     this.walk = false;
     this.locomotion.reset();
     this.cancelPose();
@@ -594,6 +597,7 @@ export class Valley {
     if (this.hitStopRemaining > 0 && dt > 0) {
       const hold = Math.min(dt, this.hitStopRemaining);
       this.hitStopRemaining -= hold;
+      if (!this.hitStopRemaining) this.hitStopContact = undefined;
       this.dashReady += hold;
       if (this.opponent && this.focusUntil > this.time - dt) this.focusUntil += hold;
       for (const a of this.actors) if (a.openedUntil && a.openedUntil > this.time - dt) a.openedUntil += hold;
@@ -920,9 +924,8 @@ export class Valley {
               p.yaw = Math.atan2(a.x - p.x, a.z - p.z);
               this.focusEnemy(a);
               this.repel(a, p, 4.8);
-              this.hitStopRemaining = Math.max(this.hitStopRemaining, IMPACT_PAUSE.parry);
               this.fieldSoundAt('parry', a);
-              this.contactAt(p, a, 'parry', { actorId: a.id });
+              this.contactAt(p, a, 'parry', { actorId: a.id }, IMPACT_PAUSE.parry);
               continue;
             }
             const cost = ACTION_COST.blockHit * (def.heavy ? GUARD.heavyCost : 1) *
@@ -934,12 +937,11 @@ export class Valley {
             }
             const damage = blocked ? Math.ceil(def.damage * 0.18) : def.damage;
             this.action({ t: 'damagePlayer', amount: damage });
-            this.hitStopRemaining = Math.max(this.hitStopRemaining, def.heavy ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular);
             this.fieldSoundAt(blocked ? 'block' : 'player_hit', a);
             this.contactAt(p, a, blocked ? 'guard' : 'body', {
               damage, actorId: 'player',
               heavy: def.heavy,
-            });
+            }, def.heavy ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular);
             this.onMessage(blocked ? 'Blow guarded' : a.name + ' struck you');
           }
         } else {
@@ -1214,9 +1216,8 @@ export class Valley {
     if (!enemy || enemy.dead || distance(enemy, p) >= 3.3 || !this.withinMeleeHeight(enemy)) return;
     const counter = this.stroke === 'counter';
     if (enemy.enemyKind === 'deserter' && !counter && this.stroke !== 'thrust' && this.meetsShield(enemy, p)) {
-      this.hitStopRemaining = IMPACT_PAUSE.regular;
       this.fieldSoundAt('block', enemy);
-      this.contactAt(enemy, p, 'guard', { actorId: enemy.id });
+      this.contactAt(enemy, p, 'guard', { actorId: enemy.id }, IMPACT_PAUSE.regular);
       this.onMessage('Shield held · circle behind or finish a thrust');
       return;
     }
@@ -1224,9 +1225,9 @@ export class Valley {
     const damage = bladeDamage(this.game.state, counter ? 'counter' : this.stroke, this.swordSwing);
     const defeated = this.damageEnemy(enemy, damage);
     const heavy = counter || this.stroke === 'thrust' || defeated;
-    this.hitStopRemaining = Math.max(this.hitStopRemaining, heavy ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular);
     this.repel(enemy, p, heavy ? 8.1 : 4.5);
-    this.contactAt(enemy, p, counter ? 'counter' : this.swordSwing ? 'blade' : 'body', { damage, defeated, actorId: enemy.id });
+    this.contactAt(enemy, p, counter ? 'counter' : this.swordSwing ? 'blade' : 'body',
+      { damage, defeated, actorId: enemy.id }, heavy ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular);
     this.fieldSoundAt(counter ? 'counter_hit' : this.swordSwing ? 'blade_hit' : 'unarmed_hit', enemy);
     if (defeated) this.fieldSoundAt('enemy_down', enemy);
   }
@@ -1261,13 +1262,21 @@ export class Valley {
     const dir = unit(actor.x - from.x, actor.z - from.z);
     actor.recoil = { x: dir.x * speed, z: dir.z * speed };
   }
+  private addContact(hit: Contact, pause: number) {
+    this.contacts.push(hit);
+    if (pause > 0 && pause >= this.hitStopRemaining) {
+      this.hitStopRemaining = pause;
+      this.hitStopContact = hit;
+    }
+  }
   private contactAt(
     at: V2,
     from: V2,
     kind: Contact['kind'],
-    result: Pick<Contact, 'damage' | 'heavy' | 'defeated' | 'actorId'>
+    result: Pick<Contact, 'damage' | 'heavy' | 'defeated' | 'actorId'>,
+    pause: number
   ) {
-    this.contacts.push({
+    this.addContact({
       ...result,
       x: at.x,
       z: at.z,
@@ -1276,7 +1285,7 @@ export class Valley {
       kind,
       height: supportHeight(at) + 1.7,
       born: this.time,
-    });
+    }, pause);
   }
   /** The guide and the arrowhead sweep the same path through walls, terrain and actors. */
   private traceArrow(arrow: Arrow, length: number) {
@@ -1330,9 +1339,8 @@ export class Valley {
         if (block) this.stamina -= ACTION_COST.blockHit;
         const damage = block ? 2 : ENEMY_ARCHETYPES.skirmisher.damage;
         this.action({ t: 'damagePlayer', amount: damage });
-        this.contactAt(this.player, arrow, block ? 'guard' : 'body', { actorId: 'player', damage });
+        this.contactAt(this.player, arrow, block ? 'guard' : 'body', { actorId: 'player', damage }, IMPACT_PAUSE.regular);
         this.fieldSoundAt(block ? 'block' : 'player_hit', this.player);
-        this.hitStopRemaining = IMPACT_PAUSE.regular;
         return true;
       }
     }
@@ -1356,16 +1364,15 @@ export class Valley {
         if (arrow.focused) this.breakGuard(impact);
         else if (this.meetsShield(impact, { x: impact.x - dir.x, z: impact.z - dir.z })) {
           this.fieldSoundAt('block', impact);
-          this.contactAt(impact, {x: impact.x-dir.x, z: impact.z-dir.z}, 'guard', {actorId: impact.id});
+          this.contactAt(impact, { x: impact.x-dir.x, z: impact.z-dir.z }, 'guard', { actorId: impact.id }, IMPACT_PAUSE.regular);
           return true;
         }
       }
       defeated = this.damageEnemy(impact, arrow.focused ? FOCUSED_ARROW_DAMAGE : 32);
       impact.recoil = { x: dir.x * (arrow.focused ? 7 : 3), z: dir.z * (arrow.focused ? 7 : 3) };
       if (arrow.focused && !impact.attack) impact.timer = Math.max(impact.timer, 0.24);
-      this.hitStopRemaining = Math.max(this.hitStopRemaining, defeated ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular);
     }
-    this.contacts.push({
+    this.addContact({
       x: arrow.x,
       z: arrow.z,
       dx: dir.x,
@@ -1376,7 +1383,7 @@ export class Valley {
       damage: impact?.enemy ? arrow.focused ? FOCUSED_ARROW_DAMAGE : 32 : undefined,
       defeated,
       actorId: impact?.id,
-    });
+    }, impact?.enemy ? (defeated ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular) : 0);
     this.fieldSoundAt(impact ? arrow.focused ? 'focused_hit' : 'arrow_flesh' : 'arrow_ground', arrow);
     if (defeated) this.fieldSoundAt('enemy_down', arrow);
     return true;

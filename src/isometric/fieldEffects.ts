@@ -1,8 +1,51 @@
-import { pixelPool, pixelArc } from './pixelInk';
+import { pixelLine, pixelPool, pixelArc } from './pixelInk';
 import type { Footprint } from './footfalls';
-import { CONTACT_TIME, DAMAGE_LABEL_TIME, type Contact } from './fieldcraft';
+import { CONTACT_TIME, DAMAGE_LABEL_TIME, arrowHeight, type Arrow, type Contact } from './fieldcraft';
 import { project, PROJECTION } from './projection';
 import { windPhase } from './wind';
+
+export function drawBowGuide(
+  ctx: CanvasRenderingContext2D, arrow: Arrow, distance: number, held: boolean,
+  focus: number, ox: number, oy: number
+) {
+  const point = (d: number, dx = arrow.direction.x, dz = arrow.direction.z) => {
+    const p = project(arrow.x + dx * d, arrow.z + dz * d, arrowHeight(arrow, d));
+    return { x: p.x + ox, y: p.y + oy };
+  };
+  ctx.save();
+  ctx.fillStyle = focus >= 1 ? '#ffdf81' : held ? '#ffe3a1' : '#cfd5b8';
+  if (focus >= 1) {
+    // At full draw the rails meet. Follow the actual flight height all the way to first contact.
+    ctx.globalAlpha = 0.9;
+    let previous = point(Math.min(distance, 2.1));
+    for (let d = 2.1; d < distance; d += 1) {
+      const next = point(Math.min(distance, d + 1));
+      pixelLine(ctx, previous.x, previous.y, next.x, next.y);
+      previous = next;
+    }
+  } else {
+    ctx.globalAlpha = held ? 0.66 : 0.4;
+    const angle = (1 - focus) * Math.PI / 10;
+    for (const sign of [-1, 1]) {
+      const sin = sign * Math.sin(angle), cos = Math.cos(angle);
+      const dx = arrow.direction.x * cos - arrow.direction.z * sin;
+      const dz = arrow.direction.x * sin + arrow.direction.z * cos;
+      for (let d = 2.1; d < distance; d += 1.7) {
+        const from = point(d, dx, dz), to = point(Math.min(distance, d + 0.62), dx, dz);
+        pixelLine(ctx, from.x, from.y, to.x, to.y);
+      }
+    }
+  }
+  const tip = point(distance);
+  const x = Math.round(tip.x), y = Math.round(tip.y);
+  const spread = held ? Math.round(5 - focus * 4) : 6;
+  ctx.globalAlpha = 1;
+  ctx.fillRect(x - spread - 2, y, 3, 1);
+  ctx.fillRect(x + spread, y, 3, 1);
+  ctx.fillRect(x, y - spread - 2, 1, 3);
+  ctx.fillRect(x, y + spread, 1, 3);
+  ctx.restore();
+}
 
 export function drawFootprints(
   ctx: CanvasRenderingContext2D,

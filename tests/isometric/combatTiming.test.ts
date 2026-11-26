@@ -80,6 +80,25 @@ describe('Vale combat timing', () => {
     expect(cues).toHaveLength(3);
   });
 
+  it('keeps the heavier simultaneous impact attached to its recipient until the pause ends', () => {
+    const { valley, enemy } = encounter();
+    const second = valley.actors.find(a => a.enemyKind === 'bandit' && a !== enemy)!;
+    const home = { x: -176.5, z: 18 };
+    Object.assign(second, home, { home, timer: 10 });
+    enemy.health = 1;
+    valley.startAttack(enemy);
+    advance(valley, 0.23);
+    second.attack = enemyContactRemaining(false) + 0.005;
+    valley.step(0.02, 0, 0, false);
+    expect(valley.contacts).toMatchObject([
+      { actorId: enemy.id, defeated: true }, { actorId: 'player', kind: 'body' },
+    ]);
+    expect(valley.hitStopContact).toBe(valley.contacts[0]);
+    expect(valley.hitStopRemaining).toBe(IMPACT_PAUSE.heavy);
+    valley.step(IMPACT_PAUSE.heavy, 0, 0, false);
+    expect(valley.hitStopContact).toBeUndefined();
+  });
+
   it('keeps consecutive damage numbers readable after the impact itself is over', () => {
     const { valley, enemy } = encounter();
     enemy.health = 100;

@@ -31,10 +31,10 @@ The editable PNG sequences, original provider images and typeface are in `assets
 - **Version.** The current patch is [`0.1.27`](docs/production/releases/0.1.27.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
-- **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
+- **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Village, terrain and character comparisons](docs/production/releases/0.1.27.md#gameplay-and-comparisons) · [Score and soundscapes](docs/engineering/bell-road-audio.json).
 - **Not started.** A desktop package, and anything to do with a store release.
 
-The road leads from the wreck through the old pines to a caravan camp above Rillford. An original waltz, *The Ford at First Light*, opens the journey.
+The road leads from the wreck through the old pines to a caravan camp above Rillford. A bell phrase from the title returns in the shoreline flute, Rillford’s struck wire and the old mill’s homecoming music. [The Bell Road score and soundscapes](docs/engineering/bell-road-audio.json).
 
 ## What is in the prototype
 
@@ -54,8 +54,8 @@ The prototype is one small region, 580 m by 340 m: a coast, a wood, a waystation
 The Dry Bell has branching conversations, training, evidence and competing claims on the sluice. The journal follows the evidence from the wreck to the mill. Its field guide points to the next landmark, and the final entry records who receives water after you operate the gate.
 
 <p align="center">
-  <img src="docs/media/screenshots/weavers-house.webp" width="100%" alt="Inside the Weaver’s House, lanterns mark the open side rooms and stairs beside a woven hall runner.">
-  <img src="docs/media/screenshots/rillford-riverlands.webp" width="100%" alt="The wanderer stands on Rillford’s timber bridge above the bright river and planted banks.">
+  <img src="docs/media/bell-road/0.1.27-houses.webp" width="100%" alt="Six Rillford interiors with the weaver’s indigo cloth, carpenter’s trestles, herb racks, hides, threshing floor and brewhouse drains.">
+  <img src="docs/media/bell-road/0.1.27-native-pixels.webp" width="100%" alt="Four-times pixel details from the village, ford, forest and weaver’s floor in versions 0.1.26 and 0.1.27.">
 </p>
 
 ## Playing it
@@ -140,7 +140,7 @@ Neither route grants rights to Gothic 3 material or establishes commercial-relea
 
 ## License and commercial permissions
 
-**AI-generated media.** Tervain used PixelLab to make the isometric sprites, animations, scenery, title art, interface artwork and typeface. ElevenLabs generated prerecorded character voices, narration, sound effects and ambience. Eleven Music generated the title, riverside and hearthside instrumentals. The game plays these assets locally. Commercial use depends on the provider, the type of asset and, for ElevenLabs, the terms of the plan used for generation. [Commercial terms and provenance](LICENSE-SCOPE.md#ai-generated-game-media) · [Game credits](public/world-audio-licenses.html).
+**AI-generated media.** Tervain used PixelLab to make the isometric sprites, animations, scenery, title art, interface artwork and typeface. ElevenLabs generated prerecorded character voices, narration, sound effects and ambience. Eleven Music generated three earlier title, riverside and hearthside instrumentals. The Bell Road score and its seven environmental beds are rendered from the project’s original instruments, melodies and noise sources. The game plays its audio locally. Commercial use depends on the provider, the type of asset and, for ElevenLabs, the terms of the plan used for generation. [Commercial terms and provenance](LICENSE-SCOPE.md#ai-generated-game-media) · [Game credits](public/world-audio-licenses.html).
 
 Source-available, not open source. Eligible original Tervain software code is offered under the [PolyForm Noncommercial License 1.0.0](LICENSE), subject to the [exact scope and exceptions](LICENSE-SCOPE.md). **Commercial use of covered code requires separate permission**; [how to ask](LICENSE-SCOPE.md#commercial-permissions) is in the same document.
 

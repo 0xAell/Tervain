@@ -1,4 +1,5 @@
 import { followAxis } from './camera';
+import { IMPACT_PAUSE } from '../core/rules/valeCombat';
 import { pixelLine, pixelPool } from './pixelInk';
 import { journeyLead } from '../core/game/valeJourney';
 import { buildFieldstones } from './fieldstones';
@@ -9,7 +10,7 @@ import { terrainHeight, groundProject, pickSurface, supportHeight } from './reli
 import { Sunlight } from './sunlight';
 import { SkyLighting, skyLight, type LightSource } from './skyLight';
 import { doorOpen, frontDoor } from './doorways';
-import { drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir, drawBootDust } from './fieldEffects';
+import { drawBowGuide, drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir, drawBootDust } from './fieldEffects';
 import type { BuildingSpec } from '../core/world/layout';
 import { CONTACT_TIME, DEFEAT_TIME, arrowHeight, meleeWarning, enemySwingProgress, SWING_TIME } from './fieldcraft';
 import { isHuntableAnimalId } from '../core/game/hunting';
@@ -289,17 +290,18 @@ export class Scene {
     this.lastFocus.x = focusX;
     this.lastFocus.y = focusY;
     this.initialized = true;
-    const hit = valley.contacts.at(-1);
+    const stopped = valley.hitStopContact;
+    const hit = stopped ?? valley.contacts.findLast(contact => contact.kind !== 'earth');
     const shudder = { x: 0, y: 0 };
-    if (hit?.actorId && valley.hitStopRemaining > 0 && !this.reducedMotion.matches) {
-      const axis = project(hit.dx,hit.dz);
+    if (stopped && !this.reducedMotion.matches) {
+      const axis = project(stopped.dx, stopped.dz);
       const size = Math.hypot(axis.x,axis.y) || 1;
-      const beat = Math.floor(valley.hitStopRemaining * 180) % 2 ? 2 : -1;
+      const beat = this.renderedFrames % 2 ? 2 : -1;
       shudder.x = Math.round(-axis.y / size * beat);
       shudder.y = Math.round(axis.x / size * beat);
     }
     this.kick.x = this.kick.y = 0;
-    if (hit && hit.kind !== 'earth' && !this.reducedMotion.matches) {
+    if (hit && !this.reducedMotion.matches) {
       const age = valley.time - hit.born;
       if (age >= 0 && age < 0.26) {
         const axis = project(hit.dx, hit.dz), length = Math.hypot(axis.x, axis.y) || 1;
@@ -457,10 +459,10 @@ export class Scene {
       if (a.enemy && a.dead && !defeat) continue;
       const reaction = !defeat && a.enemy && !this.reducedMotion.matches
         ? valley.contacts.findLast(hit => hit.actorId === a.id && time - hit.born < 0.18) : undefined;
-      const recoil = reaction ? Math.round(Math.sin(Math.PI * (time - reaction.born) / 0.18) *
+      const recoil = reaction && stopped?.actorId !== a.id ? Math.round(Math.sin(Math.PI * (time - reaction.born) / 0.18) *
         (reaction.kind === 'parry' ? -2 : 2) * (Math.sign(project(reaction.dx, reaction.dz).x) || 1)) : 0;
       const fallAge = defeat ? time - defeat.born : 0;
-      const fall = Math.min(1, fallAge / 0.28);
+      const fall = Math.min(1, Math.max(0, fallAge - IMPACT_PAUSE.heavy) / 0.28);
       if (a.animal && valley.game.state.hunting[a.animal]?.status === 'skinned') continue;
       const inside = inBuilding(a);
       if (inside) continue;
@@ -489,10 +491,7 @@ export class Scene {
         alpha: defeat ? Math.min(1, (DEFEAT_TIME - fallAge) / 0.36) : undefined,
         tint: !this.reducedMotion.matches && (reaction || defeat) && time - (reaction ?? defeat)!.born < 2 / 60
           ? reaction?.kind === 'parry' ? '#b7f3dd' : '#fff6dc' : undefined,
-        impact: reaction || hit?.actorId === a.id ? {
-          x: recoil + (hit?.actorId === a.id ? shudder.x : 0),
-          y: hit?.actorId === a.id ? shudder.y : 0,
-        } : undefined,
+        impact: stopped?.actorId === a.id ? shudder : recoil ? { x: recoil, y: 0 } : undefined,
         lift: immersion(a, false).lift + (defeat && !this.reducedMotion.matches ? Math.max(0, Math.sin(fall * Math.PI) * 7) : 0),
         reflect: defeat ? false : undefined,
         wakeId: a.id,
@@ -545,7 +544,7 @@ export class Scene {
       ...immersed,
       ...pose,
       hero: true,
-      impact: hit?.actorId === 'player' ? shudder : undefined,
+      impact: stopped?.actorId === 'player' ? shudder : undefined,
       tint: !this.reducedMotion.matches && hit?.actorId === 'player' && time - hit.born < 2 / 60 ? '#fff6dc' : undefined,
       wakeId: 'player',
       moving: valley.walk,
@@ -763,41 +762,7 @@ export class Scene {
     drawDamageLabels(ctx, valley.contacts, time, ox, oy, this.reducedMotion.matches);
 
     const guide = valley.bowGuide();
-    if (guide) {
-      const { arrow, distance } = guide;
-      const at = (d: number) => project(
-        arrow.x + arrow.direction.x * d,
-        arrow.z + arrow.direction.z * d,
-        arrowHeight(arrow, d)
-      );
-      const held = valley.bow?.phase === 'hold';
-      const focus = valley.bowFocus;
-      ctx.fillStyle = focus >= 1 ? '#ffdf81' : held ? '#ffe3a1' : '#cfd5b8';
-      ctx.globalAlpha = held ? 0.66 : 0.4;
-      for (let d = 2.5; d < distance - 1; d += 2.5) {
-        const dot = at(d);
-        ctx.fillRect(Math.round(dot.x + ox), Math.round(dot.y + oy), 2, 1);
-      }
-      const spreadAngle = (1 - focus) * Math.PI / 10;
-      for (const sign of [-1, 1]) {
-        const theta = sign * spreadAngle, vx = arrow.direction.x * Math.cos(theta) - arrow.direction.z * Math.sin(theta);
-        const vz = arrow.direction.x * Math.sin(theta) + arrow.direction.z * Math.cos(theta);
-        for (let d = 2.1; d < distance; d += 1.7) {
-          const stop = Math.min(distance, d + 0.62);
-          const a = project(arrow.x + vx*d, arrow.z + vz*d, arrowHeight(arrow,d));
-          const b = project(arrow.x + vx*stop, arrow.z + vz*stop, arrowHeight(arrow,stop));
-          pixelLine(ctx, a.x+ox, a.y+oy, b.x+ox, b.y+oy);
-        }
-      }
-      ctx.globalAlpha = 1;
-      const tip = at(distance);
-      const x = Math.round(tip.x + ox), y = Math.round(tip.y + oy);
-      const spread = held ? Math.round(5 - focus * 4) : 6;
-      ctx.fillRect(x - spread - 2, y, 3, 1);
-      ctx.fillRect(x + spread, y, 3, 1);
-      ctx.fillRect(x, y - spread - 2, 1, 3);
-      ctx.fillRect(x, y + spread, 1, 3);
-    }
+    if (guide) drawBowGuide(ctx, guide.arrow, guide.distance, valley.bow?.phase === 'hold', valley.bowFocus, ox, oy);
     this.focus();
     this.renderedFrames++;
   }
