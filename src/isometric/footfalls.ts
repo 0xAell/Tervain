@@ -10,6 +10,7 @@ export interface Footprint {
   born: number;
   sand: boolean;
   running: boolean;
+  landing: boolean;
   side: number;
 }
 
@@ -21,13 +22,33 @@ export class Footfalls {
   material = '';
   readonly prints: Footprint[] = [];
 
+  private stamp(foot: V2, dx: number, dz: number, side: number, born: number, sand: boolean, landing: boolean) {
+    const at = groundProject({ x: foot.x + dz * side * 0.24, z: foot.z - dx * side * 0.24 });
+    this.prints.push({
+      ...at,
+      angle: Math.atan2((dx + dz) * 0.5, dx - dz),
+      born,
+      sand,
+      running: this.speed > 6.4,
+      landing,
+      side,
+    });
+    if (this.prints.length > 38) this.prints.shift();
+  }
+
+  land(foot: V2, yaw: number, time: number, material: string) {
+    if (material !== 'sand' && material !== 'trail') return;
+    for (const side of [-1, 1])
+      this.stamp(foot, Math.sin(yaw), Math.cos(yaw), side, time, material === 'sand', true);
+  }
+
   advance(
     from: V2,
     to: V2,
     dt: number,
     time: number,
     grounded: boolean,
-    roomMaterial: string,
+    surface: string | ((point: V2) => string),
     mount: boolean,
     swim: boolean
   ) {
@@ -39,24 +60,15 @@ export class Footfalls {
     if (this.speed < 0.05 || this.speed > 22) return;
     const stride = swim ? 2.55 : mount ? 3.7 : Math.min(2.58, 1.45 + this.speed * 0.125);
     const next = this.phase + metres / stride;
-    if (Math.floor(next) > Math.floor(this.phase)) {
+    for (let contact = Math.floor(this.phase) + 1; contact <= next; contact++) {
+      const fraction = (contact - this.phase) / (next - this.phase);
+      const foot = { x: from.x + dx * fraction, z: from.z + dz * fraction };
       this.serial++;
-      this.material = roomMaterial || (onBridge(to) ? 'wood' : groundAt(to.x, to.z));
-      if (!mount && (this.material === 'sand' || this.material === 'trail')) {
+      this.material = typeof surface === 'function' ? surface(foot) : surface || (onBridge(foot) ? 'wood' : groundAt(foot.x, foot.z));
+      if (!mount && !swim && (this.material === 'sand' || this.material === 'trail')) {
         const side = this.serial % 2 ? 1 : -1;
-        const at = groundProject({
-          x: to.x + (dz / metres) * side * 0.24,
-          z: to.z - (dx / metres) * side * 0.24,
-        });
-        this.prints.push({
-          ...at,
-          angle: Math.atan2((dx + dz) * 0.5, dx - dz),
-          born: time,
-          sand: this.material === 'sand',
-          running: this.speed > 6.4,
-          side,
-        });
-        if (this.prints.length > 38) this.prints.shift();
+        const born = time - dt * (1 - fraction);
+        this.stamp(foot, dx / metres, dz / metres, side, born, this.material === 'sand', false);
       }
     }
     this.phase = next % 2;

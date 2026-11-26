@@ -303,7 +303,7 @@ export class Client implements Controls {
     this.scene.resetCamera();
     this.ui.bind(this.valley, this.scene);
     this.valley.onMessage = (t) => this.ui.message(t);
-    this.valley.onFieldSound = (cue, range) => this.sound.field(cue, range);
+    this.valley.onFieldSound = (cue, range, pan) => this.sound.field(cue, range, pan);
     this.game.subscribe((events) => {
       for (const e of events) {
         if (e.t === 'toast') this.ui.message(S(e.key, e.params));
@@ -650,10 +650,8 @@ export class Client implements Controls {
     else if (e.code === b.attack) {
       this.stopWalking();
       this.valley.startAttack();
-    } else if (e.code === b.jump && !this.valley.jump && !this.valley.swimming && !this.valley.bow) {
-      this.valley.cancelPose();
-      this.valley.jump = 0.52;
-    } else if (e.code === b.inventory) this.page('inventory');
+    } else if (e.code === b.jump) this.valley.requestJump();
+    else if (e.code === b.inventory) this.page('inventory');
     else if (e.code === b.journal || e.code === 'Tab') this.page('journal');
     else if (e.code === b.map) this.page('map');
     else if (e.code === 'F5') this.save('quick');
@@ -695,6 +693,7 @@ export class Client implements Controls {
         );
       else if (hit(3) && this.mode === 'play') this.grab();
       else if (hit(5) && this.mode === 'play') this.valley.props?.turn(1);
+      else if (hit(6) && this.mode === 'play') this.valley.requestJump();
       else if ((hit(2) || hit(7)) && this.mode === 'play') {
         this.stopWalking();
         this.valley.startAttack();
@@ -732,8 +731,8 @@ export class Client implements Controls {
           next = this.route[0];
         if (
           remaining < 0.025 ||
-          (remaining < (this.valley.room ? 0.16 : 0.35) &&
-            (!next || this.valley.canWalk(this.valley.position, next)))
+          (next && remaining < (this.valley.room ? 0.16 : 0.35) &&
+            this.valley.canWalk(this.valley.position, next))
         )
           this.destination = this.route.shift() ?? null;
         if (this.destination) {

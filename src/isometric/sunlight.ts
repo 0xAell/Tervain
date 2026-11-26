@@ -93,7 +93,7 @@ export class Sunlight {
       g.fill();
     }
     for (const s of stamps) {
-      if (s.art || s.angle !== undefined || skip.test(s.key) || (s.submerged ?? 0) > 0.06 || s.width < 12)
+      if (s.art || s.arrow || skip.test(s.key) || (s.submerged ?? 0) > 0.06 || s.width < 12)
         continue;
       const high = tall.test(s.key),
         person = !!s.wakeId || !!s.hero;
