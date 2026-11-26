@@ -3813,9 +3813,19 @@
     "icons/votive_reed.png": "aa9e02969081c1887a5d3d59a54cea7a85f1e52f17aa1a0002bd5e3ffd475040",
     "icons/witness_cord.png": "2533d97b1ee2a7658afe44997139208a9f9bb95449e777e983fd1a509f9b14e4",
     "panel.png": "ee57d4c9508def70eeebb44dd64e54213fb6184d348349cbc9044dc568d21c68",
-    "sprites.json": "cf79f1ff3debc7cde207c6f8f27135f9332c3f16212ac5097a0435e61759552d",
-    "sprites.png": "c7b11ff240f325c8b6dac419816c7ad10611ec1568439c680b7f4206f631296a",
+    "sprites.json": "5d4476fd735fc366103688018f3f9de3a7c295de8d652d9683b184053faf457f",
+    "sprites.png": "89d9c2fe3538e2aca5bacb02dbcdb1edeaf96c097b6850f40db0827b080a7976",
     "title.png": "fbf2dab7ad6403e4caff7a94248822339792e0adf04d87f6722d0caea72d6505",
     "vale.ttf": "7f21c3ccaedac04ea7c8c28f0a41055015c8894b0671f87b65c1070e415a02a1"
+  },
+  "workshopMaterials": {
+    "author": "Tervain",
+    "source": "tools/vale_interiors.py",
+    "count": 14
+  },
+  "waterworks": {
+    "author": "Tervain",
+    "source": "tools/vale_sluice.py",
+    "notches": 13
   }
 }

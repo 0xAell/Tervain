@@ -1,7 +1,51 @@
+import { pixelLine, pixelPool, pixelArc } from './pixelInk';
 import type { Footprint } from './footfalls';
-import { CONTACT_TIME, DAMAGE_LABEL_TIME, type Contact } from './fieldcraft';
+import { CONTACT_TIME, DAMAGE_LABEL_TIME, arrowHeight, type Arrow, type Contact } from './fieldcraft';
 import { project, PROJECTION } from './projection';
 import { windPhase } from './wind';
+
+export function drawBowGuide(
+  ctx: CanvasRenderingContext2D, arrow: Arrow, distance: number, held: boolean,
+  focus: number, ox: number, oy: number
+) {
+  const point = (d: number, dx = arrow.direction.x, dz = arrow.direction.z) => {
+    const p = project(arrow.x + dx * d, arrow.z + dz * d, arrowHeight(arrow, d));
+    return { x: p.x + ox, y: p.y + oy };
+  };
+  ctx.save();
+  ctx.fillStyle = focus >= 1 ? '#ffdf81' : held ? '#ffe3a1' : '#cfd5b8';
+  if (focus >= 1) {
+    // At full draw the rails meet. Follow the actual flight height all the way to first contact.
+    ctx.globalAlpha = 0.9;
+    let previous = point(Math.min(distance, 2.1));
+    for (let d = 2.1; d < distance; d += 1) {
+      const next = point(Math.min(distance, d + 1));
+      pixelLine(ctx, previous.x, previous.y, next.x, next.y);
+      previous = next;
+    }
+  } else {
+    ctx.globalAlpha = held ? 0.66 : 0.4;
+    const angle = (1 - focus) * Math.PI / 10;
+    for (const sign of [-1, 1]) {
+      const sin = sign * Math.sin(angle), cos = Math.cos(angle);
+      const dx = arrow.direction.x * cos - arrow.direction.z * sin;
+      const dz = arrow.direction.x * sin + arrow.direction.z * cos;
+      for (let d = 2.1; d < distance; d += 1.7) {
+        const from = point(d, dx, dz), to = point(Math.min(distance, d + 0.62), dx, dz);
+        pixelLine(ctx, from.x, from.y, to.x, to.y);
+      }
+    }
+  }
+  const tip = point(distance);
+  const x = Math.round(tip.x), y = Math.round(tip.y);
+  const spread = held ? Math.round(5 - focus * 4) : 6;
+  ctx.globalAlpha = 1;
+  ctx.fillRect(x - spread - 2, y, 3, 1);
+  ctx.fillRect(x + spread, y, 3, 1);
+  ctx.fillRect(x, y - spread - 2, 1, 3);
+  ctx.fillRect(x, y + spread, 1, 3);
+  ctx.restore();
+}
 
 export function drawFootprints(
   ctx: CanvasRenderingContext2D,
@@ -77,28 +121,32 @@ export function drawEnemyWarning(
   reach: number,
   progress: number,
   heavy: boolean,
-  reducedMotion: boolean
+  reducedMotion: boolean,
+  ready: boolean
 ) {
   const radius = reach * PROJECTION * Math.SQRT2;
   const color = heavy ? '#f6a36e' : '#efd08d';
   ctx.save();
-  ctx.beginPath();
-  ctx.ellipse(Math.round(x), Math.round(y), radius, radius * 0.5, 0, 0, Math.PI * 2);
   ctx.fillStyle = color;
   ctx.globalAlpha = reducedMotion ? 0.09 : 0.04 + progress * 0.11;
-  ctx.fill();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = heavy ? 2 : 1;
+  pixelPool(ctx, x, y, radius, radius * 0.5);
   ctx.globalAlpha = reducedMotion ? 0.62 : 0.31 + progress * 0.5;
-  ctx.stroke();
+  pixelArc(ctx, x, y, radius, radius * 0.5, 0, Math.PI * 2, heavy ? 2 : 1);
   // The last amber segments close at contact. The indicator remains legible without a flash.
   const segments = 24;
-  ctx.fillStyle = !reducedMotion && progress > 0.86 ? '#fff0c0' : color;
+  ctx.fillStyle = ready ? '#fff0c0' : color;
   ctx.globalAlpha = 0.84;
   for (let i = 0; i < Math.ceil(progress * segments); i++) {
     const angle = (i / segments - 0.25) * Math.PI * 2;
     ctx.fillRect(Math.round(x + Math.cos(angle) * (radius + 2)) - 1,
       Math.round(y + Math.sin(angle) * (radius + 2) * 0.5), 3, heavy ? 2 : 1);
+  }
+  if (ready) {
+    for (const sign of [-1, 1]) {
+      const side = Math.round(x + sign * radius);
+      ctx.fillRect(side - 2, Math.round(y) - 2, 5, 1);
+      ctx.fillRect(side - 1, Math.round(y) - 1, 3, 3);
+    }
   }
   ctx.restore();
 }
@@ -113,6 +161,24 @@ export function drawBootDust(ctx: CanvasRenderingContext2D, x: number, y: number
     const r = (2 + t * 7) * (i % 2 ? 0.84 : 1);
     ctx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.4 - t * 2), 2, 1);
   }
+  ctx.restore();
+}
+
+/** The dust and the last brass glint travel with the fallen body's foot, including knockback. */
+export function drawDefeatLanding(ctx: CanvasRenderingContext2D, x: number, y: number, age: number, wet: boolean) {
+  if (age < 0 || age >= 0.43) return;
+  if (age < 0.18) drawBootDust(ctx, x, y, age, wet);
+  if (age < 0.10) return;
+  const phase = (age - 0.10) / 0.33;
+  const reach = 1 + Math.round(2 * Math.sin(phase * Math.PI));
+  const lx = Math.round(x + 5), ly = Math.round(y - 3);
+  ctx.save();
+  ctx.globalAlpha *= Math.min(1, (1 - phase) * 3);
+  ctx.fillStyle = '#efd08d';
+  pixelLine(ctx, lx - reach, ly, lx + reach, ly);
+  pixelLine(ctx, lx, ly - reach, lx, ly + reach);
+  ctx.fillStyle = '#fff3cf';
+  ctx.fillRect(lx, ly, 1, 1);
   ctx.restore();
 }
 
@@ -147,12 +213,10 @@ export function drawContact(
     const angle = Math.atan2(direction.y, direction.x);
     if (turned) {
       // The paired arcs open towards the attacker, around the point where the blades met.
-      ctx.strokeStyle = color;
       const radius = 4 + 13 * (1 - (1 - t) ** 2);
       for (const scale of [1, 0.72]) {
-        ctx.beginPath();
-        ctx.arc(x, y, radius * scale, angle + 2.2, angle + 4.1);
-        ctx.stroke();
+        ctx.fillStyle = scale === 1 ? color : '#649a95';
+        pixelArc(ctx, x, y, radius * scale, radius * scale, angle + 2.2, angle + 4.1);
       }
     }
     const reach = strong ? 19 : 11;
@@ -163,19 +227,16 @@ export function drawContact(
       const travel = (2 + reach * (1 - (1 - t) ** 2)) * (1 - Math.abs(i) * 0.1);
       const fleckX = x + Math.cos(a) * travel;
       const fleckY = y + Math.sin(a) * travel - 4 * Math.sin(t * Math.PI);
-      ctx.fillRect(Math.round(fleckX), Math.round(fleckY), t < 0.35 ? 3 : 1, 1);
+      ctx.fillRect(Math.round(fleckX), Math.round(fleckY), t < 0.35 ? 3 : 1, t < 0.26 && spark ? 2 : 1);
     }
     if (strong && t > 0.1) {
       const radius = 3 + 18 * t;
       ctx.globalAlpha = 0.65 * (1 - t);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.ellipse(x, y + 2, radius, radius * 0.41, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.fillStyle = color;
+      pixelArc(ctx, x, y + 2, radius, radius * 0.41);
     }
   }
-  if (t < (reducedMotion ? 0.28 : 0.19)) {
+  if (time - hit.born < (turned && !reducedMotion ? 2 / 60 : CONTACT_TIME * (reducedMotion ? 0.28 : 0.19))) {
     const size = strong && !reducedMotion ? 5 : 3;
     ctx.globalAlpha = reducedMotion ? 0.78 : 1 - t * 2;
     ctx.fillStyle = spark ? '#fff3cf' : color;

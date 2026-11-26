@@ -1,6 +1,7 @@
 import type { V2 } from '../core/world/layout';
 import type { RoomTarget } from './roomTargets';
 import { risePixels } from './projection';
+import { IMPACT_PAUSE } from '../core/rules/valeCombat';
 
 export type FieldSound =
   | 'village_bell'
@@ -27,6 +28,8 @@ export type FieldSound =
   | 'enemy_windup'
   | 'player_hit'
   | 'enemy_down'
+  | 'fall_ground'
+  | 'fall_water'
   | 'block'
   | 'hit';
 export type Gesture = 'pet' | 'gather' | 'sit' | 'stir' | 'dress' | 'work' | 'read';
@@ -62,6 +65,15 @@ export const ENEMY_SWING_TIME = 0.85;
 export function enemyContactRemaining(heavy: boolean) {
   return ENEMY_SWING_TIME - (heavy ? 0.55 : 0.43);
 }
+export function meleeWarning(remaining: number, heavy: boolean, parryWindow: number) {
+  const contact = enemyContactRemaining(heavy);
+  const untilContact = remaining - contact;
+  return {
+    visible: untilContact > 0,
+    ready: untilContact > 0 && untilContact <= parryWindow + 1e-9,
+    progress: Math.max(0, Math.min(1, 1 - untilContact / (ENEMY_SWING_TIME - contact))),
+  };
+}
 export function enemySwingProgress(remaining: number, heavy: boolean) {
   const contact = enemyContactRemaining(heavy);
   return remaining > contact
@@ -71,6 +83,11 @@ export function enemySwingProgress(remaining: number, heavy: boolean) {
 export const CONTACT_TIME = 0.28;
 export const DAMAGE_LABEL_TIME = 0.68;
 export const DEFEAT_TIME = 0.92;
+const fallDuration = 0.28;
+export const DEFEAT_LANDING = IMPACT_PAUSE.heavy + fallDuration;
+export function defeatProgress(age: number) {
+  return Math.max(0, Math.min(1, (age - IMPACT_PAUSE.heavy) / fallDuration));
+}
 export interface Contact extends V2 {
   height: number;
   dx: number;
@@ -100,6 +117,7 @@ export function arrowLift(travelled: number) {
   return 20 * (1 - 0.55 * range) + 3 * Math.sin(Math.PI * range);
 }
 export interface Arrow extends V2 {
+  owner?: import('../core/game/types').EncounterId;
   focused?: boolean;
   launchHeight: number;
   grade: number;

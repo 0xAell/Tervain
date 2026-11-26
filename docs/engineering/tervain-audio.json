@@ -14,13 +14,13 @@
     },
     {
       "path": "tools/world-audio/ford_foley.py",
-      "bytes": 9493,
-      "sha256": "210645fc80d96521e9b324073d18fddf8dea32b6a7ed4f9eda711eeb68da6176"
+      "bytes": 9510,
+      "sha256": "ec3edc589382ae0cde65966a387e6d0b83fd4f0ae9b173b0719a3627880e56a9"
     },
     {
       "path": "tools/world-audio/render-ford.py",
-      "bytes": 7918,
-      "sha256": "ef219c00f302e7ff8d28152fd9d24d91ce5bb1f8b4df06addaad1600c57a7d4e"
+      "bytes": 7969,
+      "sha256": "91aa5a736456080dc0fc8cf09aaf60552ea2cc6355f58abc012a43aa8a710b22"
     }
   ],
   "originalTervainSuite": [
@@ -165,52 +165,52 @@
         "sha256": "5fca0ef33a8df6999045b4860899da39c24f64965753f53ba2a20a54ba2c43e1"
       }
     ],
-    "animal/lion-1": [
+    "animal/highland_wolf-1": [
       {
-        "path": "public/audio/animals/lion-1.ogg",
-        "bytes": 6324,
-        "sha256": "20aa91dbe5dc48a6cba0b7ad905da433af4e300a2fcb95ec777c080e508f2359"
+        "path": "public/audio/animals/highland_wolf-1.ogg",
+        "bytes": 13347,
+        "sha256": "fca35616f84554405f9db6b500d72fb41e91e4f56e61e8d6337ccbb115405a46"
       },
       {
-        "path": "public/audio/animals/lion-1.m4a",
-        "bytes": 8429,
-        "sha256": "a6e1884d68e07ffca746ab1dec0006c0baba71bb7a6c4e32511dd30b623846d8"
+        "path": "public/audio/animals/highland_wolf-1.m4a",
+        "bytes": 13778,
+        "sha256": "40590fcc596faed6e59f40e518d35755c88d73bdc1a88298d382da72ba159805"
       }
     ],
-    "animal/lion-2": [
+    "animal/highland_wolf-2": [
       {
-        "path": "public/audio/animals/lion-2.ogg",
-        "bytes": 6884,
-        "sha256": "6413bf29849f949c4419917a3c52ebd811752a69cce43ede5c13e5d443588e2c"
+        "path": "public/audio/animals/highland_wolf-2.ogg",
+        "bytes": 14528,
+        "sha256": "087b19a10f629aeab7e272587322d1835c87a873492ea21d033f8edd5dee03c3"
       },
       {
-        "path": "public/audio/animals/lion-2.m4a",
-        "bytes": 9069,
-        "sha256": "972565e31c3cc3d477cb8a3dcff5af8b834054540b969d65737e40dd889becbb"
+        "path": "public/audio/animals/highland_wolf-2.m4a",
+        "bytes": 14970,
+        "sha256": "c724562879d4e96247c0672054e3b3aac1cbfffb3e48017eb12ca28c3eb4a955"
       }
     ],
-    "animal/tiger-1": [
+    "animal/hill_boar-1": [
       {
-        "path": "public/audio/animals/tiger-1.ogg",
-        "bytes": 6562,
-        "sha256": "7c3b511973666fe790077361c4fea3ae540f5fb88a6b12586b65531f6e092ba6"
+        "path": "public/audio/animals/hill_boar-1.ogg",
+        "bytes": 5923,
+        "sha256": "2ca95d15bc34bee0ccc7028de7b3c24bc029aabd5d3b2759f7228d204b58d466"
       },
       {
-        "path": "public/audio/animals/tiger-1.m4a",
-        "bytes": 9772,
-        "sha256": "2fea846d1d53963a50971bad8bc418df0fd6202569212a10894a1e6b419834db"
+        "path": "public/audio/animals/hill_boar-1.m4a",
+        "bytes": 9543,
+        "sha256": "c393f2504a50e51f0edd3d88a90902d2c5934d9004fcd2d68330893d560abd29"
       }
     ],
-    "animal/tiger-2": [
+    "animal/hill_boar-2": [
       {
-        "path": "public/audio/animals/tiger-2.ogg",
-        "bytes": 7171,
-        "sha256": "6077651d8c00f30f561deb5401faea0b4ff6680c268efd924da846ae1d10fda8"
+        "path": "public/audio/animals/hill_boar-2.ogg",
+        "bytes": 6526,
+        "sha256": "1c5d81348a26ff03e4edccaa9ab8c1582cf1b78cd0ab9548a7470de96121c1dd"
       },
       {
-        "path": "public/audio/animals/tiger-2.m4a",
-        "bytes": 10220,
-        "sha256": "ddcdf2174fd7a684a7bb281c158d1927912b01b8406b106b1b9731cb99a82bb7"
+        "path": "public/audio/animals/hill_boar-2.m4a",
+        "bytes": 9855,
+        "sha256": "f2766dbd70b98f2e837950fa8771a6392083144a31bcd33e17335c02b4af6775"
       }
     ],
     "animal/wolf-1": [

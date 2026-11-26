@@ -1,3 +1,8 @@
+import { commitPreconditions, hasProcedure, riteCalmActive, rotationBlockers, stabilizePreconditions } from '../core/game/commands';
+import { quiverCapacity } from '../core/game/hunting';
+import { fordPatrol, journeyLead } from '../core/game/valeJourney';
+import { bladeDamage } from '../core/rules/valeCombat';
+import { project } from './projection';
 import { artUrl } from './atlas';
 import { gameFile } from './files';
 import type { VoiceMode } from './reading';
@@ -9,7 +14,7 @@ import { NPCS } from '../core/content/npcs';
 import { getNode } from '../core/game/dialogue';
 import { buildJournal } from '../core/game/journal';
 import { formatClock } from '../core/game/state';
-import { COUNTER_WINDOW, ENEMY_SWING_TIME, enemyContactRemaining, gestureLabels } from './fieldcraft';
+import { COUNTER_WINDOW, meleeWarning, gestureLabels } from './fieldcraft';
 import type { RoomTarget } from './roomTargets';
 import { households } from './households';
 import type { Fixture } from './roomPlans';
@@ -17,7 +22,9 @@ import type { Game } from '../core/game/game';
 import type { ItemId, NpcId } from '../core/game/types';
 import { ENEMY_ARCHETYPES } from '../core/content/enemies';
 import { PLACES } from '../core/world/layout';
-import { worldView } from '../core/game/worldView';
+import { observedWater, waterTravelMinutes, worldView } from '../core/game/worldView';
+import { sluiceSetting } from './sluice';
+import { speakerReadings, portraitMoods } from './portraits';
 import { HAND_SAVE_SLOTS } from '../core/rules/session';
 import { type SaveStore, type SlotId } from '../platform/storage';
 import type { Valley } from './simulation';
@@ -44,6 +51,29 @@ function icon(key: string) {
   i.alt = '';
   i.draggable = false;
   return i;
+}
+const castRows: Partial<Record<NpcId | 'wanderer', number>> = {
+  rillford_reeve: 0, quarry_foreman: 1, spring_steward: 2, caravan_master: 3, shrine_warden: 4, wanderer: 5,
+};
+function castPortrait(who: NpcId | 'wanderer', mood: number) {
+  const row = castRows[who];
+  if (row === undefined) return icon(who);
+  const face = el('span', 'pixel-portrait');
+  face.setAttribute('role', 'img');
+  face.setAttribute('aria-label', (who === 'wanderer' ? 'Wanderer' : NPCS[who].name) + ', ' +
+    portraitMoods[mood]);
+  face.style.backgroundImage = 'url("' + gameFile('valley/portraits.png') + '")';
+  face.style.backgroundPosition = (mood * 25) + '% ' + (row * 20) + '%';
+  return face;
+}
+const charmText: Partial<Record<ItemId, string>> = {
+  league_sash: '+15% stamina recovery', contract_band: '+15% thrust damage', witness_cord: '+0.04 s parry window · 18% shorter bow focus',
+};
+const filters = ['All', 'Gear', 'Supplies', 'Quest'] as const;
+type PackFilter = (typeof filters)[number];
+function category(id: ItemId): PackFilter {
+  if (id === 'gate_wrench' || ITEMS[id].kind === 'quest') return 'Quest';
+  return ['clothing', 'weapon', 'tool'].includes(ITEMS[id].kind) ? 'Gear' : 'Supplies';
 }
 function iconButton(label: string, key: string, action: () => void) {
   const b = button('', action, 'tool');
@@ -116,6 +146,11 @@ export class Interface {
   mode: Screen = 'title';
   private layer = el('div', 'modal-layer');
   private hud = el('div', 'hud');
+  private leadButton = el('button', 'journey-lead');
+  private leadTitle = el('small');
+  private leadText = el('strong');
+  private leadBearing = el('span', 'journey-bearing');
+  private packFilter: PackFilter = 'All';
   private titleBar = el('div', 'region');
   private chamber = el('span', 'room-name');
   private clock = el('span', 'clock');
@@ -199,6 +234,9 @@ export class Interface {
     this.prompt.onclick = () => controls.interact();
     this.chamber.hidden = true;
     this.chamber.setAttribute('aria-live', 'polite');
+    this.leadButton.type = 'button';
+    this.leadButton.onclick = () => this.open('journal');
+    this.leadButton.append(this.leadTitle, this.leadText, this.leadBearing);
     this.titleBar.append(this.place, this.chamber, this.clock);
     const nav = el('nav', 'tools');
     nav.setAttribute('aria-label', 'Journey tools');
@@ -274,7 +312,9 @@ export class Interface {
     guard.onpointerup = guard.onpointercancel = guard.onlostpointercapture = () => holdGuard(false);
     guard.onclick = e => { if (e.detail === 0) holdGuard(guard.getAttribute('aria-pressed') !== 'true'); };
     const dodge = button('Dodge', () => controls.dodge(), 'dodge-touch');
-    this.hud.append(this.titleBar, nav, vitals, this.foePanel, this.slots, this.prompt, dodge, guard, attack);
+    const location = el('div', 'field-location');
+    location.append(this.titleBar, this.leadButton);
+    this.hud.append(location, nav, vitals, this.foePanel, this.slots, this.prompt, dodge, guard, attack);
     this.hud.hidden = true;
   }
   bind(valley: Valley, scene: Scene) {
@@ -291,7 +331,7 @@ export class Interface {
     this.notice.replaceChildren();
     this.notice.classList.remove('visible');
   }
-  message(text: string, announce = true) {
+  message(text: string, announce = true, item?: ItemId, milestone = false) {
     const existing = this.notices.get(text);
     if (existing) window.clearTimeout(existing.timer);
     else if (this.notices.size >= 3) {
@@ -301,6 +341,8 @@ export class Interface {
       this.notices.delete(oldest);
     }
     const node = existing?.node ?? el('div', 'notice-line', text);
+    if (milestone) node.classList.add('milestone');
+    if (item && !node.querySelector('img')) node.prepend(icon(item));
     this.notices.delete(text);
     this.notice.append(node);
     this.noticeUntil = performance.now() + 3300;
@@ -439,7 +481,7 @@ export class Interface {
     for (let i = 0; i < 4; i++) fire.append(el('i'));
     landscape.append(scene, fire, el('div', 'title-mist'));
     const content = el('div', 'title-content');
-    const premise = 'Past the pines, a wagon waits on the road to Rillford.';
+    const premise = 'The storm has wrecked your boat. Beyond the pines, Rillford has grain, an idle mill, and a bell that no one will ring.';
     content.append(
       icon('seal'),
       el('p', 'locale', 'Bellwether Vale'),
@@ -660,6 +702,28 @@ export class Interface {
   private journal() {
     const panel = this.shell('Field journal', true),
       journal = buildJournal(this.game.state);
+    const guide = journeyLead(this.game.state);
+    const track = button('', () => {
+      this.valley.action({ t: 'setFact', key: 'hide_journey_lead', value: !this.game.state.facts.hide_journey_lead });
+      label();
+    });
+    const label = () => {
+      const on = !this.game.state.facts.hide_journey_lead;
+      track.textContent = on ? 'Hide field guide' : 'Show field guide';
+      track.setAttribute('aria-pressed', String(on));
+    };
+    label();
+    const current = el('section', 'journal-current');
+    current.append(el('small', '', guide.chapter), el('h3', '', guide.action), el('p', '', guide.reason), track);
+    if (guide.at) current.append(button('Show on map', () => this.open('map')));
+    panel.append(current);
+    const state = this.game.state, patrol = fordPatrol(state);
+    if (state.facts.read_wagon_tally || state.discovered.ford || patrol.cleared) {
+      panel.append(el('h3', '', 'Carters’ work · The ford road'),
+        el('p', 'entry', patrol.paid ? 'The crossing is open. Joss paid the road wage.'
+          : patrol.complete ? 'The crossing is open. Sign the tally at Joss’s wagon for six coin and a loaf.'
+          : 'The flour carts need the ford. Drive off the two raiders and their bow lookout. ' + patrol.cleared + ' of ' + patrol.total + ' posts cleared.'));
+    }
     panel.append(el('h3', '', 'Mill, quarry and spring'), el('p', '', S(journal.statusKey)));
     if (journal.leadKey) panel.append(el('p', 'lead', S(journal.leadKey)));
     for (const [name, rows] of [
@@ -690,23 +754,41 @@ export class Interface {
     const items = el('div', 'items');
     const detail = el('div', 'item-detail');
     detail.setAttribute('aria-label', 'Selected item');
-    const available: ItemId[] = [];
+    const tabs = el('nav', 'pack-tabs');
+    tabs.setAttribute('aria-label', 'Inventory categories');
+    for (const name of filters) tabs.append(button(name, () => {
+      this.packFilter = name;
+      this.refreshPack();
+    }));
     for (const id of ITEM_ORDER) {
-      const amount = this.game.state.inventory[id] ?? 0;
-      if (amount <= 0) continue;
-      available.push(id);
       const b = button('', () => this.inspectItem(id), 'item');
       b.dataset.item = id;
       b.onfocus = () => this.inspectItem(id);
       b.onpointerenter = e => { if (e.pointerType === 'mouse') this.inspectItem(id); };
-      b.append(icon(id), el('span', '', S(ITEMS[id].nameKey)), el('small', '', String(amount)));
+      b.append(icon(id), el('span', '', S(ITEMS[id].nameKey)), el('small'));
       items.append(b);
     }
     loadout.append(items, detail);
-    panel.append(loadout);
-    const selected = this.selectedItem && available.includes(this.selectedItem) ? this.selectedItem : available[0];
-    if (selected) this.inspectItem(selected, true);
-    else detail.append(el('p', '', 'Your pack is empty.'));
+    panel.append(tabs, loadout);
+    this.refreshPack();
+  }
+  private refreshPack() {
+    const s = this.game.state;
+    const visible: ItemId[] = [];
+    for (const tab of this.layer.querySelectorAll('.pack-tabs button'))
+      tab.setAttribute('aria-pressed', String(this.packFilter === tab.textContent));
+    for (const tile of this.layer.querySelectorAll<HTMLButtonElement>('.items .item')) {
+      const id = tile.dataset.item as ItemId, amount = s.inventory[id] ?? 0;
+      tile.hidden = !amount || (this.packFilter !== 'All' && this.packFilter !== category(id));
+      if (tile.hidden) continue;
+      visible.push(id);
+      tile.querySelector('small')!.textContent = s.equippedWeapon === id || s.facts.worn_charm === id ? 'Equipped' : '×' + amount;
+    }
+    const detail = this.layer.querySelector<HTMLElement>('.item-detail')!;
+    delete detail.dataset.item;
+    const next = this.selectedItem && visible.includes(this.selectedItem) ? this.selectedItem : visible[0];
+    if (next) this.inspectItem(next, true);
+    else { this.selectedItem = undefined; detail.replaceChildren(el('p', '', this.packFilter === 'All' ? 'Your pack is empty.' : 'Nothing in this category.')); }
   }
   private inspectItem(id: ItemId, initial = false) {
     const detail = this.layer.querySelector<HTMLElement>('.item-detail');
@@ -718,12 +800,23 @@ export class Interface {
       b.setAttribute('aria-pressed', String(b.dataset.item === id));
     const image = icon(id);
     detail.replaceChildren(image, el('h3', '', S(ITEMS[id].nameKey)), el('p', '', S(ITEMS[id].descKey)));
+    const state = this.game.state;
+    const stat = ITEMS[id].healAmount ? 'Restores ' + ITEMS[id].healAmount + ' HP'
+      : id === 'rusted_sword' ? (state.facts.blade_honed ? 'Honed · ' : '') + ['attack', 'thrust', 'counter'].map(k =>
+        bladeDamage(state, k as 'attack' | 'thrust' | 'counter')).join(' / ') + ' damage · cut / thrust / counter'
+      : id === 'hunting_bow' || id === 'arrow' ? '32 / 43 damage · loose / focused · ' + (state.inventory.arrow ?? 0) + ' / ' + quiverCapacity(state) + ' arrows' : charmText[id];
+    if (stat) detail.append(el('p', 'item-stat', stat));
+    if (charmText[id]) detail.append(button(state.facts.worn_charm === id ? 'Remove charm' : 'Wear charm', () => {
+      if (this.valley.action({ t: 'wearCharm', item: state.facts.worn_charm === id ? null : id })) this.controls.sound.selection(true);
+      this.refreshPack();
+      this.layer.querySelector<HTMLButtonElement>('.item[aria-pressed="true"]')?.focus();
+    }));
     const act = itemAction(id);
     if (act)
       detail.append(
-        button(act === 'equip' ? 'Equip' : 'Consume', () => {
+        button(act === 'equip' ? (state.equippedWeapon === id ? 'Equipped' : 'Equip') : 'Consume', () => {
           if (this.valley.action(act === 'equip' ? { t: 'equipWeapon', item: id } : { t: 'useItem', item: id })) this.controls.sound.selection(true);
-          this.inventory();
+          this.refreshPack();
           this.layer.querySelector<HTMLButtonElement>('.item[aria-pressed="true"]')?.focus();
         })
       );
@@ -818,7 +911,7 @@ export class Interface {
     };
     panel.append(
       canvas,
-      el('p', 'map-note', 'Gold pennants mark Hegemony standards. Click to mark a destination.')
+      el('p', 'map-note', '◆ ' + journeyLead(this.game.state).action + ' · Click to set your own marker.')
     );
     const list = el('div', 'map-places');
     for (const place of buildJournal(this.game.state).places.filter((p) => p.status !== 'unknown')) {
@@ -846,8 +939,9 @@ export class Interface {
     const panel = this.shell(node.speaker === 'narrator' ? 'Bellwether Vale' : NPCS[node.speaker].name);
     panel.classList.add('conversation');
     if (node.speaker !== 'narrator') {
-      const portrait = icon(node.speaker);
-      portrait.className = 'speaker';
+      const mood = portraitMoods.indexOf(speakerReadings.get(nodeId) ?? 'composed');
+      const portrait = castPortrait(node.speaker, mood);
+      portrait.classList.add('speaker');
       panel.append(portrait, el('small', 'role', S(NPCS[node.speaker].titleKey)));
     }
     const speech = el('p', 'speech', S(node.text));
@@ -860,6 +954,10 @@ export class Interface {
         part.style.animationDelay = i * step + 'ms';
         return part;
       }));
+      speech.addEventListener('animationstart', (event) => {
+        const word = (event.target as HTMLElement)?.previousElementSibling;
+        if (!word || (word.textContent ?? '').length >= 8) this.controls.sound.dialogueTick();
+      });
       speech.classList.add('revealing');
       speech.onclick = () => speech.classList.remove('revealing');
     }
@@ -867,7 +965,9 @@ export class Interface {
     const replay = () => this.controls.sound.story([node.text]);
     this.readerFor(panel, replay, answer ? () => this.controls.sound.story([answer, node.text]) : replay);
     const replies = el('div', 'replies');
-    panel.append(replies);
+    const listener = el('div', 'listener');
+    listener.append(castPortrait('wanderer', 0));
+    panel.append(listener, replies);
     for (const { index, choice, locked } of this.game.choices(nodeId)) {
       const b = button(
         S(choice.text),
@@ -889,6 +989,13 @@ export class Interface {
       b.prepend(hint);
       if (choice.intent) b.append(el('small', 'choice-intent', choice.intent));
       b.disabled = locked;
+      const react = () => {
+        const mood = choice.intent === 'accuse' || choice.intent === 'warn' ? 1 : choice.intent === 'persuade' ? 2
+          : choice.intent === 'agree' || choice.intent === 'offer' || choice.intent === 'train' ? 3 : choice.intent === 'ask' ? 4 : 0;
+        if (listener.dataset.mood !== String(mood)) { listener.dataset.mood = String(mood); listener.replaceChildren(castPortrait('wanderer', mood)); }
+      };
+      b.onfocus = react;
+      b.onpointerenter = react;
       replies.append(b);
     }
     const npc = node.speaker;
@@ -916,11 +1023,16 @@ export class Interface {
         )
       );
   }
-  actions(title: string, options: { text: string; run: () => void }[], description = '') {
+  actions(title: string, options: { text: string; run: () => void; detail?: string; disabled?: boolean }[], description = '') {
     this.mode = 'actions';
     const panel = this.shell(title);
     if (description) panel.append(el('p', '', description));
-    for (const option of options) panel.append(button(option.text, option.run, 'reply'));
+    for (const option of options) {
+      const control = button(option.text, option.run, 'reply');
+      control.disabled = !!option.disabled;
+      if (option.detail) control.append(el('small', 'action-detail', option.detail));
+      panel.append(control);
+    }
     return panel;
   }
   private interactKey() {
@@ -975,8 +1087,28 @@ export class Interface {
         },
       });
     }
+    if (!this.game.state.facts.blade_honed && this.game.state.inventory.rusted_sword && this.game.state.inventory.iron_scrap) {
+      options.push({ text: 'Hone the blade · 1 iron scrap · +4 damage', run: () => {
+        close();
+        v.perform('work', target, 1.3, () => {
+          if (v.action({ t: 'sharpenBlade' })) { this.controls.sound.reward(); this.message('Blade honed · +4 damage', true, 'rusted_sword', true); }
+        });
+      } });
+    }
+    if (!this.game.state.facts.quiver_lined && this.game.state.inventory.hunting_bow && this.game.state.inventory.animal_hide) {
+      options.push({ text: 'Line the quiver · 1 hide · 56 arrows', run: () => {
+        close(); v.perform('work', target, 1.3, () => {
+          if (v.action({ t: 'lineQuiver' })) { this.controls.sound.reward(); this.message('Quiver lined · 56 arrows', true, 'hunting_bow', true); }
+        });
+      } });
+    }
+    const patrol = fordPatrol(this.game.state);
+    if (patrol.complete && !patrol.paid) options.push({ text: 'Collect the ford wage · 6 coin and a loaf', run: () => {
+      if (v.action({ t: 'collectFordWage' })) { this.controls.sound.selection(true); this.wagonTally(target); }
+    } });
     options.push({ text: 'Close the tally', run: close });
-    const note = S(paid ? 'wagon.receipt' : 'wagon.order');
+    const note = S(paid ? 'wagon.receipt' : 'wagon.order') + (patrol.paid ? ' The ford wage has been signed for.'
+      : ' The flour carts also need the ford clear. Six coin and a loaf for the two raiders and their lookout.');
     const panel = this.actions(S('wagon.title'), options, note);
     this.readWorldPage(panel, [note]);
   }
@@ -1191,36 +1323,46 @@ export class Interface {
       this.valley.offers().map((o, i) => ({ text: o.label, run: () => this.controls.interactIndex(i) }))
     );
   }
+  checkWater(via: string) {
+    const state = this.game.state, lead = journeyLead(state);
+    if (state.quest.phase === 'committed' && waterTravelMinutes(state) === 0) {
+      this.valley.action({ t: 'settle', via });
+      return;
+    }
+    const work = observedWater(state);
+    const reading = work.flow.village >= 0.5 ? 'The brass float is high on the staff.'
+      : work.flow.village < 0.2 ? 'The brass float rests on the lowest mark.'
+      : 'The brass float sits between the lower marks.';
+    this.actions('Mill channel', [{ text: 'Read the field journal', run: () => this.open('journal') }], reading + ' ' + lead.reason);
+  }
   controlsAt(act: InteractableAct, onEntry?: () => void) {
     if (act.do === 'open_sluice') {
-      const options = [
-        ['Brace the gate', 'stabilizeGate'],
-        ['Force the gate', 'forceGate'],
-      ] as const;
-      this.actions(
-        'The sluice',
-        [
-          ...options.map(([text, t]) => ({
-            text,
-            run: () => {
-              this.valley.action({ t });
-              this.controls.resume();
-            },
-          })),
-          ...(['rillford', 'quarry', 'rotation'] as const).map((a) => ({
-            text: {
-              rillford: 'Send water to Rillford',
-              quarry: 'Send water to the quarry',
-              rotation: 'Agree a rotation',
-            }[a],
-            run: () => {
-              this.valley.action({ t: 'commitAllocation', allocation: a });
-              this.controls.resume();
-            },
-          })),
-        ],
-        'Gate condition · ' + this.game.state.quest.gate
-      );
+      const state = this.game.state, gate = state.quest.gate;
+      const setting = sluiceSetting(worldView(state));
+      const guide = journeyLead(state);
+      if (state.quest.phase === 'settled' || state.quest.phase === 'committed') {
+        this.actions('The sluice', [{ text: 'Read the field journal', run: () => this.open('journal') }], setting.description + ' ' + guide.reason);
+      } else if (gate !== 'stabilized') {
+        const need = stabilizePreconditions(state);
+        const repair = need === 'need_brace' ? 'Find the iron brace in the quarry yard.'
+          : need === 'need_wrench' ? 'Find the gate wrench beside the brace.'
+          : need === 'need_understanding' ? 'Inspect the crack or ask Ila how to seat the brace.'
+          : S(riteCalmActive(state) ? 'sluice.brace.safe.rite' : hasProcedure(state) ? 'sluice.brace.safe.procedure' : 'sluice.brace.unsafe');
+        const options = [{ text: 'Brace the gate', detail: repair, disabled: !!need,
+          run: () => { if (this.valley.action({ t: 'stabilizeGate' })) this.controlsAt(act); } }];
+        if (gate === 'damaged') options.push({ text: 'Force the gate', detail: S('sluice.force.warn'), disabled: false,
+          run: () => { if (this.valley.action({ t: 'forceGate' })) this.controlsAt(act); } });
+        this.actions('The sluice', options, S('sluice.state.' + gate));
+      } else {
+        const names = { rillford: 'Send water to Rillford', quarry: 'Send water to the quarry', rotation: 'Agree a rotation' };
+        const options = (['rillford','quarry','rotation'] as const).map(allocation => {
+          const needed = allocation === 'rotation' ? rotationBlockers(state).map(b => S('sluice.alloc.rotation.need.' + b)) : [];
+          return { text: names[allocation], detail: [S('sluice.alloc.' + allocation + '.gain'), S('sluice.alloc.' + allocation + '.cost'), ...needed].join(' '),
+            disabled: !!commitPreconditions(state,allocation),
+            run: () => { if (this.valley.action({ t: 'commitAllocation', allocation })) this.controls.resume(); } };
+        });
+        this.actions('The water hearing', options, setting.description + ' Choose who will receive the spring water.');
+      }
     } else if (act.do === 'hunting_notes') {
       const note = S('inspect.hunter_supplies');
       const page = this.actions(
@@ -1273,7 +1415,7 @@ export class Interface {
       this.foeId = '';
       return;
     }
-    const def = ENEMY_ARCHETYPES[enemy.key === 'thornback' ? 'thornback' : 'bandit'];
+    const def = ENEMY_ARCHETYPES[enemy.enemyKind ?? 'bandit'];
     const changed = this.foeId !== enemy.id;
     const hp = String(Math.max(0, enemy.health));
     if (changed || this.foeHealth.getAttribute('aria-valuenow') !== hp) {
@@ -1288,16 +1430,18 @@ export class Interface {
       this.foeLoss.style.transform = this.foeLife.style.transform;
     }
     const opening = Math.max(0, (enemy.openedUntil ?? 0) - this.valley.time);
-    const contact = enemyContactRemaining(def.heavy);
-    const warning = enemy.attack > contact;
-    const mode = opening ? 'open' : warning ? 'incoming' : 'idle';
-    if (changed || this.foePanel.dataset.state !== mode) {
-      this.foePanel.dataset.state = mode;
-      this.foeState.textContent = opening ? 'Counter' : warning ? (def.heavy ? 'Heavy strike' : 'Incoming') : '';
-    }
-    if (opening || warning) {
-      const fill = opening ? opening / COUNTER_WINDOW : (ENEMY_SWING_TIME - enemy.attack) / (ENEMY_SWING_TIME - contact);
-      this.foeTiming.style.transform = 'scaleX(' + Math.min(1, fill) + ')';
+    const melee = meleeWarning(enemy.attack, def.heavy, this.valley.parryWindow);
+    const aiming = !!enemy.aimed;
+    const winding = aiming || melee.visible;
+    const mode = opening ? 'open' : winding ? 'incoming' : 'idle';
+    if (this.foePanel.dataset.state !== mode) this.foePanel.dataset.state = mode;
+    const label = opening ? 'Counter' : aiming ? 'Aiming · step off the sightline' : melee.ready ? (this.game.state.equippedWeapon === 'rusted_sword' ? 'Parry now' : 'Dodge now')
+      : melee.visible ? (def.heavy ? 'Heavy strike' : 'Incoming')
+      : enemy.enemyKind === 'deserter' ? 'Shield raised · flank or thrust' : '';
+    if (this.foeState.textContent !== label) this.foeState.textContent = label;
+    if (opening || winding) {
+      const fill = opening ? opening / COUNTER_WINDOW : aiming ? 1 - enemy.attack / def.wind : melee.progress;
+      this.foeTiming.style.transform = 'scaleX(' + Math.max(0, Math.min(1, fill)) + ')';
     }
     this.foeId = enemy.id;
     if (this.foePanel.hidden) this.foePanel.hidden = false;
@@ -1311,6 +1455,12 @@ export class Interface {
     const { health, maxHealth } = s.player;
     if (health !== this.lastHealth || maxHealth !== this.lastMaxHealth) {
       const damage = this.lastHealth >= 0 && health < this.lastHealth;
+      if (damage) {
+        const vitals = this.hud.querySelector('.vitals')!;
+        vitals.classList.remove('just-hit');
+        void vitals.getBoundingClientRect();
+        vitals.classList.add('just-hit');
+      }
       this.healthLoss.style.transition = damage ? '' : 'none';
       this.healthLoss.style.width = (health / maxHealth) * 100 + '%';
       this.hud.classList.toggle('low-health', health > 0 && health / maxHealth <= 0.25);
@@ -1326,6 +1476,18 @@ export class Interface {
     this.hud.classList.toggle('winded', this.valley.time < this.valley.tiredUntil);
     if (!force && now - this.uiStamp < 125) return;
     this.uiStamp = now;
+    const lead = journeyLead(s);
+    this.leadButton.hidden = !!s.facts.hide_journey_lead || !!this.valley.combatTarget;
+    this.leadButton.title = lead.reason + ' · Open field journal';
+    this.leadTitle.textContent = lead.chapter;
+    this.leadText.textContent = lead.action;
+    const point = s.mapMarker ?? lead.at;
+    if (point) {
+      const dx = point.x - s.player.x, dz = point.z - s.player.z, dir = project(dx, dz);
+      const arrow = ['→','↘','↓','↙','←','↖','↑','↗'][(Math.round(Math.atan2(dir.y, dir.x) * 4 / Math.PI) + 8) % 8];
+      this.leadBearing.textContent = (s.mapMarker ? 'Pin ' : '') + (s.player.interior ? 'Outside' :
+        Math.hypot(dx, dz) < 3 ? 'Here' : arrow + ' ' + Math.round(Math.hypot(dx, dz)) + ' m');
+    } else this.leadBearing.textContent = '';
     this.place.textContent = this.valley.placeName();
     const chamber = this.valley.roomName();
     this.chamber.hidden = !chamber;

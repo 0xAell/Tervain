@@ -14,6 +14,12 @@ const air = (delay: number, time: number, attack: number, from: number, to: numb
 const tone = (delay: number, time: number, attack: number, from: number, to: number, level: number): Layer =>
   ({ delay, time, attack, frequency: [from, to], level });
 
+// The keeper rings once for mill water and twice for a quarry shift. Each strike has its own decay.
+const keeperBell = (at: number) => [
+  air(at,.019,.002,4200,1300,.19), tone(at,.63,.004,587,586,.20),
+  tone(at+.002,.42,.003,1176,1173,.11), tone(at,.29,.002,1578,1574,.065),
+];
+
 // Original accents for the close mix. Blade and guard carry the treble; body and fall carry the weight.
 const sounds = {
   // Bell partials decay at different rates; the clapper is audible only at the strike.
@@ -25,6 +31,24 @@ const sounds = {
     tone(0.002, 0.56, 0.002, 1243, 1242, 0.13),
     tone(0, 0.32, 0.002, 1716, 1714, 0.09),
   ],
+  braceLock: [
+    air(0,.09,.006,740,250,.27), tone(.045,.11,.004,207,145,.19),
+    air(.16,.028,.002,4500,1300,.31), tone(.16,.29,.003,1247,1230,.14),
+    tone(.162,.21,.002,599,593,.20),
+  ],
+  gateJam: [
+    air(0,.22,.035,1100,400,.26), tone(.11,.14,.025,204,302,.15),
+    air(.23,.064,.002,3600,280,.43), tone(.235,.29,.006,135,55,.31),
+  ],
+  gateWind: [
+    air(0,.48,.025,1450,440,.20), tone(.04,.34,.045,124,172,.14),
+    ...[.055,.125,.215,.325,.46].map(at => air(at,.026,.002,3400,790,.21)),
+    tone(.47,.19,.004,244,177,.18), air(.51,.58,.08,1800,820,.18),
+  ],
+  millSignal: keeperBell(0),
+  quarrySignal: [...keeperBell(0), ...keeperBell(.34)],
+  bodyLanding: [tone(0,.14,.006,112,47,.37), air(0,.105,.003,1670,320,.32),
+    air(.037,.12,.009,850,260,.15), tone(.045,.085,.004,504,453,.08)],
   ropeDraw: [
     air(0, 0.24, 0.035, 1280, 410, 0.30),
     tone(0.045, 0.14, 0.02, 176, 245, 0.10),
@@ -55,6 +79,13 @@ const sounds = {
   bowFocus: [tone(0, 0.13, 0.016, 776, 781, 0.12), tone(0.042, 0.19, 0.015, 1167, 1172, 0.10)],
   focusedRelease: [air(0, 0.042, 0.0015, 5500, 1250, 0.48), tone(0.003, 0.092, 0.002, 346, 220, 0.22), air(0.022, 0.13, 0.016, 1800, 5200, 0.22)],
   focusedHit: [air(0, 0.043, 0.001, 4900, 590, 0.62), tone(0.004, 0.14, 0.003, 187, 64, 0.36), tone(0.032, 0.14, 0.006, 1155, 903, 0.11)],
+  gearEarned: [
+    air(0, 0.03, 0.002, 3000, 720, 0.16),
+    tone(0, 0.22, 0.005, 440, 440, 0.19),
+    tone(0.10, 0.28, 0.006, 523.25, 523.25, 0.16),
+    tone(0.22, 0.62, 0.008, 587.33, 587.33, 0.21),
+    tone(0.22, 0.48, 0.012, 293.66, 293.66, 0.10),
+  ],
   menuChoose: [tone(0, 0.046, 0.003, 706, 611, 0.12)],
   beltClasp: [air(0, 0.034, 0.0015, 4600, 960, 0.25), tone(0.005, 0.09, 0.003, 1360, 1120, 0.16), tone(0.034, 0.065, 0.003, 432, 313, 0.12)],
   bladeHit: [
@@ -83,6 +114,9 @@ const sounds = {
   menuOpen: [air(0, 0.035, 0.002, 2000, 800, 0.14), tone(0, 0.07, 0.004, 414, 434, 0.17), tone(0.034, 0.10, 0.005, 650, 653, 0.12)],
   menuClose: [tone(0, 0.065, 0.005, 610, 540, 0.14), tone(0.031, 0.10, 0.004, 398, 354, 0.13)],
   windup: [air(0, 0.31, 0.071, 290, 1390, 0.55), tone(0.014, 0.24, 0.08, 115, 182, 0.075)],
+  roadCadence: [tone(0,0.24,.006,293.7,293.7,.19),tone(.15,.27,.007,349.2,349.2,.17),
+    tone(.31,.64,.013,440,439.8,.18),tone(.31,.57,.018,220,220,.09)],
+  voiceTick: [tone(0,.046,.004,234,185,.085), air(0,.028,.004,1120,500,.028)],
   defeat: [
     tone(0.031, 0.363, 0.057, 88, 40, 0.43),
     air(0.07, 0.331, 0.044, 2100, 460, 0.22),

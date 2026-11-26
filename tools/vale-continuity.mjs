@@ -113,6 +113,7 @@ try {
   assert.equal(report.behindRoof, 0, JSON.stringify(report));
   assert(report.besideBell >= 12 && report.besideBell <= 25, JSON.stringify(report));
   assert(report.ridge.every(n => n > 12 && n < 1500), JSON.stringify(report));
+  assert.deepEqual(page.console().filter(line => line.startsWith('[error]') || line.startsWith('[exception]')), []);
   console.log(JSON.stringify(report));
 } finally {
   await page.close();

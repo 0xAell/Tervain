@@ -1,3 +1,4 @@
+import { ENEMY_ARCHETYPES } from '../../src/core/content/enemies';
 import * as THREE from 'three';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -182,7 +183,7 @@ describe('budgeted Meshy NPC replacement and lifetime', () => {
     }
     for (const spawn of ENEMY_SPAWNS.filter(candidate => candidate.kind !== 'thornback')) {
       const rig = createMeshyNpcRig(f.asset, entry, 1, 'blade'), actor = new EnemyActor(spawn, rig);
-      expect(actor.rig).toBe(rig); expect(actor.id).toBe(spawn.id); expect(actor.hp).toBe(55); expect(actor.radius).toBe(0.4);
+      expect(actor.rig).toBe(rig); expect(actor.id).toBe(spawn.id); expect(actor.hp).toBe(ENEMY_ARCHETYPES[spawn.kind].hp); expect(actor.radius).toBe(ENEMY_ARCHETYPES[spawn.kind].radius);
       expect(rig.grip).toBe('blade'); rig.root.traverse(object => expect(object.userData.enemy).toBe(spawn.id));
     }
   });

@@ -113,7 +113,7 @@
       "file": "DT_EnemyArchetypes.json",
       "rowStruct": "FTervainEnemyArchetypeRow",
       "note": "A kind of hostile. The row name is the archetype.",
-      "rows": 2,
+      "rows": 4,
       "members": {
         "DisplayName": {
           "type": "FString",
@@ -165,7 +165,7 @@
       "file": "DT_EnemyPosts.json",
       "rowStruct": "FTervainEnemyPostRow",
       "note": "Where a hostile waits. The row name is the encounter’s id, as saved games know it.",
-      "rows": 3,
+      "rows": 7,
       "members": {
         "Archetype": {
           "type": "FName",

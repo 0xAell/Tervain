@@ -122,6 +122,29 @@ export class Atlas {
     return image;
   }
 
+  // Scale a given cel once at its destination's native resolution. Final blits, tints and
+  // water cuts then share the same texel boundaries, including odd-width props and masks.
+  private sized = new Map<string, HTMLCanvasElement>();
+  private native(ctx: CanvasRenderingContext2D, id: string, source: CanvasImageSource,
+    sx: number, sy: number, sw: number, sh: number, w: number, h: number, visible: number, left: number, top: number) {
+    if (sw === w && sh === h) {
+      ctx.drawImage(source, sx, sy, w, visible, left, top, w, visible);
+      return;
+    }
+    const key = id + '@' + w;
+    let cel = this.sized.get(key);
+    if (!cel) {
+      cel = document.createElement('canvas');
+      cel.width = w; cel.height = h;
+      const ink = cel.getContext('2d')!;
+      ink.imageSmoothingEnabled = false;
+      ink.drawImage(source, sx, sy, sw, sh, 0, 0, w, h);
+      if (this.sized.size >= 3000) this.sized.delete(this.sized.keys().next().value!);
+      this.sized.set(key, cel);
+    }
+    ctx.drawImage(cel, 0, 0, w, visible, left, top, w, visible);
+  }
+
   draw(
     ctx: CanvasRenderingContext2D,
     key: string,
@@ -143,8 +166,9 @@ export class Atlas {
     const [sx, sy, sw, sh] = frames[Math.floor(frame) % frames.length]!;
     const w = Math.round(width),
       h = Math.round((w * sh) / sw);
-    const cut = Math.min(sh - 1, Math.max(0, Math.round(sh * submerged)));
-    const visibleH = Math.round((h * (sh - cut)) / sh);
+    if (w < 1 || h < 1) return;
+    const visibleH = Math.max(1, Math.min(h, h - Math.round(h * submerged)));
+    const celId = key + '/' + (Math.floor(frame) % frames.length);
     const left = Math.round(x - w / 2),
       top = Math.round(y - visibleH * anchor);
     const crisp = moving && ctx.imageSmoothingEnabled;
@@ -156,7 +180,7 @@ export class Atlas {
     }
     if (tint) {
       const mask = this.mask(key, Math.floor(frame) % frames.length, tint);
-      ctx.drawImage(mask, 0, 0, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
+      this.native(ctx, celId + tint, mask, 0, 0, sw, sh, w, h, visibleH, flip ? 0 : left, top);
     } else if (reflected) {
       const id = key + '/' + (Math.floor(frame) % frames.length);
       let copy = this.reflections.get(id);
@@ -174,8 +198,8 @@ export class Atlas {
         layer.fillRect(0, 0, sw, sh);
         this.reflections.set(id, copy);
       }
-      ctx.drawImage(copy, 0, 0, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
-    } else ctx.drawImage(source, sx, sy, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
+      this.native(ctx, celId + '/water', copy, 0, 0, sw, sh, w, h, visibleH, flip ? 0 : left, top);
+    } else this.native(ctx, celId, source, sx, sy, sw, sh, w, h, visibleH, flip ? 0 : left, top);
     if (flip || crisp) ctx.restore();
   }
 }

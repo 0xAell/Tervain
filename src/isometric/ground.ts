@@ -113,6 +113,7 @@ const transmission = Float32Array.from({ length: 256 }, (_, d) => Math.exp(-d / 
 const bend = (p: WetPoint) => (p.kind === 'river' ? stoneFlow(p) : { deflection: 0, eddy: 0 });
 
 /** Persistent world-space channels and seabeds, with dynamic surface buffers only for wet chunks. */
+const bayer4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 export class Ground {
   waterImpacts: readonly WaterImpact[] = [];
   private textures: Texture[][];
@@ -222,8 +223,8 @@ export class Ground {
           0.18 * Math.cos(wz * 0.29 - wx * 0.07) +
           0.09 * Math.sin(wx * 0.54 + wz * 0.36);
         // World-anchored thresholds keep the same patches of grass and rock on both sides of a chunk.
-        const dither = ((sx & 1) * 2 + ((sx ^ sy) & 1)) * 0.25;
-        const light = Math.floor(daylight * 10 + dither) / 10;
+        const dither = bayer4[(sx & 3) + (sy & 3) * 4]! / 16;
+        const light = Math.min(4, Math.floor(daylight * 4.65 + (dither - 0.5) * 0.24)) / 4;
         if (sample.field) {
           const f = sample.field,
             p = toBuildingLocal(f, wx, wz),
@@ -248,7 +249,7 @@ export class Ground {
             wx * 2.6 + 3 * Math.sin(wz * 0.26),
             wz * 2.6 + 2.7 * Math.cos(wx * 0.31)
           );
-          const lush = mix(rgba(41, 110, 89), rgba(197, 224, 113), light * 240);
+          const lush = mix(rgba(61, 98, 78), rgba(181, 192, 117), light * 240);
           const meadow = mix(blades, lush, 156 - sample.wood * 16);
           pixels[i] = mix(pixels[i]!, meadow, 216 - sample.wood * 124);
           if (sample.dry === 9) {
@@ -291,12 +292,18 @@ export class Ground {
           }
           const shelf = sat((wet.bank + 0.72 + open * 1.6 + jitter) / 1.72);
           pixels[i] = mix(pixels[i]!, mix(gravel, path, 91), shelf * (112 + open * 91));
-          if (wet.bank > -0.52 && wet.bank < -0.13) pixels[i] = mix(pixels[i]!, rgba(75,77,60), 66);
+          const edge = wet.bank + Math.sin(wet.along * 2.8) * 0.12;
+          if (edge >= -0.86 && edge < -0.58) pixels[i] = mix(pixels[i]!, rgba(172,169,105), 178);
+          else if (edge >= -0.58 && edge < -0.12) pixels[i] = mix(pixels[i]!, rgba(75,65,54), 204);
+          else if (edge >= -0.12 && edge < 0.22) pixels[i] = mix(gravel, rgba(143,137,111), 122);
         }
         if (sample.lane > 0 && wet?.course !== 'ocean') {
           const wheel = sat(Math.floor(sat((sample.lane - 0.09 + jitter * 0.24) / 0.79) * 7 + dither) / 7);
           const worn = mix(path, rgba(120, 91, 67), sample.rut * (43 + light * 27));
-          pixels[i] = mix(pixels[i]!, worn, wheel * 237);
+          const teeth = Math.sin(wx * 5.1 + Math.floor(wz * 3.2)) * 0.085;
+          const edge = sample.lane + teeth;
+          pixels[i] = mix(pixels[i]!, worn, edge > 0.32 ? Math.max(158, wheel * 238) : wheel * 130);
+          if (edge > 0.22 && edge < 0.33 && light > 0.45) pixels[i] = mix(pixels[i]!, rgba(103,125,73), 119);
         }
         const yard = yardAt(wx, wz);
         if (yard)
@@ -309,6 +316,15 @@ export class Ground {
             texel(this.textures[ROCK]![0]!, wx * 7, wz * 7),
             jitter * 4
           );
+        if (Math.abs(wx - 3) < 13 && Math.abs(wz - 9) < 12 && sample.dry === 9 && !yard) {
+          const row = Math.floor(wz * 1.22), cx = wx * 0.89 + (row & 1) * 0.5;
+          const u = cx - Math.floor(cx), v = wz * 1.22 - row;
+          const mortar = u < 0.13 || v < 0.13 || u + v < 0.29;
+          const face = (row * 7 + Math.floor(cx) * 13) & 3;
+          const stone = mortar ? rgba(83,83,69) : v < 0.29 ? rgba(175,163,130)
+            : rgba(125 + face * 8, 122 + face * 6, 101 + face * 5);
+          pixels[i] = mix(pixels[i]!, stone, Math.min(1, (13 - Math.abs(wx-3)) / 4, (12-Math.abs(wz-9))/4) * 166);
+        }
         const cliff = relief.steepness[i]!;
         if (cliff) {
           // Strata use horizontal distance and vertical metres so the rock retains grain on a sheer face.
@@ -326,9 +342,18 @@ export class Ground {
             rgba(190, 172, 139),
             (value - 32) * 1.49 + (band < 0.15 ? -45 : band > 0.82 ? 25 : 0)
           );
-          pixels[i] = mix(pixels[i]!, patina, cliff * (0.89 - sample.lane * 0.54));
+          const flute = Math.floor((wx - wz) * 2.7 + Math.floor(height * 0.8) * 0.44);
+          const face = ((flute % 7) + 7) % 7;
+          const carved = band < 0.16 ? rgba(69,66,61) : band > 0.87 ? rgba(177,157,118)
+            : face < 2 ? rgba(98,91,81) : face < 5 ? rgba(131,119,98) : rgba(155,140,113);
+          const faceInk = mix(patina, carved, 169);
+          pixels[i] = mix(pixels[i]!, faceInk, cliff * (0.97 - sample.lane * 0.47));
+          if (cliff > 138) {
+            if (relief.crest[i] === 1) pixels[i] = mix(pixels[i]!, rgba(207,185,133), 217);
+            if (relief.crest[i] === 2) pixels[i] = mix(pixels[i]!, rgba(62,62,54), 193);
+          }
         }
-        const tone = Math.floor(relief.light[i]! / 7 + dither) * 7;
+        const tone = Math.round(relief.light[i]! / 22 + (dither - 0.5) * 0.17) * 22;
         if (tone)
           pixels[i] =
             tone > 0

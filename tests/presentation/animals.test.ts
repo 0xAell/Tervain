@@ -66,7 +66,7 @@ describe('peaceful animated land wildlife', () => {
     expect(ANIMALS.filter(animal => animal.species === 'deer')).toHaveLength(4);
     const seated = ANIMALS.find(animal => animal.seated)!;
     expect(seated.id).toBe('1005232608'); expect(seated.roam).toBe(0); expect(requiredAnimalClips(seated)).toEqual(['Idle', 'Alert', 'Call', 'Groom', 'Sleep']);
-    expect(ANIMALS.filter(animal => animal.habitat === 'warm-woodland').map(animal => animal.species)).toEqual(['tiger', 'lion']);
+    expect(ANIMALS.filter(animal => animal.habitat === 'warm-woodland').map(animal => animal.species)).toEqual(['highland_wolf', 'hill_boar']);
   });
 
   it('validates source weights again for each fresh build, but not twice inside one build', () => {

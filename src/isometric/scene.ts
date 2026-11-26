@@ -1,3 +1,7 @@
+import { followAxis } from './camera';
+import { sluiceSetting } from './sluice';
+import { pixelLine, pixelPool } from './pixelInk';
+import { journeyLead } from '../core/game/valeJourney';
 import { buildFieldstones } from './fieldstones';
 import { drawProp, propSprite } from './propArt';
 import { sceneryProp } from './propCatalogue';
@@ -6,9 +10,9 @@ import { terrainHeight, groundProject, pickSurface, supportHeight } from './reli
 import { Sunlight } from './sunlight';
 import { SkyLighting, skyLight, type LightSource } from './skyLight';
 import { doorOpen, frontDoor } from './doorways';
-import { drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir, drawBootDust } from './fieldEffects';
+import { drawBowGuide, drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir, drawBootDust, drawDefeatLanding } from './fieldEffects';
 import type { BuildingSpec } from '../core/world/layout';
-import { CONTACT_TIME, DEFEAT_TIME, arrowHeight, enemyContactRemaining, enemySwingProgress, ENEMY_SWING_TIME, SWING_TIME } from './fieldcraft';
+import { CONTACT_TIME, DEFEAT_TIME, DEFEAT_LANDING, defeatProgress, arrowHeight, meleeWarning, enemySwingProgress, SWING_TIME } from './fieldcraft';
 import { isHuntableAnimalId } from '../core/game/hunting';
 import { ENEMY_ARCHETYPES } from '../core/content/enemies';
 import { Atlas } from './atlas';
@@ -26,7 +30,7 @@ import { isHegemonyStandard } from './hegemony';
 import { chartPoint, paintValeMap } from './valeMap';
 import { bridgeArt } from './bridgeArt';
 import { drawStrip } from './worldArt';
-import { worldView } from '../core/game/worldView';
+import { observedWater, worldView } from '../core/game/worldView';
 import { RoomView } from './roomView';
 import { landingHalfWidth } from './roomPlans';
 import { cuePass, spriteDepth, drawReachMark, drawFocus, drawThreshold, pickRegion, type DepthCue, type PickRegion } from './entryCues';
@@ -78,8 +82,10 @@ export class Scene {
   private pointer?: { x: number; y: number };
   private center = { x: 0, y: 0 };
   private lead = { x: 0, y: 0 };
+  private lastFocus = { x: 0, y: 0 };
   private kick = { x: 0, y: 0 };
   private ambientOffset = 0;
+  private sluiceNotch?: number;
   private lastRoom?: string;
   private curtain?: HTMLElement;
   private initialized = false;
@@ -178,6 +184,7 @@ export class Scene {
   }
   resetCamera() {
     this.initialized = false;
+    this.sluiceNotch = undefined;
     this.lead.x = this.lead.y = 0;
     this.kick.x = this.kick.y = 0;
     this.regions.length = 0;
@@ -193,7 +200,7 @@ export class Scene {
     this.viewWidth = width;
     this.viewHeight = height;
     this.density = density;
-    this.pixelScale = Math.max(1, Math.round(height * density / 368)) / density;
+    this.pixelScale = Math.max(1, Math.round(Math.min(height / 432, width / 410) * density)) / density;
     // An extra texel on each side covers the compositor's fractional pan, even at the viewport edges.
     const w = Math.max(1, Math.ceil(width / this.pixelScale)) + 2;
     const h = Math.max(1, Math.ceil(height / this.pixelScale)) + 2;
@@ -202,8 +209,8 @@ export class Scene {
     const style = this.canvas.style;
     style.width = w * this.pixelScale + 'px';
     style.height = h * this.pixelScale + 'px';
-    style.left = (width - w * this.pixelScale) * 0.5 + 'px';
-    style.top = (height - h * this.pixelScale) * 0.5 + 'px';
+    style.left = Math.round((width - w * this.pixelScale) * 0.5 * density) / density + 'px';
+    style.top = Math.round((height - h * this.pixelScale) * 0.5 * density) / density + 'px';
   }
   private present(x: number, y: number) {
     const dx = (x - Math.round(x)) * this.pixelScale;
@@ -279,14 +286,24 @@ export class Scene {
     this.lead.x += (gaze.x - this.lead.x) * ease;
     this.lead.y += (gaze.y - this.lead.y) * ease;
     // Running keeps the wanderer centered. Frame-rate-independent damping absorbs turns and sudden grade changes.
-    const across = this.initialized ? 1 - Math.exp(-elapsed * 26) : 1;
-    const vertical = this.initialized ? 1 - Math.exp(-elapsed * 18) : 1;
-    this.center.x += (target.x + this.lead.x - this.center.x) * across;
-    this.center.y += (target.y + this.lead.y - this.center.y) * vertical;
+    const focusX = target.x + this.lead.x, focusY = target.y + this.lead.y;
+    this.center.x = this.initialized ? followAxis(this.center.x, this.lastFocus.x, focusX, elapsed, 26) : focusX;
+    this.center.y = this.initialized ? followAxis(this.center.y, this.lastFocus.y, focusY, elapsed, 18) : focusY;
+    this.lastFocus.x = focusX;
+    this.lastFocus.y = focusY;
     this.initialized = true;
-    const hit = valley.contacts.at(-1);
+    const stopped = valley.hitStopContact;
+    const hit = stopped ?? valley.contacts.findLast(contact => contact.kind !== 'earth');
+    const shudder = { x: 0, y: 0 };
+    if (stopped && !this.reducedMotion.matches) {
+      const axis = project(stopped.dx, stopped.dz);
+      const size = Math.hypot(axis.x,axis.y) || 1;
+      const beat = this.renderedFrames % 2 ? 2 : -1;
+      shudder.x = Math.round(-axis.y / size * beat);
+      shudder.y = Math.round(axis.x / size * beat);
+    }
     this.kick.x = this.kick.y = 0;
-    if (hit && hit.kind !== 'earth' && !this.reducedMotion.matches) {
+    if (hit && !this.reducedMotion.matches) {
       const age = valley.time - hit.born;
       if (age >= 0 && age < 0.26) {
         const axis = project(hit.dx, hit.dz), length = Math.hypot(axis.x, axis.y) || 1;
@@ -314,8 +331,12 @@ export class Scene {
     const ringAge = time - valley.bellStruckAt;
     const bellFrame = !this.reducedMotion.matches && ringAge < 1.1
       ? Math.min(this.atlas.frameCount('bell--ring') - 1, 1 + Math.floor(ringAge * 12)) : 0;
-    const view = worldView(valley.game.state),
+    const order = worldView(valley.game.state), view = observedWater(valley.game.state, order),
       hour = valley.skyHour;
+    const gate = sluiceSetting(order);
+    if (this.sluiceNotch === undefined || this.reducedMotion.matches) this.sluiceNotch = gate.notch;
+    const travel = Math.max(0, dt) * 16;
+    this.sluiceNotch += Math.max(-travel, Math.min(travel, gate.notch - this.sluiceNotch));
     const sky = skyLight(hour),
       lights: LightSource[] = [];
     for (const bridge of this.bridges) {
@@ -356,6 +377,15 @@ export class Scene {
           }
           if (sky.night > 0.002 && (prop.key === 'fire' || prop.key === 'lantern'))
             lights.push({ x: screen.x + (prop.key === 'lantern' ? 8 : 0), y: screen.y, kind: prop.key });
+          if (prop.key === 'mill_gauge') {
+            stamps.push({ ...prop, frame: Math.round(view.flow.village * 10) });
+            continue;
+          }
+          if (prop.key === 'sluice' || prop.key === 'sluice_winch') {
+            stamps.push({ ...prop, key: prop.key + gate.suffix, frame: Math.round(this.sluiceNotch),
+              anchor: prop.key === 'sluice' ? 42 / 57 : 1 });
+            continue;
+          }
           const standard = isHegemonyStandard(prop.key);
           const sprite = prop.sprite ?? (prop.key === 'rockpile' && prop.width < 30 ? 'fieldstone' : prop.key);
           const wind = this.windSprites.get(sprite);
@@ -444,10 +474,10 @@ export class Scene {
       if (a.enemy && a.dead && !defeat) continue;
       const reaction = !defeat && a.enemy && !this.reducedMotion.matches
         ? valley.contacts.findLast(hit => hit.actorId === a.id && time - hit.born < 0.18) : undefined;
-      const recoil = reaction ? Math.sin(Math.PI * (time - reaction.born) / 0.18) *
-        (reaction.kind === 'parry' ? 1 : -1) * (Math.sign(project(reaction.dx, reaction.dz).x) || 1) : 0;
+      const recoil = reaction && stopped?.actorId !== a.id ? Math.round(Math.sin(Math.PI * (time - reaction.born) / 0.18) *
+        (reaction.kind === 'parry' ? -2 : 2) * (Math.sign(project(reaction.dx, reaction.dz).x) || 1)) : 0;
       const fallAge = defeat ? time - defeat.born : 0;
-      const fall = Math.min(1, fallAge / 0.28);
+      const fall = defeatProgress(fallAge);
       if (a.animal && valley.game.state.hunting[a.animal]?.status === 'skinned') continue;
       const inside = inBuilding(a);
       if (inside) continue;
@@ -476,21 +506,21 @@ export class Scene {
         alpha: defeat ? Math.min(1, (DEFEAT_TIME - fallAge) / 0.36) : undefined,
         tint: !this.reducedMotion.matches && (reaction || defeat) && time - (reaction ?? defeat)!.born < 2 / 60
           ? reaction?.kind === 'parry' ? '#b7f3dd' : '#fff6dc' : undefined,
-        sway: recoil * 0.72,
-        fall: defeat && !this.reducedMotion.matches
-          ? (Math.sign(project(defeat.dx, defeat.dz).x) || 1) * fall ** 1.6 * 1.13
-          : undefined,
+        impact: stopped?.actorId === a.id ? shudder : recoil ? { x: recoil, y: 0 } : undefined,
+        lift: immersion(a, false).lift + (defeat && !this.reducedMotion.matches ? Math.max(0, Math.sin(fall * Math.PI) * 7) : 0),
+        airborne: !!defeat && fall > 0 && fall < 1 && !this.reducedMotion.matches,
+        settleAge: defeat && !this.reducedMotion.matches ? fallAge - DEFEAT_LANDING : undefined,
         reflect: defeat ? false : undefined,
         wakeId: a.id,
         moving: a.move,
         frame: a.dead
-          ? 0
+          ? defeat ? Math.min(4, Math.floor(fall * 5)) : 0
           : pet
             ? Math.floor(valley.activity!.elapsed * 7)
             : a.attack
               ? Math.min(
                   this.atlas.frameCount(key) - 1,
-                  Math.floor(enemySwingProgress(a.attack, a.key === 'thornback') * this.atlas.frameCount(key))
+                  Math.floor(enemySwingProgress(a.attack, ENEMY_ARCHETYPES[a.enemyKind ?? 'bandit'].heavy) * this.atlas.frameCount(key))
                 )
               : Math.floor((a.move ? time : ambient) * (a.move ? 8 : 4)) + i,
       });
@@ -531,10 +561,11 @@ export class Scene {
       ...immersed,
       ...pose,
       hero: true,
+      impact: stopped?.actorId === 'player' ? shudder : undefined,
       tint: !this.reducedMotion.matches && hit?.actorId === 'player' && time - hit.born < 2 / 60 ? '#fff6dc' : undefined,
       wakeId: 'player',
       moving: valley.walk,
-      airborne: hop > 1,
+      airborne: hop > 0 || valley.standingLift > 0.08,
       submerged: immersed.submerged * Math.max(0, 1 - hop / 8 - valley.standingLift - (valley.riding ? 1 : 0)),
       lift: immersed.lift + hop + valley.standingLift * 8 + (valley.riding ? 16 : 0),
     });
@@ -617,13 +648,22 @@ export class Scene {
     this.sun.draw(ctx, stamps, buildings, ox, oy, hour);
     for (const enemy of valley.actors) {
       if (!enemy.enemy || enemy.dead || !enemy.attack || inBuilding(enemy)) continue;
-      const def = ENEMY_ARCHETYPES[enemy.key === 'thornback' ? 'thornback' : 'bandit'];
-      const contact = enemyContactRemaining(def.heavy);
-      if (enemy.attack <= contact) continue;
+      const def = ENEMY_ARCHETYPES[enemy.enemyKind ?? 'bandit'];
+      if (enemy.aimed) {
+        const aim = enemy.aimed, end = Math.min(17, Math.max(7, distance(enemy, valley.player) + 2));
+        ctx.fillStyle = enemy.attack < 0.18 ? '#ffd396' : '#bc8267';
+        for (let d = 1; d < end; d += 1.1) {
+          const from = project(aim.x + aim.direction.x*d, aim.z + aim.direction.z*d, arrowHeight(aim,d));
+          const to = project(aim.x + aim.direction.x*(d+0.55), aim.z + aim.direction.z*(d+0.55), arrowHeight(aim,d+0.55));
+          pixelLine(ctx, from.x+ox, from.y+oy, to.x+ox, to.y+oy);
+        }
+        continue;
+      }
+      const cue = meleeWarning(enemy.attack, def.heavy, valley.parryWindow);
+      if (!cue.visible) continue;
       const at = project(enemy.x, enemy.z, supportHeight(enemy));
       if (at.x + ox < -40 || at.x + ox > w + 40 || at.y + oy < -40 || at.y + oy > h + 40) continue;
-      const progress = (ENEMY_SWING_TIME - enemy.attack) / (ENEMY_SWING_TIME - contact);
-      drawEnemyWarning(ctx, at.x + ox, at.y + oy, def.reach + 0.5, progress, def.heavy, this.reducedMotion.matches);
+      drawEnemyWarning(ctx, at.x + ox, at.y + oy, def.reach + 0.5, cue.progress, def.heavy, this.reducedMotion.matches, cue.ready);
     }
     if (this.ground.hasWater && this.ground.waterImpacts.length)
       drawWaterSpray(ctx, this.ground.waterImpacts, ox, oy);
@@ -647,8 +687,8 @@ export class Scene {
         continue;
       }
       const s = project(stamp.x, stamp.z, stamp.elevation);
-      const x = s.x + ox,
-        y = s.y + oy - (stamp.lift ?? 0);
+      const x = s.x + ox + (stamp.impact?.x ?? 0),
+        y = s.y + oy - (stamp.lift ?? 0) + (stamp.impact?.y ?? 0);
       const spriteHeight = this.atlas.height(stamp.key, stamp.width, stamp.frame);
       const bottom = y + spriteHeight * (1 - (stamp.anchor ?? 1));
       const margin = stamp.prop || stamp.arrow || stamp.contact ? Math.max(20, stamp.width) : 3;
@@ -682,19 +722,13 @@ export class Scene {
         this.lastDraws++;
         continue;
       }
-      if (stamp.wakeId && deckAt(stamp)) {
-        ctx.fillStyle = 'rgba(41,38,42,.30)';
-        ctx.beginPath();
-        ctx.ellipse(
-          s.x + ox,
-          s.y + oy,
-          stamp.width * 0.18,
-          Math.max(1, stamp.width * 0.058),
-          0,
-          0,
-          2 * Math.PI
-        );
-        ctx.fill();
+      if (stamp.airborne || (stamp.wakeId && deckAt(stamp))) {
+        const foot = project(stamp.x, stamp.z, supportHeight(stamp));
+        const altitude = stamp.airborne ? Math.max(0, (stamp.lift ?? 0) / 8) : 0;
+        if (this.ground.groundVisible(foot.x, foot.y, project(stamp.x, stamp.z).y)) {
+          ctx.fillStyle = 'rgba(43,39,42,.40)';
+          pixelPool(ctx, foot.x + ox, foot.y + oy, Math.max(3, stamp.width * 0.19 - altitude), Math.max(1, 2.7 - altitude * 0.35));
+        }
       }
       const clip = this.paintBody(ctx, stamp, x, y, bottom, spriteHeight, ox, oy, valley, sky.night);
       const left = x - stamp.width / 2 - margin, top = bottom - spriteHeight - margin;
@@ -735,30 +769,7 @@ export class Scene {
     drawDamageLabels(ctx, valley.contacts, time, ox, oy, this.reducedMotion.matches);
 
     const guide = valley.bowGuide();
-    if (guide) {
-      const { arrow, distance } = guide;
-      const at = (d: number) => project(
-        arrow.x + arrow.direction.x * d,
-        arrow.z + arrow.direction.z * d,
-        arrowHeight(arrow, d)
-      );
-      const held = valley.bow?.phase === 'hold';
-      const focus = valley.bowFocus;
-      ctx.fillStyle = focus >= 1 ? '#ffdf81' : held ? '#ffe3a1' : '#cfd5b8';
-      ctx.globalAlpha = held ? 0.66 : 0.4;
-      for (let d = 2.5; d < distance - 1; d += 2.5) {
-        const dot = at(d);
-        ctx.fillRect(Math.round(dot.x + ox), Math.round(dot.y + oy), 2, 1);
-      }
-      ctx.globalAlpha = 1;
-      const tip = at(distance);
-      const x = Math.round(tip.x + ox), y = Math.round(tip.y + oy);
-      const spread = held ? Math.round(5 - focus * 4) : 6;
-      ctx.fillRect(x - spread - 2, y, 3, 1);
-      ctx.fillRect(x + spread, y, 3, 1);
-      ctx.fillRect(x, y - spread - 2, 1, 3);
-      ctx.fillRect(x, y + spread, 1, 3);
-    }
+    if (guide) drawBowGuide(ctx, guide.arrow, guide.distance, valley.bow?.phase === 'hold', valley.bowFocus, ox, oy);
     this.focus();
     this.renderedFrames++;
   }
@@ -842,10 +853,9 @@ export class Scene {
       drawProp(ctx, this.atlas, stamp.prop, x, y, stamp.width);
       if (submerged > 0.04) ctx.restore();
     } else {
-      if (stamp.sway || stamp.fall) {
+      if (stamp.sway) {
         ctx.save();
         ctx.translate(x, y);
-        if (stamp.fall) ctx.rotate(stamp.fall);
         if (stamp.sway) ctx.transform(1, 0, stamp.sway * 0.15, 1, 0, 0);
         ctx.translate(-x, -y);
       }
@@ -854,6 +864,8 @@ export class Scene {
       const frame = Math.max(0, stamp.frame ?? 0);
       this.atlas.draw(ctx, stamp.key, x, y + (stamp.hero ? 1 : 0), stamp.width, frame, stamp.flip,
         stamp.anchor ?? 1, stamp.submerged, false, !!stamp.wakeId || stamp.moving, stamp.tint);
+      if (stamp.settleAge !== undefined && stamp.settleAge >= 0)
+        drawDefeatLanding(ctx, x, y, stamp.settleAge, !!stamp.submerged);
       const bow = stamp.hero && valley.bow;
       if (bow && bow.phase === 'loose' && bow.elapsed < 0.075 && !this.reducedMotion.matches) {
         const hand = project(bow.direction.x * 0.72, bow.direction.z * 0.72);
@@ -868,7 +880,7 @@ export class Scene {
       }
       if ((stamp.key.startsWith('fire--') || stamp.key.startsWith('cookfire--')) && !this.reducedMotion.matches)
         drawFireAir(ctx, x, y, valley.time, stamp.x, stamp.z, night);
-      if (stamp.sway || stamp.fall) ctx.restore();
+      if (stamp.sway) ctx.restore();
     }
     if (clip) ctx.restore();
     return clip;
@@ -937,6 +949,16 @@ export class Scene {
       const at = chartPoint(p, w, h);
       this.atlas.draw(ctx, key, at.x, at.y, size, 0, false, 0.75);
     };
+    const lead = journeyLead(valley.game.state);
+    if (lead.at) {
+      const pt = chartPoint(lead.at, w, h);
+      const x = Math.round(pt.x), y = Math.round(pt.y);
+      for (let dy = -6; dy <= 6; dy++) {
+        const r = 6 - Math.abs(dy);
+        ctx.fillStyle = '#3a3028'; ctx.fillRect(x - r - 1, y + dy, 2 * r + 3, 1);
+        ctx.fillStyle = '#ffe393'; ctx.fillRect(x - r, y + dy, 2 * r + 1, 1);
+      }
+    }
     if (valley.game.state.mapMarker) plot(valley.game.state.mapMarker, 'cursor', 13);
     plot(valley.player, 'hero-south', 19);
   }

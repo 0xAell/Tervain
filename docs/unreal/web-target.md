@@ -104,7 +104,7 @@ accesses in the material." Whether that limit applies to the WebGPU target is no
 plan the Landscape material around few shared texture sets.
 
 **Memory.** With a crash above 2 GB a known issue (UE-411671, above), content has to fit well under it. The web
-build serves about 170 MiB of catalogued assets in all. Cooked Unreal content for the same world will be of a different size, and
+build serves about 180 MiB of catalogued assets in all. Cooked Unreal content for the same world will be of a different size, and
 must be measured. Texture
 resolution and audio are the usual levers.
 

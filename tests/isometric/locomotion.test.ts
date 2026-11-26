@@ -1,3 +1,4 @@
+import { wetPoint } from '../../src/isometric/channels';
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { Game } from '../../src/core/game/game';
@@ -38,6 +39,24 @@ describe('isometric locomotion', () => {
     expect(brakingDistance).toBeGreaterThan(0.4);
     expect(brakingDistance).toBeLessThan(0.55);
     expect(motion.advance(0, 0, dt, 5, true, false)).toBeUndefined();
+  });
+
+  it.each([30, 60, 120])('carries a running jump across the quarry stream at %i Hz', hz => {
+    const v = new Valley(new Game());
+    v.game.setPlayerTransform(51, 0, -34.3, 0);
+    for (let i = 0; i < hz / 5; i++) v.step(1/hz, 0, 1, true);
+    const takeoff = v.player.z;
+    v.requestJump();
+    let clearedWater = false;
+    while (v.jump) {
+      v.step(1/hz, 0, 1, true);
+      if (v.hop > 1 && wetPoint(v.player.x, v.player.z)?.course === 'quarry') clearedWater = true;
+    }
+    expect(wetPoint(51, takeoff)).toBeNull();
+    expect(clearedWater).toBe(true);
+    expect(wetPoint(v.player.x, v.player.z)).toBeNull();
+    expect(v.landing?.wet).toBe(false);
+    expect(v.player.z - takeoff).toBeGreaterThan(4);
   });
 
   it('does not coast past a click destination when manual input is idle', () => {

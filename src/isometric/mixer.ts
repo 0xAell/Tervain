@@ -57,6 +57,8 @@ export class Mixer {
   private defeatFocusUntil = 0;
   private accents?: Record<FieldAccent, AudioBuffer>;
   private accentTurn = 0;
+  private foleyOffsets: number[] = [];
+  private lastFoleyOffset = 0;
   private files = new Map<string, AudioBuffer>();
   private loading = new Map<string, Promise<AudioBuffer>>();
   private memory = 0;
@@ -219,6 +221,9 @@ export class Mixer {
     this.loading.set(file, task);
     return task;
   }
+  get voiceMuted() {
+    return this.levels.voice === 0;
+  }
   get speaking() {
     return this.active;
   }
@@ -332,30 +337,47 @@ export class Mixer {
     recording?: { cue: Cue; gain: number }
   ) {
     if (!this.canPlayEffect || !this.accents) return;
-    const rate = 1 + (this.accentTurn++ % 5 - 2) * 0.018;
+    const pitched = accent === 'roadCadence' || accent === 'gearEarned' || accent === 'millSignal' || accent === 'quarrySignal';
+    const rate = pitched ? 1 : 1 + (this.accentTurn++ % 5 - 2) * 0.018;
     this.playEffect(this.accents[accent], gain, pan, this.room, 0, undefined, rate);
     if (focus) this.focusImpact(focus, gain);
     if (!recording) return;
     const { cue } = recording;
     const file = this.file(cue);
     const ready = this.cached(file);
-    if (ready) this.playEffect(ready, gain * recording.gain, pan, this.room, cue[1] / sampleRate, cue[2] / sampleRate);
+    if (ready) this.playEffect(ready, gain * recording.gain, pan, this.room, cue[1] / sampleRate, cue[2] / sampleRate, rate);
     else void this.buffer(file).catch(() => {});
   }
-  async effect(cue: Cue, gain: number, pan = 0, inWorld = true) {
+  private foleyRate() {
+    if (!this.foleyOffsets.length) {
+      const bag = [-3, -2, -1, 0, 1, 2, 3];
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j]!, bag[i]!];
+      }
+      if (bag[6] === this.lastFoleyOffset) [bag[0], bag[6]] = [bag[6]!, bag[0]!];
+      this.foleyOffsets = bag;
+    }
+    this.lastFoleyOffset = this.foleyOffsets.pop()!;
+    return 1 + this.lastFoleyOffset * 0.016;
+  }
+  effect(cue: Cue, gain: number, pan = 0, inWorld = true) {
+    return this.recording(this.file(cue), gain, pan, inWorld, cue[1] / sampleRate, cue[2] / sampleRate);
+  }
+  async recording(file: string, gain: number, pan: number, inWorld = true, offset = 0, duration?: number) {
     if (!this.canPlayEffect) return;
     const generation = this.worldGeneration;
     const material = inWorld ? this.room : undefined;
     const at = performance.now();
     try {
-      const file = this.file(cue);
       const buffer = this.cached(file) ?? (await this.buffer(file));
       if (generation !== this.worldGeneration || performance.now() - at > 950 || !this.canPlayEffect) return;
-      this.playEffect(buffer, gain, pan, material, cue[1] / sampleRate, cue[2] / sampleRate);
+      this.playEffect(buffer, gain, pan, material, offset, duration, this.foleyRate());
     } catch {
       /* A missing effect cannot interrupt the game or another sound. */
     }
   }
+  private scoreStart: number | undefined;
   async loop(bus: 'music' | 'air', file: string) {
     if (!this.context || !this.volume || this.desired[bus] === file) return;
     const generation = this.worldGeneration;
@@ -378,7 +400,10 @@ export class Mixer {
         source.disconnect();
         gain.disconnect();
       };
-      source.start();
+      if (bus === 'music') {
+        this.scoreStart ??= now;
+        source.start(now, (now - this.scoreStart) % buffer.duration);
+      } else source.start();
       const previous = this.loops.get(bus);
       this.loops.set(bus, { source, gain });
       if (previous) {
@@ -402,6 +427,7 @@ export class Mixer {
     this.stopVoice();
     this.resetFocus();
     this.worldGeneration++;
+    this.scoreStart = undefined;
     for (const { source } of this.loops.values()) source.stop();
     this.loops.clear();
     for (const source of this.fading) source.stop();

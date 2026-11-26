@@ -5,6 +5,10 @@ import json
 import zipfile
 from pathlib import Path
 from PIL import Image, ImageDraw
+from vale_palette import prepare
+from vale_poses import equipped, dash, fall, regional_coat
+from vale_interiors import workshop_art
+from vale_sluice import sluice_art
 
 root = Path(__file__).resolve().parent.parent
 art = root / 'assets/pixellab'
@@ -51,9 +55,23 @@ def indoor_piece(key, im):
                     im.putpixel((px, py), (min(255, g + 12), int(g * 0.88), int(g * 0.71), a))
     return im
 
+def append_cel(key, im):
+    global x, y, row
+    identity = (im.size, hashlib.sha256(im.tobytes()).digest())
+    if identity not in positions:
+        if x + im.width > width:
+            x, y, row = 0, y + row + 1, 0
+        positions[identity] = [x, y, im.width, im.height]
+        sprites.append((x, y, im))
+        x += im.width + 1
+        row = max(row, im.height)
+    mapping[key].append(positions[identity])
+
 with zipfile.ZipFile(art / 'sources.zip') as library:
     sequences = json.loads(library.read('sequences.json'))
     for key, files in sorted(sequences.items()):
+        if key == 'sluice':
+            continue  # The keeper's gate is drawn at its surveyed width below.
         mapping[key] = []
         for file in files:
             with Image.open(io.BytesIO(library.read(file))) as source:
@@ -67,15 +85,34 @@ with zipfile.ZipFile(art / 'sources.zip') as library:
                         grounded = Image.new('RGBA', im.size)
                         grounded.paste(im, (0, im.height - bounds[3]))
                         im = grounded
-            identity = (im.size, hashlib.sha256(im.tobytes()).digest())
-            if identity not in positions:
-                if x + im.width > width:
-                    x, y, row = 0, y + row + 1, 0
-                positions[identity] = [x, y, im.width, im.height]
-                sprites.append((x, y, im))
-                x += im.width + 1
-                row = max(row, im.height)
-            mapping[key].append(positions[identity])
+            im = prepare(key, im)
+            base = key.split('--')[0]
+            if base in ('wolf','boar'):
+                local = 'highland_wolf' if base == 'wolf' else 'hill_boar'
+                seq = key.replace(base,local,1)
+                mapping.setdefault(seq,[])
+                animal = regional_coat(im, base == 'wolf')
+                append_cel(seq,animal)
+                if key == base and len(mapping[seq]) == 1:
+                    mapping[local+'--down'] = []
+                    for pose in fall(animal): append_cel(local+'--down',pose)
+            append_cel(key, im)
+            if key == 'bandit' or key.startswith('bandit--'):
+                for kind in ('skirmisher','deserter'):
+                    seq = key.replace('bandit',kind,1)
+                    mapping.setdefault(seq, [])
+                    armed = equipped(im,kind,len(mapping[seq]))
+                    append_cel(seq,armed)
+                    if key == 'bandit':
+                        mapping[kind+'--down'] = []
+                        for pose in fall(armed): append_cel(kind+'--down',pose)
+            if key in ('bandit','thornback'):
+                mapping[key+'--down'] = []
+                for pose in fall(im): append_cel(key+'--down',pose)
+            if key.startswith('hero-') and key.endswith('--walk') and len(mapping[key]) == 3:
+                seq = key.replace('--walk','--dash')
+                mapping[seq] = []
+                for pose in dash(im, key): append_cel(seq,pose)
     for name in library.namelist():
         if name.startswith('ui/') and not name.endswith('/'):
             file = Path(name).relative_to('ui')
@@ -83,12 +120,22 @@ with zipfile.ZipFile(art / 'sources.zip') as library:
                 raise ValueError('Invalid interface asset path')
             (dest / file).parent.mkdir(parents=True, exist_ok=True)
             (dest / file).write_bytes(library.read(name))
+workshops = dict(workshop_art())
+for key, image in workshops.items():
+    mapping[key] = []
+    append_cel(key, image)
+for key, frames in sluice_art():
+    mapping[key] = []
+    for image in frames:
+        append_cel(key, image)
 atlas = Image.new('RGBA', (width, y + row))
 for x, y, im in sprites:
     atlas.paste(im, (x, y))
 atlas.save(dest / 'sprites.png', optimize=True)
 (dest / 'sprites.json').write_text(json.dumps({'frames': mapping}, separators=(',', ':')) + '\n')
 ledger = json.loads((art / 'provenance.json').read_text())
+ledger['waterworks'] = {'author': 'Tervain', 'source': 'tools/vale_sluice.py', 'notches': 13}
+ledger['workshopMaterials'] = {'author': 'Tervain', 'source': 'tools/vale_interiors.py', 'count': len(workshops)}
 ledger['runtimeFilesSha256'] = {p.relative_to(dest).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                               for p in sorted(dest.rglob('*')) if p.is_file()}
 (art / 'provenance.json').write_text(json.dumps(ledger, indent=2, ensure_ascii=False) + '\n')

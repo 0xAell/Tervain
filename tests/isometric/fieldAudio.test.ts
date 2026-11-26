@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Game } from '../../src/core/game/game';
+import { SLUICE } from '../../src/core/world/layout';
 import { coastX } from '../../src/core/world/coast';
 import { Sound } from '../../src/isometric/audio';
 import { crossings } from '../../src/isometric/crossing';
@@ -66,11 +67,14 @@ describe('field audio', () => {
     const accents = fieldAccentBuffers({ createBuffer: makeBuffer });
     const peak = (buffer: AudioBuffer, from: number, until: number) =>
       Math.max(...buffer.getChannelData(0).slice(from * 24000, until * 24000).map(Math.abs));
+    expect(peak(accents.quarrySignal, 0.34, 0.39)).toBeGreaterThan(3 * peak(accents.millSignal, 0.34, 0.39));
     expect(peak(accents.bladeHit, 0, 0.016)).toBeGreaterThan(0.2);
     expect(peak(accents.defeat, 0, 0.03)).toBe(0);
     expect(peak(accents.parry, 0, 1 / 60)).toBeGreaterThan(0.13);
     expect(peak(accents.parry, 0.07, 0.14)).toBeGreaterThan(peak(accents.guard, 0.07, 0.14));
     expect(peak(accents.counterHit, 0.045, 0.10)).toBeGreaterThan(0.12);
+    expect(peak(accents.gearEarned, 0.24, 0.32)).toBeGreaterThan(0.12);
+    expect(peak(accents.gearEarned, 0.24, 0.32)).toBeGreaterThan(peak(accents.beltClasp, 0.24, 0.32));
     expect(peak(accents.menuOpen, 0, 0.14)).toBeLessThan(peak(accents.counterHit, 0, 0.14));
     expect(peak(accents.defeat, 0.04, 0.14)).toBeGreaterThan(0.2);
     for (const buffer of Object.values(accents)) expect(peak(buffer, 0, 0.42)).toBeLessThan(0.65);
@@ -195,6 +199,101 @@ describe('field audio', () => {
     mixer.playAccent('bladeHit', 0.8, 0.2, 'contact', recording);
     expect(sources).toHaveLength(3);
     expect(pans.slice(1).map((panner) => panner.pan.value)).toEqual([0.2, 0.2]);
+  });
+
+  it('starts the score on the engagement frame and varies recorded footfalls', async () => {
+    const { sources } = fakeAudio();
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1), v = new Valley(new Game());
+    sound.enabled = true;
+    const enemy = v.actors.find(a => a.enemyKind === 'skirmisher')!;
+    v.game.setPlayerTransform(enemy.home.x + 2, 0, enemy.home.z, 0);
+    v.step(1/60,0,0,false);
+    const loop = vi.spyOn(sound.mixer,'loop').mockResolvedValue(undefined);
+    const accent = vi.spyOn(sound.mixer,'playAccent').mockImplementation(() => {});
+    sound.engagement(v);
+    sound.engagement(v);
+    expect(loop).toHaveBeenCalledExactlyOnceWith('music','assets/audio/bell-road/ford.mp3');
+    expect(accent).toHaveBeenCalledExactlyOnceWith('windup',0.48,0);
+    sound.mixer.unlock();
+    for (let n=0; n<21; n++) await sound.mixer.effect(catalogue.effects['step.dirt']![0]!,0.4);
+    const pitches = sources.map(s => s.playbackRate.value);
+    for (let i = 0; i < pitches.length; i += 7) expect(new Set(pitches.slice(i, i + 7)).size).toBe(7);
+    expect(pitches.every((rate, i) => !i || pitches[i-1] !== rate)).toBe(true);
+    expect(Math.min(...pitches)).toBeGreaterThanOrEqual(0.95);
+    expect(Math.max(...pitches)).toBeLessThanOrEqual(1.05);
+  });
+
+  it('rings once for the mill and twice for the quarry when the rota changes within earshot', () => {
+    fakeAudio();
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1), v = new Valley(new Game());
+    sound.reset(); sound.enabled = true;
+    vi.spyOn(sound.mixer, 'loop').mockResolvedValue(undefined);
+    const accent = vi.spyOn(sound.mixer, 'playAccent').mockImplementation(() => {});
+    v.game.setPlayerTransform(SLUICE.control.x - 1, 0, SLUICE.control.z, 0);
+    v.game.state.clock = 720;
+    Object.assign(v.game.state.quest, { phase: 'settled', gate: 'stabilized', allocation: 'rotation' });
+    sound.event({ t: 'gate', gate: 'jammed' }, v);
+    sound.event({ t: 'gate', gate: 'stabilized' }, v);
+    sound.event({ t: 'allocation', allocation: 'rotation' }, v);
+    sound.update(v);
+    v.game.state.clock = 1320;
+    sound.update(v); sound.update(v);
+    expect(accent.mock.calls.map(call => call[0])).toEqual(['gateJam','braceLock','gateWind','millSignal','quarrySignal']);
+    expect(accent.mock.lastCall![2]).toBeGreaterThan(0);
+    v.game.setPlayerTransform(-175, 0, 18, 0);
+    v.game.state.clock = 720;
+    sound.update(v);
+    v.game.setPlayerTransform(SLUICE.control.x, 0, SLUICE.control.z, 0);
+    sound.update(v);
+    sound.reset(); sound.update(v);
+    expect(accent).toHaveBeenCalledTimes(5);
+  });
+
+  it('plays the consequence of each verdict when the wanderer returns to the village', () => {
+    fakeAudio();
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1, 'off'), valley = new Valley(new Game());
+    sound.reset(); sound.enabled = true;
+    const loop = vi.spyOn(sound.mixer, 'loop').mockResolvedValue(undefined);
+    valley.game.setPlayerTransform(-1, 0, 4, 0);
+    Object.assign(valley.game.state.quest, { phase:'settled', gate:'stabilized' });
+    for (const [choice, piece] of [['quarry','empty-mill'],['rotation','bell-hours'],['rillford','homecoming']] as const) {
+      valley.game.state.quest.allocation = choice;
+      sound.update(valley);
+      expect(loop).toHaveBeenCalledWith('music', 'assets/audio/bell-road/' + piece + '.mp3');
+      loop.mockClear();
+    }
+  });
+
+  it('substitutes quiet word ticks when the player turns the spoken voice slider down', () => {
+    fakeAudio();
+    const sound = new Sound(1, 'full');
+    const accent = vi.spyOn(sound.mixer, 'playAccent').mockImplementation(() => {});
+    sound.enabled = true;
+    sound.dialogueTick();
+    sound.mixer.setLevels({ ...defaultMix, voice: 0 });
+    sound.dialogueTick();
+    sound.mixer.setLevels(defaultMix);
+    sound.dialogueTick();
+    expect(accent).toHaveBeenCalledExactlyOnceWith('voiceTick', 0.65, 0);
+  });
+
+  it('plays the faction reward in tune and honours muted effects', () => {
+    const { sources } = fakeAudio();
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1), v = new Valley(new Game());
+    sound.mixer.unlock();
+    sound.enabled = true;
+    const grant = { t: 'grant', id: 'dry_bell_completion', items: { witness_cord: 1 } } as const;
+    sound.event({ ...grant, id: 'salvage:test' }, v);
+    expect(sources).toHaveLength(0);
+    sound.event(grant, v);
+    expect(sources.map(s => s.playbackRate.value)).toEqual([1]);
+    sound.enabled = false;
+    sound.event(grant, v);
+    expect(sources).toHaveLength(1);
   });
 
   it('releases focus on reset and gates new effects while hidden or muted', () => {

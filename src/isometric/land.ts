@@ -40,6 +40,7 @@ import {
   NOTICEBOARD,
   PLACES,
   QUARRY_BOULDERS,
+  RESULT_CHECKS,
   SLUICE,
   WAGON,
   WAGON_TALLY,
@@ -164,6 +165,8 @@ export function scenery() {
   put('ruin', FOREST_RUIN, 95);
   for (const fixture of villageFixtures) put(fixture.key, fixture.at, fixture.width);
   put('sluice', SLUICE.gateCenter, 73);
+  put('sluice_winch', SLUICE.control, 29);
+  put('mill_gauge', RESULT_CHECKS[0]!, 15);
   put('cart', WAGON, 49);
   list.push({ ...WAGON_TALLY, key: 'chest', paidKey: 'room_open_chest', width: 21 });
   for (const p of QUARRY_BOULDERS) if (p.width * 8 < 30) put('rockpile', p, p.width * 8);

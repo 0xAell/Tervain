@@ -10,7 +10,7 @@ import {createInitialState} from '../../src/core/game/state';
 import {worldView} from '../../src/core/game/worldView';
 import type {FrameContext} from '../../src/presentation/context';
 import {animalFixture} from './animalFixture';
-const tigerDefinition=ANIMALS.find(a=>a.species==='tiger')!, mountDefinition=ANIMALS.find(a=>a.tame)!;
+const tigerDefinition=ANIMALS.find(a=>a.species==='highland_wolf')!, mountDefinition=ANIMALS.find(a=>a.tame)!;
 const definitions=[tigerDefinition,mountDefinition];
 const tigerId='animal:'+tigerDefinition.id,mountId='animal:'+mountDefinition.id;
 const terrain={heightAt:()=>0,groundAt:()=>0,walkable:()=>true,carveAt:()=>0,seaDepth:()=>0,deckAt:()=>null,normalAt:(_x:number,_z:number,out:number[])=>{out[0]=0;out[1]=1;out[2]=0;return out;}} as unknown as Terrain;

@@ -4,6 +4,12 @@ The 0.1.24 sprites were made for Tervain using the built-in OpenAI image generat
 
 Each source was requested on transparent alpha, viewed from above at about 30 degrees with daylight from the upper left. The final pixel edit removes matte fringe, reduces each painting to a small palette and places its trunk, posts, stone rim, or feet at the world anchor. The bell moves on its hanger. The fisher's net moves between two hand positions. The seated resident breathes and shifts her hands while the stool stays planted. The tripod flame changes below the pot. Wind moves the crowns around fixed roots.
 
+## The Bell Road
+
+The portraits are an original five-expression commission for the wanderer, Joss, Mara, Edda, Darin and Harrow, commissioned through OpenAI image generation for this release. Each face has an 80-pixel cell in the [expression sheet](../../public/valley/portraits.png). The renderer selects a row by speaker and a column from the conversation and reply intent.
+
+The world palette and matte treatment are shared by the figure and scenery packers. Doorway height follows the standing wanderer. Each home has a trade-specific plan and fixtures. The score, field accents and environment loops were composed and synthesized for Tervain. The [score inventory](../engineering/bell-road-audio.json) records each track and the generator used for it.
+
 ## Generation prompts
 
 The seven sheets used these production briefs.

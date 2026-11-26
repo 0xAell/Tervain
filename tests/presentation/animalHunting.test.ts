@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { ANIMAL_IDS, ANIMAL_MODEL_IDS, HUNTABLE_ANIMAL_IDS, SKINNING_REACH, WILDLIFE_RETURN_DISTANCE, returnWildlife, type AnimalId, type AnimalHuntRecord } from '../../src/core/game/hunting';
+import { ANIMAL_IDS, ANIMAL_MODEL_IDS, HUNTABLE_ANIMAL_IDS, SKINNING_REACH, WILDLIFE_RETURN_DISTANCE, returnWildlife, type AnimalHuntRecord } from '../../src/core/game/hunting';
 import { buildAnimals, type AnimalCallEvent } from '../../src/presentation/animals';
 import { ANIMALS } from '../../src/core/content/animals';
 import { AnimalArrowSurface } from '../../src/presentation/animals/hunting/hit';
@@ -27,7 +27,7 @@ function fixture() {
 function record(status: AnimalHuntRecord['status'], pose: { x: number; y: number; z: number; yaw: number }): AnimalHuntRecord {
   return { status, bodyHits: status === 'injured' ? 1 : 2, headshot: false, position: { x: pose.x, y: pose.y, z: pose.z }, yaw: pose.yaw, atClock: 1 };
 }
-const tiger = ANIMALS.find(animal => animal.species === 'tiger')!;
+const tiger = ANIMALS.find(animal => animal.species === 'highland_wolf')!;
 
 it('rejects distant arrow segments before refreshing descendant transforms and skeletons', () => {
   const module = buildAnimals({ terrain, colliders: new Colliders(), quality: 'low' }, new Map([[tiger.id, fixture()]]), [tiger], () => {});
@@ -250,7 +250,7 @@ describe('hunting through the existing nineteen animal controllers', () => {
   it('starts collapse from the current animated pose, grounds every final surface, and offers an accessible chest knife stance', () => {
     const module = buildAnimals({ terrain, colliders: new Colliders(), quality: 'high' }, new Map([[tiger.id, fixture()]]), [tiger], () => {});
     for (let k = 0; k < 4; k++) module.update(.1, frame());
-    const pose = module.snapshot()[0]!, root = module.group.getObjectByName(`tiger / ${tiger.id}`)!, head = root.getObjectByName('head')!;
+    const pose = module.snapshot()[0]!, root = module.group.getObjectByName(`${tiger.species} / ${tiger.id}`)!, head = root.getObjectByName('head')!;
     const rotation = head.quaternion.clone(), rootRotation = root.quaternion.clone(), height = root.position.y;
     expect(Math.abs(rotation.y)).toBeGreaterThan(.01);
     module.syncHunting({ tiger: record('dead', pose) });
@@ -274,10 +274,10 @@ describe('hunting through the existing nineteen animal controllers', () => {
   });
 
   it('shares the exact corpse scan budget, stops calls after death, removes harvested contacts, and restores nineteen assets in place', () => {
-    const definitions = ANIMALS.filter(animal => animal.species === 'tiger' || animal.species === 'lion'), calls: AnimalCallEvent[] = [];
+    const definitions = ANIMALS.filter(animal => animal.species === 'highland_wolf' || animal.species === 'hill_boar'), calls: AnimalCallEvent[] = [];
     const sources = new Map(definitions.map(animal => [animal.id, animalFixture(24)]));
     const module = buildAnimals({ terrain, colliders: new Colliders(), quality: 'low' }, sources, definitions, event => calls.push(event));
-    const snapshots = module.snapshot(), records = Object.fromEntries(snapshots.map(pose => [pose.species as AnimalId, record('dead', pose)]));
+    const snapshots = module.snapshot(), records = Object.fromEntries(snapshots.map(pose => [ANIMAL_IDS.find(id => ANIMAL_MODEL_IDS[id] === pose.id)!, record('dead', pose)]));
     const spies: ReturnType<typeof vi.spyOn>[] = []; module.group.traverse(object => { if ((object as THREE.SkinnedMesh).isSkinnedMesh) spies.push(vi.spyOn(object as THREE.SkinnedMesh, 'getVertexPosition')); });
     module.syncHunting(records, true); spies.forEach(spy => spy.mockClear());
     module.update(.1, frame());
@@ -285,7 +285,7 @@ describe('hunting through the existing nineteen animal controllers', () => {
     for (let k = 0; k < 1000; k++) module.update(.1, frame()); expect(calls).toEqual([]);
     const meshes: THREE.SkinnedMesh[] = []; module.group.traverse(object => { if ((object as THREE.SkinnedMesh).isSkinnedMesh) meshes.push(object as THREE.SkinnedMesh); });
     const geometries = meshes.map(mesh => mesh.geometry);
-    module.syncHunting(Object.fromEntries(snapshots.map(pose => [pose.species as AnimalId, record('skinned', pose)])));
+    module.syncHunting(Object.fromEntries(snapshots.map(pose => [ANIMAL_IDS.find(id => ANIMAL_MODEL_IDS[id] === pose.id)!, record('skinned', pose)])));
     expect(module.snapshot().every(pose => !pose.visible)).toBe(true); expect(module.contacts).toEqual([]); expect(module.physicalActors).toEqual([]);
     expect(module.nearestCarcass(snapshots[0]!)).toBeNull();
     module.syncHunting({}, true); expect(module.snapshot().every(pose => pose.visible)).toBe(true); expect(module.contacts).toHaveLength(2);

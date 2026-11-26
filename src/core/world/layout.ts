@@ -493,7 +493,7 @@ export const SHORTCUT = { lever: { x: 92.6, z: -8.4, r: 2.6 }, gate: { x: 100, z
 
 export const SLUICE = {
   /** Control wheel and lever the player operates. */
-  control: { x: 3.4, z: -62.6, r: 3.8 },
+  control: { x: 2.45, z: -55.8, r: 3.8 },
   gateCenter: { x: 10, z: -58 },
 };
 
@@ -508,7 +508,7 @@ export const RESULT_CHECKS: WorldPoint[] = [
 
 export interface EnemySpawn {
   id: EncounterId;
-  kind: 'bandit' | 'thornback';
+  kind: 'bandit' | 'thornback' | 'skirmisher' | 'deserter';
   x: number;
   z: number;
   leash: number;
@@ -518,6 +518,10 @@ export const ENEMY_SPAWNS: EnemySpawn[] = [
   { id: 'ford_bandit_a', kind: 'bandit', x: 84, z: 38, leash: 16 },
   { id: 'ford_bandit_b', kind: 'bandit', x: 89, z: 42, leash: 16 },
   { id: 'cut_creature', kind: 'thornback', x: 110, z: -56, leash: 15 },
+  { id: 'ford_lookout', kind: 'skirmisher', x: 100, z: 56, leash: 12 },
+  { id: 'quarry_deserter', kind: 'deserter', x: 65, z: -3, leash: 12 },
+  { id: 'cut_archer', kind: 'skirmisher', x: 101, z: -44, leash: 12 },
+  { id: 'ridge_deserter', kind: 'deserter', x: 132, z: -57, leash: 12 },
 ];
 
 export const WAGON = { x: -96, z: 25.5, yaw: 1.2 };
