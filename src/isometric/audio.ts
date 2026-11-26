@@ -8,6 +8,7 @@ import { eligibleBarks } from '../core/rules/schedule';
 import { eventRemarks, scenesInEarshot } from '../core/rules/speech';
 import type { GameEvent, NpcId } from '../core/game/types';
 import { catalogue, readText, type VoiceMode, type SpokenPart } from './reading';
+import type { FieldAccent } from './fieldAudio';
 import { defaultMix, Mixer } from './mixer';
 import { distance, inBuilding } from './land';
 import { onBridge, wetPoint } from './water';
@@ -20,9 +21,37 @@ const stepMaterial: Record<string, string> = {
   woodland: 'grass',
   rock: 'stone',
   gravel: 'stone',
+  pottery: 'stone',
+  metal: 'stone',
   floor: 'wood',
   field: 'grass',
 };
+const waterStep: Readonly<Record<string, string | undefined>> = {
+  sea: 'water_swim', shallows: 'water_wade', river: 'water_wade', pool: 'water_wade',
+};
+function footstep(material: string) {
+  const key = 'step.' + (stepMaterial[material] ?? material);
+  return catalogue.effects[key] ? key : 'step.dirt';
+}
+const fieldAccents: Partial<Record<FieldSound, {
+  accent: FieldAccent;
+  gain: number;
+  focus?: 'contact' | 'defeat';
+  foley?: readonly [string, number];
+}>> = {
+  blade_swing: { accent: 'bladeSwing', gain: 0.76, foley: ['blade', 0.46] },
+  unarmed_swing: { accent: 'handSwing', gain: 0.72 },
+  blade_hit: { accent: 'bladeHit', gain: 1, focus: 'contact', foley: ['hit', 0.34] },
+  unarmed_hit: { accent: 'bodyHit', gain: 0.94, focus: 'contact', foley: ['hit', 0.39] },
+  hit: { accent: 'bodyHit', gain: 0.94, focus: 'contact', foley: ['hit', 0.39] },
+  player_hit: { accent: 'playerHit', gain: 1.06, focus: 'contact', foley: ['hit', 0.45] },
+  block: { accent: 'guard', gain: 0.98, focus: 'contact', foley: ['block', 0.35] },
+  enemy_windup: { accent: 'windup', gain: 0.58 },
+  enemy_down: { accent: 'defeat', gain: 0.92, focus: 'defeat' },
+  arrow_flesh: { accent: 'bodyHit', gain: 0.72, focus: 'contact', foley: ['arrow_flesh', 0.72] },
+};
+const fieldRecordings = ['blade', 'hit', 'block', 'bow_draw', 'bow_release', 'arrow_flesh', 'arrow_ground', 'step.dirt']
+  .flatMap((key) => catalogue.effects[key] ?? []);
 type Caption = (text: string) => void;
 // World speech uses positive priorities and can always take over the interface reader.
 const interfacePriority = 0;
@@ -40,8 +69,8 @@ export class Sound {
   private sounded = false;
   private room?: string;
   private wasWet: boolean | null = null;
-  private wasStriking = false;
   private wasJumping = false;
+  private fieldAudioPrepared = false;
   private night: boolean | null = null;
   private pending?: { cue: HeroCue; due: number; expires: number };
   private heardTalks = new Set<number>();
@@ -58,6 +87,7 @@ export class Sound {
   }
   unlock() {
     this.mixer.unlock();
+    if (this.enabled && !this.fieldAudioPrepared) this.fieldAudioPrepared = this.mixer.preloadEffects(fieldRecordings);
   }
   titleMusic() {
     if (this.volume && !this.enabled)
@@ -183,10 +213,13 @@ export class Sound {
     if (pool.length && this.tell([pool[this.cycle(near.npc, pool.length)]!.line], 1))
       this.nextVoice = v.time + 38;
   }
-  private one(key: string, gain: number, pan = 0, inWorld = true) {
+  private recordedEffect(key: string) {
     const options = catalogue.effects[key];
-    if (!options?.length) return;
-    void this.mixer.effect(options[this.variant++ % options.length]!, gain, pan, inWorld);
+    return options?.length ? options[this.variant++ % options.length] : undefined;
+  }
+  private one(key: string, gain: number, pan = 0, inWorld = true) {
+    const recorded = this.recordedEffect(key);
+    if (recorded) void this.mixer.effect(recorded, gain, pan, inWorld);
   }
   page(name: string) {
     if (this.enabled) {
@@ -211,8 +244,19 @@ export class Sound {
       Math.max(-0.85, Math.min(0.85, (dx - dz) * 0.065))
     );
   }
-  field(cue: FieldSound, range = 0) {
-    if (this.enabled) this.one(cue, 0.8 / (1 + range / 22));
+  field(cue: FieldSound, range = 0, pan = 0) {
+    if (!this.enabled) return;
+    const gain = 0.8 / (1 + range / 22);
+    const layer = fieldAccents[cue];
+    if (!layer) {
+      this.one(cue, gain, pan);
+      return;
+    }
+    const recorded = layer.foley && this.recordedEffect(layer.foley[0]);
+    this.mixer.playAccent(
+      layer.accent, gain * layer.gain, pan, layer.focus,
+      recorded && layer.foley ? { cue: recorded, gain: layer.foley[1] } : undefined
+    );
   }
   update(v: Valley) {
     if (!this.enabled || !this.volume) return;
@@ -318,11 +362,19 @@ export class Sound {
     }
   }
   movement(v: Valley) {
-    if (!this.enabled || !this.volume) return;
+    if (!this.enabled || !this.volume) {
+      this.wasJumping = !!v.jump;
+      this.wasWet = null;
+      this.lastStep = v.gait.serial;
+      return;
+    }
+    const room = v.room;
     if (this.room !== v.roomKey) {
-      this.mixer.room = v.room ? (v.room.stone ? 'stone' : 'timber') : undefined;
+      this.mixer.room = room ? (room.stone ? 'stone' : 'timber') : undefined;
       if (this.room !== undefined) this.one('door', 0.48);
       this.room = v.roomKey;
+      this.wasJumping = false;
+      this.wasWet = null;
     }
     const act = v.activity;
     if (act !== this.activity) {
@@ -339,21 +391,27 @@ export class Sound {
             : act.kind;
       this.one(key, 0.76);
     }
-    if (v.strike && v.swordSwing && !this.wasStriking) this.one('blade', 0.68);
-    this.wasStriking = !!v.strike;
-    if (this.wasJumping && !v.jump) this.one('land', 0.58);
+    const stepped = v.gait.serial !== this.lastStep;
+    this.lastStep = v.gait.serial;
+    const landing = this.wasJumping && !v.jump ? v.landing : undefined;
+    if (v.jump && !this.wasJumping && v.player.health > 0) this.mixer.playAccent('jumpLift', 0.43, 0);
     this.wasJumping = !!v.jump;
-    const p = v.player,
-      wet = !v.room && !!wetPoint(p.x, p.z) && !onBridge(p);
+    if (v.jump || v.player.health <= 0) return;
+
+    const p = v.player;
+    const supported = v.standingLift > 0.1 || (!room && onBridge(p));
+    const wet = !room && !supported && !!wetPoint(p.x, p.z);
+    if (landing) {
+      const cue = this.recordedEffect(landing.wet ? 'water_enter' : footstep(landing.material));
+      this.mixer.playAccent(landing.wet ? 'waterLanding' : 'groundLanding', 0.72, 0, undefined, cue && { cue, gain: 1 });
+      // Grounded travel after touchdown can cross a bank before this frame is presented.
+      this.wasWet = landing.wet;
+    }
     if (this.wasWet !== null && wet !== this.wasWet) this.one(wet ? 'water_enter' : 'water_exit', 0.6);
     this.wasWet = wet;
-    if (v.gait.serial === this.lastStep) return;
-    this.lastStep = v.gait.serial;
-    if (!v.walk || v.jump) return;
-    const material = v.gait.material;
-    const step = stepMaterial[material] ?? material;
-    const key = wet ? (v.swimming ? 'water_swim' : 'water_wade') : 'step.' + step;
-    this.one(catalogue.effects[key] ? key : 'step.dirt', wet ? 0.62 : v.gait.speed > 6.4 ? 0.53 : 0.42);
+    if (landing || !stepped || !v.walk) return;
+    const waterCue = waterStep[v.gait.material];
+    this.one(waterCue ?? footstep(v.gait.material), waterCue ? 0.62 : v.gait.speed > 6.4 ? 0.53 : 0.42);
   }
   reset() {
     this.mixer.reset();
@@ -367,7 +425,6 @@ export class Sound {
     this.room = undefined;
     this.wasWet = null;
     this.night = null;
-    this.wasStriking = false;
     this.wasJumping = false;
     this.scenes.clear();
     this.heardTalks.clear();

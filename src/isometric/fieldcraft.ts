@@ -1,5 +1,6 @@
 import type { V2 } from '../core/world/layout';
 import type { RoomTarget } from './roomTargets';
+import { risePixels } from './projection';
 
 export type FieldSound =
   | 'bow_draw'
@@ -7,6 +8,13 @@ export type FieldSound =
   | 'arrow_flesh'
   | 'arrow_ground'
   | 'skinning_complete'
+  | 'blade_swing'
+  | 'unarmed_swing'
+  | 'blade_hit'
+  | 'unarmed_hit'
+  | 'enemy_windup'
+  | 'player_hit'
+  | 'enemy_down'
   | 'block'
   | 'hit';
 export type Gesture = 'pet' | 'gather' | 'sit' | 'stir' | 'dress' | 'work' | 'read';
@@ -29,14 +37,34 @@ export const gestureLabels: Record<Gesture, string> = {
   read: 'Reading',
 };
 export const DRAW_TIME = 0.42;
-export const SWING_TIME = 0.48;
-export const SWING_CONTACT = (SWING_TIME * 4) / 7;
+export const SWING_TIME = 0.42;
+// The seven melee cels include an early release followed by the contact pose.
+const contactProgress = 4 / 7;
+export const SWING_RELEASE = (SWING_TIME * 3) / 7;
+export const SWING_CONTACT = SWING_TIME * contactProgress;
+export const SWING_BUFFER = 0.12;
+export const ENEMY_SWING_TIME = 0.85;
+export function enemyContactRemaining(heavy: boolean) {
+  return ENEMY_SWING_TIME - (heavy ? 0.55 : 0.43);
+}
+export function enemySwingProgress(remaining: number, heavy: boolean) {
+  const contact = enemyContactRemaining(heavy);
+  return remaining > contact
+    ? (contactProgress * (ENEMY_SWING_TIME - remaining)) / (ENEMY_SWING_TIME - contact)
+    : 1 - ((1 - contactProgress) * remaining) / contact;
+}
+export const CONTACT_TIME = 0.28;
+export const DAMAGE_LABEL_TIME = 0.68;
 export interface Contact extends V2 {
   height: number;
   dx: number;
   dz: number;
   born: number;
   kind: 'blade' | 'guard' | 'body' | 'earth';
+  damage?: number;
+  heavy?: boolean;
+  defeated?: boolean;
+  actorId?: string;
 }
 export const RELEASE_TIME = 0.34;
 export const ARROW_RANGE = 45;
@@ -46,6 +74,7 @@ export interface Draw {
   elapsed: number;
   released: boolean;
   grade?: number;
+  aimDistance?: number;
   direction: V2;
   head?: string;
 }
@@ -59,6 +88,10 @@ export interface Arrow extends V2 {
   direction: V2;
   travelled: number;
   head?: string;
+}
+/** World height of the arrowhead at a distance from the original release point. */
+export function arrowHeight(arrow: Arrow, travelled: number) {
+  return arrow.launchHeight + travelled * arrow.grade + arrowLift(travelled) / risePixels;
 }
 export function unit(x: number, z: number): V2 {
   const length = Math.hypot(x, z);

@@ -28,6 +28,7 @@ describe('the English voice recordings in the playable vale', () => {
       sound.enabled = true;
       const say = vi.spyOn(sound.mixer, 'say').mockReturnValue(true);
       const effect = vi.spyOn(sound.mixer, 'effect').mockResolvedValue(undefined);
+      const accent = vi.spyOn(sound.mixer, 'playAccent').mockReturnValue(undefined);
       const passage = households.house_a!.passage;
       expect(sound.narrate([passage])).toBe(true);
       expect(say.mock.lastCall?.[0]).toEqual([{ cue: catalogue.reader[readKey(passage)] }]);
@@ -47,11 +48,13 @@ describe('the English voice recordings in the playable vale', () => {
       expect(sound.story([reply])).toBe(false);
       expect(say).toHaveBeenCalledTimes(2);
       sound.page('journal');
-      sound.field('block');
+      sound.field('block', 3, -0.4);
       expect(effect.mock.calls.map(([cue, , , inWorld]) => [cue[0], inWorld])).toEqual([
         [catalogue.effects.page![0]![0], false],
-        [catalogue.effects.block![0]![0], true],
       ]);
+      expect(accent).toHaveBeenCalledExactlyOnceWith('guard', expect.any(Number), -0.4, 'contact', {
+        cue: catalogue.effects.block![0], gain: 0.35,
+      });
     } finally {
       vi.unstubAllGlobals();
     }

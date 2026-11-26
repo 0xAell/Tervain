@@ -49,6 +49,26 @@ describe('loose objects in the playable vale', () => {
     w.checkpoint();
     expect(v.game.state.physicalObjects.some((pose) => stones.some(({ stone }) => stone.spec.id === pose.id))).toBe(false);
   });
+  it('uses the supporting stone or crate for both landing and the next footfall', () => {
+    const v = journey();
+    advance(v, 0.25);
+    const w = v.props!;
+    const stone = [...w.objects].find((p) => p.spec.key === 'rockpile' && !wetPoint(p.x, p.z))!;
+    const crate = w.object('strand/small-crate')!;
+    for (const support of [stone, crate]) {
+      moveTo(v, support.x, support.z);
+      v.requestJump();
+      while (v.jump) v.step(1 / 60, 0, 0, false);
+      const base = supportHeight(v.position);
+      const top = w.supportAt(v.position, base, v.player.y, 0)!;
+      expect(top.material).toBe(support.spec.material);
+      expect(w.supporting(v.position, base, v.player.y, 0)).toBe(top.height);
+      expect(v.landing).toEqual({ material: support.spec.material, wet: false });
+      v.gait.phase = 0.999;
+      v.step(1 / 60, 1, 0, false);
+      expect(v.gait.material).toBe(support.spec.material);
+    }
+  });
   it('supports dropped objects on each individual tread above and below the hall slab', () => {
     const plan = floorPlan(sites.find((s) => s.id === 'house_a')!, 'ground');
     const world = new RAPIER.World({ x: 0, y: -9.81, z: 0 });

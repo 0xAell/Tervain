@@ -22,7 +22,8 @@ export interface Stamp extends V2 {
   moving?: boolean;
   airborne?: boolean;
   reflect?: boolean;
-  angle?: number;
+  arrow?: { angle: number; exposed: number };
+  fall?: number;
   contact?: import('./fieldcraft').Contact;
   prop?: import('./propPhysics').PropView;
   sway?: number;

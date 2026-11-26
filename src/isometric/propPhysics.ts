@@ -618,7 +618,10 @@ export class PropPhysics {
       this.wake(target.body);
   }
   supporting(p: V2, base: number, previous: number, hop: number) {
-    if (!this.bodies.size) return base;
+    return this.supportAt(p, base, previous, hop)?.height ?? base;
+  }
+  supportAt(p: V2, base: number, previous: number, hop: number) {
+    if (!this.bodies.size) return;
     const top = Math.max(base + 0.26, previous + 0.17, base + hop + 0.14);
     const hit = this.world.castRayAndGetNormal(
       new RAPIER.Ray({ x: p.x, y: top, z: p.z }, { x: 0, y: -1, z: 0 }),
@@ -633,7 +636,9 @@ export class PropPhysics {
         return !!l && l.view.spec.id !== this.grip?.id;
       }
     );
-    return hit && hit.normal.y > 0.6 ? Math.max(base, top - hit.timeOfImpact) : base;
+    if (!hit || hit.normal.y <= 0.6) return;
+    const prop = this.handles.get(hit.collider.handle);
+    if (prop) return { height: Math.max(base, top - hit.timeOfImpact), material: prop.view.spec.material };
   }
   private float(l: Live, flow: Flow) {
     const b = l.body,

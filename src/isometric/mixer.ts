@@ -1,3 +1,4 @@
+import { fieldAccentBuffers, type FieldAccent } from './fieldAudio';
 import { gameFile } from './files';
 import { catalogue, sampleRate, type Cue, type SpokenPart } from './reading';
 
@@ -7,6 +8,7 @@ export const defaultMix: MixLevels = { voice: 1, music: 0.62, effects: 0.82 };
 type Loop = { source: AudioBufferSourceNode; gain: GainNode };
 type RoomMaterial = 'timber' | 'stone';
 type RoomBus = 'voice' | 'effects';
+type ImpactFocus = 'contact' | 'defeat';
 
 // Extra path lengths in metres for the left and right ears, followed by reflected gain.
 // The direct signal travels separately. Timber absorbs more of the high end than stone.
@@ -51,6 +53,10 @@ export class Mixer {
   private context?: AudioContext;
   private master?: GainNode;
   private buses?: Record<'voice' | 'music' | 'air' | 'effects', GainNode>;
+  private focus?: Record<'music' | 'air', GainNode>;
+  private defeatFocusUntil = 0;
+  private accents?: Record<FieldAccent, AudioBuffer>;
+  private accentTurn = 0;
   private files = new Map<string, AudioBuffer>();
   private loading = new Map<string, Promise<AudioBuffer>>();
   private memory = 0;
@@ -79,16 +85,25 @@ export class Mixer {
       if (!this.context) {
         const ctx = (this.context = new AudioContext());
         this.master = ctx.createGain();
-        this.master.connect(ctx.destination);
-        const bus = () => {
+        // Keep rare stacks of hits, music and world sound from overloading the output.
+        const peakGuard = ctx.createDynamicsCompressor();
+        peakGuard.threshold.value = -3;
+        peakGuard.knee.value = 6;
+        peakGuard.ratio.value = 12;
+        peakGuard.attack.value = 0.003;
+        peakGuard.release.value = 0.11;
+        this.master.connect(peakGuard).connect(ctx.destination);
+        const bus = (output: AudioNode = this.master!) => {
           const g = ctx.createGain();
-          g.connect(this.master!);
+          g.connect(output);
           return g;
         };
-        this.buses = { voice: bus(), music: bus(), air: bus(), effects: bus() };
+        this.focus = { music: bus(), air: bus() };
+        this.buses = { voice: bus(), music: bus(this.focus.music), air: bus(this.focus.air), effects: bus() };
         this.mix();
       }
       if (this.context.state !== 'running') void this.context.resume().catch(() => {});
+      this.accents ??= fieldAccentBuffers(this.context);
     } catch {
       /* Text and controls remain accessible on devices without audio output. */
     }
@@ -123,23 +138,65 @@ export class Mixer {
     target(this.buses.air, this.levels.effects * (voiced ? 0.36 : 0.68), voiced ? 0.08 : 0.33);
     target(this.buses.effects, this.levels.effects * (voiced ? 0.72 : 1), voiced ? 0.045 : 0.16);
   }
+  private focusImpact(kind: ImpactFocus, gain: number) {
+    const focus = this.focus;
+    if (!focus) return;
+    const now = this.context!.currentTime;
+    if (kind === 'contact' && now < this.defeatFocusUntil) return;
+    const defeat = kind === 'defeat';
+    const attack = defeat ? 0.018 : 0.008;
+    const hold = defeat ? 0.096 : 0.032;
+    const recovery = defeat ? 0.096 : 0.065;
+    if (defeat) this.defeatFocusUntil = now + hold + 2 * recovery;
+    for (const bus of ['music', 'air'] as const) {
+      const param = focus[bus].gain;
+      const depth = bus === 'music' ? (defeat ? 0.39 : 0.15) : (defeat ? 0.28 : 0.08);
+      if (typeof param.cancelAndHoldAtTime === 'function') param.cancelAndHoldAtTime(now);
+      else {
+        const value = param.value;
+        param.cancelScheduledValues(now);
+        param.setValueAtTime(value, now);
+      }
+      const target = 1 - depth * Math.min(1, gain);
+      param.linearRampToValueAtTime(target, now + attack);
+      param.setValueAtTime(target, now + hold);
+      param.setTargetAtTime(1, now + hold, recovery);
+    }
+  }
+  private resetFocus() {
+    if (!this.focus) return;
+    this.defeatFocusUntil = 0;
+    const now = this.context!.currentTime;
+    for (const node of Object.values(this.focus)) {
+      node.gain.cancelScheduledValues(now);
+      node.gain.setValueAtTime(1, now);
+    }
+  }
   setVolume(n: number) {
     this.volume = n;
-    if (!n) this.stopVoice();
+    if (!n) {
+      this.stopVoice();
+      this.resetFocus();
+    }
     this.mix();
   }
   setLevels(levels: MixLevels) {
     this.levels = levels;
     if (!levels.voice) this.stopVoice();
+    if (!levels.effects) this.resetFocus();
     this.mix();
   }
-  private buffer(file: string): Promise<AudioBuffer> {
+  private cached(file: string) {
     const ready = this.files.get(file);
     if (ready) {
       this.files.delete(file);
       this.files.set(file, ready);
-      return Promise.resolve(ready);
     }
+    return ready;
+  }
+  private buffer(file: string): Promise<AudioBuffer> {
+    const ready = this.cached(file);
+    if (ready) return Promise.resolve(ready);
     const pending = this.loading.get(file);
     if (pending) return pending;
     const ctx = this.context!;
@@ -226,31 +283,72 @@ export class Mixer {
     this.caption('');
     this.mix();
   }
+  private get canPlayEffect() {
+    return !!this.context && !!this.buses && this.volume > 0 && this.levels.effects > 0 && !document.hidden;
+  }
+  preloadEffects(cues: readonly Cue[]) {
+    if (!this.canPlayEffect) return false;
+    const files = new Set(cues.map((cue) => this.file(cue)));
+    for (const file of files) void this.buffer(file).catch(() => {});
+    return true;
+  }
+  private playEffect(
+    buffer: AudioBuffer,
+    gain: number,
+    pan: number,
+    material: RoomMaterial | undefined,
+    offset = 0,
+    duration?: number,
+    rate = 1
+  ) {
+    const ctx = this.context!,
+      source = ctx.createBufferSource(),
+      level = ctx.createGain(),
+      stereo = ctx.createStereoPanner();
+    level.gain.value = gain;
+    stereo.pan.value = Math.max(-1, Math.min(1, pan));
+    source.buffer = buffer;
+    source.playbackRate.value = rate;
+    source.connect(level).connect(stereo).connect(this.buses!.effects);
+    this.reflect(stereo, 'effects', material);
+    this.effects.add(source);
+    source.onended = () => {
+      this.effects.delete(source);
+      source.disconnect();
+      level.disconnect();
+      stereo.disconnect();
+    };
+    if (duration === undefined) source.start();
+    else source.start(0, offset, duration);
+  }
+  playAccent(
+    accent: FieldAccent,
+    gain: number,
+    pan: number,
+    focus?: ImpactFocus,
+    recording?: { cue: Cue; gain: number }
+  ) {
+    if (!this.canPlayEffect || !this.accents) return;
+    const rate = 1 + (this.accentTurn++ % 5 - 2) * 0.018;
+    this.playEffect(this.accents[accent], gain, pan, this.room, 0, undefined, rate);
+    if (focus) this.focusImpact(focus, gain);
+    if (!recording) return;
+    const { cue } = recording;
+    const file = this.file(cue);
+    const ready = this.cached(file);
+    if (ready) this.playEffect(ready, gain * recording.gain, pan, this.room, cue[1] / sampleRate, cue[2] / sampleRate);
+    else void this.buffer(file).catch(() => {});
+  }
   async effect(cue: Cue, gain: number, pan = 0, inWorld = true) {
-    if (!this.context || !this.volume || !this.levels.effects || document.hidden) return;
+    if (!this.canPlayEffect) return;
     const generation = this.worldGeneration;
     const material = inWorld ? this.room : undefined;
     const at = performance.now();
     try {
-      const buffer = await this.buffer(this.file(cue)),
-        ctx = this.context;
-      if (generation !== this.worldGeneration || performance.now() - at > 950 || !this.volume) return;
-      const source = ctx.createBufferSource(),
-        level = ctx.createGain(),
-        stereo = ctx.createStereoPanner();
-      level.gain.value = gain;
-      stereo.pan.value = Math.max(-1, Math.min(1, pan));
-      source.buffer = buffer;
-      source.connect(level).connect(stereo).connect(this.buses!.effects);
-      this.reflect(stereo, 'effects', material);
-      this.effects.add(source);
-      source.onended = () => {
-        this.effects.delete(source);
-        source.disconnect();
-        level.disconnect();
-        stereo.disconnect();
-      };
-      source.start(0, cue[1] / sampleRate, cue[2] / sampleRate);
+      const file = this.file(cue);
+      const buffer = this.cached(file) ?? (await this.buffer(file));
+      if (generation !== this.worldGeneration || performance.now() - at > 950 || !this.canPlayEffect) return;
+      this.playEffect(buffer, gain, pan, material, cue[1] / sampleRate, cue[2] / sampleRate);
     } catch {
       /* A missing effect cannot interrupt the game or another sound. */
     }
@@ -299,6 +397,7 @@ export class Mixer {
   reset() {
     this.room = undefined;
     this.stopVoice();
+    this.resetFocus();
     this.worldGeneration++;
     for (const { source } of this.loops.values()) source.stop();
     this.loops.clear();

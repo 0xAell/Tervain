@@ -1,4 +1,5 @@
-import { DRAW_TIME, RELEASE_TIME, SWING_TIME } from './fieldcraft';
+import { DRAW_TIME, RELEASE_TIME, SWING_RELEASE, SWING_TIME } from './fieldcraft';
+import { JUMP_TIME } from './locomotion';
 import type { Atlas } from './atlas';
 import type { Valley } from './simulation';
 
@@ -59,6 +60,45 @@ const bearings: Record<string, number> = {
   south: 1.47,
   'south-east': 0.41,
 };
+
+/** Trace the last part of the same grip and blade motion used by the authored swing cels. */
+export function drawSwordSweep(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  face: string,
+  elapsed: number
+) {
+  const age = elapsed - SWING_RELEASE;
+  if (age < 0 || age >= 0.15) return;
+  const mirror = face.includes('west');
+  const facing = face.replace('west', 'east');
+  const grips = swingGrips[facing];
+  if (!grips) return;
+  const scale = width / 72;
+  const head = Math.min(6, (elapsed * 7) / SWING_TIME);
+  const tail = Math.max(2.55, head - 1.35);
+  const edge = (cel: number, reach: number) => {
+    const i = Math.min(5, Math.floor(cel)),
+      fraction = cel - i,
+      a = grips[i]!,
+      b = grips[i + 1]!,
+      angle = bearings[facing]! + swingAngles[i]! * (1 - fraction) + swingAngles[i + 1]! * fraction;
+    const px = a[0] + (b[0] - a[0]) * fraction - 24 + Math.cos(angle) * reach;
+    const py = a[1] + (b[1] - a[1]) * fraction - 48 + Math.sin(angle) * reach;
+    ctx.lineTo(Math.round(x + px * scale * (mirror ? -1 : 1)), Math.round(y + py * scale));
+  };
+  ctx.save();
+  ctx.globalAlpha *= (1 - age / 0.15) * 0.68;
+  ctx.fillStyle = '#f0d8a5';
+  ctx.beginPath();
+  for (let i = 0; i <= 4; i++) edge(tail + ((head - tail) * i) / 4, 18);
+  for (let i = 4; i >= 0; i--) edge(tail + ((head - tail) * i) / 4, 17 - i * 0.85);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
 
 /** Bind the original sword sprite to the right hand before caching shadows and water reflections. */
 export function buildSwordPoses(atlas: Atlas) {
@@ -182,8 +222,10 @@ export function heroPose(v: Valley, atlas: Atlas, width: number) {
     ? Math.min(count - 1, Math.floor((1 - v.strike / SWING_TIME) * count))
     : action === 'guard'
       ? Math.min(count - 1, Math.floor(v.guardTime * 15))
-      : v.walk && !v.jump
-        ? Math.floor(v.gait.phase * count * 0.5)
-        : Math.floor(v.time * 5);
+      : action === 'jump'
+        ? Math.min(count - 1, Math.floor((1 - v.jump / JUMP_TIME) * count))
+        : v.walk && !v.jump
+          ? Math.floor(v.gait.phase * count * 0.5)
+          : Math.floor(v.time * 5);
   return { key, frame, flip: false, width: showSword ? width * 1.5 : width };
 }

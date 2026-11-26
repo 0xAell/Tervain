@@ -1,14 +1,15 @@
 import { drawProp } from './propArt';
 import { sceneryProp } from './propCatalogue';
-import { buildSwordPoses, heroPose } from './heroPose';
+import { buildSwordPoses, drawSwordSweep, heroPose } from './heroPose';
 import { terrainHeight, groundProject, pickSurface, supportHeight } from './relief';
 import { Sunlight } from './sunlight';
 import { SkyLighting, skyLight, type LightSource } from './skyLight';
 import { doorOpen, frontDoor } from './doorways';
-import { drawFootprints, drawContact, drawFireAir } from './fieldEffects';
+import { drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir } from './fieldEffects';
 import type { BuildingSpec } from '../core/world/layout';
-import { arrowLift } from './fieldcraft';
+import { CONTACT_TIME, arrowHeight, enemyContactRemaining, enemySwingProgress, ENEMY_SWING_TIME, SWING_TIME } from './fieldcraft';
 import { isHuntableAnimalId } from '../core/game/hunting';
+import { ENEMY_ARCHETYPES } from '../core/content/enemies';
 import { Atlas } from './atlas';
 import { Ground } from './ground';
 import { WaterReflections, type Stamp } from './reflections';
@@ -178,20 +179,17 @@ export class Scene {
     }
     const target = project(valley.player.x, valley.player.z, supportHeight(valley.player));
     const dir = valley.bow?.direction ?? { x: Math.sin(valley.player.yaw), z: Math.cos(valley.player.yaw) };
-    const ahead = this.reducedMotion.matches
-      ? 0
-      : valley.bow
-        ? 4.6
-        : valley.walk
-          ? Math.min(3.8, valley.gait.speed * 0.39)
-          : 0;
+    const ahead = valley.bow && !this.reducedMotion.matches ? 3.8 : 0;
     const gaze = project(dir.x * ahead, dir.z * ahead);
-    const ease = 1 - Math.exp(-Math.max(dt, 0) * (ahead ? 3.6 : 2.8));
+    const elapsed = Math.max(dt, 0);
+    const ease = 1 - Math.exp(-elapsed * 8);
     this.lead.x += (gaze.x - this.lead.x) * ease;
     this.lead.y += (gaze.y - this.lead.y) * ease;
-    const follow = this.initialized ? 1 - Math.exp(-Math.max(dt, 0) * 12) : 1;
-    this.center.x += (target.x + this.lead.x - this.center.x) * follow;
-    this.center.y += (target.y + this.lead.y - this.center.y) * follow;
+    // Running keeps the wanderer centered. Frame-rate-independent damping absorbs turns and sudden grade changes.
+    const across = this.initialized ? 1 - Math.exp(-elapsed * 26) : 1;
+    const vertical = this.initialized ? 1 - Math.exp(-elapsed * 18) : 1;
+    this.center.x += (target.x + this.lead.x - this.center.x) * across;
+    this.center.y += (target.y + this.lead.y - this.center.y) * vertical;
     this.initialized = true;
     const ox = Math.round(w / 2 - this.center.x),
       oy = Math.round(h * 0.54 - this.center.y + 24);
@@ -377,7 +375,12 @@ export class Scene {
       return { submerged, lift };
     };
     for (const [i, a] of valley.actors.entries()) {
-      if ((a.npc && a.dead) || (a.enemy && a.dead)) continue;
+      if (a.npc && a.dead) continue;
+      const defeat = a.enemy && a.dead
+        ? valley.contacts.find((hit) => hit.defeated && hit.actorId === a.id && time - hit.born < CONTACT_TIME)
+        : undefined;
+      if (a.enemy && a.dead && !defeat) continue;
+      const fall = defeat ? Math.min(1, (time - defeat.born) / CONTACT_TIME) : 0;
       if (a.animal && valley.game.state.hunting[a.animal]?.status === 'skinned') continue;
       const inside = inBuilding(a);
       if (inside) continue;
@@ -403,6 +406,11 @@ export class Scene {
         ...a,
         ...immersion(a, false),
         key,
+        alpha: defeat ? 1 - fall * fall : undefined,
+        fall: defeat && !this.reducedMotion.matches
+          ? (Math.sign(project(defeat.dx, defeat.dz).x) || 1) * fall ** 1.6 * 1.13
+          : undefined,
+        reflect: defeat ? false : undefined,
         wakeId: a.id,
         moving: a.move,
         frame: a.dead
@@ -412,7 +420,7 @@ export class Scene {
             : a.attack
               ? Math.min(
                   this.atlas.frameCount(key) - 1,
-                  Math.floor((1 - a.attack / 0.85) * this.atlas.frameCount(key))
+                  Math.floor(enemySwingProgress(a.attack, a.key === 'thornback') * this.atlas.frameCount(key))
                 )
               : Math.floor(time * (a.move ? 8 : 4)) + i,
       });
@@ -451,18 +459,24 @@ export class Scene {
       lift: immersed.lift + hop + valley.standingLift * 8 + (valley.riding ? 16 : 0),
     });
     for (const arrow of valley.arrows) {
-      const dir = project(arrow.direction.x, arrow.direction.z, arrow.grade);
+      const elevation = arrowHeight(arrow, arrow.travelled);
+      const dir = project(
+        arrow.direction.x, arrow.direction.z, arrowHeight(arrow, arrow.travelled + 1) - elevation
+      );
+      const fromBow = project(
+        arrow.direction.x * arrow.travelled, arrow.direction.z * arrow.travelled, elevation - arrowHeight(arrow, 0)
+      );
       stamps.push({
         ...arrow,
         key: 'field_arrow',
         width: 23,
-        angle: Math.atan2(dir.y, dir.x),
+        arrow: { angle: Math.atan2(dir.y, dir.x), exposed: Math.hypot(fromBow.x, fromBow.y) },
         reflect: false,
-        lift: arrowLift(arrow.travelled),
-        elevation: arrow.launchHeight + arrow.travelled * arrow.grade,
+        elevation,
       });
     }
-    for (const contact of valley.contacts)
+    for (const contact of valley.contacts) {
+      if (time - contact.born >= CONTACT_TIME) continue;
       stamps.push({
         x: contact.x,
         z: contact.z,
@@ -472,6 +486,7 @@ export class Scene {
         contact,
         reflect: false,
       });
+    }
     const mapMark = valley.game.state.mapMarker;
     if (mapMark) stamps.push({ ...mapMark, key: 'cursor', width: 15, lift: 3 });
     const fishRipples = this.riverLife.frame(
@@ -505,11 +520,21 @@ export class Scene {
       ...(valley.props?.waterRipples() ?? []),
     ].slice(-16);
     this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, time, view.flow, hour, ripples, floating);
-    drawFootprints(ctx, valley.gait.prints, ox, oy, time);
+    drawFootprints(ctx, valley.gait.prints, ox, oy, time, this.reducedMotion.matches);
     this.lastDraws += this.meadow.draw(ctx, this.ground, ox, oy, time, { xmin, xmax, zmin, zmax });
     this.riverLife.drawShoals(ctx, this.ground, ox, oy, time);
     this.water.draw(ctx, this.ground, stamps, ox, oy, time);
     this.sun.draw(ctx, stamps, buildings, ox, oy, hour);
+    for (const enemy of valley.actors) {
+      if (!enemy.enemy || enemy.dead || !enemy.attack || inBuilding(enemy)) continue;
+      const def = ENEMY_ARCHETYPES[enemy.key === 'thornback' ? 'thornback' : 'bandit'];
+      const contact = enemyContactRemaining(def.heavy);
+      if (enemy.attack <= contact) continue;
+      const at = project(enemy.x, enemy.z, supportHeight(enemy));
+      if (at.x + ox < -40 || at.x + ox > w + 40 || at.y + oy < -40 || at.y + oy > h + 40) continue;
+      const progress = (ENEMY_SWING_TIME - enemy.attack) / (ENEMY_SWING_TIME - contact);
+      drawEnemyWarning(ctx, at.x + ox, at.y + oy, def.reach + 0.5, progress, def.heavy, this.reducedMotion.matches);
+    }
     if (this.ground.hasWater && this.ground.waterImpacts.length)
       drawWaterSpray(ctx, this.ground.waterImpacts, ox, oy);
     for (const stamp of stamps) {
@@ -525,14 +550,21 @@ export class Scene {
       if (x < -130 || x > w + 130 || y < -20 || y > h + 180) continue;
       ctx.globalAlpha = stamp.alpha ?? 1;
       if (stamp.contact) {
-        drawContact(ctx, stamp.contact, time, ox, oy);
+        drawContact(ctx, stamp.contact, time, ox, oy, this.reducedMotion.matches);
         continue;
       }
-      if (stamp.angle !== undefined) {
+      if (stamp.arrow) {
         ctx.save();
         ctx.translate(Math.round(x), Math.round(y));
-        ctx.rotate(stamp.angle);
-        this.atlas.draw(ctx, stamp.key, 7, 0, stamp.width, 0, false, 0.5);
+        ctx.rotate(stamp.arrow.angle);
+        // Reveal the shaft as it clears the bow, keeping the nock out of the hero's back.
+        if (stamp.arrow.exposed < stamp.width) {
+          ctx.beginPath();
+          ctx.rect(-stamp.arrow.exposed, -stamp.width / 2, stamp.arrow.exposed, stamp.width);
+          ctx.clip();
+        }
+        // The point at the right edge of the arrow sprite is the swept collision position.
+        this.atlas.draw(ctx, stamp.key, -stamp.width / 2, 0, stamp.width, 0, false, 0.5);
         ctx.restore();
         this.lastDraws++;
         continue;
@@ -578,12 +610,15 @@ export class Scene {
         drawProp(ctx, this.atlas, stamp.prop, x, y, stamp.width);
         if (submerged > 0.04) ctx.restore();
       } else {
-        if (stamp.sway) {
+        if (stamp.sway || stamp.fall) {
           ctx.save();
           ctx.translate(x, y);
-          ctx.transform(1, 0, stamp.sway * 0.15, 1, 0, 0);
+          if (stamp.fall) ctx.rotate(stamp.fall);
+          if (stamp.sway) ctx.transform(1, 0, stamp.sway * 0.15, 1, 0, 0);
           ctx.translate(-x, -y);
         }
+        if (stamp.hero && valley.strike && valley.swordSwing && !this.reducedMotion.matches)
+          drawSwordSweep(ctx, x, y, stamp.width, valley.facing, SWING_TIME - valley.strike);
         this.atlas.draw(
           ctx,
           stamp.key,
@@ -597,7 +632,7 @@ export class Scene {
         );
         if (stamp.key.startsWith('fire--') && !this.reducedMotion.matches)
           drawFireAir(ctx, x, y, time, stamp.x, stamp.z, sky.night);
-        if (stamp.sway) ctx.restore();
+        if (stamp.sway || stamp.fall) ctx.restore();
       }
       if (clip) ctx.restore();
       this.lastDraws++;
@@ -605,6 +640,7 @@ export class Scene {
     }
     ctx.globalAlpha = 1;
     this.sky.draw(ctx, ox, oy, time, sky, lights, stamps);
+    drawDamageLabels(ctx, valley.contacts, time, ox, oy, this.reducedMotion.matches);
 
     const nearestProp = valley.props?.nearby()?.spec.id;
     for (const target of valley.targets()) {
@@ -654,14 +690,25 @@ export class Scene {
       drawWaylight(ctx, this.atlas, x, y, time, near, target.locked);
       this.regions.push({ id: target.id, x, y: y - 6, w: 24, h: 26, target });
     }
-    if (valley.bow && valley.bow.phase !== 'loose') {
-      const dir = valley.bow.direction,
-        dist = 12;
-      const at = groundProject({ x: valley.player.x + dir.x * dist, z: valley.player.z + dir.z * dist });
-      const x = Math.round(at.x + ox),
-        y = Math.round(at.y + oy - 17),
-        spread = valley.bow.phase === 'hold' ? 3 : 5;
-      ctx.fillStyle = valley.bow.phase === 'hold' ? '#ffe3a1' : '#cfd5b8';
+    const guide = valley.bowGuide();
+    if (guide) {
+      const { arrow, distance } = guide;
+      const at = (d: number) => project(
+        arrow.x + arrow.direction.x * d,
+        arrow.z + arrow.direction.z * d,
+        arrowHeight(arrow, d)
+      );
+      const held = valley.bow?.phase === 'hold';
+      ctx.fillStyle = held ? '#ffe3a1' : '#cfd5b8';
+      ctx.globalAlpha = held ? 0.66 : 0.4;
+      for (let d = 2.5; d < distance - 1; d += 2.5) {
+        const dot = at(d);
+        ctx.fillRect(Math.round(dot.x + ox), Math.round(dot.y + oy), 2, 1);
+      }
+      ctx.globalAlpha = 1;
+      const tip = at(distance);
+      const x = Math.round(tip.x + ox), y = Math.round(tip.y + oy);
+      const spread = held ? 3 : 5;
       ctx.fillRect(x - spread - 2, y, 3, 1);
       ctx.fillRect(x + spread, y, 3, 1);
       ctx.fillRect(x, y - spread - 2, 1, 3);

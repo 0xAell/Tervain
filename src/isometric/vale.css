@@ -512,12 +512,12 @@ button img {
 .track > span {
   display: block;
   height: 100%;
-  transition: width 120ms linear;
 }
 .health .track > span {
   background: linear-gradient(#d28365 0 20%, #ae5642 20% 73%, #824134 73%);
 }
 .stamina .track > span {
+  transition: width 120ms linear;
   background: linear-gradient(#d8c783 0 20%, #aa995a 20% 73%, #817546 73%);
 }
 .belt {
@@ -617,7 +617,7 @@ button img {
   outline: 2px solid var(--gold);
 }
 @media (prefers-reduced-motion: reduce) {
-  .track > span { transition: none; }
+  .stamina .track > span { transition: none; }
 }
 @media (max-width: 700px) {
   body {

@@ -7,7 +7,7 @@ import { reviveState } from '../../src/core/game/revive';
 import { buildJournal } from '../../src/core/game/journal';
 import { COOKFIRES, WAGON_TALLY } from '../../src/core/world/layout';
 import { doorsById } from '../../src/isometric/doorways';
-import { DRAW_TIME, RELEASE_TIME, firstContact } from '../../src/isometric/fieldcraft';
+import { ARROW_RANGE, ARROW_SPEED, DRAW_TIME, RELEASE_TIME, arrowHeight, firstContact, type FieldSound } from '../../src/isometric/fieldcraft';
 import { Valley } from '../../src/isometric/simulation';
 
 function advance(v: Valley, seconds: number) {
@@ -90,6 +90,67 @@ describe('ranger fieldcraft', () => {
     expect(v.arrows).toHaveLength(0);
     expect(v.bow).toBeUndefined();
   });
+  it.each([30, 60, 120])('carries the remainder of a quick draw into flight at %i Hz', (hz) => {
+    const v = ranger();
+    v.actors.length = 0;
+    v.attack({ x: -160, z: 18 });
+    const seconds = 0.5;
+    for (let frame = 0; frame < seconds * hz; frame++) v.step(1 / hz, 0, 0, false);
+    expect(v.arrows[0]!.travelled).toBeCloseTo((seconds - DRAW_TIME) * ARROW_SPEED, 8);
+    expect(v.bow?.elapsed).toBeCloseTo(seconds - DRAW_TIME, 8);
+    expect(v.bowGuide()).toBeUndefined();
+  });
+
+  it('ends the guide at the first actor on the ray and resolves the hit at the same bow height', () => {
+    const v = ranger();
+    const target = v.actors.find((actor) => actor.key === 'bandit')!;
+    const position = { x: -165, z: 18 };
+    Object.assign(target, position, { home: position, attack: 2, timer: 10 });
+    v.startAttack({ x: -154, z: 18 });
+    advance(v, DRAW_TIME + 0.05);
+    const guide = v.bowGuide()!;
+    expect(guide.distance).toBeCloseTo(10 - Math.max(0.55, target.width / 35));
+    v.releaseAttack();
+    advance(v, 0.28);
+    const hit = v.contacts.find((contact) => contact.actorId === target.id)!;
+    expect(hit.x).toBeCloseTo(guide.arrow.x + guide.distance, 7);
+    expect(hit.height).toBeCloseTo(arrowHeight(guide.arrow, guide.distance), 7);
+  });
+
+  it('traces the same wall point for the draw guide, the arrowhead and the impact cue', () => {
+    const v = ranger();
+    v.actors.length = 0;
+    const site = doorsById.get('house_a/front')!.site;
+    const cues: FieldSound[] = [];
+    v.onFieldSound = (cue) => cues.push(cue);
+    v.game.setPlayerTransform(site.x - 7, 0, site.z, Math.PI / 2);
+    v.startAttack({ x: site.x + 15, z: site.z });
+    advance(v, DRAW_TIME + 0.1);
+    const guide = v.bowGuide()!;
+    expect(guide.distance).toBeGreaterThan(0);
+    expect(guide.distance).toBeLessThan(7);
+    expect(cues).toEqual(['bow_draw']);
+    v.releaseAttack();
+    for (let i = 0; i < 90 && !v.contacts.length; i++) v.step(1 / 90, 0, 0, false);
+    const hit = v.contacts[0]!;
+    expect(hit.kind).toBe('earth');
+    expect(Math.abs(hit.x - (guide.arrow.x + guide.distance))).toBeLessThan(0.01);
+    expect(hit.z).toBeCloseTo(guide.arrow.z);
+    expect(Math.abs(hit.height - arrowHeight(guide.arrow, guide.distance))).toBeLessThan(0.01);
+    expect(cues).toEqual(['bow_draw', 'bow_release', 'arrow_ground']);
+  });
+
+  it('lets a shot disappear at its range limit without a false impact on open air', () => {
+    const v = ranger();
+    const cues: FieldSound[] = [];
+    v.onFieldSound = (cue) => cues.push(cue);
+    v.arrows.push({ x: -480, z: 0, travelled: 0, launchHeight: 4, grade: 0, direction: { x: 0, z: 1 } });
+    advance(v, ARROW_RANGE / ARROW_SPEED + 0.05);
+    expect(v.arrows).toHaveLength(0);
+    expect(v.contacts).toHaveLength(0);
+    expect(cues).toEqual([]);
+  });
+
   it('quick shots follow the aimed line, and cancelling a draw or starting with an empty quiver spends nothing', () => {
     const v = ranger(),
       a = v.actors.find((a) => a.id === 'stag')!;
@@ -118,7 +179,7 @@ describe('ranger fieldcraft', () => {
     advance(v, 2);
     expect(v.game.state.hunting['dog-a']).toBeUndefined();
     const site = doorsById.get('house_a/front')!.site;
-    v.game.setPlayerTransform(site.x - 15, 0, site.z, Math.PI / 2);
+    v.game.setPlayerTransform(site.x - 7, 0, site.z, Math.PI / 2);
     const stag = v.actors.find((a) => a.id === 'stag')!;
     Object.assign(stag, { x: site.x + 15, z: site.z, home: { x: site.x + 15, z: site.z } });
     v.startAttack(stag, stag.id);

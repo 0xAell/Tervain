@@ -115,6 +115,8 @@ export class Interface {
   private clock = el('span', 'clock');
   private place = el('strong');
   private health = el('span');
+  private lastHealth = -1;
+  private lastMaxHealth = -1;
   private vigor = el('span');
   private prompt = el('button', 'prompt');
   private promptText = '';
@@ -453,7 +455,11 @@ export class Interface {
           'Turn the object in your hands. Click a nearby surface to set it down.',
         ],
         ['While carrying', 'Use the attack control to toss a light object or shove heavy furniture.'],
-        ['Shift / Q / X', 'Run / guard / jump'],
+        ['Shift / Q', 'Run / guard'],
+        [
+          (this.controls.settings.bindings.jump ?? 'KeyX').replace(/^Key/, '') + ' / LT',
+          'Jump. Tap again just before landing to jump on your next step.',
+        ],
         ['I / J / M', 'Inventory / journal / map'],
         ['1–0', 'Use a belt slot'],
         ['F5 / F9', 'Quick save / quick load'],
@@ -1102,20 +1108,28 @@ export class Interface {
       this.promptSince = Infinity;
   }
   update(force = false) {
-    if (performance.now() > this.noticeUntil) this.notice.classList.remove('visible');
-    if (this.mode !== 'play' || (!force && performance.now() - this.uiStamp < 125)) return;
-    this.uiStamp = performance.now();
+    const now = performance.now();
+    if (now > this.noticeUntil) this.notice.classList.remove('visible');
+    if (this.mode !== 'play') return;
     const s = this.game.state;
+    const { health, maxHealth } = s.player;
+    if (health !== this.lastHealth || maxHealth !== this.lastMaxHealth) {
+      this.lastHealth = health;
+      this.lastMaxHealth = maxHealth;
+      this.health.style.width = (health / maxHealth) * 100 + '%';
+      const meter = this.health.parentElement!;
+      meter.title = 'Health ' + health + ' / ' + maxHealth;
+      meter.setAttribute('aria-valuenow', String(health));
+      meter.setAttribute('aria-valuemax', String(maxHealth));
+    }
+    if (!force && now - this.uiStamp < 125) return;
+    this.uiStamp = now;
     this.place.textContent = this.valley.placeName();
     const chamber = this.valley.roomName();
     this.chamber.hidden = !chamber;
     if (this.chamber.textContent !== chamber) this.chamber.textContent = chamber;
     this.clock.textContent = formatClock(s.clock);
-    this.health.style.width = (s.player.health / s.player.maxHealth) * 100 + '%';
     this.vigor.style.width = this.valley.stamina + '%';
-    this.health.parentElement!.title = 'Health ' + s.player.health + ' / ' + s.player.maxHealth;
-    this.health.parentElement!.setAttribute('aria-valuenow', String(s.player.health));
-    this.health.parentElement!.setAttribute('aria-valuemax', String(s.player.maxHealth));
     this.vigor.parentElement!.setAttribute('aria-valuenow', String(Math.round(this.valley.stamina)));
     this.vigor.parentElement!.setAttribute('aria-valuemax', '100');
     const offers = this.valley.offers();
