@@ -95,10 +95,12 @@ export function chamberLift(plan: FloorPlan, index: number) {
   if (plan.level === 'loft') return index === 0 ? 22 : 14;
   return index === 0 ? 21 : 12;
 }
-export function roomLift(plan: FloorPlan, p: V2) {
+export function roomLift(plan: FloorPlan, p: V2, walking = false) {
   const stair = stairAt(plan, p);
   if (stair) {
-    const index = Math.min(stairCount - 1, Math.floor((stairDepth(stair, p) * stairCount) / stairRun));
+    const step = (stairDepth(stair, p) * stairCount) / stairRun;
+    if (walking) return stair.treads[stairCount - 1]!.height * Math.max(0, Math.min(1, (step - 0.5) / (stairCount - 1)));
+    const index = Math.max(0, Math.min(stairCount - 1, Math.floor(step)));
     return stair.treads[index]!.height;
   }
   const hall = plan.rooms[1],
@@ -109,12 +111,14 @@ export function roomLift(plan: FloorPlan, p: V2) {
     east = hall.x1 - p.x,
     dist = Math.min(west, east);
   if (dist >= landingRun) return 0;
-  const t = Math.ceil(((landingRun - dist) * landingSteps) / landingRun);
+  const fraction = (landingRun - dist) / landingRun;
+  if (walking) return fraction * chamberLift(plan, west < east ? 0 : 2);
+  const t = Math.ceil(fraction * landingSteps);
   return (t * chamberLift(plan, west < east ? 0 : 2)) / landingSteps;
 }
-export function roomFoot(plan: FloorPlan, p: V2) {
+export function roomFoot(plan: FloorPlan, p: V2, walking = false) {
   const q = roomProject(p);
-  q.y -= roomLift(plan, p);
+  q.y -= roomLift(plan, p, walking);
   return q;
 }
 export function pickRoomFloor(plan: FloorPlan, x: number, y: number) {

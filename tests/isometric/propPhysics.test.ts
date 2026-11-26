@@ -170,6 +170,22 @@ describe('loose objects in the playable vale', () => {
     v.changeFloor('loft');
     expect(w.object(jar.spec.id)).toBeTruthy();
   });
+  it('preserves a submerged saved object when a wide camera can see beyond the simulation radius', () => {
+    const game = new Game(), id = 'strand/jar';
+    game.state.physicalObjects = [{ id, space: 'vale', position: { x: 34, y: -0.5, z: -15 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 } }];
+    const v = journey(game);
+    moveTo(v, -129, -15);
+    expect(v.props!.object(id)).toBeUndefined();
+    const remote = [...v.props!.outdoorObjects(180)].find(p => p.spec.id === id)!;
+    expect(remote.x).toBe(34);
+    expect(remote.y).toBe(-0.5);
+    expect(remote.wet).toBeGreaterThan(0.5);
+    moveTo(v, -31, -15);
+    const nearer = v.props!.object(id)!;
+    expect(nearer.wet).toBeCloseTo(remote.wet);
+    expect(nearer.rotation).toEqual(remote.rotation);
+  });
   it('floats timber in the flowing river, sinks earthenware and recreates displaced objects after streaming', () => {
     const g = new Game(),
       water = { x: 32, z: -16 },

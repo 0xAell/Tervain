@@ -9,12 +9,13 @@ import { NPCS } from '../core/content/npcs';
 import { getNode } from '../core/game/dialogue';
 import { buildJournal } from '../core/game/journal';
 import { formatClock } from '../core/game/state';
-import { gestureLabels } from './fieldcraft';
+import { COUNTER_WINDOW, ENEMY_SWING_TIME, enemyContactRemaining, gestureLabels } from './fieldcraft';
 import type { RoomTarget } from './roomTargets';
 import { households } from './households';
 import type { Fixture } from './roomPlans';
 import type { Game } from '../core/game/game';
 import type { ItemId, NpcId } from '../core/game/types';
+import { ENEMY_ARCHETYPES } from '../core/content/enemies';
 import { PLACES } from '../core/world/layout';
 import { worldView } from '../core/game/worldView';
 import { HAND_SAVE_SLOTS } from '../core/rules/session';
@@ -94,6 +95,7 @@ export interface Controls {
   interact(): void;
   interactIndex(i: number): void;
   attack(): void;
+  setTouchGuard(down: boolean): void;
   pressAttack(): void;
   releaseAttack(): void;
   quit(): void;
@@ -120,6 +122,15 @@ export class Interface {
   private lastHealth = -1;
   private lastMaxHealth = -1;
   private vigor = el('span');
+  private lifeNumber = el('span', 'life-number');
+  private foePanel = el('section', 'foe-panel');
+  private foeName = el('strong');
+  private foeState = el('span', 'foe-state');
+  private foeHealth = el('div', 'foe-health');
+  private foeLoss = el('span', 'foe-loss');
+  private foeLife = el('span', 'foe-life');
+  private foeTiming = el('span', 'foe-timing');
+  private foeId = '';
   private prompt = el('button', 'prompt');
   private promptText = '';
   private slots = el('div', 'belt');
@@ -208,7 +219,16 @@ export class Interface {
       row.append(track);
       bars.append(row);
     }
+    this.lifeNumber.setAttribute('aria-hidden', 'true');
+    bars.firstElementChild!.append(this.lifeNumber);
     vitals.append(icon('seal'), bars);
+    const foeHeading = el('div', 'foe-heading');
+    foeHeading.append(this.foeName, this.foeState);
+    this.foeHealth.setAttribute('role', 'meter');
+    this.foeHealth.setAttribute('aria-valuemin', '0');
+    this.foeHealth.append(this.foeLoss, this.foeLife);
+    this.foePanel.append(foeHeading, this.foeHealth, this.foeTiming);
+    this.foePanel.hidden = true;
     const attack = el('button', 'attack-touch', 'Attack');
     attack.type = 'button';
     attack.onpointerdown = (e) => {
@@ -224,7 +244,22 @@ export class Interface {
     attack.onclick = (e) => {
       if (e.detail === 0) controls.attack();
     };
-    this.hud.append(this.titleBar, nav, vitals, this.slots, this.prompt, attack);
+    const guard = el('button', 'guard-touch', 'Guard');
+    guard.type = 'button';
+    guard.setAttribute('aria-pressed', 'false');
+    const holdGuard = (down: boolean) => {
+      controls.setTouchGuard(down);
+      guard.setAttribute('aria-pressed', String(down));
+    };
+    guard.onpointerdown = e => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      guard.setPointerCapture(e.pointerId);
+      holdGuard(true);
+    };
+    guard.onpointerup = guard.onpointercancel = guard.onlostpointercapture = () => holdGuard(false);
+    guard.onclick = e => { if (e.detail === 0) holdGuard(guard.getAttribute('aria-pressed') !== 'true'); };
+    this.hud.append(this.titleBar, nav, vitals, this.foePanel, this.slots, this.prompt, guard, attack);
     this.hud.hidden = true;
   }
   bind(valley: Valley, scene: Scene) {
@@ -232,6 +267,7 @@ export class Interface {
     this.game = valley.game;
     this.scene = scene;
     this.slotSig = '';
+    this.foeId = '';
   }
   message(text: string, announce = true) {
     const repeat = text === this.notice.textContent && performance.now() < this.noticeUntil;
@@ -304,6 +340,7 @@ export class Interface {
             this.place.textContent ?? '',
             this.valley.roomName(),
             this.clock.textContent ?? '',
+            ...(this.valley.combatTarget ? [this.foeName.textContent + ', ' + this.foeLife.title, this.foeState.textContent || ''] : []),
             'Health ' + this.game.state.player.health + ' of ' + this.game.state.player.maxHealth,
             'Stamina ' + Math.round(this.valley.stamina) + '%',
             this.promptLabel() || 'No nearby interaction',
@@ -398,6 +435,9 @@ export class Interface {
     this.interfaceReader(screen);
   }
   play() {
+    if (['inventory', 'journal', 'map', 'pause', 'saves', 'help', 'settings'].includes(this.mode))
+      this.controls.sound.page('play');
+    this.hud.querySelector('.guard-touch')?.setAttribute('aria-pressed', 'false');
     this.closeReading();
     this.mode = 'play';
     this.hud.hidden = false;
@@ -457,7 +497,10 @@ export class Interface {
           'Turn the object in your hands. Click a nearby surface to set it down.',
         ],
         ['While carrying', 'Use the attack control to toss a light object or shove heavy furniture.'],
-        ['Shift / Q', 'Run / guard'],
+        ['Shift', 'Run. On a controller, tilt the left stick slightly to walk slowly.'],
+        [(this.controls.settings.bindings.guard ?? 'KeyQ').replace(/^Key/, '') + ' / LB / Guard',
+          'Hold to guard. With the sword equipped, raise guard just before contact to parry. Attack while the counter bar is lit to riposte.'],
+        ['Sword', 'Press attack again during recovery to chain a return cut.'],
         [
           (this.controls.settings.bindings.jump ?? 'KeyX').replace(/^Key/, '') + ' / LT',
           'Jump. Tap again just before landing to jump on your next step.',
@@ -1109,15 +1152,53 @@ export class Interface {
     )
       this.promptSince = Infinity;
   }
+  private updateEncounter() {
+    const enemy = this.valley.combatTarget;
+    if (!enemy) {
+      if (!this.foePanel.hidden) this.foePanel.hidden = true;
+      this.foeId = '';
+      return;
+    }
+    const def = ENEMY_ARCHETYPES[enemy.key === 'thornback' ? 'thornback' : 'bandit'];
+    const changed = this.foeId !== enemy.id;
+    const hp = String(Math.max(0, enemy.health));
+    if (changed || this.foeHealth.getAttribute('aria-valuenow') !== hp) {
+      const amount = Math.max(0, Math.min(1, enemy.health / def.hp));
+      this.foeName.textContent = enemy.name;
+      this.foeHealth.setAttribute('aria-label', enemy.name + ' health');
+      this.foeHealth.setAttribute('aria-valuenow', hp);
+      this.foeHealth.setAttribute('aria-valuemax', String(def.hp));
+      this.foeLife.title = hp + ' of ' + def.hp + ' health';
+      this.foeLife.style.transform = 'scaleX(' + amount + ')';
+      this.foeLoss.style.transition = changed ? 'none' : '';
+      this.foeLoss.style.transform = this.foeLife.style.transform;
+    }
+    const opening = Math.max(0, (enemy.openedUntil ?? 0) - this.valley.time);
+    const contact = enemyContactRemaining(def.heavy);
+    const warning = enemy.attack > contact;
+    const mode = opening ? 'open' : warning ? 'incoming' : 'idle';
+    if (changed || this.foePanel.dataset.state !== mode) {
+      this.foePanel.dataset.state = mode;
+      this.foeState.textContent = opening ? 'Counter' : warning ? (def.heavy ? 'Heavy strike' : 'Incoming') : '';
+    }
+    if (opening || warning) {
+      const fill = opening ? opening / COUNTER_WINDOW : (ENEMY_SWING_TIME - enemy.attack) / (ENEMY_SWING_TIME - contact);
+      this.foeTiming.style.transform = 'scaleX(' + Math.min(1, fill) + ')';
+    }
+    this.foeId = enemy.id;
+    if (this.foePanel.hidden) this.foePanel.hidden = false;
+  }
   update(force = false) {
     const now = performance.now();
     if (now > this.noticeUntil) this.notice.classList.remove('visible');
     if (this.mode !== 'play') return;
     const s = this.game.state;
+    this.updateEncounter();
     const { health, maxHealth } = s.player;
     if (health !== this.lastHealth || maxHealth !== this.lastMaxHealth) {
       this.lastHealth = health;
       this.lastMaxHealth = maxHealth;
+      this.lifeNumber.textContent = String(health);
       this.health.style.width = (health / maxHealth) * 100 + '%';
       const meter = this.health.parentElement!;
       meter.title = 'Health ' + health + ' / ' + maxHealth;

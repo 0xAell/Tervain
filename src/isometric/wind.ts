@@ -118,7 +118,8 @@ export function buildWindArt(atlas: Atlas) {
     ['brush', 1.25],
     ['flowers', 3.9],
     ['reeds', 4.7],
-    ['rill_spirea', 4],
+    ['rill_spirea', 4], ['rill_willow', 2.2], ['rill_alder', 1.5],
+    ['rill_iris', 2.8], ['rill_sedge', 3.2], ['rill_fern', 2.4],
     ['field_herbs', 3],
   ] as const)
     sprites.set(key, ribbon(atlas, key, key + '--wind', bend));

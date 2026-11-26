@@ -321,6 +321,9 @@ export class Mixer {
     if (duration === undefined) source.start();
     else source.start(0, offset, duration);
   }
+  playMenu(accent: 'menuOpen' | 'menuClose') {
+    if (this.canPlayEffect && this.accents) this.playEffect(this.accents[accent], 0.62, 0, undefined);
+  }
   playAccent(
     accent: FieldAccent,
     gain: number,

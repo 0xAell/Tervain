@@ -1,11 +1,11 @@
+import { smoothstep } from '../core/world/noise';
 import { drawProp, propSprite } from './propArt';
 import type { PropView } from './propPhysics';
+import { HeroReveal } from './heroReveal';
 import { heroPose } from './heroPose';
-import { hourOfDay } from '../core/game/state';
 import type { Atlas } from './atlas';
 import { clipBelowRim, RoomArt, stairForeground, type RoomPlate } from './roomArt';
-import { drawWaylight, type PickRegion } from './entryCues';
-import { residentSpots } from './roomTargets';
+import { cuePass, spriteDepth, drawReachMark, drawWaylight, type DepthCue, type PickRegion } from './entryCues';
 import {
   roomUnproject,
   roomProject,
@@ -27,12 +27,14 @@ interface Sprite extends V2 {
   frame?: number;
   flip?: boolean;
   hero?: boolean;
+  resident?: boolean;
   shade?: boolean;
   prop?: PropView;
   lift?: number;
 }
 export class RoomView {
   private art: RoomArt;
+  private reveal = new HeroReveal();
   private ox = 0;
   private oy = 0;
   private last?: FloorPlan;
@@ -133,35 +135,26 @@ export class RoomView {
     ctx.clip(plate.floors);
     ctx.globalCompositeOperation = 'multiply';
     for (const s of sprites) {
-      const at = roomFoot(plan, s),
+      const at = roomFoot(plan, s, !!(s.hero || s.resident)),
         image = this.atlas.shadow(s.key, s.frame ?? 0);
       let dx = daylight * (0.28 + 0.64 * Math.cos(((hour - 6) * Math.PI) / 12)),
         dz = daylight * 0.69,
         weight = daylight;
-      let nearest = Infinity,
-        source: (typeof lamps)[number] | undefined;
-      for (const f of lamps) {
-        const x = s.x - f.x,
-          z = s.z - f.z,
-          d = Math.hypot(x, z);
-        if (d < 0.8 || d >= nearest || d > 8) continue;
-        nearest = d;
-        source = f;
-      }
-      if (source) {
-        const f = source;
-        const strength = (1 - nearest / 9) * 0.95;
-        dx += ((s.x - f.x) / nearest) * strength;
-        dz += ((s.z - f.z) / nearest) * strength;
+      for (const lamp of lamps) {
+        const x = s.x - lamp.x, z = s.z - lamp.z, d = Math.hypot(x, z);
+        if (d >= 9 || d === 0) continue;
+        const strength = 0.95 * (1 - smoothstep(0, 9, d));
+        dx += x * strength / Math.max(0.8, d);
+        dz += z * strength / Math.max(0.8, d);
         weight += strength;
       }
       if (weight < 0.02) continue;
       const height = this.atlas.height(s.key, s.width, s.frame),
         length = (height * (0.5 + 0.14 * (1 - daylight))) / roomRisePixels;
-      const tip = roomFoot(plan, { x: s.x + (dx / weight) * length, z: s.z + (dz / weight) * length });
+      const tip = roomFoot(plan, { x: s.x + (dx / weight) * length, z: s.z + (dz / weight) * length }, true);
       const scale = ((s.flip ? -1 : 1) * s.width * 0.68) / image.width;
       ctx.save();
-      ctx.globalAlpha = 0.12 + 0.17 * Math.min(1, weight);
+      ctx.globalAlpha = 0.29 * Math.min(1, weight);
       ctx.transform(
         scale,
         0,
@@ -175,6 +168,38 @@ export class RoomView {
     }
     ctx.restore();
   }
+  private interactionCues(ctx: CanvasRenderingContext2D, valley: Valley, regions: PickRegion[], ox: number, oy: number) {
+    const plan = valley.room!, p = valley.position;
+    const cues: DepthCue[] = [];
+    for (const target of valley.targets()) {
+      const prop = target.prop ? valley.props?.object(target.prop) : undefined;
+      const s = roomFoot(plan, target.at, !!target.npc),
+        x = s.x + ox,
+        base =
+          s.y + oy - (prop ? (prop.y - prop.spec.height / 2) * roomRisePixels - roomLift(plan, prop) : 0);
+      const close = Math.max(0, Math.min(1, (3.8 - Math.hypot(target.at.x - p.x, target.at.z - p.z)) / 1.2));
+      if (target.passage) {
+        const kind = target.passage.kind;
+        cues.push({ depth: spriteDepth(target.at),
+          draw: () => drawWaylight(ctx, this.atlas, s.x, base - oy, valley.time, close, false, true, kind) });
+        regions.push({ id: target.id, x, y: base - 7, w: 29, h: 33, target });
+        if (target.passage.kind === 'up') {
+          const flight = plan.stairs.find((s) => s.passage.id === target.passage!.id)!;
+          const head = roomProject({ x: flight.passage.x, z: flight.z0 - upperLandingRun });
+          const height = flight.treads[flight.treads.length - 1]!.height;
+          regions.push({ id: target.id, x: head.x + ox, y: head.y + oy - height - 10, w: 27, h: 25, target });
+        }
+      } else {
+        const f = target.fixture,
+          width = prop ? (prop.spec.width * 11) / 6 : (f?.width ?? 36),
+          height = prop ? this.atlas.height(propSprite(prop.spec), width) : f ? this.atlas.height(f.key, width) : 36;
+        regions.push({ id: target.id, x, y: base - height * 0.45, w: width, h: height, target });
+        if (close > 0) cues.push({ depth: spriteDepth(target.at, prop),
+          draw: () => drawReachMark(ctx, s.x, base - oy - height - 4, close) });
+      }
+    }
+    return cuePass(cues);
+  }
   draw(ctx: CanvasRenderingContext2D, valley: Valley, regions: PickRegion[], dt: number) {
     const plan = valley.room!,
       plate = this.art.plate(
@@ -183,7 +208,7 @@ export class RoomView {
       ),
       { width: w, height: h } = ctx.canvas,
       p = valley.position;
-    const hero = roomFoot(plan, p),
+    const hero = roomFoot(plan, p, true),
       midX = plate.left + plate.image.width / 2,
       midY = plate.top + plate.image.height / 2;
     const center = (mid: number, follow: number, span: number, viewport: number) => {
@@ -218,7 +243,7 @@ export class RoomView {
     ctx.shadowOffsetY = 7;
     ctx.drawImage(plate.image, plate.left + ox, plate.top + oy);
     ctx.restore();
-    const hour = hourOfDay(valley.game.state.clock),
+    const hour = valley.skyHour,
       daylight = Math.max(0, Math.sin(((hour - 6) * Math.PI) / 12));
     ctx.save();
     ctx.translate(ox, oy);
@@ -257,15 +282,16 @@ export class RoomView {
           lift: (prop.y - prop.spec.height / 2) * roomRisePixels - roomLift(plan, prop),
         });
       }
-    for (const { a, at } of residentSpots(plan, valley.actors)) {
-      const action = a.move ? 'walk' : (a.posture ?? 'idle'),
+    for (const { a, at, moving, flip } of valley.roomResidents) {
+      const action = moving ? 'walk' : (a.posture ?? 'idle'),
         motion = a.key + '--' + action;
       sprites.push({
         ...at,
         key: this.atlas.has(motion) ? motion : a.key,
         width: 40,
-        frame: Math.floor(clock * 5),
-        flip: a.flip,
+        resident: true,
+        frame: Math.floor(clock * (moving ? 8 : 5)),
+        flip,
         shade: true,
       });
     }
@@ -278,17 +304,22 @@ export class RoomView {
     });
     sprites.sort(
       (a, b) =>
-        a.x + a.z + (a.prop ? a.prop.y * 0.45 : 0) - b.x - b.z - (b.prop ? b.prop.y * 0.45 : 0) ||
+        spriteDepth(a, a.prop) - spriteDepth(b, b.prop) ||
         Number(!!a.hero) - Number(!!b.hero)
     );
     ctx.save();
     ctx.translate(ox, oy);
     this.castShadows(ctx, plan, plate, sprites, hour, valley.lightsOn);
+    const drawCues = this.interactionCues(ctx, valley, regions, ox, oy);
     let heroDrawn = false;
+    this.reveal.reset();
     for (const s of sprites) {
-      const at = roomFoot(plan, s),
-        sx = s.hero ? at.x : Math.round(at.x),
-        sy = s.hero ? at.y : Math.round(at.y);
+      drawCues(spriteDepth(s, s.prop));
+      const actor = !!(s.hero || s.resident);
+      const at = roomFoot(plan, s, actor), sx = actor ? at.x : Math.round(at.x), sy = actor ? at.y : Math.round(at.y);
+      const height = this.atlas.height(s.key, s.width, s.frame);
+      const foot = sy + (s.hero ? 1 : 0) - (s.lift ?? 0);
+      const pad = s.prop ? s.width / 2 : 3;
       ctx.save();
       const flight = stairAt(plan, s);
       if (flight?.passage.kind === 'down') clipBelowRim(ctx, flight);
@@ -306,17 +337,28 @@ export class RoomView {
         );
         ctx.fill();
       }
-      const hidden =
-        !s.hero &&
-        at.y > hero.y + 1 &&
-        at.y - hero.y < this.atlas.height(s.key, s.width, s.frame) * 0.8 &&
-        Math.abs(at.x - hero.x) < s.width * 0.34;
-      ctx.globalAlpha = hidden ? 0.52 : 1;
-      if (s.prop) drawProp(ctx, this.atlas, s.prop, sx, sy - (s.lift ?? 0), s.width, true);
-      else this.atlas.draw(ctx, s.key, sx, sy + (s.hero ? 1 : 0) - (s.lift ?? 0),
-        s.width, s.frame ?? 0, s.flip, 1, 0, false, s.hero);
+      const paint = (ctx: CanvasRenderingContext2D) => {
+        if (s.prop) drawProp(ctx, this.atlas, s.prop, sx, sy - (s.lift ?? 0), s.width, true);
+        else this.atlas.draw(ctx, s.key, sx, foot,
+          s.width, s.frame ?? 0, s.flip, 1, 0, false, actor);
+      };
+      paint(ctx);
+      const mask = this.reveal.foreground(sx - s.width / 2 - pad, foot - height - pad,
+        s.width + 2 * pad, height + 2 * pad);
+      if (mask) {
+        mask.save();
+        if (flight?.passage.kind === 'down') clipBelowRim(mask, flight);
+        paint(mask);
+        mask.restore();
+      }
       ctx.restore();
-      const height = this.atlas.height(s.key, s.width, s.frame);
+      if (s.hero) {
+        heroDrawn = true;
+        this.reveal.track(sx, foot, s.width, height, (g) => {
+          if (flight?.passage.kind === 'down') clipBelowRim(g, flight);
+          this.atlas.draw(g, s.key, sx, foot, s.width, s.frame, s.flip, 1, 0, false, true);
+        });
+      }
       stairForeground(
         ctx,
         plate,
@@ -327,44 +369,15 @@ export class RoomView {
           w: s.width + 4,
           h: height + 5,
         },
-        !!s.hero
+        this.reveal
       );
-      if (s.hero) heroDrawn = true;
     }
+    drawCues(Infinity);
+    this.reveal.finish(ctx);
     ctx.restore();
     if (!valley.lightsOn) {
       ctx.fillStyle = 'rgba(17,29,46,.26)';
       ctx.fillRect(0, 0, w, h);
-    }
-    for (const target of valley.targets()) {
-      const prop = target.prop ? valley.props?.object(target.prop) : undefined;
-      const s = roomFoot(plan, target.at),
-        x = s.x + ox,
-        base =
-          s.y + oy - (prop ? (prop.y - prop.spec.height / 2) * roomRisePixels - roomLift(plan, prop) : 0);
-      const close = Math.hypot(target.at.x - p.x, target.at.z - p.z) < 3.3;
-      if (target.passage) {
-        drawWaylight(ctx, this.atlas, x, base, clock, close, false, true, target.passage.kind);
-        regions.push({ id: target.id, x, y: base - 7, w: 29, h: 33, target });
-        if (target.passage.kind === 'up') {
-          const flight = plan.stairs.find((s) => s.passage.id === target.passage!.id)!;
-          const head = roomProject({ x: flight.passage.x, z: flight.z0 - upperLandingRun });
-          const height = flight.treads[flight.treads.length - 1]!.height;
-          regions.push({ id: target.id, x: head.x + ox, y: head.y + oy - height - 10, w: 27, h: 25, target });
-        }
-      } else {
-        const f = target.fixture,
-          width = prop ? (prop.spec.width * 11) / 6 : (f?.width ?? 36),
-          height = prop ? this.atlas.height(propSprite(prop.spec), width) : f ? this.atlas.height(f.key, width) : 36;
-        regions.push({ id: target.id, x, y: base - height * 0.45, w: width, h: height, target });
-        if (close) {
-          ctx.fillStyle = '#243b3b';
-          ctx.fillRect(Math.round(x) - 2, Math.round(base - height) - 4, 5, 5);
-          ctx.fillStyle = '#a6ead4';
-          ctx.fillRect(Math.round(x), Math.round(base - height) - 4, 1, 5);
-          ctx.fillRect(Math.round(x) - 2, Math.round(base - height) - 2, 5, 1);
-        }
-      }
     }
     return {
       heroDrawn, draws: sprites.length + plan.passages.length + plate.hangings.length + 1,

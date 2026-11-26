@@ -25,7 +25,7 @@ import {
 import { outdoorTile, buildRoom, tileSize, floorAt, yawRotation } from './propSurfaces';
 import { chamberAt, visibleAcrossWall, type FloorPlan } from './roomPlans';
 import { supportHeight } from './relief';
-import { coursesInFrame, wetPoint, waterVelocity, type Flow, type Ripple } from './water';
+import { coursesInFrame, wetPoint, waterVelocity, type Flow, type Ripple, type WetPoint } from './water';
 import { floatHeight, bedDepth } from './swell';
 import { deckAt } from './crossing';
 
@@ -58,6 +58,11 @@ const fixed = 1 / 60;
 const splashLife = 1.45;
 const still = { x: 0, y: 0, z: 0 };
 const upright = yawRotation(0);
+function immersed(p: Point, height: number, water: WetPoint | null, time: number) {
+  if (!water) return 0;
+  const surface = water.course === 'ocean' ? floatHeight(p.x, p.z, water.bank, time) / 8 : 0;
+  return Math.max(0, Math.min(1, (surface - p.y + height / 2) / height));
+}
 export const angleOf = (q: Turn) => Math.atan2(2 * (q.w * q.y + q.x * q.z), 1 - 2 * (q.y * q.y + q.x * q.x));
 const distance = (a: V2, b: V2) => Math.hypot(a.x - b.x, a.z - b.z);
 export function rotate(p: Point, q: Turn): Point {
@@ -141,6 +146,7 @@ export class PropPhysics {
   private saved = new Map<string, PhysicalObjectPose>();
   private views = new Map<string, PropView>();
   private sector = '';
+  private viewRadius = 113;
   private space = '';
   private plan?: FloorPlan;
   private accumulator = 0;
@@ -162,6 +168,15 @@ export class PropPhysics {
   }
   get objects(): Iterable<PropView> {
     return this.views.values();
+  }
+  outdoorObjects(radius: number) {
+    const next = Math.max(113, Math.ceil(radius / 16) * 16);
+    if (this.viewRadius !== next) {
+      this.viewRadius = next;
+      this.sector = '';
+      this.sync(undefined, this.foot, this.foot.y, this.yaw);
+    }
+    return this.objects;
   }
   get held() {
     return this.grip ? this.views.get(this.grip.id) : undefined;
@@ -287,10 +302,10 @@ export class PropPhysics {
     }
     for (const l of [...this.bodies.values()])
       if (!room && distance(l.view, p) > 36 && this.grip?.id !== l.view.spec.id) this.remove(l);
-    const candidates = new Set(room ? roomProps(key) : propsNear(p, 113));
+    const candidates = new Set(room ? roomProps(key) : propsNear(p, this.viewRadius));
     for (const pose of this.saved.values()) {
       const s = propById(pose.id);
-      if (s && (pose.space ?? s.space) === key && (room || distance(p, pose.position) < 129))
+      if (s && (pose.space ?? s.space) === key && (room || distance(p, pose.position) < this.viewRadius + 16))
         candidates.add(s);
     }
     for (const l of this.bodies.values()) candidates.add(l.view.spec);
@@ -299,7 +314,7 @@ export class PropPhysics {
       const pose = this.saved.get(s.id);
       if ((pose?.space ?? s.space) !== key) continue;
       const pos = pose?.position ?? s;
-      if (!room && distance(pos, p) > 132 && !this.bodies.has(s.id)) continue;
+      if (!room && distance(pos, p) > this.viewRadius + 19 && !this.bodies.has(s.id)) continue;
       const v = this.bodies.get(s.id)?.view ?? {
         spec: s,
         x: pos.x,
@@ -309,6 +324,8 @@ export class PropPhysics {
         wet: 0,
         moving: false,
       };
+      if (!this.bodies.has(s.id) && !room)
+        v.wet = immersed(v, s.height, wetPoint(v.x, v.z), this.time);
       visible.set(s.id, v);
       if (!this.bodies.has(s.id) && (room || distance(v, p) < 31)) this.add(v, !!pose);
     }
@@ -645,8 +662,7 @@ export class PropPhysics {
       p = b.translation(),
       s = l.view.spec,
       water = wetPoint(p.x, p.z);
-    const surface = water?.course === 'ocean' ? floatHeight(p.x, p.z, water.bank, this.time) / 8 : 0;
-    const depth = water ? Math.max(0, Math.min(1, (surface - p.y + s.height / 2) / s.height)) : 0;
+    const depth = immersed(p, s.height, water, this.time);
     const last = l.view.wet;
     l.view.wet = depth;
     if (!water || !depth) return;

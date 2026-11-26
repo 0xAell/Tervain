@@ -3,6 +3,7 @@ import type { Atlas } from './atlas';
 import { houseSolid, type Vertex3 } from './houseSolid';
 import { project, risePixels } from './projection';
 import type { Stamp } from './reflections';
+import { smoothstep } from '../core/world/noise';
 import { terrainHeight } from './relief';
 
 export interface Sun {
@@ -57,7 +58,7 @@ const tall =
 const skip =
   /^(field_arrow|cursor|rill_lilies|rill_fish|rill_trout|rill_minnow|rill_dragonfly|rill_spark|standard_wall)/;
 export class Sunlight {
-  private houses = new WeakMap<BuildingSpec, { bucket: number; points: V2Screen[] }>();
+  private houses = new WeakMap<BuildingSpec, { bucket: number; from: V2Screen[]; to: V2Screen[] }>();
   private layer = document.createElement('canvas');
   private ink = this.layer.getContext('2d')!;
   constructor(private atlas: Atlas) {}
@@ -84,16 +85,23 @@ export class Sunlight {
     for (const b of buildings) {
       let entry = this.houses.get(b);
       if (entry?.bucket !== bucket) {
-        entry = { bucket, points: hull(houseSolid(b).silhouette.map((v) => castOnLand(v, sun))) };
+        const vertices = houseSolid(b).silhouette;
+        const start = sunAt(bucket / 12), end = sunAt((bucket + 1) / 12);
+        entry = { bucket, from: entry?.bucket === bucket - 1 ? entry.to : vertices.map((v) => castOnLand(v, start)),
+          to: vertices.map((v) => castOnLand(v, end)) };
         this.houses.set(b, entry);
       }
+      const t = hour * 12 - bucket;
+      const outline = hull(entry.from.map((a, i) => ({
+        x: a.x + (entry.to[i]!.x - a.x) * t, y: a.y + (entry.to[i]!.y - a.y) * t,
+      })));
       g.beginPath();
-      entry.points.forEach((p, i) => (i ? g.lineTo(p.x + ox, p.y + oy) : g.moveTo(p.x + ox, p.y + oy)));
+      outline.forEach((p, i) => (i ? g.lineTo(p.x + ox, p.y + oy) : g.moveTo(p.x + ox, p.y + oy)));
       g.closePath();
       g.fill();
     }
     for (const s of stamps) {
-      if (s.art || s.arrow || skip.test(s.key) || (s.submerged ?? 0) > 0.06 || s.width < 12)
+      if (s.art || s.arrow || skip.test(s.key) || (s.submerged ?? 0) >= 0.25 || s.width < 12)
         continue;
       const high = tall.test(s.key),
         person = !!s.wakeId || !!s.hero;
@@ -101,11 +109,13 @@ export class Sunlight {
         p = project(s.x, s.z, base),
         x = p.x + ox,
         y = p.y + oy;
-      if (x < -110 || x > w + 110 || y < -95 || y > h + 95) continue;
-      const frame = (s.frame ?? 0) % this.atlas.frameCount(s.key),
-        image = this.atlas.shadow(s.key, frame);
+      const frame = (s.frame ?? 0) % this.atlas.frameCount(s.key);
       const height = this.atlas.height(s.key, s.width, frame),
         lift = s.lift ?? 0;
+      const reach = (height + Math.abs(lift)) * 1.7 + s.width / 2;
+      if (x + reach < 0 || x - reach > w || y + reach < 0 || y - reach > h) continue;
+      const image = this.atlas.shadow(s.key, frame);
+      const opacity = (s.alpha ?? 1) * (1 - smoothstep(0, 0.25, s.submerged ?? 0));
       const feet = lift > 1 || s.prop ? castOnLand({ ...s, h: base + lift / risePixels }, sun) : p;
       const tip = castOnLand(
         { ...s, h: base + (height * (high ? 0.91 : person ? 0.81 : 0.55) + lift) / risePixels },
@@ -113,7 +123,7 @@ export class Sunlight {
       );
       const shadowWidth = s.width * (high ? 0.78 : person ? 0.72 : 0.77),
         scale = ((s.flip ? -1 : 1) * shadowWidth) / image.width;
-      g.globalAlpha = high ? 0.81 : person ? 0.86 : 0.63;
+      g.globalAlpha = opacity * (high ? 0.81 : person ? 0.86 : 0.63);
       g.setTransform(
         scale,
         0,
@@ -125,7 +135,7 @@ export class Sunlight {
       g.drawImage(image, 0, 0);
       g.setTransform(1, 0, 0, 1, 0, 0);
       if (person || high) {
-        g.globalAlpha = person ? 0.76 : 0.55;
+        g.globalAlpha = opacity * (person ? 0.76 : 0.55);
         g.beginPath();
         g.ellipse(
           x,

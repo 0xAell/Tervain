@@ -1,4 +1,4 @@
-import { terrainTile } from './relief';
+import { landHeightAtPixel, terrainTile } from './relief';
 import { risePixels } from './projection';
 import { canopyShade } from './riverHabitat';
 import { roadWeight } from '../core/world/terrain';
@@ -678,11 +678,22 @@ export class Ground {
   }
 
   /** Nearest projected terrain depth in camera pixels, shared by foreground occlusion and the ground pass. */
+  private edgeHeights = new Map<string, number>();
   private landDepth(x: number, y: number) {
     const bx = Math.floor(x / SIZE),
       by = Math.floor(y / SIZE);
     const ch = this.chunks.get(bx + ',' + by);
-    if (!ch) return -Infinity;
+    if (!ch) {
+      // A crown can be visible before the tile under its roots. Sample the same facet as the tile.
+      const px = Math.floor(x), py = Math.floor(y), key = px + ',' + py;
+      let height = this.edgeHeights.get(key);
+      if (height === undefined) {
+        height = Math.fround(landHeightAtPixel(px, py));
+        if (this.edgeHeights.size >= 8192) this.edgeHeights.clear();
+        this.edgeHeights.set(key, height);
+      }
+      return y + height * risePixels;
+    }
     return y + ch.elevations[(Math.floor(y) - by * SIZE) * SIZE + Math.floor(x) - bx * SIZE]! * risePixels;
   }
   groundVisible(x: number, y: number, depth: number) {
@@ -696,7 +707,8 @@ export class Ground {
     height: number,
     depth: number,
     ox: number,
-    oy: number
+    oy: number,
+    hidden = false
   ) {
     const left = Math.floor(x - width * 0.5) - 1,
       right = Math.ceil(x + width * 0.5) + 1;
@@ -722,13 +734,14 @@ export class Ground {
     if (!stops) return false;
     ctx.save();
     ctx.beginPath();
+    if (hidden) ctx.rect(left, top, right - left, bottom - top);
     ctx.moveTo(left, top);
     ctx.lineTo(right, top);
     for (let i = stops.length - 2; i >= 0; i -= 2) ctx.lineTo(stops[i]!, stops[i + 1]!);
     ctx.lineTo(Math.max(left, stops[0]! - 3), bottom);
     ctx.lineTo(left, bottom);
     ctx.closePath();
-    ctx.clip();
+    ctx.clip(hidden ? 'evenodd' : 'nonzero');
     return true;
   }
 
