@@ -13,6 +13,8 @@ import {
   type AnimalId,
 } from '../core/game/hunting';
 import { CLOCK_RATE } from '../core/game/constants';
+import { ACTION_COST, GUARD } from '../core/rules/hero';
+import { FOCUS_TIME, FOCUSED_ARROW_DAMAGE, IMPACT_PAUSE, SIDESTEP, followingStroke, sidestepDistance } from '../core/rules/valeCombat';
 import { hourOfDay } from '../core/game/state';
 import { S } from '../core/content/strings';
 import { resolveGoal } from '../core/rules/schedule';
@@ -54,6 +56,7 @@ import {
   ARROW_RANGE,
   ARROW_SPEED,
   DAMAGE_LABEL_TIME,
+  DEFEAT_TIME,
   arrowHeight,
   DRAW_TIME,
   ENEMY_SWING_TIME,
@@ -104,6 +107,7 @@ export interface Actor extends V2 {
   enemy?: EncounterId;
   health: number;
   openedUntil?: number;
+  recoil?: V2;
 }
 export function facesLeft(species: string) {
   return ['cat', 'wolf', 'tiger', 'bear'].includes(species);
@@ -157,6 +161,10 @@ export class Valley {
   private opponent?: Actor;
   private focusUntil = 0;
   private swingTarget?: Actor;
+  hitStopRemaining = 0;
+  dash?: { direction: V2; elapsed: number; origin: V2; trail: V2[] };
+  private dashReady = 0;
+  tiredUntil = 0;
   private queuedSwing?: { target?: V2; weapon: ItemId | null };
   readonly contacts: Contact[] = [];
   readonly gait = new Footfalls();
@@ -201,14 +209,14 @@ export class Valley {
     }
     for (const id of ANIMAL_IDS) {
       const def = ANIMALS.find((d) => d.id === ANIMAL_MODEL_IDS[id])!;
-      const width = { cat: 16, dog: 23, boar: 32, wolf: 29, deer: 39, tiger: 43, lion: 45, bear: 48 }[
-        def.species
-      ];
+      // Keep encounter IDs from existing saves while dressing these hunting grounds with local wildlife.
+      const species = def.species === 'lion' ? 'boar' : def.species === 'tiger' ? 'wolf' : def.species;
+      const width = { cat: 16, dog: 23, boar: 32, wolf: 29, deer: 39, bear: 48 }[species];
       this.actors.push({
         ...make(
           id,
-          def.tame ? 'mount' : def.species,
-          def.tame ? 'Saddled deer' : def.species,
+          def.tame ? 'mount' : species,
+          def.tame ? 'Saddled deer' : def.species === 'lion' ? 'hill boar' : def.species === 'tiger' ? 'highland wolf' : species,
           def.home,
           width
         ),
@@ -253,7 +261,7 @@ export class Valley {
     return this.jump ? Math.sin((Math.PI * this.jump) / JUMP_TIME) * 1.45 : 0;
   }
   requestJump() {
-    if (this.swimming || this.bow || this.player.health <= 0) return;
+    if (this.swimming || this.bow || this.dash || this.player.health <= 0) return;
     if (this.jump) {
       if (this.jump <= 0.08) this.jumpQueued = true;
       return;
@@ -522,6 +530,44 @@ export class Valley {
     const side = dx - dz;
     if (Math.abs(side) > 0.045) a.flip = (side < 0) !== facesLeft(a.key);
   }
+  /** Sweep short segments through the same doors, terrain, trees and physical props as a traveller. */
+  private displace(body: V2, direction: V2, metres: number) {
+    const pieces = Math.ceil(metres / 0.18);
+    for (let i = 0; i < pieces; i++) {
+      const next = { x: body.x + direction.x * metres / pieces, z: body.z + direction.z * metres / pieces };
+      if (inBuilding(next) || !this.canWalk(body, next)) break;
+      Object.assign(body, next);
+    }
+  }
+  requestDash(dx = 0, dz = 0) {
+    if (this.dash || this.room || this.riding || this.swimming || this.jump || this.props?.grip ||
+        this.player.health <= 0 || this.time < this.dashReady || this.strike > SWING_TIME - SWING_CONTACT) return false;
+    if (this.stamina < ACTION_COST.dodge) {
+      this.tiredUntil = this.time + 0.45;
+      return false;
+    }
+    const target = this.combatTarget;
+    const direction = dx || dz ? unit(dx, dz) : target && !target.dead
+      ? unit(this.player.x - target.x, this.player.z - target.z)
+      : { x: Math.sin(this.player.yaw), z: Math.cos(this.player.yaw) };
+    this.cancelPose();
+    this.strike = 0;
+    this.swingTarget = undefined;
+    this.guard = false;
+    this.guardTime = 0;
+    this.locomotion.reset();
+    this.player.yaw = Math.atan2(direction.x, direction.z);
+    this.facing = facing(direction.x, direction.z);
+    const origin = { x: this.player.x, z: this.player.z };
+    this.dash = { direction, elapsed: 0, origin, trail: [origin] };
+    this.dashReady = this.time + SIDESTEP.cooldown;
+    this.stamina -= ACTION_COST.dodge;
+    this.onFieldSound('sidestep');
+    return true;
+  }
+  get bowFocus() {
+    return this.bow?.phase === 'hold' ? Math.min(1, (this.bow.elapsed + 1e-9) / FOCUS_TIME) : 0;
+  }
   step(dt: number, dx: number, dz: number, run: boolean, walkThrough = true, pace = 1) {
     run = run && pace > 0.55;
     this.time += dt;
@@ -531,18 +577,35 @@ export class Valley {
       this.game.tickClock(this.clockElapsed * CLOCK_RATE);
       this.clockElapsed = 0;
     }
+    this.landing = undefined;
+    for (let i = this.contacts.length - 1; i >= 0; i--) {
+      const hit = this.contacts[i]!;
+      if (this.time - hit.born >= (hit.defeated ? DEFEAT_TIME : DAMAGE_LABEL_TIME)) this.contacts.splice(i, 1);
+    }
+    if (this.hitStopRemaining > 0 && dt > 0) {
+      const hold = Math.min(dt, this.hitStopRemaining);
+      this.hitStopRemaining -= hold;
+      this.dashReady += hold;
+      if (this.opponent && this.focusUntil > this.time - dt) this.focusUntil += hold;
+      for (const a of this.actors) if (a.openedUntil && a.openedUntil > this.time - dt) a.openedUntil += hold;
+      dt -= hold;
+      if (dt <= 0.0000001) return;
+    }
+    // Guard can take over once the committed blow has landed.
+    if (this.guard && this.strike && this.strike <= SWING_BUFFER && !this.guardTime) {
+      this.strike = 0;
+      this.queuedSwing = undefined;
+    }
     const previousStrike = this.strike;
     this.guardTime = this.guard ? this.guardTime + dt : 0;
     if (!this.guard) this.parried = false;
     this.strike = Math.max(0, this.strike - dt);
-    while (this.contacts.length && this.time - this.contacts[0]!.born >= DAMAGE_LABEL_TIME) this.contacts.shift();
     // Leave one presented ground contact between jumps, including its sound and foot impressions.
     if (this.jumpQueued && !this.jump) {
       this.jumpQueued = false;
       if (!this.strike && !this.activity && !this.guard && !this.riding && !this.props?.grip)
         this.requestJump();
     }
-    this.landing = undefined;
     const previousJump = this.jump;
     this.jump = Math.max(0, this.jump - dt);
     const p = this.player;
@@ -550,10 +613,8 @@ export class Valley {
     if (this.player.health <= 0) this.cancelPose();
     if (this.activity && (dx || dz || this.activity.room !== this.roomKey || this.guard)) this.releaseActivity();
     if (this.bow && (this.game.state.equippedWeapon !== 'hunting_bow' || this.guard)) this.bow = undefined;
-    if (this.bow) {
-      if ((dx || dz) && this.bow.phase !== 'loose') this.aimDirection(dx, dz);
-      dx = dz = 0;
-    }
+    const dodge = this.dash;
+    const dashStart = dodge?.elapsed ?? 0;
     const from = { x: this.position.x, z: this.position.z },
       fromRoom = this.roomKey;
     if (this.room) this.stepInside(dt, dx, dz, run, walkThrough, pace);
@@ -562,10 +623,24 @@ export class Valley {
       const wade = water?.kind === 'river' ? Math.min(1, water.bank / 1.9) : 0;
       const norm = Math.hypot(dx, dz);
       this.walk = false;
-      const canMove = p.health > 0 && this.strike <= SWING_TIME - SWING_CONTACT && !this.bow && !this.activity;
+      const canMove = p.health > 0 && this.strike <= SWING_TIME - SWING_CONTACT && !dodge && !this.activity;
       if (!canMove) this.locomotion.reset();
-      const fast = run && !this.props?.grip && this.stamina > 1 && !this.swimming;
-      const speed = this.props?.grip?.drag
+      if (dodge) {
+        this.guard = false;
+        dodge.elapsed = Math.min(SIDESTEP.duration, dashStart + dt);
+        this.displace(p, dodge.direction, sidestepDistance(dodge.elapsed) - sidestepDistance(dashStart));
+        if (dodge.trail.length < 3 && dodge.elapsed >= dodge.trail.length * 0.05)
+          dodge.trail.push({ x: p.x, z: p.z });
+        if (dodge.elapsed >= SIDESTEP.duration) this.dash = undefined;
+      }
+      if (this.swordSwing && previousStrike && !this.riding && !this.props?.grip) {
+        const into = (remaining: number) => Math.max(0, Math.min(1, (SWING_TIME - remaining - SWING_RELEASE) / (SWING_CONTACT - SWING_RELEASE)));
+        const travel = (into(this.strike) - into(previousStrike)) * (this.stroke === 'thrust' ? 0.55 : 0.38);
+        const clearance = this.swingTarget ? Math.max(0, distance(p, this.swingTarget) - 1.05) : travel;
+        if (travel > 0) this.displace(p, { x: Math.sin(p.yaw), z: Math.cos(p.yaw) }, Math.min(clearance, travel));
+      }
+      const fast = run && !this.bow && !this.props?.grip && this.stamina > 1 && !this.swimming && !this.guard;
+      const speed = this.bow ? 1.75 : this.props?.grip?.drag
         ? 2.6
         : this.riding
           ? fast
@@ -583,7 +658,7 @@ export class Valley {
       );
       const motion = canMove ? this.locomotion.advance(dx, dz, dt, speed * pace, walkThrough, direct) : undefined;
       if (motion) {
-        if (norm && !previousStrike) this.facing = facing(dx, dz);
+        if (norm && !previousStrike && !this.bow) this.facing = facing(dx, dz);
         const stride = Math.min(
           walkThrough ? Infinity : norm,
           motion.stride * (1 - wade * 0.27) * travelScale(p.x, p.z, motion.x, motion.z)
@@ -609,11 +684,11 @@ export class Valley {
           const door = crossedDoor(start, p, entered);
           if (door) this.enterDoor(door);
         }
-        if (norm && !previousStrike) p.yaw = Math.atan2(dx, dz);
+        if (norm && !previousStrike && !this.bow) p.yaw = Math.atan2(dx, dz);
       }
       if (norm && canMove) {
         this.stamina = Math.max(0, Math.min(100, this.stamina + dt * (fast ? -7 : 5)));
-      } else this.stamina = Math.min(100, this.stamina + dt * 10);
+      } else if (!dodge) this.stamina = Math.min(100, this.stamina + dt * 10);
       if (!this.room && wade && water && !this.jump && p.health > 0 && !onBridge(p)) {
         const v = riverVelocity(water, worldView(this.game.state).flow),
           pull = dt * wade * (this.guard ? 0.06 : 0.24);
@@ -758,6 +833,14 @@ export class Valley {
           );
       } else if (a.enemy) {
         a.dead = !!this.game.state.defeated[a.enemy];
+        if (a.recoil) {
+          const speed = Math.hypot(a.recoil.x, a.recoil.z);
+          const decay = Math.exp(-dt * 13);
+          this.displace(a, unit(a.recoil.x, a.recoil.z), speed * (1 - decay) / 13);
+          a.recoil.x *= decay;
+          a.recoil.z *= decay;
+          if (speed * decay < 0.12) a.recoil = undefined;
+        }
         if (a.dead) continue;
         const spawn = ENEMY_SPAWNS.find((e) => e.id === a.enemy)!;
         const def = ENEMY_ARCHETYPES[spawn.kind],
@@ -766,6 +849,10 @@ export class Valley {
           const current = this.combatTarget;
           if (near < 10 && (!current || current === a || (!current.dead && distance(current, p) > near + 3)))
             this.focusEnemy(a);
+          if (near < 1.05 && !dodge) {
+            const away = near > 0.001 ? unit(a.x - p.x, a.z - p.z) : { x: Math.sin(p.yaw), z: Math.cos(p.yaw) };
+            this.displace(a, away, (1.05 - near) * (1 - Math.exp(-dt * 22)));
+          }
           if ((a.openedUntil ?? 0) > this.time) continue;
           if (near > def.reach && !a.attack) this.stepActor(a, p, def.speed, dt);
           else if (!a.timer && near <= def.reach && this.withinMeleeHeight(a)) {
@@ -777,11 +864,12 @@ export class Valley {
           }
           const contact = enemyContactRemaining(def.heavy);
           if (previousAttack > contact && a.attack <= contact && near < def.reach + 0.5 && this.withinMeleeHeight(a)) {
+            if (dodge && dashStart + previousAttack - contact < SIDESTEP.invulnerable) continue;
             // Resolve guard age at contact even when a slower display overshoots the strike frame.
             const guardAge = this.guardTime - (contact - a.attack);
             const parry = this.guard && !this.parried && !previousStrike && !this.jump && !this.props?.grip &&
               !this.riding && !this.swimming && this.game.state.equippedWeapon === 'rusted_sword' &&
-              guardAge >= 0 && guardAge <= PARRY_WINDOW;
+              this.stamina >= 1 && guardAge >= 0 && guardAge <= PARRY_WINDOW;
             this.cancelPose();
             if (parry) {
               this.parried = true;
@@ -791,18 +879,28 @@ export class Valley {
               this.facing = facing(a.x - p.x, a.z - p.z);
               p.yaw = Math.atan2(a.x - p.x, a.z - p.z);
               this.focusEnemy(a);
+              this.repel(a, p, 4.8);
+              this.hitStopRemaining = Math.max(this.hitStopRemaining, IMPACT_PAUSE.parry);
               this.fieldSoundAt('parry', a);
               this.contactAt(p, a, 'parry', { actorId: a.id });
               continue;
             }
-            const damage = this.guard ? Math.ceil(def.damage * 0.18) : def.damage;
+            const cost = ACTION_COST.blockHit * (def.heavy ? GUARD.heavyCost : 1) *
+              (this.game.state.skills.includes('steady_guard') ? GUARD.steadyGuard : 1);
+            const blocked = this.guard && this.stamina >= cost * GUARD.tiredBelow;
+            if (this.guard) {
+              this.stamina = Math.max(0, this.stamina - cost);
+              if (!blocked) this.tiredUntil = this.time + 0.45;
+            }
+            const damage = blocked ? Math.ceil(def.damage * 0.18) : def.damage;
             this.action({ t: 'damagePlayer', amount: damage });
-            this.fieldSoundAt(this.guard ? 'block' : 'player_hit', a);
-            this.contactAt(p, a, this.guard ? 'guard' : 'body', {
-              damage,
+            this.hitStopRemaining = Math.max(this.hitStopRemaining, def.heavy ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular);
+            this.fieldSoundAt(blocked ? 'block' : 'player_hit', a);
+            this.contactAt(p, a, blocked ? 'guard' : 'body', {
+              damage, actorId: 'player',
               heavy: def.heavy,
             });
-            this.onMessage(this.guard ? 'Blow guarded' : a.name + ' struck you');
+            this.onMessage(blocked ? 'Blow guarded' : a.name + ' struck you');
           }
         } else this.stepActor(a, a.home, def.speed * 0.65, dt);
       }
@@ -811,7 +909,7 @@ export class Valley {
     if (previousStrike && !this.strike && this.queuedSwing) {
       const { target, weapon } = this.queuedSwing;
       this.queuedSwing = undefined;
-      if (weapon === this.game.state.equippedWeapon && !this.props?.grip) this.startAttack(target, undefined, this.stroke !== 'return');
+      if (weapon === this.game.state.equippedWeapon && !this.props?.grip) this.startAttack(target, undefined, followingStroke(this.stroke));
     }
   }
   private releaseActivity() {
@@ -944,13 +1042,14 @@ export class Valley {
     this.facing = facing(dx, dz);
     this.player.yaw = Math.atan2(dx, dz);
   }
-  startAttack(target?: V2, head?: string, returnCut = false) {
+  startAttack(target?: V2, head?: string, followup: SwordStroke = 'attack') {
     if (this.props?.grip) {
       this.props.release(true, target);
       return;
     }
     if (
       this.room ||
+      this.dash ||
       this.bow ||
       this.activity ||
       this.jump ||
@@ -973,7 +1072,7 @@ export class Valley {
         .filter((a) => a.enemy && !a.dead && distance(a, p) < 3.3 && !inBuilding(a) && this.withinMeleeHeight(a))
         .sort((a, b) => priority(a) - priority(b) + distance(a, target ?? p) - distance(b, target ?? p))[0];
       this.stroke = this.swordSwing && hit && (hit.openedUntil ?? 0) > this.time
-        ? 'counter' : returnCut && this.swordSwing ? 'return' : 'attack';
+        ? 'counter' : this.swordSwing ? followup : 'attack';
       if (hit) {
         if (this.stroke === 'counter') hit.openedUntil = undefined;
         this.focusEnemy(hit);
@@ -1032,6 +1131,7 @@ export class Valley {
   private stepBow(dt: number) {
     const bow = this.bow;
     if (!bow) return;
+    const previousFocus = this.bowFocus;
     bow.elapsed += dt;
     if (bow.phase === 'loose') {
       if (bow.elapsed >= RELEASE_TIME) this.bow = undefined;
@@ -1044,22 +1144,25 @@ export class Valley {
       bow.phase = 'hold';
       bow.elapsed = flightTime;
     }
+    if (previousFocus < 1 && this.bowFocus >= 1 && !bow.released) this.onFieldSound('bow_focus');
     if (!bow.released) return;
     if (!this.action({ t: 'fireBow' })) {
       this.bow = undefined;
       return;
     }
+    const arrow = this.nockedArrow(bow);
+    arrow.focused = previousFocus >= 1;
+    bow.focused = arrow.focused;
     bow.phase = 'loose';
     bow.elapsed = flightTime;
-    const arrow = this.nockedArrow(bow);
-    this.onFieldSound('bow_release');
+    this.onFieldSound(arrow.focused ? 'focused_release' : 'bow_release');
     if (!this.advanceArrow(arrow, flightTime)) this.arrows.push(arrow);
     if (bow.elapsed >= RELEASE_TIME) this.bow = undefined;
   }
   private stepSwing(previous: number) {
     const release = SWING_TIME - SWING_RELEASE;
     if (previous > release && this.strike <= release)
-      this.onFieldSound(this.stroke === 'counter' ? 'counter_swing' : this.swordSwing ? 'blade_swing' : 'unarmed_swing');
+      this.onFieldSound(this.stroke === 'thrust' ? 'thrust' : this.stroke === 'counter' ? 'counter_swing' : this.swordSwing ? 'blade_swing' : 'unarmed_swing');
     const contact = SWING_TIME - SWING_CONTACT;
     if (previous <= contact || this.strike > contact) return;
     const enemy = this.swingTarget;
@@ -1067,8 +1170,11 @@ export class Valley {
     const p = this.player;
     if (!enemy || enemy.dead || distance(enemy, p) >= 3.3 || !this.withinMeleeHeight(enemy)) return;
     const counter = this.stroke === 'counter';
-    const damage = counter ? 44 : this.swordSwing ? 29 : 8;
+    const damage = counter ? 44 : this.stroke === 'thrust' ? 38 : this.swordSwing ? 29 : 8;
     const defeated = this.damageEnemy(enemy, damage);
+    const heavy = counter || this.stroke === 'thrust' || defeated;
+    this.hitStopRemaining = Math.max(this.hitStopRemaining, heavy ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular);
+    this.repel(enemy, p, heavy ? 8.1 : 4.5);
     this.contactAt(enemy, p, counter ? 'counter' : this.swordSwing ? 'blade' : 'body', { damage, defeated, actorId: enemy.id });
     this.fieldSoundAt(counter ? 'counter_hit' : this.swordSwing ? 'blade_hit' : 'unarmed_hit', enemy);
     if (defeated) this.fieldSoundAt('enemy_down', enemy);
@@ -1081,13 +1187,17 @@ export class Valley {
   }
   private damageEnemy(a: Actor, amount: number) {
     a.health = Math.max(0, a.health - amount);
-    this.focusEnemy(a, a.health ? 2 : 0.62);
+    this.focusEnemy(a, a.health ? 2 : DEFEAT_TIME);
     if (a.enemy && a.health <= 0 && this.action({ t: 'defeat', id: a.enemy })) {
       a.dead = true;
       this.onMessage(a.name + ' defeated');
       return true;
     }
     return false;
+  }
+  private repel(actor: Actor, from: V2, speed: number) {
+    const dir = unit(actor.x - from.x, actor.z - from.z);
+    actor.recoil = { x: dir.x * speed, z: dir.z * speed };
   }
   private contactAt(
     at: V2,
@@ -1146,7 +1256,7 @@ export class Valley {
     return { distance: stop, blocked, impact };
   }
   private advanceArrow(arrow: Arrow, dt: number) {
-    const length = Math.min(dt * ARROW_SPEED, ARROW_RANGE - arrow.travelled);
+    const length = Math.min(dt * ARROW_SPEED * (arrow.focused ? 1.35 : 1), ARROW_RANGE - arrow.travelled);
     const { distance, blocked, impact } = this.traceArrow(arrow, length);
     const dir = arrow.direction;
     arrow.x += dir.x * distance;
@@ -1164,7 +1274,12 @@ export class Valley {
           yaw: Math.atan2(dir.x, dir.z),
         },
       });
-    else if (impact?.enemy) defeated = this.damageEnemy(impact, 32);
+    else if (impact?.enemy) {
+      defeated = this.damageEnemy(impact, arrow.focused ? FOCUSED_ARROW_DAMAGE : 32);
+      impact.recoil = { x: dir.x * (arrow.focused ? 7 : 3), z: dir.z * (arrow.focused ? 7 : 3) };
+      if (arrow.focused && !impact.attack) impact.timer = Math.max(impact.timer, 0.24);
+      this.hitStopRemaining = Math.max(this.hitStopRemaining, defeated ? IMPACT_PAUSE.heavy : IMPACT_PAUSE.regular);
+    }
     this.contacts.push({
       x: arrow.x,
       z: arrow.z,
@@ -1172,12 +1287,12 @@ export class Valley {
       dz: dir.z,
       born: this.time,
       height: arrowHeight(arrow, arrow.travelled),
-      kind: impact ? 'body' : 'earth',
-      damage: impact?.enemy ? 32 : undefined,
+      kind: impact ? arrow.focused ? 'focused' : 'body' : 'earth',
+      damage: impact?.enemy ? arrow.focused ? FOCUSED_ARROW_DAMAGE : 32 : undefined,
       defeated,
       actorId: impact?.id,
     });
-    this.fieldSoundAt(impact ? 'arrow_flesh' : 'arrow_ground', arrow);
+    this.fieldSoundAt(impact ? arrow.focused ? 'focused_hit' : 'arrow_flesh' : 'arrow_ground', arrow);
     if (defeated) this.fieldSoundAt('enemy_down', arrow);
     return true;
   }

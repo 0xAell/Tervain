@@ -28,7 +28,7 @@ The editable PNG sequences, original provider images and typeface are in `assets
 
 ## Status
 
-- **Version.** The current patch is [`0.1.25`](docs/production/releases/0.1.25.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is [`0.1.26`](docs/production/releases/0.1.26.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
@@ -44,14 +44,14 @@ The prototype is one small region, 580 m by 340 m: a coast, a wood, a waystation
 
 - Walkable household interiors with side rooms, staircases, animated hearths, storage, beds and trade workstations.
 - Twelve named residents with a day of their own. They work a trade, sit on benches, talk, go home and sleep.
-- Nineteen animals of eight kinds. Thirteen can be hunted with a bow and skinned. The cats, the dogs and the saddled deer are left alone during a hunt. You can pet the village animals and ride the saddled deer.
+- Nineteen animals of six kinds. Thirteen can be hunted with a bow and skinned, including highland wolves and hill boar. The cats, the dogs and the saddled deer are left alone during a hunt. You can pet the village animals and ride the saddled deer.
 - Sword and bow against two kinds of hostile. One is the Thornback from the teaser, without the hat.
 - Reflective seas, flowing rivers and a spring. You can swim along the coast and wade among trout inland.
 - Planted banks, trout shoals, kingfishers and dragonflies.
 - A day and a night, adaptive music, footsteps by surface, and captioned speech.
 - Inventory, equipment, a ten-slot hotbar, a journal and a map.
 
-Not in it yet: dialogue choices. The first quest exists as rules, data and scenario tests, not as something you can play to its end.
+The Dry Bell has branching conversations, training, evidence and competing claims on the sluice. The journal records the choices you make in the Vale.
 
 <p align="center">
   <img src="docs/media/screenshots/weavers-house.webp" width="100%" alt="Inside the Weaver’s House, lanterns mark the open side rooms and stairs beside a woven hall runner.">
@@ -62,8 +62,8 @@ Not in it yet: dialogue choices. The first quest exists as rules, data and scena
 
 The [live build](https://0xaell.github.io/Tervain/) is published from `main` on every merge.
 
-- Use a desktop browser with WebGL 2. There is no touch or phone layout.
-- Walk with WASD or click a destination. Shift runs, X jumps and E interacts. With a bow equipped, hold the right mouse button to aim with the pointer and release to shoot. Space draws and shoots in the facing direction. J or Tab opens the journal, M opens the map, I opens the inventory and Esc pauses.
+- The game supports keyboard, pointer, controller and touch. WebGL 2 accelerates the river. Touch a destination to walk, drag from Attack to aim a bow, and use Guard or Dodge in a fight.
+- Walk with WASD or click a destination. Shift runs, X jumps, C dodges and E interacts. A dodge with no movement input steps away from an engaged opponent. With a bow equipped, hold the right mouse button to aim with the pointer and release to shoot. Hold Space to draw. WASD strafes while the arrow keys aim. A chime and a closed sight mark full focus. A sword can chain a cut, a return and a finishing thrust. J or Tab opens the journal, M opens the map, I opens the inventory and Esc pauses.
 - A controller works too. Open Controls on the title screen to review or change key bindings.
 - Progress is saved in that browser. F5 saves and F9 loads.
 

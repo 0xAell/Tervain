@@ -102,30 +102,24 @@ export class Atlas {
     return Math.round((width * rect[3]) / rect[2]);
   }
 
-  private actors = new Map<string, HTMLCanvasElement>();
-  /** Sample only the moving silhouette between texels. Its pose is rasterized once at the game's pixel scale. */
-  private drawActor(ctx: CanvasRenderingContext2D, key: string, x: number, y: number, width: number,
-    frame = 0, flip = false, submerged = 0) {
-    const index = Math.floor(frame) % this.frameCount(key), w = Math.round(width);
-    const id = key + '/' + index + '/' + w;
-    let pose = this.actors.get(id);
-    if (!pose) {
-      pose = document.createElement('canvas');
-      pose.width = w + 2;
-      pose.height = this.height(key, w, index) + 2;
-      const g = pose.getContext('2d')!;
-      g.imageSmoothingEnabled = false;
-      this.draw(g, key, 1 + w / 2, pose.height - 1, w, index);
-      this.actors.set(id, pose);
+  private masks = new Map<string, HTMLCanvasElement>();
+  /** Cache the opaque colour on the native cel. All passes sample it at the same foot anchor. */
+  private mask(key: string, index: number, tint: string) {
+    const id = key + '/' + index + '/' + tint;
+    let image = this.masks.get(id);
+    if (!image) {
+      const source = this.surface(key, index);
+      image = document.createElement('canvas');
+      image.width = source.width;
+      image.height = source.height;
+      const ink = image.getContext('2d')!;
+      ink.drawImage(source, 0, 0);
+      ink.globalCompositeOperation = 'source-in';
+      ink.fillStyle = tint;
+      ink.fillRect(0, 0, image.width, image.height);
+      this.masks.set(id, image);
     }
-    const cut = Math.min(pose.height - 3, (pose.height - 2) * submerged);
-    const high = pose.height - cut;
-    ctx.save();
-    ctx.imageSmoothingEnabled = true;
-    ctx.translate(x, y);
-    if (flip) ctx.scale(-1, 1);
-    ctx.drawImage(pose, 0, 0, pose.width, high, -w / 2 - 1, 1 - high, pose.width, high);
-    ctx.restore();
+    return image;
   }
 
   draw(
@@ -139,9 +133,9 @@ export class Atlas {
     anchor = 1,
     submerged = 0,
     reflected = false,
-    moving = false
+    moving = false,
+    tint?: string
   ) {
-    if (moving) return this.drawActor(ctx, key, x, y, width, frame, flip, submerged);
     const animation = this.animations.get(key),
       source = animation?.image ?? this.image,
       frames = animation?.frames ?? this.sheet.frames[key];
@@ -153,12 +147,17 @@ export class Atlas {
     const visibleH = Math.round((h * (sh - cut)) / sh);
     const left = Math.round(x - w / 2),
       top = Math.round(y - visibleH * anchor);
+    const crisp = moving && ctx.imageSmoothingEnabled;
+    if (flip || crisp) ctx.save();
+    if (crisp) ctx.imageSmoothingEnabled = false;
     if (flip) {
-      ctx.save();
       ctx.translate(left + w, 0);
       ctx.scale(-1, 1);
     }
-    if (reflected) {
+    if (tint) {
+      const mask = this.mask(key, Math.floor(frame) % frames.length, tint);
+      ctx.drawImage(mask, 0, 0, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
+    } else if (reflected) {
       const id = key + '/' + (Math.floor(frame) % frames.length);
       let copy = this.reflections.get(id);
       if (!copy) {
@@ -177,6 +176,6 @@ export class Atlas {
       }
       ctx.drawImage(copy, 0, 0, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
     } else ctx.drawImage(source, sx, sy, sw, sh - cut, flip ? 0 : left, top, w, visibleH);
-    if (flip) ctx.restore();
+    if (flip || crisp) ctx.restore();
   }
 }

@@ -54,7 +54,8 @@ function quad(
   ctx.transform((b.x - a.x) / w, (b.y - a.y) / w, (c.x - a.x) / h, (c.y - a.y) / h, a.x, a.y);
   if (repeatX !== undefined) {
     ctx.fillStyle = ctx.createPattern(tex, 'repeat')!;
-    ctx.fillRect(0, 0, w, h);
+    // Carry the last texel across the shared edge of the next slab or wall face.
+    ctx.fillRect(-0.45, -0.45, w + 0.9, h + 0.9);
   } else ctx.drawImage(tex, 0, 0);
   ctx.restore();
 }
@@ -119,6 +120,7 @@ function wall(
   quad(ctx, atlas, stone ? 'room_masonry' : 'room_plaster', top, end, p, length * 8, h);
   if (a.x === b.x) polygon(ctx, [top, end, q, p], 'rgba(40,38,51,.21)');
   line(ctx, p, q, '#493933', 3);
+  line(ctx, { x: p.x, y: p.y + 1 }, { x: q.x, y: q.y + 1 }, 'rgba(52,39,35,.52)', 2);
   line(ctx, top, end, '#3a302e', 4);
   line(ctx, point(0, h + 1), point(1, h + 1), '#c29a65', 1);
   if (h < 13) return;

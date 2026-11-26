@@ -98,6 +98,8 @@ export interface Controls {
   setTouchGuard(down: boolean): void;
   pressAttack(): void;
   releaseAttack(): void;
+  dodge(): void;
+  aimTouch(x: number, y: number): void;
   quit(): void;
   setVolume(value: number): void;
   slot(i: number): void;
@@ -119,6 +121,7 @@ export class Interface {
   private clock = el('span', 'clock');
   private place = el('strong');
   private health = el('span');
+  private healthLoss = el('span', 'health-loss');
   private lastHealth = -1;
   private lastMaxHealth = -1;
   private vigor = el('span');
@@ -136,6 +139,7 @@ export class Interface {
   private slots = el('div', 'belt');
   private notice = el('div', 'notice');
   private noticeUntil = 0;
+  private notices = new Map<string, { node: HTMLElement; timer: number }>();
   private subtitle = el('div', 'spoken-caption plate');
   private passage?: { play: () => boolean; button: HTMLButtonElement; playing: boolean };
   private hoverTimer = 0;
@@ -143,6 +147,7 @@ export class Interface {
   private promptSince = 0;
   private slotSig = '';
   private currentDialog = '';
+  private selectedItem?: ItemId;
   private uiStamp = 0;
   private backTo: Screen = 'play';
   private game!: Game;
@@ -215,6 +220,7 @@ export class Interface {
       track.setAttribute('role', 'meter');
       track.setAttribute('aria-label', label);
       track.setAttribute('aria-valuemin', '0');
+      if (cls === 'health') track.append(this.healthLoss);
       track.append(value);
       row.append(track);
       bars.append(row);
@@ -231,16 +237,24 @@ export class Interface {
     this.foePanel.hidden = true;
     const attack = el('button', 'attack-touch', 'Attack');
     attack.type = 'button';
+    let touchAim: { x: number; y: number } | undefined;
     attack.onpointerdown = (e) => {
       if (e.button !== 0) return;
       e.preventDefault();
       attack.setPointerCapture(e.pointerId);
+      touchAim = { x: e.clientX, y: e.clientY };
       controls.pressAttack();
     };
+    attack.onpointermove = e => {
+      if (!touchAim || !attack.hasPointerCapture(e.pointerId)) return;
+      const dx = e.clientX - touchAim.x, dy = e.clientY - touchAim.y;
+      if (Math.hypot(dx, dy) > 8) controls.aimTouch(dx, dy);
+    };
     attack.onpointerup = (e) => {
+      touchAim = undefined;
       if (e.button === 0) controls.releaseAttack();
     };
-    attack.onpointercancel = () => this.valley.cancelPose();
+    attack.onpointercancel = () => { touchAim = undefined; this.valley.cancelPose(); };
     attack.onclick = (e) => {
       if (e.detail === 0) controls.attack();
     };
@@ -259,7 +273,8 @@ export class Interface {
     };
     guard.onpointerup = guard.onpointercancel = guard.onlostpointercapture = () => holdGuard(false);
     guard.onclick = e => { if (e.detail === 0) holdGuard(guard.getAttribute('aria-pressed') !== 'true'); };
-    this.hud.append(this.titleBar, nav, vitals, this.foePanel, this.slots, this.prompt, guard, attack);
+    const dodge = button('Dodge', () => controls.dodge(), 'dodge-touch');
+    this.hud.append(this.titleBar, nav, vitals, this.foePanel, this.slots, this.prompt, dodge, guard, attack);
     this.hud.hidden = true;
   }
   bind(valley: Valley, scene: Scene) {
@@ -268,13 +283,35 @@ export class Interface {
     this.scene = scene;
     this.slotSig = '';
     this.foeId = '';
+    this.lastHealth = -1;
+    this.lastMaxHealth = -1;
+    this.selectedItem = undefined;
+    for (const { timer } of this.notices.values()) window.clearTimeout(timer);
+    this.notices.clear();
+    this.notice.replaceChildren();
+    this.notice.classList.remove('visible');
   }
   message(text: string, announce = true) {
-    const repeat = text === this.notice.textContent && performance.now() < this.noticeUntil;
-    this.notice.textContent = text;
+    const existing = this.notices.get(text);
+    if (existing) window.clearTimeout(existing.timer);
+    else if (this.notices.size >= 3) {
+      const [oldest, entry] = this.notices.entries().next().value!;
+      entry.node.remove();
+      window.clearTimeout(entry.timer);
+      this.notices.delete(oldest);
+    }
+    const node = existing?.node ?? el('div', 'notice-line', text);
+    this.notices.delete(text);
+    this.notice.append(node);
     this.noticeUntil = performance.now() + 3300;
     this.notice.classList.add('visible');
-    if (announce && !repeat) this.controls.sound.readInterface([text]);
+    const timer = window.setTimeout(() => {
+      node.remove();
+      this.notices.delete(text);
+      if (!this.notices.size) this.notice.classList.remove('visible');
+    }, 3300);
+    this.notices.set(text, { node, timer });
+    if (announce && !existing) this.controls.sound.readInterface([text]);
   }
   caption(text: string) {
     if (!text && this.passage && !this.controls.sound.mixer.speaking) {
@@ -484,7 +521,7 @@ export class Interface {
         ['M indoors', 'See rooms, stairs and your position on this floor'],
         [
           (this.controls.settings.bindings.attack ?? 'Space').replace(/^Key/, '') + ' / right mouse',
-          'Hold to draw the bow, release to shoot. Aim with the pointer or movement keys. Tap for a quick shot.',
+          'Hold to draw. Strafe with WASD and aim with the pointer or arrow keys. Release when the sights meet for a focused shot.',
         ],
         ['Controller X / RT', 'Hold to draw, aim with the right stick and release to shoot.'],
         [this.interactKey() + ' / click', 'Pet a cat or dog, sit, gather or cook. Move to stop an activity.'],
@@ -500,7 +537,9 @@ export class Interface {
         ['Shift', 'Run. On a controller, tilt the left stick slightly to walk slowly.'],
         [(this.controls.settings.bindings.guard ?? 'KeyQ').replace(/^Key/, '') + ' / LB / Guard',
           'Hold to guard. With the sword equipped, raise guard just before contact to parry. Attack while the counter bar is lit to riposte.'],
-        ['Sword', 'Press attack again during recovery to chain a return cut.'],
+        [(this.controls.settings.bindings.dodge ?? 'KeyC').replace(/^Key/, '') + ' / B / Dodge',
+          'Dodge in a movement direction. With your feet still, dodge away from your opponent. Costs 22 stamina.'],
+        ['Sword', 'Press attack during recovery for a return cut, then again for a finishing thrust.'],
         [
           (this.controls.settings.bindings.jump ?? 'KeyX').replace(/^Key/, '') + ' / LT',
           'Jump. Tap again just before landing to jump on your next step.',
@@ -647,46 +686,101 @@ export class Interface {
   }
   private inventory() {
     const panel = this.shell('Inventory', true);
+    const loadout = el('div', 'loadout');
     const items = el('div', 'items');
+    const detail = el('div', 'item-detail');
+    detail.setAttribute('aria-label', 'Selected item');
+    const available: ItemId[] = [];
     for (const id of ITEM_ORDER) {
       const amount = this.game.state.inventory[id] ?? 0;
       if (amount <= 0) continue;
+      available.push(id);
       const b = button('', () => this.inspectItem(id), 'item');
+      b.dataset.item = id;
+      b.onfocus = () => this.inspectItem(id);
+      b.onpointerenter = e => { if (e.pointerType === 'mouse') this.inspectItem(id); };
       b.append(icon(id), el('span', '', S(ITEMS[id].nameKey)), el('small', '', String(amount)));
       items.append(b);
     }
-    panel.append(items);
+    loadout.append(items, detail);
+    panel.append(loadout);
+    const selected = this.selectedItem && available.includes(this.selectedItem) ? this.selectedItem : available[0];
+    if (selected) this.inspectItem(selected, true);
+    else detail.append(el('p', '', 'Your pack is empty.'));
   }
-  private inspectItem(id: ItemId) {
-    this.inventory();
-    const panel = this.layer.querySelector('section')!;
-    const detail = el('div', 'item-detail');
-    detail.append(el('h3', '', S(ITEMS[id].nameKey)), el('p', '', S(ITEMS[id].descKey)));
+  private inspectItem(id: ItemId, initial = false) {
+    const detail = this.layer.querySelector<HTMLElement>('.item-detail');
+    if (!detail || detail.dataset.item === id) return;
+    if (!initial) this.controls.sound.selection();
+    detail.dataset.item = id;
+    this.selectedItem = id;
+    for (const b of this.layer.querySelectorAll<HTMLButtonElement>('.item'))
+      b.setAttribute('aria-pressed', String(b.dataset.item === id));
+    const image = icon(id);
+    detail.replaceChildren(image, el('h3', '', S(ITEMS[id].nameKey)), el('p', '', S(ITEMS[id].descKey)));
     const act = itemAction(id);
     if (act)
       detail.append(
         button(act === 'equip' ? 'Equip' : 'Consume', () => {
-          this.valley.action(act === 'equip' ? { t: 'equipWeapon', item: id } : { t: 'useItem', item: id });
+          if (this.valley.action(act === 'equip' ? { t: 'equipWeapon', item: id } : { t: 'useItem', item: id })) this.controls.sound.selection(true);
           this.inventory();
+          this.layer.querySelector<HTMLButtonElement>('.item[aria-pressed="true"]')?.focus();
         })
       );
     if (hotbarEligible(id)) {
-      const choose = el('select');
-      choose.setAttribute('aria-label', 'Belt slot');
+      const keys = el('div', 'belt-keys');
+      keys.setAttribute('role', 'group');
+      keys.setAttribute('aria-label', 'Assign belt slot');
+      detail.append(el('small', 'belt-label', 'Bind to belt'), keys);
       for (let i = 0; i < 10; i++) {
-        const o = el('option', '', 'Slot ' + ((i + 1) % 10));
-        o.value = String(i);
-        choose.append(o);
+        const label = String((i + 1) % 10);
+        const key = button(label, () => this.bindBelt(i));
+        key.setAttribute('aria-label', 'Assign to belt slot ' + label);
+        key.setAttribute('aria-pressed', String(this.game.state.quickSlots[i] === id));
+        keys.append(key);
       }
-      detail.append(
-        choose,
-        button('Assign to belt', () => {
-          this.valley.action({ t: 'assignQuickSlot', slot: Number(choose.value), item: id });
-          this.message('Belt updated');
-        })
-      );
     }
-    panel.append(detail);
+  }
+  private bindBelt(slot: number) {
+    const id = this.selectedItem;
+    if (!id || !hotbarEligible(id) || !this.valley.action({ t: 'assignQuickSlot', slot, item: id })) return;
+    this.controls.sound.selection(true);
+    this.layer.querySelectorAll('.belt-keys button').forEach((b, i) =>
+      b.setAttribute('aria-pressed', String(this.game.state.quickSlots[i] === id)));
+    this.message(S(ITEMS[id].nameKey) + ' · Belt ' + (slot + 1) % 10);
+  }
+  pageKey(code: string) {
+    if (this.mode === 'inventory' && /^Digit\d$/.test(code) && this.selectedItem && hotbarEligible(this.selectedItem)) {
+      this.bindBelt((Number(code.slice(-1)) + 9) % 10);
+      return true;
+    }
+    if (this.mode !== 'dialogue') return false;
+    if (code === 'Space' || code === this.controls.settings.bindings.interact) {
+      const speech = this.layer.querySelector<HTMLElement>('.speech.revealing');
+      if (speech && speech.getAnimations({ subtree: true }).some(a => a.playState !== 'finished')) {
+        speech.classList.remove('revealing');
+        return true;
+      }
+      if (document.activeElement instanceof HTMLButtonElement && this.layer.contains(document.activeElement)) {
+        document.activeElement.click();
+      } else this.layer.querySelector<HTMLButtonElement>('.dialogue-choice:enabled')?.click();
+      return true;
+    }
+    if (code === 'ArrowDown' || code === 'ArrowUp') {
+      this.padMenu(code === 'ArrowDown' ? 1 : -1, false);
+      return true;
+    }
+    if (!/^Digit[1-9]$/.test(code)) return false;
+    const replies = this.layer.querySelectorAll<HTMLButtonElement>('.dialogue-choice');
+    const reply = replies[Number(code.slice(-1)) - 1];
+    if (reply && !reply.disabled) reply.click();
+    return !!reply;
+  }
+  get speaker() {
+    const id = this.mode === 'dialogue' && getNode(this.currentDialog)?.speaker;
+    if (!id || id === 'narrator') return;
+    if (!this.valley.room) return this.valley.actors.find(a => a.npc === id);
+    for (const resident of this.valley.roomResidents) if (resident.a.npc === id) return resident.at;
   }
   private map(world = false) {
     const room = !world && this.valley.room;
@@ -750,6 +844,7 @@ export class Interface {
     this.currentDialog = nodeId;
     this.mode = 'dialogue';
     const panel = this.shell(node.speaker === 'narrator' ? 'Bellwether Vale' : NPCS[node.speaker].name);
+    panel.classList.add('conversation');
     if (node.speaker !== 'narrator') {
       const portrait = icon(node.speaker);
       portrait.className = 'speaker';
@@ -757,25 +852,44 @@ export class Interface {
     }
     const speech = el('p', 'speech', S(node.text));
     speech.dataset.story = node.text;
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && this.controls.sound.mode !== 'interface') {
+      const words = speech.textContent!.match(/\S+\s*/g) ?? [];
+      const step = Math.min(42, 1100 / Math.max(1, words.length));
+      speech.replaceChildren(...words.map((word, i) => {
+        const part = el('span', '', word);
+        part.style.animationDelay = i * step + 'ms';
+        return part;
+      }));
+      speech.classList.add('revealing');
+      speech.onclick = () => speech.classList.remove('revealing');
+    }
     panel.append(speech);
     const replay = () => this.controls.sound.story([node.text]);
     this.readerFor(panel, replay, answer ? () => this.controls.sound.story([answer, node.text]) : replay);
+    const replies = el('div', 'replies');
+    panel.append(replies);
     for (const { index, choice, locked } of this.game.choices(nodeId)) {
       const b = button(
         S(choice.text),
         () => {
           const res = this.game.choose(this.currentDialog, index);
           if (res.ok) {
+            this.controls.sound.selection(choice.intent === 'train');
             if (res.next === 'end') {
               this.controls.resume();
               this.controls.sound.story([choice.text]);
             } else this.dialogue(res.next, choice.text);
           }
         },
-        'reply'
+        'reply dialogue-choice'
       );
+      const number = replies.children.length + 1;
+      const hint = el('small', 'choice-key', String(number));
+      hint.setAttribute('aria-hidden', 'true');
+      b.prepend(hint);
+      if (choice.intent) b.append(el('small', 'choice-intent', choice.intent));
       b.disabled = locked;
-      panel.append(b);
+      replies.append(b);
     }
     const npc = node.speaker;
     if (npc !== 'narrator')
@@ -1196,6 +1310,10 @@ export class Interface {
     this.updateEncounter();
     const { health, maxHealth } = s.player;
     if (health !== this.lastHealth || maxHealth !== this.lastMaxHealth) {
+      const damage = this.lastHealth >= 0 && health < this.lastHealth;
+      this.healthLoss.style.transition = damage ? '' : 'none';
+      this.healthLoss.style.width = (health / maxHealth) * 100 + '%';
+      this.hud.classList.toggle('low-health', health > 0 && health / maxHealth <= 0.25);
       this.lastHealth = health;
       this.lastMaxHealth = maxHealth;
       this.lifeNumber.textContent = String(health);
@@ -1205,6 +1323,7 @@ export class Interface {
       meter.setAttribute('aria-valuenow', String(health));
       meter.setAttribute('aria-valuemax', String(maxHealth));
     }
+    this.hud.classList.toggle('winded', this.valley.time < this.valley.tiredUntil);
     if (!force && now - this.uiStamp < 125) return;
     this.uiStamp = now;
     this.place.textContent = this.valley.placeName();
@@ -1231,7 +1350,7 @@ export class Interface {
         : gestureLabels[act.kind] + '…'
       : bow
         ? bow.phase === 'hold'
-          ? 'Release to shoot'
+          ? this.valley.bowFocus >= 1 ? 'Focused · Release to shoot' : 'Release to shoot'
           : bow.phase === 'draw'
             ? 'Drawing…'
             : ''

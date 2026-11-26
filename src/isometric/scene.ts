@@ -6,9 +6,9 @@ import { terrainHeight, groundProject, pickSurface, supportHeight } from './reli
 import { Sunlight } from './sunlight';
 import { SkyLighting, skyLight, type LightSource } from './skyLight';
 import { doorOpen, frontDoor } from './doorways';
-import { drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir } from './fieldEffects';
+import { drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir, drawBootDust } from './fieldEffects';
 import type { BuildingSpec } from '../core/world/layout';
-import { CONTACT_TIME, arrowHeight, enemyContactRemaining, enemySwingProgress, ENEMY_SWING_TIME, SWING_TIME } from './fieldcraft';
+import { CONTACT_TIME, DEFEAT_TIME, arrowHeight, enemyContactRemaining, enemySwingProgress, ENEMY_SWING_TIME, SWING_TIME } from './fieldcraft';
 import { isHuntableAnimalId } from '../core/game/hunting';
 import { ENEMY_ARCHETYPES } from '../core/content/enemies';
 import { Atlas } from './atlas';
@@ -32,7 +32,7 @@ import { landingHalfWidth } from './roomPlans';
 import { cuePass, spriteDepth, drawReachMark, drawFocus, drawThreshold, pickRegion, type DepthCue, type PickRegion } from './entryCues';
 import { targetDistance } from './roomTargets';
 import { AMBIENT_RESIDENTS } from '../core/content/ambientPeople';
-import { project, unproject, inBuilding, scenery, type Scenery } from './land';
+import { distance, project, unproject, inBuilding, scenery, type Scenery } from './land';
 import { PICKUP_LOCATIONS, type V2 } from '../core/world/layout';
 import { facesLeft, type Valley } from './simulation';
 import { isTree } from './treeHabitat';
@@ -78,6 +78,10 @@ export class Scene {
   private pointer?: { x: number; y: number };
   private center = { x: 0, y: 0 };
   private lead = { x: 0, y: 0 };
+  private kick = { x: 0, y: 0 };
+  private ambientOffset = 0;
+  private lastRoom?: string;
+  private curtain?: HTMLElement;
   private initialized = false;
   private pixelScale = 1;
   private viewWidth = 0;
@@ -168,13 +172,14 @@ export class Scene {
   pointAt(clientX: number, clientY: number): V2 {
     const p = this.pixel(clientX, clientY);
     if (this.indoors) return this.rooms.point(p.x, p.y);
-    const sx = p.x - Math.round(this.canvas.width / 2 - this.center.x);
-    const sy = p.y - Math.round(this.canvas.height * 0.54 - this.center.y + 24);
+    const sx = p.x - Math.round(this.canvas.width / 2 - this.center.x + this.kick.x);
+    const sy = p.y - Math.round(this.canvas.height * 0.54 - this.center.y + 24 + this.kick.y);
     return pickSurface(sx, sy);
   }
   resetCamera() {
     this.initialized = false;
     this.lead.x = this.lead.y = 0;
+    this.kick.x = this.kick.y = 0;
     this.regions.length = 0;
     this.rooms.leave();
     this.water.reset();
@@ -205,16 +210,43 @@ export class Scene {
     const dy = (y - Math.round(y)) * this.pixelScale;
     this.canvas.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
   }
-  render(valley: Valley, dt: number) {
+  private crossThreshold(room: string) {
+    if (room === this.lastRoom) return;
+    const shown = this.lastRoom !== undefined;
+    this.lastRoom = room;
+    this.curtain?.remove();
+    if (!shown || this.reducedMotion.matches) return;
+    const curtain = document.createElement('div');
+    curtain.className = 'room-curtain';
+    curtain.setAttribute('aria-hidden', 'true');
+    const frame = document.createElement('canvas');
+    frame.width = this.canvas.width;
+    frame.height = this.canvas.height;
+    frame.style.cssText = this.canvas.style.cssText;
+    frame.getContext('2d')!.drawImage(this.canvas, 0, 0);
+    curtain.append(frame);
+    this.canvas.after(curtain);
+    this.curtain = curtain;
+    frame.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 95, fill: 'forwards' });
+    const fade = curtain.animate([{ opacity: 1 }, { opacity: 0 }], { delay: 95, duration: 125 });
+    fade.onfinish = () => {
+      curtain.remove();
+      if (this.curtain === curtain) this.curtain = undefined;
+    };
+  }
+  render(valley: Valley, dt: number, conversation?: { speaker?: V2 }) {
     const ctx = this.context;
+    this.crossThreshold(valley.roomKey);
     this.sizeViewport();
     const { width: w, height: h } = this.canvas;
     ctx.imageSmoothingEnabled = false;
     this.regions.length = 0;
     this.aimRegions.length = 0;
+    if (conversation) this.ambientOffset += dt;
+    const ambient = valley.time + this.ambientOffset;
     if (valley.room) {
       this.indoors = true;
-      const frame = this.rooms.draw(ctx, valley, this.regions, dt);
+      const frame = this.rooms.draw(ctx, valley, this.regions, dt, ambient, this.reducedMotion.matches ? undefined : conversation?.speaker);
       this.present(frame.cameraX, frame.cameraY);
       this.heroDrawn = frame.heroDrawn;
       this.lastDraws = frame.draws;
@@ -230,6 +262,18 @@ export class Scene {
     const dir = valley.bow?.direction ?? { x: Math.sin(valley.player.yaw), z: Math.cos(valley.player.yaw) };
     const ahead = valley.bow && !this.reducedMotion.matches ? 3.8 : 0;
     const gaze = project(dir.x * ahead, dir.z * ahead);
+    if (conversation && !this.reducedMotion.matches) {
+      const speaker = conversation.speaker;
+      const at = speaker && project(speaker.x, speaker.z, supportHeight(speaker));
+      if (at) gaze.x += Math.max(-22, Math.min(22, (at.x - target.x) * 0.45));
+      gaze.y += h * 0.115;
+    }
+    const foe = valley.combatTarget;
+    if (foe && !foe.dead && !valley.bow && !this.reducedMotion.matches) {
+      const at = project(foe.x, foe.z, supportHeight(foe));
+      gaze.x += Math.max(-14, Math.min(14, (at.x - target.x) * 0.24));
+      gaze.y += Math.max(-7, Math.min(7, (at.y - target.y) * 0.20));
+    }
     const elapsed = Math.max(dt, 0);
     const ease = 1 - Math.exp(-elapsed * 8);
     this.lead.x += (gaze.x - this.lead.x) * ease;
@@ -240,7 +284,19 @@ export class Scene {
     this.center.x += (target.x + this.lead.x - this.center.x) * across;
     this.center.y += (target.y + this.lead.y - this.center.y) * vertical;
     this.initialized = true;
-    const cameraX = w / 2 - this.center.x, cameraY = h * 0.54 - this.center.y + 24;
+    const hit = valley.contacts.at(-1);
+    this.kick.x = this.kick.y = 0;
+    if (hit && hit.kind !== 'earth' && !this.reducedMotion.matches) {
+      const age = valley.time - hit.born;
+      if (age >= 0 && age < 0.26) {
+        const axis = project(hit.dx, hit.dz), length = Math.hypot(axis.x, axis.y) || 1;
+        const power = hit.defeated || hit.kind === 'counter' ? 2.3 : hit.kind === 'parry' ? 1.75 : 0.95;
+        const wave = Math.sin((age + 0.008) * 39) * Math.exp(-age * 19) * power;
+        this.kick.x = wave * axis.x / length;
+        this.kick.y = wave * axis.y / length;
+      }
+    }
+    const cameraX = w / 2 - this.center.x + this.kick.x, cameraY = h * 0.54 - this.center.y + 24 + this.kick.y;
     const ox = Math.round(cameraX), oy = Math.round(cameraY);
     this.present(cameraX, cameraY);
     const groundBounds = (across: number, above: number, below: number) => {
@@ -254,7 +310,7 @@ export class Scene {
     this.lastDraws = 0;
     this.heroDrawn = false;
     const time = valley.time;
-    const windTime = this.reducedMotion.matches ? 0 : time;
+    const windTime = this.reducedMotion.matches ? 0 : ambient;
     const ringAge = time - valley.bellStruckAt;
     const bellFrame = !this.reducedMotion.matches && ringAge < 1.1
       ? Math.min(this.atlas.frameCount('bell--ring') - 1, 1 + Math.floor(ringAge * 12)) : 0;
@@ -287,7 +343,7 @@ export class Scene {
             const strips = this.architecture.exterior(
               prop.building,
               view.millTurning,
-              Math.floor(time * 6),
+              Math.floor(ambient * 6),
               windowsLit
             );
             if (lamps) {
@@ -324,7 +380,7 @@ export class Scene {
                   this.atlas.frameCount(key),
                   offset
                 )
-              : Math.floor(time * (motion === 'bob' ? 2.5 : 6) + offset);
+              : Math.floor(ambient * (motion === 'bob' ? 2.5 : 6) + offset);
           stamps.push({
             ...prop,
             sway: valley.props?.sway(prop),
@@ -368,7 +424,7 @@ export class Scene {
         key: this.motion(resident.id, posture === 'work' ? 'work' : posture === 'sit' ? 'rest' : 'idle'),
         width: resident.id === 'keeper' ? 30 : 28,
         alpha: 1 - traveller.stand,
-        frame: Math.floor(time * 4),
+        frame: Math.floor(ambient * 4),
       });
     }
     const immersion = (p: V2, swimmer: boolean) => {
@@ -377,20 +433,21 @@ export class Scene {
       const wet = wetPoint(p.x, p.z);
       if (!wet) return { submerged: 0, lift: 0 };
       const submerged = waterline(wet, swimmer);
-      const lift = wet.course === 'ocean' ? floatHeight(p.x, p.z, wet.bank, time) : 0;
+      const lift = wet.course === 'ocean' ? floatHeight(p.x, p.z, wet.bank, ambient) : 0;
       return { submerged, lift };
     };
     for (const [i, a] of valley.actors.entries()) {
       if (a.npc && a.dead) continue;
       const defeat = a.enemy && a.dead
-        ? valley.contacts.find((hit) => hit.defeated && hit.actorId === a.id && time - hit.born < CONTACT_TIME)
+        ? valley.contacts.find((hit) => hit.defeated && hit.actorId === a.id && time - hit.born < DEFEAT_TIME)
         : undefined;
       if (a.enemy && a.dead && !defeat) continue;
       const reaction = !defeat && a.enemy && !this.reducedMotion.matches
         ? valley.contacts.findLast(hit => hit.actorId === a.id && time - hit.born < 0.18) : undefined;
       const recoil = reaction ? Math.sin(Math.PI * (time - reaction.born) / 0.18) *
         (reaction.kind === 'parry' ? 1 : -1) * (Math.sign(project(reaction.dx, reaction.dz).x) || 1) : 0;
-      const fall = defeat ? Math.min(1, (time - defeat.born) / CONTACT_TIME) : 0;
+      const fallAge = defeat ? time - defeat.born : 0;
+      const fall = Math.min(1, fallAge / 0.28);
       if (a.animal && valley.game.state.hunting[a.animal]?.status === 'skinned') continue;
       const inside = inBuilding(a);
       if (inside) continue;
@@ -416,7 +473,9 @@ export class Scene {
         ...a,
         ...immersion(a, false),
         key,
-        alpha: defeat ? 1 - fall * fall : undefined,
+        alpha: defeat ? Math.min(1, (DEFEAT_TIME - fallAge) / 0.36) : undefined,
+        tint: !this.reducedMotion.matches && (reaction || defeat) && time - (reaction ?? defeat)!.born < 2 / 60
+          ? reaction?.kind === 'parry' ? '#b7f3dd' : '#fff6dc' : undefined,
         sway: recoil * 0.72,
         fall: defeat && !this.reducedMotion.matches
           ? (Math.sign(project(defeat.dx, defeat.dz).x) || 1) * fall ** 1.6 * 1.13
@@ -433,7 +492,7 @@ export class Scene {
                   this.atlas.frameCount(key) - 1,
                   Math.floor(enemySwingProgress(a.attack, a.key === 'thornback') * this.atlas.frameCount(key))
                 )
-              : Math.floor(time * (a.move ? 8 : 4)) + i,
+              : Math.floor((a.move ? time : ambient) * (a.move ? 8 : 4)) + i,
       });
     }
     const floating: PropView[] = [];
@@ -460,11 +519,19 @@ export class Scene {
     const pose = heroPose(valley, this.atlas, 38);
     const hop = valley.hop * 8;
     const immersed = immersion(valley.player, valley.swimming);
+    if (valley.dash && !this.reducedMotion.matches) {
+      for (const [i, point] of valley.dash.trail.entries()) {
+        if (distance(point, valley.player) < 0.27) continue;
+        stamps.push({ ...point, ...pose, tint: '#b8c9ba', alpha: (0.10 + i * 0.06) *
+          Math.min(1, (0.18 - valley.dash.elapsed) / 0.065), reflect: false });
+      }
+    }
     stamps.push({
       ...valley.displayPosition,
       ...immersed,
       ...pose,
       hero: true,
+      tint: !this.reducedMotion.matches && hit?.actorId === 'player' && time - hit.born < 2 / 60 ? '#fff6dc' : undefined,
       wakeId: 'player',
       moving: valley.walk,
       airborne: hop > 1,
@@ -483,7 +550,7 @@ export class Scene {
         ...arrow,
         key: 'field_arrow',
         width: 23,
-        arrow: { angle: Math.atan2(dir.y, dir.x), exposed: Math.hypot(fromBow.x, fromBow.y) },
+        arrow: { angle: Math.atan2(dir.y, dir.x), exposed: Math.hypot(fromBow.x, fromBow.y), focused: arrow.focused },
         reflect: false,
         elevation,
       });
@@ -505,7 +572,7 @@ export class Scene {
     const fishRipples = this.riverLife.frame(
       valley.player,
       valley.walk,
-      time,
+      ambient,
       hour,
       view.flow,
       ox,
@@ -529,14 +596,24 @@ export class Scene {
     });
     const ripples = [
       ...fishRipples,
-      ...this.water.advance(nearWaterView, time, view.flow),
+      ...this.water.advance(nearWaterView, ambient, view.flow),
       ...(valley.props?.waterRipples() ?? []),
     ].slice(-16);
-    this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, time, view.flow, hour, ripples, floating);
+    this.lastDraws = this.ground.draw(ctx, ox, oy, w, h, ambient, view.flow, hour, ripples, floating);
+    if (valley.dash && !this.reducedMotion.matches) {
+      const at = valley.dash.origin, foot = project(at.x, at.z, supportHeight(at));
+      drawBootDust(ctx, foot.x + ox, foot.y + oy, valley.dash.elapsed, !!wetPoint(at.x, at.z));
+    }
+    for (const arrow of valley.arrows) {
+      const foot = project(arrow.x, arrow.z, supportHeight(arrow));
+      if (!this.ground.groundVisible(foot.x, foot.y, project(arrow.x, arrow.z).y)) continue;
+      ctx.fillStyle = 'rgba(40,44,47,.37)';
+      ctx.fillRect(Math.round(foot.x + ox) - 2, Math.round(foot.y + oy), 5, 1);
+    }
     drawFootprints(ctx, valley.gait.prints, ox, oy, time, this.reducedMotion.matches);
     this.lastDraws += this.meadow.draw(ctx, this.ground, ox, oy, windTime, groundBounds(18, 196, 18));
-    this.riverLife.drawShoals(ctx, this.ground, ox, oy, time);
-    this.water.draw(ctx, this.ground, stamps, ox, oy, time);
+    this.riverLife.drawShoals(ctx, this.ground, ox, oy, ambient);
+    this.water.draw(ctx, this.ground, stamps, ox, oy, ambient);
     this.sun.draw(ctx, stamps, buildings, ox, oy, hour);
     for (const enemy of valley.actors) {
       if (!enemy.enemy || enemy.dead || !enemy.attack || inBuilding(enemy)) continue;
@@ -586,6 +663,13 @@ export class Scene {
         ctx.save();
         ctx.translate(Math.round(x), Math.round(y));
         ctx.rotate(stamp.arrow.angle);
+        if (stamp.arrow.focused && !this.reducedMotion.matches) {
+          const length = Math.min(stamp.arrow.exposed, stamp.width + 11);
+          ctx.fillStyle = '#e1a45a';
+          ctx.fillRect(-length, 0, length, 1);
+          ctx.fillStyle = '#ffebac';
+          ctx.fillRect(-length * 0.62, -1, length * 0.62, 1);
+        }
         // Reveal the shaft as it clears the bow, keeping the nock out of the hero's back.
         if (stamp.arrow.exposed < stamp.width) {
           ctx.beginPath();
@@ -647,7 +731,7 @@ export class Scene {
     drawCues(Infinity);
     if (outlines.length > 1) this.opponentReveal.finish(ctx);
     this.reveal.finish(ctx);
-    this.sky.draw(ctx, ox, oy, time, sky, lights, stamps);
+    this.sky.draw(ctx, ox, oy, ambient, sky, lights, stamps);
     drawDamageLabels(ctx, valley.contacts, time, ox, oy, this.reducedMotion.matches);
 
     const guide = valley.bowGuide();
@@ -659,7 +743,8 @@ export class Scene {
         arrowHeight(arrow, d)
       );
       const held = valley.bow?.phase === 'hold';
-      ctx.fillStyle = held ? '#ffe3a1' : '#cfd5b8';
+      const focus = valley.bowFocus;
+      ctx.fillStyle = focus >= 1 ? '#ffdf81' : held ? '#ffe3a1' : '#cfd5b8';
       ctx.globalAlpha = held ? 0.66 : 0.4;
       for (let d = 2.5; d < distance - 1; d += 2.5) {
         const dot = at(d);
@@ -668,7 +753,7 @@ export class Scene {
       ctx.globalAlpha = 1;
       const tip = at(distance);
       const x = Math.round(tip.x + ox), y = Math.round(tip.y + oy);
-      const spread = held ? 3 : 5;
+      const spread = held ? Math.round(5 - focus * 4) : 6;
       ctx.fillRect(x - spread - 2, y, 3, 1);
       ctx.fillRect(x + spread, y, 3, 1);
       ctx.fillRect(x, y - spread - 2, 1, 3);
@@ -768,7 +853,19 @@ export class Scene {
         drawSwordSweep(ctx, x, y, stamp.width, valley.facing, SWING_TIME - valley.strike, valley.stroke);
       const frame = Math.max(0, stamp.frame ?? 0);
       this.atlas.draw(ctx, stamp.key, x, y + (stamp.hero ? 1 : 0), stamp.width, frame, stamp.flip,
-        stamp.anchor ?? 1, stamp.submerged, false, !!stamp.wakeId || stamp.moving);
+        stamp.anchor ?? 1, stamp.submerged, false, !!stamp.wakeId || stamp.moving, stamp.tint);
+      const bow = stamp.hero && valley.bow;
+      if (bow && bow.phase === 'loose' && bow.elapsed < 0.075 && !this.reducedMotion.matches) {
+        const hand = project(bow.direction.x * 0.72, bow.direction.z * 0.72);
+        const hx = Math.round(x + hand.x), hy = Math.round(y + hand.y - 20);
+        const radius = bow.focused ? 4 : 2;
+        ctx.save();
+        ctx.globalAlpha *= 1 - bow.elapsed / 0.075;
+        ctx.fillStyle = bow.focused ? '#ffedaa' : '#eee5c6';
+        ctx.fillRect(hx - radius, hy, radius * 2 + 1, 1);
+        ctx.fillRect(hx, hy - radius, 1, radius * 2 + 1);
+        ctx.restore();
+      }
       if ((stamp.key.startsWith('fire--') || stamp.key.startsWith('cookfire--')) && !this.reducedMotion.matches)
         drawFireAir(ctx, x, y, valley.time, stamp.x, stamp.z, night);
       if (stamp.sway || stamp.fall) ctx.restore();

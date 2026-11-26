@@ -55,6 +55,11 @@ const fieldAccents: Partial<Record<FieldSound, {
   block: { accent: 'guard', gain: 0.98, focus: 'contact', foley: ['block', 0.35] },
   enemy_windup: { accent: 'windup', gain: 0.58 },
   enemy_down: { accent: 'defeat', gain: 0.92, focus: 'defeat' },
+  sidestep: { accent: 'sidestep', gain: 0.76 },
+  thrust: { accent: 'thrust', gain: 0.83 },
+  bow_focus: { accent: 'bowFocus', gain: 0.67 },
+  focused_release: { accent: 'focusedRelease', gain: 0.94, foley: ['bow_release', 0.45] },
+  focused_hit: { accent: 'focusedHit', gain: 0.92, focus: 'contact', foley: ['arrow_flesh', 0.42] },
   arrow_flesh: { accent: 'bodyHit', gain: 0.72, focus: 'contact', foley: ['arrow_flesh', 0.72] },
 };
 const fieldRecordings = ['blade', 'hit', 'block', 'bow_draw', 'bow_release', 'arrow_flesh', 'arrow_ground', 'step.dirt']
@@ -235,6 +240,9 @@ export class Sound {
       if (['inventory', 'journal', 'map', 'pause', 'saves', 'help', 'settings', 'play'].includes(name))
         this.mixer.playMenu(name === 'play' ? 'menuClose' : 'menuOpen');
     }
+  }
+  selection(equip = false) {
+    if (this.enabled) this.mixer.playMenu(equip ? 'beltClasp' : 'menuChoose');
   }
   contact(
     material: import('./propPhysics').ContactSound,

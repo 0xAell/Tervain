@@ -4,7 +4,7 @@ import io
 import json
 import zipfile
 from pathlib import Path
-from PIL import Image
+from PIL import Image, ImageDraw
 
 root = Path(__file__).resolve().parent.parent
 art = root / 'assets/pixellab'
@@ -13,6 +13,44 @@ dest.mkdir(parents=True, exist_ok=True)
 width = 1024
 x = y = row = 0
 positions, sprites, mapping = {}, [], {}
+
+# Retain each piece's authored feet. These cropped source cels included a square of
+# garden ground or a green display wall, which travelled with the furniture indoors.
+def indoor_piece(key, im):
+    if key in ('furniture_bunk', 'furniture_loom', 'furniture_shelf'):
+        start = {'furniture_bunk': 28, 'furniture_loom': 29, 'furniture_shelf': 0}[key]
+        for py in range(start, im.height):
+            for px in range(im.width):
+                r, g, b, a = im.getpixel((px, py))
+                if a and g >= r * 0.86 and g > b * 1.18:
+                    im.putpixel((px, py), (0, 0, 0, 0))
+        if key == 'furniture_shelf':
+            braces = Image.new('RGBA', im.size)
+            ink = ImageDraw.Draw(braces)
+            for px, py in ((7, 30), (32, 22)):
+                ink.polygon(((px, py), (px + 4, py - 1), (px + 1, py + 6), (px, py + 6)), fill='#5e4431')
+                ink.line((px, py, px, py + 5), fill='#a17c50')
+            braces.alpha_composite(im)
+            return braces
+    elif key in ('furniture_bookshelf', 'furniture_workbench', 'furniture_pots'):
+        outlines = {
+            'furniture_bookshelf': ((7,0),(38,0),(38,10),(36,12),(36,32),(26,39),(9,32),(9,10),(7,8)),
+            'furniture_workbench': ((0,0),(45,0),(45,24),(41,25),(41,30),(37,32),(35,28),(33,30),(32,36),(28,37),(26,35),(26,27),(16,24),(14,22),(11,26),(8,27),(6,25),(6,18),(0,17)),
+            'furniture_pots': ((4,9),(10,7),(10,5),(15,5),(19,10),(18,6),(21,5),(21,3),(26,0),(31,1),(33,5),(38,6),(37,9),(35,10),(35,13),(32,16),(29,18),(24,17),(21,15),(19,14),(18,17),(16,19),(13,21),(10,20),(8,18),(6,16),(6,12),(4,11)),
+        }
+        mask = Image.new('L', im.size)
+        ImageDraw.Draw(mask).polygon(outlines[key], fill=255)
+        clean = Image.new('RGBA', im.size)
+        clean.paste(im, mask=mask)
+        return clean
+    elif key == 'furniture_cupboard':
+        for py in range(im.height):
+            for px in range(im.width):
+                r, g, b, a = im.getpixel((px, py))
+                if a and g > r and g > b * 1.22:
+                    im.putpixel((px, py), (min(255, g + 12), int(g * 0.88), int(g * 0.71), a))
+    return im
+
 with zipfile.ZipFile(art / 'sources.zip') as library:
     sequences = json.loads(library.read('sequences.json'))
     for key, files in sorted(sequences.items()):
@@ -20,6 +58,15 @@ with zipfile.ZipFile(art / 'sources.zip') as library:
         for file in files:
             with Image.open(io.BytesIO(library.read(file))) as source:
                 im = source.convert('RGBA')
+            if key.startswith('furniture_'):
+                im = indoor_piece(key, im)
+                if key in ('furniture_bunk', 'furniture_loom', 'furniture_shelf', 'furniture_bookshelf',
+                           'furniture_workbench', 'furniture_pots'):
+                    bounds = im.getchannel('A').getbbox()
+                    if bounds and bounds[3] < im.height:
+                        grounded = Image.new('RGBA', im.size)
+                        grounded.paste(im, (0, im.height - bounds[3]))
+                        im = grounded
             identity = (im.size, hashlib.sha256(im.tobytes()).digest())
             if identity not in positions:
                 if x + im.width > width:

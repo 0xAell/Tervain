@@ -9,6 +9,11 @@ export type FieldSound =
   | 'rope_draw'
   | 'bow_draw'
   | 'bow_release'
+  | 'bow_focus'
+  | 'focused_release'
+  | 'focused_hit'
+  | 'sidestep'
+  | 'thrust'
   | 'arrow_flesh'
   | 'arrow_ground'
   | 'skinning_complete'
@@ -49,8 +54,8 @@ export const SWING_TIME = 0.42;
 const contactProgress = 4 / 7;
 export const SWING_RELEASE = (SWING_TIME * 3) / 7;
 export const SWING_CONTACT = SWING_TIME * contactProgress;
-export const SWING_BUFFER = 0.12;
-export type SwordStroke = 'attack' | 'return' | 'counter';
+export const SWING_BUFFER = 0.16;
+export type { SwordStroke } from '../core/rules/valeCombat';
 export const PARRY_WINDOW = 8 / 60;
 export const COUNTER_WINDOW = 0.68;
 export const ENEMY_SWING_TIME = 0.85;
@@ -65,12 +70,13 @@ export function enemySwingProgress(remaining: number, heavy: boolean) {
 }
 export const CONTACT_TIME = 0.28;
 export const DAMAGE_LABEL_TIME = 0.68;
+export const DEFEAT_TIME = 0.92;
 export interface Contact extends V2 {
   height: number;
   dx: number;
   dz: number;
   born: number;
-  kind: 'blade' | 'guard' | 'parry' | 'counter' | 'body' | 'earth';
+  kind: 'blade' | 'guard' | 'parry' | 'counter' | 'body' | 'earth' | 'focused';
   damage?: number;
   heavy?: boolean;
   defeated?: boolean;
@@ -83,6 +89,7 @@ export interface Draw {
   phase: 'draw' | 'hold' | 'loose';
   elapsed: number;
   released: boolean;
+  focused?: boolean;
   grade?: number;
   aimDistance?: number;
   direction: V2;
@@ -93,6 +100,7 @@ export function arrowLift(travelled: number) {
   return 20 * (1 - 0.55 * range) + 3 * Math.sin(Math.PI * range);
 }
 export interface Arrow extends V2 {
+  focused?: boolean;
   launchHeight: number;
   grade: number;
   direction: V2;

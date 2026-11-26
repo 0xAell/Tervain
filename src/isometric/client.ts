@@ -34,6 +34,7 @@ const defaults: Record<string, string> = {
   turn: 'KeyR',
   attack: 'Space',
   guard: 'KeyQ',
+  dodge: 'KeyC',
   jump: 'KeyX',
   inventory: 'KeyI',
   journal: 'KeyJ',
@@ -55,7 +56,7 @@ function readSettings() {
   const bindings = { ...defaults };
   for (const key of Object.keys(bindings))
     if (typeof saved.bindings?.[key] === 'string') bindings[key] = saved.bindings[key]!;
-  for (const action of ['grab', 'turn']) {
+  for (const action of ['grab', 'turn', 'dodge']) {
     if (typeof saved.bindings?.[action] === 'string') continue;
     const used = new Set(
       Object.entries(bindings)
@@ -92,6 +93,7 @@ export class Client implements Controls {
   private keys = new Set<string>();
   private buttons: boolean[] = [];
   private aimPointer?: number;
+  private aimScreen = { x: 0, y: 0 };
   private touchGuard = false;
   private lastTime = 0;
   private nextAuto = 0;
@@ -148,6 +150,8 @@ export class Client implements Controls {
     this.canvas.addEventListener('pointermove', (e) => {
       this.scene.hover(e.clientX, e.clientY);
       if (this.aimPointer === e.pointerId && this.mode === 'play') {
+        this.aimScreen.x = e.clientX;
+        this.aimScreen.y = e.clientY;
         const aim = this.scene.aimAt(e.clientX, e.clientY),
           p = this.valley.player;
         this.valley.aimDirection(aim.at.x - p.x, aim.at.z - p.z, aim.head);
@@ -185,6 +189,7 @@ export class Client implements Controls {
         this.valley.startAttack(aim.at, aim.head);
         if (this.valley.bow) {
           this.aimPointer = e.pointerId;
+          this.aimScreen = { x: e.clientX, y: e.clientY };
           this.canvas.setPointerCapture(e.pointerId);
         }
         return;
@@ -389,6 +394,14 @@ export class Client implements Controls {
   setTouchGuard(down: boolean) {
     this.touchGuard = down && this.mode === 'play';
   }
+  dodge() {
+    if (this.mode !== 'play') return;
+    const { h, v } = this.travelInput(this.pad(), !this.valley.bow);
+    if (this.valley.requestDash(h + v, v - h)) this.stopWalking();
+  }
+  aimTouch(x: number, y: number) {
+    if (this.mode === 'play') this.valley.aimDirection(x + y, y - x);
+  }
   pressAttack() {
     if (this.mode === 'play') {
       this.stopWalking();
@@ -592,7 +605,10 @@ export class Client implements Controls {
       else if (this.mode !== 'title' && this.mode !== 'death') this.playing ? this.resume() : this.ui.title();
       return;
     }
-    if (this.mode !== 'play') return;
+    if (this.mode !== 'play') {
+      if (!e.repeat && this.ui.pageKey(e.code)) e.preventDefault();
+      return;
+    }
     if (['Tab', 'Space', 'ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'F5', 'F9'].includes(e.code))
       e.preventDefault();
     this.keys.add(e.code);
@@ -604,7 +620,8 @@ export class Client implements Controls {
     else if (e.code === b.attack) {
       this.stopWalking();
       this.valley.startAttack();
-    } else if (e.code === b.jump) this.valley.requestJump();
+    } else if (e.code === b.dodge) this.dodge();
+    else if (e.code === b.jump) this.valley.requestJump();
     else if (e.code === b.inventory) this.page('inventory');
     else if (e.code === b.journal || e.code === 'Tab') this.page('journal');
     else if (e.code === b.map) this.page('map');
@@ -620,6 +637,18 @@ export class Client implements Controls {
       this.gamepadBlocked = true;
       return;
     }
+  }
+  private travelInput(pad: Gamepad | undefined, arrows: boolean) {
+    const ax = pad?.axes[0] ?? 0, ay = pad?.axes[1] ?? 0;
+    const stick = Math.min(1, Math.hypot(ax, ay));
+    if (stick > 0.16) return { h: ax, v: ay, pace: (stick - 0.16) / 0.84 };
+    const b = this.settings.bindings;
+    const down = (binding: string, arrow: string) => Number(this.keys.has(binding) || (arrows && this.keys.has(arrow)));
+    return {
+      h: down(b.east!, 'ArrowRight') - down(b.west!, 'ArrowLeft'),
+      v: down(b.south!, 'ArrowDown') - down(b.north!, 'ArrowUp'),
+      pace: 1,
+    };
   }
   private frame(t: number) {
     const dt = Math.min(0.05, (t - (this.lastTime || t)) * 0.001);
@@ -654,6 +683,7 @@ export class Client implements Controls {
       }
       if (this.mode === 'play' && !buttons[2] && !buttons[7] && (this.buttons[2] || this.buttons[7]))
         this.valley.releaseAttack();
+      if (hit(1) && this.mode === 'play') this.dodge();
       else if (hit(1) && this.mode !== 'title') this.resume();
       if (this.mode === 'play' && this.valley.bow && Math.hypot(pad.axes[2] ?? 0, pad.axes[3] ?? 0) > 0.22) {
         const x = pad.axes[2] ?? 0,
@@ -668,17 +698,15 @@ export class Client implements Controls {
     if (this.mode === 'play') {
       const b = this.settings.bindings;
       const held = (s: string) => this.keys.has(s);
-      let h = Number(held(b.east!) || held('ArrowRight')) - Number(held(b.west!) || held('ArrowLeft'));
-      let v = Number(held(b.south!) || held('ArrowDown')) - Number(held(b.north!) || held('ArrowUp'));
-      const ax = pad?.axes[0] ?? 0,
-        ay = pad?.axes[1] ?? 0;
-      const stick = Math.min(1, Math.hypot(ax, ay));
-      let pace = 1;
-      if (stick > 0.16) {
-        pace = (stick - 0.16) / 0.84;
-        h = ax;
-        v = ay;
+      const aiming = !!this.valley.bow && this.valley.bow.phase !== 'loose';
+      const ah = Number(held('ArrowRight')) - Number(held('ArrowLeft'));
+      const av = Number(held('ArrowDown')) - Number(held('ArrowUp'));
+      if (aiming && (ah || av)) this.valley.aimDirection(ah + av, av - ah);
+      else if (aiming && this.aimPointer !== undefined) {
+        const aim = this.scene.aimAt(this.aimScreen.x, this.aimScreen.y), p = this.valley.player;
+        this.valley.aimDirection(aim.at.x - p.x, aim.at.z - p.z, aim.head);
       }
+      const { h, v, pace } = this.travelInput(pad, !aiming);
       let dx = h + v,
         dz = v - h;
       if (dx || dz) {
@@ -737,7 +765,7 @@ export class Client implements Controls {
         this.sound.update(this.valley);
         this.nextAudio = t + 1800;
       }
-    }
+    } else if (this.mode === 'dialogue') this.scene.render(this.valley, dt, { speaker: this.ui.speaker });
     requestAnimationFrame((n) => this.frame(n));
   }
 }

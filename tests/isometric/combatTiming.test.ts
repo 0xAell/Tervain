@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { drawContact, drawDamageLabels } from '../../src/isometric/fieldEffects';
 import { supportHeight } from '../../src/isometric/relief';
 import { Game } from '../../src/core/game/game';
+import { ACTION_COST, GUARD } from '../../src/core/rules/hero';
 import {
+  DRAW_TIME,
   ENEMY_SWING_TIME,
   enemyContactRemaining,
   enemySwingProgress,
@@ -10,6 +12,7 @@ import {
   type FieldSound,
 } from '../../src/isometric/fieldcraft';
 import { Valley } from '../../src/isometric/simulation';
+import { FOCUS_TIME, FOCUSED_ARROW_DAMAGE, IMPACT_PAUSE, SIDESTEP, followingStroke, sidestepDistance } from '../../src/core/rules/valeCombat';
 
 function encounter(kind: 'bandit' | 'thornback' = 'bandit') {
   const valley = new Valley(new Game());
@@ -32,6 +35,30 @@ function advance(valley: Valley, duration: number) {
 }
 
 describe('Vale combat timing', () => {
+  it('cycles a finished chain, carries a counter into a return and plants the dodge foot', () => {
+    expect((['attack', 'return', 'thrust', 'counter'] as const).map(followingStroke)).toEqual(['return', 'thrust', 'attack', 'return']);
+    expect(sidestepDistance(-1)).toBe(0);
+    expect(sidestepDistance(SIDESTEP.duration / 2)).toBeCloseTo(SIDESTEP.distance * 0.75);
+    expect(sidestepDistance(SIDESTEP.duration + 1)).toBe(SIDESTEP.distance);
+  });
+
+  it('charges trained and untrained guards for the same heavy blow and breaks an exhausted guard', () => {
+    for (const [trained, stamina, guarded] of [[false, 100, true], [true, 100, true], [true, 1, false]] as const) {
+      const { valley, enemy, cues } = encounter('thornback');
+      if (trained) valley.game.state.skills.push('steady_guard');
+      valley.guard = true;
+      advance(valley, 0.4);
+      valley.stamina = stamina;
+      enemy.attack = enemyContactRemaining(true) + 0.005;
+      valley.step(0.01, 0, 0, false);
+      const cost = ACTION_COST.blockHit * GUARD.heavyCost * (trained ? GUARD.steadyGuard : 1);
+      expect(valley.stamina).toBeCloseTo(Math.max(0, Math.min(100, stamina + 0.1) - cost));
+      expect(cues.at(-1)?.cue).toBe(guarded ? 'block' : 'player_hit');
+      expect(valley.contacts.at(-1)?.kind).toBe(guarded ? 'guard' : 'body');
+      expect(valley.tiredUntil > valley.time).toBe(!guarded);
+    }
+  });
+
   it('separates release from a confirmed hit and signals defeat after impact', () => {
     const { valley, enemy, cues } = encounter();
     enemy.health = 29;
@@ -59,7 +86,7 @@ describe('Vale combat timing', () => {
     valley.startAttack(enemy);
     advance(valley, 0.33);
     valley.startAttack(enemy);
-    advance(valley, 0.36);
+    advance(valley, 0.36 + IMPACT_PAUSE.regular);
     expect(valley.contacts).toHaveLength(2);
     const hits = valley.contacts;
     const calls: { value: string; x: number; y: number }[] = [];
@@ -121,7 +148,7 @@ describe('Vale combat timing', () => {
       valley.startAttack(enemy);
       valley.startAttack(enemy);
       if (testCase === 'weapon change') valley.game.state.equippedWeapon = null;
-      advance(valley, early ? 0.23 : 0.1);
+      advance(valley, (early ? 0.23 : 0.1) + IMPACT_PAUSE.regular);
       expect(enemy.health).toBe(26);
       if (testCase === 'late press') expect(valley.strike).toBeGreaterThan(SWING_TIME - 1 / 60);
       else expect(valley.strike).toBe(0);
@@ -203,7 +230,7 @@ describe('Vale combat timing', () => {
     valley.startAttack();
     expect(valley.stroke).toBe('counter');
     expect(valley.combatTarget).toBe(enemy);
-    advance(valley, 0.45);
+    advance(valley, 0.45 + IMPACT_PAUSE.heavy);
     enemy.openedUntil = valley.time + 0.4;
     valley.startAttack(other);
     expect(valley.combatTarget).toBe(other);
@@ -232,6 +259,74 @@ describe('Vale combat timing', () => {
     expect(enemy.health).toBe(hp);
     expect(enemy.attack).toBe(0);
     expect(valley.player.health).toBe(valley.player.maxHealth);
+  });
+
+  it.each([30, 60, 120])('holds the contact pose, accepts a return and finishes with a thrust at %i Hz', hz => {
+    const { valley, enemy, cues } = encounter();
+    enemy.health = 150;
+    const tick = () => valley.step(1 / hz, 0, 0, false);
+    valley.startAttack(enemy);
+    for (let i = 0; i < hz && !valley.contacts.length; i++) tick();
+    const strike = valley.strike, time = valley.time, x = enemy.x;
+    expect(valley.hitStopRemaining).toBeCloseTo(IMPACT_PAUSE.regular, 9);
+    valley.step(IMPACT_PAUSE.regular, 0, 0, false);
+    expect(valley.strike).toBe(strike);
+    expect(enemy.x).toBe(x);
+    expect(valley.time - time).toBeCloseTo(IMPACT_PAUSE.regular, 9);
+    for (const stroke of ['return', 'thrust']) {
+      while (valley.strike > 0.11) tick();
+      valley.startAttack(enemy);
+      while (valley.stroke !== stroke && valley.strike) tick();
+      expect(valley.stroke).toBe(stroke);
+    }
+    for (let i = 0; i < hz && enemy.health > 54; i++) tick();
+    expect(cues.some(c => c.cue === 'thrust')).toBe(true);
+    expect(enemy.health).toBe(54);
+    expect(enemy.x - valley.player.x).toBeGreaterThan(0.95);
+  });
+
+  it.each([30, 60, 120])('uses the dodge direction, stamina, cooldown and contact-time immunity at %i Hz', hz => {
+    for (const [contactAt, safe] of [[0.09, true], [0.15, false]] as const) {
+      const { valley, enemy, cues } = encounter();
+      // Dodge sideways along the edge of the attack while the target still covers both feet.
+      Object.assign(enemy, { x: -173.8, z: 19.65 });
+      enemy.attack = enemyContactRemaining(false) + contactAt;
+      expect(valley.requestDash(0, 1)).toBe(true);
+      expect(valley.stamina).toBe(78);
+      expect(valley.requestDash(1, 0)).toBe(false);
+      for (let i = 0; i < Math.ceil((SIDESTEP.duration + 0.07) * hz); i++) valley.step(1 / hz, 0, 0, false);
+      expect(valley.player.z - 18).toBeCloseTo(SIDESTEP.distance, 7);
+      expect(valley.player.health === valley.player.maxHealth).toBe(safe);
+      expect(cues.filter(c => c.cue === 'sidestep')).toHaveLength(1);
+      expect(valley.requestDash()).toBe(false);
+      advance(valley, 0.6);
+      valley.stamina = 2;
+      expect(valley.requestDash()).toBe(false);
+      expect(valley.tiredUntil).toBeGreaterThan(valley.time);
+    }
+  });
+
+  it.each([30, 60, 120])('strafes with the bow drawn and distinguishes focused flight from impact at %i Hz', hz => {
+    const { valley, enemy, cues } = encounter();
+    Object.assign(valley.game.state.inventory, { hunting_bow: 1, arrow: 2 });
+    valley.game.state.equippedWeapon = 'hunting_bow';
+    Object.assign(enemy, { x: -151, z: 18, home: { x: -151, z: 18 }, health: 80 });
+    valley.startAttack(enemy);
+    const yaw = valley.player.yaw;
+    for (let i = 0; i < Math.ceil((DRAW_TIME + FOCUS_TIME) * hz) + 1; i++) valley.step(1 / hz, 0, 1, false);
+    const p = valley.player;
+    expect(p.z).toBeGreaterThan(19);
+    expect(p.yaw).toBe(yaw);
+    expect(valley.bowFocus).toBe(1);
+    valley.aimDirection(enemy.x - p.x, enemy.z - p.z);
+    valley.releaseAttack();
+    valley.step(1 / hz, 0, 0, false);
+    expect(valley.arrows[0]?.focused).toBe(true);
+    expect(cues.map(c => c.cue)).toEqual(['bow_draw', 'bow_focus', 'focused_release']);
+    for (let i = 0; i < hz && !valley.contacts.length; i++) valley.step(1 / hz, 0, 0, false);
+    expect(cues.at(-1)?.cue).toBe('focused_hit');
+    expect(enemy.health).toBe(80 - FOCUSED_ARROW_DAMAGE);
+    expect(valley.game.state.inventory.arrow).toBe(1);
   });
 
 });
