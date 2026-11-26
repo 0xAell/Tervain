@@ -216,11 +216,14 @@ export class Ground {
           pixels[i] = mix(pixels[i]!, texel(this.textures[5]![0]!, wx * 4, wz * 4), sample.wood * 256);
         const wet = sample.nearWater ? waterProfile(wx, wz) : null;
         const inland = wet && wet.course !== 'ocean';
-        const light =
+        const daylight =
           0.5 +
           0.23 * Math.sin(wx * 0.15 + wz * 0.08) +
           0.18 * Math.cos(wz * 0.29 - wx * 0.07) +
           0.09 * Math.sin(wx * 0.54 + wz * 0.36);
+        // World-anchored thresholds keep the same patches of grass and rock on both sides of a chunk.
+        const dither = ((sx & 1) * 2 + ((sx ^ sy) & 1)) * 0.25;
+        const light = Math.floor(daylight * 10 + dither) / 10;
         if (sample.field) {
           const f = sample.field,
             p = toBuildingLocal(f, wx, wz),
@@ -288,9 +291,10 @@ export class Ground {
           }
           const shelf = sat((wet.bank + 0.72 + open * 1.6 + jitter) / 1.72);
           pixels[i] = mix(pixels[i]!, mix(gravel, path, 91), shelf * (112 + open * 91));
+          if (wet.bank > -0.52 && wet.bank < -0.13) pixels[i] = mix(pixels[i]!, rgba(75,77,60), 66);
         }
         if (sample.lane > 0 && wet?.course !== 'ocean') {
-          const wheel = sat((sample.lane - 0.09 + jitter * 0.24) / 0.79);
+          const wheel = sat(Math.floor(sat((sample.lane - 0.09 + jitter * 0.24) / 0.79) * 7 + dither) / 7);
           const worn = mix(path, rgba(120, 91, 67), sample.rut * (43 + light * 27));
           pixels[i] = mix(pixels[i]!, worn, wheel * 237);
         }
@@ -324,7 +328,7 @@ export class Ground {
           );
           pixels[i] = mix(pixels[i]!, patina, cliff * (0.89 - sample.lane * 0.54));
         }
-        const tone = relief.light[i]!;
+        const tone = Math.floor(relief.light[i]! / 7 + dither) * 7;
         if (tone)
           pixels[i] =
             tone > 0

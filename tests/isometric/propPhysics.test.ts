@@ -250,6 +250,19 @@ describe('loose objects in the playable vale', () => {
       }
     }
   });
+  it.each([30, 60, 120])('plants a dodge in front of solid cargo at %i Hz', hz => {
+    const valley = journey();
+    advance(valley, 0.45);
+    const box = valley.props!.object('strand/small-crate')!;
+    const startZ = box.z + 1.8;
+    moveTo(valley, box.x, startZ);
+    expect(valley.requestDash(0, -1)).toBe(true);
+    advance(valley, 0.25, 1 / hz);
+    expect(valley.position.z).toBeLessThan(startZ - 0.1);
+    expect(valley.position.z).toBeGreaterThan(box.z + 0.4);
+    expect(valley.dash).toBeUndefined();
+  });
+
   it('keeps pathfinding from shoving a crate, then responds to a bounded manual push and an aimed toss', () => {
     const v = journey(),
       w = v.props!;

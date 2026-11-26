@@ -57,6 +57,7 @@ const strokes = {
   attack: { body: [0, 1, 2, 3, 4, 5, 6], angles: [-1, -1.5, -2.17, -1.06, 0.09, 0.69, 0.92] },
   return: { body: [6, 6, 5, 4, 3, 2, 1], angles: [0.92, 1.02, 1.21, 0.68, -0.30, -1.14, -1.33] },
   counter: { body: [1, 2, 2, 3, 4, 5, 6], angles: [-1.29, -1.04, -0.82, -0.36, 0, -0.08, -0.32] },
+  thrust: { body: [1, 1, 2, 3, 4, 4, 5], angles: [-0.94, -0.75, -0.47, -0.18, 0.12, 0.16, 0.42] },
 } as const;
 const bearings: Record<string, number> = {
   east: 0,
@@ -122,7 +123,7 @@ export function buildSwordPoses(atlas: Atlas) {
   ]) {
     const west = face.includes('west'),
       side = face.replace('west', 'east');
-    for (const action of ['attack', 'return', 'counter', 'guard'] as const) {
+    for (const action of ['attack', 'return', 'thrust', 'counter', 'guard'] as const) {
       const stroke = action === 'guard' ? undefined : strokes[action];
       const native = 'hero-' + face + '--' + (stroke ? 'attack' : 'guard');
       const raised = action === 'guard' && !atlas.has(native);
@@ -161,6 +162,10 @@ export function buildSwordPoses(atlas: Atlas) {
 /** One source of facing, foot scale and action timing for the two camera spaces. */
 export function heroPose(v: Valley, atlas: Atlas, width: number) {
   const face = v.facing;
+  if (v.dash) {
+    const key = 'hero-' + face + '--walk';
+    return { key, width, flip: false, frame: Math.min(atlas.frameCount(key) - 1, 1 + Math.floor(v.dash.elapsed * 18)) };
+  }
   const activity = v.activity;
   const west = face.includes('west');
   const mirrorFace = face.replace('west', 'east');

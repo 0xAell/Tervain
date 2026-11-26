@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { QUICK_SLOT_COUNT } from '../../src/core/game/types';
 import { WORLD } from '../../src/core/world/layout';
+import { Game } from '../../src/core/game/game';
+import { Valley } from '../../src/isometric/simulation';
 import { readGlb } from '../presentation/glbFixture';
 
 // The README's account of the prototype is the first page a visitor reads, and the prototype guide
@@ -35,7 +37,10 @@ describe('the README’s account of the prototype', () => {
   });
 
   it('counts the residents, the animals and their kinds, and the hostiles as the data does', () => {
-    const kinds = new Set(animals.map((animal) => animal.species)).size, hunted = animals.filter((animal) => animal.huntable).length;
+    const liveAnimals = new Valley(new Game()).actors.filter(actor => actor.animal);
+    expect(liveAnimals).toHaveLength(animals.length);
+    const kinds = new Set(liveAnimals.map(actor => actor.key === 'mount' ? 'deer' : actor.key)).size;
+    const hunted = animals.filter(animal => animal.huntable).length;
     readmeSays(`${cap(word(residents.length))} named residents`);
     readmeSays(`${cap(word(animals.length))} animals of ${word(kinds)} kinds. ${cap(word(hunted))} can be hunted`);
     readmeSays(`against ${word(hostiles.length)} kinds of hostile`);

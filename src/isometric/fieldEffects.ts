@@ -91,18 +91,33 @@ export function drawEnemyWarning(
   ctx.lineWidth = heavy ? 2 : 1;
   ctx.globalAlpha = reducedMotion ? 0.62 : 0.31 + progress * 0.5;
   ctx.stroke();
-  // Closing gaps beneath the enemy show how much preparation remains on the actual blow.
-  const start = -Math.PI / 2;
-  ctx.beginPath();
-  ctx.ellipse(x, y, radius + 2, (radius + 2) * 0.5, 0, start, start + Math.max(0.01, progress) * Math.PI * 2);
-  ctx.strokeStyle = reducedMotion ? color : '#ffe1a6';
-  ctx.lineWidth = 2;
+  // The last amber segments close at contact. The indicator remains legible without a flash.
+  const segments = 24;
+  ctx.fillStyle = !reducedMotion && progress > 0.86 ? '#fff0c0' : color;
   ctx.globalAlpha = 0.84;
-  ctx.stroke();
+  for (let i = 0; i < Math.ceil(progress * segments); i++) {
+    const angle = (i / segments - 0.25) * Math.PI * 2;
+    ctx.fillRect(Math.round(x + Math.cos(angle) * (radius + 2)) - 1,
+      Math.round(y + Math.sin(angle) * (radius + 2) * 0.5), 3, heavy ? 2 : 1);
+  }
+  ctx.restore();
+}
+
+export function drawBootDust(ctx: CanvasRenderingContext2D, x: number, y: number, elapsed: number, wet: boolean) {
+  const t = Math.min(1, elapsed / 0.18);
+  ctx.save();
+  ctx.globalAlpha = 0.62 * (1 - t);
+  ctx.fillStyle = wet ? '#b5dcd0' : '#c5b18a';
+  for (let i = 0; i < 7; i++) {
+    const a = i * Math.PI * 2 / 7;
+    const r = (2 + t * 7) * (i % 2 ? 0.84 : 1);
+    ctx.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.4 - t * 2), 2, 1);
+  }
   ctx.restore();
 }
 
 function contactColor(hit: Contact) {
+  if (hit.kind === 'focused') return '#ffdf89';
   if (hit.kind === 'parry' || hit.kind === 'counter') return '#acf0d7';
   return hit.kind === 'guard' ? '#eaf6ed' : hit.kind === 'blade' ? '#ffe3a1' : '#d5ac86';
 }
@@ -122,8 +137,8 @@ export function drawContact(
     x = Math.round(p.x + ox),
     y = Math.round(p.y + oy);
   const turned = hit.kind === 'parry';
-  const spark = turned || hit.kind === 'guard' || hit.kind === 'blade' || hit.kind === 'counter';
-  const strong = !!(turned || hit.kind === 'counter' || hit.heavy || hit.defeated);
+  const spark = turned || hit.kind === 'guard' || hit.kind === 'blade' || hit.kind === 'counter' || hit.kind === 'focused';
+  const strong = !!(turned || hit.kind === 'counter' || hit.kind === 'focused' || hit.heavy || hit.defeated);
   ctx.save();
   ctx.globalAlpha = 1 - t * t;
   const color = contactColor(hit);

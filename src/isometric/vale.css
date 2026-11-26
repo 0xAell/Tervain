@@ -769,7 +769,7 @@ button img {
 .foe-panel[data-state='idle'] .foe-timing { visibility: hidden; }
 .foe-panel[data-state='open'] .foe-timing { background: #9ee6c7; }
 .foe-panel[data-state='open'] .foe-state { color: #b1e9cf; }
-.guard-touch, .attack-touch {
+.dodge-touch, .guard-touch, .attack-touch {
   display: none;
   position: absolute;
   touch-action: none;
@@ -786,9 +786,10 @@ button img {
   font-size: 15px;
 }
 .guard-touch { right: max(78px, calc(env(safe-area-inset-right) + 66px)); }
+.dodge-touch { right: max(144px, calc(env(safe-area-inset-right) + 132px)); }
 .guard-touch[aria-pressed='true'], .attack-touch:active { background: #4a5750; border-color: #b1dec5; }
 @media (pointer: coarse) {
-  .guard-touch, .attack-touch { display: block; }
+  .dodge-touch, .guard-touch, .attack-touch { display: block; }
   .hud .prompt { bottom: 116px; }
   .notice { bottom: 162px; }
 }
@@ -802,4 +803,61 @@ button img {
 }
 @media (prefers-reduced-motion: reduce) {
   .foe-loss { transition: none; }
+}
+
+.health .track { position: relative; }
+.room-curtain { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: #20292a; }
+.room-curtain canvas { position: absolute; image-rendering: pixelated; }
+.health .track > span { position: absolute; inset: 0 auto 0 0; }
+.health .track .health-loss { background: #ebc195; transition: width 280ms ease-out 110ms; }
+.low-health .health .track { outline-color: #efaa83; }
+.winded .stamina .track { outline: 2px solid #ecbb7c; }
+.modal-layer:has(.conversation) {
+  align-items: end;
+  padding: 0 max(12px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, #0c171d99, transparent 48%);
+}
+.page.conversation {
+  width: min(900px, 95vw);
+  max-height: 48dvh;
+  padding: 10px clamp(12px, 2.5vw, 30px) 15px;
+  border: 1px solid #927e60;
+  border-left: 3px solid #d1ad73;
+  background: linear-gradient(110deg, #192729fa, #232e2df7);
+}
+.conversation header { margin: 0 0 6px; padding: 0 0 6px; }
+.conversation h2 { font-size: clamp(20px, 2.3vw, 28px); }
+.conversation .speaker { width: 96px; height: 96px; image-rendering: pixelated; margin: 0 16px 2px 0; }
+.conversation .role { color: #ccba94; margin: 4px 0 0; }
+.conversation .speech { min-height: 42px; margin: 3px 0 9px; }
+.speech.revealing > span { animation: speak-word 1ms steps(1,end) backwards; }
+@keyframes speak-word { from { opacity: 0; } to { opacity: 1; } }
+.notice { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0; border: 0; border-image: none; }
+.notice-line { padding: 4px 11px; border-left: 2px solid #b69a6a; color: #f4e4c7; background: #1b282bed; }
+.replies { clear: both; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 4px; }
+.replies .reply { display: flex; align-items: baseline; gap: 8px; margin: 0; }
+.choice-key { color: #edc58a; }
+.choice-intent { margin-left: auto; color: #c3c9b6; font-size: .7em; text-transform: capitalize; }
+.conversation > .reply { width: auto; margin-bottom: 0; font-size: .8em; }
+.loadout { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 16px; align-items: start; }
+.loadout .items { grid-template-columns: repeat(auto-fit, minmax(min(125px, 100%), 1fr)); }
+.loadout .item[aria-pressed='true'], .belt-keys [aria-pressed='true'] { border-color: #cfad75; background-color: #3c4438; }
+.loadout .item-detail { border-left: 1px solid #726750; padding: 0 0 0 12px; }
+.item-detail > img { float: right; width: 48px; height: 48px; object-fit: contain; image-rendering: pixelated; }
+.item-detail h3 { margin-top: 2px; }
+.belt-label { display: block; margin-top: 12px; color: #d8c29b; }
+.belt-keys { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 3px; }
+.item-detail .belt-keys button { padding: 5px 0; margin: 0; min-height: 30px; }
+@media (max-width: 580px) {
+  .page.conversation { max-height: 54dvh; }
+  .conversation .speaker { width: 64px; height: 64px; margin-right: 9px; }
+  .replies { grid-template-columns: 1fr; }
+  .loadout { gap: 7px; }
+  .loadout .item { gap: 3px; padding: 4px; }
+  .loadout .item img { width: 24px; height: 24px; }
+  .loadout .item-detail { padding-left: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .health .track .health-loss { transition: none; }
+  .speech.revealing > span { animation: none; }
 }

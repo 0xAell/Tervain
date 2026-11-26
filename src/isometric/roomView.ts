@@ -200,7 +200,7 @@ export class RoomView {
     }
     return cuePass(cues);
   }
-  draw(ctx: CanvasRenderingContext2D, valley: Valley, regions: PickRegion[], dt: number) {
+  draw(ctx: CanvasRenderingContext2D, valley: Valley, regions: PickRegion[], dt: number, ambient = valley.time, speaker?: V2) {
     const plan = valley.room!,
       plate = this.art.plate(
         plan,
@@ -215,8 +215,9 @@ export class RoomView {
       const freedom = Math.max(0, (span - viewport * 0.84) / 2);
       return mid + Math.max(-freedom, Math.min(freedom, follow - mid));
     };
-    const x = w * 0.5 - center(midX, hero.x, plate.image.width, w),
-      y = h * 0.48 - center(midY, hero.y - 12, plate.image.height, h);
+    const talking = speaker && roomFoot(plan, speaker, true);
+    const x = w * 0.5 - center(midX, talking ? (hero.x + talking.x) / 2 : hero.x, plate.image.width, w),
+      y = h * (talking ? 0.36 : 0.48) - center(midY, (talking ? (hero.y + talking.y) / 2 : hero.y) - 12, plate.image.height, h);
     const blend = this.last === plan ? 1 - Math.exp(-dt * 13) : 1;
     this.ox += (x - this.ox) * blend;
     this.oy += (y - this.oy) * blend;
@@ -247,10 +248,10 @@ export class RoomView {
       daylight = Math.max(0, Math.sin(((hour - 6) * Math.PI) / 12));
     ctx.save();
     ctx.translate(ox, oy);
-    this.art.drawHangings(ctx, plate, windPhase(plan.site.x, plan.site.z, valley.time, 0.47));
-    this.windowLight(ctx, plate, daylight, hour, valley.time);
+    this.art.drawHangings(ctx, plate, windPhase(plan.site.x, plan.site.z, ambient, 0.47));
+    this.windowLight(ctx, plate, daylight, hour, ambient);
     ctx.restore();
-    const clock = valley.time,
+    const clock = ambient,
       sprites: Sprite[] = [];
     for (const f of plan.fixtures) {
       const open = f.use === 'chest' && valley.openChest === f.id;
