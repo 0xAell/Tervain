@@ -98,6 +98,7 @@ export class Client implements Controls {
   private lastTime = 0;
   private nextAuto = 0;
   private nextAudio = 0;
+  private lastRoom = '';
   private destination: V2 | null = null;
   private route: V2[] = [];
   private pendingTarget?: string;
@@ -247,6 +248,7 @@ export class Client implements Controls {
     this.sound.reset();
     this.game = new Game(state);
     this.valley = new Valley(this.game);
+    this.lastRoom = this.valley.roomKey;
     const physics = new PropPhysics(() => this.game.state);
     this.valley.enableProps(physics);
     physics.onContact = (material, energy, at) =>
@@ -726,7 +728,6 @@ export class Client implements Controls {
         }
       }
       this.valley.guard = this.touchGuard || held(b.guard!) || !!pad?.buttons[4]?.pressed;
-      const previousRoom = this.valley.roomKey;
       this.valley.step(
         dt,
         dx,
@@ -735,7 +736,9 @@ export class Client implements Controls {
         !this.destination,
         pace
       );
-      if (previousRoom !== this.valley.roomKey) {
+      // Interacting with a door can change rooms between presented frames.
+      if (this.lastRoom !== this.valley.roomKey) {
+        this.lastRoom = this.valley.roomKey;
         this.sound.endLine();
         this.stopWalking();
         this.nextAudio = 0;

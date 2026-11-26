@@ -83,6 +83,19 @@ try {
   await until(() => window.dodges === 1);
   await run(() => { window.pad.buttons[1].pressed = false; });
   await until(c => !c.valley.dash);
+  await run(c => {
+    const door = c.valley.targets().find(t => t.door?.id === 'house_a/front').door;
+    c.game.setPlayerTransform(door.outside.x, 0, door.outside.z, 0);
+    c.scene.resetCamera();
+  });
+  await until(c => c.valley.offers()[0]?.target?.door?.id === 'house_a/front');
+  await run(c => { c.ui.caption('An outdoor voice'); });
+  await tap('KeyE', 'e');
+  await until(c => c.valley.roomKey === 'house_a/ground' && c.scene.indoors);
+  assert(await run(() => document.querySelector('.spoken-caption').textContent !== 'An outdoor voice'),
+    'the outdoor caption carried into the room after interacting with its door');
+  await run(c => { c.valley.leaveRoom(); });
+  await until(c => !c.scene.indoors);
   const layouts = [];
   for (const [width, height, scale, mobile] of [[1280,720,1,false], [2560,540,1,false], [393,852,3,true], [844,390,2,true]]) {
     await page.cdp('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: scale, mobile });
