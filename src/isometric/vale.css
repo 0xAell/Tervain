@@ -896,3 +896,5 @@ button img {
 }
 
 .notice .milestone { border: 1px solid #d1af72; border-inline-start: 4px solid #e9cb87; color: #ffedcb; background: #293d37f5; font-weight: 700; }
+
+.action-detail { display: block; padding-top: .3em; font: 0.85em/1.35 ui-serif, Georgia, serif; color: #dbceaf; }

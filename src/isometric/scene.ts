@@ -210,9 +210,8 @@ export class Scene {
     style.top = Math.round((height - h * this.pixelScale) * 0.5 * density) / density + 'px';
   }
   private present(x: number, y: number) {
-    const physical = this.pixelScale * this.density;
-    const dx = Math.round((x - Math.round(x)) * physical) / this.density;
-    const dy = Math.round((y - Math.round(y)) * physical) / this.density;
+    const dx = (x - Math.round(x)) * this.pixelScale;
+    const dy = (y - Math.round(y)) * this.pixelScale;
     this.canvas.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
   }
   private crossThreshold(room: string) {

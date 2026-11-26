@@ -1,3 +1,4 @@
+import { commitPreconditions, hasProcedure, riteCalmActive, rotationBlockers, stabilizePreconditions } from '../core/game/commands';
 import { quiverCapacity } from '../core/game/hunting';
 import { fordPatrol, journeyLead } from '../core/game/valeJourney';
 import { bladeDamage } from '../core/rules/valeCombat';
@@ -1020,11 +1021,16 @@ export class Interface {
         )
       );
   }
-  actions(title: string, options: { text: string; run: () => void }[], description = '') {
+  actions(title: string, options: { text: string; run: () => void; detail?: string; disabled?: boolean }[], description = '') {
     this.mode = 'actions';
     const panel = this.shell(title);
     if (description) panel.append(el('p', '', description));
-    for (const option of options) panel.append(button(option.text, option.run, 'reply'));
+    for (const option of options) {
+      const control = button(option.text, option.run, 'reply');
+      control.disabled = !!option.disabled;
+      if (option.detail) control.append(el('small', 'action-detail', option.detail));
+      panel.append(control);
+    }
     return panel;
   }
   private interactKey() {
@@ -1317,34 +1323,31 @@ export class Interface {
   }
   controlsAt(act: InteractableAct, onEntry?: () => void) {
     if (act.do === 'open_sluice') {
-      const options = [
-        ['Brace the gate', 'stabilizeGate'],
-        ['Force the gate', 'forceGate'],
-      ] as const;
-      this.actions(
-        'The sluice',
-        [
-          ...options.map(([text, t]) => ({
-            text,
-            run: () => {
-              this.valley.action({ t });
-              this.controls.resume();
-            },
-          })),
-          ...(['rillford', 'quarry', 'rotation'] as const).map((a) => ({
-            text: {
-              rillford: 'Send water to Rillford',
-              quarry: 'Send water to the quarry',
-              rotation: 'Agree a rotation',
-            }[a],
-            run: () => {
-              this.valley.action({ t: 'commitAllocation', allocation: a });
-              this.controls.resume();
-            },
-          })),
-        ],
-        'Gate condition · ' + this.game.state.quest.gate
-      );
+      const state = this.game.state, gate = state.quest.gate;
+      const guide = journeyLead(state);
+      if (state.quest.phase === 'settled' || state.quest.phase === 'committed') {
+        this.actions('The sluice', [{ text: 'Read the field journal', run: () => this.open('journal') }], guide.reason);
+      } else if (gate !== 'stabilized') {
+        const need = stabilizePreconditions(state);
+        const repair = need === 'need_brace' ? 'Find the iron brace in the quarry yard.'
+          : need === 'need_wrench' ? 'Find the gate wrench beside the brace.'
+          : need === 'need_understanding' ? 'Inspect the crack or ask Ila how to seat the brace.'
+          : S(riteCalmActive(state) ? 'sluice.brace.safe.rite' : hasProcedure(state) ? 'sluice.brace.safe.procedure' : 'sluice.brace.unsafe');
+        const options = [{ text: 'Brace the gate', detail: repair, disabled: !!need,
+          run: () => { if (this.valley.action({ t: 'stabilizeGate' })) this.controlsAt(act); } }];
+        if (gate === 'damaged') options.push({ text: 'Force the gate', detail: S('sluice.force.warn'), disabled: false,
+          run: () => { if (this.valley.action({ t: 'forceGate' })) this.controlsAt(act); } });
+        this.actions('The sluice', options, S('sluice.state.' + gate));
+      } else {
+        const names = { rillford: 'Send water to Rillford', quarry: 'Send water to the quarry', rotation: 'Agree a rotation' };
+        const options = (['rillford','quarry','rotation'] as const).map(allocation => {
+          const needed = allocation === 'rotation' ? rotationBlockers(state).map(b => S('sluice.alloc.rotation.need.' + b)) : [];
+          return { text: names[allocation], detail: [S('sluice.alloc.' + allocation + '.gain'), S('sluice.alloc.' + allocation + '.cost'), ...needed].join(' '),
+            disabled: !!commitPreconditions(state,allocation),
+            run: () => { if (this.valley.action({ t: 'commitAllocation', allocation })) this.controls.resume(); } };
+        });
+        this.actions('The water hearing',options,'The brace is holding. Choose who will receive the spring water.');
+      }
     } else if (act.do === 'hunting_notes') {
       const note = S('inspect.hunter_supplies');
       const page = this.actions(
