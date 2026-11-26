@@ -1,3 +1,4 @@
+import { houseStyle } from './houseStyles';
 import type { HeroReveal } from './heroReveal';
 import type { Atlas } from './atlas';
 import type { V2 } from '../core/world/layout';
@@ -190,7 +191,19 @@ function arch(ctx: CanvasRenderingContext2D, atlas: Atlas, plan: FloorPlan, p: R
     d = at(x, z + half, 24);
   line(ctx, a, c, '#513c32', 4);
   line(ctx, b, d, '#513c32', 4);
-  line(ctx, c, d, '#644632', 4);
+  const style = houseStyle(plan.site.id);
+  if (style.motif === 'bell' || style.motif === 'record') {
+    const high = at(x,z,style.motif === 'bell' ? 34 : 28);
+    line(ctx,c,high,style.wall,5); line(ctx,high,d,style.wall,5);
+    line(ctx,c,high,style.trim); line(ctx,high,d,style.trim);
+  } else if (style.motif === 'weave' || style.motif === 'garden') {
+    for (const side of [-1,1]) {
+      const outer = z + side*half, inner = z + side*(half-0.55);
+      polygon(ctx,[at(x,outer,24),at(x,inner,24),at(x,inner,14),at(x,outer,10)],style.wall);
+      line(ctx,at(x,outer,12),at(x,inner,15),style.trim);
+    }
+  }
+  line(ctx, c, d, style.wall, 4);
   line(ctx, at(x, z - half, 25), at(x, z + half, 25), '#d2a46b', 2);
   line(ctx, b, at(x, z + half, 22), '#c29960', 1);
 }
@@ -571,8 +584,21 @@ export class RoomArt {
         rx = (r.x1 - r.x0) * (i === 1 ? 0.245 : 0.31),
         rz = (r.z1 - r.z0) * 0.25;
       const weave = r.rug === 'blue' || (indigo && i === 1) ? 'room_indigo' : 'room_rug';
-      if (plan.level !== 'cellar' || i === 1)
-        floorRect(ctx, this.atlas, weave, cx - rx, cz - rz, cx + rx, cz + rz);
+      const style = houseStyle(plan.site.id);
+      const formal = style.motif === 'record' || style.motif === 'bell';
+      const tiled = style.motif === 'garden' || style.motif === 'grain';
+      if (tiled && i === 1) {
+        floorRect(ctx,this.atlas,'room_slate',cx-1.5,r.z0+0.4,cx+1.5,r.z1-0.4,14);
+        for (let z=r.z0+1; z<r.z1-0.7; z+=1.4) line(ctx,at(cx-1.5,z),at(cx+1.5,z),style.trim);
+      }
+      if ((plan.level !== 'cellar' || i === 1) && (formal || style.motif === 'weave' || (i === 1 && ['cask','hunt','tide'].includes(style.motif)))) {
+        const runner = style.motif === 'weave' || style.motif === 'tide' ? 'room_indigo' : weave;
+        const halfX = formal ? rx * 0.54 : rx, halfZ = formal ? (r.z1 - r.z0) * 0.42 : rz;
+        floorRect(ctx, this.atlas, runner, cx - halfX, cz - halfZ, cx + halfX, cz + halfZ);
+      }
+      // Each household paints its own trade on the long wall: spindles, growing stems,
+      // saw teeth, barrel hoops, water ripples, corn, ledger rulings or the bell diamond.
+
       wall(
         ctx,
         this.atlas,
@@ -585,6 +611,19 @@ export class RoomArt {
         recordWindow(i),
         recordHanging(i)
       );
+      const z = r.z0, height = plan.level === 'loft' ? 24 : 26;
+      polygon(ctx, [at(r.x0,z,height),at(r.x1,z,height),at(r.x1,z,height-5),at(r.x0,z,height-5)], style.wall);
+      line(ctx, at(r.x0,z,height), at(r.x1,z,height), style.trim);
+      for (let v = r.x0 + 1; v < r.x1 - 0.8; v += 1.8) {
+        const p = at(v,z,height-1), q = at(v+0.9,z,height-1), mid = at(v+0.45,z,height-4);
+        if (style.motif === 'bell' || style.motif === 'weave') {
+          line(ctx, p, mid, style.trim); line(ctx, mid, q, style.trim);
+        } else if (style.motif === 'garden' || style.motif === 'grain') {
+          line(ctx, mid, {x:mid.x,y:mid.y-4}, style.trim); line(ctx, p, mid, style.trim);
+        } else if (style.motif === 'hunt' || style.motif === 'timber') line(ctx, p, mid, style.trim, 2);
+        else if (style.motif === 'tide') line(ctx, p, q, style.trim, 2);
+        else line(ctx, at(v,z,height-4), p, style.trim, style.motif === 'cask' ? 2 : 1);
+      }
       ctx.restore();
     }
     ctx.save();
@@ -634,8 +673,8 @@ export class RoomArt {
     ctx.restore();
     if (portal) {
       for (const side of [-1, 1]) {
-        const a = at(side * 1.85, hall.z1),
-          b = at(side * 1.85, hall.z1, 8);
+        const a = at(portal.x + side * 1.85, hall.z1),
+          b = at(portal.x + side * 1.85, hall.z1, 8);
         line(ctx, a, b, '#654a37', 4);
         line(ctx, b, { x: b.x + 1, y: b.y - 1 }, '#eac184', 3);
       }

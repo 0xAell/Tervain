@@ -28,7 +28,7 @@ The editable PNG sequences, original provider images and typeface are in `assets
 
 ## Status
 
-- **Version.** The current patch is [`0.1.26`](docs/production/releases/0.1.26.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
+- **Version.** The current patch is [`0.1.27`](docs/production/releases/0.1.27.md) in the Astra 6.2 Ultra `0.1.x` series. The title screen shows the running version. [Version policy](docs/production/versioning.md).
 - **Web build.** [Play Bellwether Vale in your browser](https://0xaell.github.io/Tervain/). The [Gothic 3 study](gothic3/) has its own build.
 - **Port seed.** Phase 0 of the [roadmap](docs/unreal/roadmap.md) is done: the engine-agnostic core, the exported data, the asset manifest, the porting docs and the C++ skeleton. All of it was prepared without the engine at hand. CI compiles, links and runs the skeleton against stand-ins for the engine's headers, but nothing has been built or imported in Unreal Engine yet. That is the first job of phase 1. A dated [review](docs/unreal/seed-review.md) scores each piece and says what is missing.
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Valley art and sound](docs/art/valley-craft.md).
@@ -45,13 +45,13 @@ The prototype is one small region, 580 m by 340 m: a coast, a wood, a waystation
 - Walkable household interiors with side rooms, staircases, animated hearths, storage, beds and trade workstations.
 - Twelve named residents with a day of their own. They work a trade, sit on benches, talk, go home and sleep.
 - Nineteen animals of six kinds. Thirteen can be hunted with a bow and skinned, including highland wolves and hill boar. The cats, the dogs and the saddled deer are left alone during a hunt. You can pet the village animals and ride the saddled deer.
-- Sword and bow against two kinds of hostile. One is the Thornback from the teaser, without the hat.
+- Sword and bow against four kinds of hostile. Toll-jumpers pressure the ford, road archers cover the approaches, shield deserters guard the quarry track, and the Thornback holds the Cut.
 - Reflective seas, flowing rivers and a spring. You can swim along the coast and wade among trout inland.
 - Planted banks, trout shoals, kingfishers and dragonflies.
 - A day and a night, adaptive music, footsteps by surface, and captioned speech.
 - Inventory, equipment, a ten-slot hotbar, a journal and a map.
 
-The Dry Bell has branching conversations, training, evidence and competing claims on the sluice. The journal records the choices you make in the Vale.
+The Dry Bell has branching conversations, training, evidence and competing claims on the sluice. The journal follows the evidence from the wreck to the mill. Its field guide points to the next landmark, and the final entry records who receives water after you operate the gate.
 
 <p align="center">
   <img src="docs/media/screenshots/weavers-house.webp" width="100%" alt="Inside the Weaver’s House, lanterns mark the open side rooms and stairs beside a woven hall runner.">
@@ -107,7 +107,10 @@ programs compiled before the first view and finds any compiled inside a draw dur
 | Path | What it is |
 | --- | --- |
 | [`src/core`](src/core/README.md) | The engine-agnostic core: the game's state, content, rules and world layout in TypeScript, with no renderer, browser or package dependency. CI enforces the boundary. This is the part a port imports or mirrors. |
-| `src/presentation`, `src/app.ts`, `src/platform`, `src/physics` | The web client: the Three.js scene, interface and sound, the browser adapters for input, storage and settings, and the Rapier physics binding. It reads the core, never the other way round. |
+| [`src/isometric/`](src/isometric/) | The live Bellwether Vale client, entered through `src/main.ts`. It draws the pixel world, houses and combat, presents the journal and inventory, and mixes music, speech and field sound. |
+| `src/app.ts`, `src/presentation/` | The earlier Three.js client and its retained regression fixtures. |
+| `src/platform/`, `src/physics/` | Browser storage, input adapters and the shared Rapier physics binding. |
+| [`gothic3/`](gothic3/) | A separate reconstruction with its own entry point and build checks. |
 | [`data/`](data/README.md) | The core's tables exported as JSON with schemas, the terrain as Landscape rasters, and DataTable-shaped files in Unreal's units. Generated, and checked in CI. |
 | [`data/assets`](data/assets/README.md) | The asset manifest: every model, texture and sound with its source, its license, and whether a port keeps, replaces or drops it. |
 | [`docs/unreal`](docs/unreal/README.md) | The porting docs: how each system maps to Unreal, the conventions, what the engine's web target can do, and a roadmap in phases. |

@@ -1,3 +1,4 @@
+import { pixelPool } from './pixelInk';
 import type { BuildingSpec } from '../core/world/layout';
 import type { Atlas } from './atlas';
 import { houseSolid, type Vertex3 } from './houseSolid';
@@ -136,17 +137,7 @@ export class Sunlight {
       g.setTransform(1, 0, 0, 1, 0, 0);
       if (person || high) {
         g.globalAlpha = opacity * (person ? 0.76 : 0.55);
-        g.beginPath();
-        g.ellipse(
-          x,
-          y,
-          Math.max(2, s.width * (person ? 0.13 : 0.18)),
-          Math.max(1, s.width * 0.047),
-          0,
-          0,
-          Math.PI * 2
-        );
-        g.fill();
+        pixelPool(g, x, y, Math.max(2, s.width * (person ? 0.13 : 0.18)), Math.max(1, s.width * 0.047));
       }
     }
     g.globalAlpha = 1;

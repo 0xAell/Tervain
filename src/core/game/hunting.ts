@@ -16,9 +16,9 @@ export const ANIMAL_MODEL_IDS = {
   'boar-a': '1005232442', 'boar-b': '1005232450', stag: '1005232424', 'deer-mount': '1005232412',
   'cat-c': '1005232556', 'boar-c': '1005174818', 'deer-a': '1005232351', 'deer-b': '1005232341',
 } as const satisfies Record<AnimalId, string>;
-export type AnimalSpecies = 'bear' | 'lion' | 'tiger' | 'wolf' | 'cat' | 'dog' | 'boar' | 'stag' | 'deer';
+export type AnimalSpecies = 'bear' | 'hill_boar' | 'highland_wolf' | 'wolf' | 'cat' | 'dog' | 'boar' | 'stag' | 'deer';
 export const ANIMAL_SPECIES: Record<AnimalId, AnimalSpecies> = {
-  'bear-a': 'bear', lion: 'lion', 'bear-b': 'bear', tiger: 'tiger',
+  'bear-a': 'bear', lion: 'hill_boar', 'bear-b': 'bear', tiger: 'highland_wolf',
   'wolf-a': 'wolf', 'wolf-b': 'wolf', 'wolf-c': 'wolf',
   'cat-a': 'cat', 'dog-a': 'dog', 'dog-b': 'dog', 'cat-b': 'cat',
   'boar-a': 'boar', 'boar-b': 'boar', stag: 'stag', 'deer-mount': 'deer',
@@ -59,6 +59,9 @@ export function withinSkinningReach(player: AnimalPosition, carcass: AnimalPosit
 export const SKINNING_SECONDS = 3.2;
 export const ARROW_RESTOCK_AMOUNT = 6;
 export const ARROW_QUIVER_CAPACITY = 40;
+export function quiverCapacity(s: { facts?: WorldState['facts'] }) {
+  return s.facts?.quiver_lined === true ? 56 : ARROW_QUIVER_CAPACITY;
+}
 /**
  * Arrows Rowan spares a hunter with none left and no hide to trade (A86 scout). Arrows come only from his table and his
  * trade, and hides only from game shot with them: an empty quiver with no hide otherwise ended hunting for good.
@@ -78,7 +81,7 @@ export const HUNTER_SUPPLY_POSITION = HUNTER_SUPPLY;
  * the hunter, so no animal appears before his eyes; pets and the mount never die, so never return.
  */
 export const WILDLIFE_RETURN_HOURS: Record<AnimalSpecies, number> = {
-  deer: 20, stag: 30, boar: 26, wolf: 36, bear: 72, lion: 72, tiger: 72, cat: Infinity, dog: Infinity,
+  deer: 20, stag: 30, boar: 26, wolf: 36, bear: 72, hill_boar: 30, highland_wolf: 42, cat: Infinity, dog: Infinity,
 };
 export const CARCASS_HOURS = 30, WOUND_HOURS = 6, WILDLIFE_RETURN_DISTANCE = 70;
 /** Game due back whose whole range lies too near the hunter for it to come back unseen tries again this often (s). */
@@ -104,8 +107,8 @@ export function hunterRank(tally: HuntTally | undefined): HunterRank {
 
 /** Text params for the restock strings: the arrows one hide buys at the current rank, not a fixed six (A71). */
 /** The arrows a hide buys now: the rank's, as many as still fit the quiver (A89 scout: the prompt promised the full count). */
-export function restockParams(s: Pick<WorldState, 'huntTally'> & Partial<Pick<WorldState, 'inventory'>>): { count: number } {
-  const room = s.inventory ? ARROW_QUIVER_CAPACITY - (s.inventory.arrow ?? 0) : Infinity;
+export function restockParams(s: Pick<WorldState, 'huntTally'> & Partial<Pick<WorldState, 'inventory' | 'facts'>>): { count: number } {
+  const room = s.inventory ? quiverCapacity(s) - (s.inventory.arrow ?? 0) : Infinity;
   return { count: Math.max(0, Math.min(hunterRank(s.huntTally).arrows, room)) };
 }
 
@@ -118,7 +121,8 @@ export function normalizeHuntTally(raw: unknown): HuntTally {
   if (!object(raw)) return tally;
   const count = (v: unknown) => (typeof v === 'number' && Number.isInteger(v) && v >= 0 && v < 1e6 ? v : 0);
   if (object(raw.species)) for (const species of Object.keys(MEAT_YIELD) as AnimalSpecies[]) {
-    const n = count(raw.species[species]);
+    const oldKey = species === 'highland_wolf' ? 'tiger' : species === 'hill_boar' ? 'lion' : undefined;
+    const n = count(raw.species[species]) + (oldKey ? count(raw.species[oldKey]) : 0);
     if (n) tally.species[species] = n;
   }
   tally.taken = Math.max(count(raw.taken), Object.values(tally.species).reduce((a, b) => a + (b ?? 0), 0));
@@ -198,7 +202,7 @@ export function normalizeHunting(raw: unknown): HuntingState {
   return hunting;
 }
 
-const MEAT_YIELD: Record<AnimalSpecies, number> = { bear: 4, lion: 3, tiger: 3, wolf: 2, cat: 1, dog: 2, boar: 4, stag: 4, deer: 3 };
+const MEAT_YIELD: Record<AnimalSpecies, number> = { bear: 4, hill_boar: 4, highland_wolf: 2, wolf: 2, cat: 1, dog: 2, boar: 4, stag: 4, deer: 3 };
 export function animalLoot(id: AnimalId): { animal_hide: number; raw_meat: number } {
   if (!isHuntableAnimalId(id)) return { animal_hide: 0, raw_meat: 0 };
   return { animal_hide: 1, raw_meat: MEAT_YIELD[ANIMAL_SPECIES[id]] };

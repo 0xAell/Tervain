@@ -289,7 +289,7 @@ export class ArrowFlights<P extends Point3 = Point3> {
  */
 export const SKULLS: Record<string, { height: number; rear: number }> = {
   'bear-a': { height: .75, rear: .27 }, 'bear-b': { height: .76, rear: .26 },
-  lion: { height: .83, rear: .21 }, tiger: { height: .76, rear: .22 },
+  lion: { height: .64, rear: .30 }, tiger: { height: .81, rear: .22 },
   'wolf-a': { height: .82, rear: .22 }, 'wolf-b': { height: .79, rear: .21 }, 'wolf-c': { height: .80, rear: .28 },
   'cat-a': { height: .76, rear: .22 }, 'cat-b': { height: .83, rear: .23 }, 'cat-c': { height: .76, rear: .21 },
   'dog-a': { height: .81, rear: .21 }, 'dog-b': { height: .78, rear: .19 },

@@ -1,0 +1,108 @@
+{
+  "title": "The Bell Road",
+  "beatsPerMinute": 90,
+  "bars": 16,
+  "sampleRate": 32000,
+  "source": {
+    "path": "tools/world-audio/bell_road.py",
+    "bytes": 7960,
+    "sha256": "b6b8a5bda1ef766cf69a98f67d729f1ff1a9243ffcf0496d9bb4a9b6bbd7c30b"
+  },
+  "deliveries": [
+    {
+      "path": "public/assets/audio/bell-road/air-canopy.mp3",
+      "bytes": 253053,
+      "sha256": "3f7933bd9d554923072ee157d5c1dd5c346fddc408de40de9ffb475a6cf456a0"
+    },
+    {
+      "path": "public/assets/audio/bell-road/air-millrace.mp3",
+      "bytes": 253053,
+      "sha256": "807e5a41fc7657493a98b660440fcade9c6a901a5d3a3182365d6dfee59d0819"
+    },
+    {
+      "path": "public/assets/audio/bell-road/air-night.mp3",
+      "bytes": 253053,
+      "sha256": "7c99b468c78be5353813f51b6fb697e28d139d965f3a1136ab334d4faf2b2eb8"
+    },
+    {
+      "path": "public/assets/audio/bell-road/air-rafters.mp3",
+      "bytes": 253053,
+      "sha256": "78804ec9456c9d027b2a1e1f148c85b23666806e6dfa6ac7fed1793865a16518"
+    },
+    {
+      "path": "public/assets/audio/bell-road/air-square.mp3",
+      "bytes": 253053,
+      "sha256": "1ee091b33cd8aa9b676c33199e77be9cbe5498d1e91e2ac575b09ec2599b6fe2"
+    },
+    {
+      "path": "public/assets/audio/bell-road/air-tideline.mp3",
+      "bytes": 253053,
+      "sha256": "4c0863a9fb57247316ff549aa88e6e798047255dc46afa72fcba6473e7e002d4"
+    },
+    {
+      "path": "public/assets/audio/bell-road/air-vault.mp3",
+      "bytes": 253053,
+      "sha256": "04b3529ec6fb94cbd152ae50c5d3fce44e3ab0d8a0077e4d075d208544f43681"
+    },
+    {
+      "path": "public/assets/audio/bell-road/ford.mp3",
+      "bytes": 598797,
+      "sha256": "098257e73b3ea545ba6c37654168216747d1b3e558d6689f5e20e2b541446630"
+    },
+    {
+      "path": "public/assets/audio/bell-road/hearth.mp3",
+      "bytes": 598797,
+      "sha256": "970401ba4437b256c866365ffc2874c4c3a6197eaf23c2d9ef0bc174f5652d58"
+    },
+    {
+      "path": "public/assets/audio/bell-road/homecoming.mp3",
+      "bytes": 598797,
+      "sha256": "cbe3d2a7546e72f5397ebbea5c45ba5213198c7261733ba3dd918c5d93612632"
+    },
+    {
+      "path": "public/assets/audio/bell-road/hymn.mp3",
+      "bytes": 598797,
+      "sha256": "3c3ee98c36a871a83ae71723bc774e6a21e367f88fa56362a8ac42a75d3dfaef"
+    },
+    {
+      "path": "public/assets/audio/bell-road/lamplight.mp3",
+      "bytes": 598797,
+      "sha256": "415b7fb2412031b4727ba01351354fc25164485a09320f02b77eee3bc304756e"
+    },
+    {
+      "path": "public/assets/audio/bell-road/market.mp3",
+      "bytes": 598797,
+      "sha256": "336a31555f1e950b67eb57b6bbe2d21c1a6e749c2e839af462fb67e8c33be096"
+    },
+    {
+      "path": "public/assets/audio/bell-road/overture.mp3",
+      "bytes": 598797,
+      "sha256": "e94e03f33158cbe947ec439f04fdbc886302fe54c111994eec75684972963326"
+    },
+    {
+      "path": "public/assets/audio/bell-road/pines.mp3",
+      "bytes": 598797,
+      "sha256": "27a4e0720288e6f2c068dd3194053ebf816894f2e8f1761cf6c13f3055368fd4"
+    },
+    {
+      "path": "public/assets/audio/bell-road/strand.mp3",
+      "bytes": 598797,
+      "sha256": "aa75116297fb793a71e0f73f35a4e5d0809ad786eb7555a8c00dafa4f2a4692f"
+    },
+    {
+      "path": "public/assets/audio/bell-road/thorn.mp3",
+      "bytes": 598797,
+      "sha256": "fc7043feafacb2e0ade408ef12d957d869669584f0c9cc55b45628058290193e"
+    },
+    {
+      "path": "public/assets/audio/bell-road/undercroft.mp3",
+      "bytes": 598797,
+      "sha256": "78f69406e211ead16cbb0b49a728a30469642eee47c053032c2ad52322dbecf0"
+    },
+    {
+      "path": "public/assets/audio/bell-road/water.mp3",
+      "bytes": 598797,
+      "sha256": "17403733ce6c5a12141343b071fc45b447fdfbce9be7e32c84382d520bdc1401"
+    }
+  ]
+}

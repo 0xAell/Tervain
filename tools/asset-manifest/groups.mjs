@@ -60,7 +60,7 @@ const TREES_WHY = 'The exact species of the game’s woods (oak, with birch, pin
 export const GROUPS = [
   {
     id: 'vale-village-art', title: 'Coastal village, trail and woodland sprites', kind: 'image', role: 'scenery',
-    match: /^public\/valley\/(?:scenery\.(?:png|json)|icons\/[^/]+\.png)$/, plan: 'keep', fab: null,
+    match: /^(?:(?:public\/valley|assets\/vale-scenery)\/scenery\.(?:png|json)|public\/valley\/(?:portraits\.png|icons\/[^/]+\.png))$/, plan: 'keep', fab: null,
     why: 'The ground-registered cels and matching item icons are used directly in the isometric game.',
     source: 'Original Tervain image generation and pixel editing documented in docs/production/valley-art.md.',
     licence: { id: 'LicenseRef-Tervain-Generated-Art', status: 'project-original' }, unreal: none,
@@ -240,6 +240,13 @@ export const GROUPS = [
     source: 'Supplied by the project owner; see docs/engineering/menu-score.md and menu-audio-assets.json.', licence: { id: 'LicenseRef-Service-Terms', status: 'unresolved' },
     beforeShip: 'Whether the terms of the service the archived theme was made with allow a commercial release is not settled.',
     unreal: none,
+  },
+  {
+    id: 'bell-road-music', title: 'The Bell Road score and field ambience', kind: 'audio', role: 'sound',
+    match: /^public\/assets\/audio\/bell-road\//, plan: 'keep', fab: null,
+    why: 'Shared musical themes and stereo beds accompany the journey from the wreck to the water hearing.',
+    source: 'Original notes, instruments and field textures rendered by tools/world-audio/bell_road.py.',
+    licence: { id: 'LicenseRef-Tervain-Original', status: 'project-original' }, unreal: playableSound('BellRoad', 'Cue'),
   },
   {
     id: 'vale-spoken-sound', title: 'Bellwether voice performances, field recordings and music', kind: 'audio', role: 'sound', match: /^public\/assets\/audio\/vale\//,

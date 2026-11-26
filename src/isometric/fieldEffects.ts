@@ -1,3 +1,4 @@
+import { pixelPool, pixelArc } from './pixelInk';
 import type { Footprint } from './footfalls';
 import { CONTACT_TIME, DAMAGE_LABEL_TIME, type Contact } from './fieldcraft';
 import { project, PROJECTION } from './projection';
@@ -82,15 +83,11 @@ export function drawEnemyWarning(
   const radius = reach * PROJECTION * Math.SQRT2;
   const color = heavy ? '#f6a36e' : '#efd08d';
   ctx.save();
-  ctx.beginPath();
-  ctx.ellipse(Math.round(x), Math.round(y), radius, radius * 0.5, 0, 0, Math.PI * 2);
   ctx.fillStyle = color;
   ctx.globalAlpha = reducedMotion ? 0.09 : 0.04 + progress * 0.11;
-  ctx.fill();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = heavy ? 2 : 1;
+  pixelPool(ctx, x, y, radius, radius * 0.5);
   ctx.globalAlpha = reducedMotion ? 0.62 : 0.31 + progress * 0.5;
-  ctx.stroke();
+  pixelArc(ctx, x, y, radius, radius * 0.5, 0, Math.PI * 2, heavy ? 2 : 1);
   // The last amber segments close at contact. The indicator remains legible without a flash.
   const segments = 24;
   ctx.fillStyle = !reducedMotion && progress > 0.86 ? '#fff0c0' : color;
@@ -147,12 +144,10 @@ export function drawContact(
     const angle = Math.atan2(direction.y, direction.x);
     if (turned) {
       // The paired arcs open towards the attacker, around the point where the blades met.
-      ctx.strokeStyle = color;
       const radius = 4 + 13 * (1 - (1 - t) ** 2);
       for (const scale of [1, 0.72]) {
-        ctx.beginPath();
-        ctx.arc(x, y, radius * scale, angle + 2.2, angle + 4.1);
-        ctx.stroke();
+        ctx.fillStyle = scale === 1 ? color : '#649a95';
+        pixelArc(ctx, x, y, radius * scale, radius * scale, angle + 2.2, angle + 4.1);
       }
     }
     const reach = strong ? 19 : 11;
@@ -168,11 +163,8 @@ export function drawContact(
     if (strong && t > 0.1) {
       const radius = 3 + 18 * t;
       ctx.globalAlpha = 0.65 * (1 - t);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.ellipse(x, y + 2, radius, radius * 0.41, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.fillStyle = color;
+      pixelArc(ctx, x, y + 2, radius, radius * 0.41);
     }
   }
   if (t < (reducedMotion ? 0.28 : 0.19)) {

@@ -14,6 +14,34 @@
     "Radius": 85
   },
   {
+    "Name": "skirmisher",
+    "DisplayName": "Cut-road archer",
+    "Health": 46,
+    "Speed": 375,
+    "Reach": 1400,
+    "WindUpSeconds": 0.76,
+    "StrikeSeconds": 0.17,
+    "RecoverSeconds": 1.45,
+    "Damage": 13,
+    "NoticeDistance": 1300,
+    "bHeavy": false,
+    "Radius": 40
+  },
+  {
+    "Name": "deserter",
+    "DisplayName": "Shield deserter",
+    "Health": 88,
+    "Speed": 285,
+    "Reach": 230,
+    "WindUpSeconds": 0.77,
+    "StrikeSeconds": 0.28,
+    "RecoverSeconds": 1.13,
+    "Damage": 17,
+    "NoticeDistance": 1000,
+    "bHeavy": true,
+    "Radius": 53
+  },
+  {
     "Name": "bandit",
     "DisplayName": "Toll-jumper",
     "Health": 55,

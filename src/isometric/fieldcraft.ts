@@ -100,6 +100,7 @@ export function arrowLift(travelled: number) {
   return 20 * (1 - 0.55 * range) + 3 * Math.sin(Math.PI * range);
 }
 export interface Arrow extends V2 {
+  owner?: import('../core/game/types').EncounterId;
   focused?: boolean;
   launchHeight: number;
   grade: number;

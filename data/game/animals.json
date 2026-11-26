@@ -4,18 +4,18 @@
   "animals": [
     {
       "id": "1005232739",
-      "species": "tiger",
-      "file": "tiger-1005232739.glb",
+      "species": "highland_wolf",
+      "file": "highland_wolf-1005232739.glb",
       "habitat": "warm-woodland",
       "home": {
         "x": 107,
         "z": 22
       },
       "roam": 19,
-      "walk": 0.417,
-      "run": 1.65,
+      "walk": 0.394,
+      "run": 1.199,
       "huntId": "tiger",
-      "huntSpecies": "tiger",
+      "huntSpecies": "highland_wolf",
       "huntable": true,
       "clips": [
         "Idle",
@@ -26,34 +26,35 @@
       ],
       "loot": {
         "animal_hide": 1,
-        "raw_meat": 3
+        "raw_meat": 2
       }
     },
     {
       "id": "1005232726",
-      "species": "lion",
-      "file": "lion-1005232726.glb",
+      "species": "hill_boar",
+      "file": "hill_boar-1005232726.glb",
       "habitat": "warm-woodland",
       "home": {
         "x": 112,
         "z": 51
       },
       "roam": 19,
-      "walk": 0.419,
-      "run": 1.691,
+      "walk": 0.371,
+      "run": 1.045,
       "huntId": "lion",
-      "huntSpecies": "lion",
+      "huntSpecies": "hill_boar",
       "huntable": true,
       "clips": [
         "Idle",
         "Walk",
         "Run",
         "Alert",
-        "Call"
+        "Call",
+        "Graze"
       ],
       "loot": {
         "animal_hide": 1,
-        "raw_meat": 3
+        "raw_meat": 4
       }
     },
     {
@@ -527,14 +528,14 @@
     }
   ],
   "species": {
-    "tiger": {
+    "highland_wolf": {
       "notice": 13,
       "flee": 6,
       "holdUntil": 0.55,
       "herd": 0,
       "callReach": 76
     },
-    "lion": {
+    "hill_boar": {
       "notice": 13,
       "flee": 6,
       "holdUntil": 0.55,
@@ -714,8 +715,8 @@
       "boar": 26,
       "wolf": 36,
       "bear": 72,
-      "lion": 72,
-      "tiger": 72,
+      "hill_boar": 30,
+      "highland_wolf": 42,
       "cat": null,
       "dog": null
     },

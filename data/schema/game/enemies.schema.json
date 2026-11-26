@@ -13,117 +13,58 @@
     },
     "archetypes": {
       "type": "object",
-      "properties": {
-        "thornback": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "hp": {
-              "type": "integer"
-            },
-            "speed": {
-              "type": "number"
-            },
-            "reach": {
-              "type": "number"
-            },
-            "wind": {
-              "type": "number"
-            },
-            "strike": {
-              "type": "number"
-            },
-            "recover": {
-              "type": "number"
-            },
-            "damage": {
-              "type": "integer"
-            },
-            "notice": {
-              "type": "integer"
-            },
-            "heavy": {
-              "type": "boolean"
-            },
-            "radius": {
-              "type": "number"
-            }
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
           },
-          "required": [
-            "name",
-            "hp",
-            "speed",
-            "reach",
-            "wind",
-            "strike",
-            "recover",
-            "damage",
-            "notice",
-            "heavy",
-            "radius"
-          ],
-          "additionalProperties": false
+          "hp": {
+            "type": "integer"
+          },
+          "speed": {
+            "type": "number"
+          },
+          "reach": {
+            "type": "number"
+          },
+          "wind": {
+            "type": "number"
+          },
+          "strike": {
+            "type": "number"
+          },
+          "recover": {
+            "type": "number"
+          },
+          "damage": {
+            "type": "integer"
+          },
+          "notice": {
+            "type": "integer"
+          },
+          "heavy": {
+            "type": "boolean"
+          },
+          "radius": {
+            "type": "number"
+          }
         },
-        "bandit": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "hp": {
-              "type": "integer"
-            },
-            "speed": {
-              "type": "number"
-            },
-            "reach": {
-              "type": "number"
-            },
-            "wind": {
-              "type": "number"
-            },
-            "strike": {
-              "type": "number"
-            },
-            "recover": {
-              "type": "number"
-            },
-            "damage": {
-              "type": "integer"
-            },
-            "notice": {
-              "type": "integer"
-            },
-            "heavy": {
-              "type": "boolean"
-            },
-            "radius": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "name",
-            "hp",
-            "speed",
-            "reach",
-            "wind",
-            "strike",
-            "recover",
-            "damage",
-            "notice",
-            "heavy",
-            "radius"
-          ],
-          "additionalProperties": false
-        }
-      },
-      "required": [
-        "thornback",
-        "bandit"
-      ],
-      "additionalProperties": false
+        "required": [
+          "name",
+          "hp",
+          "speed",
+          "reach",
+          "wind",
+          "strike",
+          "recover",
+          "damage",
+          "notice",
+          "heavy",
+          "radius"
+        ],
+        "additionalProperties": false
+      }
     },
     "posts": {
       "type": "array",

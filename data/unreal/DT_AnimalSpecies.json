@@ -1,6 +1,6 @@
 [
   {
-    "Name": "tiger",
+    "Name": "highland_wolf",
     "NoticeDistance": 1300,
     "FleeDistance": 600,
     "HoldUntil": 0.55,
@@ -8,7 +8,7 @@
     "CallReach": 7600
   },
   {
-    "Name": "lion",
+    "Name": "hill_boar",
     "NoticeDistance": 1300,
     "FleeDistance": 600,
     "HoldUntil": 0.55,

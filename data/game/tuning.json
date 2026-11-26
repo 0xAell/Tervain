@@ -259,11 +259,11 @@
         "rear": 0.26
       },
       "lion": {
-        "height": 0.83,
-        "rear": 0.21
+        "height": 0.64,
+        "rear": 0.3
       },
       "tiger": {
-        "height": 0.76,
+        "height": 0.81,
         "rear": 0.22
       },
       "wolf-a": {

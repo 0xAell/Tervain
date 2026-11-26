@@ -49,12 +49,8 @@ async function folder(directory) {
 await folder('vale');
 await folder('valley');
 await folder('assets/audio/vale');
-const tracks = ['riverbank', 'banked-embers', 'bough-watch', 'lanterns', 'spring-stones', 'timber'];
-for (const track of tracks)
-  for (const ext of ['m4a', 'ogg']) await add('assets/audio/world/ford/' + track + '.' + ext);
-
-for (const trade of ['mill', 'quarry'])
-  for (const ext of ['ogg', 'm4a']) await add('assets/audio/world/loop-' + trade + '.' + ext);
+await folder('assets/audio/bell-road');
+await folder('audio/animals');
 
 const result = await build({
   root,

@@ -1,3 +1,5 @@
+import { followAxis } from './camera';
+import { pixelPool } from './pixelInk';
 import { smoothstep } from '../core/world/noise';
 import { drawProp, propSprite } from './propArt';
 import type { PropView } from './propPhysics';
@@ -33,6 +35,7 @@ interface Sprite extends V2 {
   lift?: number;
 }
 export class RoomView {
+  private previousFocus = { x: 0, y: 0 };
   private art: RoomArt;
   private reveal = new HeroReveal();
   private ox = 0;
@@ -47,11 +50,10 @@ export class RoomView {
       : roomUnproject(x - this.ox, y - this.oy);
   }
   private glow(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, bright: number) {
-    const g = ctx.createRadialGradient(x, y, 1, x, y, r);
-    g.addColorStop(0, 'rgba(255,189,92,' + bright + ')');
-    g.addColorStop(1, 'rgba(255,165,67,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    for (const [radius, opacity] of [[1,0.15],[0.67,0.24],[0.32,0.38]] as const) {
+      ctx.fillStyle = 'rgba(255,185,103,' + bright * opacity + ')';
+      pixelPool(ctx, x, y, r * radius, r * radius * 0.62);
+    }
   }
   private windowLight(
     ctx: CanvasRenderingContext2D,
@@ -218,30 +220,20 @@ export class RoomView {
     const talking = speaker && roomFoot(plan, speaker, true);
     const x = w * 0.5 - center(midX, talking ? (hero.x + talking.x) / 2 : hero.x, plate.image.width, w),
       y = h * (talking ? 0.36 : 0.48) - center(midY, (talking ? (hero.y + talking.y) / 2 : hero.y) - 12, plate.image.height, h);
-    const blend = this.last === plan ? 1 - Math.exp(-dt * 13) : 1;
-    this.ox += (x - this.ox) * blend;
-    this.oy += (y - this.oy) * blend;
+    this.ox = this.last === plan ? followAxis(this.ox,this.previousFocus.x,x,dt,13) : x;
+    this.oy = this.last === plan ? followAxis(this.oy,this.previousFocus.y,y,dt,13) : y;
+    this.previousFocus.x = x;
+    this.previousFocus.y = y;
     this.last = plan;
     const ox = Math.round(this.ox),
       oy = Math.round(this.oy);
     ctx.fillStyle = plan.level === 'cellar' ? '#172328' : '#202a2b';
     ctx.fillRect(0, 0, w, h);
-    const shade = ctx.createRadialGradient(
-      w * 0.5,
-      h * 0.48,
-      10,
-      w * 0.5,
-      h * 0.48,
-      Math.max(w * 0.62, h * 0.7)
-    );
-    shade.addColorStop(0, plan.level === 'cellar' ? '#32403d' : '#445049');
-    shade.addColorStop(1, '#121d24');
-    ctx.fillStyle = shade;
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = plan.level === 'cellar' ? '#20292d' : '#2d3838';
+    pixelPool(ctx, w / 2, h * 0.48, w * 0.57, h * 0.6);
     ctx.save();
-    ctx.shadowColor = 'rgba(8,14,18,.4)';
-    ctx.shadowBlur = 11;
-    ctx.shadowOffsetY = 7;
+    ctx.shadowColor = '#172023';
+    ctx.shadowOffsetY = 4;
     ctx.drawImage(plate.image, plate.left + ox, plate.top + oy);
     ctx.restore();
     const hour = valley.skyHour,
@@ -289,7 +281,7 @@ export class RoomView {
       sprites.push({
         ...at,
         key: this.atlas.has(motion) ? motion : a.key,
-        width: 40,
+        width: a.width,
         resident: true,
         frame: Math.floor(clock * (moving ? 8 : 5)),
         flip,
@@ -298,7 +290,7 @@ export class RoomView {
     }
     sprites.push({
       ...valley.displayPosition,
-      ...heroPose(valley, this.atlas, 44),
+      ...heroPose(valley, this.atlas, 38),
       hero: true,
       shade: true,
       lift: (valley.standingLift + valley.hop) * roomRisePixels,
@@ -326,17 +318,9 @@ export class RoomView {
       if (flight?.passage.kind === 'down') clipBelowRim(ctx, flight);
       if (s.shade) {
         ctx.fillStyle = 'rgba(37,25,33,.24)';
-        ctx.beginPath();
-        ctx.ellipse(
-          sx,
-          sy - 1,
-          (s.hero ? 33 : s.width) * 0.32,
-          Math.max(2, (s.hero ? 33 : s.width) * 0.095),
-          0,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
+        pixelPool(ctx, sx, sy - 1, (s.hero ? 33 : s.width) * 0.28, Math.max(1, s.width * 0.065));
+        ctx.fillStyle = 'rgba(34,28,35,.33)';
+        pixelPool(ctx, sx, sy, s.width * 0.16, 1);
       }
       const paint = (ctx: CanvasRenderingContext2D) => {
         if (s.prop) drawProp(ctx, this.atlas, s.prop, sx, sy - (s.lift ?? 0), s.width, true);

@@ -119,11 +119,11 @@ def main():
                 y[offset:offset+len(gesture)] = gesture
             return y
         queue("voice/"+bank,VOICE/data["file"],dialogue,.39)
-    for species in ("tiger","lion","bear","wolf","cat","dog","boar","deer"):
+    for species in ("highland_wolf","hill_boar","bear","wolf","cat","dog","boar","deer"):
         for variant in (1,2):
             id=f"{species}-{variant}"
             def animal(species=species,variant=variant,id=id):
-                duration = {"wolf":2.1,"bear":1.5,"dog":.79,"cat":.65,"deer":1.1}.get(species,1.4)*(.88+.09*variant)
+                duration = {"wolf":2.1,"highland_wolf":2.45,"hill_boar":1.25,"bear":1.5,"dog":.79,"cat":.65,"deer":1.1}.get(species,1.4)*(.88+.09*variant)
                 return call(species,np.arange(round(duration*SR))/SR,np.random.default_rng(seed_for(id)))
             queue("animal/"+id,ANIMALS/id,animal,.55)
     for id,duration in HUNTING.items():

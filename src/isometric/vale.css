@@ -861,3 +861,38 @@ button img {
   .health .track .health-loss { transition: none; }
   .speech.revealing > span { animation: none; }
 }
+
+.pixel-portrait { display: inline-block; image-rendering: pixelated; background-size: 500% 600%; background-repeat: no-repeat; box-shadow: 0 0 0 1px #b19868; }
+.listener { float: left; clear: left; margin: 5px 13px 4px 0; }
+.listener .pixel-portrait { width: 52px; height: 52px; }
+.pack-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 12px; }
+.pack-tabs button, .journal-current button { min-height: 32px; padding: 3px 10px; }
+.pack-tabs [aria-pressed=true] { color: #ffdfa2; background: #394a41; border-color: #bc9a60; }
+.items .item[hidden], .hud .journey-lead[hidden] { display: none; }
+.item-stat, .journal-current small { color: #ebcd90; }
+.journal-current { border-left: 3px solid #c69a59; background: #253331; padding: 9px 13px; margin: 6px 0 16px; }
+.journal-current h3 { margin: 3px 0; }
+.journal-current button + button { margin-left: 5px; }
+.hud .journey-lead { position: absolute; top: 79px; left: 16px; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px;
+  max-width: min(330px,45vw); text-align: left; background: #182829ed; color: #f7ecce; border: 0; border-left: 2px solid #c4a06c;
+  padding: 6px 9px; pointer-events: auto; line-height: 1.18; }
+.journey-lead small { grid-column: 1 / -1; color: #ddbf85; font-size: 11px; letter-spacing: .045em; }
+.journey-lead strong { font-size: 13px; font-weight: 600; }
+.journey-bearing { align-self: end; color: #dbccab; font-size: 11px; white-space: nowrap; }
+.notice { left: auto; right: 15px; top: 80px; bottom: auto; transform: none; align-items: flex-end; max-width: min(320px,45vw); }
+.notice-line { display: flex; align-items: center; gap: 6px; text-align: left; }
+.notice-line img { width: 19px; height: 19px; image-rendering: pixelated; object-fit: contain; }
+@media (prefers-reduced-motion: no-preference) {
+  .low-health .vitals { animation: life-breath 1.55s ease-in-out infinite alternate; }
+  .hud .vitals.just-hit { animation: life-struck 280ms ease-out; }
+  .low-health .vitals.just-hit { animation: life-struck 280ms ease-out, life-breath 1.55s 280ms ease-in-out infinite alternate; }
+  @keyframes life-struck { 0% { background: #91483b; box-shadow: inset 0 0 0 2px #dda095; } }
+  @keyframes life-breath { to { box-shadow: inset 3px 0 #b85a49; background-color:#3b302e; } }
+}
+@media (max-width: 650px), (max-height: 500px) {
+ .hud .journey-lead { top: 62px; left: 8px; max-width: 52vw; padding: 3px 5px; }
+ .journey-lead small { font-size: 9px; } .journey-lead strong, .journey-bearing { font-size: 10px; }
+ .notice { top: 65px; right: 8px; max-width: 42vw; font-size: 12px; } .listener .pixel-portrait {width: 36px; height: 36px;}
+}
+
+.notice .milestone { border: 1px solid #d1af72; border-inline-start: 4px solid #e9cb87; color: #ffedcb; background: #293d37f5; font-weight: 700; }

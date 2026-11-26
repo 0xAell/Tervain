@@ -1,10 +1,11 @@
+import { fordPatrol } from './valeJourney';
 import { COOKFIRES, WAGON_TALLY } from '../world/layout';
 import { INSPECT_POINTS } from '../content/inspect';
 import { hotbarEligible, isItemId, itemAction, ITEMS } from '../content/items';
 import { APPLY_DELAY_MIN, REPORT_DELAY_MIN, REWARD_COIN, RITE_CALM_MIN, TRAINING_COST, TRUST_LIMIT } from './constants';
 import { validQuantity, validQuickSlot } from './inventory';
 import {
-  ANIMAL_SPECIES, animalLoot, ARROW_QUIVER_CAPACITY, HUNTER_SPARE_ARROWS, HUNTER_SUPPLY_POSITION, hunterRank, hunterSparesArrows, hunterTradingOpen, returnWildlife,
+  ANIMAL_SPECIES, animalLoot, quiverCapacity, HUNTER_SPARE_ARROWS, HUNTER_SUPPLY_POSITION, hunterRank, hunterSparesArrows, hunterTradingOpen, returnWildlife,
   isAnimalId, isHuntableAnimalId, normalizeAnimalYaw, withinSkinningReach, validAnimalHit,
   type AnimalHit,
 } from './hunting';
@@ -73,6 +74,7 @@ export function applyEffect(s: WorldState, e: Effect, events: GameEvent[]): stri
       if (cur + e.delta < 0) return `missing_item:${e.id}`;
       if (!validQuantity(cur + e.delta)) return 'invalid_quantity';
       s.inventory[e.id] = cur + e.delta;
+      if (s.facts.worn_charm === e.id && !s.inventory[e.id]) delete s.facts.worn_charm;
       if (s.equippedWeapon === e.id && s.inventory[e.id] === 0) {
         s.equippedWeapon = null;
         events.push({ t: 'equipment', item: null });
@@ -278,6 +280,7 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
       if (!validQuantity(cmd.qty) || cmd.qty === 0 || !validQuantity(itemCount(s, cmd.item) + cmd.qty)) return fail('invalid_quantity');
       const key = `pickup:${cmd.pickupId}`;
       if (s.locationChanges[key] === 'taken') return fail('already_taken');
+      if (cmd.item === 'arrow' && itemCount(s, 'arrow') + cmd.qty > quiverCapacity(s)) return fail('arrow_quiver_full');
       s.locationChanges[key] = 'taken';
       s.inventory[cmd.item] = (s.inventory[cmd.item] ?? 0) + cmd.qty;
       events.push({ t: 'item', id: cmd.item, delta: cmd.qty });
@@ -353,7 +356,7 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
         return ok();
       }
       // A hide buys what the quiver still holds of the rank's arrows; only a full quiver refuses it (A86 scout).
-      const room = ARROW_QUIVER_CAPACITY - itemCount(s, 'arrow');
+      const room = quiverCapacity(s) - itemCount(s, 'arrow');
       if (room <= 0) return fail('arrow_quiver_full');
       const arrows = Math.min(hunterRank(s.huntTally).arrows, room);
       s.inventory.animal_hide = itemCount(s, 'animal_hide') - 1;
@@ -577,6 +580,11 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
     }
 
     case 'defeat': {
+      if (s.defeated[cmd.id]) return ok();
+      if (cmd.id === 'quarry_deserter' || cmd.id === 'ridge_deserter')
+        applyEffect(s, { t: 'grant', id: 'salvage:' + cmd.id, items: { iron_scrap: 1, coin: 2 } }, events);
+      if (cmd.id === 'ford_lookout' || cmd.id === 'cut_archer')
+        applyEffect(s, { t: 'grant', id: 'salvage:' + cmd.id, items: { coin: 3 } }, events);
       s.defeated[cmd.id] = true;
       // With the thornback gone the ledge is clear, and the stranded worker comes down by it, as she does through the
       // opened gate. Only a conversation could free her before, and none in play reaches that (A94 scout).
@@ -675,11 +683,36 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
       const delta = cmd.direction === 'deposit' ? -1 : 1;
       if ((delta < 0 && held < 1) || (delta > 0 && stored < 1)) return fail('missing_item');
       if (!validQuantity(stored - delta) || !validQuantity(held + delta)) return fail('invalid_quantity');
-      if (cmd.item === 'arrow' && held + delta > ARROW_QUIVER_CAPACITY) return fail('quiver_full');
+      if (cmd.item === 'arrow' && held + delta > quiverCapacity(s)) return fail('quiver_full');
       const err = applyEffect(s, { t: 'item', id: cmd.item, delta }, events);
       if (err) return fail(err);
       s.facts[key] = stored - delta;
       return ok();
+    }
+    case 'wearCharm': {
+      if (cmd.item && (ITEMS[cmd.item]?.kind !== 'clothing' || itemCount(s, cmd.item) < 1)) return fail('missing_item');
+      s.facts.worn_charm = cmd.item ?? '';
+      return ok();
+    }
+    case 'collectFordWage': {
+      if (s.player.interior || Math.hypot(s.player.x - WAGON_TALLY.x, s.player.z - WAGON_TALLY.z) > WAGON_TALLY.reach) return fail('out_of_reach');
+      const patrol = fordPatrol(s);
+      if (!patrol.complete || patrol.paid) return fail('order_closed');
+      const err = applyEffect(s, { t: 'grant', id: 'ford_wagon_wage', items: { coin: 6, bread: 1 } }, events);
+      return err ? fail(err) : ok();
+    }
+    case 'lineQuiver': {
+      if (s.player.interior || Math.hypot(s.player.x - WAGON_TALLY.x, s.player.z - WAGON_TALLY.z) > WAGON_TALLY.reach) return fail('out_of_reach');
+      if (s.facts.quiver_lined || !itemCount(s, 'hunting_bow') || !itemCount(s, 'animal_hide')) return fail('need_materials');
+      const err = applyEffects(s, [{ t: 'item', id: 'animal_hide', delta: -1 }, { t: 'fact', key: 'quiver_lined', value: true }], events);
+      return err ? fail(err) : ok();
+    }
+    case 'sharpenBlade': {
+      if (s.player.interior || Math.hypot(s.player.x - WAGON_TALLY.x, s.player.z - WAGON_TALLY.z) > WAGON_TALLY.reach)
+        return fail('out_of_reach');
+      if (s.facts.blade_honed || !itemCount(s, 'rusted_sword') || !itemCount(s, 'iron_scrap')) return fail('need_materials');
+      return applyEffects(s, [{ t: 'item', id: 'iron_scrap', delta: -1 },
+        { t: 'fact', key: 'blade_honed', value: true }], events) ? fail('need_materials') : ok();
     }
     case 'deliverWagonIron': {
       if (s.player.interior || Math.hypot(s.player.x - WAGON_TALLY.x, s.player.z - WAGON_TALLY.z) > WAGON_TALLY.reach)
@@ -708,7 +741,7 @@ export function execute(s: WorldState, cmd: Command): CommandResult {
               : 'field_mushroom';
       if (itemCount(s, input) < 1) return fail('missing_ingredient');
       if (cmd.recipe === 'cook' && s.player.health >= s.player.maxHealth) return fail('already_well');
-      if (cmd.recipe === 'fletch' && itemCount(s, 'arrow') + 4 > ARROW_QUIVER_CAPACITY)
+      if (cmd.recipe === 'fletch' && itemCount(s, 'arrow') + 4 > quiverCapacity(s))
         return fail('quiver_full');
       const err = applyEffect(s, { t: 'item', id: input, delta: -1 }, events);
       if (err) return fail(err);

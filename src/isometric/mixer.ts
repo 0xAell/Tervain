@@ -339,23 +339,26 @@ export class Mixer {
     const { cue } = recording;
     const file = this.file(cue);
     const ready = this.cached(file);
-    if (ready) this.playEffect(ready, gain * recording.gain, pan, this.room, cue[1] / sampleRate, cue[2] / sampleRate);
+    if (ready) this.playEffect(ready, gain * recording.gain, pan, this.room, cue[1] / sampleRate, cue[2] / sampleRate, rate);
     else void this.buffer(file).catch(() => {});
   }
-  async effect(cue: Cue, gain: number, pan = 0, inWorld = true) {
+  effect(cue: Cue, gain: number, pan = 0, inWorld = true) {
+    return this.recording(this.file(cue), gain, pan, inWorld, cue[1] / sampleRate, cue[2] / sampleRate);
+  }
+  async recording(file: string, gain: number, pan: number, inWorld = true, offset = 0, duration?: number) {
     if (!this.canPlayEffect) return;
     const generation = this.worldGeneration;
     const material = inWorld ? this.room : undefined;
     const at = performance.now();
     try {
-      const file = this.file(cue);
       const buffer = this.cached(file) ?? (await this.buffer(file));
       if (generation !== this.worldGeneration || performance.now() - at > 950 || !this.canPlayEffect) return;
-      this.playEffect(buffer, gain, pan, material, cue[1] / sampleRate, cue[2] / sampleRate);
+      this.playEffect(buffer, gain, pan, material, offset, duration, 1 + (this.accentTurn++ % 7 - 3) * 0.016);
     } catch {
       /* A missing effect cannot interrupt the game or another sound. */
     }
   }
+  private scoreStart: number | undefined;
   async loop(bus: 'music' | 'air', file: string) {
     if (!this.context || !this.volume || this.desired[bus] === file) return;
     const generation = this.worldGeneration;
@@ -378,7 +381,10 @@ export class Mixer {
         source.disconnect();
         gain.disconnect();
       };
-      source.start();
+      if (bus === 'music') {
+        this.scoreStart ??= now;
+        source.start(now, (now - this.scoreStart) % buffer.duration);
+      } else source.start();
       const previous = this.loops.get(bus);
       this.loops.set(bus, { source, gain });
       if (previous) {
@@ -402,6 +408,7 @@ export class Mixer {
     this.stopVoice();
     this.resetFocus();
     this.worldGeneration++;
+    this.scoreStart = undefined;
     for (const { source } of this.loops.values()) source.stop();
     this.loops.clear();
     for (const source of this.fading) source.stop();

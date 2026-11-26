@@ -6,8 +6,8 @@ import type { Vec3 } from '../../core/rules/soundscape';
 export const ANIMAL_AUDIO = {
   base: 'audio/animals/',
   species: {
-    tiger: { files: ['tiger-1', 'tiger-2'], gain: 0.58, ref: 6, maxDistance: ANIMAL_CALL_REACH.tiger },
-    lion: { files: ['lion-1', 'lion-2'], gain: 0.62, ref: 7, maxDistance: ANIMAL_CALL_REACH.lion },
+    highland_wolf: { files: ['highland_wolf-1', 'highland_wolf-2'], gain: 0.52, ref: 6, maxDistance: ANIMAL_CALL_REACH.highland_wolf },
+    hill_boar: { files: ['hill_boar-1', 'hill_boar-2'], gain: 0.52, ref: 5, maxDistance: ANIMAL_CALL_REACH.hill_boar },
     bear: { files: ['bear-1', 'bear-2'], gain: 0.52, ref: 5, maxDistance: ANIMAL_CALL_REACH.bear },
     wolf: { files: ['wolf-1', 'wolf-2'], gain: 0.55, ref: 6, maxDistance: ANIMAL_CALL_REACH.wolf },
     cat: { files: ['cat-1', 'cat-2'], gain: 0.4, ref: 1.8, maxDistance: ANIMAL_CALL_REACH.cat },

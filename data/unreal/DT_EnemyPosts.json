@@ -31,5 +31,49 @@
     },
     "Leash": 1500,
     "IdleYaw": 21.245
+  },
+  {
+    "Name": "ford_lookout",
+    "Archetype": "skirmisher",
+    "Location": {
+      "X": 10000,
+      "Y": 5600,
+      "Z": 258.505
+    },
+    "Leash": 1200,
+    "IdleYaw": 21.245
+  },
+  {
+    "Name": "quarry_deserter",
+    "Archetype": "deserter",
+    "Location": {
+      "X": 6500,
+      "Y": -300,
+      "Z": 73.425
+    },
+    "Leash": 1200,
+    "IdleYaw": 21.245
+  },
+  {
+    "Name": "cut_archer",
+    "Archetype": "skirmisher",
+    "Location": {
+      "X": 10100,
+      "Y": -4400,
+      "Z": 246.047
+    },
+    "Leash": 1200,
+    "IdleYaw": 21.245
+  },
+  {
+    "Name": "ridge_deserter",
+    "Archetype": "deserter",
+    "Location": {
+      "X": 13200,
+      "Y": -5700,
+      "Z": 684.087
+    },
+    "Leash": 1200,
+    "IdleYaw": 21.245
   }
 ]

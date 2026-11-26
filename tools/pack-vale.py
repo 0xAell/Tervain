@@ -5,6 +5,8 @@ import json
 import zipfile
 from pathlib import Path
 from PIL import Image, ImageDraw
+from vale_palette import prepare
+from vale_poses import equipped, dash, fall, regional_coat
 
 root = Path(__file__).resolve().parent.parent
 art = root / 'assets/pixellab'
@@ -51,6 +53,18 @@ def indoor_piece(key, im):
                     im.putpixel((px, py), (min(255, g + 12), int(g * 0.88), int(g * 0.71), a))
     return im
 
+def append_cel(key, im):
+    global x, y, row
+    identity = (im.size, hashlib.sha256(im.tobytes()).digest())
+    if identity not in positions:
+        if x + im.width > width:
+            x, y, row = 0, y + row + 1, 0
+        positions[identity] = [x, y, im.width, im.height]
+        sprites.append((x, y, im))
+        x += im.width + 1
+        row = max(row, im.height)
+    mapping[key].append(positions[identity])
+
 with zipfile.ZipFile(art / 'sources.zip') as library:
     sequences = json.loads(library.read('sequences.json'))
     for key, files in sorted(sequences.items()):
@@ -67,15 +81,34 @@ with zipfile.ZipFile(art / 'sources.zip') as library:
                         grounded = Image.new('RGBA', im.size)
                         grounded.paste(im, (0, im.height - bounds[3]))
                         im = grounded
-            identity = (im.size, hashlib.sha256(im.tobytes()).digest())
-            if identity not in positions:
-                if x + im.width > width:
-                    x, y, row = 0, y + row + 1, 0
-                positions[identity] = [x, y, im.width, im.height]
-                sprites.append((x, y, im))
-                x += im.width + 1
-                row = max(row, im.height)
-            mapping[key].append(positions[identity])
+            im = prepare(key, im)
+            base = key.split('--')[0]
+            if base in ('wolf','boar'):
+                local = 'highland_wolf' if base == 'wolf' else 'hill_boar'
+                seq = key.replace(base,local,1)
+                mapping.setdefault(seq,[])
+                animal = regional_coat(im, base == 'wolf')
+                append_cel(seq,animal)
+                if key == base and len(mapping[seq]) == 1:
+                    mapping[local+'--down'] = []
+                    for pose in fall(animal): append_cel(local+'--down',pose)
+            append_cel(key, im)
+            if key == 'bandit' or key.startswith('bandit--'):
+                for kind in ('skirmisher','deserter'):
+                    seq = key.replace('bandit',kind,1)
+                    mapping.setdefault(seq, [])
+                    armed = equipped(im,kind,len(mapping[seq]))
+                    append_cel(seq,armed)
+                    if key == 'bandit':
+                        mapping[kind+'--down'] = []
+                        for pose in fall(armed): append_cel(kind+'--down',pose)
+            if key in ('bandit','thornback'):
+                mapping[key+'--down'] = []
+                for pose in fall(im): append_cel(key+'--down',pose)
+            if key.startswith('hero-') and key.endswith('--walk') and len(mapping[key]) == 3:
+                seq = key.replace('--walk','--dash')
+                mapping[seq] = []
+                for pose in dash(im, key): append_cel(seq,pose)
     for name in library.namelist():
         if name.startswith('ui/') and not name.endswith('/'):
             file = Path(name).relative_to('ui')

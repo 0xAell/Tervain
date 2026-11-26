@@ -474,10 +474,10 @@
             "bear": {
               "type": "integer"
             },
-            "lion": {
+            "hill_boar": {
               "type": "integer"
             },
-            "tiger": {
+            "highland_wolf": {
               "type": "integer"
             },
             "cat": {
@@ -493,8 +493,8 @@
             "boar",
             "wolf",
             "bear",
-            "lion",
-            "tiger",
+            "hill_boar",
+            "highland_wolf",
             "cat",
             "dog"
           ],

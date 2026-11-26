@@ -47,7 +47,7 @@ export interface SoundEnemy {
   readonly z: number;
   readonly state: string;
   readonly alive: boolean;
-  readonly spawn: { readonly kind: 'bandit' | 'thornback' };
+  readonly spawn: Pick<import('../../core/world/layout').EnemySpawn, 'kind'>;
 }
 
 export interface SoundProp {

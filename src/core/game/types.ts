@@ -117,7 +117,7 @@ export const QUICK_SLOT_COUNT = 10;
 export type QuickSlot = ItemId | null;
 export interface MapMarker { x: number; z: number }
 
-export type EncounterId = 'cut_creature' | 'ford_bandit_a' | 'ford_bandit_b';
+export type EncounterId = 'cut_creature' | 'ford_bandit_a' | 'ford_bandit_b' | 'ford_lookout' | 'quarry_deserter' | 'cut_archer' | 'ridge_deserter';
 
 export type PlaceId =
   | 'shore'
@@ -309,6 +309,10 @@ export type Command =
   | { t: 'equipWeapon'; item: ItemId | null }
   | { t: 'setMapMarker'; marker: MapMarker | null }
   | { t: 'roomStorage'; item: ItemId; direction: 'deposit' | 'withdraw' }
+  | { t: 'collectFordWage' }
+  | { t: 'lineQuiver' }
+  | { t: 'sharpenBlade' }
+  | { t: 'wearCharm'; item: ItemId | null }
   | { t: 'deliverWagonIron' }
   | { t: 'roomCraft'; recipe: 'herbs' | 'fletch' | 'cook' | 'pack_stew' }
   | { t: 'damagePlayer'; amount: number }

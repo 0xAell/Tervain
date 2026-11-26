@@ -73,11 +73,13 @@ namespace TervainIds
 	namespace EnemyArchetype
 	{
 		inline constexpr const TCHAR* Thornback = TEXT("thornback");
+		inline constexpr const TCHAR* Skirmisher = TEXT("skirmisher");
+		inline constexpr const TCHAR* Deserter = TEXT("deserter");
 		inline constexpr const TCHAR* Bandit = TEXT("bandit");
 
 		/** All of them, in the order the core keeps them. */
 		inline constexpr const TCHAR* All[] = {
-			Thornback, Bandit,
+			Thornback, Skirmisher, Deserter, Bandit,
 		};
 	}
 
@@ -87,18 +89,23 @@ namespace TervainIds
 		inline constexpr const TCHAR* FordBanditA = TEXT("ford_bandit_a");
 		inline constexpr const TCHAR* FordBanditB = TEXT("ford_bandit_b");
 		inline constexpr const TCHAR* CutCreature = TEXT("cut_creature");
+		inline constexpr const TCHAR* FordLookout = TEXT("ford_lookout");
+		inline constexpr const TCHAR* QuarryDeserter = TEXT("quarry_deserter");
+		inline constexpr const TCHAR* CutArcher = TEXT("cut_archer");
+		inline constexpr const TCHAR* RidgeDeserter = TEXT("ridge_deserter");
 
 		/** All of them, in the order the core keeps them. */
 		inline constexpr const TCHAR* All[] = {
-			FordBanditA, FordBanditB, CutCreature,
+			FordBanditA, FordBanditB, CutCreature, FordLookout, QuarryDeserter, CutArcher,
+			RidgeDeserter,
 		};
 	}
 
 	/** Kinds of animal. Row names of DT_AnimalSpecies. */
 	namespace AnimalSpecies
 	{
-		inline constexpr const TCHAR* Tiger = TEXT("tiger");
-		inline constexpr const TCHAR* Lion = TEXT("lion");
+		inline constexpr const TCHAR* HighlandWolf = TEXT("highland_wolf");
+		inline constexpr const TCHAR* HillBoar = TEXT("hill_boar");
 		inline constexpr const TCHAR* Bear = TEXT("bear");
 		inline constexpr const TCHAR* Wolf = TEXT("wolf");
 		inline constexpr const TCHAR* Cat = TEXT("cat");
@@ -108,7 +115,7 @@ namespace TervainIds
 
 		/** All of them, in the order the core keeps them. */
 		inline constexpr const TCHAR* All[] = {
-			Tiger, Lion, Bear, Wolf, Cat, Dog,
+			HighlandWolf, HillBoar, Bear, Wolf, Cat, Dog,
 			Boar, Deer,
 		};
 	}

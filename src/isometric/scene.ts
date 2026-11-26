@@ -1,3 +1,6 @@
+import { followAxis } from './camera';
+import { pixelLine, pixelPool } from './pixelInk';
+import { journeyLead } from '../core/game/valeJourney';
 import { buildFieldstones } from './fieldstones';
 import { drawProp, propSprite } from './propArt';
 import { sceneryProp } from './propCatalogue';
@@ -78,6 +81,7 @@ export class Scene {
   private pointer?: { x: number; y: number };
   private center = { x: 0, y: 0 };
   private lead = { x: 0, y: 0 };
+  private lastFocus = { x: 0, y: 0 };
   private kick = { x: 0, y: 0 };
   private ambientOffset = 0;
   private lastRoom?: string;
@@ -193,7 +197,7 @@ export class Scene {
     this.viewWidth = width;
     this.viewHeight = height;
     this.density = density;
-    this.pixelScale = Math.max(1, Math.round(height * density / 368)) / density;
+    this.pixelScale = Math.max(1, Math.round(Math.min(height / 432, width / 410) * density)) / density;
     // An extra texel on each side covers the compositor's fractional pan, even at the viewport edges.
     const w = Math.max(1, Math.ceil(width / this.pixelScale)) + 2;
     const h = Math.max(1, Math.ceil(height / this.pixelScale)) + 2;
@@ -202,12 +206,13 @@ export class Scene {
     const style = this.canvas.style;
     style.width = w * this.pixelScale + 'px';
     style.height = h * this.pixelScale + 'px';
-    style.left = (width - w * this.pixelScale) * 0.5 + 'px';
-    style.top = (height - h * this.pixelScale) * 0.5 + 'px';
+    style.left = Math.round((width - w * this.pixelScale) * 0.5 * density) / density + 'px';
+    style.top = Math.round((height - h * this.pixelScale) * 0.5 * density) / density + 'px';
   }
   private present(x: number, y: number) {
-    const dx = (x - Math.round(x)) * this.pixelScale;
-    const dy = (y - Math.round(y)) * this.pixelScale;
+    const physical = this.pixelScale * this.density;
+    const dx = Math.round((x - Math.round(x)) * physical) / this.density;
+    const dy = Math.round((y - Math.round(y)) * physical) / this.density;
     this.canvas.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
   }
   private crossThreshold(room: string) {
@@ -279,12 +284,21 @@ export class Scene {
     this.lead.x += (gaze.x - this.lead.x) * ease;
     this.lead.y += (gaze.y - this.lead.y) * ease;
     // Running keeps the wanderer centered. Frame-rate-independent damping absorbs turns and sudden grade changes.
-    const across = this.initialized ? 1 - Math.exp(-elapsed * 26) : 1;
-    const vertical = this.initialized ? 1 - Math.exp(-elapsed * 18) : 1;
-    this.center.x += (target.x + this.lead.x - this.center.x) * across;
-    this.center.y += (target.y + this.lead.y - this.center.y) * vertical;
+    const focusX = target.x + this.lead.x, focusY = target.y + this.lead.y;
+    this.center.x = this.initialized ? followAxis(this.center.x, this.lastFocus.x, focusX, elapsed, 26) : focusX;
+    this.center.y = this.initialized ? followAxis(this.center.y, this.lastFocus.y, focusY, elapsed, 18) : focusY;
+    this.lastFocus.x = focusX;
+    this.lastFocus.y = focusY;
     this.initialized = true;
     const hit = valley.contacts.at(-1);
+    const shudder = { x: 0, y: 0 };
+    if (hit?.actorId && valley.hitStopRemaining > 0 && !this.reducedMotion.matches) {
+      const axis = project(hit.dx,hit.dz);
+      const size = Math.hypot(axis.x,axis.y) || 1;
+      const beat = Math.floor(valley.hitStopRemaining * 180) % 2 ? 2 : -1;
+      shudder.x = Math.round(-axis.y / size * beat);
+      shudder.y = Math.round(axis.x / size * beat);
+    }
     this.kick.x = this.kick.y = 0;
     if (hit && hit.kind !== 'earth' && !this.reducedMotion.matches) {
       const age = valley.time - hit.born;
@@ -477,20 +491,19 @@ export class Scene {
         tint: !this.reducedMotion.matches && (reaction || defeat) && time - (reaction ?? defeat)!.born < 2 / 60
           ? reaction?.kind === 'parry' ? '#b7f3dd' : '#fff6dc' : undefined,
         sway: recoil * 0.72,
-        fall: defeat && !this.reducedMotion.matches
-          ? (Math.sign(project(defeat.dx, defeat.dz).x) || 1) * fall ** 1.6 * 1.13
-          : undefined,
+        impact: hit?.actorId === a.id ? shudder : undefined,
+        lift: immersion(a, false).lift + (defeat && !this.reducedMotion.matches ? Math.max(0, Math.sin(fall * Math.PI) * 7) : 0),
         reflect: defeat ? false : undefined,
         wakeId: a.id,
         moving: a.move,
         frame: a.dead
-          ? 0
+          ? defeat ? Math.min(4, Math.floor(fall * 5)) : 0
           : pet
             ? Math.floor(valley.activity!.elapsed * 7)
             : a.attack
               ? Math.min(
                   this.atlas.frameCount(key) - 1,
-                  Math.floor(enemySwingProgress(a.attack, a.key === 'thornback') * this.atlas.frameCount(key))
+                  Math.floor(enemySwingProgress(a.attack, ENEMY_ARCHETYPES[a.enemyKind ?? 'bandit'].heavy) * this.atlas.frameCount(key))
                 )
               : Math.floor((a.move ? time : ambient) * (a.move ? 8 : 4)) + i,
       });
@@ -531,10 +544,11 @@ export class Scene {
       ...immersed,
       ...pose,
       hero: true,
+      impact: hit?.actorId === 'player' ? shudder : undefined,
       tint: !this.reducedMotion.matches && hit?.actorId === 'player' && time - hit.born < 2 / 60 ? '#fff6dc' : undefined,
       wakeId: 'player',
       moving: valley.walk,
-      airborne: hop > 1,
+      airborne: hop > 0 || valley.standingLift > 0.08,
       submerged: immersed.submerged * Math.max(0, 1 - hop / 8 - valley.standingLift - (valley.riding ? 1 : 0)),
       lift: immersed.lift + hop + valley.standingLift * 8 + (valley.riding ? 16 : 0),
     });
@@ -556,7 +570,7 @@ export class Scene {
       });
     }
     for (const contact of valley.contacts) {
-      if (time - contact.born >= CONTACT_TIME) continue;
+      if (time - contact.born >= (contact.defeated ? DEFEAT_TIME : CONTACT_TIME)) continue;
       stamps.push({
         x: contact.x,
         z: contact.z,
@@ -617,7 +631,17 @@ export class Scene {
     this.sun.draw(ctx, stamps, buildings, ox, oy, hour);
     for (const enemy of valley.actors) {
       if (!enemy.enemy || enemy.dead || !enemy.attack || inBuilding(enemy)) continue;
-      const def = ENEMY_ARCHETYPES[enemy.key === 'thornback' ? 'thornback' : 'bandit'];
+      const def = ENEMY_ARCHETYPES[enemy.enemyKind ?? 'bandit'];
+      if (enemy.aimed) {
+        const aim = enemy.aimed, end = Math.min(17, Math.max(7, distance(enemy, valley.player) + 2));
+        ctx.fillStyle = enemy.attack < 0.18 ? '#ffd396' : '#bc8267';
+        for (let d = 1; d < end; d += 1.1) {
+          const from = project(aim.x + aim.direction.x*d, aim.z + aim.direction.z*d, arrowHeight(aim,d));
+          const to = project(aim.x + aim.direction.x*(d+0.55), aim.z + aim.direction.z*(d+0.55), arrowHeight(aim,d+0.55));
+          pixelLine(ctx, from.x+ox, from.y+oy, to.x+ox, to.y+oy);
+        }
+        continue;
+      }
       const contact = enemyContactRemaining(def.heavy);
       if (enemy.attack <= contact) continue;
       const at = project(enemy.x, enemy.z, supportHeight(enemy));
@@ -647,8 +671,8 @@ export class Scene {
         continue;
       }
       const s = project(stamp.x, stamp.z, stamp.elevation);
-      const x = s.x + ox,
-        y = s.y + oy - (stamp.lift ?? 0);
+      const x = s.x + ox + (stamp.impact?.x ?? 0),
+        y = s.y + oy - (stamp.lift ?? 0) + (stamp.impact?.y ?? 0);
       const spriteHeight = this.atlas.height(stamp.key, stamp.width, stamp.frame);
       const bottom = y + spriteHeight * (1 - (stamp.anchor ?? 1));
       const margin = stamp.prop || stamp.arrow || stamp.contact ? Math.max(20, stamp.width) : 3;
@@ -656,6 +680,16 @@ export class Scene {
         bottom + margin < 0 || bottom - spriteHeight - margin > h) continue;
       ctx.globalAlpha = stamp.alpha ?? 1;
       if (stamp.contact) {
+        const hit = stamp.contact, age = time - hit.born;
+        if (hit.defeated && !this.reducedMotion.matches && age > 0.18) {
+          const foot = project(hit.x,hit.z,supportHeight(hit));
+          if (age < 0.36) drawBootDust(ctx,foot.x+ox,foot.y+oy,age-0.18,false);
+          if (age > 0.34 && age < 0.71) {
+            const r = 1 + Math.round(2 * Math.sin((age - 0.34) * Math.PI / 0.37));
+            ctx.fillStyle = '#efd08d'; pixelLine(ctx,foot.x+ox-r,foot.y+oy-2,foot.x+ox+r,foot.y+oy-2);
+            pixelLine(ctx,foot.x+ox,foot.y+oy-2-r,foot.x+ox,foot.y+oy-2+r);
+          }
+        }
         drawContact(ctx, stamp.contact, time, ox, oy, this.reducedMotion.matches);
         continue;
       }
@@ -682,19 +716,13 @@ export class Scene {
         this.lastDraws++;
         continue;
       }
-      if (stamp.wakeId && deckAt(stamp)) {
-        ctx.fillStyle = 'rgba(41,38,42,.30)';
-        ctx.beginPath();
-        ctx.ellipse(
-          s.x + ox,
-          s.y + oy,
-          stamp.width * 0.18,
-          Math.max(1, stamp.width * 0.058),
-          0,
-          0,
-          2 * Math.PI
-        );
-        ctx.fill();
+      if (stamp.airborne || (stamp.wakeId && deckAt(stamp))) {
+        const foot = project(stamp.x, stamp.z, supportHeight(stamp));
+        const altitude = stamp.airborne ? Math.max(0, (stamp.lift ?? 0) / 8) : 0;
+        if (this.ground.groundVisible(foot.x, foot.y, project(stamp.x, stamp.z).y)) {
+          ctx.fillStyle = 'rgba(43,39,42,.40)';
+          pixelPool(ctx, foot.x + ox, foot.y + oy, Math.max(3, stamp.width * 0.19 - altitude), Math.max(1, 2.7 - altitude * 0.35));
+        }
       }
       const clip = this.paintBody(ctx, stamp, x, y, bottom, spriteHeight, ox, oy, valley, sky.night);
       const left = x - stamp.width / 2 - margin, top = bottom - spriteHeight - margin;
@@ -749,6 +777,17 @@ export class Scene {
       for (let d = 2.5; d < distance - 1; d += 2.5) {
         const dot = at(d);
         ctx.fillRect(Math.round(dot.x + ox), Math.round(dot.y + oy), 2, 1);
+      }
+      const spreadAngle = (1 - focus) * Math.PI / 10;
+      for (const sign of [-1, 1]) {
+        const theta = sign * spreadAngle, vx = arrow.direction.x * Math.cos(theta) - arrow.direction.z * Math.sin(theta);
+        const vz = arrow.direction.x * Math.sin(theta) + arrow.direction.z * Math.cos(theta);
+        for (let d = 2.1; d < distance; d += 1.7) {
+          const stop = Math.min(distance, d + 0.62);
+          const a = project(arrow.x + vx*d, arrow.z + vz*d, arrowHeight(arrow,d));
+          const b = project(arrow.x + vx*stop, arrow.z + vz*stop, arrowHeight(arrow,stop));
+          pixelLine(ctx, a.x+ox, a.y+oy, b.x+ox, b.y+oy);
+        }
       }
       ctx.globalAlpha = 1;
       const tip = at(distance);
@@ -842,10 +881,9 @@ export class Scene {
       drawProp(ctx, this.atlas, stamp.prop, x, y, stamp.width);
       if (submerged > 0.04) ctx.restore();
     } else {
-      if (stamp.sway || stamp.fall) {
+      if (stamp.sway) {
         ctx.save();
         ctx.translate(x, y);
-        if (stamp.fall) ctx.rotate(stamp.fall);
         if (stamp.sway) ctx.transform(1, 0, stamp.sway * 0.15, 1, 0, 0);
         ctx.translate(-x, -y);
       }
@@ -868,7 +906,7 @@ export class Scene {
       }
       if ((stamp.key.startsWith('fire--') || stamp.key.startsWith('cookfire--')) && !this.reducedMotion.matches)
         drawFireAir(ctx, x, y, valley.time, stamp.x, stamp.z, night);
-      if (stamp.sway || stamp.fall) ctx.restore();
+      if (stamp.sway) ctx.restore();
     }
     if (clip) ctx.restore();
     return clip;
@@ -937,6 +975,16 @@ export class Scene {
       const at = chartPoint(p, w, h);
       this.atlas.draw(ctx, key, at.x, at.y, size, 0, false, 0.75);
     };
+    const lead = journeyLead(valley.game.state);
+    if (lead.at) {
+      const pt = chartPoint(lead.at, w, h);
+      const x = Math.round(pt.x), y = Math.round(pt.y);
+      for (let dy = -6; dy <= 6; dy++) {
+        const r = 6 - Math.abs(dy);
+        ctx.fillStyle = '#3a3028'; ctx.fillRect(x - r - 1, y + dy, 2 * r + 3, 1);
+        ctx.fillStyle = '#ffe393'; ctx.fillRect(x - r, y + dy, 2 * r + 1, 1);
+      }
+    }
     if (valley.game.state.mapMarker) plot(valley.game.state.mapMarker, 'cursor', 13);
     plot(valley.player, 'hero-south', 19);
   }

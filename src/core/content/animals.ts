@@ -2,7 +2,7 @@ import type { V2 } from '../world/layout';
 import { CARAVAN_ANIMAL_REST } from '../world/caravanAnimal';
 
 export const ANIMAL_TRIANGLE_LIMIT = 50_000;
-export type AnimalSpecies = 'tiger' | 'lion' | 'bear' | 'wolf' | 'cat' | 'dog' | 'boar' | 'deer';
+export type AnimalSpecies = 'highland_wolf' | 'hill_boar' | 'bear' | 'wolf' | 'cat' | 'dog' | 'boar' | 'deer';
 export type AnimalClip = 'Idle' | 'Walk' | 'Run' | 'Alert' | 'Call' | 'Graze' | 'Groom' | 'Sleep';
 export type AnimalHabitat = 'settlement' | 'caravan-rest' | 'woodland' | 'deepwood' | 'rocky-woodland' | 'warm-woodland';
 export interface AnimalDefinition {
@@ -26,7 +26,7 @@ export interface AnimalDefinition {
  * Keeping the original IDs and speeds also preserves the movement of saved herds.
  */
 const PACE: Readonly<Record<string, readonly [walk: number, run: number]>> = {
-  '1005232739': [0.417, 1.650], '1005232726': [0.419, 1.691],
+  '1005232739': [0.394, 1.199], '1005232726': [0.371, 1.045],
   '1005170943': [0.520, 1.475], '1005232657': [0.511, 1.452],
   '1005232644': [0.394, 1.199], '1005232637': [0.385, 1.182], '1005232631': [0.397, 1.205],
   '1005232619': [0.156, 0.487], '1005232608': [0, 0], '1005232556': [0.140, 0.459],
@@ -40,10 +40,10 @@ const entry = (species: AnimalSpecies, id: string, habitat: AnimalHabitat, x: nu
 });
 
 /** All animals have a persistent home, including on the lowest presentation preset.
- * Homes flank travelled routes; the eastern ochre woods are the warmer habitat for the two big cats. */
+ * Homes flank travelled routes; the eastern ochre woods are the warmer habitat for boar and highland wolves. */
 export const ANIMALS: readonly AnimalDefinition[] = [
-  entry('tiger', '1005232739', 'warm-woodland', 107, 22, 19),
-  entry('lion', '1005232726', 'warm-woodland', 112, 51, 19),
+  entry('highland_wolf', '1005232739', 'warm-woodland', 107, 22, 19),
+  entry('hill_boar', '1005232726', 'warm-woodland', 112, 51, 19),
   entry('bear', '1005170943', 'rocky-woodland', -180, -57, 17),
   entry('bear', '1005232657', 'rocky-woodland', -149, -62, 17),
   entry('wolf', '1005232644', 'deepwood', -175, 5, 16),
@@ -65,8 +65,8 @@ export const ANIMALS: readonly AnimalDefinition[] = [
 
 /** How near each kind lets someone come (m): it looks up within `notice`, and flees, or a predator stands its ground, within `flee`. */
 export const ANIMAL_SENSES: Record<AnimalSpecies, { notice: number; flee: number }> = {
-  tiger: { notice: 13, flee: 6 },
-  lion: { notice: 13, flee: 6 },
+  highland_wolf: { notice: 13, flee: 6 },
+  hill_boar: { notice: 13, flee: 6 },
   bear: { notice: 14, flee: 7 },
   wolf: { notice: 14, flee: 8 },
   cat: { notice: 4.5, flee: 2 },
@@ -82,20 +82,20 @@ export const ANIMAL_HOME_MARGIN = 0.14;
 export const ANIMAL_GESTURE_SECONDS: Readonly<Record<'Alert' | 'Call' | 'Groom', number>> = { Alert: 2, Call: 4, Groom: 4 };
 
 /** How far each kind's call carries (m): an animal calls only when someone is within it, and the call is heard out to it. */
-export const ANIMAL_CALL_REACH: Readonly<Record<AnimalSpecies, number>> = { tiger: 76, lion: 82, bear: 62, wolf: 75, cat: 24, dog: 46, boar: 44, deer: 40 };
+export const ANIMAL_CALL_REACH: Readonly<Record<AnimalSpecies, number>> = { highland_wolf: 76, hill_boar: 82, bear: 62, wolf: 75, cat: 24, dog: 46, boar: 44, deer: 40 };
 
 /**
  * How each kind meets the hunter (A70). Predators hold their ground, watching, until he comes within `holdUntil` of their
  * flee distance; herd and pack animals carry an alarm to their own kind within `herd` metres, so a shot scatters a group.
  */
 export const ANIMAL_TEMPERAMENT: Record<AnimalSpecies, { holdUntil: number; herd: number }> = {
-  tiger: { holdUntil: 0.55, herd: 0 }, lion: { holdUntil: 0.55, herd: 0 }, bear: { holdUntil: 0.6, herd: 0 },
+  highland_wolf: { holdUntil: 0.55, herd: 0 }, hill_boar: { holdUntil: 0.55, herd: 0 }, bear: { holdUntil: 0.6, herd: 0 },
   wolf: { holdUntil: 0.65, herd: 35 }, cat: { holdUntil: 1, herd: 0 }, dog: { holdUntil: 1, herd: 0 },
   boar: { holdUntil: 1, herd: 18 }, deer: { holdUntil: 1, herd: 24 },
 };
 
 /** The kinds that graze when they settle; the others stand idle. */
-export const GRAZERS: readonly AnimalSpecies[] = ['deer', 'boar'];
+export const GRAZERS: readonly AnimalSpecies[] = ['deer', 'boar', 'hill_boar'];
 
 /**
  * The motions an animal has: what its mind may do, and what its model must carry (the scene refuses a model without

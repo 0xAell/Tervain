@@ -1,3 +1,4 @@
+import { pixelLine } from './pixelInk';
 import { DRAW_TIME, RELEASE_TIME, SWING_RELEASE, SWING_TIME, type SwordStroke } from './fieldcraft';
 import { JUMP_TIME } from './locomotion';
 import type { Atlas } from './atlas';
@@ -95,16 +96,22 @@ export function drawSwordSweep(
       angle = bearings[facing]! + angles[i]! * (1 - fraction) + angles[i + 1]! * fraction;
     const px = a[0] + (b[0] - a[0]) * fraction - 24 + Math.cos(angle) * reach;
     const py = a[1] + (b[1] - a[1]) * fraction - 48 + Math.sin(angle) * reach;
-    ctx.lineTo(Math.round(x + px * scale * (mirror ? -1 : 1)), Math.round(y + py * scale));
+    return { x: x + px * scale * (mirror ? -1 : 1), y: y + py * scale };
   };
   ctx.save();
-  ctx.globalAlpha *= (1 - age / 0.15) * 0.68;
-  ctx.fillStyle = stroke === 'counter' ? '#b7e9d5' : '#f0d8a5';
-  ctx.beginPath();
-  for (let i = 0; i <= 4; i++) edge(tail + ((head - tail) * i) / 4, 18);
-  for (let i = 4; i >= 0; i--) edge(tail + ((head - tail) * i) / 4, 17 - i * 0.85);
-  ctx.closePath();
-  ctx.fill();
+  ctx.globalAlpha *= Math.min(1, (1 - age / 0.15) * 1.5);
+  const thrust = stroke === 'thrust', counter = stroke === 'counter';
+  const sweep = thrust ? 24 : counter ? 23 : 21;
+  let last = edge(tail,sweep);
+  for (let i = 1; i <= 12; i++) {
+    const cel = tail + (head - tail) * i / 12, next = edge(cel,sweep);
+    const inner = edge(cel, sweep - (thrust ? 3 : 2 + i * 0.48));
+    ctx.fillStyle = counter ? '#679e9e' : stroke === 'return' ? '#a88366' : '#ba9569';
+    pixelLine(ctx, inner.x, inner.y, next.x, next.y, thrust ? 1 : 2);
+    ctx.fillStyle = counter ? '#d5fff0' : '#fff0bf';
+    pixelLine(ctx,last.x,last.y,next.x,next.y);
+    last = next;
+  }
   ctx.restore();
 }
 
@@ -144,7 +151,7 @@ export function buildSwordPoses(atlas: Atlas) {
         const left = frame * 72 + 12,
           top = 6;
         const behind = face.startsWith('north') || (stroke && cel < 2);
-        if (!behind) ctx.drawImage(body, left, top);
+        if (!behind) ctx.drawImage(body, left, top, 48, 48);
         ctx.save();
         ctx.translate(left + (west ? 48 - grip[0] : grip[0]), top + grip[1]);
         if (west) ctx.scale(-1, 1);
@@ -152,7 +159,7 @@ export function buildSwordPoses(atlas: Atlas) {
         ctx.rotate(angle + Math.PI / 4);
         ctx.drawImage(sword, -4, -18, 22, 22);
         ctx.restore();
-        if (behind) ctx.drawImage(body, left, top);
+        if (behind) ctx.drawImage(body, left, top, 48, 48);
       }
       atlas.addAnimation('hero-' + face + '--sword-' + action, strip, 72, 54);
     }
@@ -163,8 +170,8 @@ export function buildSwordPoses(atlas: Atlas) {
 export function heroPose(v: Valley, atlas: Atlas, width: number) {
   const face = v.facing;
   if (v.dash) {
-    const key = 'hero-' + face + '--walk';
-    return { key, width, flip: false, frame: Math.min(atlas.frameCount(key) - 1, 1 + Math.floor(v.dash.elapsed * 18)) };
+    const key = 'hero-' + face + '--dash';
+    return { key, width, flip: false, frame: Math.min(3, Math.floor(v.dash.elapsed * 24)) };
   }
   const activity = v.activity;
   const west = face.includes('west');

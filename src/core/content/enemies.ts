@@ -25,6 +25,8 @@ export interface EnemyArchetype {
 
 export const ENEMY_ARCHETYPES: Record<EnemySpawn['kind'], EnemyArchetype> = {
   thornback: { name: 'Thornback', hp: 110, speed: 4.4, reach: 2.9, wind: 0.95, strike: 0.4, recover: 1.1, damage: 20, notice: 10, heavy: true, radius: 0.85 },
+  skirmisher: { name: 'Cut-road archer', hp: 46, speed: 3.75, reach: 14, wind: 0.76, strike: 0.17, recover: 1.45, damage: 13, notice: 13, heavy: false, radius: 0.4 },
+  deserter: { name: 'Shield deserter', hp: 88, speed: 2.85, reach: 2.3, wind: 0.77, strike: 0.28, recover: 1.13, damage: 17, notice: 10, heavy: true, radius: 0.53 },
   bandit: { name: 'Toll-jumper', hp: 55, speed: 3.5, reach: 1.9, wind: 0.6, strike: 0.2, recover: 0.9, damage: 11, notice: 12, heavy: false, radius: 0.4 },
 };
 

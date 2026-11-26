@@ -7,6 +7,7 @@ import { houseSolid, HousePainter } from './houseSolid';
 import { bitmap, depthStrips, finishBitmap } from './worldArt';
 import { mix, rgba } from './waterPalette';
 import { windowLightMask } from './skyLight';
+import { buildingSprite } from './settlement';
 
 type Point = [number, number];
 interface Facade {
@@ -236,7 +237,17 @@ const facades: Record<string, Facade> = {
     ],
   },
 };
-import { buildingSprite } from './settlement';
+// Native pixels from the sill to the lintel, and across half the clear opening in each painting.
+const openings: Record<string, [number, number]> = {
+  house: [17, 5], bakery: [15, 4], inn: [19, 5], mill: [17, 5],
+  shrine: [24, 6], archive: [23, 5], office: [20, 5], hut: [17, 10], bunks: [18, 4],
+};
+/** The visible standing figure measures about 34 logical pixels. A shrine admits a procession. */
+export function facadeOpening(site: BuildingSpec) {
+  const [sourceHeight, sourceHalf] = openings[buildingSprite[site.kind]]!;
+  const ceremonial = site.kind === 'shrine';
+  return { sourceHeight, sourceHalf, height: ceremonial ? 42 : 38, half: ceremonial ? 11 : 8 };
+}
 const worldFoot = (b: BuildingSpec, lx: number, lz: number) => {
   const p = fromBuildingLocal(b, lx, lz);
   return project(p.x, p.z);
@@ -349,8 +360,14 @@ export class Architecture {
       { src: k, at: near },
       { src: doorOnLeft ? r : l, at: back },
     ].sort((a, b) => a.at.x - b.at.x);
-    const scale = (((b.w + b.d) * 6) / (r[0] - l[0])) * 0.86,
-      offset = key === 'mill--turn' ? 1 : 0;
+    const opening = facadeOpening(b), offset = key === 'mill--turn' ? 1 : 0;
+    const lowerScale = opening.height / opening.sourceHeight;
+    // The floor plan sets the footprint, the human sets the opening and the roof follows the storey.
+    const upperScale = Math.min(1.75, 0.70 + b.h * 0.15 + (b.kind === 'inn' ? 0.18 : 0));
+    const heightAt = (native: number) => native <= opening.sourceHeight ? native * lowerScale
+      : opening.height + (native - opening.sourceHeight) * upperScale;
+    const nativeAt = (height: number) => height <= opening.height ? height / lowerScale
+      : opening.sourceHeight + (height - opening.height) / upperScale;
     const column = (screenX: number) => {
       const a = screenX < stations[1]!.at.x ? 0 : screenX < stations[2]!.at.x ? 1 : 2;
       const p = stations[a]!,
@@ -372,8 +389,8 @@ export class Architecture {
     const left = Math.floor(outer(0, 1)) - 1,
       right = Math.ceil(outer(3, 2)) + 1;
     const lows = stations.map((s) => s.at.y),
-      top = Math.floor(Math.min(...lows) - f.h * scale) - 12,
-      bottom = Math.ceil(Math.max(...lows) + f.h * scale) + 12;
+      top = Math.floor(Math.min(...lows) - heightAt(f.h)) - 12,
+      bottom = Math.ceil(Math.max(...lows) + heightAt(f.h)) + 12;
     const face = bitmap(left, top, right - left, bottom - top),
       reflected = bitmap(left, top, right - left, bottom - top);
     const context = face.canvas.getContext('2d')!,
@@ -390,6 +407,13 @@ export class Architecture {
       const c = column(x + left + 0.5),
         u = Math.floor(c.u);
       if (u < 0 || u >= f.w) continue;
+      const sideX = x + left + 0.5 - door.x;
+      const projectedEdge = column(door.x + Math.sign(sideX) * opening.half);
+      const direction = Math.sign(projectedEdge.u - info.door[0]);
+      const sourceSpan = Math.abs(projectedEdge.u - info.door[0]);
+      const nativeDistance = Math.abs(c.u - info.door[0]);
+      const blend = Math.max(0, 1 - Math.max(0, nativeDistance - sourceSpan) / (opening.sourceHalf + 3));
+      const shift = direction * (opening.sourceHalf - sourceSpan) * Math.min(1, nativeDistance / Math.max(0.01, sourceSpan)) * blend;
       const paneColumn = glass?.filter((p) => u >= p[0] && u < p[0] + p[2]);
       if (windowPositions)
         glass!.forEach(([px, py, pw, ph, slope], i) => {
@@ -399,11 +423,13 @@ export class Architecture {
             pos.error = error;
             pos.x = left + x;
             pos.y =
-              c.foot - (c.base - (py + (slope * pw) / 2 + ph / 2)) * scale - houseSolid(b).floor * risePixels;
+              c.foot - heightAt(c.base - (py + (slope * pw) / 2 + ph / 2)) - houseSolid(b).floor * risePixels;
           }
         });
       const pigment = (v: number) => {
-        const col = f.pixels[v * f.w + u]!,
+        const jamb = Math.min(1, Math.max(0, (v - info.door[1] + opening.sourceHeight + 5) / 5));
+        const sampleX = Math.floor(c.u + shift * jamb);
+        const col = f.pixels[v * f.w + Math.max(0, Math.min(f.w - 1, sampleX))]!,
           r = col & 255,
           g = (col >>> 8) & 255,
           bv = (col >>> 16) & 255;
@@ -421,9 +447,9 @@ export class Architecture {
       };
       for (let y = 0; y < h; y++) {
         const above = c.foot - (top + y + 0.5),
-          v = Math.floor(c.base - above / scale);
+          v = Math.floor(c.base - nativeAt(above));
         if (v >= 0 && v < f.h) pixels[y * w + x] = pigment(v);
-        const m = Math.floor(c.base + above / (scale * 0.82));
+        const m = Math.floor(c.base - nativeAt(-above / 0.82));
         if (m >= 0 && m < f.h) {
           const color = pigment(m),
             a = color >>> 24;

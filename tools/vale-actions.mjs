@@ -25,7 +25,7 @@ try {
   await page.click(...start);
   await until(c => c?.mode === 'play' && c.scene.heroDrawn);
   await run(c => {
-    Object.assign(c.game.state.inventory, { rusted_sword: 1, hunting_bow: 1, arrow: 4, bread: 2 });
+    Object.assign(c.game.state.inventory, { rusted_sword: 1, hunting_bow: 1, arrow: 4, bread: 2, league_sash: 1 });
     c.game.state.equippedWeapon = 'hunting_bow';
     c.game.setPlayerTransform(-175, 0, 18, Math.PI / 2);
     c.scene.resetCamera();
@@ -56,11 +56,60 @@ try {
   });
   assert.deepEqual(sprite, { additionalColors: 0, changedPixels: 0 });
 
+  const native = await run(c => {
+    const atlas = c.scene.atlas, draw = atlas.draw, proto = CanvasRenderingContext2D.prototype;
+    const blit = proto.drawImage, differences = [], frames = new Map();
+    const watched = [];
+    atlas.draw = function(ctx, key, ...rest) {
+      watched.push({ ctx, key });
+      try { return draw.call(this,ctx,key,...rest); } finally { watched.pop(); }
+    };
+    proto.drawImage = function(...args) {
+      const stamp = watched.at(-1);
+      // Canvas preparation has its own context. Measure the blit to the actual target surface.
+      if (stamp?.ctx === this && args.length === 9) {
+        const [, , , sw, sh, x, y, dw, dh] = args;
+        frames.set(stamp.key,(frames.get(stamp.key) ?? 0)+1);
+        if (sw !== dw || sh !== dh || !Number.isInteger(x) || !Number.isInteger(y))
+          differences.push({ key:stamp.key, sw, sh, x, y, dw, dh });
+      }
+      return blit.apply(this,args);
+    };
+    try {
+      for (const [x,z] of [[-175,18],[2,10],[90,-12],[100,56]]) {
+        c.game.setPlayerTransform(x,0,z,0);
+        c.valley.step(0,0,0,false);
+        c.scene.resetCamera(); c.scene.render(c.valley,0);
+      }
+      const door = c.valley.targets().find(t => t.door?.id === 'house_a/front').door;
+      c.valley.enterDoor(door); c.scene.resetCamera(); c.scene.render(c.valley,0);
+      c.valley.leaveRoom();
+      c.game.setPlayerTransform(-175,0,18,Math.PI/2); c.scene.resetCamera();
+    } finally { atlas.draw = draw; proto.drawImage = blit; }
+    return { differences, keys: [...frames.keys()], blits: [...frames.values()].reduce((a,b) => a+b,0) };
+  });
+  assert.deepEqual(native.differences, []);
+  assert(native.blits > 50 && native.keys.some(k => k.startsWith('hero-')));
+  assert(native.keys.includes('sluice_brace') && native.keys.includes('gate_wrench'), 'quarry pickups must actually render during sampling');
+
   await tap('KeyI', 'i');
   await run(() => {
     window.originalItems = document.querySelector('.items');
+    const press = (selector,label) => [...document.querySelectorAll(selector)].find(b => b.textContent === label).click();
+    press('.pack-tabs button','Gear');
+    document.querySelector('.item[data-item="league_sash"]').click();
+    press('.item-detail button','Wear charm');
+    document.querySelector('.item[data-item="rusted_sword"]').click();
+    press('.item-detail button','Equip');
+    press('.pack-tabs button','Supplies');
+    window.tervain.game.dispatch({t:'damagePlayer',amount:15});
+    document.querySelector('.item[data-item="bread"]').click();
+    press('.item-detail button','Consume');
+    press('.pack-tabs button','All');
     document.querySelector('.item[data-item="rusted_sword"]').focus();
   });
+  assert(await run(c => c.game.state.inventory.bread === 1 && c.game.state.facts.worn_charm === 'league_sash' &&
+    c.game.state.equippedWeapon === 'rusted_sword' && window.originalItems === document.querySelector('.items')));
   await tap('Digit3', '3');
   assert(await run(c => c.game.state.quickSlots[2] === 'rusted_sword' &&
     window.originalItems === document.querySelector('.items') && document.activeElement.dataset.item === 'rusted_sword'));
@@ -134,7 +183,7 @@ try {
     layouts.push(view);
   }
   assert.equal(page.console().filter(e => e.level === 'error' || e.type === 'error').length, 0);
-  console.log(JSON.stringify({ sprite, beltSlot: 3, dodges: await run(() => window.dodges), layouts }));
+  console.log(JSON.stringify({ sprite, nativeBlits:native.blits, distinctSprites:native.keys.length, beltSlot: 3, dodges: await run(() => window.dodges), layouts }));
 } finally {
   await page.close();
 }

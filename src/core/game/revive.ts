@@ -1,4 +1,4 @@
-import { ARROW_QUIVER_CAPACITY, normalizeHunting, normalizeHuntTally } from './hunting';
+import { quiverCapacity, normalizeHunting, normalizeHuntTally } from './hunting';
 import { normalizeEquippedWeapon, normalizeInventory, normalizeQuickSlots } from './inventory';
 import { TRUST_LIMIT } from './constants';
 import { validMapMarker } from './map';
@@ -72,6 +72,7 @@ export function reviveState(raw: unknown): WorldState | null {
       known: isObj(raw.offenses) && Array.isArray(raw.offenses.known) ? (raw.offenses.known as unknown[]).filter(isObj) as unknown as WorldState['offenses']['known'] : [],
     },
     npcs: { ...base.npcs },
+    facts: { ...raw.facts } as WorldState['facts'],
     inventory: normalizeInventory(raw.inventory),
     quickSlots: normalizeQuickSlots(raw.quickSlots),
     equippedWeapon: null,
@@ -82,6 +83,9 @@ export function reviveState(raw: unknown): WorldState | null {
     saveFormatVersion: SAVE_FORMAT_VERSION,
     contentRevision: CONTENT_REVISION,
   };
+  const worn = merged.facts.worn_charm;
+  if (worn && (typeof worn !== 'string' || !['league_sash','contract_band','witness_cord'].includes(worn) ||
+    !merged.inventory[worn as keyof WorldState['inventory']])) delete merged.facts.worn_charm;
   const room = p.interior;
   delete merged.player.interior;
   if (
@@ -117,7 +121,7 @@ export function reviveState(raw: unknown): WorldState | null {
   if (merged.quest.allocation !== null && !(ALLOCATIONS as readonly unknown[]).includes(merged.quest.allocation)) merged.quest.allocation = null;
   if (!isNum(merged.playSeconds) || merged.playSeconds < 0) merged.playSeconds = 0;
   // The quiver never holds more than it can (A72).
-  if ((merged.inventory.arrow ?? 0) > ARROW_QUIVER_CAPACITY) merged.inventory = { ...merged.inventory, arrow: ARROW_QUIVER_CAPACITY };
+  if ((merged.inventory.arrow ?? 0) > quiverCapacity(merged)) merged.inventory = { ...merged.inventory, arrow: quiverCapacity(merged) };
   if (!isNum(merged.player.maxHealth) || merged.player.maxHealth <= 0) merged.player.maxHealth = base.player.maxHealth;
   merged.player.health = Math.max(0, Math.min(merged.player.maxHealth, merged.player.health));
   if (typeof merged.player.mount !== 'string' || !/^[0-9]{1,20}$/.test(merged.player.mount)) delete merged.player.mount;

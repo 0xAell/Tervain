@@ -271,7 +271,7 @@ function surfaceLight(x: number, z: number, out: LightSample) {
 export function terrainTile(left: number, top: number, size: number) {
   const elevation = new Float32Array(size * size),
     light = new Int8Array(size * size),
-    steepness = new Uint8Array(size * size);
+    steepness = new Uint8Array(size * size), crest = new Uint8Array(size * size);
   const first = { tone: 0, cliff: 0 },
     last = { tone: 0, cliff: 0 };
   for (let x = 0; x < size; x++) {
@@ -293,5 +293,18 @@ export function terrainTile(left: number, top: number, size: number) {
       }
     });
   }
-  return { elevation, light, steepness };
+  // Sample adjacent world rows across tile boundaries too, so lit rims and grounded feet
+  // continue through a cache seam without adding a horizontal stripe to the landscape.
+  for (let i = 0; i < steepness.length; i++) {
+    if (steepness[i]! < 139) continue;
+    const row = Math.floor(i / size), col = i % size;
+    const nearby = (dy: number) => {
+      if (row + dy >= 0 && row + dy < size) return steepness[i + dy * size]!;
+      const y = top + row + dy, sx = left + col, p = unproject(sx, y + landHeightAtPixel(sx, y) * risePixels);
+      surfaceLight(p.x, p.z, first); return first.cliff;
+    };
+    if (nearby(-2) < 138) crest[i] = 1;
+    else if (nearby(3) < 138) crest[i] = 2;
+  }
+  return { elevation, light, steepness, crest };
 }

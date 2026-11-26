@@ -259,6 +259,12 @@ export class Client implements Controls {
     this.valley.onFieldSound = (cue, range, pan) => this.sound.field(cue, range, pan);
     this.game.subscribe((events) => {
       for (const e of events) {
+        if (e.t === 'grant') for (const [id, amount] of Object.entries(e.items)) {
+          const item = id as keyof typeof ITEMS;
+          if (amount) this.ui.message(S(ITEMS[item].nameKey) + ' × ' + amount, true, item);
+        }
+        if (e.t === 'item' && e.delta > 0) this.ui.message(S(ITEMS[e.id].nameKey) + ' × ' + e.delta, true, e.id);
+        if (e.t === 'phase' && e.phase === 'settled') this.ui.message('The Dry Bell · Complete', true, undefined, true);
         if (e.t === 'toast') this.ui.message(S(e.key, e.params));
         this.sound.event(e, this.valley);
         if (e.t === 'autosave' && this.valley.player.health > 0) this.save('auto', true);
@@ -757,6 +763,7 @@ export class Client implements Controls {
         else if (!this.destination) this.stopWalking();
       }
       this.scene.render(this.valley, dt);
+      this.sound.engagement(this.valley);
       this.sound.movement(this.valley);
       this.ui.update();
       if (this.valley.player.health <= 0) this.page('death');
@@ -766,7 +773,7 @@ export class Client implements Controls {
       }
       if (t > this.nextAudio) {
         this.sound.update(this.valley);
-        this.nextAudio = t + 1800;
+        this.nextAudio = t + 350;
       }
     } else if (this.mode === 'dialogue') this.scene.render(this.valley, dt, { speaker: this.ui.speaker });
     requestAnimationFrame((n) => this.frame(n));

@@ -16,10 +16,10 @@ interface Shape {
 
 const SHAPES: Record<AnimalSpecies, Shape> = {
   deer:  { ribs: [.245, .31, .65], hip: 1.04, cheek: .155, neck: .47, muzzle: .23, tail: .19, fur: 0xad7652, bib: 0xe6ce9d },
-  tiger: { ribs: [.32, .36, .78], hip: .82, cheek: .235, neck: .13, muzzle: .18, tail: .90, fur: 0xc6874e, bib: 0xded0ac },
-  lion:  { ribs: [.32, .36, .79], hip: .87, cheek: .22, neck: .16, muzzle: .18, tail: .88, fur: 0xb49a67, bib: 0xd1ba8d },
   bear:  { ribs: [.45, .46, .74], hip: .83, cheek: .23, neck: .12, muzzle: .23, tail: .10, fur: 0x57483e, bib: 0x92785c },
   wolf:  { ribs: [.22, .255, .53], hip: .65, cheek: .145, neck: .15, muzzle: .25, tail: .48, fur: 0x837f73, bib: 0xcdc2a6 },
+  highland_wolf: { ribs: [.255, .286, .57], hip: .71, cheek: .164, neck: .17, muzzle: .28, tail: .51, fur: 0x727c7d, bib: 0xc3c8b4 },
+  hill_boar: { ribs: [.35, .395, .57], hip: .61, cheek: .20, neck: .035, muzzle: .34, tail: .19, fur: 0x54443e, bib: 0x897461 },
   dog:   { ribs: [.174, .215, .41], hip: .49, cheek: .124, neck: .12, muzzle: .17, tail: .34, fur: 0x96623e, bib: 0xc4b79e },
   boar:  { ribs: [.29, .34, .54], hip: .57, cheek: .179, neck: .025, muzzle: .30, tail: .205, fur: 0x5d4b42, bib: 0x97775d },
   cat:   { ribs: [.083, .115, .22], hip: .225, cheek: .075, neck: .05, muzzle: .051, tail: .30, fur: 0x888985, bib: 0xe5d7be },
@@ -35,7 +35,8 @@ export interface ValleyAnimal { scene: THREE.Group; animations: THREE.AnimationC
 
 /** Each beast is one mesh on a named joint hierarchy. The same animated skin receives light, hunting hits and hoof contacts. */
 export function sculptValleyAnimal(def: AnimalDefinition): ValleyAnimal {
-  const s = SHAPES[def.species], sp = def.species, deer = sp === 'deer', boar = sp === 'boar';
+  const sp = def.species === 'highland_wolf' ? 'wolf' : def.species === 'hill_boar' ? 'boar' : def.species;
+  const s = SHAPES[def.species], deer = sp === 'deer', boar = sp === 'boar';
   const r = s.ribs, h = s.hip, c = s.cheek, seated = !!def.seated;
   const tint = .93 + (Number(def.id.slice(-3)) % 11) * .013;
   const fur = mul3(pigment(s.fur), tint), bib = pigment(s.bib), dark = mul3(fur, .53);
@@ -70,7 +71,6 @@ export function sculptValleyAnimal(def: AnimalDefinition): ValleyAnimal {
       return mix3(mix3(fur, saddle, mantle), bib, chest * .92);
     }
     if (y < -.44) return mul3(bib, .74 + .23 * Math.abs(x));
-    if (sp === 'tiger' && Math.sin(z*24 + y*y*5 + Math.abs(x)*1.3) > .50 && y > -.26) return INK;
     if (sp === 'cat' && Math.cos(z*24 + Math.abs(x)*2) > .64 && y > .05) return dark;
     return mul3(fur, .91 + .13*Math.abs(x) + .035*y);
   };
@@ -85,16 +85,6 @@ export function sculptValleyAnimal(def: AnimalDefinition): ValleyAnimal {
   // A sitting cat carries its rump on the ground and holds its chest upright between its forelegs.
   if (seated) blob(trunk, [0, h*.68, -r[2]*.56], [r[0]*1.14,h*.68,r[2]*.64], fur, 18);
   stroke(neck, [at[neck]!, [0, (hy+h)*.5, r[2]*.83], at[head]!], [r[0]*.9, c*.84, c*.71], fur, 15);
-  if (sp === 'lion') {
-    const mane = pigment(0x79543a);
-    blob(neck, [0,hy-c*.32,hz-c*.30], [c*1.52,c*1.69,c*1.25], mane, 20);
-    for (const side of [-1,1]) {
-      for (const [along, drop] of [[.42,1.48],[-.35,1.82]] as const) {
-        stroke(neck, [[side*c*.90,hy+c*.14,hz+c*along],[side*c*1.22,hy-c*.66,hz+c*(along-.22)],
-          [side*c*1.05,hy-c*drop,hz+c*(along-.48)]], [c*.43,c*.31,c*.018], mane);
-      }
-    }
-  }
   if (sp === 'bear' || boar) blob(trunk, [0, h+r[1]*.19, r[2]*.31], [r[0]*.95,r[1],r[2]*.62], fur, 18);
   const brow = ([x,y,z]: V3): RGB => {
     const mask = THREE.MathUtils.smoothstep(z - y * .40, .34, .85);
@@ -104,21 +94,15 @@ export function sculptValleyAnimal(def: AnimalDefinition): ValleyAnimal {
   blob(head, at[head]!, [c, c*(deer ? 1.15 : 1), c*1.08], canine ? brow : fur, 18);
   const noseZ = hz + c*.67 + s.muzzle;
   blob(jaw, [0,hy-c*.38,hz+c*.69+s.muzzle*.32], [c*.52,c*.32,s.muzzle*.70], bib);
-  blob(head, [0,hy-c*.16,hz+c*.68+s.muzzle*.37], [c*(boar ? .64 : .56),c*.4,s.muzzle*.70], sp === 'tiger' || sp === 'cat' ? bib : canine ? saddle : fur);
+  blob(head, [0,hy-c*.16,hz+c*.68+s.muzzle*.37], [c*(boar ? .64 : .56),c*.4,s.muzzle*.70], sp === 'cat' ? bib : canine ? saddle : fur);
   blob(head, [0,hy-c*.15,noseZ], [c*(boar ? .55 : .34),c*(boar ? .35 : .22),c*.19], boar ? pigment(0x947669) : INK);
   for (const side of [-1,1]) {
     const eyeAt: V3 = [side*c*.80,hy+c*.17,hz+c*.56];
     blob(head, eyeAt, [c*.23,c*.20,c*.21], INK, 10);
     blob(head, [eyeAt[0]+side*c*.13,eyeAt[1]+c*.025,eyeAt[2]+c*.07], [c*.12,c*.11,c*.10], EYE, 9);
     blob(head, [eyeAt[0]+side*c*.208,eyeAt[1]+c*.027,eyeAt[2]+c*.108], [c*.06,c*.084,c*.056], INK, 8);
-    // The big cats' pale whisker pads and dark cheek marks break up their broad face.
-    if (sp === 'tiger' || sp === 'lion') {
-      blob(head, [side*c*.36,hy-c*.25,hz+c*.95+s.muzzle*.47], [c*.41,c*.26,c*.31], bib);
-      if (sp === 'tiger') stroke(head, [[side*c*.61,hy+c*.47,hz+c*.54],[side*c*.81,hy+c*.29,hz+c*.56],
-        [side*c*.90,hy+c*.12,hz+c*.39]], [c*.08,c*.105,c*.03], INK);
-    }
     const e: V3 = [side*c*.66,hy+c*.63,hz-c*.25];
-    if (sp === 'bear' || sp === 'lion' || sp === 'tiger') {
+    if (sp === 'bear') {
       blob(head, [e[0]*1.1,e[1]+c*.25,e[2]], [c*.32,c*.39,c*.21], dark);
     } else if (sp === 'dog') {
       // Folded collie ears: one soft tip hangs a little lower than the other.
@@ -149,7 +133,6 @@ export function sculptValleyAnimal(def: AnimalDefinition): ValleyAnimal {
     [r[0]*.18,h+r[1]*(lifted ? .80 : -.76),-r[2]-s.tail*.72], tailEnd];
   stroke(tail, tailCurve, [r[0]*.31,r[0]*(sp==='wolf' ? .45 : .27),r[0]*.23,r[0]*.15,r[0]*.055], deer ? bib : fur);
 
-  if (sp === 'lion') blob(tail, tailEnd, [r[0]*.20,r[0]*.25,r[0]*.30], dark);
   for (const front of [true,false]) for (const left of [true,false]) {
     const name = front ? 'front' : 'hind', side = left ? 'L' : 'R', x = (left ? 1 : -1)*r[0]*.63;
     const z = (front ? .64 : -.65)*r[2], high = seated && !front ? h*.65 : h;

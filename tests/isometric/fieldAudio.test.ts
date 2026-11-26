@@ -197,6 +197,28 @@ describe('field audio', () => {
     expect(pans.slice(1).map((panner) => panner.pan.value)).toEqual([0.2, 0.2]);
   });
 
+  it('starts the score on the engagement frame and varies recorded footfalls', async () => {
+    const { sources } = fakeAudio();
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1), v = new Valley(new Game());
+    sound.enabled = true;
+    const enemy = v.actors.find(a => a.enemyKind === 'skirmisher')!;
+    v.game.setPlayerTransform(enemy.home.x + 2, 0, enemy.home.z, 0);
+    v.step(1/60,0,0,false);
+    const loop = vi.spyOn(sound.mixer,'loop').mockResolvedValue(undefined);
+    const accent = vi.spyOn(sound.mixer,'playAccent').mockImplementation(() => {});
+    sound.engagement(v);
+    sound.engagement(v);
+    expect(loop).toHaveBeenCalledExactlyOnceWith('music','assets/audio/bell-road/ford.mp3');
+    expect(accent).toHaveBeenCalledExactlyOnceWith('windup',0.48,0);
+    sound.mixer.unlock();
+    for (let n=0; n<7; n++) await sound.mixer.effect(catalogue.effects['step.dirt']![0]!,0.4);
+    const pitches = sources.map(s => s.playbackRate.value);
+    expect(new Set(pitches).size).toBe(7);
+    expect(Math.min(...pitches)).toBeGreaterThanOrEqual(0.95);
+    expect(Math.max(...pitches)).toBeLessThanOrEqual(1.05);
+  });
+
   it('releases focus on reset and gates new effects while hidden or muted', () => {
     const { clock, document, gains, sources } = fakeAudio();
     const mixer = new Mixer(1, defaultMix);

@@ -3,10 +3,10 @@ import { ANIMALS, ANIMAL_CALL_REACH, ANIMAL_GESTURE_SECONDS, ANIMAL_SENSES, ANIM
 import { CARAVAN_ANIMAL_REST } from '../../../src/core/world/caravanAnimal';
 import { WORLD } from '../../../src/core/world/layout';
 
-const SPECIES: AnimalSpecies[] = ['tiger', 'lion', 'bear', 'wolf', 'cat', 'dog', 'boar', 'deer'];
+const SPECIES: AnimalSpecies[] = ['highland_wolf', 'hill_boar', 'bear', 'wolf', 'cat', 'dog', 'boar', 'deer'];
 
 describe('the animal roster', () => {
-  it('lists nineteen animals with unique ids, each with a model file named after its species and id', () => {
+  it('lists nineteen animals with unique ids, each with a source model for its species', () => {
     expect(ANIMALS).toHaveLength(19);
     expect(new Set(ANIMALS.map((a) => a.id)).size).toBe(19);
     for (const animal of ANIMALS) {
@@ -32,9 +32,9 @@ describe('the animal roster', () => {
     expect(seated.map((a) => a.species)).toEqual(['cat']);
   });
 
-  it('keeps the big cats in the warm woodland and the pets in the settlements', () => {
+  it('keeps the hill boar and highland wolf in the eastern woodland and the pets in the settlements', () => {
     for (const animal of ANIMALS) {
-      if (animal.species === 'tiger' || animal.species === 'lion') expect(animal.habitat).toBe('warm-woodland');
+      if (animal.species === 'highland_wolf' || animal.species === 'hill_boar') expect(animal.habitat).toBe('warm-woodland');
       if (animal.species === 'cat' || animal.species === 'dog') expect(animal.habitat).toBe('settlement');
     }
   });
@@ -67,9 +67,9 @@ describe('how each kind moves and meets the hunter', () => {
   });
 
   it('lets predators hold their ground, and carries an alarm through wolves, boar and deer', () => {
-    for (const species of ['tiger', 'lion', 'bear', 'wolf'] as const) expect(ANIMAL_TEMPERAMENT[species].holdUntil).toBeLessThan(1);
+    for (const species of ['highland_wolf', 'hill_boar', 'bear', 'wolf'] as const) expect(ANIMAL_TEMPERAMENT[species].holdUntil).toBeLessThan(1);
     for (const species of ['wolf', 'boar', 'deer'] as const) expect(ANIMAL_TEMPERAMENT[species].herd).toBeGreaterThan(0);
-    for (const species of ['tiger', 'lion', 'bear', 'cat', 'dog'] as const) expect(ANIMAL_TEMPERAMENT[species].herd).toBe(0);
+    for (const species of ['highland_wolf', 'hill_boar', 'bear', 'cat', 'dog'] as const) expect(ANIMAL_TEMPERAMENT[species].herd).toBe(0);
   });
 
   it('needs grazing clips of deer and boar, and grooming and sleeping clips of a seated animal', () => {
@@ -87,7 +87,7 @@ describe('how each kind moves and meets the hunter', () => {
 
 describe('which animals graze', () => {
   it('is the kind\u2019s, not the model\u2019s: deer and boar graze, and each has the motion for it; the rest stand idle', () => {
-    expect([...GRAZERS].sort()).toEqual(['boar', 'deer']);
+    expect([...GRAZERS].sort()).toEqual(['boar', 'deer', 'hill_boar']);
     for (const animal of ANIMALS) {
       expect(requiredAnimalClips(animal).includes('Graze'), animal.id).toBe(!animal.seated && GRAZERS.includes(animal.species));
     }

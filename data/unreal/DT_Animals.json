@@ -1,8 +1,8 @@
 [
   {
-    "Name": "tiger-1005232739",
-    "Species": "tiger",
-    "SourceModel": "tiger-1005232739.glb",
+    "Name": "highland_wolf-1005232739",
+    "Species": "highland_wolf",
+    "SourceModel": "highland_wolf-1005232739.glb",
     "Habitat": "WarmWoodland",
     "Home": {
       "X": 10700,
@@ -10,17 +10,17 @@
       "Z": 157.515
     },
     "RoamRadius": 1900,
-    "WalkSpeed": 41.7,
-    "RunSpeed": 165,
+    "WalkSpeed": 39.4,
+    "RunSpeed": 119.9,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,
     "bHasHomeYaw": false
   },
   {
-    "Name": "lion-1005232726",
-    "Species": "lion",
-    "SourceModel": "lion-1005232726.glb",
+    "Name": "hill_boar-1005232726",
+    "Species": "hill_boar",
+    "SourceModel": "hill_boar-1005232726.glb",
     "Habitat": "WarmWoodland",
     "Home": {
       "X": 11200,
@@ -28,8 +28,8 @@
       "Z": 278.009
     },
     "RoamRadius": 1900,
-    "WalkSpeed": 41.9,
-    "RunSpeed": 169.1,
+    "WalkSpeed": 37.1,
+    "RunSpeed": 104.5,
     "bSeated": false,
     "bTame": false,
     "HomeYaw": 0,

@@ -80,13 +80,16 @@ describe('prepared world audio', () => {
     const vale = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/spoken-vale.json'), 'utf8')) as {
       deliveries: { file: string; bytes: number; sha256: string }[];
     };
-    const playable = [...derivatives, ...vale.deliveries.map((f) => ({
+    const road = JSON.parse(fs.readFileSync(path.join(ROOT, 'docs/engineering/bell-road-audio.json'), 'utf8')) as {
+      source: FileReceipt; deliveries: FileReceipt[];
+    };
+    const playable = [...derivatives, ...road.deliveries, ...vale.deliveries.map((f) => ({
       path: 'public/assets/audio/vale/' + f.file, bytes: f.bytes, sha256: f.sha256,
     }))];
     const allAudio = ['public/assets/audio', 'public/audio'].flatMap((dir) => fs.readdirSync(path.join(ROOT, dir), { recursive: true, encoding: 'utf8' })
       .filter((name) => /\.(ogg|m4a|mp3|wav|flac)$/i.test(name)).map((name) => portable(path.join(dir, name))));
     expect(playable.map((f) => f.path).sort()).toEqual(allAudio.sort());
-    for (const file of [...playable, provenance.editableScore, ...provenance.renderSources]) {
+    for (const file of [...playable, road.source, provenance.editableScore, ...provenance.renderSources]) {
       expect(fs.statSync(path.join(ROOT, file.path)).size, file.path).toBe(file.bytes);
       expect(sha256(path.join(ROOT, file.path)), file.path).toBe(file.sha256);
       expect(forbidden.has(file.sha256), file.path).toBe(false);
@@ -705,7 +708,7 @@ function chain(source: FakeNode, buses: Record<string, unknown>): string[] {
 
 describe('positioned animal calls', () => {
   const call = (over: Partial<AnimalCall> = {}): AnimalCall => ({
-    id: 'lion-actor', species: 'lion', position: { x: 20, y: 1.3, z: 8 }, callVariant: 1, ...over,
+    id: 'lion-actor', species: 'hill_boar', position: { x: 20, y: 1.3, z: 8 }, callVariant: 1, ...over,
   });
 
   it('validates the gesture event and copies finite positions', () => {
@@ -730,10 +733,10 @@ describe('positioned animal calls', () => {
     expect(world.callAnimal(call())).toBe(false);
     world.update(0.001, null);
     await flush();
-    expect(playing(ctx, 'lion-1')).toHaveLength(0);
+    expect(playing(ctx, 'hill_boar-1')).toHaveLength(0);
     world.update(0.05, frame({ x: 0, z: 0 }));
     expect(world.callAnimal(call())).toBe(true);
-    expect(playing(ctx, 'lion-1')).toHaveLength(1);
+    expect(playing(ctx, 'hill_boar-1')).toHaveLength(1);
     world.dispose();
   });
 
@@ -746,7 +749,7 @@ describe('positioned animal calls', () => {
     });
     world.update(0.05, frame({ x: 0, z: 0 }));
     await flush(); await flush();
-    const count = () => fetched.filter((url) => url.includes('/lion-1.')).length;
+    const count = () => fetched.filter((url) => url.includes('/hill_boar-1.')).length;
     const initial = count();
     expect(initial).toBeGreaterThan(0);
     for (let i = 0; i < 10; i++) {
@@ -766,12 +769,12 @@ describe('positioned animal calls', () => {
     world.update(0.05, frame({ x: 0, z: 0 }, { listener: { x: 0, y: 3, z: 0, fx: 1, fy: 0, fz: 0 }, indoors: true }));
     await flush();
     expect(world.callAnimal(call())).toBe(true);
-    const source = playing(ctx, 'lion-1')[0]!;
+    const source = playing(ctx, 'hill_boar-1')[0]!;
     expect(source.loop).toBe(false);
     expect(chain(source, buses)).toEqual(['source', 'gain', 'filter', 'panner', 'filter', 'gain']);
     const panner = source.outputs[0]!.outputs[0]!.outputs[0] as FakeNode & { refDistance: number; positionX: Param; positionY: Param; positionZ: Param };
     expect([panner.positionX.value, panner.positionY.value, panner.positionZ.value]).toEqual([20, 1.3, 8]);
-    expect(panner.refDistance).toBe(ANIMAL_AUDIO.species.lion.ref);
+    expect(panner.refDistance).toBe(ANIMAL_AUDIO.species.hill_boar.ref);
     expect(ctx.listener.forwardX.value).toBe(1);
     expect(ctx.listener.forwardZ.value).toBe(0);
     const outdoor = panner.outputs[0] as FakeNode & { frequency: Param };
@@ -790,15 +793,15 @@ describe('positioned animal calls', () => {
     expect(world.callAnimal(call())).toBe(false);
     expect(world.callAnimal(call({ id: 'wolf-actor', species: 'wolf', callVariant: 2 }))).toBe(true);
     expect(world.callAnimal(call({ id: 'bear-actor', species: 'bear' }))).toBe(true);
-    expect(world.callAnimal(call({ id: 'tiger-actor', species: 'tiger' }))).toBe(false);
-    const lion = playing(ctx, 'lion-1')[0]!;
+    expect(world.callAnimal(call({ id: 'tiger-actor', species: 'highland_wolf' }))).toBe(false);
+    const lion = playing(ctx, 'hill_boar-1')[0]!;
     lion.onended?.();
     expect(world.callAnimal(call())).toBe(false);
     world.update(12.1, frame({ x: 0, z: 0 }));
     expect(world.callAnimal(call({ callVariant: 2 }))).toBe(true);
-    expect(playing(ctx, 'lion-2')).toHaveLength(1);
+    expect(playing(ctx, 'hill_boar-2')).toHaveLength(1);
     for (let i = 0; i < 60; i++) world.update(1 / 60, frame({ x: 0, z: 0 }));
-    expect(playing(ctx, 'lion-2')).toHaveLength(1);
+    expect(playing(ctx, 'hill_boar-2')).toHaveLength(1);
     world.dispose();
   });
 
@@ -807,7 +810,7 @@ describe('positioned animal calls', () => {
     world.update(0.05, frame({ x: 0, z: 0 }));
     await flush();
     expect(world.callAnimal(call())).toBe(true);
-    const source = playing(ctx, 'lion-1')[0]!;
+    const source = playing(ctx, 'hill_boar-1')[0]!;
     if (transition === 'menu') world.update(0.001, null);
     else if (transition === 'panel' || transition === 'dead') world.update(0.001, frame({ x: 0, z: 0 }, { mode: transition === 'panel' ? 'paused' : 'dead' }));
     else if (transition === 'hidden') world.setHidden(true);

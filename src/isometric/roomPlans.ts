@@ -1,3 +1,4 @@
+import { houseStyle } from './houseStyles';
 import type { InteriorLevel, ItemId } from '../core/game/types';
 import type { BuildingSpec, V2 } from '../core/world/layout';
 import { households } from './households';
@@ -153,10 +154,10 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
     stone =
       level === 'cellar' || site.kind === 'shrine' || site.kind === 'archive' || site.id === 'lantern_tower';
   const variation = [...site.id].reduce((n, c) => n + c.charCodeAt(0), 0);
-  const hall = 6.5 + Math.min(2, site.w * 0.16) + (level === 'ground' ? 0.9 : 0);
-  const deep = 6.4 + (variation % 3) * 0.45 + (site.kind === 'inn' || site.kind === 'shrine' ? 1.15 : 0);
-  const left = 7.6 + (variation % 4) * 0.55,
-    right = 7.9 + ((variation >> 1) % 4) * 0.5;
+  const form = houseStyle(site.id);
+  const hall = form.hall + (level === 'ground' ? 0.9 : 0);
+  const deep = form.depth + (site.kind === 'inn' ? 1.5 : 0);
+  const left = form.west + (level === 'loft' ? 0.7 : 0), right = form.east + (level === 'cellar' ? 1.2 : 0);
   const gap = ((variation % 3) - 1) * 0.65,
     loft = level === 'loft',
     basement = level === 'cellar';
@@ -165,8 +166,8 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
     {
       x0: -hall - left,
       x1: -hall,
-      z0: -deep + 1.4,
-      z1: deep - 1.45,
+      z0: -deep + form.back,
+      z1: deep - form.front,
       name: loft ? 'Bedchamber' : basement ? 'Dry stores' : home.workroom,
       rug: variation % 4 === 0 && site.id !== 'house_a' ? 'red' : 'blue',
     },
@@ -181,8 +182,8 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
     {
       x0: hall,
       x1: hall + right,
-      z0: -deep + 2.25,
-      z1: deep - 0.55,
+      z0: -deep + (3.7 - form.back * 0.72),
+      z1: deep - (2.8 - form.front * 0.55),
       name: loft ? 'Writing room' : basement ? 'Strongroom' : 'Keeping room',
       rug: 'red',
     },
@@ -232,7 +233,8 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
       z: stairBack,
       target: loft ? 'ground' : 'cellar',
     });
-  if (level === 'ground') passages.push({ id: 'exit', kind: 'outside', x: 0, z: deep - 0.58 });
+  const threshold = { weave: -1.7, timber: 0.8, garden: -2.4, hunt: 2.15, grain: -1.4, cask: -2.2, record: 0, tide: 1.45, bell: 0 }[form.motif];
+  if (level === 'ground') passages.push({ id: 'exit', kind: 'outside', x: threshold, z: deep - 0.58 });
   const f = (type: string) => 'furniture_' + type;
   const workKey = ['bed', 'table', 'chest'].includes(home.tool) ? home.tool : f(home.tool);
   if (level === 'ground') {
@@ -251,9 +253,12 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
           : 'Use the ' + home.workroom.toLowerCase()
     );
     put('room_hearth', rx, rooms[2].z0 + 1.7, 53, 1.6, 0.85, 'hearth', 'Tend the hearth');
-    put('table', 2.8, 2.5, 42, 1.35, 0.68);
-    put(f('chair'), 3.4, 4.05, 23, 0.48, 0.45);
-    put(f('stool'), 1.2, 2.4, 18, 0.42, 0.4);
+    const display = { weave: 'table', timber: f('workbench'), garden: f('herbs'), hunt: f('rack'),
+      grain: f('sacks'), cask: f('barrel'), record: f('desk'), bell: f('altar'), tide: f('rack') }[form.motif];
+    const dx = form.motif === 'hunt' || form.motif === 'tide' ? -3.15 : 2.8;
+    put(display, dx, 2.5, form.motif === 'bell' ? 47 : 40, 1.35, 0.68);
+    put(f('chair'), dx + 0.6, 4.05, 23, 0.48, 0.45);
+    put(f('stool'), dx + (dx < 0 ? 1.6 : -1.6), 2.4, 18, 0.42, 0.4);
     put(
       f('cupboard'),
       rooms[0].x0 + 1.55,
@@ -324,6 +329,14 @@ export function floorPlan(site: BuildingSpec, level: InteriorLevel): FloorPlan {
   put(f('shelf'), -hall - 1.6, rooms[0].z0 + 1.05, 30, 0.86, 0.42);
   put(f(loft ? 'herbs' : 'pots'), hall + 1.78, rooms[2].z0 + 1.1, 23, 0.55, 0.38);
   if (level === 'ground') put(f('stool'), rx - 1.8, 2, 17, 0.38, 0.35);
+  const extra = { weave: ['loom', 'shelf'], timber: ['firewood','workbench'], garden: ['herbs','pots'],
+    hunt: ['pelt','rack'], grain: ['sacks','sacks'], cask: ['barrel','barrel'], bell: ['candle','candle'],
+    record: ['bookshelf','bookshelf'], tide: ['rack','jug'] }[form.motif];
+  // Appended so persistent chest/fixture identifiers in earlier saves retain their meaning.
+  if (level === 'ground') {
+    put(f(extra[0]!), rooms[0].x0 + 2.0, rooms[0].z1 - 1.05, form.motif === 'bell' ? 18 : 34, 0.8, 0.46);
+    put(f(extra[1]!), rooms[2].x1 - 1.7, rooms[2].z0 + 0.95, form.motif === 'bell' ? 18 : 32, 0.7, 0.4);
+  }
   const stairs = passages.filter((p) => p.target).map((p) => makeFlight(p, level));
   const plan = { site, level, name, rooms, fixtures, arches, passages, stairs, gap, stone };
   cached.set(id, plan);

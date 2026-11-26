@@ -28,7 +28,7 @@ def strike(t, base, ratios, decay):
 def call(name, t, rng):
     # Fundamental, end/start pitch ratio, vibrato rate, number of articulated calls and roughness.
     types = {
-        "tiger": (92, .59, 7, 2, .45), "lion": (83, .68, 10, 1, .53), "bear": (97, .55, 16, 2, .62),
+        "highland_wolf": (284, 1.35, 3.5, 1, .16), "hill_boar": (89, .68, 19, 3, .56), "bear": (97, .55, 16, 2, .62),
         "wolf": (320, 1.22, 3, 1, .10), "cat": (515, .67, 5, 1, .07), "dog": (182, .61, 8, 2, .35),
         "boar": (118, .75, 17, 3, .47), "deer": (475, 1.12, 7, 2, .24),
         "owl": (390, .84, 3, 2, .04), "gull": (1060, .58, 9, 2, .12), "crow": (670, .75, 28, 2, .37),
