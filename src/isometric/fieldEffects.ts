@@ -164,6 +164,24 @@ export function drawBootDust(ctx: CanvasRenderingContext2D, x: number, y: number
   ctx.restore();
 }
 
+/** The dust and the last brass glint travel with the fallen body's foot, including knockback. */
+export function drawDefeatLanding(ctx: CanvasRenderingContext2D, x: number, y: number, age: number, wet: boolean) {
+  if (age < 0 || age >= 0.43) return;
+  if (age < 0.18) drawBootDust(ctx, x, y, age, wet);
+  if (age < 0.10) return;
+  const phase = (age - 0.10) / 0.33;
+  const reach = 1 + Math.round(2 * Math.sin(phase * Math.PI));
+  const lx = Math.round(x + 5), ly = Math.round(y - 3);
+  ctx.save();
+  ctx.globalAlpha *= Math.min(1, (1 - phase) * 3);
+  ctx.fillStyle = '#efd08d';
+  pixelLine(ctx, lx - reach, ly, lx + reach, ly);
+  pixelLine(ctx, lx, ly - reach, lx, ly + reach);
+  ctx.fillStyle = '#fff3cf';
+  ctx.fillRect(lx, ly, 1, 1);
+  ctx.restore();
+}
+
 function contactColor(hit: Contact) {
   if (hit.kind === 'focused') return '#ffdf89';
   if (hit.kind === 'parry' || hit.kind === 'counter') return '#acf0d7';

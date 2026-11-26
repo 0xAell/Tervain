@@ -14,6 +14,12 @@ const air = (delay: number, time: number, attack: number, from: number, to: numb
 const tone = (delay: number, time: number, attack: number, from: number, to: number, level: number): Layer =>
   ({ delay, time, attack, frequency: [from, to], level });
 
+// The keeper rings once for mill water and twice for a quarry shift. Each strike has its own decay.
+const keeperBell = (at: number) => [
+  air(at,.019,.002,4200,1300,.19), tone(at,.63,.004,587,586,.20),
+  tone(at+.002,.42,.003,1176,1173,.11), tone(at,.29,.002,1578,1574,.065),
+];
+
 // Original accents for the close mix. Blade and guard carry the treble; body and fall carry the weight.
 const sounds = {
   // Bell partials decay at different rates; the clapper is audible only at the strike.
@@ -25,6 +31,24 @@ const sounds = {
     tone(0.002, 0.56, 0.002, 1243, 1242, 0.13),
     tone(0, 0.32, 0.002, 1716, 1714, 0.09),
   ],
+  braceLock: [
+    air(0,.09,.006,740,250,.27), tone(.045,.11,.004,207,145,.19),
+    air(.16,.028,.002,4500,1300,.31), tone(.16,.29,.003,1247,1230,.14),
+    tone(.162,.21,.002,599,593,.20),
+  ],
+  gateJam: [
+    air(0,.22,.035,1100,400,.26), tone(.11,.14,.025,204,302,.15),
+    air(.23,.064,.002,3600,280,.43), tone(.235,.29,.006,135,55,.31),
+  ],
+  gateWind: [
+    air(0,.48,.025,1450,440,.20), tone(.04,.34,.045,124,172,.14),
+    ...[.055,.125,.215,.325,.46].map(at => air(at,.026,.002,3400,790,.21)),
+    tone(.47,.19,.004,244,177,.18), air(.51,.58,.08,1800,820,.18),
+  ],
+  millSignal: keeperBell(0),
+  quarrySignal: [...keeperBell(0), ...keeperBell(.34)],
+  bodyLanding: [tone(0,.14,.006,112,47,.37), air(0,.105,.003,1670,320,.32),
+    air(.037,.12,.009,850,260,.15), tone(.045,.085,.004,504,453,.08)],
   ropeDraw: [
     air(0, 0.24, 0.035, 1280, 410, 0.30),
     tone(0.045, 0.14, 0.02, 176, 245, 0.10),

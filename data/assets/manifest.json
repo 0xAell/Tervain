@@ -42,12 +42,12 @@
   },
   "totals": {
     "all": {
-      "files": 1967,
-      "bytes": 497748088
+      "files": 1969,
+      "bytes": 498956224
     },
     "shipped": {
-      "files": 1025,
-      "bytes": 190487117
+      "files": 1027,
+      "bytes": 191695149
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -59,8 +59,8 @@
         "bytes": 192215346
       },
       "keep": {
-        "files": 960,
-        "bytes": 166626624
+        "files": 962,
+        "bytes": 167834760
       },
       "rework": {
         "files": 0,
@@ -532,7 +532,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 46,
-      "bytes": 1410386
+      "bytes": 1419556
     },
     {
       "id": "vale-typeface",
@@ -558,7 +558,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 3,
-      "bytes": 6135038
+      "bytes": 6136410
     },
     {
       "id": "craft-trees",
@@ -1252,8 +1252,8 @@
       "fab": null,
       "replaceWith": null,
       "replaceBeforeShip": null,
-      "files": 19,
-      "bytes": 8956935
+      "files": 21,
+      "bytes": 10154529
     },
     {
       "id": "vale-spoken-sound",
@@ -9651,8 +9651,8 @@
       "path": "assets/pixellab/provenance.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 252526,
-      "sha256": "ff334493869da835a9a77825620f14b892edecf707ab66cbc9a49a161615bc6b",
+      "bytes": 252630,
+      "sha256": "45d3399f9585e22a8efb80c507a65a334386ef040e426316ba7c8f4b33934e42",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -12733,6 +12733,34 @@
       "kind": "audio",
       "bytes": 253053,
       "sha256": "04b3529ec6fb94cbd152ae50c5d3fce44e3ab0d8a0077e4d075d208544f43681",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/bell-road/bell-hours.mp3",
+      "group": "bell-road-music",
+      "kind": "audio",
+      "bytes": 598797,
+      "sha256": "403a693b8f3b9da596372689d8a73d6834a37ce8c8843bab71f047b908cbe778",
+      "shipped": true,
+      "licence": {
+        "id": "LicenseRef-Tervain-Original",
+        "status": "project-original"
+      },
+      "plan": "keep",
+      "unreal": null
+    },
+    {
+      "path": "public/assets/audio/bell-road/empty-mill.mp3",
+      "group": "bell-road-music",
+      "kind": "audio",
+      "bytes": 598797,
+      "sha256": "0db84c4c1c93fd6238b977fa56cdc73554df1badb77dac1e8682d2f4bcbed4ad",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-Tervain-Original",
@@ -32846,8 +32874,8 @@
       "path": "public/vale/sprites.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 33410,
-      "sha256": "6ffc87eb013b2d649e4254e29188ad6092560ff8d8797154466573df51e72da5",
+      "bytes": 34678,
+      "sha256": "5d4476fd735fc366103688018f3f9de3a7c295de8d652d9683b184053faf457f",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -32860,8 +32888,8 @@
       "path": "public/vale/sprites.png",
       "group": "vale-pixel-art",
       "kind": "image",
-      "bytes": 1295540,
-      "sha256": "4e0d119726fdc8ae9eeca03e1188927b06b4259c4ff8fb6d9b0eea08c8e7f20a",
+      "bytes": 1304710,
+      "sha256": "89d9c2fe3538e2aca5bacb02dbcdb1edeaf96c097b6850f40db0827b080a7976",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-PixelLab-Generated",

@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw
 from vale_palette import prepare
 from vale_poses import equipped, dash, fall, regional_coat
 from vale_interiors import workshop_art
+from vale_sluice import sluice_art
 
 root = Path(__file__).resolve().parent.parent
 art = root / 'assets/pixellab'
@@ -69,6 +70,8 @@ def append_cel(key, im):
 with zipfile.ZipFile(art / 'sources.zip') as library:
     sequences = json.loads(library.read('sequences.json'))
     for key, files in sorted(sequences.items()):
+        if key == 'sluice':
+            continue  # The keeper's gate is drawn at its surveyed width below.
         mapping[key] = []
         for file in files:
             with Image.open(io.BytesIO(library.read(file))) as source:
@@ -121,12 +124,17 @@ workshops = dict(workshop_art())
 for key, image in workshops.items():
     mapping[key] = []
     append_cel(key, image)
+for key, frames in sluice_art():
+    mapping[key] = []
+    for image in frames:
+        append_cel(key, image)
 atlas = Image.new('RGBA', (width, y + row))
 for x, y, im in sprites:
     atlas.paste(im, (x, y))
 atlas.save(dest / 'sprites.png', optimize=True)
 (dest / 'sprites.json').write_text(json.dumps({'frames': mapping}, separators=(',', ':')) + '\n')
 ledger = json.loads((art / 'provenance.json').read_text())
+ledger['waterworks'] = {'author': 'Tervain', 'source': 'tools/vale_sluice.py', 'notches': 13}
 ledger['workshopMaterials'] = {'author': 'Tervain', 'source': 'tools/vale_interiors.py', 'count': len(workshops)}
 ledger['runtimeFilesSha256'] = {p.relative_to(dest).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                               for p in sorted(dest.rglob('*')) if p.is_file()}

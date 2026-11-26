@@ -28,7 +28,7 @@ import { JUMP_TIME, Locomotion } from './locomotion';
 import { RoomResidents } from './roomResidents';
 import { distance, groundAt, inBuilding, navigable, placeList, project, waterAt } from './land';
 import { onBridge, wetPoint, riverVelocity } from './water';
-import { worldView } from '../core/game/worldView';
+import { observedWater } from '../core/game/worldView';
 import { FURNITURE } from '../core/world/furniture';
 import { fromBuildingLocal } from '../core/world/interiors';
 import { RESIDENT_HOMES, INDOOR_POSTS } from '../core/world/homes';
@@ -57,6 +57,7 @@ import {
   ARROW_SPEED,
   DAMAGE_LABEL_TIME,
   DEFEAT_TIME,
+  DEFEAT_LANDING,
   arrowHeight,
   DRAW_TIME,
   ENEMY_SWING_TIME,
@@ -581,6 +582,7 @@ export class Valley {
   }
   step(dt: number, dx: number, dz: number, run: boolean, walkThrough = true, pace = 1) {
     run = run && pace > 0.55;
+    const previousTime = this.time;
     this.time += dt;
     if ((run && (dx || dz) && this.stamina <= 1) || (this.guard && this.stamina < 1)) this.tiredUntil = this.time + 0.45;
     this.clockElapsed += dt;
@@ -592,7 +594,12 @@ export class Valley {
     this.landing = undefined;
     for (let i = this.contacts.length - 1; i >= 0; i--) {
       const hit = this.contacts[i]!;
-      if (this.time - hit.born >= (hit.defeated ? DEFEAT_TIME : DAMAGE_LABEL_TIME)) this.contacts.splice(i, 1);
+      const age = this.time - hit.born;
+      if (age >= (hit.defeated ? DEFEAT_TIME : DAMAGE_LABEL_TIME)) this.contacts.splice(i, 1);
+      else if (hit.defeated && previousTime < hit.born + DEFEAT_LANDING && this.time >= hit.born + DEFEAT_LANDING) {
+        const target = this.actors.find(actor => actor.id === hit.actorId);
+        if (target) this.fieldSoundAt(this.contactSurface(target).wet ? 'fall_water' : 'fall_ground', target);
+      }
     }
     if (this.hitStopRemaining > 0 && dt > 0) {
       const hold = Math.min(dt, this.hitStopRemaining);
@@ -705,7 +712,7 @@ export class Valley {
         this.stamina = Math.max(0, Math.min(100, this.stamina + dt * (fast ? -7 : 5 * this.recovery)));
       } else if (!dodge) this.stamina = Math.min(100, this.stamina + dt * 10 * this.recovery);
       if (!this.room && wade && water && !this.jump && p.health > 0 && !onBridge(p)) {
-        const v = riverVelocity(water, worldView(this.game.state).flow),
+        const v = riverVelocity(water, observedWater(this.game.state).flow),
           pull = dt * wade * (this.guard ? 0.06 : 0.24);
         const next = { x: p.x + v.x * pull, z: p.z + v.z * pull };
         if (!onBridge(next) && this.outdoorPassable(p, next)) {
@@ -747,7 +754,7 @@ export class Valley {
         this.position,
         this.localFloor + this.standingLift + this.hop,
         p.yaw,
-        worldView(this.game.state).flow
+        observedWater(this.game.state).flow
       );
     }
     for (let i = this.arrows.length - 1; i >= 0; i--) {
@@ -1031,7 +1038,7 @@ export class Valley {
       }, 0.32);
     } else if (target.field === 'well') {
       this.perform('work', target, 1.5, () => {
-        const water = worldView(this.game.state).rationing;
+        const water = observedWater(this.game.state).rationing;
         this.fieldSoundAt(water === 'severe' ? 'bucket_dry' : 'bucket_water', target.at);
         if (water !== 'severe') this.stamina = Math.min(100, this.stamina + (water === 'eased' ? 35 : 15));
         this.onMessage(water === 'severe' ? 'The bucket scrapes the bottom. Only a few drops.'
@@ -1415,7 +1422,7 @@ export class Valley {
     for (const entry of entries) {
       if (
         (entry.act.do === 'pickup' && gatheringIds.has(entry.act.pickup)) ||
-        ['archive_door', 'archive_shutter', 'ledger', 'inspect:noticeboard'].includes(entry.id) ||
+        ['archive_door', 'archive_shutter', 'ledger', 'inspect:noticeboard', 'inspect:dry_channel', 'check_channel', 'sluice'].includes(entry.id) ||
         !entry.offered(this.game.state)
       )
         continue;

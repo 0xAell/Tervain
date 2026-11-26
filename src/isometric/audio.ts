@@ -1,7 +1,7 @@
 import { hourOfDay, evalAll } from '../core/game/state';
 import { ANIMAL_SPECIES } from '../core/game/hunting';
-import { worldView } from '../core/game/worldView';
-import { ANCHORS, BUILDINGS } from '../core/world/layout';
+import { observedWater, worldView } from '../core/game/worldView';
+import { ANCHORS, BELL, BUILDINGS, SLUICE } from '../core/world/layout';
 import { S } from '../core/content/strings';
 import { DIALOGUE_NODES } from '../core/content/dialogue';
 import { HERO_LINES, SPEAKER_NAMES, TALKS, VOICE_LINES, shown, type HeroCue } from '../core/content/voice';
@@ -56,6 +56,8 @@ const fieldAccents: Partial<Record<FieldSound, {
   block: { accent: 'guard', gain: 0.98, focus: 'contact', foley: ['block', 0.35] },
   enemy_windup: { accent: 'windup', gain: 0.58 },
   enemy_down: { accent: 'defeat', gain: 0.92, focus: 'defeat' },
+  fall_ground: { accent: 'bodyLanding', gain: 0.86 },
+  fall_water: { accent: 'waterLanding', gain: 0.84 },
   sidestep: { accent: 'sidestep', gain: 0.76 },
   thrust: { accent: 'thrust', gain: 0.83 },
   bow_focus: { accent: 'bowFocus', gain: 0.67 },
@@ -90,6 +92,7 @@ export class Sound {
   private scenes = new Set<string>();
   private turns = new Map<string, number>();
   private battleAccent = false;
+  private millShift?: boolean;
   enabled = false;
   constructor(
     public volume: number,
@@ -184,15 +187,26 @@ export class Sound {
       this.mixer.playAccent('roadCadence', 0.89, 0);
     }
     if (event.t === 'grant' && event.id === 'dry_bell_completion') this.reward();
-    if (event.t === 'allocation')
-      this.mixer.playAccent('villageBell', 0.72, 0);
+    if (this.enabled && event.t === 'allocation') {
+      this.mixer.playAccent('gateWind', 0.88, 0);
+      const mill = worldView(v.game.state).millTurning;
+      this.signalShift(v, mill, SLUICE.control);
+      this.millShift = event.allocation === 'rotation' ? mill : undefined;
+    }
+    if (this.enabled && event.t === 'gate') this.mixer.playAccent(event.gate === 'jammed' ? 'gateJam' : 'braceLock', 0.86, 0);
     if (event.t === 'equipment' && event.item) this.one('equip', 0.36);
     if (event.t === 'item' && event.id === 'coin') this.one('coins', 0.42);
-    if (event.t === 'rite' || event.t === 'gate') this.one(event.t, 0.6);
+    if (event.t === 'rite') this.one(event.t, 0.6);
     for (const r of eventRemarks(event, {
       archiveOpen: v.game.state.locationChanges.archive_door === 'open',
     }))
       this.remark(r.cue, v.time, r.delay);
+  }
+  private signalShift(v: Valley, mill: boolean, at: { x: number; z: number }) {
+    const range = distance(at, v.player);
+    if (v.room || range >= 34) return;
+    const pan = Math.max(-0.8, Math.min(0.8, (at.x - v.player.x - at.z + v.player.z) * 0.055));
+    this.mixer.playAccent(mill ? 'millSignal' : 'quarrySignal', 0.63 * (1 - range / 34), pan);
   }
   private residents(v: Valley, night: boolean) {
     if (this.night !== null && this.night !== night) this.remark(night ? 'night' : 'dawn', v.time);
@@ -281,7 +295,7 @@ export class Sound {
     void this.mixer.loop('music', 'assets/audio/bell-road/' + (a.enemyKind === 'thornback' ? 'thorn' : 'ford') + '.mp3');
   }
   dialogueTick() {
-    if (this.enabled && this.mode === 'off') this.mixer.playAccent('voiceTick', 0.65, 0);
+    if (this.enabled && (this.mode === 'off' || this.mixer.voiceMuted)) this.mixer.playAccent('voiceTick', 0.65, 0);
   }
   field(cue: FieldSound, range = 0, pan = 0) {
     if (!this.enabled) return;
@@ -333,13 +347,19 @@ export class Sound {
     const pos = v.player;
     const riverside = !room && !coast && [[0, 0], [5, 0], [-5, 0], [0, 5], [0, -5]]
       .some(([x, z]) => !!wetPoint(pos.x + x!, pos.z + z!));
-    const work = worldView(v.game.state);
+    const order = worldView(v.game.state), work = observedWater(v.game.state, order);
+    if (work.scheduleBoard && this.millShift !== undefined && this.millShift !== order.millTurning) {
+      const source = distance(pos, SLUICE.control) < distance(pos, BELL) ? SLUICE.control : BELL;
+      this.signalShift(v, order.millTurning, source);
+    }
+    this.millShift = order.scheduleBoard ? order.millTurning : undefined;
     const millrace = work.millTurning && distance(pos, mill) < 18;
     const quarry = (work.quarryState === 'working' || work.quarryState === 'night_shift') && distance(pos, ANCHORS.quarry_face!) < 22;
     const threatened = !room && (combat || (this.lastThreat > 0 && v.time - this.lastThreat < 3));
+    const aftermath = order.allocation === 'quarry' ? 'empty-mill' : order.scheduleBoard ? 'bell-hours' : 'homecoming';
     const score = threatened ? (enemies.some(a => a.key === 'thornback') ? 'thorn' : 'ford')
       : room ? (room.level === 'cellar' ? 'undercroft' : room.site.kind === 'shrine' ? 'hymn' : 'hearth')
-      : v.game.state.quest.phase === 'settled' && place === 'rillford' ? 'homecoming'
+      : v.game.state.quest.phase === 'settled' && place === 'rillford' ? aftermath
       : night ? 'lamplight' : coast ? 'strand' : forest ? 'pines' : place === 'spring_shrine' ? 'hymn'
       : riverside || millrace ? 'water' : 'market';
     const air = room ? (room.level === 'cellar' ? 'vault' : 'rafters') : coast ? 'tideline'
@@ -432,6 +452,7 @@ export class Sound {
     this.nextVoice = 9;
     this.lastThreat = 0;
     this.battleAccent = false;
+    this.millShift = undefined;
     this.challenges.clear();
     this.activity = undefined;
     this.room = undefined;

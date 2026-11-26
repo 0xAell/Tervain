@@ -21,6 +21,7 @@ export interface Stamp extends V2 {
   wakeId?: string;
   moving?: boolean;
   airborne?: boolean;
+  settleAge?: number;
   reflect?: boolean;
   arrow?: { angle: number; exposed: number; focused?: boolean };
   tint?: string;

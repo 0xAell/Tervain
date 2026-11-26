@@ -1,5 +1,5 @@
 import { followAxis } from './camera';
-import { IMPACT_PAUSE } from '../core/rules/valeCombat';
+import { sluiceSetting } from './sluice';
 import { pixelLine, pixelPool } from './pixelInk';
 import { journeyLead } from '../core/game/valeJourney';
 import { buildFieldstones } from './fieldstones';
@@ -10,9 +10,9 @@ import { terrainHeight, groundProject, pickSurface, supportHeight } from './reli
 import { Sunlight } from './sunlight';
 import { SkyLighting, skyLight, type LightSource } from './skyLight';
 import { doorOpen, frontDoor } from './doorways';
-import { drawBowGuide, drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir, drawBootDust } from './fieldEffects';
+import { drawBowGuide, drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir, drawBootDust, drawDefeatLanding } from './fieldEffects';
 import type { BuildingSpec } from '../core/world/layout';
-import { CONTACT_TIME, DEFEAT_TIME, arrowHeight, meleeWarning, enemySwingProgress, SWING_TIME } from './fieldcraft';
+import { CONTACT_TIME, DEFEAT_TIME, DEFEAT_LANDING, defeatProgress, arrowHeight, meleeWarning, enemySwingProgress, SWING_TIME } from './fieldcraft';
 import { isHuntableAnimalId } from '../core/game/hunting';
 import { ENEMY_ARCHETYPES } from '../core/content/enemies';
 import { Atlas } from './atlas';
@@ -30,7 +30,7 @@ import { isHegemonyStandard } from './hegemony';
 import { chartPoint, paintValeMap } from './valeMap';
 import { bridgeArt } from './bridgeArt';
 import { drawStrip } from './worldArt';
-import { worldView } from '../core/game/worldView';
+import { observedWater, worldView } from '../core/game/worldView';
 import { RoomView } from './roomView';
 import { landingHalfWidth } from './roomPlans';
 import { cuePass, spriteDepth, drawReachMark, drawFocus, drawThreshold, pickRegion, type DepthCue, type PickRegion } from './entryCues';
@@ -85,6 +85,7 @@ export class Scene {
   private lastFocus = { x: 0, y: 0 };
   private kick = { x: 0, y: 0 };
   private ambientOffset = 0;
+  private sluiceNotch?: number;
   private lastRoom?: string;
   private curtain?: HTMLElement;
   private initialized = false;
@@ -183,6 +184,7 @@ export class Scene {
   }
   resetCamera() {
     this.initialized = false;
+    this.sluiceNotch = undefined;
     this.lead.x = this.lead.y = 0;
     this.kick.x = this.kick.y = 0;
     this.regions.length = 0;
@@ -329,8 +331,12 @@ export class Scene {
     const ringAge = time - valley.bellStruckAt;
     const bellFrame = !this.reducedMotion.matches && ringAge < 1.1
       ? Math.min(this.atlas.frameCount('bell--ring') - 1, 1 + Math.floor(ringAge * 12)) : 0;
-    const view = worldView(valley.game.state),
+    const order = worldView(valley.game.state), view = observedWater(valley.game.state, order),
       hour = valley.skyHour;
+    const gate = sluiceSetting(order);
+    if (this.sluiceNotch === undefined || this.reducedMotion.matches) this.sluiceNotch = gate.notch;
+    const travel = Math.max(0, dt) * 16;
+    this.sluiceNotch += Math.max(-travel, Math.min(travel, gate.notch - this.sluiceNotch));
     const sky = skyLight(hour),
       lights: LightSource[] = [];
     for (const bridge of this.bridges) {
@@ -371,6 +377,15 @@ export class Scene {
           }
           if (sky.night > 0.002 && (prop.key === 'fire' || prop.key === 'lantern'))
             lights.push({ x: screen.x + (prop.key === 'lantern' ? 8 : 0), y: screen.y, kind: prop.key });
+          if (prop.key === 'mill_gauge') {
+            stamps.push({ ...prop, frame: Math.round(view.flow.village * 10) });
+            continue;
+          }
+          if (prop.key === 'sluice' || prop.key === 'sluice_winch') {
+            stamps.push({ ...prop, key: prop.key + gate.suffix, frame: Math.round(this.sluiceNotch),
+              anchor: prop.key === 'sluice' ? 42 / 57 : 1 });
+            continue;
+          }
           const standard = isHegemonyStandard(prop.key);
           const sprite = prop.sprite ?? (prop.key === 'rockpile' && prop.width < 30 ? 'fieldstone' : prop.key);
           const wind = this.windSprites.get(sprite);
@@ -462,7 +477,7 @@ export class Scene {
       const recoil = reaction && stopped?.actorId !== a.id ? Math.round(Math.sin(Math.PI * (time - reaction.born) / 0.18) *
         (reaction.kind === 'parry' ? -2 : 2) * (Math.sign(project(reaction.dx, reaction.dz).x) || 1)) : 0;
       const fallAge = defeat ? time - defeat.born : 0;
-      const fall = Math.min(1, Math.max(0, fallAge - IMPACT_PAUSE.heavy) / 0.28);
+      const fall = defeatProgress(fallAge);
       if (a.animal && valley.game.state.hunting[a.animal]?.status === 'skinned') continue;
       const inside = inBuilding(a);
       if (inside) continue;
@@ -493,6 +508,8 @@ export class Scene {
           ? reaction?.kind === 'parry' ? '#b7f3dd' : '#fff6dc' : undefined,
         impact: stopped?.actorId === a.id ? shudder : recoil ? { x: recoil, y: 0 } : undefined,
         lift: immersion(a, false).lift + (defeat && !this.reducedMotion.matches ? Math.max(0, Math.sin(fall * Math.PI) * 7) : 0),
+        airborne: !!defeat && fall > 0 && fall < 1 && !this.reducedMotion.matches,
+        settleAge: defeat && !this.reducedMotion.matches ? fallAge - DEFEAT_LANDING : undefined,
         reflect: defeat ? false : undefined,
         wakeId: a.id,
         moving: a.move,
@@ -570,7 +587,7 @@ export class Scene {
       });
     }
     for (const contact of valley.contacts) {
-      if (time - contact.born >= (contact.defeated ? DEFEAT_TIME : CONTACT_TIME)) continue;
+      if (time - contact.born >= CONTACT_TIME) continue;
       stamps.push({
         x: contact.x,
         z: contact.z,
@@ -679,16 +696,6 @@ export class Scene {
         bottom + margin < 0 || bottom - spriteHeight - margin > h) continue;
       ctx.globalAlpha = stamp.alpha ?? 1;
       if (stamp.contact) {
-        const hit = stamp.contact, age = time - hit.born;
-        if (hit.defeated && !this.reducedMotion.matches && age > 0.18) {
-          const foot = project(hit.x,hit.z,supportHeight(hit));
-          if (age < 0.36) drawBootDust(ctx,foot.x+ox,foot.y+oy,age-0.18,false);
-          if (age > 0.34 && age < 0.71) {
-            const r = 1 + Math.round(2 * Math.sin((age - 0.34) * Math.PI / 0.37));
-            ctx.fillStyle = '#efd08d'; pixelLine(ctx,foot.x+ox-r,foot.y+oy-2,foot.x+ox+r,foot.y+oy-2);
-            pixelLine(ctx,foot.x+ox,foot.y+oy-2-r,foot.x+ox,foot.y+oy-2+r);
-          }
-        }
         drawContact(ctx, stamp.contact, time, ox, oy, this.reducedMotion.matches);
         continue;
       }
@@ -857,6 +864,8 @@ export class Scene {
       const frame = Math.max(0, stamp.frame ?? 0);
       this.atlas.draw(ctx, stamp.key, x, y + (stamp.hero ? 1 : 0), stamp.width, frame, stamp.flip,
         stamp.anchor ?? 1, stamp.submerged, false, !!stamp.wakeId || stamp.moving, stamp.tint);
+      if (stamp.settleAge !== undefined && stamp.settleAge >= 0)
+        drawDefeatLanding(ctx, x, y, stamp.settleAge, !!stamp.submerged);
       const bow = stamp.hero && valley.bow;
       if (bow && bow.phase === 'loose' && bow.elapsed < 0.075 && !this.reducedMotion.matches) {
         const hand = project(bow.direction.x * 0.72, bow.direction.z * 0.72);

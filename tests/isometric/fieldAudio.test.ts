@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Game } from '../../src/core/game/game';
+import { SLUICE } from '../../src/core/world/layout';
 import { coastX } from '../../src/core/world/coast';
 import { Sound } from '../../src/isometric/audio';
 import { crossings } from '../../src/isometric/crossing';
@@ -66,6 +67,7 @@ describe('field audio', () => {
     const accents = fieldAccentBuffers({ createBuffer: makeBuffer });
     const peak = (buffer: AudioBuffer, from: number, until: number) =>
       Math.max(...buffer.getChannelData(0).slice(from * 24000, until * 24000).map(Math.abs));
+    expect(peak(accents.quarrySignal, 0.34, 0.39)).toBeGreaterThan(3 * peak(accents.millSignal, 0.34, 0.39));
     expect(peak(accents.bladeHit, 0, 0.016)).toBeGreaterThan(0.2);
     expect(peak(accents.defeat, 0, 0.03)).toBe(0);
     expect(peak(accents.parry, 0, 1 / 60)).toBeGreaterThan(0.13);
@@ -220,6 +222,62 @@ describe('field audio', () => {
     expect(pitches.every((rate, i) => !i || pitches[i-1] !== rate)).toBe(true);
     expect(Math.min(...pitches)).toBeGreaterThanOrEqual(0.95);
     expect(Math.max(...pitches)).toBeLessThanOrEqual(1.05);
+  });
+
+  it('rings once for the mill and twice for the quarry when the rota changes within earshot', () => {
+    fakeAudio();
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1), v = new Valley(new Game());
+    sound.reset(); sound.enabled = true;
+    vi.spyOn(sound.mixer, 'loop').mockResolvedValue(undefined);
+    const accent = vi.spyOn(sound.mixer, 'playAccent').mockImplementation(() => {});
+    v.game.setPlayerTransform(SLUICE.control.x - 1, 0, SLUICE.control.z, 0);
+    v.game.state.clock = 720;
+    Object.assign(v.game.state.quest, { phase: 'settled', gate: 'stabilized', allocation: 'rotation' });
+    sound.event({ t: 'gate', gate: 'jammed' }, v);
+    sound.event({ t: 'gate', gate: 'stabilized' }, v);
+    sound.event({ t: 'allocation', allocation: 'rotation' }, v);
+    sound.update(v);
+    v.game.state.clock = 1320;
+    sound.update(v); sound.update(v);
+    expect(accent.mock.calls.map(call => call[0])).toEqual(['gateJam','braceLock','gateWind','millSignal','quarrySignal']);
+    expect(accent.mock.lastCall![2]).toBeGreaterThan(0);
+    v.game.setPlayerTransform(-175, 0, 18, 0);
+    v.game.state.clock = 720;
+    sound.update(v);
+    v.game.setPlayerTransform(SLUICE.control.x, 0, SLUICE.control.z, 0);
+    sound.update(v);
+    sound.reset(); sound.update(v);
+    expect(accent).toHaveBeenCalledTimes(5);
+  });
+
+  it('plays the consequence of each verdict when the wanderer returns to the village', () => {
+    fakeAudio();
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1, 'off'), valley = new Valley(new Game());
+    sound.reset(); sound.enabled = true;
+    const loop = vi.spyOn(sound.mixer, 'loop').mockResolvedValue(undefined);
+    valley.game.setPlayerTransform(-1, 0, 4, 0);
+    Object.assign(valley.game.state.quest, { phase:'settled', gate:'stabilized' });
+    for (const [choice, piece] of [['quarry','empty-mill'],['rotation','bell-hours'],['rillford','homecoming']] as const) {
+      valley.game.state.quest.allocation = choice;
+      sound.update(valley);
+      expect(loop).toHaveBeenCalledWith('music', 'assets/audio/bell-road/' + piece + '.mp3');
+      loop.mockClear();
+    }
+  });
+
+  it('substitutes quiet word ticks when the player turns the spoken voice slider down', () => {
+    fakeAudio();
+    const sound = new Sound(1, 'full');
+    const accent = vi.spyOn(sound.mixer, 'playAccent').mockImplementation(() => {});
+    sound.enabled = true;
+    sound.dialogueTick();
+    sound.mixer.setLevels({ ...defaultMix, voice: 0 });
+    sound.dialogueTick();
+    sound.mixer.setLevels(defaultMix);
+    sound.dialogueTick();
+    expect(accent).toHaveBeenCalledExactlyOnceWith('voiceTick', 0.65, 0);
   });
 
   it('plays the faction reward in tune and honours muted effects', () => {

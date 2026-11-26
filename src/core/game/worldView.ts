@@ -1,3 +1,4 @@
+import { APPLY_DELAY_MIN } from './constants';
 import { hasFact, isDaytime } from './state';
 import type { Allocation, GateState, WorldState } from './types';
 
@@ -34,6 +35,27 @@ export interface WorldView {
   visibleDetails: string[];
 }
 
+const bracedFlow = { village: 0.24, quarry: 0.22 };
+
+/** Time left before the new allocation can be witnessed downstream. */
+export function waterTravelMinutes(s: WorldState) {
+  return s.quest.phase === 'committed'
+    ? Math.max(0, Math.min(APPLY_DELAY_MIN, (s.quest.committedAtClock ?? s.clock) + APPLY_DELAY_MIN - s.clock))
+    : 0;
+}
+
+/** The headgate responds immediately. At the two working channels, the water takes time to arrive. */
+export function observedWater(s: WorldState, order = worldView(s)): WorldView {
+  const remaining = waterTravelMinutes(s);
+  if (!remaining) return order;
+  const fraction = 1 - remaining / APPLY_DELAY_MIN;
+  return { ...order, millTurning: false, quarryState: 'stopped', rationing: 'moderate', flow: {
+    ...order.flow,
+    village: bracedFlow.village + (order.flow.village - bracedFlow.village) * fraction,
+    quarry: bracedFlow.quarry + (order.flow.quarry - bracedFlow.quarry) * fraction,
+  } };
+}
+
 /** Minimum drinking and habitat flow every normal allocation preserves. */
 export const MIN_HABITAT_FLOW = 0.28;
 
@@ -51,8 +73,8 @@ export function worldView(s: WorldState): WorldView {
     quarry = 0.18;
     main = 0.22;
   } else if (gate === 'stabilized') {
-    village = 0.24;
-    quarry = 0.22;
+    village = bracedFlow.village;
+    quarry = bracedFlow.quarry;
     main = 0.5;
   }
   let millTurning = false;

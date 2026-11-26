@@ -514,7 +514,7 @@ export class Client implements Controls {
         v.action({ t: 'openShortcut' });
         break;
       case 'check_result':
-        v.action({ t: 'settle', via: 'check_channel' });
+        this.ui.checkWater(offer.entry!.id);
         break;
       case 'force_shutter':
         v.action({
@@ -536,6 +536,11 @@ export class Client implements Controls {
       v.perform('gather', target, 0.65);
     } else if (target.prop && !target.field) {
       v.grabProp(target.prop);
+    } else if (target.field === 'gauge') {
+      if (this.game.state.quest.phase === 'committed' || this.game.state.quest.phase === 'settled') this.ui.checkWater('check_channel');
+      else if (v.action({ t: 'inspect', pointId: 'dry_channel' })) this.ui.observation('dry_channel');
+    } else if (target.field === 'sluice') {
+      this.ui.controlsAt({ do: 'open_sluice' });
     } else if (target.field === 'wagon') {
       v.perform('read', target, 0.8, () => this.ui.wagonTally(target));
     } else if (target.field === 'fire') {

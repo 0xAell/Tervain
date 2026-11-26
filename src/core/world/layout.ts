@@ -493,7 +493,7 @@ export const SHORTCUT = { lever: { x: 92.6, z: -8.4, r: 2.6 }, gate: { x: 100, z
 
 export const SLUICE = {
   /** Control wheel and lever the player operates. */
-  control: { x: 3.4, z: -62.6, r: 3.8 },
+  control: { x: 2.45, z: -55.8, r: 3.8 },
   gateCenter: { x: 10, z: -58 },
 };
 

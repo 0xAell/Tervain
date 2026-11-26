@@ -22,7 +22,9 @@ import type { Game } from '../core/game/game';
 import type { ItemId, NpcId } from '../core/game/types';
 import { ENEMY_ARCHETYPES } from '../core/content/enemies';
 import { PLACES } from '../core/world/layout';
-import { worldView } from '../core/game/worldView';
+import { observedWater, waterTravelMinutes, worldView } from '../core/game/worldView';
+import { sluiceSetting } from './sluice';
+import { speakerReadings, portraitMoods } from './portraits';
 import { HAND_SAVE_SLOTS } from '../core/rules/session';
 import { type SaveStore, type SlotId } from '../platform/storage';
 import type { Valley } from './simulation';
@@ -59,7 +61,7 @@ function castPortrait(who: NpcId | 'wanderer', mood: number) {
   const face = el('span', 'pixel-portrait');
   face.setAttribute('role', 'img');
   face.setAttribute('aria-label', (who === 'wanderer' ? 'Wanderer' : NPCS[who].name) + ', ' +
-    ['composed', 'stern', 'worried', 'warm', 'surprised'][mood]);
+    portraitMoods[mood]);
   face.style.backgroundImage = 'url("' + gameFile('valley/portraits.png') + '")';
   face.style.backgroundPosition = (mood * 25) + '% ' + (row * 20) + '%';
   return face;
@@ -937,9 +939,7 @@ export class Interface {
     const panel = this.shell(node.speaker === 'narrator' ? 'Bellwether Vale' : NPCS[node.speaker].name);
     panel.classList.add('conversation');
     if (node.speaker !== 'narrator') {
-      const mood = /accuse|deny|refus|demand|threat/.test(nodeId) ? 1 : /warn|dry|damage|worry|loss/.test(nodeId) ? 2
-        : /consent|agree|thanks|after|teach/.test(nodeId) ? 3 : /reveal|proof/.test(nodeId) ? 4
-        : ({ quarry_foreman: 1, spring_steward: 2, caravan_master: 3 } as Partial<Record<NpcId, number>>)[node.speaker] ?? 0;
+      const mood = portraitMoods.indexOf(speakerReadings.get(nodeId) ?? 'composed');
       const portrait = castPortrait(node.speaker, mood);
       portrait.classList.add('speaker');
       panel.append(portrait, el('small', 'role', S(NPCS[node.speaker].titleKey)));
@@ -954,7 +954,7 @@ export class Interface {
         part.style.animationDelay = i * step + 'ms';
         return part;
       }));
-      if (this.controls.sound.mode === 'off') speech.addEventListener('animationstart', (event) => {
+      speech.addEventListener('animationstart', (event) => {
         const word = (event.target as HTMLElement)?.previousElementSibling;
         if (!word || (word.textContent ?? '').length >= 8) this.controls.sound.dialogueTick();
       });
@@ -1323,12 +1323,25 @@ export class Interface {
       this.valley.offers().map((o, i) => ({ text: o.label, run: () => this.controls.interactIndex(i) }))
     );
   }
+  checkWater(via: string) {
+    const state = this.game.state, lead = journeyLead(state);
+    if (state.quest.phase === 'committed' && waterTravelMinutes(state) === 0) {
+      this.valley.action({ t: 'settle', via });
+      return;
+    }
+    const work = observedWater(state);
+    const reading = work.flow.village >= 0.5 ? 'The brass float is high on the staff.'
+      : work.flow.village < 0.2 ? 'The brass float rests on the lowest mark.'
+      : 'The brass float sits between the lower marks.';
+    this.actions('Mill channel', [{ text: 'Read the field journal', run: () => this.open('journal') }], reading + ' ' + lead.reason);
+  }
   controlsAt(act: InteractableAct, onEntry?: () => void) {
     if (act.do === 'open_sluice') {
       const state = this.game.state, gate = state.quest.gate;
+      const setting = sluiceSetting(worldView(state));
       const guide = journeyLead(state);
       if (state.quest.phase === 'settled' || state.quest.phase === 'committed') {
-        this.actions('The sluice', [{ text: 'Read the field journal', run: () => this.open('journal') }], guide.reason);
+        this.actions('The sluice', [{ text: 'Read the field journal', run: () => this.open('journal') }], setting.description + ' ' + guide.reason);
       } else if (gate !== 'stabilized') {
         const need = stabilizePreconditions(state);
         const repair = need === 'need_brace' ? 'Find the iron brace in the quarry yard.'
@@ -1348,7 +1361,7 @@ export class Interface {
             disabled: !!commitPreconditions(state,allocation),
             run: () => { if (this.valley.action({ t: 'commitAllocation', allocation })) this.controls.resume(); } };
         });
-        this.actions('The water hearing',options,'The brace is holding. Choose who will receive the spring water.');
+        this.actions('The water hearing', options, setting.description + ' Choose who will receive the spring water.');
       }
     } else if (act.do === 'hunting_notes') {
       const note = S('inspect.hunter_supplies');

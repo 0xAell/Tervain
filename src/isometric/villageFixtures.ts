@@ -1,4 +1,4 @@
-import { ANCHORS, BELL, COOKFIRES, FOREST_WAYMARKERS, LANTERNS, NOTICEBOARD, WELL, type V2 } from '../core/world/layout';
+import { ANCHORS, BELL, COOKFIRES, FOREST_WAYMARKERS, LANTERNS, NOTICEBOARD, SLUICE, WELL, type V2 } from '../core/world/layout';
 
 export const warmingFire = { x: ANCHORS.strand_fire!.x - 0.7, z: ANCHORS.strand_fire!.z + 1.9 };
 
@@ -13,6 +13,7 @@ const post = (at: V2, radius: number, height: number, x = 0, z = 0) =>
   ({ x: at.x + x, z: at.z + z, radius, height });
 export const fixtureFootprints = [
   post(WELL, 1.29, 1.05),
+  post(SLUICE.control, 0.52, 2.2),
   post(BELL, 0.20, 3.6, -0.9, 0.8), post(BELL, 0.20, 3.6, 0.9, -0.8),
   post(NOTICEBOARD, 0.18, 2.5, -0.85, 0.68), post(NOTICEBOARD, 0.18, 2.5, 0.85, -0.68),
   post(warmingFire, 0.66, 0.36),

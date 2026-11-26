@@ -1,6 +1,6 @@
 import { fromBuildingLocal, toBuildingLocal } from '../core/world/interiors';
 import type { NpcId, WorldState } from '../core/game/types';
-import { BENCHES, COOKFIRES, PICKUP_LOCATIONS, WAGON_TALLY, type V2 } from '../core/world/layout';
+import { BENCHES, COOKFIRES, PICKUP_LOCATIONS, RESULT_CHECKS, SLUICE, WAGON_TALLY, type V2 } from '../core/world/layout';
 import { S } from '../core/content/strings';
 import { isHuntableAnimalId } from '../core/game/hunting';
 import { doorways, doorOpen, siteAtPoint, type Doorway } from './doorways';
@@ -33,7 +33,7 @@ export interface RoomTarget {
   passage?: Passage;
   fixture?: Fixture;
   npc?: NpcId;
-  field?: 'pet' | 'seat' | 'fire' | 'gather' | 'dress' | 'wagon' | 'bell' | 'well' | 'board';
+  field?: 'pet' | 'seat' | 'fire' | 'gather' | 'dress' | 'wagon' | 'bell' | 'well' | 'board' | 'sluice' | 'gauge';
   sprite?: { key: string; width: number };
   pickup?: (typeof PICKUP_LOCATIONS)[number];
   animal?: Actor;
@@ -69,6 +69,14 @@ export function fieldTargets(state: WorldState, actors: Actor[]): RoomTarget[] {
   ) => {
     targets.push({ id, field, at, approach: { x: at.x - 1, z: at.z + 0.55 }, label, reach, ...extras });
   };
+  const gauge = RESULT_CHECKS[0]!;
+  const phase = state.quest.phase;
+  add('mill/gauge', 'gauge', gauge, phase === 'committed' ? S('prompt.check_channel')
+    : phase === 'settled' ? 'Read the mill gauge' : S('prompt.inspect.dry_channel'), gauge.r,
+    { approach: { x: gauge.x - 3.05, z: gauge.z }, sprite: { key: 'mill_gauge', width: 15 } });
+  add('sluice', 'sluice', SLUICE.control, S('prompt.sluice'), SLUICE.control.r, {
+    approach: { x: SLUICE.control.x - 0.95, z: SLUICE.control.z + 1.25 }, sprite: { key: 'sluice_winch', width: 29 },
+  });
   add('wagon/tally', 'wagon', WAGON_TALLY, 'Read the wagoner’s tally', WAGON_TALLY.reach);
   for (const fixture of villageFixtures)
     add('square/' + fixture.key, fixture.key, fixture.at, fixture.label, fixture.reach,

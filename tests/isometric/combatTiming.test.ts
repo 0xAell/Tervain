@@ -76,8 +76,12 @@ describe('Vale combat timing', () => {
     expect(valley.contacts).toMatchObject([{ kind: 'blade', damage: 29, defeated: true, actorId: enemy.id }]);
     expect(cues.map(({ cue }) => cue)).toEqual(['blade_swing', 'blade_hit', 'enemy_down']);
     expect(cues[1]!.pan).toBeGreaterThan(0);
-    advance(valley, 0.5);
+    advance(valley, 0.32);
     expect(cues).toHaveLength(3);
+    advance(valley, 0.04);
+    expect(cues.map(({ cue }) => cue)).toEqual(['blade_swing', 'blade_hit', 'enemy_down', 'fall_ground']);
+    advance(valley, 0.5);
+    expect(cues).toHaveLength(4);
   });
 
   it('keeps the heavier simultaneous impact attached to its recipient until the pause ends', () => {

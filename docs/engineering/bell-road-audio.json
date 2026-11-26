@@ -5,8 +5,8 @@
   "sampleRate": 32000,
   "source": {
     "path": "tools/world-audio/bell_road.py",
-    "bytes": 7960,
-    "sha256": "b6b8a5bda1ef766cf69a98f67d729f1ff1a9243ffcf0496d9bb4a9b6bbd7c30b"
+    "bytes": 9215,
+    "sha256": "34c6b426aacfb3b3e2c3526649abb369a2f8b0a8300dd7f697cfb7be43aafea6"
   },
   "deliveries": [
     {
@@ -43,6 +43,16 @@
       "path": "public/assets/audio/bell-road/air-vault.mp3",
       "bytes": 253053,
       "sha256": "04b3529ec6fb94cbd152ae50c5d3fce44e3ab0d8a0077e4d075d208544f43681"
+    },
+    {
+      "path": "public/assets/audio/bell-road/bell-hours.mp3",
+      "bytes": 598797,
+      "sha256": "403a693b8f3b9da596372689d8a73d6834a37ce8c8843bab71f047b908cbe778"
+    },
+    {
+      "path": "public/assets/audio/bell-road/empty-mill.mp3",
+      "bytes": 598797,
+      "sha256": "0db84c4c1c93fd6238b977fa56cdc73554df1badb77dac1e8682d2f4bcbed4ad"
     },
     {
       "path": "public/assets/audio/bell-road/ford.mp3",

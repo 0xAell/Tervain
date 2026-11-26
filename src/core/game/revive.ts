@@ -138,6 +138,7 @@ export function reviveState(raw: unknown): WorldState | null {
   quest.reactions = Array.isArray(quest.reactions) ? quest.reactions.filter((r): r is string => typeof r === 'string') : [];
   // A clock before the first day gave new hunting records a negative time, which the next load threw away.
   if (merged.clock < 0) merged.clock = 0;
+  if (quest.phase === 'committed' && quest.committedAtClock === null) quest.committedAtClock = merged.clock;
   // Evidence counts by presence: only whole records of known evidence are kept, and only won encounters (A102 scout:
   // `{ worker_testimony: 5 }` counted as testimony; `{ cut_creature: false }` as a defeat).
   const evidence: WorldState['evidence'] = {};

@@ -1186,8 +1186,8 @@
       "id": "sluice",
       "place": {
         "at": "point",
-        "x": 3.4,
-        "z": -62.6
+        "x": 2.45,
+        "z": -55.8
       },
       "reach": 3.8,
       "priority": 0,

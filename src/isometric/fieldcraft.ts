@@ -1,6 +1,7 @@
 import type { V2 } from '../core/world/layout';
 import type { RoomTarget } from './roomTargets';
 import { risePixels } from './projection';
+import { IMPACT_PAUSE } from '../core/rules/valeCombat';
 
 export type FieldSound =
   | 'village_bell'
@@ -27,6 +28,8 @@ export type FieldSound =
   | 'enemy_windup'
   | 'player_hit'
   | 'enemy_down'
+  | 'fall_ground'
+  | 'fall_water'
   | 'block'
   | 'hit';
 export type Gesture = 'pet' | 'gather' | 'sit' | 'stir' | 'dress' | 'work' | 'read';
@@ -80,6 +83,11 @@ export function enemySwingProgress(remaining: number, heavy: boolean) {
 export const CONTACT_TIME = 0.28;
 export const DAMAGE_LABEL_TIME = 0.68;
 export const DEFEAT_TIME = 0.92;
+const fallDuration = 0.28;
+export const DEFEAT_LANDING = IMPACT_PAUSE.heavy + fallDuration;
+export function defeatProgress(age: number) {
+  return Math.max(0, Math.min(1, (age - IMPACT_PAUSE.heavy) / fallDuration));
+}
 export interface Contact extends V2 {
   height: number;
   dx: number;

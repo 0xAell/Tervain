@@ -221,6 +221,9 @@ export class Mixer {
     this.loading.set(file, task);
     return task;
   }
+  get voiceMuted() {
+    return this.levels.voice === 0;
+  }
   get speaking() {
     return this.active;
   }
@@ -334,7 +337,8 @@ export class Mixer {
     recording?: { cue: Cue; gain: number }
   ) {
     if (!this.canPlayEffect || !this.accents) return;
-    const rate = accent === 'roadCadence' || accent === 'gearEarned' ? 1 : 1 + (this.accentTurn++ % 5 - 2) * 0.018;
+    const pitched = accent === 'roadCadence' || accent === 'gearEarned' || accent === 'millSignal' || accent === 'quarrySignal';
+    const rate = pitched ? 1 : 1 + (this.accentTurn++ % 5 - 2) * 0.018;
     this.playEffect(this.accents[accent], gain, pan, this.room, 0, undefined, rate);
     if (focus) this.focusImpact(focus, gain);
     if (!recording) return;

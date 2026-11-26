@@ -1,5 +1,5 @@
 import { ANCHORS, INSPECT_LOCATIONS, PICKUP_LOCATIONS, PLACES, RESULT_CHECKS, SLUICE, type V2 } from '../world/layout';
-import { APPLY_DELAY_MIN } from './constants';
+import { waterTravelMinutes } from './worldView';
 import type { WorldState } from './types';
 
 export interface JourneyLead {
@@ -31,9 +31,9 @@ export function journeyLead(s: WorldState): JourneyLead {
     return lead('The Dry Bell · Complete', 'The water has found its course', ending);
   }
   if (phase === 'committed') {
-    const remaining = Math.ceil((s.quest.committedAtClock ?? s.clock) + APPLY_DELAY_MIN - s.clock);
+    const remaining = Math.ceil(waterTravelMinutes(s));
     return lead('The first turning', 'Check the mill channel in Rillford', remaining > 0
-      ? 'You set the gate. Give the new flow ' + remaining + ' more game minutes to reach the wheel. A village bench lets you wait.'
+      ? 'You set the gate. Watch the brass float behind the mill. The water will settle in ' + remaining + (remaining === 1 ? ' game minute.' : ' game minutes.') + ' A village bench lets you wait.'
       : 'The water has reached the lower valley. Inspect the mill channel to see what your decision cost.', RESULT_CHECKS[0]);
   }
   if (gate === 'stabilized') return lead('The water hearing', 'Set the allocation at the sluice wheel',

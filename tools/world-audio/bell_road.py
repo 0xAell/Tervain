@@ -32,6 +32,8 @@ SCORES = {
     "ford": ("wire", -7, (0,-1,0,-4), 3, 67),
     "thorn": ("viol", -7, (0,-5,-1,-4), 4, 73),
     "homecoming": ("glass", 0, (0,3,-4,0), 2, 79),
+    "empty-mill": ("viol", -7, (0,-2,-5,-4), 0, 83),
+    "bell-hours": ("wood", 0, (0,3,-2,0), 1, 89),
 }
 
 def frequency(degree):
@@ -86,6 +88,28 @@ def score(name, recipe):
         root=roots[(bar//2)%4]; origin=bar*4
         def note(instrument, degree, start, duration, level, pan):
             place(mix,voice(instrument,degree,duration,rng),(origin+start)*BEAT,level*rng.uniform(.90,1.05),pan)
+        if name == "empty-mill":
+            # A spoken-length phrase over an open fifth. Every other bar leaves the water audible.
+            note("bass", root-14, 0, 3.65, .22, -.06)
+            if bar % 2 == 0:
+                for beat, step, length in ((.5, 2, 1.35), (2.25, 0, .8), (3.25, -2, 1.45)):
+                    note("viol", step-7, beat, length, .25, -.20)
+            elif bar % 4 == 3:
+                note("lute", root-3, 2.5, 1.45, .12, .36)
+            continue
+        if name == "bell-hours":
+            # Two working shifts trade the tune across the river on alternate bars.
+            mill = bar % 2 == 0
+            note("bass", root-14, 0, 2.5, .24, 0)
+            note("lute", root-3, .5, 1.4, .12, -.43)
+            note("lute", root-5, 2.5, 1.35, .12, .43)
+            for beat, step, length in PHRASES[bar % 4]:
+                note("flute" if mill else "wood", step if mill else step-7, beat, length, .25, -.15 if mill else .2)
+            if bar % 4 in (0, 3):
+                note("glass", 0, 0, 2.1, .095, .28)
+                if not mill:
+                    note("glass", 0, .5, 2, .09, .28)
+            continue
         note("bass",root-14,0,3.35,.26,0)
         if pulse:
             note("bass",root-10,2.5,.85,.14,0)

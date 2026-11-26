@@ -1,6 +1,7 @@
 /** Check the presented controls, sprite sampling and live dialogue in a running Vale build. */
 import assert from 'node:assert/strict';
 import { openPage } from './cdp.mjs';
+import { checkWaterworks } from './vale-waterworks.mjs';
 import { checkCombatEffects } from './vale-combat-effects.mjs';
 
 const page = await openPage(process.argv[2], { w: 1280, h: 720, flags: ['--mute-audio'] });
@@ -384,8 +385,9 @@ try {
   });
   assert(timings.parried && timings.cueFrames >= 7 && timings.firstCue > 0.53 && timings.firstCue <= 0.42 + 8/60 + 1e-8, JSON.stringify(timings));
   assert(timings.aimFrames >= 35 && timings.maxAim >= 0.96 && timings.continuousAim && timings.fired && timings.committed && timings.shotDamage === 43 && timings.interrupted, JSON.stringify(timings));
+  const waterworks = await checkWaterworks(page);
   assert.equal(page.console().filter(e => e.level === 'error' || e.type === 'error').length, 0);
-  console.log(JSON.stringify({ sprite, combatEffects, nativeBlits:native.blits, distinctSprites:native.keys.length, sourceKeys:native.sourceKeys, catalog:native.catalog, bodyPixels:native.bodyPixels, testedPoses:native.poses, roomFloors:slabCoverage.length, testedFloorPixels:slabCoverage.reduce((n, s) => n+s.interior, 0), timings, crossing, beltSlot: 3, dodges: await run(() => window.dodges), layouts }));
+  console.log(JSON.stringify({ sprite, combatEffects, waterworks, nativeBlits:native.blits, distinctSprites:native.keys.length, sourceKeys:native.sourceKeys, catalog:native.catalog, bodyPixels:native.bodyPixels, testedPoses:native.poses, roomFloors:slabCoverage.length, testedFloorPixels:slabCoverage.reduce((n, s) => n+s.interior, 0), timings, crossing, beltSlot: 3, dodges: await run(() => window.dodges), layouts }));
 } finally {
   await page.close();
 }
