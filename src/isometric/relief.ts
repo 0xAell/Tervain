@@ -206,12 +206,15 @@ function scanColumn(
   }
 }
 /** The nearest visible intersection wins, including when a cliff folds over the land behind it in projection. */
-export function pickGround(x: number, y: number): V2 {
+export function landHeightAtPixel(x: number, y: number) {
   let altitude = 0;
   scanColumn(x, y, y, (a, b, h0, h1) => {
     altitude = h0 + (h1 - h0) * clamp((y - a) / (b - a));
   });
-  return unproject(x, y + altitude * risePixels);
+  return altitude;
+}
+export function pickGround(x: number, y: number): V2 {
+  return unproject(x, y + landHeightAtPixel(x, y) * risePixels);
 }
 /** Pick the foremost walkable facet, bridge deck or masonry tread along this screen ray. */
 export function pickSurface(x: number, y: number): V2 {

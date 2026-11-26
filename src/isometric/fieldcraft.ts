@@ -14,6 +14,9 @@ export type FieldSound =
   | 'skinning_complete'
   | 'blade_swing'
   | 'unarmed_swing'
+  | 'parry'
+  | 'counter_swing'
+  | 'counter_hit'
   | 'blade_hit'
   | 'unarmed_hit'
   | 'enemy_windup'
@@ -47,6 +50,9 @@ const contactProgress = 4 / 7;
 export const SWING_RELEASE = (SWING_TIME * 3) / 7;
 export const SWING_CONTACT = SWING_TIME * contactProgress;
 export const SWING_BUFFER = 0.12;
+export type SwordStroke = 'attack' | 'return' | 'counter';
+export const PARRY_WINDOW = 8 / 60;
+export const COUNTER_WINDOW = 0.68;
 export const ENEMY_SWING_TIME = 0.85;
 export function enemyContactRemaining(heavy: boolean) {
   return ENEMY_SWING_TIME - (heavy ? 0.55 : 0.43);
@@ -64,7 +70,7 @@ export interface Contact extends V2 {
   dx: number;
   dz: number;
   born: number;
-  kind: 'blade' | 'guard' | 'body' | 'earth';
+  kind: 'blade' | 'guard' | 'parry' | 'counter' | 'body' | 'earth';
   damage?: number;
   heavy?: boolean;
   defeated?: boolean;

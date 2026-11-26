@@ -1,4 +1,5 @@
 import type { Atlas } from './atlas';
+import { fieldstoneAt } from './fieldstones';
 import type { PropSpec } from './propCatalogue';
 import { rotate, angleOf, type PropView } from './propPhysics';
 
@@ -14,7 +15,7 @@ interface Pixel {
 }
 type Project = (p: Point) => Pixel;
 type Ink = CanvasRenderingContext2D;
-export const propSprite = (spec: PropSpec) => spec.key === 'rockpile' ? 'fieldstone' : spec.key;
+export const propSprite = (spec: PropSpec) => spec.key === 'rockpile' ? fieldstoneAt(spec) : spec.key;
 interface Face {
   corners: Pixel[];
   depth: number;
@@ -101,15 +102,15 @@ function paint(ctx: Ink, atlas: Atlas, f: Face) {
   const a = f.corners[0]!,
     b = f.corners[1]!,
     d = f.corners.at(-1)!;
-  ctx.beginPath();
-  ctx.moveTo(a.x, a.y);
-  for (const c of f.corners.slice(1)) ctx.lineTo(c.x, c.y);
-  ctx.closePath();
+  const outline = new Path2D();
+  outline.moveTo(a.x, a.y);
+  for (const c of f.corners.slice(1)) outline.lineTo(c.x, c.y);
+  outline.closePath();
   ctx.fillStyle = f.band ? '#657078' : '#ad824e';
-  ctx.fill();
+  ctx.fill(outline);
   if (f.corners.length === 4 && !f.band) {
     ctx.save();
-    ctx.clip();
+    ctx.clip(outline);
     const tile = atlas.surface('room_oak');
     ctx.transform((b.x - a.x) / 32, (b.y - a.y) / 32, (d.x - a.x) / 24, (d.y - a.y) / 24, a.x, a.y);
     ctx.drawImage(tile, 0, 0, 32, 24);
@@ -128,10 +129,10 @@ function paint(ctx: Ink, atlas: Atlas, f: Face) {
     ctx.restore();
   }
   ctx.fillStyle = 'rgba(33,38,48,' + f.shade + ')';
-  ctx.fill();
+  ctx.fill(outline);
   ctx.strokeStyle = f.band ? '#373e43' : '#574839';
   ctx.lineWidth = 0.65;
-  ctx.stroke();
+  ctx.stroke(outline);
 }
 export function drawProp(
   ctx: Ink,
@@ -150,8 +151,8 @@ export function drawProp(
   const project: Project = (p) => {
     const v = rotate(p, q);
     return {
-      x: Math.round(sx + (v.x - v.z) * scale),
-      y: Math.round(cy + ((v.x + v.z) * scale) / 2 - v.y * rise),
+      x: sx + (v.x - v.z) * scale,
+      y: cy + ((v.x + v.z) * scale) / 2 - v.y * rise,
       depth: v.x + v.z + (v.y * scale) / rise,
     };
   };
@@ -194,11 +195,12 @@ export function drawProp(
     for (const f of faces) paint(ctx, atlas, f);
   } else {
     const up = rotate({ x: 0, y: 1, z: 0 }, q);
-    ctx.translate(Math.round(sx), Math.round(cy));
+    ctx.translate(sx, cy);
     ctx.rotate(Math.atan2((up.x - up.z) * scale, up.y * rise - ((up.x + up.z) * scale) / 2));
     const a = angleOf(q);
-    ctx.scale(0.88 + 0.12 * Math.abs(Math.cos(a)), 1);
-    atlas.draw(ctx, propSprite(s), 0, (s.height * rise) / 2, width, 0, Math.cos(a) < 0, 1);
+    // Turn a painted object around its centre without swapping the entire picture at a quarter turn.
+    ctx.transform(0.90 + 0.10 * Math.cos(a) ** 2, 0, 0.12 * Math.sin(a - s.yaw), 1, 0, 0);
+    atlas.draw(ctx, propSprite(s), 0, (s.height * rise) / 2, width, 0, Math.cos(s.yaw) < 0, 1);
   }
   ctx.restore();
 }

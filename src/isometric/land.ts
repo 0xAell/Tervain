@@ -7,6 +7,7 @@ import { landMaterial, woodlandCover } from './landCover';
 import { canRootTree, isTree } from './treeHabitat';
 import { passesRails } from './crossing';
 import { campShelter, buildingSprite, onFootpath } from './settlement';
+import { fieldstoneAt } from './fieldstones';
 import { forestStandAt } from '../core/world/forestStands';
 import { fbm, smoothstep } from '../core/world/noise';
 import { toBuildingLocal } from '../core/world/interiors';
@@ -130,6 +131,7 @@ export function scenery() {
   if (sceneryCache) return sceneryCache;
   const list: Scenery[] = [];
   const put = (key: string, p: V2, width: number, sprite?: string) => {
+    if (key === 'rockpile' && width < 30) sprite = fieldstoneAt(p);
     const variants = trees[key];
     if (variants) sprite = variants[Math.floor(random(p.x, p.z, 155) * variants.length) % variants.length];
     list.push({ x: p.x, z: p.z, key, width: key === 'flowers' ? width * 0.6 : width, sprite });

@@ -241,6 +241,7 @@ export class WaterReflections {
           : stamp.hero
             ? 0.68
             : 0.85;
+      this.mirror.globalAlpha *= stamp.alpha ?? 1;
       if (anchor !== 1) {
         this.mirror.beginPath();
         this.mirror.rect(Math.floor(left) - 1, y, stamp.width + 2, Math.ceil(depth) + 1);

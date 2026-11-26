@@ -117,7 +117,7 @@ export function residentSpots(plan: FloorPlan, actors: Actor[]) {
   }
   return people;
 }
-export function indoorTargets(plan: FloorPlan, actors: Actor[]): RoomTarget[] {
+export function indoorTargets(plan: FloorPlan, actors: Actor[], spots: Iterable<{ a: Actor; at: V2 }> = residentSpots(plan, actors)): RoomTarget[] {
   const portals = plan.passages.map((p) => ({
     id: 'pass/' + p.id,
     at: p,
@@ -132,7 +132,7 @@ export function indoorTargets(plan: FloorPlan, actors: Actor[]): RoomTarget[] {
       const approach = fixtureApproach(f, plan);
       return { id: 'use/' + f.id, at: f, approach, label: f.label!, reach: 1.95, fixture: f };
     });
-  const people = residentSpots(plan, actors).map(({ a, at }) => ({
+  const people = Array.from(spots).map(({ a, at }) => ({
     id: 'talk/' + a.id,
     at,
     approach: at,

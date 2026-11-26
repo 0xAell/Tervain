@@ -118,7 +118,7 @@ export class Atlas {
       this.draw(g, key, 1 + w / 2, pose.height - 1, w, index);
       this.actors.set(id, pose);
     }
-    const cut = Math.min(pose.height - 3, Math.round((pose.height - 2) * submerged));
+    const cut = Math.min(pose.height - 3, (pose.height - 2) * submerged);
     const high = pose.height - cut;
     ctx.save();
     ctx.imageSmoothingEnabled = true;

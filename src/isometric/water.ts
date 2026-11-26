@@ -1,4 +1,5 @@
 import { coursesInFrame, type Flow, type WetPoint } from './channels';
+import { smoothstep } from '../core/world/noise';
 import { contactObstacles } from './waterObstacles';
 import { cosPhase, seaClock, seaPhases, sinPhase } from './swell';
 
@@ -93,4 +94,12 @@ export function waveFrame(phase: number, count: number) {
   const period = 2 * (count - 1),
     position = ((Math.floor(phase) % period) + period) % period;
   return position < count ? position : period - position;
+}
+
+/** Fraction of an upright pose below the surface, measured continuously from the dry bank. */
+export function waterline(wet: WetPoint, swimmer: boolean) {
+  if (wet.course === 'ocean')
+    return 0.32 * smoothstep(0, 3, wet.bank) + (swimmer ? 0.14 : 0.06) * smoothstep(3, 4.6, wet.bank);
+  if (wet.kind === 'pool') return 0.28 * smoothstep(0, 1.55, wet.bank);
+  return 0.31 * smoothstep(0, 2.1, wet.bank);
 }

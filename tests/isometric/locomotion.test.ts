@@ -141,4 +141,18 @@ describe('isometric locomotion', () => {
     v.step(1 / 60, 0, 0, false);
     expect(v.jump).toBe(0);
   });
+  it('uses partial stick travel for a quiet walk at the same pace across refresh rates', () => {
+    const travel = (pace: number, fps: number) => {
+      const v = new Valley(new Game());
+      v.game.setPlayerTransform(-175, 0, 18, 0);
+      // Both distances stay on the same terrain facet, so they share its grade.
+      for (let i = 0; i < fps / 5; i++) v.step(1 / fps, 1, 0, false, true, pace);
+      return v.player.x + 175;
+    };
+    const full = travel(1, 60), quarter = travel(0.25, 60);
+    expect(quarter / full).toBeCloseTo(0.25, 2);
+    expect(travel(0.25, 30)).toBeCloseTo(quarter, 3);
+    expect(travel(0.25, 120)).toBeCloseTo(quarter, 3);
+  });
+
 });

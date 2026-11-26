@@ -1,3 +1,4 @@
+import type { HeroReveal } from './heroReveal';
 import type { Atlas } from './atlas';
 import type { V2 } from '../core/world/layout';
 import {
@@ -452,7 +453,7 @@ export function stairForeground(
   plate: RoomPlate,
   p: V2,
   box: { x: number; y: number; w: number; h: number },
-  hero: boolean
+  reveal: HeroReveal
 ) {
   for (const layer of plate.stairs) {
     if (
@@ -470,9 +471,18 @@ export function stairForeground(
     ctx.beginPath();
     ctx.rect(box.x, box.y, box.w, box.h);
     ctx.clip();
-    ctx.globalAlpha = hero && behind ? 0.68 : 1;
-    ctx.drawImage(behind && s.passage.kind === 'up' ? layer.image : layer.rail, layer.left, layer.top);
+    const art = behind && s.passage.kind === 'up' ? layer.image : layer.rail;
+    ctx.drawImage(art, layer.left, layer.top);
     ctx.restore();
+    const mask = reveal.foreground(box.x, box.y, box.w, box.h);
+    if (mask) {
+      mask.save();
+      mask.beginPath();
+      mask.rect(box.x, box.y, box.w, box.h);
+      mask.clip();
+      mask.drawImage(art, layer.left, layer.top);
+      mask.restore();
+    }
   }
 }
 export interface RoomPlate {

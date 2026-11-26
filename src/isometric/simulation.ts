@@ -23,6 +23,7 @@ import { supportHeight, travelScale, terrainHeight, footingHeight } from './reli
 import { risePixels } from './projection';
 import { Footfalls } from './footfalls';
 import { JUMP_TIME, Locomotion } from './locomotion';
+import { RoomResidents } from './roomResidents';
 import { distance, groundAt, inBuilding, navigable, placeList, project, waterAt } from './land';
 import { onBridge, wetPoint, riverVelocity } from './water';
 import { worldView } from '../core/game/worldView';
@@ -62,6 +63,9 @@ import {
   SWING_BUFFER,
   SWING_CONTACT,
   SWING_RELEASE,
+  PARRY_WINDOW,
+  COUNTER_WINDOW,
+  type SwordStroke,
   firstContact,
   unit,
   type Activity,
@@ -99,6 +103,7 @@ export interface Actor extends V2 {
   animal?: AnimalId;
   enemy?: EncounterId;
   health: number;
+  openedUntil?: number;
 }
 export function facesLeft(species: string) {
   return ['cat', 'wolf', 'tiger', 'bear'].includes(species);
@@ -147,11 +152,16 @@ export class Valley {
   facing = 'south-east';
   strike = 0;
   swordSwing = false;
+  stroke: SwordStroke = 'attack';
+  private parried = false;
+  private opponent?: Actor;
+  private focusUntil = 0;
   private swingTarget?: Actor;
   private queuedSwing?: { target?: V2; weapon: ItemId | null };
   readonly contacts: Contact[] = [];
   readonly gait = new Footfalls();
   private readonly locomotion = new Locomotion();
+  private households = new RoomResidents();
   bow?: Draw;
   readonly arrows: Arrow[] = [];
   activity?: Activity;
@@ -163,6 +173,7 @@ export class Valley {
   standingLift = 0;
   private lastFootSpace = '';
   private clockElapsed = 0;
+  private rising?: { x: number; z: number; since: number; room: string };
   onFieldSound: (cue: FieldSound, range?: number, pan?: number) => void = () => {};
   onMessage: (text: string) => void = () => {};
   constructor(game: Game) {
@@ -185,7 +196,8 @@ export class Valley {
     for (const npc of NPC_LIST) {
       const goal = resolveGoal(npc, game.state, hourOfDay(game.state.clock));
       const home = residentPost(npc.id, goal) ?? ANCHORS[npc.home]!;
-      this.actors.push({ ...make(npc.id, npc.id, npc.name, home, 33), npc: npc.id });
+      this.actors.push({ ...make(npc.id, npc.id, npc.name, home, 33), npc: npc.id,
+        dead: !game.state.npcs[npc.id].available, posture: goal.activity === 'rest' ? 'rest' : goal.activity === 'work' ? 'work' : 'idle' });
     }
     for (const id of ANIMAL_IDS) {
       const def = ANIMALS.find((d) => d.id === ANIMAL_MODEL_IDS[id])!;
@@ -312,6 +324,16 @@ export class Valley {
     return this.props ? staticRoom(plan) : plan;
   }
   openChest?: string;
+  get skyHour() {
+    return hourOfDay(this.game.state.clock + this.clockElapsed * CLOCK_RATE);
+  }
+  get combatTarget() {
+    if (!this.room && this.player.health > 0 && this.focusUntil > this.time) return this.opponent;
+  }
+  private focusEnemy(enemy: Actor, duration = 2) {
+    this.opponent = enemy;
+    this.focusUntil = this.time + duration;
+  }
   get roomKey() {
     const r = this.player.interior;
     return r ? r.building + '/' + r.level : '';
@@ -319,10 +341,11 @@ export class Valley {
   get lightsOn() {
     return this.game.state.facts['room_dim:' + this.roomKey] !== true;
   }
+  get roomResidents() { return this.households.view(this.room, this.actors); }
   targets() {
     const room = this.room;
     const targets = room
-      ? indoorTargets(room, this.actors)
+      ? indoorTargets(room, this.actors, this.roomResidents)
       : [...outsideTargets(this.game.state), ...fieldTargets(this.game.state, this.actors)];
     return this.props
       ? [...targets.filter((t) => t.field !== 'seat'), ...physicalTargets(this.props, this.position, room)]
@@ -365,6 +388,8 @@ export class Valley {
     this.jump = 0;
     this.strike = 0;
     this.swingTarget = undefined;
+    this.opponent = undefined;
+    for (const actor of this.actors) actor.openedUntil = undefined;
     this.contacts.length = 0;
     this.walk = false;
     this.locomotion.reset();
@@ -400,7 +425,7 @@ export class Valley {
     if (p.kind === 'outside') this.leaveRoom();
     else if (p.target) this.changeFloor(p.target);
   }
-  private stepInside(dt: number, dx: number, dz: number, run: boolean, walkThrough: boolean) {
+  private stepInside(dt: number, dx: number, dz: number, run: boolean, walkThrough: boolean, pace: number) {
     const plan = this.room!,
       p = this.player.interior!,
       length = Math.hypot(dx, dz);
@@ -415,7 +440,7 @@ export class Valley {
       flight = stairAt(plan, before),
       speed = this.props?.grip?.drag ? 2.65 : run && this.stamina > 1 ? 8.2 : this.guard ? 2.4 : 5.4,
       direct = !!(flight || this.props?.grip || this.standingLift || this.guard),
-      motion = this.locomotion.advance(dx, dz, dt, speed, walkThrough, direct);
+      motion = this.locomotion.advance(dx, dz, dt, speed * pace, walkThrough, direct);
     this.stamina = Math.max(0, Math.min(100, this.stamina + dt * (length && run ? -5 : 5)));
     if (!motion) return;
     const stride = walkThrough ? motion.stride : Math.min(motion.stride, length);
@@ -473,6 +498,16 @@ export class Valley {
     if (!r.ok) this.onMessage(r.reason.replaceAll('_', ' ').replaceAll(':', ' · '));
     return r.ok;
   }
+  private withinMeleeHeight(enemy: Actor) {
+    const p = this.player;
+    const from = supportHeight(p) + this.standingLift + this.hop, to = supportHeight(enemy);
+    if (Math.abs(from - to) > 2.25) return false;
+    for (const t of [0.33, 0.67]) {
+      const x = p.x + (enemy.x - p.x) * t, z = p.z + (enemy.z - p.z) * t;
+      if (inBuilding({ x, z }) || terrainHeight(x, z) > from + (to - from) * t + 1.5) return false;
+    }
+    return true;
+  }
   private stepActor(a: Actor, target: V2, speed: number, dt: number) {
     const dist = distance(a, target);
     if (dist < 0.18) return;
@@ -480,13 +515,15 @@ export class Valley {
       dx = (target.x - a.x) / dist,
       dz = (target.z - a.z) / dist;
     const next = { x: a.x + dx * amount, z: a.z + dz * amount };
-    if (!navigable(a, next, true)) return;
+    if (!navigable(a, next, true) || (!a.npc && inBuilding(next) && !inBuilding(a))) return;
     a.x = next.x;
     a.z = next.z;
     a.move = true;
-    a.flip = project(dx, dz).x < 0 !== facesLeft(a.key);
+    const side = dx - dz;
+    if (Math.abs(side) > 0.045) a.flip = (side < 0) !== facesLeft(a.key);
   }
-  step(dt: number, dx: number, dz: number, run: boolean, walkThrough = true) {
+  step(dt: number, dx: number, dz: number, run: boolean, walkThrough = true, pace = 1) {
+    run = run && pace > 0.55;
     this.time += dt;
     this.clockElapsed += dt;
     this.game.addPlaySeconds(dt);
@@ -495,7 +532,8 @@ export class Valley {
       this.clockElapsed = 0;
     }
     const previousStrike = this.strike;
-    this.guardTime = this.guard && !previousStrike ? this.guardTime + dt : 0;
+    this.guardTime = this.guard ? this.guardTime + dt : 0;
+    if (!this.guard) this.parried = false;
     this.strike = Math.max(0, this.strike - dt);
     while (this.contacts.length && this.time - this.contacts[0]!.born >= DAMAGE_LABEL_TIME) this.contacts.shift();
     // Leave one presented ground contact between jumps, including its sound and foot impressions.
@@ -510,8 +548,7 @@ export class Valley {
     const p = this.player;
     if (!this.player.interior && inBuilding(p)) this.restoreFootprint();
     if (this.player.health <= 0) this.cancelPose();
-    if (this.activity && (dx || dz || this.activity.room !== this.roomKey || this.guard))
-      this.activity = undefined;
+    if (this.activity && (dx || dz || this.activity.room !== this.roomKey || this.guard)) this.releaseActivity();
     if (this.bow && (this.game.state.equippedWeapon !== 'hunting_bow' || this.guard)) this.bow = undefined;
     if (this.bow) {
       if ((dx || dz) && this.bow.phase !== 'loose') this.aimDirection(dx, dz);
@@ -519,7 +556,7 @@ export class Valley {
     }
     const from = { x: this.position.x, z: this.position.z },
       fromRoom = this.roomKey;
-    if (this.room) this.stepInside(dt, dx, dz, run, walkThrough);
+    if (this.room) this.stepInside(dt, dx, dz, run, walkThrough, pace);
     else {
       const water = onBridge(p) ? null : wetPoint(p.x, p.z);
       const wade = water?.kind === 'river' ? Math.min(1, water.bank / 1.9) : 0;
@@ -544,7 +581,7 @@ export class Valley {
       const direct = !!(
         this.props?.grip || this.standingLift || this.riding || this.swimming || this.guard
       );
-      const motion = canMove ? this.locomotion.advance(dx, dz, dt, speed, walkThrough, direct) : undefined;
+      const motion = canMove ? this.locomotion.advance(dx, dz, dt, speed * pace, walkThrough, direct) : undefined;
       if (motion) {
         if (norm && !previousStrike) this.facing = facing(dx, dz);
         const stride = Math.min(
@@ -630,7 +667,7 @@ export class Valley {
     if (this.activity) {
       const a = this.activity;
       if (targetDistance(a.target, this.position, this.room) > a.target.reach || this.player.health <= 0)
-        this.activity = undefined;
+        this.releaseActivity();
       else {
         a.elapsed += dt;
         if (a.kind === 'sit') this.stamina = Math.min(100, this.stamina + dt * 12);
@@ -693,6 +730,8 @@ export class Valley {
             a.x = p.x;
             a.z = p.z;
             a.move = this.walk;
+            const side = Math.sin(p.yaw) - Math.cos(p.yaw);
+            if (a.move && Math.abs(side) > 0.05) a.flip = (side < 0) !== facesLeft(a.key);
           }
           continue;
         }
@@ -724,16 +763,38 @@ export class Valley {
         const def = ENEMY_ARCHETYPES[spawn.kind],
           near = this.room ? Infinity : distance(a, p);
         if (near < def.notice * 1.6 && distance(a, a.home) < spawn.leash + 6 && p.health > 0) {
+          const current = this.combatTarget;
+          if (near < 10 && (!current || current === a || (!current.dead && distance(current, p) > near + 3)))
+            this.focusEnemy(a);
+          if ((a.openedUntil ?? 0) > this.time) continue;
           if (near > def.reach && !a.attack) this.stepActor(a, p, def.speed, dt);
-          else if (!a.timer && near <= def.reach) {
+          else if (!a.timer && near <= def.reach && this.withinMeleeHeight(a)) {
             a.attack = ENEMY_SWING_TIME;
             a.flip = project(p.x - a.x, p.z - a.z).x < 0 !== facesLeft(a.key);
             a.timer = def.wind + def.recover + 0.6;
+            if ((this.combatTarget?.openedUntil ?? 0) <= this.time) this.focusEnemy(a);
             this.fieldSoundAt('enemy_windup', a);
           }
           const contact = enemyContactRemaining(def.heavy);
-          if (previousAttack > contact && a.attack <= contact && near < def.reach + 0.5) {
+          if (previousAttack > contact && a.attack <= contact && near < def.reach + 0.5 && this.withinMeleeHeight(a)) {
+            // Resolve guard age at contact even when a slower display overshoots the strike frame.
+            const guardAge = this.guardTime - (contact - a.attack);
+            const parry = this.guard && !this.parried && !previousStrike && !this.jump && !this.props?.grip &&
+              !this.riding && !this.swimming && this.game.state.equippedWeapon === 'rusted_sword' &&
+              guardAge >= 0 && guardAge <= PARRY_WINDOW;
             this.cancelPose();
+            if (parry) {
+              this.parried = true;
+              a.attack = 0;
+              a.openedUntil = this.time + COUNTER_WINDOW;
+              a.timer = Math.max(a.timer, COUNTER_WINDOW + 0.2);
+              this.facing = facing(a.x - p.x, a.z - p.z);
+              p.yaw = Math.atan2(a.x - p.x, a.z - p.z);
+              this.focusEnemy(a);
+              this.fieldSoundAt('parry', a);
+              this.contactAt(p, a, 'parry', { actorId: a.id });
+              continue;
+            }
             const damage = this.guard ? Math.ceil(def.damage * 0.18) : def.damage;
             this.action({ t: 'damagePlayer', amount: damage });
             this.fieldSoundAt(this.guard ? 'block' : 'player_hit', a);
@@ -746,15 +807,23 @@ export class Valley {
         } else this.stepActor(a, a.home, def.speed * 0.65, dt);
       }
     }
+    this.households.view(this.room, this.actors, dt);
     if (previousStrike && !this.strike && this.queuedSwing) {
       const { target, weapon } = this.queuedSwing;
       this.queuedSwing = undefined;
-      if (weapon === this.game.state.equippedWeapon && !this.props?.grip) this.startAttack(target);
+      if (weapon === this.game.state.equippedWeapon && !this.props?.grip) this.startAttack(target, undefined, this.stroke !== 'return');
     }
+  }
+  private releaseActivity() {
+    if (this.activity && this.activity.room === this.roomKey) {
+      const at = this.displayPosition, p = this.position;
+      this.rising = { x: at.x - p.x, z: at.z - p.z, since: this.time, room: this.roomKey };
+    }
+    this.activity = undefined;
   }
   cancelPose() {
     this.jumpQueued = false;
-    this.activity = undefined;
+    this.releaseActivity();
     this.bow = undefined;
     this.queuedSwing = undefined;
   }
@@ -789,7 +858,14 @@ export class Valley {
   get displayPosition(): V2 {
     const a = this.activity,
       p = this.position;
-    if (!a) return p;
+    if (!a) {
+      const rest = this.rising;
+      if (!rest || rest.room !== this.roomKey) return p;
+      const age = Math.min(1, (this.time - rest.since) / 0.36);
+      if (age >= 1) return p;
+      const blend = 1 - age * age * (3 - 2 * age);
+      return { x: p.x + rest.x * blend, z: p.z + rest.z * blend };
+    }
     const toward = unit(p.x - a.target.at.x, p.z - a.target.at.z);
     const reach = a.kind === 'sit' ? 0 : a.kind === 'gather' ? 0.9 : a.kind === 'stir' ? 1.85 : 1.5;
     const at = { x: a.target.at.x + toward.x * reach, z: a.target.at.z + toward.z * reach };
@@ -797,8 +873,11 @@ export class Valley {
       at.x += 0.27;
       at.z += 0.2;
     }
-    const t = Math.min(1, a.elapsed / 0.16, (a.duration - a.elapsed) / 0.16);
-    return { x: p.x + (at.x - p.x) * t, z: p.z + (at.z - p.z) * t };
+    const span = a.kind === 'sit' ? 0.38 : 0.24;
+    const t = Math.max(0, Math.min(1, a.elapsed / span, (a.duration - a.elapsed) / span));
+    const reachScale = a.kind === 'sit' ? 1 : Math.min(1, 0.62 / Math.max(0.001, distance(p, at)));
+    const blend = t * t * (3 - 2 * t) * reachScale;
+    return { x: p.x + (at.x - p.x) * blend, z: p.z + (at.z - p.z) * blend };
   }
   interactField(target: RoomTarget) {
     if (target.field === 'bell') {
@@ -865,7 +944,7 @@ export class Valley {
     this.facing = facing(dx, dz);
     this.player.yaw = Math.atan2(dx, dz);
   }
-  startAttack(target?: V2, head?: string) {
+  startAttack(target?: V2, head?: string, returnCut = false) {
     if (this.props?.grip) {
       this.props.release(true, target);
       return;
@@ -889,9 +968,16 @@ export class Valley {
     if (weapon !== 'hunting_bow') {
       this.strike = SWING_TIME;
       this.swordSwing = weapon === 'rusted_sword';
+      const priority = (a: Actor) => !target && this.swordSwing && (a.openedUntil ?? 0) > this.time ? -4 : 0;
       const hit = this.actors
-        .filter((a) => a.enemy && !a.dead && distance(a, p) < 3.3)
-        .sort((a, b) => distance(a, target ?? p) - distance(b, target ?? p))[0];
+        .filter((a) => a.enemy && !a.dead && distance(a, p) < 3.3 && !inBuilding(a) && this.withinMeleeHeight(a))
+        .sort((a, b) => priority(a) - priority(b) + distance(a, target ?? p) - distance(b, target ?? p))[0];
+      this.stroke = this.swordSwing && hit && (hit.openedUntil ?? 0) > this.time
+        ? 'counter' : returnCut && this.swordSwing ? 'return' : 'attack';
+      if (hit) {
+        if (this.stroke === 'counter') hit.openedUntil = undefined;
+        this.focusEnemy(hit);
+      }
       this.swingTarget = hit;
       const face = hit ?? target;
       if (face && distance(face, p) > 0.01) {
@@ -973,17 +1059,18 @@ export class Valley {
   private stepSwing(previous: number) {
     const release = SWING_TIME - SWING_RELEASE;
     if (previous > release && this.strike <= release)
-      this.onFieldSound(this.swordSwing ? 'blade_swing' : 'unarmed_swing');
+      this.onFieldSound(this.stroke === 'counter' ? 'counter_swing' : this.swordSwing ? 'blade_swing' : 'unarmed_swing');
     const contact = SWING_TIME - SWING_CONTACT;
     if (previous <= contact || this.strike > contact) return;
     const enemy = this.swingTarget;
     this.swingTarget = undefined;
     const p = this.player;
-    if (!enemy || enemy.dead || distance(enemy, p) >= 3.3) return;
-    const damage = this.swordSwing ? 29 : 8;
+    if (!enemy || enemy.dead || distance(enemy, p) >= 3.3 || !this.withinMeleeHeight(enemy)) return;
+    const counter = this.stroke === 'counter';
+    const damage = counter ? 44 : this.swordSwing ? 29 : 8;
     const defeated = this.damageEnemy(enemy, damage);
-    this.contactAt(enemy, p, this.swordSwing ? 'blade' : 'body', { damage, defeated, actorId: enemy.id });
-    this.fieldSoundAt(this.swordSwing ? 'blade_hit' : 'unarmed_hit', enemy);
+    this.contactAt(enemy, p, counter ? 'counter' : this.swordSwing ? 'blade' : 'body', { damage, defeated, actorId: enemy.id });
+    this.fieldSoundAt(counter ? 'counter_hit' : this.swordSwing ? 'blade_hit' : 'unarmed_hit', enemy);
     if (defeated) this.fieldSoundAt('enemy_down', enemy);
   }
   private fieldSoundAt(cue: FieldSound, at: V2, range = distance(at, this.player)) {
@@ -993,7 +1080,8 @@ export class Valley {
     this.onFieldSound(cue, range, pan);
   }
   private damageEnemy(a: Actor, amount: number) {
-    a.health -= amount;
+    a.health = Math.max(0, a.health - amount);
+    this.focusEnemy(a, a.health ? 2 : 0.62);
     if (a.enemy && a.health <= 0 && this.action({ t: 'defeat', id: a.enemy })) {
       a.dead = true;
       this.onMessage(a.name + ' defeated');

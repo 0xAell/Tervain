@@ -68,6 +68,10 @@ describe('field audio', () => {
       Math.max(...buffer.getChannelData(0).slice(from * 24000, until * 24000).map(Math.abs));
     expect(peak(accents.bladeHit, 0, 0.016)).toBeGreaterThan(0.2);
     expect(peak(accents.defeat, 0, 0.03)).toBe(0);
+    expect(peak(accents.parry, 0, 1 / 60)).toBeGreaterThan(0.13);
+    expect(peak(accents.parry, 0.07, 0.14)).toBeGreaterThan(peak(accents.guard, 0.07, 0.14));
+    expect(peak(accents.counterHit, 0.045, 0.10)).toBeGreaterThan(0.12);
+    expect(peak(accents.menuOpen, 0, 0.14)).toBeLessThan(peak(accents.counterHit, 0, 0.14));
     expect(peak(accents.defeat, 0.04, 0.14)).toBeGreaterThan(0.2);
     for (const buffer of Object.values(accents)) expect(peak(buffer, 0, 0.42)).toBeLessThan(0.65);
     expect(peak(accents.groundLanding, 0, 1 / 60)).toBeGreaterThan(0.08);
@@ -148,6 +152,26 @@ describe('field audio', () => {
     expect(catalogue.effects[shot.wet ? 'water_enter' : 'step.sand']).toContain(accent.mock.lastCall?.[4]?.cue);
     expect(effect).toHaveBeenCalledTimes(1);
     expect(catalogue.effects[shot.bank]).toContain(effect.mock.lastCall?.[0]);
+  });
+
+  it('keeps a boot straddling the bank quiet and sounds stairs separately from a front door', () => {
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1), v = new Valley(new Game());
+    sound.enabled = true;
+    const play = vi.spyOn(sound.mixer, 'effect').mockResolvedValue(undefined);
+    for (const inland of [0.6, 0.04, -0.04, 0.05, -0.25, 0.03, -0.03, 0.4]) {
+      v.game.setPlayerTransform(coastX(10) + inland, 0, 10, 0);
+      sound.movement(v);
+    }
+    expect(play).toHaveBeenCalledTimes(2);
+    expect(catalogue.effects.water_enter).toContain(play.mock.calls[0]![0]);
+    expect(catalogue.effects.water_exit).toContain(play.mock.calls[1]![0]);
+    v.enterDoor(doorsById.get('house_a/front')!);
+    sound.movement(v);
+    expect(catalogue.effects.door).toContain(play.mock.lastCall![0]);
+    v.changeFloor('cellar');
+    sound.movement(v);
+    expect(catalogue.effects['step.stone']).toContain(play.mock.lastCall![0]);
   });
 
   it('plays immediately through a real pan path and warms missing foley without a late echo', async () => {

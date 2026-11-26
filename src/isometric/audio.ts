@@ -11,7 +11,7 @@ import { catalogue, readText, type VoiceMode, type SpokenPart } from './reading'
 import type { FieldAccent } from './fieldAudio';
 import { defaultMix, Mixer } from './mixer';
 import { distance, inBuilding } from './land';
-import { onBridge, wetPoint } from './water';
+import { onBridge, waterProfile, wetPoint } from './water';
 import type { Activity, FieldSound } from './fieldcraft';
 import type { Valley } from './simulation';
 
@@ -49,6 +49,9 @@ const fieldAccents: Partial<Record<FieldSound, {
   unarmed_hit: { accent: 'bodyHit', gain: 0.94, focus: 'contact', foley: ['hit', 0.39] },
   hit: { accent: 'bodyHit', gain: 0.94, focus: 'contact', foley: ['hit', 0.39] },
   player_hit: { accent: 'playerHit', gain: 1.06, focus: 'contact', foley: ['hit', 0.45] },
+  parry: { accent: 'parry', gain: 1.02, focus: 'contact', foley: ['block', 0.24] },
+  counter_swing: { accent: 'counterSwing', gain: 0.79 },
+  counter_hit: { accent: 'counterHit', gain: 1.04, focus: 'contact', foley: ['hit', 0.29] },
   block: { accent: 'guard', gain: 0.98, focus: 'contact', foley: ['block', 0.35] },
   enemy_windup: { accent: 'windup', gain: 0.58 },
   enemy_down: { accent: 'defeat', gain: 0.92, focus: 'defeat' },
@@ -228,7 +231,9 @@ export class Sound {
   page(name: string) {
     if (this.enabled) {
       const key = ({ inventory: 'bag', journal: 'page', map: 'map' } as Record<string, string>)[name];
-      if (key) this.one(key, 0.45, 0, false);
+      if (key) this.one(key, 0.33, 0, false);
+      if (['inventory', 'journal', 'map', 'pause', 'saves', 'help', 'settings', 'play'].includes(name))
+        this.mixer.playMenu(name === 'play' ? 'menuClose' : 'menuOpen');
     }
   }
   contact(
@@ -375,7 +380,10 @@ export class Sound {
     const room = v.room;
     if (this.room !== v.roomKey) {
       this.mixer.room = room ? (room.stone ? 'stone' : 'timber') : undefined;
-      if (this.room !== undefined) this.one('door', 0.48);
+      if (this.room !== undefined) {
+        const stairs = room && this.room.split('/')[0] === room.site.id;
+        this.one(stairs ? footstep(room.stone || room.level === 'cellar' ? 'stone' : 'wood') : 'door', 0.48);
+      }
       this.room = v.roomKey;
       this.wasJumping = false;
       this.wasWet = null;
@@ -405,7 +413,10 @@ export class Sound {
 
     const p = v.player;
     const supported = v.standingLift > 0.1 || (!room && onBridge(p));
-    const wet = !room && !supported && !!wetPoint(p.x, p.z);
+    const bank = !room && !supported ? waterProfile(p.x, p.z)?.bank ?? -Infinity : -Infinity;
+    // Give a planted foot a little width at the waterline so tiny reversals don't retrigger two splashes.
+    const edge = landing || this.wasWet === null ? 0 : this.wasWet ? -0.14 : 0.14;
+    const wet = bank > edge;
     if (landing) {
       const cue = this.recordedEffect(landing.wet ? 'water_enter' : footstep(landing.material));
       this.mixer.playAccent(landing.wet ? 'waterLanding' : 'groundLanding', 0.72, 0, undefined, cue && { cue, gain: 1 });

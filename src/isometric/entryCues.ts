@@ -1,6 +1,25 @@
 import type { Atlas } from './atlas';
 import type { RoomTarget } from './roomTargets';
 import type { Passage } from './roomPlans';
+import type { V2 } from '../core/world/layout';
+
+export function spriteDepth(at: V2, prop?: { y: number }) {
+  return at.x + at.z + (prop?.y ?? 0) * 0.45;
+}
+
+export interface DepthCue {
+  depth: number;
+  draw: () => void;
+}
+
+/** Insert a target's cue just after its own sprite, so nearer scenery covers both. */
+export function cuePass(cues: DepthCue[]) {
+  cues.sort((a, b) => a.depth - b.depth);
+  let i = 0;
+  return (before: number) => {
+    while (i < cues.length && cues[i]!.depth < before) cues[i++]!.draw();
+  };
+}
 
 export interface PickRegion {
   id: string;
@@ -43,6 +62,19 @@ export function drawThreshold(ctx: CanvasRenderingContext2D, x: number, y: numbe
   ctx.restore();
 }
 
+export function drawReachMark(ctx: CanvasRenderingContext2D, x: number, y: number, strength: number) {
+  if (strength <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = Math.min(1, strength);
+  const left = Math.round(x) - 2, top = Math.round(y);
+  ctx.fillStyle = '#233c39';
+  ctx.fillRect(left, top, 5, 5);
+  ctx.fillStyle = '#b2efd5';
+  ctx.fillRect(left + 2, top, 1, 5);
+  ctx.fillRect(left, top + 2, 5, 1);
+  ctx.restore();
+}
+
 /** Mark exits and stairs between interior floors. */
 export function drawWaylight(
   ctx: CanvasRenderingContext2D,
@@ -50,7 +82,7 @@ export function drawWaylight(
   x: number,
   y: number,
   time: number,
-  near: boolean,
+  near: number,
   locked = false,
   wide = false,
   kind?: Passage['kind']
@@ -60,8 +92,8 @@ export function drawWaylight(
     w = wide ? 12 : 10;
   ctx.save();
   if (!locked) {
-    const halo = ctx.createRadialGradient(cx, cy - 7, 1, cx, cy - 7, near ? 16 : 12);
-    halo.addColorStop(0, near ? 'rgba(255,221,125,.44)' : 'rgba(255,213,115,.29)');
+    const halo = ctx.createRadialGradient(cx, cy - 7, 1, cx, cy - 7, 12 + near * 4);
+    halo.addColorStop(0, 'rgba(255,218,121,' + (0.29 + near * 0.15) + ')');
     halo.addColorStop(1, 'rgba(255,197,92,0)');
     ctx.fillStyle = halo;
     ctx.fillRect(cx - 16, cy - 23, 32, 32);
@@ -74,17 +106,18 @@ export function drawWaylight(
   ctx.lineTo(cx, cy + 4);
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = locked ? '#cfaaa8' : near ? '#ffecaa' : '#eac16d';
+  ctx.strokeStyle = locked ? '#cfaaa8' : '#ebcd87';
   ctx.lineWidth = 1.2;
   ctx.stroke();
   ctx.fillStyle = locked ? '#c0b9b7' : '#ffe4a0';
   ctx.fillRect(cx - 2, cy - 1, 4, 2);
-  const ly = cy - (near ? 12 : 10) - Math.round(0.8 * Math.sin(time * 2.6)),
-    size = near ? 14 : 11;
+  const ly = cy - 10 - 2 * near - 0.8 * Math.sin(time * 2.6),
+    size = 11 + near * 3;
   ctx.globalAlpha = locked ? 0.64 : 1;
   atlas.draw(ctx, 'room_waylight', cx, ly, size, 0, false, 0.66);
   if (near && (kind === 'up' || kind === 'down')) {
     const dir = kind === 'up' ? -1 : 1;
+    ctx.globalAlpha *= near;
     ctx.strokeStyle = '#fff0b4';
     ctx.lineWidth = 1.5;
     ctx.beginPath();

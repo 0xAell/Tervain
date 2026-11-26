@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { drawContact, drawDamageLabels } from '../../src/isometric/fieldEffects';
+import { supportHeight } from '../../src/isometric/relief';
 import { Game } from '../../src/core/game/game';
 import {
   ENEMY_SWING_TIME,
@@ -154,4 +155,83 @@ describe('Vale combat timing', () => {
     expect(valley.contacts).toMatchObject([{ damage, heavy: kind === 'thornback' }]);
     expect(cues.map((sound) => sound.cue)).toEqual(['enemy_windup', cue]);
   });
+  it.each([30, 60, 120])('opens a counter on a late sword guard and consumes it once at %i Hz', (hz) => {
+    const { valley, enemy, cues } = encounter();
+    const tick = () => valley.step(1 / hz, 0, 0, false);
+    enemy.timer = 0;
+    const hp = valley.player.health;
+    tick();
+    while (enemy.attack > enemyContactRemaining(false) + 0.10) tick();
+    valley.guard = true;
+    while (!cues.some(c => c.cue === 'parry') && enemy.attack > 0) tick();
+    expect(valley.player.health).toBe(hp);
+    expect(valley.combatTarget).toBe(enemy);
+    expect(valley.contacts.at(-1)?.kind).toBe('parry');
+    expect(enemy.openedUntil).toBeGreaterThan(valley.time);
+    valley.guard = false;
+    valley.startAttack(enemy);
+    expect(valley.stroke).toBe('counter');
+    expect(enemy.openedUntil).toBeUndefined();
+    while (valley.strike > 0.10) tick();
+    valley.startAttack(enemy);
+    while (valley.stroke === 'counter' && valley.strike > 0) tick();
+    expect(valley.stroke).toBe('return');
+    expect(valley.contacts.at(-1)).toMatchObject({ actorId: enemy.id, damage: 44, kind: 'counter' });
+    expect(cues.map(c => c.cue)).toEqual(['enemy_windup', 'parry', 'counter_swing', 'counter_hit']);
+  });
+
+  it('expires the opening and leaves a held guard as an ordinary block', () => {
+    const { valley, enemy } = encounter();
+    enemy.timer = 0;
+    advance(valley, 0.36);
+    valley.guard = true;
+    advance(valley, 0.15);
+    expect(valley.contacts.at(-1)?.kind).toBe('parry');
+    advance(valley, 0.75);
+    valley.startAttack();
+    expect(valley.stroke).toBe('attack');
+    advance(valley, 2.3);
+    expect(valley.contacts.some(c => c.kind === 'parry')).toBe(false);
+    expect(valley.player.health).toBeLessThan(valley.player.maxHealth);
+  });
+
+  it('picks the parried opponent for a counter in a crowd and keeps a pointer choice explicit', () => {
+    const { valley, enemy } = encounter();
+    const other = valley.actors.find(a => a.enemy && a.id !== enemy.id)!;
+    Object.assign(other, { x: -174.5, z: 18 });
+    enemy.openedUntil = valley.time + 0.4;
+    valley.startAttack();
+    expect(valley.stroke).toBe('counter');
+    expect(valley.combatTarget).toBe(enemy);
+    advance(valley, 0.45);
+    enemy.openedUntil = valley.time + 0.4;
+    valley.startAttack(other);
+    expect(valley.combatTarget).toBe(other);
+    expect(valley.stroke).toBe('attack');
+  });
+
+  it('keeps a sword and a hostile swing from reaching between different quarry ledges', () => {
+    const { valley, enemy } = encounter('thornback');
+    let ledge: { x: number; z: number } | undefined;
+    for (let x = 99; x < 116 && !ledge; x += 0.5) {
+      for (let z = -52; z < -36; z += 0.5) {
+        if (Math.abs(supportHeight({ x, z }) - supportHeight({ x, z: z + 2.4 })) > 2.8) {
+          ledge = { x, z };
+          break;
+        }
+      }
+    }
+    expect(ledge).toBeDefined();
+    const p = ledge!;
+    valley.game.setPlayerTransform(p.x, 0, p.z, 0);
+    const upper = { x: p.x, z: p.z + 2.4 };
+    Object.assign(enemy, upper, { home: upper, timer: 0 });
+    const hp = enemy.health;
+    valley.attack(enemy);
+    advance(valley, 1);
+    expect(enemy.health).toBe(hp);
+    expect(enemy.attack).toBe(0);
+    expect(valley.player.health).toBe(valley.player.maxHealth);
+  });
+
 });
