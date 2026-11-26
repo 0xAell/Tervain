@@ -62,7 +62,11 @@ describe('the Bell Road', () => {
     expect(journeyLead(s).action).toContain('broken hull');
     s.facts.saw_arrival_wreckage = true;
     expect(journeyLead(s).action).toContain('blade');
-    s.discovered.rillford = true;
+    const beachX = s.player.x;
+    s.player.x = 106;
+    expect(journeyLead(s).action).toContain('dry channel');
+    s.player.x = beachX;
+    s.discovered.ford = true;
     expect(journeyLead(s).action).toContain('dry channel');
     s.quest.gate = 'stabilized';
     expect(journeyLead(s).action).toContain('allocation');

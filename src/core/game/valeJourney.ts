@@ -1,4 +1,4 @@
-import { ANCHORS, INSPECT_LOCATIONS, PICKUP_LOCATIONS, RESULT_CHECKS, SLUICE, type V2 } from '../world/layout';
+import { ANCHORS, INSPECT_LOCATIONS, PICKUP_LOCATIONS, PLACES, RESULT_CHECKS, SLUICE, type V2 } from '../world/layout';
 import { APPLY_DELAY_MIN } from './constants';
 import type { WorldState } from './types';
 
@@ -8,6 +8,7 @@ export interface JourneyLead {
   reason: string;
   at?: V2;
 }
+const inland = ['rillford', 'ford', 'spring_shrine', 'sluice', 'quarry', 'the_cut', 'archive'] as const;
 const landmarks = new Map([...INSPECT_LOCATIONS, ...PICKUP_LOCATIONS].map(p => [p.id, p]));
 function lead(chapter: string, action: string, reason: string, at?: V2): JourneyLead {
   return { chapter, action, reason, at };
@@ -37,7 +38,8 @@ export function journeyLead(s: WorldState): JourneyLead {
   }
   if (gate === 'stabilized') return lead('The water hearing', 'Set the allocation at the sluice wheel',
     'Send water to the mill or the quarry. For a shared rota, gather evidence of both needs and the agreement of the village, shrine and quarry.', SLUICE.control);
-  if (phase === 'unseen' && !s.discovered.rillford && !s.npcs.caravan_master.met && s.npcs.caravan_master.available) {
+  const insideVale = s.player.x >= PLACES.rillford.x - PLACES.rillford.r || inland.some(id => s.discovered[id]);
+  if (phase === 'unseen' && !insideVale && !s.npcs.caravan_master.met && s.npcs.caravan_master.available) {
     if (!s.facts.saw_arrival_wreckage && !s.discovered.deepwood) return lead(coast, 'Search the broken hull on Grey Strand',
       'You came ashore with empty hands. The hull north of the landing is the only sign of anyone else.', landmarks.get('arrival_wreckage'));
     if (!s.inventory.rusted_sword && !s.locationChanges['pickup:wreck_blade'] && !s.discovered.deepwood)
