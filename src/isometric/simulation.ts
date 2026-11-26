@@ -138,6 +138,7 @@ export class Valley {
   readonly actors: Actor[] = [];
   readonly game: Game;
   time = 0;
+  bellStruckAt = -Infinity;
   walk = false;
   riding = false;
   guard = false;
@@ -757,7 +758,7 @@ export class Valley {
     this.bow = undefined;
     this.queuedSwing = undefined;
   }
-  perform(kind: Gesture, target: RoomTarget, duration: number, finish?: () => void) {
+  perform(kind: Gesture, target: RoomTarget, duration: number, finish?: () => void, contact?: number) {
     if (
       this.activity ||
       this.bow ||
@@ -779,7 +780,7 @@ export class Valley {
       target,
       duration,
       elapsed: 0,
-      contact: kind === 'gather' ? duration * 0.55 : duration,
+      contact: contact ?? (kind === 'gather' ? duration * 0.55 : duration),
       room: this.roomKey,
       finish,
     };
@@ -800,7 +801,22 @@ export class Valley {
     return { x: p.x + (at.x - p.x) * t, z: p.z + (at.z - p.z) * t };
   }
   interactField(target: RoomTarget) {
-    if (target.field === 'pet') {
+    if (target.field === 'bell') {
+      this.perform('work', target, 0.95, () => {
+        this.bellStruckAt = this.time;
+        this.fieldSoundAt('village_bell', target.at);
+        this.onMessage('The bronze bell rings across the square.');
+      }, 0.32);
+    } else if (target.field === 'well') {
+      this.perform('work', target, 1.5, () => {
+        const water = worldView(this.game.state).rationing;
+        this.fieldSoundAt(water === 'severe' ? 'bucket_dry' : 'bucket_water', target.at);
+        if (water !== 'severe') this.stamina = Math.min(100, this.stamina + (water === 'eased' ? 35 : 15));
+        this.onMessage(water === 'severe' ? 'The bucket scrapes the bottom. Only a few drops.'
+          : water === 'eased' ? 'The bucket comes up full. You take a long drink.'
+            : 'A little water gathers in the bucket. You take a sip.');
+      }, 1.06);
+    } else if (target.field === 'pet') {
       const a = target.animal!;
       this.perform('pet', target, 1.45, () =>
         this.onMessage(a.key === 'dog' ? 'The dog wags its tail.' : 'The cat leans into your hand.')
@@ -1104,7 +1120,7 @@ export class Valley {
     for (const entry of entries) {
       if (
         (entry.act.do === 'pickup' && gatheringIds.has(entry.act.pickup)) ||
-        ['archive_door', 'archive_shutter', 'ledger'].includes(entry.id) ||
+        ['archive_door', 'archive_shutter', 'ledger', 'inspect:noticeboard'].includes(entry.id) ||
         !entry.offered(this.game.state)
       )
         continue;

@@ -163,6 +163,14 @@ export class SkyLighting {
             light.globalCompositeOperation = 'source-over';
             drawStrip(light, s.art, ox, oy, s.art.windowLight);
           }
+        } else if (s.key === 'lantern' || s.key === 'beacon') {
+          const at = project(s.x, s.z, s.elevation);
+          const pole = s.key === 'lantern';
+          const x = at.x + ox + (pole ? s.width * 0.32 : 0);
+          const y = at.y + oy - this.atlas.height(s.key, s.width) * (pole ? 0.69 : 0.80);
+          const radius = pole ? 6 : 10;
+          light.globalCompositeOperation = 'source-over';
+          light.drawImage(this.lamp, x - radius, y - radius, radius * 2, radius * 2);
         } else if (s.width > 25 && isTree(s.key.split('--')[0]!)) {
           const p = project(s.x, s.z, s.elevation);
           this.atlas.draw(light, s.key, p.x + ox, p.y + oy - (s.lift ?? 0), s.width, s.frame, s.flip);

@@ -39,6 +39,10 @@ const fieldAccents: Partial<Record<FieldSound, {
   focus?: 'contact' | 'defeat';
   foley?: readonly [string, number];
 }>> = {
+  village_bell: { accent: 'villageBell', gain: 0.88 },
+  rope_draw: { accent: 'ropeDraw', gain: 0.65 },
+  bucket_dry: { accent: 'bucketDry', gain: 0.82 },
+  bucket_water: { accent: 'bucketWater', gain: 0.88 },
   blade_swing: { accent: 'bladeSwing', gain: 0.76, foley: ['blade', 0.46] },
   unarmed_swing: { accent: 'handSwing', gain: 0.72 },
   blade_hit: { accent: 'bladeHit', gain: 1, focus: 'contact', foley: ['hit', 0.34] },
@@ -389,7 +393,8 @@ export class Sound {
           : act.kind === 'work' && act.target.fixture?.key.includes('loom')
             ? 'loom'
             : act.kind;
-      this.one(key, 0.76);
+      if (act.target.field === 'well' || act.target.field === 'bell') this.field('rope_draw');
+      else this.one(key, 0.76);
     }
     const stepped = v.gait.serial !== this.lastStep;
     this.lastStep = v.gait.serial;

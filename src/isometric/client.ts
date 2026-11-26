@@ -568,6 +568,10 @@ export class Client implements Controls {
       v.perform('read', target, 0.8, () => this.ui.wagonTally(target));
     } else if (target.field === 'fire') {
       this.ui.cooking(target, 'Campfire');
+    } else if (target.field === 'board') {
+      v.perform('read', target, 0.75, () => {
+        if (v.action({ t: 'inspect', pointId: 'noticeboard' })) this.ui.observation('noticeboard');
+      });
     } else if (target.field || target.fixture?.use === 'seat') v.interactField(target);
     else if (target.door) {
       if (target.locked) {

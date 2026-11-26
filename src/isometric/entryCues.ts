@@ -25,7 +25,25 @@ export function pickRegion(regions: PickRegion[], x: number, y: number) {
   }
   return found;
 }
-/** Mark building entrances, exits and stairs between floors. */
+/** Follow the real doorstep so the interaction highlight reads as part of the building. */
+export function drawThreshold(ctx: CanvasRenderingContext2D, x: number, y: number,
+  side: { x: number; y: number }, opacity: number, locked: boolean) {
+  ctx.save();
+  ctx.globalAlpha = opacity * 0.88;
+  ctx.strokeStyle = locked ? '#d4a497' : '#e6cd91';
+  ctx.lineWidth = 1.25;
+  ctx.beginPath();
+  for (const sign of [-1, 1]) {
+    const a = x + side.x * sign, b = y + side.y * sign;
+    ctx.moveTo(a, b - 2);
+    ctx.lineTo(a, b);
+    ctx.lineTo(x + side.x * sign * 0.42, y + side.y * sign * 0.42);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Mark exits and stairs between interior floors. */
 export function drawWaylight(
   ctx: CanvasRenderingContext2D,
   atlas: Atlas,

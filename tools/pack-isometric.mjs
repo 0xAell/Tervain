@@ -47,6 +47,7 @@ async function folder(directory) {
   }
 }
 await folder('vale');
+await folder('valley');
 await folder('assets/audio/vale');
 const tracks = ['riverbank', 'banked-embers', 'bough-watch', 'lanterns', 'spring-stones', 'timber'];
 for (const track of tracks)

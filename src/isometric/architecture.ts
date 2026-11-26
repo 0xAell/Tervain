@@ -279,18 +279,34 @@ function litPane(pane: Pane, u: number, v: number, original: number) {
   return mix(rgba(213, 121, 50), rgba(255, 225, 145), 65 + (1 - y / height) * 108 + (x % 3) * 22);
 }
 
+const roofMaterials = {
+  slate: [rgba(47, 57, 63), rgba(145, 153, 147)],
+  cedar: [rgba(70, 52, 43), rgba(178, 143, 99)],
+  straw: [rgba(87, 69, 43), rgba(209, 180, 111)],
+} as const;
+
+function roofPigment(b: BuildingSpec, u: number, v: number, green: number) {
+  const cover = b.wall === 'stone' || b.kind === 'reeve' || b.id === 'house_d' ? 'slate'
+    : b.wall === 'timber' || b.id === 'house_a' ? 'cedar' : 'straw';
+  const slope = v - u * 0.39;
+  const course = Math.floor(slope / 4);
+  const grain = u + course * 3 + v * 0.25;
+  const joint = Math.floor(grain / 6), edge = slope - course * 4;
+  let light = 55 + green * 0.8 + 15 * Math.sin(course * 12.4 + joint * 31.2);
+  if (cover === 'straw') light += 16 * Math.sin(u * 1.9 - v * 0.72);
+  else if (edge < 0.8 || grain - joint * 6 < 0.75) light -= 46;
+  else if (edge > 3.2) light += 24;
+  const [dark, bright] = roofMaterials[cover];
+  return mix(dark, bright, light);
+}
+
 export class Architecture {
   private sources = new Map<string, Painting[]>();
   private cache = new Map<string, ReturnType<typeof depthStrips>>();
-  private thatch: number[];
   private painter: HousePainter;
   readonly windows = new WeakMap<BuildingSpec, { x: number; y: number }[]>();
   constructor(private atlas: Atlas) {
     this.painter = new HousePainter(atlas);
-    const flecks = atlas.read('bridge')[0]!.pixels;
-    this.thatch = [...new Set(flecks)]
-      .filter((c) => c >>> 24 > 0 && (c & 255) > ((c >>> 8) & 255))
-      .sort((a, b) => ((a >>> 8) & 255) - ((b >>> 8) & 255));
   }
   private frames(key: string) {
     let frames = this.sources.get(key);
@@ -397,15 +413,8 @@ export class Architecture {
             const light = litPane(pane, u, v, col);
             if (light !== undefined) return light;
           }
-        if (base === 'house' && v < 57 && r > 136 && g < r * 0.84 && g > bv * 1.57) {
-          const tone = Math.min(1, Math.max(0, (g - 49) / 167));
-          const ink = this.thatch[Math.round(tone * (this.thatch.length - 1))]!;
-          return mix(
-            col,
-            ink,
-            b.kind === 'lodge' || b.kind === 'keeper' ? 175 : b.wall === 'timber' ? 140 : b.yaw < 0 ? 121 : 83
-          );
-        }
+        if (base === 'house' && v < 57 && r > 136 && g < r * 0.84 && g > bv * 1.57)
+          return roofPigment(b, u, v, g);
         // A few grass-coloured antialias pixels also occur on the wall feet of the source dioramas.
         if (v > c.base - 5 && g > r * 1.09 && g > bv * 1.35) return mix(col, rgba(65, 71, 48), 179);
         return col;

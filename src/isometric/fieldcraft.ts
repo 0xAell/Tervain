@@ -3,6 +3,10 @@ import type { RoomTarget } from './roomTargets';
 import { risePixels } from './projection';
 
 export type FieldSound =
+  | 'village_bell'
+  | 'bucket_dry'
+  | 'bucket_water'
+  | 'rope_draw'
   | 'bow_draw'
   | 'bow_release'
   | 'arrow_flesh'

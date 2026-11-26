@@ -5,7 +5,7 @@ interface Sheet {
   frames: Record<string, Frame[]>;
 }
 interface Animation {
-  image: HTMLCanvasElement;
+  image: HTMLCanvasElement | HTMLImageElement;
   frames: Frame[];
 }
 
@@ -18,11 +18,18 @@ export class Atlas {
   ) {}
 
   static async load() {
-    const image = new Image();
-    image.src = artUrl('sprites.png');
-    const [response] = await Promise.all([fetch(artUrl('sprites.json')), image.decode()]);
-    if (!response.ok) throw new Error('The valley sprite atlas could not be loaded.');
-    return new Atlas(image, (await response.json()) as Sheet);
+    async function loadSheet(path: string) {
+      const image = new Image();
+      image.src = gameFile(path + '.png');
+      const [response] = await Promise.all([fetch(gameFile(path + '.json')), image.decode()]);
+      if (!response.ok) throw new Error('Could not load sprite sheet ' + path);
+      return { image, sheet: await response.json() as Sheet };
+    }
+    const [base, valley] = await Promise.all([loadSheet('vale/sprites'), loadSheet('valley/scenery')]);
+    const atlas = new Atlas(base.image, base.sheet);
+    for (const [key, frames] of Object.entries(valley.sheet.frames))
+      atlas.animations.set(key, { image: valley.image, frames });
+    return atlas;
   }
 
   private shadowMasks = new Map<string, HTMLCanvasElement>();
@@ -90,9 +97,35 @@ export class Atlas {
 
   height(key: string, width: number, frame = 0) {
     const frames = this.animations.get(key)?.frames ?? this.sheet.frames[key];
-    if (!frames?.length) throw Error('Missing PixelLab sprite ' + key);
+    if (!frames?.length) throw Error('Missing sprite ' + key);
     const rect = frames[Math.max(0, Math.floor(frame)) % frames.length]!;
     return Math.round((width * rect[3]) / rect[2]);
+  }
+
+  private actors = new Map<string, HTMLCanvasElement>();
+  /** Sample only the moving silhouette between texels. Its pose is rasterized once at the game's pixel scale. */
+  private drawActor(ctx: CanvasRenderingContext2D, key: string, x: number, y: number, width: number,
+    frame = 0, flip = false, submerged = 0) {
+    const index = Math.floor(frame) % this.frameCount(key), w = Math.round(width);
+    const id = key + '/' + index + '/' + w;
+    let pose = this.actors.get(id);
+    if (!pose) {
+      pose = document.createElement('canvas');
+      pose.width = w + 2;
+      pose.height = this.height(key, w, index) + 2;
+      const g = pose.getContext('2d')!;
+      g.imageSmoothingEnabled = false;
+      this.draw(g, key, 1 + w / 2, pose.height - 1, w, index);
+      this.actors.set(id, pose);
+    }
+    const cut = Math.min(pose.height - 3, Math.round((pose.height - 2) * submerged));
+    const high = pose.height - cut;
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.translate(x, y);
+    if (flip) ctx.scale(-1, 1);
+    ctx.drawImage(pose, 0, 0, pose.width, high, -w / 2 - 1, 1 - high, pose.width, high);
+    ctx.restore();
   }
 
   draw(
@@ -105,12 +138,14 @@ export class Atlas {
     flip = false,
     anchor = 1,
     submerged = 0,
-    reflected = false
+    reflected = false,
+    moving = false
   ) {
+    if (moving) return this.drawActor(ctx, key, x, y, width, frame, flip, submerged);
     const animation = this.animations.get(key),
       source = animation?.image ?? this.image,
       frames = animation?.frames ?? this.sheet.frames[key];
-    if (!frames?.length) throw new Error('Missing PixelLab sprite ' + key);
+    if (!frames?.length) throw new Error('Missing sprite ' + key);
     const [sx, sy, sw, sh] = frames[Math.floor(frame) % frames.length]!;
     const w = Math.round(width),
       h = Math.round((w * sh) / sw);

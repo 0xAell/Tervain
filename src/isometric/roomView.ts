@@ -1,4 +1,4 @@
-import { drawProp } from './propArt';
+import { drawProp, propSprite } from './propArt';
 import type { PropView } from './propPhysics';
 import { heroPose } from './heroPose';
 import { hourOfDay } from '../core/game/state';
@@ -250,7 +250,7 @@ export class RoomView {
         sprites.push({
           x: prop.x,
           z: prop.z,
-          key: prop.spec.key,
+          key: propSprite(prop.spec),
           width: (prop.spec.width * 11) / 6,
           prop,
           shade: true,
@@ -287,8 +287,8 @@ export class RoomView {
     let heroDrawn = false;
     for (const s of sprites) {
       const at = roomFoot(plan, s),
-        sx = Math.round(at.x),
-        sy = Math.round(at.y);
+        sx = s.hero ? at.x : Math.round(at.x),
+        sy = s.hero ? at.y : Math.round(at.y);
       ctx.save();
       const flight = stairAt(plan, s);
       if (flight?.passage.kind === 'down') clipBelowRim(ctx, flight);
@@ -313,7 +313,8 @@ export class RoomView {
         Math.abs(at.x - hero.x) < s.width * 0.34;
       ctx.globalAlpha = hidden ? 0.52 : 1;
       if (s.prop) drawProp(ctx, this.atlas, s.prop, sx, sy - (s.lift ?? 0), s.width, true);
-      else this.atlas.draw(ctx, s.key, sx, sy - (s.lift ?? 0), s.width, s.frame ?? 0, s.flip);
+      else this.atlas.draw(ctx, s.key, sx, sy + (s.hero ? 1 : 0) - (s.lift ?? 0),
+        s.width, s.frame ?? 0, s.flip, 1, 0, false, s.hero);
       ctx.restore();
       const height = this.atlas.height(s.key, s.width, s.frame);
       stairForeground(
@@ -354,7 +355,7 @@ export class RoomView {
       } else {
         const f = target.fixture,
           width = prop ? (prop.spec.width * 11) / 6 : (f?.width ?? 36),
-          height = prop ? this.atlas.height(prop.spec.key, width) : f ? this.atlas.height(f.key, width) : 36;
+          height = prop ? this.atlas.height(propSprite(prop.spec), width) : f ? this.atlas.height(f.key, width) : 36;
         regions.push({ id: target.id, x, y: base - height * 0.45, w: width, h: height, target });
         if (close) {
           ctx.fillStyle = '#243b3b';
@@ -365,7 +366,10 @@ export class RoomView {
         }
       }
     }
-    return { heroDrawn, draws: sprites.length + plan.passages.length + plate.hangings.length + 1 };
+    return {
+      heroDrawn, draws: sprites.length + plan.passages.length + plate.hangings.length + 1,
+      cameraX: this.ox, cameraY: this.oy,
+    };
   }
   leave() {
     this.last = undefined;

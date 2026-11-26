@@ -8,8 +8,52 @@ import { sandCover } from '../../src/isometric/landCover';
 import { wheelWear } from '../../src/isometric/settlement';
 import { Valley } from '../../src/isometric/simulation';
 import { skyLight } from '../../src/isometric/skyLight';
+import { passesFixtures, villageFixtures } from '../../src/isometric/villageFixtures';
+import type { FieldSound } from '../../src/isometric/fieldcraft';
 
 describe('light and travel in the Vale', () => {
+  it('puts the square fixtures on walkable approaches and keeps a path out of old saves inside a post', () => {
+    const well = villageFixtures[0];
+    expect(passesFixtures(well.approach, well.at, 0)).toBe(false);
+    expect(passesFixtures(well.at, well.approach, 0)).toBe(true);
+    for (const fixture of villageFixtures) {
+      const p = fixture.approach;
+      expect(passesFixtures({ x: p.x + 0.2, z: p.z }, p, 0)).toBe(true);
+    }
+  });
+  it('strikes the bell once on contact and draws the water allowed by the village ration', () => {
+    const v = new Valley(new Game()), cues: FieldSound[] = [];
+    v.onFieldSound = (cue) => cues.push(cue);
+    const use = (kind: 'bell' | 'well') => {
+      const target = v.targets().find((t) => t.field === kind)!;
+      v.game.setPlayerTransform(target.approach.x, 0, target.approach.z, 0);
+      v.interactField(target);
+    };
+    const wait = (frames: number) => { for (let i = 0; i < frames; i++) v.step(1 / 60, 0, 0, false); };
+    use('bell');
+    wait(10);
+    expect(v.bellStruckAt).toBe(-Infinity);
+    v.cancelPose();
+    wait(15);
+    expect(cues).toEqual([]);
+    use('bell');
+    wait(70);
+    expect(v.bellStruckAt).toBeGreaterThan(0);
+    expect(cues).toEqual(['village_bell']);
+    const draw = (gate: 'damaged' | 'jammed') => {
+      v.game.state.quest.gate = gate;
+      v.stamina = 15;
+      use('well');
+      wait(95);
+      return v.stamina;
+    };
+    const dry = draw('jammed');
+    expect(draw('damaged') - dry).toBeCloseTo(15);
+    expect(cues.slice(1)).toEqual(['bucket_dry', 'bucket_water']);
+    const board = villageFixtures[2];
+    v.game.setPlayerTransform(board.approach.x, 0, board.approach.z, 0);
+    expect(v.offers().filter((offer) => offer.label === 'Read the noticeboard')).toHaveLength(1);
+  });
   it('carries the light through twilight and midnight without a cut', () => {
     expect(skyLight(12).night).toBe(0);
     expect(skyLight(0)).toEqual(skyLight(24));

@@ -16,6 +16,28 @@ const tone = (delay: number, time: number, attack: number, from: number, to: num
 
 // Original accents for the close mix. Blade and guard carry the treble; body and fall carry the weight.
 const sounds = {
+  // Bell partials decay at different rates; the clapper is audible only at the strike.
+  villageBell: [
+    air(0, 0.026, 0.002, 5200, 1100, 0.24),
+    tone(0, 1.85, 0.004, 248.8, 248.6, 0.18),
+    tone(0.001, 1.45, 0.003, 501, 501, 0.19),
+    tone(0, 0.86, 0.002, 603, 602, 0.12),
+    tone(0.002, 0.56, 0.002, 1243, 1242, 0.13),
+    tone(0, 0.32, 0.002, 1716, 1714, 0.09),
+  ],
+  ropeDraw: [
+    air(0, 0.24, 0.035, 1280, 410, 0.30),
+    tone(0.045, 0.14, 0.02, 176, 245, 0.10),
+    air(0.13, 0.15, 0.016, 680, 210, 0.17),
+  ],
+  bucketDry: [
+    air(0, 0.10, 0.003, 2700, 440, 0.37), tone(0, 0.095, 0.002, 216, 136, 0.24),
+    tone(0.21, 0.057, 0.003, 1130, 680, 0.15),
+  ],
+  bucketWater: [
+    tone(0, 0.08, 0.005, 198, 115, 0.16), air(0.04, 0.37, 0.06, 3400, 850, 0.40),
+    tone(0.24, 0.075, 0.004, 1060, 580, 0.13), tone(0.34, 0.06, 0.003, 870, 530, 0.10),
+  ],
   jumpLift: [air(0, 0.105, 0.012, 1050, 2800, 0.33), tone(0, 0.063, 0.009, 155, 102, 0.12)],
   groundLanding: [
     air(0, 0.052, 0.002, 2100, 590, 0.32),

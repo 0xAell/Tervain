@@ -1,4 +1,5 @@
 import type { Atlas } from './atlas';
+import type { PropSpec } from './propCatalogue';
 import { rotate, angleOf, type PropView } from './propPhysics';
 
 interface Point {
@@ -13,6 +14,7 @@ interface Pixel {
 }
 type Project = (p: Point) => Pixel;
 type Ink = CanvasRenderingContext2D;
+export const propSprite = (spec: PropSpec) => spec.key === 'rockpile' ? 'fieldstone' : spec.key;
 interface Face {
   corners: Pixel[];
   depth: number;
@@ -196,7 +198,7 @@ export function drawProp(
     ctx.rotate(Math.atan2((up.x - up.z) * scale, up.y * rise - ((up.x + up.z) * scale) / 2));
     const a = angleOf(q);
     ctx.scale(0.88 + 0.12 * Math.abs(Math.cos(a)), 1);
-    atlas.draw(ctx, s.key, 0, (s.height * rise) / 2, width, 0, Math.cos(a) < 0, 1);
+    atlas.draw(ctx, propSprite(s), 0, (s.height * rise) / 2, width, 0, Math.cos(a) < 0, 1);
   }
   ctx.restore();
 }
