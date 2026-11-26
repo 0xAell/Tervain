@@ -82,13 +82,18 @@ try {
       JSON.stringify(interaction)
   );
   const levels =
-    await run(`c.game.setPlayerTransform(-13,0,4,0);s.resetCamera();c.game.state.quest.phase='committed';
-    const measure=allocation=>{c.game.state.quest.allocation=allocation;v.time+=.08;s.render(v,0);
+    await run(`c.game.setPlayerTransform(-13,0,4,0);s.resetCamera();v.time=12.6;
+    Object.assign(c.game.state.quest,{phase:'committed',gate:'stabilized',committedAtClock:720});
+    const measure=(allocation,elapsed)=>{c.game.state.quest.allocation=allocation;c.game.state.clock=720+elapsed;s.render(v,0);
       const canvas=document.createElement('canvas');canvas.width=s.context.canvas.width;canvas.height=s.context.canvas.height;
       const m=canvas.getContext('2d');g.drawMask(m);const a=m.getImageData(0,0,canvas.width,canvas.height).data;
       let n=0;for(let k=3;k<a.length;k+=4)if(a[k])n++;return n;};
-    return [measure('rillford'),measure('quarry')];`);
-  assert(levels[0] > levels[1] + 20, 'Allocation must change the village channel cross-section');
+    return [0,2,4].map(minute=>[measure('rillford',minute),measure('quarry',minute)]);`);
+  const [initial, halfway, arrived] = levels;
+  assert.equal(initial[0], initial[1], 'The water at the mill starts at the same level for either verdict');
+  assert(initial[0] < halfway[0] && halfway[0] < arrived[0], 'Water for the mill must widen the channel during travel');
+  assert(initial[1] > halfway[1] && halfway[1] > arrived[1], 'Water for the quarry must drain the channel during travel');
+  assert(arrived[0] > arrived[1] + 20, 'The final allocation must change the village channel cross-section');
   const seams = await run(`const flow={main:.5,village:.3,quarry:.3,spring:.4};
     const paint=(ox,oy)=>{const canvas=document.createElement('canvas');canvas.width=256;canvas.height=160;
       const ctx=canvas.getContext('2d');g.draw(ctx,ox,oy,256,160,4,flow,8);return ctx.getImageData(0,0,256,160).data;};
