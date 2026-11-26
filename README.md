@@ -44,7 +44,7 @@ The prototype is one small region, 580 m by 340 m: a coast, a wood, a waystation
 
 - Walkable household interiors with side rooms, staircases, animated hearths, storage, beds and trade workstations.
 - Twelve named residents with a day of their own. They work a trade, sit on benches, talk, go home and sleep.
-- Nineteen animals of six kinds. Thirteen can be hunted with a bow and skinned, including highland wolves and hill boar. The cats, the dogs and the saddled deer are left alone during a hunt. You can pet the village animals and ride the saddled deer.
+- Nineteen animals of eight kinds. Thirteen can be hunted with a bow and skinned, including highland wolves and hill boar. The cats, the dogs and the saddled deer are left alone during a hunt. You can pet the village animals and ride the saddled deer.
 - Sword and bow against four kinds of hostile. Toll-jumpers pressure the ford, road archers cover the approaches, shield deserters guard the quarry track, and the Thornback holds the Cut.
 - Reflective seas, flowing rivers and a spring. You can swim along the coast and wade among trout inland.
 - Planted banks, trout shoals, kingfishers and dragonflies.
