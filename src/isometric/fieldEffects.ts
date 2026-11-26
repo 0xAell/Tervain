@@ -78,7 +78,8 @@ export function drawEnemyWarning(
   reach: number,
   progress: number,
   heavy: boolean,
-  reducedMotion: boolean
+  reducedMotion: boolean,
+  ready: boolean
 ) {
   const radius = reach * PROJECTION * Math.SQRT2;
   const color = heavy ? '#f6a36e' : '#efd08d';
@@ -90,12 +91,19 @@ export function drawEnemyWarning(
   pixelArc(ctx, x, y, radius, radius * 0.5, 0, Math.PI * 2, heavy ? 2 : 1);
   // The last amber segments close at contact. The indicator remains legible without a flash.
   const segments = 24;
-  ctx.fillStyle = !reducedMotion && progress > 0.86 ? '#fff0c0' : color;
+  ctx.fillStyle = ready ? '#fff0c0' : color;
   ctx.globalAlpha = 0.84;
   for (let i = 0; i < Math.ceil(progress * segments); i++) {
     const angle = (i / segments - 0.25) * Math.PI * 2;
     ctx.fillRect(Math.round(x + Math.cos(angle) * (radius + 2)) - 1,
       Math.round(y + Math.sin(angle) * (radius + 2) * 0.5), 3, heavy ? 2 : 1);
+  }
+  if (ready) {
+    for (const sign of [-1, 1]) {
+      const side = Math.round(x + sign * radius);
+      ctx.fillRect(side - 2, Math.round(y) - 2, 5, 1);
+      ctx.fillRect(side - 1, Math.round(y) - 1, 3, 3);
+    }
   }
   ctx.restore();
 }
@@ -158,7 +166,7 @@ export function drawContact(
       const travel = (2 + reach * (1 - (1 - t) ** 2)) * (1 - Math.abs(i) * 0.1);
       const fleckX = x + Math.cos(a) * travel;
       const fleckY = y + Math.sin(a) * travel - 4 * Math.sin(t * Math.PI);
-      ctx.fillRect(Math.round(fleckX), Math.round(fleckY), t < 0.35 ? 3 : 1, 1);
+      ctx.fillRect(Math.round(fleckX), Math.round(fleckY), t < 0.35 ? 3 : 1, t < 0.26 && spark ? 2 : 1);
     }
     if (strong && t > 0.1) {
       const radius = 3 + 18 * t;
@@ -167,7 +175,7 @@ export function drawContact(
       pixelArc(ctx, x, y + 2, radius, radius * 0.41);
     }
   }
-  if (t < (reducedMotion ? 0.28 : 0.19)) {
+  if (time - hit.born < (turned && !reducedMotion ? 2 / 60 : CONTACT_TIME * (reducedMotion ? 0.28 : 0.19))) {
     const size = strong && !reducedMotion ? 5 : 3;
     ctx.globalAlpha = reducedMotion ? 0.78 : 1 - t * 2;
     ctx.fillStyle = spark ? '#fff3cf' : color;

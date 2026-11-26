@@ -261,7 +261,8 @@ export class Client implements Controls {
       for (const e of events) {
         if (e.t === 'grant') for (const [id, amount] of Object.entries(e.items)) {
           const item = id as keyof typeof ITEMS;
-          if (amount) this.ui.message(S(ITEMS[item].nameKey) + ' × ' + amount, true, item);
+          const earned = e.id === 'dry_bell_completion' && item !== 'coin';
+          if (amount) this.ui.message(earned ? S(ITEMS[item].nameKey) + ' · Charm earned' : S(ITEMS[item].nameKey) + ' × ' + amount, true, item, earned);
         }
         if (e.t === 'item' && e.delta > 0) this.ui.message(S(ITEMS[e.id].nameKey) + ' × ' + e.delta, true, e.id);
         if (e.t === 'phase' && e.phase === 'settled') this.ui.message('The Dry Bell · Complete', true, undefined, true);

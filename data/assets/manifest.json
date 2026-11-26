@@ -43,11 +43,11 @@
   "totals": {
     "all": {
       "files": 1967,
-      "bytes": 497657037
+      "bytes": 497739829
     },
     "shipped": {
       "files": 1025,
-      "bytes": 190396178
+      "bytes": 190478970
     },
     "replaceBeforeShip": {
       "files": 3,
@@ -60,7 +60,7 @@
       },
       "keep": {
         "files": 960,
-        "bytes": 166535573
+        "bytes": 166618365
       },
       "rework": {
         "files": 0,
@@ -532,7 +532,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 46,
-      "bytes": 1320013
+      "bytes": 1402765
     },
     {
       "id": "vale-typeface",
@@ -558,7 +558,7 @@
       "replaceWith": null,
       "replaceBeforeShip": null,
       "files": 3,
-      "bytes": 6134360
+      "bytes": 6134400
     },
     {
       "id": "craft-trees",
@@ -9652,7 +9652,7 @@
       "group": "vale-sprite-data",
       "kind": "data",
       "bytes": 252414,
-      "sha256": "ac617948f72e1b8219b83d6a2a638671eb3faf4c8eebf6686f73689ac7aa748c",
+      "sha256": "7c7b88d9ec88e69218ae7d4a98ae17f23ef1824b43528301f90fa9f4b9acc5f2",
       "shipped": false,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -32846,8 +32846,8 @@
       "path": "public/vale/sprites.json",
       "group": "vale-sprite-data",
       "kind": "data",
-      "bytes": 32844,
-      "sha256": "579707dd380de37d412e80662ea8cfa6b1caebe2675359dc059cfaf2c830dbba",
+      "bytes": 32884,
+      "sha256": "5a17bad1e26132aa486754cc2a7a4379b9caf073b17f755509072ad753f61643",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-Tervain-PixelLab-Collection",
@@ -32860,8 +32860,8 @@
       "path": "public/vale/sprites.png",
       "group": "vale-pixel-art",
       "kind": "image",
-      "bytes": 1205167,
-      "sha256": "929474b9368f72669beeb1db64fc32118cb2e678a79dd672403bac926e200794",
+      "bytes": 1287919,
+      "sha256": "7832b8e474cd309c62ab8307691bed7795724e3f228b51093a33b635f0bbd3da",
       "shipped": true,
       "licence": {
         "id": "LicenseRef-PixelLab-Generated",

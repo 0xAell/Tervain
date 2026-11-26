@@ -14,7 +14,7 @@ import { NPCS } from '../core/content/npcs';
 import { getNode } from '../core/game/dialogue';
 import { buildJournal } from '../core/game/journal';
 import { formatClock } from '../core/game/state';
-import { COUNTER_WINDOW, ENEMY_SWING_TIME, enemyContactRemaining, gestureLabels } from './fieldcraft';
+import { COUNTER_WINDOW, meleeWarning, gestureLabels } from './fieldcraft';
 import type { RoomTarget } from './roomTargets';
 import { households } from './households';
 import type { Fixture } from './roomPlans';
@@ -310,7 +310,9 @@ export class Interface {
     guard.onpointerup = guard.onpointercancel = guard.onlostpointercapture = () => holdGuard(false);
     guard.onclick = e => { if (e.detail === 0) holdGuard(guard.getAttribute('aria-pressed') !== 'true'); };
     const dodge = button('Dodge', () => controls.dodge(), 'dodge-touch');
-    this.hud.append(this.titleBar, this.leadButton, nav, vitals, this.foePanel, this.slots, this.prompt, dodge, guard, attack);
+    const location = el('div', 'field-location');
+    location.append(this.titleBar, this.leadButton);
+    this.hud.append(location, nav, vitals, this.foePanel, this.slots, this.prompt, dodge, guard, attack);
     this.hud.hidden = true;
   }
   bind(valley: Valley, scene: Scene) {
@@ -1089,14 +1091,14 @@ export class Interface {
       options.push({ text: 'Hone the blade · 1 iron scrap · +4 damage', run: () => {
         close();
         v.perform('work', target, 1.3, () => {
-          if (v.action({ t: 'sharpenBlade' })) { this.controls.sound.selection(true); this.message('Blade honed · +4 damage', true, 'rusted_sword', true); }
+          if (v.action({ t: 'sharpenBlade' })) { this.controls.sound.reward(); this.message('Blade honed · +4 damage', true, 'rusted_sword', true); }
         });
       } });
     }
     if (!this.game.state.facts.quiver_lined && this.game.state.inventory.hunting_bow && this.game.state.inventory.animal_hide) {
       options.push({ text: 'Line the quiver · 1 hide · 56 arrows', run: () => {
         close(); v.perform('work', target, 1.3, () => {
-          if (v.action({ t: 'lineQuiver' })) { this.controls.sound.selection(true); this.message('Quiver lined · 56 arrows', true, 'hunting_bow', true); }
+          if (v.action({ t: 'lineQuiver' })) { this.controls.sound.reward(); this.message('Quiver lined · 56 arrows', true, 'hunting_bow', true); }
         });
       } });
     }
@@ -1415,19 +1417,19 @@ export class Interface {
       this.foeLoss.style.transform = this.foeLife.style.transform;
     }
     const opening = Math.max(0, (enemy.openedUntil ?? 0) - this.valley.time);
-    const contact = enemyContactRemaining(def.heavy);
-    const warning = enemy.attack > contact;
-    const mode = opening ? 'open' : warning ? 'incoming' : 'idle';
-    if (changed || this.foePanel.dataset.state !== mode) {
-      this.foePanel.dataset.state = mode;
-      this.foeState.textContent = opening ? 'Counter' : warning ? (def.heavy ? 'Heavy strike' : 'Incoming') : '';
+    const melee = meleeWarning(enemy.attack, def.heavy, this.valley.parryWindow);
+    const aiming = !!enemy.aimed;
+    const winding = aiming || melee.visible;
+    const mode = opening ? 'open' : winding ? 'incoming' : 'idle';
+    if (this.foePanel.dataset.state !== mode) this.foePanel.dataset.state = mode;
+    const label = opening ? 'Counter' : aiming ? 'Aiming · step off the sightline' : melee.ready ? (this.game.state.equippedWeapon === 'rusted_sword' ? 'Parry now' : 'Dodge now')
+      : melee.visible ? (def.heavy ? 'Heavy strike' : 'Incoming')
+      : enemy.enemyKind === 'deserter' ? 'Shield raised · flank or thrust' : '';
+    if (this.foeState.textContent !== label) this.foeState.textContent = label;
+    if (opening || winding) {
+      const fill = opening ? opening / COUNTER_WINDOW : aiming ? 1 - enemy.attack / def.wind : melee.progress;
+      this.foeTiming.style.transform = 'scaleX(' + Math.max(0, Math.min(1, fill)) + ')';
     }
-    if (opening || warning) {
-      const fill = opening ? opening / COUNTER_WINDOW : (ENEMY_SWING_TIME - enemy.attack) / (ENEMY_SWING_TIME - contact);
-      this.foeTiming.style.transform = 'scaleX(' + Math.min(1, fill) + ')';
-    }
-    if (enemy.aimed) this.foeState.textContent = 'Aiming · step off the sightline';
-    else if (enemy.enemyKind === 'deserter' && !warning && !opening) this.foeState.textContent = 'Shield raised · flank or thrust';
     this.foeId = enemy.id;
     if (this.foePanel.hidden) this.foePanel.hidden = false;
   }

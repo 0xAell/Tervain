@@ -744,7 +744,16 @@ button img {
 .meter { gap: 6px; }
 .life-number { min-width: 2ch; text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; }
 .health .track { height: 8px; }
-.hud .region { top: auto; bottom: 18px; pointer-events: none; }
+.hud .field-location {
+  position: absolute;
+  left: max(18px, env(safe-area-inset-left));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 2px;
+  max-width: min(330px, 35vw);
+  pointer-events: none;
+}
+.hud .region { position: static; min-width: 0; }
 .foe-panel {
   position: absolute;
   top: max(14px, env(safe-area-inset-top));
@@ -795,11 +804,13 @@ button img {
 }
 @media (max-width: 700px) {
   .hud .vitals { top: 8px; left: 8px; padding: 4px 8px 5px 4px; }
-  .hud .region { bottom: 48px; left: 8px; padding-left: 6px; min-width: 100px; }
+  .hud .field-location { left: max(8px, env(safe-area-inset-left)); bottom: max(48px, env(safe-area-inset-bottom)); max-width: min(44vw, calc(100vw - 218px)); }
+  .hud .region { padding-left: 6px; }
+  .hud .prompt { bottom: 166px; width: max-content; max-width: 90vw; }
   .foe-panel { top: 59px; width: min(55vw, 224px); }
 }
 @media (max-height: 480px) and (min-width: 701px) {
-  .hud .region { bottom: 5px; }
+  .hud .field-location { bottom: max(5px, env(safe-area-inset-bottom)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .foe-loss { transition: none; }
@@ -873,8 +884,8 @@ button img {
 .journal-current { border-left: 3px solid #c69a59; background: #253331; padding: 9px 13px; margin: 6px 0 16px; }
 .journal-current h3 { margin: 3px 0; }
 .journal-current button + button { margin-left: 5px; }
-.hud .journey-lead { position: absolute; top: 79px; left: 16px; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px;
-  max-width: min(330px,45vw); text-align: left; background: #182829ed; color: #f7ecce; border: 0; border-left: 2px solid #c4a06c;
+.hud .journey-lead { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px;
+  min-width: 0; text-align: left; background: #182829ed; color: #f7ecce; border: 0; border-left: 2px solid #c4a06c;
   padding: 6px 9px; pointer-events: auto; line-height: 1.18; }
 .journey-lead small { grid-column: 1 / -1; color: #ddbf85; font-size: 11px; letter-spacing: .045em; }
 .journey-lead strong { font-size: 13px; font-weight: 600; }
@@ -890,8 +901,8 @@ button img {
   @keyframes life-breath { to { box-shadow: inset 3px 0 #b85a49; background-color:#3b302e; } }
 }
 @media (max-width: 650px), (max-height: 500px) {
- .hud .journey-lead { top: 62px; left: 8px; max-width: 52vw; padding: 3px 5px; }
- .journey-lead small { font-size: 9px; } .journey-lead strong, .journey-bearing { font-size: 10px; }
+ .hud .journey-lead { gap: 1px 4px; padding: 4px 5px; }
+ .journey-lead small, .journey-bearing { font-size: 10px; } .journey-lead strong { font-size: 12px; }
  .notice { top: 65px; right: 8px; max-width: 42vw; font-size: 12px; } .listener .pixel-portrait {width: 36px; height: 36px;}
 }
 

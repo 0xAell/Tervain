@@ -118,6 +118,7 @@ export function drawSwordSweep(
 /** Bind the original sword sprite to the right hand before caching shadows and water reflections. */
 export function buildSwordPoses(atlas: Atlas) {
   const sword = atlas.surface('rusted_sword');
+  const bodySize = 38, cellWidth = 57, cellHeight = 43, unit = bodySize / 48;
   for (const face of [
     'east',
     'south-east',
@@ -137,8 +138,8 @@ export function buildSwordPoses(atlas: Atlas) {
       const source = raised ? 'hero-' + face + '--attack' : native;
       const count = stroke?.body.length ?? (raised ? 4 : atlas.frameCount(source));
       const strip = document.createElement('canvas');
-      strip.width = 72 * count;
-      strip.height = 54;
+      strip.width = cellWidth * count;
+      strip.height = cellHeight;
       const ctx = strip.getContext('2d')!;
       ctx.imageSmoothingEnabled = false;
       for (let frame = 0; frame < count; frame++) {
@@ -148,20 +149,20 @@ export function buildSwordPoses(atlas: Atlas) {
           stroke || raised
             ? swingGrips[side]![cel]!
             : ([25 + Math.min(frame, 3) * 1.8, 31 - Math.min(frame, 3) * 2.4] as const);
-        const left = frame * 72 + 12,
-          top = 6;
+        const left = frame * cellWidth + Math.floor((cellWidth - bodySize) / 2),
+          top = cellHeight - bodySize;
         const behind = face.startsWith('north') || (stroke && cel < 2);
-        if (!behind) ctx.drawImage(body, left, top, 48, 48);
+        if (!behind) ctx.drawImage(body, left, top);
         ctx.save();
-        ctx.translate(left + (west ? 48 - grip[0] : grip[0]), top + grip[1]);
+        ctx.translate(left + Math.round((west ? 48 - grip[0] : grip[0]) * unit), top + Math.round(grip[1] * unit));
         if (west) ctx.scale(-1, 1);
         const angle = stroke ? bearings[side]! + stroke.angles[frame]! : -1.29 + frame * 0.05;
         ctx.rotate(angle + Math.PI / 4);
-        ctx.drawImage(sword, -4, -18, 22, 22);
+        ctx.drawImage(sword, -3, -14, 17, 17);
         ctx.restore();
-        if (behind) ctx.drawImage(body, left, top, 48, 48);
+        if (behind) ctx.drawImage(body, left, top);
       }
-      atlas.addAnimation('hero-' + face + '--sword-' + action, strip, 72, 54);
+      atlas.addAnimation('hero-' + face + '--sword-' + action, strip, cellWidth, cellHeight);
     }
   }
 }

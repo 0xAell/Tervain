@@ -570,6 +570,9 @@ export class Valley {
     this.onFieldSound('sidestep');
     return true;
   }
+  get parryWindow() {
+    return PARRY_WINDOW + (wears(this.game.state, 'witness_cord') ? 0.04 : 0);
+  }
   get bowFocus() {
     return this.bow?.phase === 'hold' ? Math.min(1, (this.bow.elapsed + 1e-9) / (FOCUS_TIME * (wears(this.game.state, 'witness_cord') ? 0.82 : 1))) : 0;
   }
@@ -626,7 +629,9 @@ export class Valley {
     if (this.room) this.stepInside(dt, dx, dz, run, walkThrough, pace);
     else {
       const water = onBridge(p) ? null : wetPoint(p.x, p.z);
-      const wade = water?.kind === 'river' ? Math.min(1, water.bank / 1.9) : 0;
+      // Drag and current act only during the grounded part of this step.
+      const grounded = dt > 0 ? Math.max(0, dt - previousJump) / dt : Number(previousJump === 0);
+      const wade = water?.kind === 'river' ? grounded * Math.min(1, water.bank / 1.9) : 0;
       const norm = Math.hypot(dx, dz);
       this.walk = false;
       const canMove = p.health > 0 && this.strike <= SWING_TIME - SWING_CONTACT && !dodge && !this.activity;
@@ -703,7 +708,7 @@ export class Valley {
           Object.assign(p, this.props?.move(p, next, this.localFloor + this.standingLift) ?? next);
         }
       }
-      this.swimming = !this.room && waterAt(p.x, p.z) === 'sea' && !onBridge(p);
+      this.swimming = !this.room && !this.jump && waterAt(p.x, p.z) === 'sea' && !onBridge(p);
       if (this.swimming) this.riding = false;
     }
     this.updateFooting();
@@ -904,7 +909,7 @@ export class Valley {
             const guardAge = this.guardTime - (contact - a.attack);
             const parry = this.guard && !this.parried && !previousStrike && !this.jump && !this.props?.grip &&
               !this.riding && !this.swimming && this.game.state.equippedWeapon === 'rusted_sword' &&
-              this.stamina >= 1 && guardAge >= 0 && guardAge <= PARRY_WINDOW + (wears(this.game.state, 'witness_cord') ? 0.04 : 0);
+              this.stamina >= 1 && guardAge >= 0 && guardAge <= this.parryWindow + 1e-9;
             this.cancelPose();
             if (parry) {
               this.parried = true;

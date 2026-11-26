@@ -57,6 +57,8 @@ export class Mixer {
   private defeatFocusUntil = 0;
   private accents?: Record<FieldAccent, AudioBuffer>;
   private accentTurn = 0;
+  private foleyOffsets: number[] = [];
+  private lastFoleyOffset = 0;
   private files = new Map<string, AudioBuffer>();
   private loading = new Map<string, Promise<AudioBuffer>>();
   private memory = 0;
@@ -332,7 +334,7 @@ export class Mixer {
     recording?: { cue: Cue; gain: number }
   ) {
     if (!this.canPlayEffect || !this.accents) return;
-    const rate = 1 + (this.accentTurn++ % 5 - 2) * 0.018;
+    const rate = accent === 'roadCadence' || accent === 'gearEarned' ? 1 : 1 + (this.accentTurn++ % 5 - 2) * 0.018;
     this.playEffect(this.accents[accent], gain, pan, this.room, 0, undefined, rate);
     if (focus) this.focusImpact(focus, gain);
     if (!recording) return;
@@ -341,6 +343,19 @@ export class Mixer {
     const ready = this.cached(file);
     if (ready) this.playEffect(ready, gain * recording.gain, pan, this.room, cue[1] / sampleRate, cue[2] / sampleRate, rate);
     else void this.buffer(file).catch(() => {});
+  }
+  private foleyRate() {
+    if (!this.foleyOffsets.length) {
+      const bag = [-3, -2, -1, 0, 1, 2, 3];
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j]!, bag[i]!];
+      }
+      if (bag[6] === this.lastFoleyOffset) [bag[0], bag[6]] = [bag[6]!, bag[0]!];
+      this.foleyOffsets = bag;
+    }
+    this.lastFoleyOffset = this.foleyOffsets.pop()!;
+    return 1 + this.lastFoleyOffset * 0.016;
   }
   effect(cue: Cue, gain: number, pan = 0, inWorld = true) {
     return this.recording(this.file(cue), gain, pan, inWorld, cue[1] / sampleRate, cue[2] / sampleRate);
@@ -353,7 +368,7 @@ export class Mixer {
     try {
       const buffer = this.cached(file) ?? (await this.buffer(file));
       if (generation !== this.worldGeneration || performance.now() - at > 950 || !this.canPlayEffect) return;
-      this.playEffect(buffer, gain, pan, material, offset, duration, 1 + (this.accentTurn++ % 7 - 3) * 0.016);
+      this.playEffect(buffer, gain, pan, material, offset, duration, this.foleyRate());
     } catch {
       /* A missing effect cannot interrupt the game or another sound. */
     }

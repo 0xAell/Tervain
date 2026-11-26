@@ -71,6 +71,8 @@ describe('field audio', () => {
     expect(peak(accents.parry, 0, 1 / 60)).toBeGreaterThan(0.13);
     expect(peak(accents.parry, 0.07, 0.14)).toBeGreaterThan(peak(accents.guard, 0.07, 0.14));
     expect(peak(accents.counterHit, 0.045, 0.10)).toBeGreaterThan(0.12);
+    expect(peak(accents.gearEarned, 0.24, 0.32)).toBeGreaterThan(0.12);
+    expect(peak(accents.gearEarned, 0.24, 0.32)).toBeGreaterThan(peak(accents.beltClasp, 0.24, 0.32));
     expect(peak(accents.menuOpen, 0, 0.14)).toBeLessThan(peak(accents.counterHit, 0, 0.14));
     expect(peak(accents.defeat, 0.04, 0.14)).toBeGreaterThan(0.2);
     for (const buffer of Object.values(accents)) expect(peak(buffer, 0, 0.42)).toBeLessThan(0.65);
@@ -212,11 +214,28 @@ describe('field audio', () => {
     expect(loop).toHaveBeenCalledExactlyOnceWith('music','assets/audio/bell-road/ford.mp3');
     expect(accent).toHaveBeenCalledExactlyOnceWith('windup',0.48,0);
     sound.mixer.unlock();
-    for (let n=0; n<7; n++) await sound.mixer.effect(catalogue.effects['step.dirt']![0]!,0.4);
+    for (let n=0; n<21; n++) await sound.mixer.effect(catalogue.effects['step.dirt']![0]!,0.4);
     const pitches = sources.map(s => s.playbackRate.value);
-    expect(new Set(pitches).size).toBe(7);
+    for (let i = 0; i < pitches.length; i += 7) expect(new Set(pitches.slice(i, i + 7)).size).toBe(7);
+    expect(pitches.every((rate, i) => !i || pitches[i-1] !== rate)).toBe(true);
     expect(Math.min(...pitches)).toBeGreaterThanOrEqual(0.95);
     expect(Math.max(...pitches)).toBeLessThanOrEqual(1.05);
+  });
+
+  it('plays the faction reward in tune and honours muted effects', () => {
+    const { sources } = fakeAudio();
+    vi.stubGlobal('Audio', class { canPlayType() { return ''; } });
+    const sound = new Sound(1), v = new Valley(new Game());
+    sound.mixer.unlock();
+    sound.enabled = true;
+    const grant = { t: 'grant', id: 'dry_bell_completion', items: { witness_cord: 1 } } as const;
+    sound.event({ ...grant, id: 'salvage:test' }, v);
+    expect(sources).toHaveLength(0);
+    sound.event(grant, v);
+    expect(sources.map(s => s.playbackRate.value)).toEqual([1]);
+    sound.enabled = false;
+    sound.event(grant, v);
+    expect(sources).toHaveLength(1);
   });
 
   it('releases focus on reset and gates new effects while hidden or muted', () => {

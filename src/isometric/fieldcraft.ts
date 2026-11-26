@@ -62,6 +62,15 @@ export const ENEMY_SWING_TIME = 0.85;
 export function enemyContactRemaining(heavy: boolean) {
   return ENEMY_SWING_TIME - (heavy ? 0.55 : 0.43);
 }
+export function meleeWarning(remaining: number, heavy: boolean, parryWindow: number) {
+  const contact = enemyContactRemaining(heavy);
+  const untilContact = remaining - contact;
+  return {
+    visible: untilContact > 0,
+    ready: untilContact > 0 && untilContact <= parryWindow + 1e-9,
+    progress: Math.max(0, Math.min(1, 1 - untilContact / (ENEMY_SWING_TIME - contact))),
+  };
+}
 export function enemySwingProgress(remaining: number, heavy: boolean) {
   const contact = enemyContactRemaining(heavy);
   return remaining > contact

@@ -20,7 +20,9 @@ def tone(r, g, b):
 
 def prepare(key, image):
     name = key.split('--')[0]
-    width = 38 if name.startswith('hero-') else 33 if name in PEOPLE else WIDTHS.get(name)
+    # A bow, tool or outstretched arm has a 72-pixel source frame around the same 48-pixel body.
+    # Preserve that padding when converting the art to the 38-pixel traveller.
+    width = round(image.width * 38 / 48) if name.startswith('hero-') else 33 if name in PEOPLE else WIDTHS.get(name)
     if width and image.width != width:
         image = image.resize((width, max(1, round(width * image.height / image.width))), Image.Resampling.NEAREST)
     image = image.convert('RGBA')

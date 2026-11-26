@@ -11,7 +11,7 @@ import { SkyLighting, skyLight, type LightSource } from './skyLight';
 import { doorOpen, frontDoor } from './doorways';
 import { drawFootprints, drawContact, drawDamageLabels, drawEnemyWarning, drawFireAir, drawBootDust } from './fieldEffects';
 import type { BuildingSpec } from '../core/world/layout';
-import { CONTACT_TIME, DEFEAT_TIME, arrowHeight, enemyContactRemaining, enemySwingProgress, ENEMY_SWING_TIME, SWING_TIME } from './fieldcraft';
+import { CONTACT_TIME, DEFEAT_TIME, arrowHeight, meleeWarning, enemySwingProgress, SWING_TIME } from './fieldcraft';
 import { isHuntableAnimalId } from '../core/game/hunting';
 import { ENEMY_ARCHETYPES } from '../core/content/enemies';
 import { Atlas } from './atlas';
@@ -457,8 +457,8 @@ export class Scene {
       if (a.enemy && a.dead && !defeat) continue;
       const reaction = !defeat && a.enemy && !this.reducedMotion.matches
         ? valley.contacts.findLast(hit => hit.actorId === a.id && time - hit.born < 0.18) : undefined;
-      const recoil = reaction ? Math.sin(Math.PI * (time - reaction.born) / 0.18) *
-        (reaction.kind === 'parry' ? 1 : -1) * (Math.sign(project(reaction.dx, reaction.dz).x) || 1) : 0;
+      const recoil = reaction ? Math.round(Math.sin(Math.PI * (time - reaction.born) / 0.18) *
+        (reaction.kind === 'parry' ? -2 : 2) * (Math.sign(project(reaction.dx, reaction.dz).x) || 1)) : 0;
       const fallAge = defeat ? time - defeat.born : 0;
       const fall = Math.min(1, fallAge / 0.28);
       if (a.animal && valley.game.state.hunting[a.animal]?.status === 'skinned') continue;
@@ -489,8 +489,10 @@ export class Scene {
         alpha: defeat ? Math.min(1, (DEFEAT_TIME - fallAge) / 0.36) : undefined,
         tint: !this.reducedMotion.matches && (reaction || defeat) && time - (reaction ?? defeat)!.born < 2 / 60
           ? reaction?.kind === 'parry' ? '#b7f3dd' : '#fff6dc' : undefined,
-        sway: recoil * 0.72,
-        impact: hit?.actorId === a.id ? shudder : undefined,
+        impact: reaction || hit?.actorId === a.id ? {
+          x: recoil + (hit?.actorId === a.id ? shudder.x : 0),
+          y: hit?.actorId === a.id ? shudder.y : 0,
+        } : undefined,
         lift: immersion(a, false).lift + (defeat && !this.reducedMotion.matches ? Math.max(0, Math.sin(fall * Math.PI) * 7) : 0),
         reflect: defeat ? false : undefined,
         wakeId: a.id,
@@ -641,12 +643,11 @@ export class Scene {
         }
         continue;
       }
-      const contact = enemyContactRemaining(def.heavy);
-      if (enemy.attack <= contact) continue;
+      const cue = meleeWarning(enemy.attack, def.heavy, valley.parryWindow);
+      if (!cue.visible) continue;
       const at = project(enemy.x, enemy.z, supportHeight(enemy));
       if (at.x + ox < -40 || at.x + ox > w + 40 || at.y + oy < -40 || at.y + oy > h + 40) continue;
-      const progress = (ENEMY_SWING_TIME - enemy.attack) / (ENEMY_SWING_TIME - contact);
-      drawEnemyWarning(ctx, at.x + ox, at.y + oy, def.reach + 0.5, progress, def.heavy, this.reducedMotion.matches);
+      drawEnemyWarning(ctx, at.x + ox, at.y + oy, def.reach + 0.5, cue.progress, def.heavy, this.reducedMotion.matches, cue.ready);
     }
     if (this.ground.hasWater && this.ground.waterImpacts.length)
       drawWaterSpray(ctx, this.ground.waterImpacts, ox, oy);

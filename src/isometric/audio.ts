@@ -183,7 +183,8 @@ export class Sound {
       a.enemy && !v.game.state.defeated[a.enemy] && distance(a,v.player) < 13)) {
       this.mixer.playAccent('roadCadence', 0.89, 0);
     }
-    if (event.t === 'allocation' || (event.t === 'phase' && event.phase === 'settled'))
+    if (event.t === 'grant' && event.id === 'dry_bell_completion') this.reward();
+    if (event.t === 'allocation')
       this.mixer.playAccent('villageBell', 0.72, 0);
     if (event.t === 'equipment' && event.item) this.one('equip', 0.36);
     if (event.t === 'item' && event.id === 'coin') this.one('coins', 0.42);
@@ -247,6 +248,9 @@ export class Sound {
       if (['inventory', 'journal', 'map', 'pause', 'saves', 'help', 'settings', 'play'].includes(name))
         this.mixer.playMenu(name === 'play' ? 'menuClose' : 'menuOpen');
     }
+  }
+  reward() {
+    if (this.enabled) this.mixer.playAccent('gearEarned', 0.76, 0);
   }
   selection(equip = false) {
     if (this.enabled) this.mixer.playMenu(equip ? 'beltClasp' : 'menuChoose');

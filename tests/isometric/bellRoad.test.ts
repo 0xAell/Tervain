@@ -11,6 +11,7 @@ import { facadeOpening } from '../../src/isometric/architecture';
 import { sites, sitesById } from '../../src/isometric/doorways';
 import { houseStyle } from '../../src/isometric/houseStyles';
 import { floorPlan } from '../../src/isometric/roomPlans';
+import { enemyContactRemaining, meleeWarning, PARRY_WINDOW } from '../../src/isometric/fieldcraft';
 import { Valley } from '../../src/isometric/simulation';
 
 function encounter(kind: 'skirmisher' | 'deserter', distance: number) {
@@ -121,6 +122,53 @@ describe('the Bell Road', () => {
     expect(g.dispatch({ t: 'collectFordWage' }).ok).toBe(false);
     expect(g.state.inventory).toMatchObject({ coin: coins + 6, bread: bread + 1 });
     expect(fordPatrol(reviveState(g.state)!).paid).toBe(true);
+  });
+
+  it.each([30, 60, 120])('opens the visible parry cue on the same frame as a successful guard at %i Hz', hz => {
+    for (const cord of [false, true]) for (const heavy of [false, true]) {
+      const threshold = PARRY_WINDOW + (cord ? 0.04 : 0);
+      for (const [untilImpact, ready] of [[threshold, true], [threshold + 0.002, false]] as const) {
+        const valley = new Valley(new Game());
+        const enemy = valley.actors.find(a => a.key === (heavy ? 'thornback' : 'bandit') && a.enemy)!;
+        if (cord) {
+          valley.game.state.inventory.witness_cord = 1;
+          valley.game.dispatch({ t: 'wearCharm', item: 'witness_cord' });
+        }
+        valley.game.state.equippedWeapon = 'rusted_sword';
+        valley.game.setPlayerTransform(-175, 0, 18, Math.PI / 2);
+        const home = { x: -173.4, z: 18 };
+        const contact = enemyContactRemaining(heavy);
+        Object.assign(enemy, home, { home, timer: 10, attack: contact + untilImpact });
+        expect(meleeWarning(enemy.attack, heavy, valley.parryWindow)).toMatchObject({ visible: true, ready });
+        expect(meleeWarning(contact, heavy, valley.parryWindow)).toMatchObject({ visible: false, ready: false });
+        valley.guard = true;
+        for (let i = 0; i < Math.ceil(untilImpact * hz) + 1; i++) valley.step(1/hz, 0, 0, false);
+        expect(valley.contacts.at(-1)?.kind).toBe(ready ? 'parry' : 'guard');
+      }
+    }
+  });
+
+  it('interrupts a committed archer with a focused countershot and bypasses a shield from behind', () => {
+    const { valley, enemy } = encounter('skirmisher', 9);
+    enemy.timer = 1.4;
+    valley.game.state.equippedWeapon = 'hunting_bow';
+    valley.startAttack(enemy);
+    frames(valley, 86);
+    expect(valley.bowFocus).toBe(1);
+    expect(enemy.aimed?.owner).toBe(enemy.enemy);
+    const hp = enemy.health;
+    valley.releaseAttack();
+    frames(valley, 24);
+    expect(enemy.health).toBe(hp - 43);
+    expect(enemy.aimed).toBeUndefined();
+    expect(valley.arrows.some(a => a.owner)).toBe(false);
+
+    const flank = encounter('deserter', 1.7);
+    flank.enemy.guardYaw = Math.PI / 2;
+    flank.enemy.timer = 6;
+    flank.valley.startAttack(flank.enemy);
+    frames(flank.valley, 26);
+    expect(flank.valley.contacts.at(-1)).toMatchObject({ kind: 'blade', damage: 29 });
   });
 
   it('keeps a nearby duellist outlined when a second opponent draws at range', () => {
