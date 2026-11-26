@@ -34,7 +34,7 @@ The editable PNG sequences, original provider images and typeface are in `assets
 - **Assets.** The playable cast, animals, scenery and instruments are built from editable source. [Village, terrain and character comparisons](docs/production/releases/0.1.27.md#gameplay-and-comparisons) · [Score and soundscapes](docs/engineering/bell-road-audio.json).
 - **Not started.** A desktop package, and anything to do with a store release.
 
-The road leads from the wreck through the old pines to a caravan camp above Rillford. A bell phrase from the title returns in the shoreline flute, Rillford’s struck wire and the old mill’s homecoming music. [The Bell Road score and soundscapes](docs/engineering/bell-road-audio.json).
+The road leads from the wreck through the old pines to a caravan camp above Rillford. A bell phrase from the title returns in the shoreline flute, Rillford’s struck wire and three different endings. Tuned glass accompanies the working mill, a low viol plays at the empty one, and flute trades the tune with struck wood when the crews share shifts. [The Bell Road score and soundscapes](docs/engineering/bell-road-audio.json).
 
 ## What is in the prototype
 
@@ -51,7 +51,7 @@ The prototype is one small region, 580 m by 340 m: a coast, a wood, a waystation
 - A day and a night, adaptive music, footsteps by surface, and captioned speech.
 - Inventory, equipment, a ten-slot hotbar, a journal and a map.
 
-The Dry Bell has branching conversations, training, evidence and competing claims on the sluice. The journal follows the evidence from the wreck to the mill. Its field guide points to the next landmark, and the final entry records who receives water after you operate the gate.
+The Dry Bell has branching conversations, training, evidence and competing claims on the sluice. The journal follows the evidence from the wreck to the mill. Its field guide points to the next landmark, and the final entry records who receives water after you operate the gate. Watch the float behind the mill during the next four game minutes. The keeper rings once for the mill and twice for the quarry. [See the wheel and gauge](docs/media/bell-road/0.1.27-waterworks.webp) · [Hear the keeper’s bells](docs/media/bell-road/0.1.27-keepers-bells.m4a).
 
 <p align="center">
   <img src="docs/media/bell-road/0.1.27-houses.webp" width="100%" alt="Six Rillford interiors with the weaver’s indigo cloth, carpenter’s trestles, herb racks, hides, threshing floor and brewhouse drains.">
